@@ -22,6 +22,7 @@
       </div>
 
       <OptionBoolean v-if="record.OptType == optTypeBool" :record="record" :successState="successState" :errorState="errorState"></OptionBoolean>
+      <OptionIntSecurityLevel v-else-if="record.ExternalOptType == 'security level'" :record="record" :successState="successState" :errorState="errorState"></OptionIntSecurityLevel>
       <OptionInt v-else-if="record.OptType == optTypeInt" :record="record" :successState="successState" :errorState="errorState"></OptionInt>
       <OptionStringArrayCountries v-else-if="record.ExternalOptType == 'country list'" :record="record" :successState="successState" :errorState="errorState"></OptionStringArrayCountries>
       <OptionStringArray v-else-if="record.OptType == optTypeStringArray" :record="record" :successState="successState" :errorState="errorState"></OptionStringArray>
@@ -43,6 +44,7 @@
     <div v-bind:class="[!inactiveState ? 'inactive' : '', 'column']">
 
       <OptionBoolean v-if="record.OptType == optTypeBool" :record="record" :displayDefault="true"></OptionBoolean>
+      <OptionIntSecurityLevel v-else-if="record.ExternalOptType == 'security level'" :record="record" :displayDefault="true"></OptionIntSecurityLevel>
       <OptionInt v-else-if="record.OptType == optTypeInt" :record="record" :displayDefault="true"></OptionInt>
       <OptionStringArray v-else-if="record.OptType == optTypeStringArray" :record="record" :displayDefault="true"></OptionStringArray>
       <OptionString v-else :record="record" :displayDefault="true"></OptionString>
@@ -58,6 +60,7 @@ import OptionStringSelect from "./OptionStringSelect.vue";
 import OptionStringArray from "./OptionStringArray.vue";
 import OptionStringArrayCountries from "./OptionStringArrayCountries.vue";
 import OptionBoolean from "./OptionBoolean.vue";
+import OptionIntSecurityLevel from "./OptionIntSecurityLevel.vue";
 import OptionInt from "./OptionInt.vue";
 
 export default {
@@ -68,6 +71,7 @@ export default {
     OptionStringArray,
     OptionStringArrayCountries,
     OptionBoolean,
+    OptionIntSecurityLevel,
     OptionInt
   },
   props: {

@@ -8,11 +8,10 @@
     </div>
 
     <div class="ui action input" v-else-if="!editing || successState">
-      <div :id="dropdownID" class="ui multiple selection dropdown no-input">
-        <input type="hidden" v-model="ValueList">
-        <i class="dropdown icon"></i>
-        <div class="default text">{{ ValueList }}</div>
-        <CountryList></CountryList>
+      <div id="viewValue" class="ui inline form">
+        <div class="field">
+          <textarea rows="2" :value="Value" readonly></textarea>
+        </div>
       </div>
 
       <button class="ui icon button" v-on:click="startEdit">
@@ -24,12 +23,19 @@
     </div>
 
     <div class="ui action input" v-else>
-      <div :id="dropdownID" class="ui multiple selection dropdown">
+      <div id="viewValue" class="ui inline form">
+        <div class="field">
+          <textarea rows="2" v-model="newValue"></textarea>
+        </div>
+      </div>
+
+      <!-- Dropdown edition, buggy -->
+      <!-- <div :id="dropdownID" class="ui multiple selection dropdown">
         <input type="hidden" v-model="ValueList">
         <i class="dropdown icon"></i>
         <div class="default text">{{ ValueList }}</div>
         <CountryList></CountryList>
-      </div>
+      </div> -->
 
       <button class="ui icon button" v-on:click="updateValue">
         <i class="check icon"></i>
@@ -78,8 +84,8 @@ export default {
   },
   methods: {
     updateValue() {
-      this.newValue = $('#' + this.dropdownID).children('input').first().val()
-      console.log(this.newValue)
+      // for dropdown edition:
+      // this.newValue = $('#' + this.dropdownID).children('input').first().val()
       var splitted = this.newValue.split(",")
       for (var i = 0; i < splitted.length; i++) {
         splitted[i] = splitted[i].trim();
@@ -101,9 +107,6 @@ export default {
   },
   updated() {
     $('#' + this.dropdownID).dropdown();
-  },
-  mounted() {
-    $('#' + this.dropdownID).dropdown();
   }
 };
 </script>
@@ -122,5 +125,9 @@ export default {
   .ui.multiple.dropdown {
     padding-right: 0.357143em;
   }
+}
+
+a.ui.label {
+  display: none !important;
 }
 </style>
