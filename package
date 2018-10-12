@@ -1,0 +1,29 @@
+#!/bin/bash
+
+baseDir="$( cd "$(dirname "$0")" && pwd )"
+cd "$baseDir"
+
+echo "cleaning current dist folder"
+rm -rf dist
+mkdir dist
+
+for app in *; do
+  if [[ -d "$app/dist" ]]; then
+    echo -e "\npackaging $app\n"
+
+    cd $app/dist
+
+    rm -rf "assets"
+    zip -r ../../dist/settings.zip *
+
+    cd "$baseDir"
+  fi
+done
+
+assetsDir="assets"
+if [[ -d "$assetsDir" || -L "$assetsDir" ]]; then
+  echo -e "\npackaging assets\n"
+  cd "$assetsDir"
+  zip -r ../dist/assets.zip *
+  cd "$baseDir"
+fi
