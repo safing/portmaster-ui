@@ -15,5 +15,6 @@ export default {
 };
 </script>
 
-<style lang="scss">
+<style>
+@import "./assets/themed/fomantic/semantic.min.css";
 </style>

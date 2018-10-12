@@ -45,19 +45,21 @@ export default {
   },
   methods: {
     updateValue() {
-      this.$parent.updateValue(this.newValue)
+      this.$parent.updateValue(this.newValue);
     },
     deleteValue() {
-      this.$parent.deleteValue()
+      this.$parent.deleteValue();
     },
     startEdit(event) {
-      this.$parent.resetState()
-      this.editing = true
-      $(event.target).siblings("input").focus()
+      this.$parent.resetState();
+      this.editing = true;
+      $(event.target)
+        .siblings("input")
+        .focus();
     },
     endEdit() {
-      this.$parent.resetState()
-      this.editing = false
+      this.$parent.resetState();
+      this.editing = false;
     }
   }
 };

@@ -1,14 +1,14 @@
 function parseObject(data) {
   if (data[0] == "J") {
-    return JSON.parse(data.slice(1))
+    return JSON.parse(data.slice(1));
   }
-  return null
+  return null;
 }
 
 function install(vue, options) {
   if (!options.hasOwnProperty("url")) {
     console.error("PortAPI requires option 'url'.");
-    return
+    return;
   }
 
   // vue.prototype.$queries = {}
@@ -71,9 +71,9 @@ function install(vue, options) {
       //    131|error|<message>
       return vue.portapi.newRequest(name, "delete", key);
     }
-  }
+  };
   vue.portapi = {
-    debug: (options.debug == true) ? true : false,
+    debug: options.debug == true ? true : false,
     conn: null,
     connected: false,
     requestQueue: [],
@@ -81,110 +81,114 @@ function install(vue, options) {
     requests: {},
     requestCnt: 0,
     connect() {
-  		vue.portapi.ws = new WebSocket(vue.portapi.url)
+      vue.portapi.ws = new WebSocket(vue.portapi.url);
 
-  		vue.portapi.ws.onopen = function() {
-  	    if (vue.portapi.debug) console.log('connection to api established');
+      vue.portapi.ws.onopen = function() {
+        if (vue.portapi.debug) console.log("connection to api established");
 
-        vue.portapi.connected = true
+        vue.portapi.connected = true;
 
         // send queued requests
         vue.portapi.requestQueue.forEach(function(requestText) {
           vue.portapi.ws.send(requestText);
-          if (vue.portapi.debug) console.log('sending queued request: ' + requestText);
+          if (vue.portapi.debug)
+            console.log("sending queued request: " + requestText);
         });
-        vue.portapi.requestQueue = []
-  		}
+        vue.portapi.requestQueue = [];
+      };
 
-  		vue.portapi.ws.onerror = function (error) {
-  			if (vue.portapi.debug) console.log('connection error: ' + error);
-        vue.portapi.connected = false
+      vue.portapi.ws.onerror = function(error) {
+        if (vue.portapi.debug) console.log("connection error: " + error);
+        vue.portapi.connected = false;
 
-        console.log('lost connection, waiting...')
-        setTimeout(function(){
-          console.log('reconnecting...')
+        console.log("lost connection, waiting...");
+        setTimeout(function() {
+          console.log("reconnecting...");
           vue.portapi.connect();
         }, 1000);
-  		}
+      };
 
-  		vue.portapi.ws.onmessage = function (e) {
-  			var reader = new FileReader()
-  			reader.onload = function(e) {
-          console.log("DEBUG: recv: " + e.target.result)
-          var splitted = e.target.result.split("|")
+      vue.portapi.ws.onmessage = function(e) {
+        var reader = new FileReader();
+        reader.onload = function(e) {
+          console.log("DEBUG: recv: " + e.target.result);
+          var splitted = e.target.result.split("|");
 
           // dirty hack :(
           if (splitted.length > 4) {
-            splitted[3] = splitted.slice(3).join("|")
+            splitted[3] = splitted.slice(3).join("|");
           }
 
           if (splitted.length < 2) {
             console.log("received invalid message: " + e.target.result);
-            return
+            return;
           }
 
-          var opID = splitted[0]
-          var opObject = vue.portapi.requests[opID]
+          var opID = splitted[0];
+          var opObject = vue.portapi.requests[opID];
           if (opObject == undefined) {
             console.log("no opObject with ID " + opID);
-            return
+            return;
           }
 
-          var msgType = splitted[1]
+          var msgType = splitted[1];
           switch (msgType) {
             case "ok":
               //    127|ok|<key>|<data>
               if (opObject.type == "get") {
-                opObject.record = parseObject(splitted[3])
+                opObject.record = parseObject(splitted[3]);
               } else {
                 if (splitted.length != 4) {
-                  console.log("AAAAAH!")
+                  console.log("AAAAAH!");
                 }
-                console.log(splitted[3])
-                vue.set(opObject.records, splitted[2], parseObject(splitted[3]))
+                console.log(splitted[3]);
+                vue.set(
+                  opObject.records,
+                  splitted[2],
+                  parseObject(splitted[3])
+                );
               }
               break;
             case "done":
               //    127|done
-              opObject.loading = false
+              opObject.loading = false;
               break;
             case "success":
               //    127|done
-              opObject.success = true
-              opObject.loading = false
+              opObject.success = true;
+              opObject.loading = false;
               break;
             case "error":
               //    127|error|<message>
-              opObject.error = splitted[2]
-              opObject.loading = false
+              opObject.error = splitted[2];
+              opObject.loading = false;
               break;
             case "upd":
               //    127|upd|<key>|<data>
-              vue.set(opObject.records, splitted[2], parseObject(splitted[3]))
+              vue.set(opObject.records, splitted[2], parseObject(splitted[3]));
               break;
             case "new":
               //    127|new|<key>|<data>
-              vue.set(opObject.records, splitted[2], parseObject(splitted[3]))
+              vue.set(opObject.records, splitted[2], parseObject(splitted[3]));
               break;
             case "delete":
               //    127|delete|<key>|<data>
-              delete opObject.records[splitted[2]]
+              delete opObject.records[splitted[2]];
               break;
             case "warning":
               //    127|warning|<message> // error with single record, operation continues
               opObject.warnings.append(splitted[2]);
               break;
             default:
-              console.log("received invalid message type: " + e.target.result)
-              return
+              console.log("received invalid message type: " + e.target.result);
+              return;
           }
 
           console.log("updated " + opID);
           console.log(opObject);
-
-        }
-  			reader.readAsText(e.data);
-  		}
+        };
+        reader.readAsText(e.data);
+      };
     },
     newRequest(name, msgType, msgText, data) {
       if (name == undefined || name == null || name == "") {
@@ -197,21 +201,21 @@ function install(vue, options) {
         success: false,
         warnings: [],
         error: null,
-        changeCnt: 0,
+        changeCnt: 0
       };
-      vue.portapi.requests[name] = opObject
+      vue.portapi.requests[name] = opObject;
 
-      var requestText = name + "|" + msgType + "|" + msgText
+      var requestText = name + "|" + msgType + "|" + msgText;
       if (data != undefined) {
-        requestText += "|" + JSON.stringify(data)
+        requestText += "|" + JSON.stringify(data);
       }
 
       if (vue.portapi.connected) {
-        if (vue.portapi.debug) console.log('sending request: ' + requestText);
+        if (vue.portapi.debug) console.log("sending request: " + requestText);
         vue.portapi.ws.send(requestText);
       } else {
-        if (vue.portapi.debug) console.log('queueing request: ' + requestText);
-        vue.portapi.requestQueue.push(requestText)
+        if (vue.portapi.debug) console.log("queueing request: " + requestText);
+        vue.portapi.requestQueue.push(requestText);
       }
 
       console.log("added " + name);
@@ -219,11 +223,10 @@ function install(vue, options) {
     }
   };
 
-  vue.portapi.connect()
+  vue.portapi.connect();
   // setTimeout(function(){
   //   vue.portapi.ws.send("#0|qsub|query config");
   // }, 3000);
-
 }
 
 const PortAPI = {

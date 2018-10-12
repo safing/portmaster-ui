@@ -46,23 +46,25 @@ export default {
   },
   methods: {
     updateValue() {
-      var parsed = parseInt(this.newValue, 10)
+      var parsed = parseInt(this.newValue, 10);
       if (isNaN(parsed)) {
-        this.$parent.updateValue(parsed, "not a number")
+        this.$parent.updateValue(parsed, "not a number");
       }
-      this.$parent.updateValue(parsed)
+      this.$parent.updateValue(parsed);
     },
     deleteValue() {
-      this.$parent.deleteValue()
+      this.$parent.deleteValue();
     },
     startEdit(event) {
-      this.$parent.resetState()
-      this.editing = true
-      $(event.target).siblings("input").focus()
+      this.$parent.resetState();
+      this.editing = true;
+      $(event.target)
+        .siblings("input")
+        .focus();
     },
     endEdit() {
-      this.$parent.resetState()
-      this.editing = false
+      this.$parent.resetState();
+      this.editing = false;
     }
   }
 };

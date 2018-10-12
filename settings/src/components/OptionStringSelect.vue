@@ -21,7 +21,7 @@
         <i class="dropdown icon"></i>
         <div class="default text">{{ newValue }}</div>
         <div class="menu">
-          <div v-for="item in selectList" class="item" :data-value="item">{{ item }}</div>
+          <div v-for="(item, index) in selectList" class="item" :key="index" :data-value="item">{{ item }}</div>
         </div>
       </div>
 
@@ -53,34 +53,39 @@ export default {
   },
   computed: {
     selectList() {
-      var trimmed = this.record.ValidationRegex.replace(/[()^$]/g,'');
+      var trimmed = this.record.ValidationRegex.replace(/[()^$]/g, "");
       var list = trimmed.split("|");
       return list;
     },
     dropdownID() {
-      return this._uid + "_dropdown"
+      return this._uid + "_dropdown";
     }
   },
   methods: {
     updateValue() {
-      this.newValue = $('#' + this.dropdownID).children('input').first().val()
-      this.$parent.updateValue(this.newValue)
+      this.newValue = $("#" + this.dropdownID)
+        .children("input")
+        .first()
+        .val();
+      this.$parent.updateValue(this.newValue);
     },
     deleteValue() {
-      this.$parent.deleteValue()
+      this.$parent.deleteValue();
     },
     startEdit(event) {
-      this.$parent.resetState()
-      this.editing = true
-      $(event.target).siblings("input").focus()
+      this.$parent.resetState();
+      this.editing = true;
+      $(event.target)
+        .siblings("input")
+        .focus();
     },
     endEdit() {
-      this.$parent.resetState()
-      this.editing = false
+      this.$parent.resetState();
+      this.editing = false;
     }
   },
   updated() {
-    $('#' + this.dropdownID).dropdown();
+    $("#" + this.dropdownID).dropdown();
   }
 };
 </script>

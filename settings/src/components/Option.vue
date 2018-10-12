@@ -92,92 +92,104 @@ export default {
   computed: {
     successState() {
       if (this.request.success === true) {
-        return true
+        return true;
       }
-      return false
+      return false;
     },
     errorState() {
       if (this.validationError !== "") {
-        return true
+        return true;
       }
-      if (this.request.hasOwnProperty('error') && this.request.error !== "") {
-        return true
+      if (this.request.hasOwnProperty("error") && this.request.error !== "") {
+        return true;
       }
-      return false
+      return false;
     },
     loadingState() {
-      if (this.request.hasOwnProperty('success') && this.request.success === false && this.request.error === "") {
-        return true
+      if (
+        this.request.hasOwnProperty("success") &&
+        this.request.success === false &&
+        this.request.error === ""
+      ) {
+        return true;
       }
-      return false
+      return false;
     },
     inactiveState() {
-      if (this.record.hasOwnProperty('Value') && this.record.Value !== null) {
-        return false
+      if (this.record.hasOwnProperty("Value") && this.record.Value !== null) {
+        return false;
       }
-      return true
+      return true;
     }
   },
   methods: {
     updateValue(newValue, error) {
-
       if (error != undefined) {
-        this.validationError = error
-        return
+        this.validationError = error;
+        return;
       }
 
       // regex
-      if (this.record.ValidationRegex != undefined && this.record.ValidationRegex != "") {
+      if (
+        this.record.ValidationRegex != undefined &&
+        this.record.ValidationRegex != ""
+      ) {
         var re = new RegExp(this.record.ValidationRegex);
 
-        switch (typeof newValue){
-          case 'string':
+        switch (typeof newValue) {
+          case "string":
             if (!re.test(newValue)) {
-              this.validationError = "validation regex `" + this.record.ValidationRegex + "` failed"
-              return
+              this.validationError =
+                "validation regex `" + this.record.ValidationRegex + "` failed";
+              return;
             }
             break;
-          case 'number':
+          case "number":
             if (!re.test(String(newValue))) {
-              this.validationError = "validation regex `" + this.record.ValidationRegex + "` failed"
-              return
+              this.validationError =
+                "validation regex `" + this.record.ValidationRegex + "` failed";
+              return;
             }
             break;
-          case 'object':
+          case "object":
             var vm = this;
             newValue.forEach(function(val) {
               if (!re.test(val)) {
-                vm.validationError = "validation regex `" + vm.record.ValidationRegex + "` failed for value " + val
-                return
+                vm.validationError =
+                  "validation regex `" +
+                  vm.record.ValidationRegex +
+                  "` failed for value " +
+                  val;
+                return;
               }
             });
             break;
-          case 'boolean':
+          case "boolean":
             break;
           default:
-            this.validationError = "invalid value (internal error: wrong type)"
+            this.validationError = "invalid value (internal error: wrong type)";
             return;
         }
       }
-      this.validationError = ""
+      this.validationError = "";
 
       var data = {
         Value: newValue
-      }
+      };
       // var rec = this.record
       // Object.keys(rec).forEach(function(key) {
       //   data[key] = rec[key]
       // });
       // data.Value = newValue
 
-      this.request = this.$api.insert(this.rKey, data)
+      this.request = this.$api.insert(this.rKey, data);
     },
     deleteValue() {
-      this.request = this.$api.insert(this.rKey, {Value: null})
+      this.request = this.$api.insert(this.rKey, { Value: null });
     },
     resetState() {
-      this.validationError = ""
-      this.request = {}
+      this.validationError = "";
+      this.request = {};
     }
   }
 };

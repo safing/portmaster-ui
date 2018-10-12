@@ -29,7 +29,7 @@
           </div>
         </div>
 
-        <Option v-for="(record, rKey) in op.records" v-bind:rKey="rKey" v-bind:record="record"/>
+        <Option v-for="(record, rKey) in op.records" v-bind:key="rKey" v-bind:rKey="rKey" v-bind:record="record"/>
 
       </div>
     </div>

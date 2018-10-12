@@ -49,37 +49,43 @@ export default {
   },
   data() {
     return {
-      newValue: this.record.hasOwnProperty("Value") ? this.record.Value.join(", ") : "",
+      newValue: this.record.hasOwnProperty("Value")
+        ? this.record.Value.join(", ")
+        : "",
       editing: false
     };
   },
   computed: {
     Value() {
-      return this.record.hasOwnProperty("Value") ? this.record.Value.join(", ") : ""
+      return this.record.hasOwnProperty("Value")
+        ? this.record.Value.join(", ")
+        : "";
     },
     DefaultValue() {
-      return this.record.DefaultValue.join(", ")
+      return this.record.DefaultValue.join(", ");
     }
   },
   methods: {
     updateValue() {
-      var splitted = this.newValue.split(",")
+      var splitted = this.newValue.split(",");
       for (var i = 0; i < splitted.length; i++) {
         splitted[i] = splitted[i].trim();
       }
-      this.$parent.updateValue(splitted)
+      this.$parent.updateValue(splitted);
     },
     deleteValue() {
-      this.$parent.deleteValue()
+      this.$parent.deleteValue();
     },
     startEdit(event) {
-      this.$parent.resetState()
-      this.editing = true
-      $(event.target).siblings("input").focus()
+      this.$parent.resetState();
+      this.editing = true;
+      $(event.target)
+        .siblings("input")
+        .focus();
     },
     endEdit() {
-      this.$parent.resetState()
-      this.editing = false
+      this.$parent.resetState();
+      this.editing = false;
     }
   }
 };
