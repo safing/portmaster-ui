@@ -76,37 +76,42 @@ export default {
   },
   computed: {
     dropdownID() {
-      return this._uid + "_dropdown"
+      return this._uid + "_dropdown";
     }
   },
   methods: {
     updateValue() {
-      this.newValue = $('#' + this.dropdownID).children('input').first().val()
+      this.newValue = $("#" + this.dropdownID)
+        .children("input")
+        .first()
+        .val();
 
-      var parsed = parseInt(this.newValue, 10)
+      var parsed = parseInt(this.newValue, 10);
       if (isNaN(parsed)) {
-        this.$parent.updateValue(parsed, "not a number")
+        this.$parent.updateValue(parsed, "not a number");
       }
-      this.$parent.updateValue(parsed)
+      this.$parent.updateValue(parsed);
     },
     deleteValue() {
-      this.$parent.deleteValue()
+      this.$parent.deleteValue();
     },
-    startEdit(event) {
-      this.$parent.resetState()
-      this.editing = true
+    startEdit() {
+      this.$parent.resetState();
+      this.editing = true;
     },
     endEdit() {
-      this.$parent.resetState()
-      this.editing = false
-      $(event.target).siblings("input").focus()
+      this.$parent.resetState();
+      this.editing = false;
+      $(event.target)
+        .siblings("input")
+        .focus();
     },
     setNewValue(number) {
-      this.newValue = number
+      this.newValue = number;
     }
   },
   updated() {
-    $('#' + this.dropdownID).dropdown();
+    $("#" + this.dropdownID).dropdown();
   }
 };
 </script>
@@ -123,6 +128,6 @@ export default {
 
 .ui.selection.dropdown.no-input {
   text-align: center;
-  padding: .78571429em 1em;
+  padding: 0.78571429em 1em;
 }
 </style>
