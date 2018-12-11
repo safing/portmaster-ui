@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div style="padding: 40px;">
     <h1>Settings</h1>
     <p v-if="op.loading">
       loading...

@@ -97,8 +97,11 @@ function install(vue, options) {
         vue.portapi.requestQueue = [];
       };
 
-      vue.portapi.ws.onerror = function(error) {
-        if (vue.portapi.debug) console.log("connection error: " + error);
+      vue.portapi.ws.onclose = function(event) {
+        if (vue.portapi.debug) {
+          console.log("connection closed:");
+          console.log(event);
+        }
         vue.portapi.connected = false;
 
         console.log("lost connection, waiting...");
