@@ -114,7 +114,7 @@ function install(vue, options) {
       vue.portapi.ws.onmessage = function(e) {
         var reader = new FileReader();
         reader.onload = function(e) {
-          console.log("DEBUG: recv: " + e.target.result);
+          // console.log("DEBUG: recv: " + e.target.result);
           var splitted = e.target.result.split("|");
 
           // dirty hack :(
@@ -144,7 +144,6 @@ function install(vue, options) {
                 if (splitted.length != 4) {
                   console.log("AAAAAH!");
                 }
-                console.log(splitted[3]);
                 vue.set(
                   opObject.records,
                   splitted[2],
@@ -187,8 +186,8 @@ function install(vue, options) {
               return;
           }
 
-          console.log("updated " + opID);
-          console.log(opObject);
+          // console.log("updated " + opID);
+          // console.log(opObject);
         };
         reader.readAsText(e.data);
       };
