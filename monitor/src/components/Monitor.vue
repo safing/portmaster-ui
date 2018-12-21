@@ -1,9 +1,11 @@
 <template>
-  <div class="ui internally celled grid" style="height: 100%;">
+  <div class="ui internally celled grid" style="min-height: 100vh;">
 
     <!-- SIDEBAR -->
-    <div class="five wide column">
-      <h1>Monitoring</h1>
+    <div class="five wide column list-pane-container">
+      <div class="title">
+        <h1>Monitoring</h1>
+      </div>
       <p v-if="op.loading">
         loading...
       </p>
@@ -11,42 +13,44 @@
         error: {{ op.error }}
       </div>
 
-      <div v-else class="ui one column grid container">
-        <div v-for="process in tree" v-bind:key="process.key" class="column process-list-container">
-          <div v-on:click="selectProcess(process)" class="process-item">
-            <span class="process-name">{{ process.data.Name }}</span> ({{ process.data.Pid }})
-            <div class="ui label">
-              <i class="stream icon"></i>
-              <div class="detail">
-                {{ process.data.ConnectionCount }}
-              </div>
-            </div>
-          </div>
-
-          <div class="ui one column grid container">
-            <div v-for="connection in process.children" v-bind:key="connection.key" v-on:click="selectConnection(connection)" class="column connection-item">
-              <div>
-                <Verdict :verdict="connection.data.Verdict"></Verdict>
-                <span v-if="connection.data.Domain == 'IH'" class="connection-name">Incoming from Localhost</span>
-                <span v-else-if="connection.data.Domain == 'IL'" class="connection-name">Incoming from the LAN</span>
-                <span v-else-if="connection.data.Domain == 'II'" class="connection-name">Incoming from the Internet</span>
-                <span v-else-if="connection.data.Domain == 'IX'" class="connection-name">Incoming - Invalid</span>
-                <span v-else-if="connection.data.Domain == 'PH'" class="connection-name">Peers on Localhost</span>
-                <span v-else-if="connection.data.Domain == 'PL'" class="connection-name">Peers on the LAN</span>
-                <span v-else-if="connection.data.Domain == 'PI'" class="connection-name">Peers on the Internet</span>
-                <span v-else-if="connection.data.Domain == 'PX'" class="connection-name">Peers - Invalid</span>
-                <span v-else class="connection-name">{{ connection.data.Domain }}</span>
-                <div class="ui label">
-                  <i class="project diagram icon"></i>
-                  <div class="detail">
-                    {{ connection.data.LinkCount }}
-                  </div>
+      <div v-else class="list-pane" :style="list_pane_style">
+        <div class="ui one column grid container">
+          <div v-for="process in tree" v-bind:key="process.key" class="column process-list-container">
+            <div v-on:click="selectProcess(process)" class="process-item">
+              <span class="process-name">{{ process.data.Name }}</span> ({{ process.data.Pid }})
+              <div class="ui label">
+                <i class="stream icon"></i>
+                <div class="detail">
+                  {{ process.data.ConnectionCount }}
                 </div>
               </div>
-
             </div>
-          </div>
 
+            <div class="ui one column grid container">
+              <div v-for="connection in process.children" v-bind:key="connection.key" v-on:click="selectConnection(connection)" class="column connection-item">
+                <div>
+                  <Verdict :verdict="connection.data.Verdict"></Verdict>
+                  <span v-if="connection.data.Domain == 'IH'" class="connection-name">Incoming from Localhost</span>
+                  <span v-else-if="connection.data.Domain == 'IL'" class="connection-name">Incoming from the LAN</span>
+                  <span v-else-if="connection.data.Domain == 'II'" class="connection-name">Incoming from the Internet</span>
+                  <span v-else-if="connection.data.Domain == 'IX'" class="connection-name">Incoming - Invalid</span>
+                  <span v-else-if="connection.data.Domain == 'PH'" class="connection-name">Peers on Localhost</span>
+                  <span v-else-if="connection.data.Domain == 'PL'" class="connection-name">Peers on the LAN</span>
+                  <span v-else-if="connection.data.Domain == 'PI'" class="connection-name">Peers on the Internet</span>
+                  <span v-else-if="connection.data.Domain == 'PX'" class="connection-name">Peers - Invalid</span>
+                  <span v-else class="connection-name">{{ connection.data.Domain }}</span>
+                  <div class="ui label">
+                    <i class="project diagram icon"></i>
+                    <div class="detail">
+                      {{ connection.data.LinkCount }}
+                    </div>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+
+          </div>
         </div>
       </div>
 
@@ -87,7 +91,7 @@
         <span v-else-if="selectedConnection.data.Domain == 'PX'">Peers - Invalid</span>
         <span v-else>{{ selectedConnection.data.Domain }}</span>
       </h2>
-      <div class="ui one column grid container">
+      <div class="ui one column grid">
         <div class="column">
           <h4>Direction: {{ selectedConnection.data.Direction }}</h4>
           <h4>Domain: {{ selectedConnection.data.Domain }}</h4>
@@ -159,7 +163,7 @@ import Verdict from "./Verdict.vue";
 
 function countChar(s, c) {
   var count = 0;
-  for (var i=0; i<s.length; i++) {
+  for (var i = 0; i < s.length; i++) {
     if (s[i] === c) {
       count += 1;
     }
@@ -182,88 +186,99 @@ export default {
   },
   computed: {
     tree() {
-      var tree = []
+      var tree = [];
 
       // level 1
-      var l1Keys = Object.keys(this.op.records).filter(function(key){ return countChar(key, "/") == 1 });
+      var l1Keys = Object.keys(this.op.records).filter(function(key) {
+        return countChar(key, "/") == 1;
+      });
       for (var i = 0; i < l1Keys.length; i++) {
         var process = {
           key: l1Keys[i],
           data: this.op.records[l1Keys[i]],
           children: []
-        }
-        tree.push(process)
+        };
+        tree.push(process);
 
         // level 2
-        var l2Keys = Object.keys(this.op.records).filter(function(key){ return countChar(key, "/") == 2 && key.startsWith(process.key) });
+        var l2Keys = Object.keys(this.op.records).filter(function(key) {
+          return countChar(key, "/") == 2 && key.startsWith(process.key);
+        });
         for (var j = 0; j < l2Keys.length; j++) {
           var connection = {
             key: l2Keys[j],
             data: this.op.records[l2Keys[j]],
             children: [],
-            parent: process,
-          }
-          process.children.push(connection)
+            parent: process
+          };
+          process.children.push(connection);
 
           // level 3
-          var l3Keys = Object.keys(this.op.records).filter(function(key){ return countChar(key, "/") == 3 && key.startsWith(connection.key) });
+          var l3Keys = Object.keys(this.op.records).filter(function(key) {
+            return countChar(key, "/") == 3 && key.startsWith(connection.key);
+          });
           for (var k = 0; k < l3Keys.length; k++) {
             var link = {
               key: l3Keys[k],
               data: this.op.records[l3Keys[k]],
-              parent: connection,
-            }
-            connection.children.push(link)
+              parent: connection
+            };
+            connection.children.push(link);
           }
 
           // order level 3
-          connection.children.sort(function(a, b){
-            return a.data.Started - b.data.Started
-          })
-
+          connection.children.sort(function(a, b) {
+            return a.data.Started - b.data.Started;
+          });
         }
 
         // order level 2
-        process.children.sort(function(a, b){
-          return a.data.LastLinkEstablished - b.data.LastLinkEstablished
-        })
-
+        process.children.sort(function(a, b) {
+          return a.data.LastLinkEstablished - b.data.LastLinkEstablished;
+        });
       }
 
       // order level 1
-      tree.sort(function(a, b){
-        return a.LastConnectionEstablished - b.LastConnectionEstablished
-      })
+      tree.sort(function(a, b) {
+        return a.LastConnectionEstablished - b.LastConnectionEstablished;
+      });
 
-      return tree
+      return tree;
+    },
+    list_pane_style() {
+      var h =
+        window.innerHeight ||
+        document.documentElement.clientHeight ||
+        document.body.clientHeight;
+      return "height: " + (h - 50) + "px;";
     }
   },
   methods: {
     selectProcess(p) {
-      this.selected = 1
-      this.selectedProcess = p
+      this.selected = 1;
+      this.selectedProcess = p;
     },
     selectConnection(c) {
-      this.selected = 2
-      this.selectedConnection = c
+      this.selected = 2;
+      this.selectedConnection = c;
     }
   },
   filters: {
     fmt_time(value) {
       if (value == 0) {
-        return "Never"
+        return "Never";
       }
 
-      var date = new Date(value * 1000)
-      return date.toLocaleTimeString()
+      var date = new Date(value * 1000);
+      return date.toLocaleTimeString();
     },
     fmt_datetime(value) {
       if (value == 0) {
-        return "Never"
+        return "Never";
       }
 
-      var date = new Date(value * 1000)
-      return date.toLocaleDateString() + ' ' + date.toLocaleTimeString()
+      var date = new Date(value * 1000);
+      return date.toLocaleDateString() + " " + date.toLocaleTimeString();
     }
   }
 };
@@ -278,6 +293,19 @@ export default {
   padding: 0.2em 0.4em !important;
 }
 
+.list-pane-container {
+  padding: 0 !important;
+}
+.title {
+  margin: 4px;
+  height: 41px;
+  border-bottom: 1px #ccc solid;
+}
+.list-pane {
+  height: 100vh;
+  overflow-y: scroll;
+}
+
 .process-list-container {
   margin-top: 15px;
   padding-top: 10px;
@@ -290,13 +318,16 @@ export default {
   padding-top: 5px;
   padding-bottom: 5px;
 }
-.process-item:hover, .connection-item:hover {
+.process-item:hover,
+.connection-item:hover {
   background-color: #eee;
   cursor: pointer;
 }
 .content-pane {
   padding: 50px !important;
   background-color: #eee;
+  height: 100vh;
+  overflow-y: scroll;
 }
 .content-placeholder {
   background-color: #eee;
@@ -305,26 +336,27 @@ export default {
   }
   h1 {
     text-align: center;
-    font-family:sans-serif;
+    font-family: sans-serif;
     color: #ccc;
   }
 }
 
-
-.status{
+.status {
   padding: 0 !important;
 }
-.status2{
+.status2 {
   padding: 0 0 0 1rem !important;
 }
-.status3{
+.status3 {
   padding: 0 0 0 2rem !important;
 }
-.list{
+.list {
   margin-top: 0 !important;
 }
 h4 {
   margin: 4px 0 !important;
 }
-#map { height: 180px; }
+#map {
+  height: 180px;
+}
 </style>

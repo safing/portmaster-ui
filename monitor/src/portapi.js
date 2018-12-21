@@ -144,6 +144,7 @@ function install(vue, options) {
                 if (splitted.length != 4) {
                   console.log("AAAAAH!");
                 }
+                // console.log(splitted[3]);
                 vue.set(
                   opObject.records,
                   splitted[2],
@@ -168,14 +169,17 @@ function install(vue, options) {
             case "upd":
               //    127|upd|<key>|<data>
               vue.set(opObject.records, splitted[2], parseObject(splitted[3]));
+              console.log(opID + ": update " + splitted[2]);
               break;
             case "new":
               //    127|new|<key>|<data>
               vue.set(opObject.records, splitted[2], parseObject(splitted[3]));
+              console.log(opID + ": new " + splitted[2]);
               break;
-            case "delete":
-              //    127|delete|<key>|<data>
-              delete opObject.records[splitted[2]];
+            case "del":
+              //    127|del|<key>|<data>
+              vue.delete(opObject.records, splitted[2]);
+              console.log(opID + ": delete " + splitted[2]);
               break;
             case "warning":
               //    127|warning|<message> // error with single record, operation continues
