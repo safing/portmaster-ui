@@ -19,16 +19,16 @@
       <div v-else>
         <div class="list-pane" :style="list_pane_style">
           <div class="ui one column grid container">
-            <div v-for="profile in user_profiles" v-bind:key="profile.key" class="column profile-list-container">
-              <div v-on:click="selectUserProfile(profile)" class="profile-item">
+            <div v-for="profile in user_profiles" v-bind:key="profile.DBKey" class="column profile-list-container">
+              <div v-on:click="selectUserProfile(profile.DBKey)" class="profile-item">
                 <span class="profile-name">{{ profile.Name }}</span>
               </div>
             </div>
           </div>
         </div>
         <div class="two ui buttons list-pane-footer">
-          <button class="ui button" v-on:click="selectGlobalProfile"><i class="circle icon global-profile-color"></i> Global Profile</button>
-          <button class="ui button" v-on:click="selectFallbackProfile"><i class="circle icon fallback-profile-color"></i>Fallback Profile</button>
+          <button class="ui button" v-on:click="selectGlobalProfile()"><i class="circle icon global-profile-color"></i> Global Profile</button>
+          <button class="ui button" v-on:click="selectFallbackProfile()"><i class="circle icon fallback-profile-color"></i>Fallback Profile</button>
         </div>
       </div>
 
@@ -40,8 +40,8 @@
     <div v-if="help" class="eleven wide column container content-pane">
       <Help></Help>
     </div>
-    <div v-else-if="selectedProfile != null" class="eleven wide column container content-pane">
-      <Profile v-bind:profile="selectedProfile" v-bind:profileLevel="selectedProfileLevel"></Profile>
+    <div v-else-if="selectedProfileKey != null" class="eleven wide column container content-pane">
+      <Profile v-bind:key="selectedProfileKey" v-bind:profileKey="selectedProfileKey" v-bind:profileLevel="selectedProfileLevel" v-bind:editable="true"></Profile>
     </div>
     <!-- END OF CONTENT SPACE -->
 
@@ -72,9 +72,11 @@ export default {
   data() {
     return {
       op: this.$api.qsub("query core:profiles/"),
-      selectedProfile: null,
+      selectedProfileKey: null,
       selectedProfileLevel: 0,
-      help: false
+      help: false,
+      globalProfileKey: "core:profiles/special/global",
+      fallbackProfileKey: "core:profiles/special/fallback"
     };
   },
   computed: {
@@ -84,7 +86,9 @@ export default {
         return key.startsWith("core:profiles/user/");
       });
       for (var i = 0; i < profile_keys.length; i++) {
-        profiles.push(this.op.records[profile_keys[i]]);
+        var p = this.op.records[profile_keys[i]]
+        p.DBKey = profile_keys[i]
+        profiles.push(p);
       }
       return profiles;
     },
@@ -94,15 +98,17 @@ export default {
         return key.startsWith("core:profiles/stamp/");
       });
       for (var i = 0; i < profile_keys.length; i++) {
-        profiles.push(this.op.records[profile_keys[i]]);
+        var p = this.op.records[profile_keys[i]]
+        p.DBKey = profile_keys[i]
+        profiles.push(p);
       }
       return profiles;
     },
-    global_profile() {
-      return this.op.records["core:profiles/special/global"];
+    globalProfile() {
+      return this.op.records[this.globalProfileKey]
     },
-    fallback_profile() {
-      return this.op.records["core:profiles/special/fallback"];
+    fallbackProfile() {
+      return this.op.records[this.fallbackProfileKey]
     },
     list_pane_style() {
       var h =
@@ -113,19 +119,19 @@ export default {
     }
   },
   methods: {
-    selectUserProfile(p) {
+    selectUserProfile(key) {
       this.help = false;
-      this.selectedProfile = p;
+      this.selectedProfileKey = key;
       this.selectedProfileLevel = 0;
     },
     selectGlobalProfile() {
       this.help = false;
-      this.selectedProfile = this.global_profile;
+      this.selectedProfileKey = this.globalProfileKey;
       this.selectedProfileLevel = 1;
     },
     selectFallbackProfile() {
       this.help = false;
-      this.selectedProfile = this.fallback_profile;
+      this.selectedProfileKey = this.fallbackProfileKey;
       this.selectedProfileLevel = 3;
     }
   }
@@ -183,7 +189,7 @@ export default {
 .content-pane {
   padding: 0 !important;
   background-color: #eee;
-  height: 100vh;
+  min-height: 100vh;
   overflow-y: scroll;
 }
 .content-placeholder {

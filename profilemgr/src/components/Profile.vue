@@ -19,9 +19,9 @@
       </div>
 
       <div v-if="editing" style="float: right">
-        <button class="ui orange button">Cancel</button>
-        <button class="ui green button">Save</button>
-        <div style="color: red;">Error saving Profile: ...</div>
+        <button v-on:click="endEditing()" class="ui orange button">Discard</button>
+        <button v-on:click="saveProfile()" v-bind:class="['ui green button', {'loading': saveOp.loading}]">Save</button>
+        <div v-if="saveOp.error" style="color: red;">Error saving Profile: {{ saveOp.error }}</div>
       </div>
 
       <h1>{{ profile.Name }} (Profile Level {{ profileLevel }})</h1>
@@ -47,62 +47,89 @@
       <br>
       <br>
 
-      <div class="ui segments">
-        <div class="ui segment">
-          <p>Profile Mode</p>
-        </div>
-        <div class="ui blue segment flag-segment">
-          <Flag name="Blacklist" v-bind:flag="flags[this.c.Blacklist]"></Flag>
-        </div>
-        <div class="ui segment flag-segment">
-          <Flag name="Prompt" v-bind:flag="flags[this.c.Prompt]"></Flag>
-        </div>
-        <div class="ui segment flag-segment">
-          <Flag name="Whitelist" v-bind:flag="flags[this.c.Whitelist]"></Flag>
-        </div>
+      <div class="ui three column grid">
       </div>
 
-      <div class="ui segments">
-        <div class="ui segment">
-          <p>Network Locations</p>
+      <h2>Flags</h2>
+
+      <div class="ui three column grid">
+
+        <div class="column">
+          <div class="ui segments">
+            <div class="ui segment">
+              <p>Profile Mode</p>
+            </div>
+            <div class="ui blue segment flag-segment">
+              <Flag name="Blacklist" v-bind:flag="flags[this.c.Blacklist]"></Flag>
+            </div>
+            <div class="ui segment flag-segment">
+              <Flag name="Prompt" v-bind:flag="flags[this.c.Prompt]"></Flag>
+            </div>
+            <div class="ui segment flag-segment">
+              <Flag name="Whitelist" v-bind:flag="flags[this.c.Whitelist]"></Flag>
+            </div>
+          </div>
         </div>
-        <div class="ui blue segment flag-segment">
-          <Flag name="Internet" v-bind:flag="flags[this.c.Internet]"></Flag>
+
+        <div class="column">
+          <div class="ui segments">
+            <div class="ui segment">
+              <p>Network Locations</p>
+            </div>
+            <div class="ui blue segment flag-segment">
+              <Flag name="Internet" v-bind:flag="flags[this.c.Internet]"></Flag>
+            </div>
+            <div class="ui segment flag-segment">
+              <Flag name="LAN" v-bind:flag="flags[this.c.LAN]"></Flag>
+            </div>
+            <div class="ui segment flag-segment">
+              <Flag name="Localhost" v-bind:flag="flags[this.c.Localhost]"></Flag>
+            </div>
+          </div>
         </div>
-        <div class="ui segment flag-segment">
-          <Flag name="LAN" v-bind:flag="flags[this.c.LAN]"></Flag>
+
+        <div class="column">
+          <div class="ui segments">
+            <div class="ui segment">
+              <p>Special Flags</p>
+            </div>
+            <div class="ui blue segment flag-segment">
+              <Flag name="Related" v-bind:flag="flags[this.c.Related]"></Flag>
+            </div>
+            <div class="ui segment flag-segment">
+              <Flag name="PeerToPeer" v-bind:flag="flags[this.c.PeerToPeer]"></Flag>
+            </div>
+            <div class="ui segment flag-segment">
+              <Flag name="Service" v-bind:flag="flags[this.c.Service]"></Flag>
+            </div>
+            <div class="ui segment flag-segment">
+              <Flag name="Independent" v-bind:flag="flags[this.c.Independent]"></Flag>
+            </div>
+            <div class="ui segment flag-segment">
+              <Flag name="RequireGate17" v-bind:flag="flags[this.c.RequireGate17]"></Flag>
+            </div>
+          </div>
         </div>
-        <div class="ui segment flag-segment">
-          <Flag name="Localhost" v-bind:flag="flags[this.c.Localhost]"></Flag>
-        </div>
+
       </div>
 
-      <div class="ui segments">
-        <div class="ui segment">
-          <p>Special Flags</p>
-        </div>
-        <div class="ui blue segment flag-segment">
-          <Flag name="Related" v-bind:flag="flags[this.c.Related]"></Flag>
-        </div>
-        <div class="ui segment flag-segment">
-          <Flag name="PeerToPeer" v-bind:flag="flags[this.c.PeerToPeer]"></Flag>
-        </div>
-        <div class="ui segment flag-segment">
-          <Flag name="Service" v-bind:flag="flags[this.c.Service]"></Flag>
-        </div>
-        <div class="ui segment flag-segment">
-          <Flag name="Independent" v-bind:flag="flags[this.c.Independent]"></Flag>
-        </div>
-        <div class="ui segment flag-segment">
-          <Flag name="RequireGate17" v-bind:flag="flags[this.c.RequireGate17]"></Flag>
-        </div>
+      <h2>Stamp Labels</h2>
+
+      <div class="help-text">
+        coming soon...
       </div>
+
+      <h2>Domains</h2>
+
+      <h2>Ports</h2>
 
     </div>
   </div>
 </template>
 
 <script>
+import Vue from "vue";
+
 /* eslint-disable */
 
 // Profile Levels
@@ -136,9 +163,7 @@ const RequireGate17 = 36 // Require all connections to go over Gate17
 /* eslint-enable */
 
 function mergeFlags(assignedFlags, profileFlags, profileLevel) {
-  console.log("merging " + profileLevel)
-  console.log(profileFlags)
-  if (profileFlags == null || profileFlags == undefined) {
+  if (profileFlags == undefined || profileFlags == null) {
     return;
   }
 
@@ -147,6 +172,7 @@ function mergeFlags(assignedFlags, profileFlags, profileLevel) {
     if (flagValue == undefined) continue;
 
     assignedFlags[flagID] = {
+      ID: flagID,
       IsSet: true,
       SecurityLevels: flagValue,
       ProfileLevel: profileLevel
@@ -162,12 +188,15 @@ export default {
     Flag
   },
   props: {
-    profile: Object,
-    profileLevel: Number
+    profileKey: String,
+    profileLevel: Number,
+    editable: Boolean
   },
   data() {
     return {
-      editing: true,
+      modifiedProfile: null,
+      editSwitch: false,
+      saveOp: {},
       c: {
         /* eslint-disable */
         // Profile Levels
@@ -201,25 +230,76 @@ export default {
       }
     };
   },
-  method: {},
+  methods: {
+    editableInLevel(level) {
+      if (level == this.profileLevel) {
+        return true
+      }
+      false
+    },
+    startEditing() {
+      if (!this.editing) {
+        this.editSwitch = true;
+        this.modifiedProfile = JSON.parse(JSON.stringify(this.originalProfile));
+        this.saveOp = {};
+      }
+    },
+    endEditing() {
+      this.editSwitch = false;
+      this.modifiedProfile = null;
+      this.saveOp = {};
+    },
+    saveProfile() {
+      this.saveOp = this.$api.update(this.profileKey, this.modifiedProfile)
+    },
+    setFlag(flagID, securityLevels) {
+      this.startEditing()
+      if (this.modifiedProfile.Flags == undefined || this.modifiedProfile.Flags == null) {
+        this.modifiedProfile.Flags = {}
+      }
+      Vue.set(this.modifiedProfile.Flags, flagID, securityLevels);
+    },
+    deleteFlag(flagID) {
+      this.startEditing()
+      Vue.delete(this.modifiedProfile.Flags, flagID);
+    }
+  },
   computed: {
-    stamp_profile() {
+    originalProfile() {
+      return this.$parent.op.records[this.profileKey]
+    },
+    profile() {
+      if (this.editing) {
+        return this.modifiedProfile
+      }
+      return this.originalProfile
+    },
+    stampProfile() {
       return null;
+    },
+    editing() {
+      if (this.saveOp.success) {
+        return false
+      }
+      if (this.editSwitch) {
+        return true
+      }
+      return false
     },
     flags() {
       /* eslint-disable */
       var assignedFlags = {
-        [this.c.Prompt]:        {IsSet:false, SecurityLevels: 0, ProfileLevel: 0},
-        [this.c.Blacklist]:     {IsSet:false, SecurityLevels: 0, ProfileLevel: 0},
-        [this.c.Whitelist]:     {IsSet:false, SecurityLevels: 0, ProfileLevel: 0},
-        [this.c.Internet]:      {IsSet:false, SecurityLevels: 0, ProfileLevel: 0},
-        [this.c.LAN]:           {IsSet:false, SecurityLevels: 0, ProfileLevel: 0},
-        [this.c.Localhost]:     {IsSet:false, SecurityLevels: 0, ProfileLevel: 0},
-        [this.c.Related]:       {IsSet:false, SecurityLevels: 0, ProfileLevel: 0},
-        [this.c.PeerToPeer]:    {IsSet:false, SecurityLevels: 0, ProfileLevel: 0},
-        [this.c.Service]:       {IsSet:false, SecurityLevels: 0, ProfileLevel: 0},
-        [this.c.Independent]:   {IsSet:false, SecurityLevels: 0, ProfileLevel: 0},
-        [this.c.RequireGate17]: {IsSet:false, SecurityLevels: 0, ProfileLevel: 0}
+        [this.c.Prompt]:        {IsSet:false, SecurityLevels: 0, ProfileLevel: 0, ID: this.c.Prompt},
+        [this.c.Blacklist]:     {IsSet:false, SecurityLevels: 0, ProfileLevel: 0, ID: this.c.Blacklist},
+        [this.c.Whitelist]:     {IsSet:false, SecurityLevels: 0, ProfileLevel: 0, ID: this.c.Whitelist},
+        [this.c.Internet]:      {IsSet:false, SecurityLevels: 0, ProfileLevel: 0, ID: this.c.Internet},
+        [this.c.LAN]:           {IsSet:false, SecurityLevels: 0, ProfileLevel: 0, ID: this.c.LAN},
+        [this.c.Localhost]:     {IsSet:false, SecurityLevels: 0, ProfileLevel: 0, ID: this.c.Localhost},
+        [this.c.Related]:       {IsSet:false, SecurityLevels: 0, ProfileLevel: 0, ID: this.c.Related},
+        [this.c.PeerToPeer]:    {IsSet:false, SecurityLevels: 0, ProfileLevel: 0, ID: this.c.PeerToPeer},
+        [this.c.Service]:       {IsSet:false, SecurityLevels: 0, ProfileLevel: 0, ID: this.c.Service},
+        [this.c.Independent]:   {IsSet:false, SecurityLevels: 0, ProfileLevel: 0, ID: this.c.Independent},
+        [this.c.RequireGate17]: {IsSet:false, SecurityLevels: 0, ProfileLevel: 0, ID: this.c.RequireGate17}
       }
       /* eslint-enable */
 
@@ -228,16 +308,16 @@ export default {
         mergeFlags(assignedFlags, this.profile.Flags, this.profileLevel);
       } else if (this.profileLevel == this.c.GlobalProfileLevel) {
         // show global and fallback, if global profile
-        mergeFlags(assignedFlags, this.$parent.fallback_profile.Flags, this.c.FallbackProfileLevel); // eslint-disable-line
+        mergeFlags(assignedFlags, this.$parent.fallbackProfile.Flags, this.c.FallbackProfileLevel); // eslint-disable-line
         mergeFlags(assignedFlags, this.profile.Flags, this.profileLevel);
       } else {
         // full merge
-        mergeFlags(assignedFlags, this.$parent.fallback_profile.Flags, this.c.FallbackProfileLevel); // eslint-disable-line
-        if (this.stamp_profile != null) {
-          mergeFlags(assignedFlags, this.stamp_profile.Flags, this.c.StampProfileLevel); // eslint-disable-line
+        mergeFlags(assignedFlags, this.$parent.fallbackProfile.Flags, this.c.FallbackProfileLevel); // eslint-disable-line
+        if (this.stampProfile != undefined && this.stampProfile != null) {
+          mergeFlags(assignedFlags, this.stampProfile.Flags, this.c.StampProfileLevel); // eslint-disable-line
         }
-        mergeFlags(assignedFlags, this.$parent.global_profile.Flags, this.c.GlobalProfileLevel); // eslint-disable-line
-        mergeFlags(assignedFlags, this.Flags, this.c.UserProfileLevel);
+        mergeFlags(assignedFlags, this.$parent.globalProfile.Flags, this.c.GlobalProfileLevel); // eslint-disable-line
+        mergeFlags(assignedFlags, this.profile.Flags, this.c.UserProfileLevel);
       }
       return assignedFlags;
     }
@@ -272,6 +352,7 @@ export default {
   padding: 0 !important;
 }
 .edit-glow {
+  min-height: 100vh;
   box-shadow: inset 20px 0 20px -20px orange;
 }
 .edit-info {
