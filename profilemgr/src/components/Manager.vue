@@ -19,8 +19,8 @@
       <div v-else>
         <div class="list-pane" :style="list_pane_style">
           <div class="ui one column grid container">
-            <div v-for="profile in user_profiles" v-bind:key="profile.DBKey" class="column profile-list-container">
-              <div v-on:click="selectUserProfile(profile.DBKey)" class="profile-item">
+            <div v-for="profile in userProfiles" v-bind:key="profile.dbKey" class="column profile-list-container">
+              <div v-on:click="selectUserProfile(profile.dbKey)" class="profile-item">
                 <span class="profile-name">{{ profile.Name }}</span>
               </div>
             </div>
@@ -80,35 +80,43 @@ export default {
     };
   },
   computed: {
-    user_profiles() {
+    userProfiles() {
       var profiles = [];
       var profile_keys = Object.keys(this.op.records).filter(function(key) {
         return key.startsWith("core:profiles/user/");
       });
       for (var i = 0; i < profile_keys.length; i++) {
         var p = this.op.records[profile_keys[i]]
-        p.DBKey = profile_keys[i]
+        p.dbKey = profile_keys[i]
+        p.profileLevel = 0
         profiles.push(p);
       }
       return profiles;
     },
-    stamp_profiles() {
+    stampProfiles() {
       var profiles = [];
       var profile_keys = Object.keys(this.op.records).filter(function(key) {
         return key.startsWith("core:profiles/stamp/");
       });
       for (var i = 0; i < profile_keys.length; i++) {
         var p = this.op.records[profile_keys[i]]
-        p.DBKey = profile_keys[i]
+        p.dbKey = profile_keys[i]
+        p.profileLevel = 2
         profiles.push(p);
       }
       return profiles;
     },
     globalProfile() {
-      return this.op.records[this.globalProfileKey]
+      var p = this.op.records[this.globalProfileKey]
+      p.dbKey = this.globalProfileKey
+      p.profileLevel = 1
+      return p
     },
     fallbackProfile() {
-      return this.op.records[this.fallbackProfileKey]
+      var p = this.op.records[this.fallbackProfileKey]
+      p.dbKey = this.globalProfileKey
+      p.profileLevel = 3
+      return p
     },
     list_pane_style() {
       var h =

@@ -8,23 +8,23 @@
 
       <div class="ui center aligned basic segment">
         <div class="ui large breadcrumb">
-          <i class="circle icon user-profile-color"></i><div v-bind:class="[{'active': profileLevel == c.UserProfileLevel}, 'section']">User Profile</div>
+          <i class="circle icon user-profile-color"></i><div v-bind:class="[{'active': profile.profileLevel == c.UserProfileLevel}, 'section']">User Profile</div>
           <i class="right chevron icon divider"></i>
-          <i class="circle icon global-profile-color"></i><div v-bind:class="[{'active': profileLevel == c.GlobalProfileLevel}, 'section']">Global Profile</div>
+          <i class="circle icon global-profile-color"></i><div v-bind:class="[{'active': profile.profileLevel == c.GlobalProfileLevel}, 'section']">Global Profile</div>
           <i class="right chevron icon divider"></i>
-          <i class="circle icon stamp-profile-color"></i><div v-bind:class="[{'active': profileLevel == c.StampProfileLevel}, 'section']">Stamp Profile</div>
+          <i class="circle icon stamp-profile-color"></i><div v-bind:class="[{'active': profile.profileLevel == c.StampProfileLevel}, 'section']">Stamp Profile</div>
           <i class="right chevron icon divider"></i>
-          <i class="circle icon fallback-profile-color"></i><div v-bind:class="[{'active': profileLevel == c.FallbackProfileLevel}, 'section']">Fallback Profile</div>
+          <i class="circle icon fallback-profile-color"></i><div v-bind:class="[{'active': profile.profileLevel == c.FallbackProfileLevel}, 'section']">Fallback Profile</div>
         </div>
       </div>
 
-      <div v-if="editing" style="float: right">
+      <div v-if="editing" style="float: right;">
         <button v-on:click="endEditing()" class="ui orange button">Discard</button>
         <button v-on:click="saveProfile()" v-bind:class="['ui green button', {'loading': saveOp.loading}]">Save</button>
         <div v-if="saveOp.error" style="color: red;">Error saving Profile: {{ saveOp.error }}</div>
       </div>
 
-      <h1>{{ profile.Name }} (Profile Level {{ profileLevel }})</h1>
+      <h1>{{ profile.Name }} (Profile Level {{ profile.profileLevel }})</h1>
 
       <ul>
         <li>ApproxLastUsed: {{ profile.ApproxLastUsed|fmt_datetime }}</li>
@@ -121,6 +121,17 @@
 
       <h2>Domains</h2>
 
+      <div class="ui segments">
+
+        <div v-for="entry in domains" v-bind:key="entry.domain" class="ui segment domain-segment">
+          <Domain v-bind:entry="entry"></Domain>
+        </div>
+        <div class="ui secondary segment">
+          <Domain v-bind:entry="getNewDomain('')"></Domain>
+        </div>
+
+      </div>
+
       <h2>Ports</h2>
 
     </div>
@@ -162,34 +173,35 @@ const RequireGate17 = 36 // Require all connections to go over Gate17
 
 /* eslint-enable */
 
-function mergeFlags(assignedFlags, profileFlags, profileLevel) {
-  if (profileFlags == undefined || profileFlags == null) {
+function mergeFlags(assignedFlags, profile) {
+  if (profile.Flags == undefined || profile.Flags == null) {
     return;
   }
 
   for (var flagID in assignedFlags) {
-    var flagValue = profileFlags[flagID];
+    var flagValue = profile.Flags[flagID];
     if (flagValue == undefined) continue;
 
     assignedFlags[flagID] = {
       ID: flagID,
       IsSet: true,
       SecurityLevels: flagValue,
-      ProfileLevel: profileLevel
+      ProfileLevel: profile.profileLevel
     }
   }
 }
 
 import Flag from "./Flag.vue";
+import Domain from "./Domain.vue";
 
 export default {
   name: "Profile",
   components: {
-    Flag
+    Flag,
+    Domain
   },
   props: {
     profileKey: String,
-    profileLevel: Number,
     editable: Boolean
   },
   data() {
@@ -232,7 +244,7 @@ export default {
   },
   methods: {
     editableInLevel(level) {
-      if (level == this.profileLevel) {
+      if (level == this.profile.profileLevel) {
         return true
       }
       false
@@ -262,6 +274,45 @@ export default {
     deleteFlag(flagID) {
       this.startEditing()
       Vue.delete(this.modifiedProfile.Flags, flagID);
+    },
+    getNewDomain(domain) {
+      return {
+        domain: domain,
+        profileLevel: this.profile.profileLevel,
+        Permit: false,
+        Created: 0,
+        IncludeSubdomains: true,
+      }
+    },
+    updateDomain(domain, newDomain) {
+      if (newDomain == "") {
+        return;
+      }
+      this.startEditing()
+      if (domain == "") {
+        if (this.modifiedProfile.Domains == undefined || this.modifiedProfile.Domains == null) {
+          this.modifiedProfile.Domains = {}
+        }
+        Vue.set(this.modifiedProfile.Domains, newDomain, this.getNewDomain(newDomain))
+      } else {
+        var entry = this.modifiedProfile.Domains[domain]
+        if (entry != undefined) {
+          entry.domain = newDomain
+          Vue.set(this.modifiedProfile.Domains, entry.domain, entry)
+          Vue.delete(this.modifiedProfile.Domains, domain)
+        }
+      }
+    },
+    setDomainDecision(domain, permit) {
+      this.startEditing()
+      this.modifiedProfile.Domains[domain].Permit = permit
+    },
+    setDomainIncludeSubs(domain, includeSubs) {
+      this.startEditing()
+      this.modifiedProfile.Domains[domain].IncludeSubdomains = includeSubs
+    },
+    deleteDomain(domain) {
+      Vue.delete(this.modifiedProfile.Domains, domain)
     }
   },
   computed: {
@@ -286,6 +337,28 @@ export default {
       }
       return false
     },
+    profileStack() {
+      var stack = []
+
+      if (this.profile.profileLevel >= this.c.StampProfileLevel) {
+        // only show current profile, if stamp or fallback profile
+        stack.push(this.profile)
+      } else if (this.profile.profileLevel == this.c.GlobalProfileLevel) {
+        // show global and fallback, if global profile
+        stack.push(this.profile)
+        stack.push(this.$parent.fallbackProfile)
+      } else {
+        // full stack
+        stack.push(this.profile)
+        stack.push(this.$parent.globalProfile)
+        if (this.stampProfile != null) {
+          stack.push(this.stampProfile)
+        }
+        stack.push(this.$parent.fallbackProfile)
+      }
+
+      return stack
+    },
     flags() {
       /* eslint-disable */
       var assignedFlags = {
@@ -303,23 +376,40 @@ export default {
       }
       /* eslint-enable */
 
-      if (this.profileLevel >= this.c.StampProfileLevel) {
-        // only show current profile, if stamp or fallback profile
-        mergeFlags(assignedFlags, this.profile.Flags, this.profileLevel);
-      } else if (this.profileLevel == this.c.GlobalProfileLevel) {
-        // show global and fallback, if global profile
-        mergeFlags(assignedFlags, this.$parent.fallbackProfile.Flags, this.c.FallbackProfileLevel); // eslint-disable-line
-        mergeFlags(assignedFlags, this.profile.Flags, this.profileLevel);
-      } else {
-        // full merge
-        mergeFlags(assignedFlags, this.$parent.fallbackProfile.Flags, this.c.FallbackProfileLevel); // eslint-disable-line
-        if (this.stampProfile != undefined && this.stampProfile != null) {
-          mergeFlags(assignedFlags, this.stampProfile.Flags, this.c.StampProfileLevel); // eslint-disable-line
-        }
-        mergeFlags(assignedFlags, this.$parent.globalProfile.Flags, this.c.GlobalProfileLevel); // eslint-disable-line
-        mergeFlags(assignedFlags, this.profile.Flags, this.c.UserProfileLevel);
+      for (var i = this.profileStack.length-1; i >= 0; i--) {
+        mergeFlags(assignedFlags, this.profileStack[i]);
       }
       return assignedFlags;
+    },
+    domains() {
+      console.log("preparing domains array");
+      console.log(this.profileStack);
+      var entries = [];
+      // collect all entries
+      for (var i = 0; i < this.profileStack.length; i++) {
+        if (this.profileStack[i].Domains == undefined || this.profileStack[i].Domains == null) {
+          continue;
+        }
+        console.log(this.profileStack[i].Domains);
+
+        for (const [key, value] of Object.entries(this.profileStack[i].Domains)) {
+          console.log(value);
+          entries.push({
+            domain: key,
+            profileLevel: this.profileStack[i].profileLevel,
+            Permit: value.Permit,
+            Created: value.Created,
+            IncludeSubdomains: value.IncludeSubdomains
+          })
+        }
+      }
+      // sort entries
+      entries.sort(function(a, b) {
+        return a.domain < b.domain;
+      });
+      // return
+      console.log(entries);
+      return entries;
     }
   },
   filters: {
