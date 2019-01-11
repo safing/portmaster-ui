@@ -119,22 +119,35 @@
         coming soon...
       </div>
 
-      <h2>Domains</h2>
+      <h2>Endpoints</h2>
 
-      <div class="ui segments">
+      <!-- draggable:'.draggable' -->
 
-        <div v-for="entry in domains" v-bind:key="entry.domain" class="ui segment domain-segment">
-          <Domain v-bind:entry="entry"></Domain>
-        </div>
-        <div class="ui secondary segment">
-          <Domain v-bind:entry="getNewDomain('')"></Domain>
-        </div>
+      <table class="ui compact celled definition table">
+        <tbody class="sort-container" v-sortable="{onEnd: updateEndpointOrder, filter: '.endpoint-external', handle: '.drag-handle'}">
+          <tr v-for="(entry, index) in endpoints" v-bind:key="index" v-bind:data-id="index" v-bind:class="[{'draggable': editableInLevel(entry.profileLevel), 'endpoint-external': !editableInLevel(entry.profileLevel)}]">
+            <td class="collapsing endpoint-drag drag-handle">
+              <i class="bars icon"></i>
+            </td>
+            <td><Endpoint v-bind:entry="entry"></Endpoint></td>
+            <td v-on:click="setEndpointDecision(entry.key, !entry.Permit)" class="collapsing endpoint-permission">
+              <i v-if="entry.Permit" class="large check circle icon" style="color: green;"></i>
+              <i v-else class="large minus circle icon" style="color: red;"></i>
+            </td>
+          </tr>
+        </tbody>
+        <tfoot class="full-width">
+          <tr>
+            <th colspan="3">
+              <div v-on:click="newEndpoint()" class="ui right floated small primary labeled icon button">
+                <i class="plus icon"></i> Add Endpoint
+              </div>
+            </th>
+          </tr>
+        </tfoot>
+      </table>
 
       </div>
-
-      <h2>Ports</h2>
-
-    </div>
   </div>
 </template>
 
@@ -192,13 +205,16 @@ function mergeFlags(assignedFlags, profile) {
 }
 
 import Flag from "./Flag.vue";
-import Domain from "./Domain.vue";
+import Endpoint from "./Endpoint.vue";
+
+import Sortable from '../assets/js/vue2-sortable.js'
+Vue.use(Sortable)
 
 export default {
   name: "Profile",
   components: {
     Flag,
-    Domain
+    Endpoint
   },
   props: {
     profileKey: String,
@@ -275,44 +291,41 @@ export default {
       this.startEditing()
       Vue.delete(this.modifiedProfile.Flags, flagID);
     },
-    getNewDomain(domain) {
-      return {
-        domain: domain,
-        profileLevel: this.profile.profileLevel,
-        Permit: false,
-        Created: 0,
-        IncludeSubdomains: true,
-      }
-    },
-    updateDomain(domain, newDomain) {
-      if (newDomain == "") {
-        return;
-      }
+    updateEndpoint(key, modifiedEntry) {
       this.startEditing()
-      if (domain == "") {
-        if (this.modifiedProfile.Domains == undefined || this.modifiedProfile.Domains == null) {
-          this.modifiedProfile.Domains = {}
-        }
-        Vue.set(this.modifiedProfile.Domains, newDomain, this.getNewDomain(newDomain))
-      } else {
-        var entry = this.modifiedProfile.Domains[domain]
-        if (entry != undefined) {
-          entry.domain = newDomain
-          Vue.set(this.modifiedProfile.Domains, entry.domain, entry)
-          Vue.delete(this.modifiedProfile.Domains, domain)
-        }
+      Vue.set(this.modifiedProfile.Endpoints, key, modifiedEntry)
+    },
+    setEndpointDecision(key, permit) {
+      this.startEditing()
+      this.modifiedProfile.Endpoints[key].Permit = permit
+    },
+    deleteEndpoint(key) {
+      this.startEditing()
+      Vue.delete(this.modifiedProfile.Endpoints, key);
+    },
+    newEndpoint() {
+      this.startEditing()
+      if (this.modifiedProfile.Endpoints == undefined || this.modifiedProfile.Endpoints == null) {
+        Vue.set(this.modifiedProfile, "Endpoints", [])
       }
+      this.modifiedProfile.Endpoints.push({
+        DomainOrIP: "",
+        IncludeSubdomains: false,
+        Protocol: 0,
+        StartPort: 0,
+        EndPort: 0,
+        Permit: true,
+        Created: Math.floor((new Date()).getTime() / 1000)
+      })
+      console.log(this.modifiedProfile.Endpoints)
     },
-    setDomainDecision(domain, permit) {
+    updateEndpointOrder(event) {
       this.startEditing()
-      this.modifiedProfile.Domains[domain].Permit = permit
-    },
-    setDomainIncludeSubs(domain, includeSubs) {
-      this.startEditing()
-      this.modifiedProfile.Domains[domain].IncludeSubdomains = includeSubs
-    },
-    deleteDomain(domain) {
-      Vue.delete(this.modifiedProfile.Domains, domain)
+      console.log(event)
+      console.log(JSON.stringify(this.modifiedProfile.Endpoints))
+      this.modifiedProfile.Endpoints.splice(event.newIndex, 0, this.modifiedProfile.Endpoints.splice(event.oldIndex, 1)[0])
+      console.log(JSON.stringify(this.modifiedProfile.Endpoints))
+      return false; // cancel reordering by sortable.js
     }
   },
   computed: {
@@ -381,34 +394,23 @@ export default {
       }
       return assignedFlags;
     },
-    domains() {
-      console.log("preparing domains array");
-      console.log(this.profileStack);
+    endpoints() {
+      console.log("creating endpoints list")
       var entries = [];
       // collect all entries
       for (var i = 0; i < this.profileStack.length; i++) {
-        if (this.profileStack[i].Domains == undefined || this.profileStack[i].Domains == null) {
+        if (this.profileStack[i].Endpoints == undefined || this.profileStack[i].Endpoints == null) {
           continue;
         }
-        console.log(this.profileStack[i].Domains);
 
-        for (const [key, value] of Object.entries(this.profileStack[i].Domains)) {
-          console.log(value);
-          entries.push({
-            domain: key,
-            profileLevel: this.profileStack[i].profileLevel,
-            Permit: value.Permit,
-            Created: value.Created,
-            IncludeSubdomains: value.IncludeSubdomains
-          })
+        for (const [key, value] of Object.entries(this.profileStack[i].Endpoints)) {
+          var e = value
+          e.key = key
+          e.profileLevel = this.profileStack[i].profileLevel
+          entries.push(e)
         }
       }
-      // sort entries
-      entries.sort(function(a, b) {
-        return a.domain < b.domain;
-      });
       // return
-      console.log(entries);
       return entries;
     }
   },
@@ -455,5 +457,29 @@ export default {
 }
 .profile-content {
   padding: 50px !important;
+}
+.endpoint-drag {
+  :hover {
+    cursor: grab;
+  }
+}
+.endpoint-permission {
+  :hover {
+    cursor: pointer;
+  }
+}
+.endpoint-external {
+  :hover {
+    cursor: default !important;
+  }
+  .bars.icon {
+    display: none;
+  }
+  .endpoint-permission>i {
+    opacity: 0.4;
+  }
+}
+.sortable-ghost {
+  opacity: 0.5;
 }
 </style>
