@@ -93,9 +93,9 @@ export default {
         return key.startsWith("core:profiles/user/");
       });
       for (var i = 0; i < profile_keys.length; i++) {
-        var p = this.op.records[profile_keys[i]]
-        p.dbKey = profile_keys[i]
-        p.profileLevel = 0
+        var p = this.op.records[profile_keys[i]];
+        p.dbKey = profile_keys[i];
+        p.profileLevel = 0;
         profiles.push(p);
       }
       return profiles;
@@ -106,24 +106,24 @@ export default {
         return key.startsWith("core:profiles/stamp/");
       });
       for (var i = 0; i < profile_keys.length; i++) {
-        var p = this.op.records[profile_keys[i]]
-        p.dbKey = profile_keys[i]
-        p.profileLevel = 2
+        var p = this.op.records[profile_keys[i]];
+        p.dbKey = profile_keys[i];
+        p.profileLevel = 2;
         profiles.push(p);
       }
       return profiles;
     },
     globalProfile() {
-      var p = this.op.records[this.globalProfileKey]
-      p.dbKey = this.globalProfileKey
-      p.profileLevel = 1
-      return p
+      var p = this.op.records[this.globalProfileKey];
+      p.dbKey = this.globalProfileKey;
+      p.profileLevel = 1;
+      return p;
     },
     fallbackProfile() {
-      var p = this.op.records[this.fallbackProfileKey]
-      p.dbKey = this.globalProfileKey
-      p.profileLevel = 3
-      return p
+      var p = this.op.records[this.fallbackProfileKey];
+      p.dbKey = this.globalProfileKey;
+      p.profileLevel = 3;
+      return p;
     },
     list_pane_style() {
       var h =

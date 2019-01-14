@@ -55,36 +55,10 @@
 
     </div>
 
-    <!-- <span class="domain-label">
-      <span>
-        <i v-if="entry.domain == ''" class="circle outline icon"></i>
-        <i v-else v-bind:class="['circle icon', 'profile-level-' + entry.profileLevel + '-color']"></i>
-      </span>
-
-      <div class="ui left action input">
-        <button v-on:click="$parent.setDomainIncludeSubs(entry.domain, !entry.IncludeSubdomains)" v-bind:class="['ui icon button domain-include-subs', {'blue': entry.IncludeSubdomains, 'disabled': !$parent.editableInLevel(entry.profileLevel)}]">
-          <i class="large ellipsis horizontal icon"></i>
-        </button>
-        <input type="text" v-model="entry.domain" placeholder="Add domain..." v-on:blur="$parent.updateDomain(originalDomain, entry.domain)">
-      </div>
-
-      <span v-if="$parent.editableInLevel(entry.profileLevel)" class="domain-trash">
-        <i v-on:click="$parent.deleteDomain(entry.domain)" class="trash alternate outline icon"></i>
-      </span>
-
-      <div class="domain-decision">
-        <button v-on:click="$parent.setDomainDecision(entry.domain, !entry.Permit)" class="ui icon button">
-          <i v-if="entry.Permit" class="large check circle icon" style="color: green;"></i>
-          <i v-else class="large minus circle icon" style="color: red;"></i>
-        </button>
-      </div>
-    </span> -->
-
-  </div>
 </template>
 
 <script>
-
+// prettier-ignore
 const protocolNumbers = {
   "ICMP": 1,
   "IGMP": 2,
@@ -93,8 +67,8 @@ const protocolNumbers = {
   "RDP": 27,
   "DCCP": 33,
   "ICMPV6": 58,
-  "UDPLITE": 136,
-}
+  "UDPLITE": 136
+};
 
 const protocolNames = {
   1: "ICMP",
@@ -104,14 +78,15 @@ const protocolNames = {
   27: "RDP",
   33: "DCCP",
   58: "ICMPV6",
-  136: "UDPLITE",
-}
+  136: "UDPLITE"
+};
 
 // TODO: add these
 // 20-21	 FPT
 // 135-139	 NetBIOS
 // 161-162	 SNMP
 
+// prettier-ignore
 const portNumbers = {
   "SSH": 22,
   "TELNET": 23,
@@ -127,7 +102,7 @@ const portNumbers = {
   "SMTP-SSL": 465,
   "IMAP-SSL": 993,
   "POP-SSL": 995
-}
+};
 
 const portNames = {
   22: "SSH",
@@ -144,7 +119,7 @@ const portNames = {
   465: "SMTP-SSL",
   993: "IMAP-SSL",
   995: "POP-SSL"
-}
+};
 
 export default {
   name: "Endpoint",
@@ -156,148 +131,147 @@ export default {
       editing: false,
       modifiedEntry: null,
       error: ""
-    }
+    };
   },
   methods: {
     edit() {
       this.editing = true;
       this.modifiedEntry = JSON.parse(JSON.stringify(this.entry));
-      this.modifiedEntry.protocol = this.humanProtocol
-      this.modifiedEntry.ports = this.humanPort
+      this.modifiedEntry.protocol = this.humanProtocol;
+      this.modifiedEntry.ports = this.humanPort;
     },
     save() {
-      var error = this.clean()
+      var error = this.clean();
       if (error != null) {
-        this.error = error
-        return
+        this.error = error;
+        return;
       }
-      this.$parent.updateEndpoint(this.entry.key, this.modifiedEntry)
-      this.cancel()
+      this.$parent.updateEndpoint(this.entry.key, this.modifiedEntry);
+      this.cancel();
     },
     cancel() {
-      this.editing = false
-      this.modifiedEntry = null
-      this.error = ""
+      this.editing = false;
+      this.modifiedEntry = null;
+      this.error = "";
     },
     remove() {
-      this.$parent.deleteEndpoint(this.entry.key)
+      this.$parent.deleteEndpoint(this.entry.key);
     },
     getProtocolNumber(text) {
-      text = text.trim().toUpperCase()
-      var number = protocolNumbers[text]
+      text = text.trim().toUpperCase();
+      var number = protocolNumbers[text];
       if (number != undefined) {
-        return number
+        return number;
       }
-      return text
+      return text;
     },
     getPortNumber(text) {
-      text = text.trim().toUpperCase()
-      var number = portNumbers[text]
+      text = text.trim().toUpperCase();
+      var number = portNumbers[text];
       if (number != undefined) {
-        return number
+        return number;
       }
-      return text
+      return text;
     },
     clean() {
-      var protocol = 0
-      this.modifiedEntry.protocol = this.modifiedEntry.protocol.trim()
+      var protocol = 0;
+      this.modifiedEntry.protocol = this.modifiedEntry.protocol.trim();
+      // eslint-disable-next-line
       if (this.modifiedEntry.protocol != "" && this.modifiedEntry.protocol != "*") {
-        protocol = this.modifiedEntry.protocol
+        protocol = this.modifiedEntry.protocol;
         // first check if its a name
-        if (typeof protocol === 'string' || protocol instanceof String) {
-          protocol = this.getProtocolNumber(protocol)
+        if (typeof protocol === "string" || protocol instanceof String) {
+          protocol = this.getProtocolNumber(protocol);
         }
         // then convert if necessary
-        if (typeof protocol === 'string' || protocol instanceof String) {
-          protocol = Number.parseInt(protocol)
+        if (typeof protocol === "string" || protocol instanceof String) {
+          protocol = Number.parseInt(protocol);
           if (isNaN(protocol)) {
-            return "invalid protocol"
+            return "invalid protocol";
           }
         }
         // check if its in a valid range
         if (protocol < 1 || protocol > 255) {
-          return "invalid protocol"
+          return "invalid protocol";
         }
       }
-      console.log("prot")
-      console.log(protocol)
 
       // get and separate ports
-      var startPort = 0
-      var endPort = 0
-      this.modifiedEntry.ports = this.modifiedEntry.ports.trim()
+      var startPort = 0;
+      var endPort = 0;
+      this.modifiedEntry.ports = this.modifiedEntry.ports.trim();
+      // eslint-disable-next-line
       if (this.modifiedEntry.ports != "" && this.modifiedEntry.protocol != "*") {
-        var ports = this.modifiedEntry.ports.match(/^([0-9A-Za-z]+(-[A-Za-z]+)?)(-([0-9]+))?$/)
-        console.log(ports)
-        startPort = ports[1]
+        // eslint-disable-next-line
+        var ports = this.modifiedEntry.ports.match(/^([0-9A-Za-z]+(-[A-Za-z]+)?)(-([0-9]+))?$/);
+        startPort = ports[1];
         // first check if startPort is a name
-        if (typeof startPort === 'string' || startPort instanceof String) {
-          startPort = this.getPortNumber(startPort)
+        if (typeof startPort === "string" || startPort instanceof String) {
+          startPort = this.getPortNumber(startPort);
         }
         // then convert if necessary
-        if (typeof startPort === 'string' || startPort instanceof String) {
-          startPort = Number.parseInt(startPort)
+        if (typeof startPort === "string" || startPort instanceof String) {
+          startPort = Number.parseInt(startPort);
           if (isNaN(startPort)) {
-            return "invalid port"
+            return "invalid port";
           }
-          console.log(startPort)
         }
         // check if its in a valid range
         if (startPort < 1 || startPort > 65535) {
-          return "invalid port"
+          return "invalid port";
         }
 
-        endPort = startPort
+        endPort = startPort;
         if (ports[4] != undefined) {
-          endPort = ports[4]
+          endPort = ports[4];
           // first check if startPort is a name
-          if (typeof endPort === 'string' || endPort instanceof String) {
-            endPort = this.getPortNumber(endPort)
+          if (typeof endPort === "string" || endPort instanceof String) {
+            endPort = this.getPortNumber(endPort);
           }
           // then convert if necessary
-          if (typeof endPort === 'string' || endPort instanceof String) {
-            endPort = Number.parseInt(endPort)
+          if (typeof endPort === "string" || endPort instanceof String) {
+            endPort = Number.parseInt(endPort);
             if (isNaN(endPort)) {
-              return "invalid port"
+              return "invalid port";
             }
           }
           // check if its in a valid range
           if (endPort < 1 || endPort > 65535) {
-            return "invalid port"
+            return "invalid port";
           }
         }
       }
 
-      this.modifiedEntry.Protocol = protocol
-      this.modifiedEntry.StartPort = startPort
-      this.modifiedEntry.EndPort = endPort
+      this.modifiedEntry.Protocol = protocol;
+      this.modifiedEntry.StartPort = startPort;
+      this.modifiedEntry.EndPort = endPort;
 
-      return null
+      return null;
     }
   },
   computed: {
     humanPort() {
       if (this.entry.StartPort == 0) {
-        return ""
+        return "";
       }
       if (this.entry.StartPort == this.entry.EndPort) {
-        var name = portNames[this.entry.StartPort]
+        var name = portNames[this.entry.StartPort];
         if (name != undefined) {
-          return name
+          return name;
         }
-        return this.entry.StartPort
+        return this.entry.StartPort;
       }
-      return this.entry.StartPort+"-"+this.entry.EndPort
+      return this.entry.StartPort + "-" + this.entry.EndPort;
     },
-    humanProtocol()  {
+    humanProtocol() {
       if (this.entry.Protocol == 0) {
-        return ""
+        return "";
       }
-      var name = protocolNames[this.entry.Protocol]
+      var name = protocolNames[this.entry.Protocol];
       if (name != undefined) {
-        return name
+        return name;
       }
-      return this.entry.Protocol
+      return this.entry.Protocol;
     }
   }
 };
@@ -319,7 +293,7 @@ export default {
 .endpoint-detail {
   padding: 5px 8px;
   background-color: #e0e1e2;
-  border-radius: .28571429rem;
+  border-radius: 0.28571429rem;
   i {
     font-size: 0.9rem;
   }

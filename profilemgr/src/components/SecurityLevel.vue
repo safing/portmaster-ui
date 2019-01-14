@@ -32,7 +32,7 @@ export default {
   name: "SecurityLevel",
   props: {
     name: String,
-    sl: Object,
+    sl: Object
   },
   methods: {},
   computed: {}

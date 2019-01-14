@@ -33,7 +33,7 @@ export default {
   name: "Flag",
   props: {
     name: String,
-    flag: Object,
+    flag: Object
   },
   methods: {},
   computed: {}

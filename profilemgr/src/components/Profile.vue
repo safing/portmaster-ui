@@ -337,7 +337,7 @@ function mergeFlags(assignedFlags, profile) {
       IsSet: true,
       SecurityLevels: flagValue,
       ProfileLevel: profile.profileLevel
-    }
+    };
   }
 }
 
@@ -345,8 +345,8 @@ import SecurityLevel from "./SecurityLevel.vue";
 import Flag from "./Flag.vue";
 import Endpoint from "./Endpoint.vue";
 
-import Sortable from '../assets/js/vue2-sortable.js'
-Vue.use(Sortable)
+import Sortable from "../assets/js/vue2-sortable.js";
+Vue.use(Sortable);
 
 export default {
   name: "Profile",
@@ -401,9 +401,9 @@ export default {
   methods: {
     editableInLevel(level) {
       if (level == this.profile.profileLevel) {
-        return true
+        return true;
       }
-      false
+      false;
     },
     startEditing() {
       if (!this.editing) {
@@ -418,43 +418,45 @@ export default {
       this.saveOp = {};
     },
     saveProfile() {
-      this.saveOp = this.$api.update(this.profileKey, this.modifiedProfile)
+      this.saveOp = this.$api.update(this.profileKey, this.modifiedProfile);
     },
     setSecurityLevel(level) {
-      this.startEditing()
-      this.modifiedProfile.SecurityLevel = level
+      this.startEditing();
+      this.modifiedProfile.SecurityLevel = level;
     },
     deleteSecurityLevel() {
-      this.startEditing()
-      this.modifiedProfile.SecurityLevel = 0
+      this.startEditing();
+      this.modifiedProfile.SecurityLevel = 0;
     },
     setFlag(flagID, securityLevels) {
-      this.startEditing()
+      this.startEditing();
+      // eslint-disable-next-line
       if (this.modifiedProfile.Flags == undefined || this.modifiedProfile.Flags == null) {
-        this.modifiedProfile.Flags = {}
+        this.modifiedProfile.Flags = {};
       }
       Vue.set(this.modifiedProfile.Flags, flagID, securityLevels);
     },
     deleteFlag(flagID) {
-      this.startEditing()
+      this.startEditing();
       Vue.delete(this.modifiedProfile.Flags, flagID);
     },
     updateEndpoint(key, modifiedEntry) {
-      this.startEditing()
-      Vue.set(this.modifiedProfile.Endpoints, key, modifiedEntry)
+      this.startEditing();
+      Vue.set(this.modifiedProfile.Endpoints, key, modifiedEntry);
     },
     setEndpointDecision(key, permit) {
-      this.startEditing()
-      this.modifiedProfile.Endpoints[key].Permit = permit
+      this.startEditing();
+      this.modifiedProfile.Endpoints[key].Permit = permit;
     },
     deleteEndpoint(key) {
-      this.startEditing()
+      this.startEditing();
       Vue.delete(this.modifiedProfile.Endpoints, key);
     },
     newEndpoint() {
-      this.startEditing()
+      this.startEditing();
+      // eslint-disable-next-line
       if (this.modifiedProfile.Endpoints == undefined || this.modifiedProfile.Endpoints == null) {
-        Vue.set(this.modifiedProfile, "Endpoints", [])
+        Vue.set(this.modifiedProfile, "Endpoints", []);
       }
       this.modifiedProfile.Endpoints.push({
         DomainOrIP: "",
@@ -463,73 +465,72 @@ export default {
         StartPort: 0,
         EndPort: 0,
         Permit: true,
-        Created: Math.floor((new Date()).getTime() / 1000)
-      })
-      console.log(this.modifiedProfile.Endpoints)
+        Created: Math.floor((new Date()).getTime() / 1000) // eslint-disable-line
+      });
     },
     updateEndpointOrder(event) {
-      this.startEditing()
-      console.log(event)
-      console.log(JSON.stringify(this.modifiedProfile.Endpoints))
-      this.modifiedProfile.Endpoints.splice(event.newIndex, 0, this.modifiedProfile.Endpoints.splice(event.oldIndex, 1)[0])
-      console.log(JSON.stringify(this.modifiedProfile.Endpoints))
-      return false; // cancel reordering by sortable.js
+      this.startEditing();
+      this.modifiedProfile.Endpoints.splice(
+        event.newIndex,
+        0,
+        this.modifiedProfile.Endpoints.splice(event.oldIndex, 1)[0]
+      );
     }
   },
   computed: {
     originalProfile() {
-      return this.$parent.op.records[this.profileKey]
+      return this.$parent.op.records[this.profileKey];
     },
     profile() {
       if (this.editing) {
-        return this.modifiedProfile
+        return this.modifiedProfile;
       }
-      return this.originalProfile
+      return this.originalProfile;
     },
     stampProfile() {
       return null;
     },
     editing() {
       if (this.saveOp.success) {
-        return false
+        return false;
       }
       if (this.editSwitch) {
-        return true
+        return true;
       }
-      return false
+      return false;
     },
     profileStack() {
-      var stack = []
+      var stack = [];
 
       if (this.profile.profileLevel >= this.c.StampProfileLevel) {
         // only show current profile, if stamp or fallback profile
-        stack.push(this.profile)
+        stack.push(this.profile);
       } else if (this.profile.profileLevel == this.c.GlobalProfileLevel) {
         // show global and fallback, if global profile
-        stack.push(this.profile)
-        stack.push(this.$parent.fallbackProfile)
+        stack.push(this.profile);
+        stack.push(this.$parent.fallbackProfile);
       } else {
         // full stack
-        stack.push(this.profile)
-        stack.push(this.$parent.globalProfile)
+        stack.push(this.profile);
+        stack.push(this.$parent.globalProfile);
         if (this.stampProfile != null) {
-          stack.push(this.stampProfile)
+          stack.push(this.stampProfile);
         }
-        stack.push(this.$parent.fallbackProfile)
+        stack.push(this.$parent.fallbackProfile);
       }
 
-      return stack
+      return stack;
     },
     securityLevel() {
       var sl = {
         IsSet: false,
-        SecurityLevel: 0,
-      }
+        SecurityLevel: 0
+      };
       for (var i = 0; i < this.profileStack.length; i++) {
         if (this.profileStack[i].SecurityLevel > 0) {
-          sl.SecurityLevel = this.profileStack[i].SecurityLevel
+          sl.SecurityLevel = this.profileStack[i].SecurityLevel;
           sl.IsSet = true;
-          sl.ProfileLevel = this.profileStack[i].profileLevel
+          sl.ProfileLevel = this.profileStack[i].profileLevel;
           break;
         }
       }
@@ -552,25 +553,26 @@ export default {
       }
       /* eslint-enable */
 
-      for (var i = this.profileStack.length-1; i >= 0; i--) {
+      for (var i = this.profileStack.length - 1; i >= 0; i--) {
         mergeFlags(assignedFlags, this.profileStack[i]);
       }
       return assignedFlags;
     },
     endpoints() {
-      console.log("creating endpoints list")
       var entries = [];
       // collect all entries
       for (var i = 0; i < this.profileStack.length; i++) {
+        // eslint-disable-next-line
         if (this.profileStack[i].Endpoints == undefined || this.profileStack[i].Endpoints == null) {
           continue;
         }
 
+        // eslint-disable-next-line
         for (const [key, value] of Object.entries(this.profileStack[i].Endpoints)) {
-          var e = value
-          e.key = key
-          e.profileLevel = this.profileStack[i].profileLevel
-          entries.push(e)
+          var e = value;
+          e.key = key;
+          e.profileLevel = this.profileStack[i].profileLevel;
+          entries.push(e);
         }
       }
       // return
@@ -595,7 +597,10 @@ export default {
       return date.toLocaleDateString() + " " + date.toLocaleTimeString();
     },
     fmtProfileKey(key) {
-      return key.split("/").splice(1).join("/")
+      return key
+        .split("/")
+        .splice(1)
+        .join("/");
     }
   }
 };
@@ -634,7 +639,7 @@ export default {
   top: 50%;
   margin-top: 50px;
   transform: rotate(-90deg);
-	transform-origin: left top 0;
+  transform-origin: left top 0;
   color: orange;
 }
 .profile-content {
@@ -657,7 +662,7 @@ export default {
   .bars.icon {
     opacity: 0.2;
   }
-  .endpoint-permission>i {
+  .endpoint-permission > i {
     opacity: 0.4;
   }
 }
