@@ -11,9 +11,11 @@
 
       {{ name }}
 
-      <span v-if="sl.IsSet && $parent.editableInLevel(sl.ProfileLevel)" class="sl-trash">
-        <i v-on:click="$parent.deleteSecurityLevel()" class="trash alternate outline icon"></i>
-      </span>
+      <div style="display: inline-block; width: 50px;">
+        <span v-if="sl.IsSet && $parent.editableInLevel(sl.ProfileLevel)" class="sl-trash">
+          <i v-on:click="$parent.deleteSecurityLevel()" class="trash alternate outline icon"></i>
+        </span>
+      </div>
     </span>
 
     <div class="sl-security-levels">

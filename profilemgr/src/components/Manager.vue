@@ -29,7 +29,7 @@
         </div> -->
 
         <div class="ui relaxed divided selection list list-pane" :style="list_pane_style">
-          <div v-for="profile in userProfiles" v-bind:key="profile.dbKey" v-on:click="selectUserProfile(profile.dbKey)" class="item">
+          <div v-for="profile in userProfiles" v-bind:key="profile.dbKey" v-on:click="selectUserProfile(profile.dbKey)" v-bind:class="[{'active': selectedProfileKey == profile.dbKey}, 'item']">
             <i class="large question circle outline middle aligned icon"></i>
             <div class="content">
               <div class="header">{{ profile.Name }}</div>
@@ -39,8 +39,8 @@
         </div>
 
         <div class="two ui buttons list-pane-footer">
-          <button class="ui button" v-on:click="selectGlobalProfile()"><i class="circle icon global-profile-color"></i> Global Profile</button>
-          <button class="ui button" v-on:click="selectFallbackProfile()"><i class="circle icon fallback-profile-color"></i>Fallback Profile</button>
+          <button v-bind:class="['ui button', {'blue': selectedProfileKey == globalProfileKey}]" v-on:click="selectGlobalProfile()"><i class="circle icon global-profile-color"></i> Global Profile</button>
+          <button v-bind:class="['ui button', {'blue': selectedProfileKey == fallbackProfileKey}]" v-on:click="selectFallbackProfile()"><i class="circle icon fallback-profile-color"></i>Fallback Profile</button>
         </div>
       </div>
 

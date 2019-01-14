@@ -1,7 +1,18 @@
 <template>
   <div v-bind:class="{'edit-glow': editing}">
-    <div v-if="editing" class="edit-info">
-      unsaved changes
+    <div v-if="editing" class="ui segment edit-menu">
+      <div class="ui left floated buttons">
+        <button v-on:click="saveProfile()" v-bind:class="['ui green button', {'loading': saveOp.loading}]">Save</button>
+        <button v-on:click="endEditing()" class="ui orange button">Discard</button>
+      </div>
+      <p class="edit-info">
+        <span v-if="saveOp.error" class="ui red text">
+          Error saving Profile: {{ saveOp.error }}
+        </span>
+        <span v-else class="ui orange text">
+          unsaved changes
+        </span>
+      </p>
     </div>
 
     <div class="profile-content">
@@ -48,7 +59,9 @@
       <div v-if="showHelp" class="ui info message">
         <h3>Profiles Introduction</h3>
 
-        There are 4 different profile types:
+        <p>
+          When making decisions, the Portmaster merges four profiles together and draws preferences from this set. The following list is displayed in the correct precedence:
+        </p>
 
         <ul>
           <li>User Profiles</li>
@@ -57,15 +70,20 @@
           <li>The Fallback Profile</li>
         </ul>
 
-        Every application (every binary on the filesystem) automatically gets a User Profile.<br>
-        In addition to that, Portmaster will try to fetch a community build profile (not quite yet) for that executable: the Stamp Profile<br>
-        When making decisions, the Portmaster merges these four profiles together and draws preferences from this set. The order of precedence is the same as shown in the list above.
-      </div>
+        <p>
+          Every application (every executable on the filesystem) automatically gets assigned a new <strong>User Profile</strong> when it interacts with the network the first time.
+          At the moment, to create a User Profile, you'll need to run the application first.
+        </p>
 
-      <div v-if="editing" style="float: right;">
-        <button v-on:click="endEditing()" class="ui orange button">Discard</button>
-        <button v-on:click="saveProfile()" v-bind:class="['ui green button', {'loading': saveOp.loading}]">Save</button>
-        <div v-if="saveOp.error" style="color: red;">Error saving Profile: {{ saveOp.error }}</div>
+        <p>
+          In addition to the User Profile, the Portmaster tries to fetch a community built profile (well, not yet) for that executable and saves it as the <strong>Stamp Profile</strong>.
+        </p>
+
+        <p>
+          The “default profile” is the combination of the Global and the Fallback Profile.
+          The difference is that the <strong>Global Profile</strong> will overrule the Stamp Profile
+          while the <strong>Fallback Profile</strong> may be overridden by Stamp Profile settings.
+        </p>
       </div>
 
       <!-- Title -->
@@ -121,22 +139,32 @@
         </div>
       </div>
 
-      <h2>Security Level</h2>
+      <h2>App Security Level</h2>
 
       <div v-if="showHelp" class="ui info message">
-        Profiles may define a security level. All security level preference will then correctly be set to the according settings for this profile.<br>
-        This enables users to define if an application requires additional security precautions.
+        <p>
+          Profiles may define a security level. All security level preference will then correctly be set to the according settings for this profile.<br>
+          This enables users to define if an application requires additional security precautions.
+        </p>
+
+        <p>
+          This option sets the security level, meaning that all other preferences, like the flags below, are viewed with this minimum security level.
+        </p>
       </div>
 
       <div class="ui compact segment" style="padding: 5px;">
-        <SecurityLevel name="Security Level" v-bind:sl="securityLevel"></SecurityLevel>
+        <SecurityLevel name="Minimum Applied Security Level" v-bind:sl="securityLevel"></SecurityLevel>
       </div>
 
       <h2>Flags</h2>
 
       <div v-if="showHelp" class="ui info message">
-        Flags allow for easy and quick settings on a profile.<br>
-        They are grouped into three categories: Profile Mode, Network Locations and Special Flags:
+        <p>
+          Flags allow for easy and quick settings on a profile.
+        </p>
+        <p>
+          They are grouped into three categories: Profile Mode, Network Locations and Special Flags:
+        </p>
       </div>
 
       <div class="ui three column grid">
@@ -607,6 +635,10 @@ export default {
 </script>
 
 <style scoped lang="scss">
+.profile-content {
+  padding: 50px !important;
+  position: relative;
+}
 .breadcrumb {
   .chevron {
     padding-left: 20px;
@@ -634,16 +666,20 @@ export default {
   min-height: 100vh;
   box-shadow: inset 20px 0 20px -20px orange;
 }
-.edit-info {
-  position: fixed;
-  top: 50%;
-  margin-top: 50px;
-  transform: rotate(-90deg);
-  transform-origin: left top 0;
-  color: orange;
-}
-.profile-content {
-  padding: 50px !important;
+.edit-menu {
+  position: fixed !important;
+  z-index: 1000;
+  top: 0px;
+  min-height: 49px;
+  width: 100vw;
+  padding: 5px !important;
+  border-radius: 0 !important;
+  .edit-info {
+    display: inline-block;
+    min-height: 37px;
+    padding: 8px;
+    padding-left: 16px;
+  }
 }
 .endpoint-drag {
   :hover {
