@@ -4,11 +4,12 @@
     <!-- SIDEBAR -->
     <div class="five wide column list-pane-container">
       <div class="title">
-        <div v-on:click="help=true" class="ui button help-button">
+        <div v-on:click="showHelp=!showHelp" v-bind:class="['ui button help-button', {'blue': showHelp}]">
           Help
         </div>
         <h1>Profile Manager</h1>
       </div>
+      <hr style="margin: 0;">
       <p v-if="op.loading">
         loading...
       </p>
@@ -17,7 +18,7 @@
       </div>
 
       <div v-else>
-        <div class="list-pane" :style="list_pane_style">
+        <!-- <div class="list-pane" :style="list_pane_style">
           <div class="ui one column grid container">
             <div v-for="profile in userProfiles" v-bind:key="profile.dbKey" class="column profile-list-container">
               <div v-on:click="selectUserProfile(profile.dbKey)" class="profile-item">
@@ -25,7 +26,18 @@
               </div>
             </div>
           </div>
+        </div> -->
+
+        <div class="ui relaxed divided selection list list-pane" :style="list_pane_style">
+          <div v-for="profile in userProfiles" v-bind:key="profile.dbKey" v-on:click="selectUserProfile(profile.dbKey)" class="item">
+            <i class="large question circle outline middle aligned icon"></i>
+            <div class="content">
+              <div class="header">{{ profile.Name }}</div>
+              <div class="description">Approx. last used: {{ profile.ApproxLastUsed|fmt_datetime }}</div>
+            </div>
+          </div>
         </div>
+
         <div class="two ui buttons list-pane-footer">
           <button class="ui button" v-on:click="selectGlobalProfile()"><i class="circle icon global-profile-color"></i> Global Profile</button>
           <button class="ui button" v-on:click="selectFallbackProfile()"><i class="circle icon fallback-profile-color"></i>Fallback Profile</button>
@@ -37,11 +49,8 @@
     <!-- END OF SIDEBAR -->
 
     <!-- CONTENT SPACE -->
-    <div v-if="help" class="eleven wide column container content-pane">
-      <Help></Help>
-    </div>
-    <div v-else-if="selectedProfileKey != null" class="eleven wide column container content-pane">
-      <Profile v-bind:key="selectedProfileKey" v-bind:profileKey="selectedProfileKey" v-bind:profileLevel="selectedProfileLevel" v-bind:editable="true"></Profile>
+    <div v-if="selectedProfileKey != null" class="eleven wide column container content-pane">
+      <Profile v-bind:key="selectedProfileKey" v-bind:profileKey="selectedProfileKey" v-bind:profileLevel="selectedProfileLevel" v-bind:editable="true" v-bind:showHelp="showHelp"></Profile>
     </div>
     <!-- END OF CONTENT SPACE -->
 
@@ -61,20 +70,18 @@
 
 <script>
 import Profile from "./Profile.vue";
-import Help from "./Help.vue";
 
 export default {
   name: "Manager",
   components: {
-    Profile,
-    Help
+    Profile
   },
   data() {
     return {
       op: this.$api.qsub("query core:profiles/"),
       selectedProfileKey: null,
       selectedProfileLevel: 0,
-      help: false,
+      showHelp: false,
       globalProfileKey: "core:profiles/special/global",
       fallbackProfileKey: "core:profiles/special/fallback"
     };
@@ -142,6 +149,16 @@ export default {
       this.selectedProfileKey = this.fallbackProfileKey;
       this.selectedProfileLevel = 3;
     }
+  },
+  filters: {
+    fmt_datetime(value) {
+      if (value == 0) {
+        return "Never";
+      }
+
+      var date = new Date(value * 1000);
+      return date.toLocaleDateString() + " " + date.toLocaleTimeString();
+    }
   }
 };
 </script>
@@ -159,16 +176,20 @@ export default {
   padding: 0 !important;
 }
 .title {
-  margin: 4px;
-  height: 41px;
-  border-bottom: 1px #ccc solid;
+  margin: 6px;
+  height: 36px;
   h1 {
     margin: 0 !important;
   }
 }
 .list-pane {
+  margin: 0 !important;
   height: 100vh;
   overflow-y: scroll;
+  .item {
+    padding: 3px !important;
+    padding-left: 10px !important;
+  }
 }
 .list-pane-footer {
   height: 40px;
@@ -197,7 +218,7 @@ export default {
 .content-pane {
   padding: 0 !important;
   background-color: #eee;
-  min-height: 100vh;
+  height: 100vh;
   overflow-y: scroll;
 }
 .content-placeholder {

@@ -6,16 +6,60 @@
 
     <div class="profile-content">
 
+      <!-- Profile Breadcrumbs -->
       <div class="ui center aligned basic segment">
         <div class="ui large breadcrumb">
-          <i class="circle icon user-profile-color"></i><div v-bind:class="[{'active': profile.profileLevel == c.UserProfileLevel}, 'section']">User Profile</div>
+
+          <i class="icons">
+            <i class="circle icon user-profile-color"></i>
+            <i v-if="profile.profileLevel != c.UserProfileLevel" class="large dont icon" style="color: gray; margin-left: -2px; margin-right: 20px"></i>
+          </i>
+          <!-- <i class="circle icon user-profile-color"></i> -->
+          <div v-bind:class="[{'active': profile.profileLevel == c.UserProfileLevel}, 'section']">User Profile</div>
+
           <i class="right chevron icon divider"></i>
-          <i class="circle icon global-profile-color"></i><div v-bind:class="[{'active': profile.profileLevel == c.GlobalProfileLevel}, 'section']">Global Profile</div>
+
+          <i class="icons">
+            <i class="circle icon global-profile-color"></i>
+            <i v-if="profile.profileLevel > c.GlobalProfileLevel" class="large dont icon" style="color: gray; margin-left: -2px; margin-right: 20px"></i>
+          </i>
+          <div v-bind:class="[{'active': profile.profileLevel == c.GlobalProfileLevel}, 'section']">Global Profile</div>
+
           <i class="right chevron icon divider"></i>
-          <i class="circle icon stamp-profile-color"></i><div v-bind:class="[{'active': profile.profileLevel == c.StampProfileLevel}, 'section']">Stamp Profile</div>
+
+          <i class="icons">
+            <i class="circle icon stamp-profile-color"></i>
+            <i v-if="profile.profileLevel == c.GlobalProfileLevel || profile.profileLevel == c.FallbackProfileLevel" class="large dont icon" style="color: gray; margin-left: -2px; margin-right: 20px"></i>
+          </i>
+          <div v-bind:class="[{'active': profile.profileLevel == c.StampProfileLevel}, 'section']">Stamp Profile</div>
+
           <i class="right chevron icon divider"></i>
-          <i class="circle icon fallback-profile-color"></i><div v-bind:class="[{'active': profile.profileLevel == c.FallbackProfileLevel}, 'section']">Fallback Profile</div>
+
+          <i class="icons">
+            <i class="circle icon fallback-profile-color"></i>
+            <i v-if="profile.profileLevel == c.StampProfileLevel" class="large dont icon" style="color: gray; margin-left: -2px;"></i>
+          </i>
+          <div v-bind:class="[{'active': profile.profileLevel == c.FallbackProfileLevel}, 'section']">Fallback Profile</div>
+
         </div>
+      </div>
+
+      <!-- Help Intro -->
+      <div v-if="showHelp" class="ui info message">
+        <h3>Profiles Introduction</h3>
+
+        There are 4 different profile types:
+
+        <ul>
+          <li>User Profiles</li>
+          <li>The Global Profile</li>
+          <li>Stamp Profiles</li>
+          <li>The Fallback Profile</li>
+        </ul>
+
+        Every application (every binary on the filesystem) automatically gets a User Profile.<br>
+        In addition to that, Portmaster will try to fetch a community build profile (not quite yet) for that executable: the Stamp Profile<br>
+        When making decisions, the Portmaster merges these four profiles together and draws preferences from this set. The order of precedence is the same as shown in the list above.
       </div>
 
       <div v-if="editing" style="float: right;">
@@ -24,33 +68,76 @@
         <div v-if="saveOp.error" style="color: red;">Error saving Profile: {{ saveOp.error }}</div>
       </div>
 
-      <h1>{{ profile.Name }} (Profile Level {{ profile.profileLevel }})</h1>
+      <!-- Title -->
+      <div class="ui grid">
+        <div class="nine wide column">
+          <h1>{{ profile.Name }} <small v-if="profile.Homepage"><a v-bind:href="profile.Homepage"><i class="external alternate icon"></i></a></small></h1>
+          <p v-if="profile.Description">
+            {{ profile.Description }}
+          </p>
+          <p v-if="profile.profileLevel == c.UserProfileLevel || profile.profileLevel == c.StampProfileLevel">
+            Created: {{ profile.Created|fmt_datetime }}<br>
+            Approximately last used: {{ profile.ApproxLastUsed|fmt_datetime }}
+          </p>
+        </div>
 
-      <ul>
-        <li>ApproxLastUsed: {{ profile.ApproxLastUsed|fmt_datetime }}</li>
-        <li>Created: {{ profile.Created|fmt_datetime }}</li>
-        <li>Description: {{ profile.Description }}</li>
-        <li>Domains: {{ profile.Domains }}</li>
-        <li>Fingerprints: {{ profile.Fingerprints }}</li>
-        <li>Flags: {{ profile.Flags }}</li>
-        <li>Homepage: {{ profile.Homepage }}</li>
-        <li>ID: {{ profile.ID }}</li>
-        <li>Icon: {{ profile.Icon }}</li>
-        <li>LinkedPath: {{ profile.LinkedPath }}</li>
-        <li>Name: {{ profile.Name }}</li>
-        <li>Ports: {{ profile.Ports }}</li>
-        <li>SecurityLevel: {{ profile.SecurityLevel }}</li>
-      </ul>
+        <div class="seven wide column">
+          <div class="ui segments">
+            <div class="ui segment">
+              <p>Identification</p>
+            </div>
+            <div class="ui blue segment">
+              ID: {{ profile.dbKey|fmtProfileKey }}
+            </div>
+            <div v-if="profile.LinkedPath || showHelp" class="ui segment">
+              LinkedPath: {{ profile.LinkedPath }}
+              <span v-if="profile.LinkedPath">
+                {{ profile.LinkedPath }}
+              </span>
+              <div v-if="showHelp" class="ui info message">
+                The LinkedPath is only used by User Profiles to fix a certain profile to an executable path.
+              </div>
+            </div>
+            <div v-if="profile.StampProfileID || showHelp" class="ui segment">
+              Stamp Profile:
+              <span v-if="profile.StampProfileID">
+                {{ profile.StampProfileID }}<br>
+                (assigned: {{ profile.StampProfileAssigned|fmt_datetime }})
+              </span>
+              <div v-if="showHelp" class="ui info message">
+                User Profiles assign a matched Stamp Profile to themselves. The assigned Stamp Profile is re-evaluated regularly to ensure the best matching Stamp Profile is used.
+              </div>
+            </div>
+            <div v-if="profile.Fingerprints || showHelp" class="ui segment">
+              Fingerprints:
+              <span v-if="profile.Fingerprints">
+                {{ profile.Fingerprints }}
+              </span>
+              <div v-if="showHelp" class="ui info message">
+                The Fingerprints are used by Stamp Profiles to intelligently match an executable to profile in Stamp's database and preserves user privacy as much as possible while doing so.
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
 
-      assigned flags: {{ flags }}
-      <br>
-      <br>
-      <br>
+      <h2>Security Level</h2>
 
-      <div class="ui three column grid">
+      <div v-if="showHelp" class="ui info message">
+        Profiles may define a security level. All security level preference will then correctly be set to the according settings for this profile.<br>
+        This enables users to define if an application requires additional security precautions.
+      </div>
+
+      <div class="ui compact segment" style="padding: 5px;">
+        <SecurityLevel name="Security Level" v-bind:sl="securityLevel"></SecurityLevel>
       </div>
 
       <h2>Flags</h2>
+
+      <div v-if="showHelp" class="ui info message">
+        Flags allow for easy and quick settings on a profile.<br>
+        They are grouped into three categories: Profile Mode, Network Locations and Special Flags:
+      </div>
 
       <div class="ui three column grid">
 
@@ -58,15 +145,28 @@
           <div class="ui segments">
             <div class="ui segment">
               <p>Profile Mode</p>
+              <div v-if="showHelp" class="ui info message">
+                The Profile Mode defines how the Endpoint list below should be treated.
+                Whitelist takes precedence before Prompt takes precedence before Blacklist.
+              </div>
             </div>
-            <div class="ui blue segment flag-segment">
+            <div v-bind:class="['ui blue segment flag-segment', {'flag-help': showHelp}]">
               <Flag name="Blacklist" v-bind:flag="flags[this.c.Blacklist]"></Flag>
+              <div v-if="showHelp" class="ui info message">
+                Only block denied entries, allow everything else.
+              </div>
             </div>
-            <div class="ui segment flag-segment">
+            <div v-bind:class="['ui segment flag-segment', {'flag-help': showHelp}]">
               <Flag name="Prompt" v-bind:flag="flags[this.c.Prompt]"></Flag>
+              <div v-if="showHelp" class="ui info message">
+                Ask if endpoint is not found in list.
+              </div>
             </div>
-            <div class="ui segment flag-segment">
+            <div v-bind:class="['ui segment flag-segment', {'flag-help': showHelp}]">
               <Flag name="Whitelist" v-bind:flag="flags[this.c.Whitelist]"></Flag>
+              <div v-if="showHelp" class="ui info message">
+                Only allow permitted entires, block everything else.
+              </div>
             </div>
           </div>
         </div>
@@ -75,15 +175,27 @@
           <div class="ui segments">
             <div class="ui segment">
               <p>Network Locations</p>
+              <div v-if="showHelp" class="ui info message">
+                Define the network scope for this application.
+              </div>
             </div>
-            <div class="ui blue segment flag-segment">
+            <div v-bind:class="['ui blue segment flag-segment', {'flag-help': showHelp}]">
               <Flag name="Internet" v-bind:flag="flags[this.c.Internet]"></Flag>
+              <div v-if="showHelp" class="ui info message">
+                Only allow permitted entires, block everything else.
+              </div>
             </div>
-            <div class="ui segment flag-segment">
+            <div v-bind:class="['ui segment flag-segment', {'flag-help': showHelp}]">
               <Flag name="LAN" v-bind:flag="flags[this.c.LAN]"></Flag>
+              <div v-if="showHelp" class="ui info message">
+                Only allow permitted entires, block everything else.
+              </div>
             </div>
-            <div class="ui segment flag-segment">
+            <div v-bind:class="['ui segment flag-segment', {'flag-help': showHelp}]">
               <Flag name="Localhost" v-bind:flag="flags[this.c.Localhost]"></Flag>
+              <div v-if="showHelp" class="ui info message">
+                Only allow permitted entires, block everything else.
+              </div>
             </div>
           </div>
         </div>
@@ -92,21 +204,39 @@
           <div class="ui segments">
             <div class="ui segment">
               <p>Special Flags</p>
+              <div v-if="showHelp" class="ui info message">
+                Define special behaviour.
+              </div>
             </div>
-            <div class="ui blue segment flag-segment">
+            <div v-bind:class="['ui blue segment flag-segment', {'flag-help': showHelp}]">
               <Flag name="Related" v-bind:flag="flags[this.c.Related]"></Flag>
+              <div v-if="showHelp" class="ui info message">
+                When prompting, automatically allow domains that are related to the program.
+              </div>
             </div>
-            <div class="ui segment flag-segment">
+            <div v-bind:class="['ui segment flag-segment', {'flag-help': showHelp}]">
               <Flag name="PeerToPeer" v-bind:flag="flags[this.c.PeerToPeer]"></Flag>
+              <div v-if="showHelp" class="ui info message">
+                Allow program to directly communicate with peers (ie. anyone in the permitted network scope), without resolving DNS first.
+              </div>
             </div>
-            <div class="ui segment flag-segment">
+            <div v-bind:class="['ui segment flag-segment', {'flag-help': showHelp}]">
               <Flag name="Service" v-bind:flag="flags[this.c.Service]"></Flag>
+              <div v-if="showHelp" class="ui info message">
+                Allow program to accept incoming connections and act as a server for other devices.
+              </div>
             </div>
-            <div class="ui segment flag-segment">
+            <div v-bind:class="['ui segment flag-segment', {'flag-help': showHelp}]">
               <Flag name="Independent" v-bind:flag="flags[this.c.Independent]"></Flag>
+              <div v-if="showHelp" class="ui info message">
+                Ignore profile settings coming from the (Stamp) Community.
+              </div>
             </div>
-            <div class="ui segment flag-segment">
+            <div v-bind:class="['ui segment flag-segment', {'flag-help': showHelp}]">
               <Flag name="RequireGate17" v-bind:flag="flags[this.c.RequireGate17]"></Flag>
+              <div v-if="showHelp" class="ui info message">
+                Require all connections to go over Gate17. (Not quite yet)
+              </div>
             </div>
           </div>
         </div>
@@ -115,13 +245,20 @@
 
       <h2>Stamp Labels</h2>
 
+      <div v-if="showHelp" class="ui info message">
+        Stamp Labels will allow you to block (or permit) domains based on certain security and content-based labels, created by the Stamp Community.
+      </div>
+
       <div class="help-text">
         coming soon...
       </div>
 
       <h2>Endpoints</h2>
 
-      <!-- draggable:'.draggable' -->
+      <div v-if="showHelp" class="ui info message">
+        White- or blacklist certain domains or IP addresses.<br>
+        If needed, you may also specify a protocol and a port (range).
+      </div>
 
       <table class="ui compact celled definition table">
         <tbody class="sort-container" v-sortable="{onEnd: updateEndpointOrder, filter: '.endpoint-external', handle: '.drag-handle'}">
@@ -204,6 +341,7 @@ function mergeFlags(assignedFlags, profile) {
   }
 }
 
+import SecurityLevel from "./SecurityLevel.vue";
 import Flag from "./Flag.vue";
 import Endpoint from "./Endpoint.vue";
 
@@ -213,12 +351,14 @@ Vue.use(Sortable)
 export default {
   name: "Profile",
   components: {
+    SecurityLevel,
     Flag,
     Endpoint
   },
   props: {
     profileKey: String,
-    editable: Boolean
+    editable: Boolean,
+    showHelp: Boolean
   },
   data() {
     return {
@@ -279,6 +419,14 @@ export default {
     },
     saveProfile() {
       this.saveOp = this.$api.update(this.profileKey, this.modifiedProfile)
+    },
+    setSecurityLevel(level) {
+      this.startEditing()
+      this.modifiedProfile.SecurityLevel = level
+    },
+    deleteSecurityLevel() {
+      this.startEditing()
+      this.modifiedProfile.SecurityLevel = 0
     },
     setFlag(flagID, securityLevels) {
       this.startEditing()
@@ -372,6 +520,21 @@ export default {
 
       return stack
     },
+    securityLevel() {
+      var sl = {
+        IsSet: false,
+        SecurityLevel: 0,
+      }
+      for (var i = 0; i < this.profileStack.length; i++) {
+        if (this.profileStack[i].SecurityLevel > 0) {
+          sl.SecurityLevel = this.profileStack[i].SecurityLevel
+          sl.IsSet = true;
+          sl.ProfileLevel = this.profileStack[i].profileLevel
+          break;
+        }
+      }
+      return sl;
+    },
     flags() {
       /* eslint-disable */
       var assignedFlags = {
@@ -430,19 +593,38 @@ export default {
 
       var date = new Date(value * 1000);
       return date.toLocaleDateString() + " " + date.toLocaleTimeString();
+    },
+    fmtProfileKey(key) {
+      return key.split("/").splice(1).join("/")
     }
   }
 };
 </script>
 
 <style scoped lang="scss">
-.breadcrumb .chevron {
-  padding-left: 20px;
-  padding-right: 30px;
+.breadcrumb {
+  .chevron {
+    padding-left: 20px;
+    padding-right: 30px;
+  }
+  .section {
+    padding: 3px !important;
+  }
+  .dont.icon {
+    color: gray;
+    margin-left: -2px;
+  }
 }
 .flag-segment {
   padding: 0 !important;
+  .ui.message {
+    margin: 14px 14px 0 14px !important;
+  }
 }
+.flag-segment.flag-help {
+  padding: 14px 0 !important;
+}
+
 .edit-glow {
   min-height: 100vh;
   box-shadow: inset 20px 0 20px -20px orange;
@@ -473,13 +655,10 @@ export default {
     cursor: default !important;
   }
   .bars.icon {
-    display: none;
+    opacity: 0.2;
   }
   .endpoint-permission>i {
     opacity: 0.4;
   }
-}
-.sortable-ghost {
-  opacity: 0.5;
 }
 </style>
