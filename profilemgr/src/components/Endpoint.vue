@@ -1,17 +1,20 @@
 <template>
 
     <div v-if="editing">
-      <button v-on:click="modifiedEntry.IncludeSubdomains = !modifiedEntry.IncludeSubdomains" v-bind:class="['ui icon button', {'blue': modifiedEntry.IncludeSubdomains}]" title="Include Subdomains">
+      <button v-on:click="modifiedEntry.Wildcard = !modifiedEntry.Wildcard" v-bind:class="['ui icon button', {'blue': modifiedEntry.Wildcard}]" title="Wildcard (Include Subdomains)">
         <i class="small asterisk icon"></i>
       </button>
 
-      <div class="ui input" style="width: 30%">
-        <input type="text" v-model="modifiedEntry.DomainOrIP" placeholder="Domain Or IP">
+      <div v-bind:class="['ui labeled input', {'error': !endpointIsValid}, {'active': endpointIsValid}]" style="width: 30%">
+        <div class="ui center aligned label" style="width: 75px;">
+          &nbsp;{{ endpointType }}&nbsp; <!-- dirty fix -->
+        </div>
+        <input type="text" v-model="modifiedEntry.DomainOrIP" placeholder="Domain or IP">
       </div>
-      <div class="ui input" style="width: 15%">
+      <div v-bind:class="['ui input', {'error': !protocolIsValid}]" style="width: 15%">
         <input type="text" v-model="modifiedEntry.protocol" placeholder="any protocol">
       </div>
-      <div class="ui input" style="width: 15%">
+      <div v-bind:class="['ui input', {'error': !portsAreValid}]" style="width: 15%">
         <input type="text" v-model="modifiedEntry.ports" placeholder="any port">
       </div>
 
@@ -30,10 +33,15 @@
       <i v-bind:class="['circle icon', 'profile-level-' + entry.profileLevel + '-color']"></i>
 
       <span class="endpoint-entity" title="Domain or IP">
-        <span v-if="entry.IncludeSubdomains" class="endpoint-subdomains" title="Include Subdomains">
-          <sup><i class="small asterisk icon"></i></sup>
+        <span v-if="!entry.Wildcard && entry.DomainOrIP == ''" class="ui orange text">
+          &lt;invalid entry - please edit&gt;
         </span>
-        {{ entry.DomainOrIP }}
+        <span v-else>
+          <span v-if="entry.Wildcard" class="endpoint-wildcard" title="Wildcard (Include Subdomains)">
+            <sup><i class="small asterisk icon"></i></sup>
+          </span>
+          {{ entry.DomainOrIP }}
+        </span>
       </span>
 
       <span v-if="humanProtocol || humanPort" class="endpoint-detail" title="Protocol / Ports">
@@ -121,6 +129,10 @@ const portNames = {
   995: "POP-SSL"
 };
 
+// eslint-disable-next-line
+const domainRegex = new RegExp("^([a-z0-9][a-z0-9-]{0,61}[a-z0-9]?\\.)*[a-z]{2,}\\.$");
+const { IP } = require("@hownetworks/ipv46");
+
 export default {
   name: "Endpoint",
   props: {
@@ -155,7 +167,7 @@ export default {
       this.error = "";
     },
     remove() {
-      this.$parent.deleteEndpoint(this.entry.key);
+      this.$parent.deleteEndpoint(this.entry);
     },
     getProtocolNumber(text) {
       text = text.trim().toUpperCase();
@@ -174,79 +186,52 @@ export default {
       return text;
     },
     clean() {
-      var protocol = 0;
-      this.modifiedEntry.protocol = this.modifiedEntry.protocol.trim();
-      // eslint-disable-next-line
-      if (this.modifiedEntry.protocol != "" && this.modifiedEntry.protocol != "*") {
-        protocol = this.modifiedEntry.protocol;
-        // first check if its a name
-        if (typeof protocol === "string" || protocol instanceof String) {
-          protocol = this.getProtocolNumber(protocol);
-        }
-        // then convert if necessary
-        if (typeof protocol === "string" || protocol instanceof String) {
-          protocol = Number.parseInt(protocol);
-          if (isNaN(protocol)) {
-            return "invalid protocol";
-          }
-        }
-        // check if its in a valid range
-        if (protocol < 1 || protocol > 255) {
-          return "invalid protocol";
-        }
+      var cleanedDomainOrIP = this.cleanedEndpoint;
+      if (!cleanedDomainOrIP[2]) {
+        return "invalid endpoint";
       }
 
-      // get and separate ports
-      var startPort = 0;
-      var endPort = 0;
-      this.modifiedEntry.ports = this.modifiedEntry.ports.trim();
-      // eslint-disable-next-line
-      if (this.modifiedEntry.ports != "" && this.modifiedEntry.protocol != "*") {
-        // eslint-disable-next-line
-        var ports = this.modifiedEntry.ports.match(/^([0-9A-Za-z]+(-[A-Za-z]+)?)(-([0-9]+))?$/);
-        startPort = ports[1];
-        // first check if startPort is a name
-        if (typeof startPort === "string" || startPort instanceof String) {
-          startPort = this.getPortNumber(startPort);
-        }
-        // then convert if necessary
-        if (typeof startPort === "string" || startPort instanceof String) {
-          startPort = Number.parseInt(startPort);
-          if (isNaN(startPort)) {
-            return "invalid port";
-          }
-        }
-        // check if its in a valid range
-        if (startPort < 1 || startPort > 65535) {
-          return "invalid port";
-        }
-
-        endPort = startPort;
-        if (ports[4] != undefined) {
-          endPort = ports[4];
-          // first check if startPort is a name
-          if (typeof endPort === "string" || endPort instanceof String) {
-            endPort = this.getPortNumber(endPort);
-          }
-          // then convert if necessary
-          if (typeof endPort === "string" || endPort instanceof String) {
-            endPort = Number.parseInt(endPort);
-            if (isNaN(endPort)) {
-              return "invalid port";
-            }
-          }
-          // check if its in a valid range
-          if (endPort < 1 || endPort > 65535) {
-            return "invalid port";
-          }
-        }
+      var cleanedProtocol = this.cleanedProtocol;
+      if (!cleanedProtocol[1]) {
+        return "invalid protocol";
       }
 
-      this.modifiedEntry.Protocol = protocol;
-      this.modifiedEntry.StartPort = startPort;
-      this.modifiedEntry.EndPort = endPort;
+      var cleanedPorts = this.cleanedPorts;
+      if (!cleanedPorts[2]) {
+        return "invalid port(s)";
+      }
+
+      this.modifiedEntry.DomainOrIP = cleanedDomainOrIP[0];
+      this.modifiedEntry.Protocol = cleanedProtocol[0];
+      this.modifiedEntry.StartPort = cleanedPorts[0];
+      this.modifiedEntry.EndPort = cleanedPorts[1];
+
+      if (cleanedDomainOrIP[1] == "IPv4" || cleanedDomainOrIP[1] == "IPv6") {
+        this.modifiedEntry.Wildcard = false;
+      }
 
       return null;
+    },
+    parsePort(port) {
+      // first check if port is a name
+      if (typeof port === "string" || port instanceof String) {
+        port = this.getPortNumber(port);
+      }
+
+      // convert if still a string
+      if (typeof port === "string" || port instanceof String) {
+        port = Number.parseInt(port);
+        if (isNaN(port)) {
+          return [65535, false];
+        }
+      }
+
+      // check if its in a valid range
+      if (port < 1 || port > 65535) {
+        return [65535, false];
+      }
+
+      return [port, true];
     }
   },
   computed: {
@@ -272,6 +257,126 @@ export default {
         return name;
       }
       return this.entry.Protocol;
+    },
+    cleanedEndpoint() {
+      // returns: newValue, valueType, ok
+
+      if (this.modifiedEntry == null) {
+        return ["ERROR", "ERROR", false];
+      }
+
+      var endpoint = this.modifiedEntry.DomainOrIP.trim().toLowerCase();
+
+      // wildcard
+      if (endpoint == "") {
+        return ["", "", true];
+      }
+
+      // IP address
+      var ip = IP.parse(endpoint);
+      if (ip != null) {
+        if (ip.version == 4) {
+          return [ip.toString(), "IPv4", true];
+        } else {
+          return [ip.toString(), "IPv6", true];
+        }
+      }
+
+      // domain
+      if (domainRegex.test(endpoint)) {
+        return [endpoint, "Domain", true];
+      } else {
+        endpoint = endpoint + ".";
+        if (domainRegex.test(endpoint)) {
+          return [endpoint, "Domain", true];
+        }
+      }
+
+      // invalid
+      return ["ERROR", "?", false];
+    },
+    endpointType() {
+      return this.cleanedEndpoint[1];
+    },
+    endpointIsValid() {
+      return this.cleanedEndpoint[2];
+    },
+    cleanedProtocol() {
+      // returns: newValue, ok
+
+      if (this.modifiedEntry == null) {
+        return [255, false];
+      }
+
+      var protocol = this.modifiedEntry.protocol.trim().toLowerCase();
+      // eslint-disable-next-line
+
+      if (protocol == "" || protocol == "*") {
+        return [0, true];
+      }
+
+      // check if value is protocl name
+      if (typeof protocol === "string" || protocol instanceof String) {
+        protocol = this.getProtocolNumber(protocol);
+      }
+
+      // convert if still a string
+      if (typeof protocol === "string" || protocol instanceof String) {
+        protocol = Number.parseInt(protocol);
+        if (isNaN(protocol)) {
+          return [255, false];
+        }
+      }
+
+      // check if its in a valid range
+      if (protocol < 1 || protocol > 255) {
+        return [255, false];
+      }
+
+      return [protocol, true];
+    },
+    protocolIsValid() {
+      return this.cleanedProtocol[1];
+    },
+    cleanedPorts() {
+      // returns: newStartValue, newEndValue, ok
+
+      if (this.modifiedEntry == null) {
+        return [65535, 65535, false];
+      }
+
+      var ports = this.modifiedEntry.ports.trim().toUpperCase();
+
+      if (ports == "" || ports == "*") {
+        return [0, 0, true];
+      }
+
+      // eslint-disable-next-line
+      var splittedPorts = ports.match(/^([0-9A-Za-z]+(-[A-Za-z]+)?)(-([0-9]+))?$/);
+      if (splittedPorts == null) {
+        return [65535, 65535, false];
+      }
+      var startPort = this.parsePort(splittedPorts[1]);
+      if (!startPort[1]) {
+        return [65535, 65535, false];
+      }
+
+      var endPort = startPort;
+      if (splittedPorts[4] != undefined) {
+        endPort = this.parsePort(splittedPorts[4]);
+        if (!endPort[1]) {
+          return [65535, 65535, false];
+        }
+      }
+
+      if (endPort < startPort) {
+        return [65535, 65535, false];
+      }
+
+      return [startPort[0], endPort[0], true];
+    },
+    portsAreValid() {
+      return this.cleanedPorts[2];
     }
   }
 };
@@ -297,5 +402,11 @@ export default {
   i {
     font-size: 0.9rem;
   }
+}
+
+.ui.labeled.input > .ui.label {
+  border-left: 1px solid #e8e8e8;
+  border-top: 1px solid #e8e8e8;
+  border-bottom: 1px solid #e8e8e8;
 }
 </style>

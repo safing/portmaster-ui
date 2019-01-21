@@ -78,7 +78,23 @@ export default {
   },
   data() {
     return {
-      op: this.$api.qsub("query core:profiles/"),
+      op: this.$api
+        .qsub("query core:profiles/")
+        .prepFn("", function(key, obj) {
+          obj.dbKey = key;
+        })
+        .prepFn("core:profiles/user/", function(key, obj) {
+          obj.profileLevel = 0;
+        })
+        .prepFn("core:profiles/special/global", function(key, obj) {
+          obj.profileLevel = 1;
+        })
+        .prepFn("core:profiles/stamp/", function(key, obj) {
+          obj.profileLevel = 2;
+        })
+        .prepFn("core:profiles/special/fallback", function(key, obj) {
+          obj.profileLevel = 3;
+        }),
       selectedProfileKey: null,
       selectedProfileLevel: 0,
       showHelp: false,
@@ -89,41 +105,27 @@ export default {
   computed: {
     userProfiles() {
       var profiles = [];
-      var profile_keys = Object.keys(this.op.records).filter(function(key) {
-        return key.startsWith("core:profiles/user/");
-      });
-      for (var i = 0; i < profile_keys.length; i++) {
-        var p = this.op.records[profile_keys[i]];
-        p.dbKey = profile_keys[i];
-        p.profileLevel = 0;
-        profiles.push(p);
+      for (const [key, profile] of Object.entries(this.op.records)) {
+        if (key.startsWith("core:profiles/user/")) {
+          profiles.push(profile);
+        }
       }
       return profiles;
     },
     stampProfiles() {
       var profiles = [];
-      var profile_keys = Object.keys(this.op.records).filter(function(key) {
-        return key.startsWith("core:profiles/stamp/");
-      });
-      for (var i = 0; i < profile_keys.length; i++) {
-        var p = this.op.records[profile_keys[i]];
-        p.dbKey = profile_keys[i];
-        p.profileLevel = 2;
-        profiles.push(p);
+      for (const [key, profile] of Object.entries(this.op.records)) {
+        if (key.startsWith("core:profiles/stamp/")) {
+          profiles.push(profile);
+        }
       }
       return profiles;
     },
     globalProfile() {
-      var p = this.op.records[this.globalProfileKey];
-      p.dbKey = this.globalProfileKey;
-      p.profileLevel = 1;
-      return p;
+      return this.op.records[this.globalProfileKey];
     },
     fallbackProfile() {
-      var p = this.op.records[this.fallbackProfileKey];
-      p.dbKey = this.globalProfileKey;
-      p.profileLevel = 3;
-      return p;
+      return this.op.records[this.fallbackProfileKey];
     },
     list_pane_style() {
       var h =
@@ -135,19 +137,16 @@ export default {
   },
   methods: {
     selectUserProfile(key) {
-      this.help = false;
       this.selectedProfileKey = key;
       this.selectedProfileLevel = 0;
     },
     selectGlobalProfile() {
-      this.help = false;
-      this.selectedProfileKey = this.globalProfileKey;
-      this.selectedProfileLevel = 1;
+      this.selectedProfileKey = this.globalProfile.dbKey;
+      this.selectedProfileLevel = this.globalProfile.profileLevel;
     },
     selectFallbackProfile() {
-      this.help = false;
-      this.selectedProfileKey = this.fallbackProfileKey;
-      this.selectedProfileLevel = 3;
+      this.selectedProfileKey = this.fallbackProfile.dbKey;
+      this.selectedProfileLevel = this.fallbackProfile.profileLevel;
     }
   },
   filters: {

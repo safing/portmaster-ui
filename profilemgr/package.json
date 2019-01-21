@@ -8,6 +8,7 @@
     "lint": "vue-cli-service lint"
   },
   "dependencies": {
+    "@hownetworks/ipv46": "^2.0.2",
     "jquery": "^3.3.1",
     "sortablejs": "^1.8.0-rc1",
     "vue": "^2.5.17"
