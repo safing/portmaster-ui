@@ -1,7 +1,6 @@
 import Vue from "vue";
 import App from "./App.vue";
 import PortAPI from "../../assets/js/portapi.js";
-// const { PortAPI } = require("../../assets/js/portapi.js");
 import jQuery from "jquery";
 
 window.$ = jQuery;
