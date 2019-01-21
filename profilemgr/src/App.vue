@@ -16,5 +16,5 @@ export default {
 </script>
 
 <style>
-@import "./assets/themed/fomantic/semantic.min.css";
+@import "../../assets/themed/fomantic/semantic.min.css";
 </style>
