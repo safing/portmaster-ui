@@ -1,0 +1,62 @@
+.primary-color {
+  color: #307DDB;
+}
+
+.primary-background {
+  background-color: #3790FC;
+}
+
+.secondary-color {
+  color: #96A3C9;
+}
+.secondary-background {
+  background-color: #BECEFF;
+}
+.success-color {
+  color: #68DE83;
+}
+.success-background {
+  background-color: #67DA81;
+}
+.warning-color {
+  color: #D9D57B;
+}
+.warning-background {
+  background-color: #FFFB91;
+}
+.error-color {
+  color: #F75C5C;
+}
+.error-background {
+  background-color: #FF5F5F;
+}
+.info-color {
+  color: #4ED1CB;
+}
+.info-background {
+  background-color: #56E8E2;
+}
+.portmaster-color {
+  color: #94ACB9;
+}
+.portmaster-background {
+  background-color: #CCEDFF !important;
+}
+.portmaster-light-background {
+  background-color: #ccedff4d !important
+}
+.gate17-color {
+  color: #AB97C5;
+}
+.gate17-background {
+  background-color: #DDC3FF !important;
+}
+.gate17-light-background {
+  background-color: #ddc3ff4d !important;
+}
+.generic_section-background {
+  background-color: #d5d5d5;
+}
+.main-background {
+  background-color: #f7f7f7 !important;
+}

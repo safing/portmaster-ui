@@ -1,0 +1,105 @@
+#!/bin/bash
+
+baseDir="$( cd "$(dirname "$0")" && pwd )"
+cd "$baseDir"
+
+COL_OFF="\033[00m"
+COL_BOLD="\033[01;01m"
+COL_YELLOW="\033[33m"
+
+destDir="../../dist/all/ui/modules"
+
+function check {
+  for module in *; do
+    if [[ -f "$module/package.json" ]]; then
+      # go to module dir
+      cd $module
+      # get version
+      version=$(jq -r '.version' package.json)
+      # build versioned file name
+      filename="${module}_v${version//./-}.zip"
+      # build destination path
+      destPath=$destDir/$filename
+
+      # check if file exists
+      if [[ -f $destPath ]]; then
+        echo "[modules] $module $version already built"
+      else
+        echo -e "${COL_BOLD}[modules] $module $version${COL_OFF}"
+      fi
+
+      cd "$baseDir"
+    fi
+  done
+}
+
+function build {
+  for module in *; do
+    if [[ -f "$module/package.json" ]]; then
+
+      echo -e "\npackaging $module\n"
+
+      # go to module dir
+      cd $module
+      # get version
+      version=$(jq -r '.version' package.json)
+      # build versioned file name
+      filename="${module}_v${version//./-}.zip"
+      # build destination path
+      destPath=$destDir/$filename
+
+      # check if file exists
+      if [[ -f $destPath ]]; then
+        echo "$module already built in version $version, skipping..."
+        cd "$baseDir"
+        continue
+      fi
+
+      # build
+
+      # remove old dist
+      rm -rf dist
+
+      # build
+      npm run build
+      if [[ $? -ne 0 ]]; then
+        echo -e "\n$module: BUILD FAILED."
+        exit 1
+      fi
+
+      # go to dist dir
+      cd dist
+
+      # remove unnecessary stuff
+      rm -rf "assets"
+
+      # zip up!
+      mkdir -p ../$destDir
+      zip -r ../$destPath *
+
+      cd "$baseDir"
+    fi
+  done
+}
+
+case $1 in
+  "check" )
+    check
+    ;;
+  "build" )
+    build
+    ;;
+  * )
+    echo ""
+    echo "build list:"
+    echo ""
+    check
+    echo ""
+    read -p "press [Enter] to start building" x
+    echo ""
+    build
+    echo ""
+    echo "finished building."
+    echo ""
+    ;;
+esac

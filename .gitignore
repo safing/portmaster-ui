@@ -1,1 +1,4 @@
-dist
+dist/*
+
+# meta
+.DS_Store

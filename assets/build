@@ -1,0 +1,71 @@
+#!/bin/bash
+
+baseDir="$( cd "$(dirname "$0")" && pwd )"
+cd "$baseDir"
+
+COL_OFF="\033[00m"
+COL_BOLD="\033[01;01m"
+COL_YELLOW="\033[33m"
+
+destDir="../dist/all/ui/modules"
+
+function check {
+  # get version
+  version=$(cat version.txt | tr -d '[:space:]')
+  # build versioned file name
+  filename="assets_v${version//./-}.zip"
+  # build destination path
+  destPath=$destDir/$filename
+
+  # check if file exists
+  if [[ -f $destPath ]]; then
+    echo "[assets] version $version already built"
+  else
+    echo -e "${COL_BOLD}[assets] version $version${COL_OFF}"
+  fi
+}
+
+function build {
+  # get version
+  version=$(cat version.txt | tr -d '[:space:]')
+  # build versioned file name
+  filename="assets_v${version//./-}.zip"
+  # build destination path
+  destPath=$destDir/$filename
+
+  # check if file exists
+  if [[ -f $destPath ]]; then
+    echo "assets are already built in version $version, skipping..."
+    exit 0
+  fi
+
+  # zip up!
+  mkdir -p $destDir
+  zip -r $destPath * -x build README.md
+  if [[ $? -ne 0 ]]; then
+    echo -e "\nassets: BUILD FAILED."
+    exit 1
+  fi
+}
+
+case $1 in
+  "check" )
+    check
+    ;;
+  "build" )
+    build
+    ;;
+  * )
+    echo ""
+    echo "build list:"
+    echo ""
+    check
+    echo ""
+    read -p "press [Enter] to start building" x
+    echo ""
+    build
+    echo ""
+    echo "finished building."
+    echo ""
+    ;;
+esac

@@ -1,0 +1,41 @@
+#!/bin/bash
+
+baseDir="$( cd "$(dirname "$0")" && pwd )"
+cd "$baseDir"
+
+# first check what will be built
+
+echo ""
+echo "build list:"
+echo ""
+
+./modules/build check
+./app/build check
+./assets/build check
+
+# confirm
+
+echo ""
+read -p "press [Enter] to start building" x
+echo ""
+
+# build
+
+./modules/build build
+if [[ $? -ne 0 ]]; then
+  exit 1
+fi
+
+./app/build build
+if [[ $? -ne 0 ]]; then
+  exit 1
+fi
+
+./assets/build build
+if [[ $? -ne 0 ]]; then
+  exit 1
+fi
+
+echo ""
+echo "finished building."
+echo ""
