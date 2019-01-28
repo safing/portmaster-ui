@@ -138,6 +138,9 @@ function install(vue, options) {
       //    131|success
       //    131|error|<message>
       return vue.portapi.newRequest(name, "delete", key);
+    },
+    info() {
+      return vue.portapi.info;
     }
   };
   vue.portapi = {
@@ -147,6 +150,9 @@ function install(vue, options) {
     requestQueue: [],
     url: options.url,
     requests: {},
+    info: {
+      connected: false,
+    },
     requestCnt: 0,
     connect() {
       vue.portapi.ws = new WebSocket(vue.portapi.url);
@@ -155,6 +161,7 @@ function install(vue, options) {
         if (vue.portapi.debug) console.log("connection to api established");
 
         vue.portapi.connected = true;
+        vue.set(vue.portapi.info, 'connected', true);
 
         // send queued requests
         vue.portapi.requestQueue.forEach(function(requestText) {
@@ -170,7 +177,9 @@ function install(vue, options) {
           console.log("connection closed:");
           console.log(event);
         }
+
         vue.portapi.connected = false;
+        vue.set(vue.portapi.info, 'connected', false);
 
         console.log("lost connection, waiting...");
         setTimeout(function() {
