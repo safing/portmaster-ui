@@ -4,7 +4,11 @@
       <div>
 
         <div v-on:click="selectUIModule(0)" class="clickable">
-          <img class="img" src="/assets/icons/security_levels/level_dynamic.svg" style="height: 14rem;"></img>
+          <i v-if="!status" class="massive question circle outline icon" style="font-size: 12rem; color: #444;"></i>
+          <img v-else-if="status.ActiveSecurityLevel == 1" class="img" src="/assets/icons/security_levels/level_dynamic.svg" style="height: 14rem;"></img>
+          <img v-else-if="status.ActiveSecurityLevel == 2" class="img" src="/assets/icons/security_levels/level_secure.svg" style="height: 14rem;"></img>
+          <img v-else-if="status.ActiveSecurityLevel == 4" class="img" src="/assets/icons/security_levels/level_fortress.svg" style="height: 14rem;"></img>
+          <i v-else class="massive question circle outline icon" style="font-size: 12rem; color: #444;"></i>
         </div>
 
         <div class="ui two column grid">
@@ -92,7 +96,7 @@ export default {
   },
   data() {
     return {
-      // op: this.$api.qsub("query config")
+      op: this.$api.qsub("query core:status/"),
       activeModule: "-",
       collapsed: false,
       apiInfo: this.$api.info(),
@@ -123,6 +127,11 @@ export default {
         }
       ]
     };
+  },
+  computed: {
+    status() {
+      return this.op.records["core:status/status"];
+    }
   },
   methods: {
     selectUIModule(index) {
