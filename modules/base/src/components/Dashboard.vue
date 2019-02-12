@@ -4,12 +4,35 @@
 
     <div class="ui basic inverted segment status">
 
+      <div v-on:click="showHelp=!showHelp" v-bind:class="['ui button help-button', {'blue': showHelp}]" style="position: absolute; top: 20px; right: 20px;">
+        Help
+      </div>
+
       <div class="ui inverted card">
         <div class="content">
           <div class="header">Security Level</div>
 
           <div class="description">
-            ...
+            Override the security level
+            <div v-if="showHelp" class="ui inverted info message">
+              <p>
+                There are three security levels that enable you to easily adapt to your current threat environment:
+                <ul>
+                  <li>
+                    <img src="/assets/icons/security_levels/level_dynamic.svg" title="Dynamic"></img>
+                    Dynamic: The usual operating mode for trusted environments.
+                  </li>
+                  <li>
+                    <img src="/assets/icons/security_levels/level_secure.svg" title="Secure"></img>
+                    Secure: For untrusted environments, such as a public WiFi networks.
+                  </li>
+                  <li>
+                    <img src="/assets/icons/security_levels/level_fortress.svg" title="Fortress"></img>
+                    Fortress: Emergency mode for when you panic.
+                  </li>
+                </ul>
+              </p>
+            </div>
           </div>
         </div>
         <div class="extra content">
@@ -37,7 +60,16 @@
           <div class="header">Threats</div>
 
           <div class="description">
-            ...
+            coming soon...<br>
+            <div v-if="showHelp" class="ui inverted info message">
+              <p>
+                Threats are what drive the autopilot.
+                Different subsystems of the Portmaster detect threats and will influence the automatic security level.<br>
+              </p>
+              <p>
+                Detected threats will be displayed here.
+              </p>
+            </div>
           </div>
         </div>
       </div>
@@ -47,6 +79,15 @@
     <div class="versions">
       <div class="ui segment">
         <h3>Versions</h3>
+        <div v-if="showHelp" class="ui info message">
+          <p>
+            The following list displays the current versions of all the portmaster submodules.
+            <i>Last Used</i> is the version that was last used since start.
+          </p>
+          <p>
+            Detected threats will be displayed here.
+          </p>
+        </div>
         <table v-if="versions" class="ui very basic compact table">
           <thead>
             <tr>
@@ -83,6 +124,7 @@ export default {
   data() {
     return {
       // op: this.$api.qsub("query ")
+      showHelp: false
     };
   },
   computed: {
@@ -121,7 +163,18 @@ export default {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped lang="scss">
+.dashboard {
+  height: 100vh;
+  overflow-y: scroll;
+}
+
 .status {
+  background-color: #1b1c1df0 !important;
+  .inverted.card {
+    background-color: #2a2a2a !important;
+  }
+  // border-left: 2px solid #2185d0 !important;
+
   .img.button {
     // 53.6×50
     height: 50px;
@@ -134,6 +187,17 @@ export default {
   }
   .wide.button {
     width: 40% !important;
+  }
+
+  .info.message {
+    margin-top: 15px !important;
+    margin: 5px;
+    ul {
+      padding-left: 20px !important;
+    }
+    img {
+      height: 20px;
+    }
   }
 }
 
