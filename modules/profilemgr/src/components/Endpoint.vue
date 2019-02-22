@@ -1,15 +1,11 @@
 <template>
 
     <div v-if="editing">
-      <button v-on:click="modifiedEntry.Wildcard = !modifiedEntry.Wildcard" v-bind:class="['ui icon button', {'blue': modifiedEntry.Wildcard}]" title="Wildcard (Include Subdomains)">
-        <i class="small asterisk icon"></i>
-      </button>
-
       <div v-bind:class="['ui labeled input', {'error': !endpointIsValid}, {'active': endpointIsValid}]" style="width: 30%">
-        <div class="ui center aligned label" style="width: 75px;">
-          &nbsp;{{ endpointType }}&nbsp; <!-- dirty fix -->
+        <div class="ui center aligned label" style="width: 105px;">
+          &nbsp;{{ endpointType|fmt_type }}&nbsp; <!-- dirty fix -->
         </div>
-        <input type="text" v-model="modifiedEntry.DomainOrIP" placeholder="Domain or IP">
+        <input type="text" v-model="modifiedEntry.Value" placeholder="Domain, IP/Range, ASN or Country">
       </div>
       <div v-bind:class="['ui input', {'error': !protocolIsValid}]" style="width: 15%">
         <input type="text" v-model="modifiedEntry.protocol" placeholder="any protocol">
@@ -29,20 +25,18 @@
     </div>
 
     <div v-else>
-
       <i v-bind:class="['circle icon', 'profile-level-' + entry.profileLevel + '-color']"></i>
 
-      <span class="endpoint-entity" title="Domain or IP">
-        <span v-if="!entry.Wildcard && entry.DomainOrIP == ''" class="ui orange text">
-          &lt;invalid entry - please edit&gt;
-        </span>
-        <span v-else>
-          <span v-if="entry.Wildcard" class="endpoint-wildcard" title="Wildcard (Include Subdomains)">
-            <sup><i class="small asterisk icon"></i></sup>
-          </span>
-          {{ entry.DomainOrIP }}
-        </span>
+      <span class="endpoint-entity" title="Domain, IP/Range, ASN or Country">
+        <strong>{{ entry.Type|fmt_type }}</strong>
+        &nbsp;
+        {{ entry.Value }}
       </span>
+
+      <span v-if="entry.Type == 5" class="ui orange text">Type IPv4 Range not yet implemented, will deny all.</span>
+      <span v-if="entry.Type == 6" class="ui orange text">Type IPv6 Range not yet implemented, will deny all.</span>
+      <span v-if="entry.Type == 7" class="ui orange text">Type ASN not yet implemented, will deny all.</span>
+      <span v-if="entry.Type == 8" class="ui orange text">Type Country not yet implemented, will deny all.</span>
 
       <span v-if="humanProtocol || humanPort" class="endpoint-detail" title="Protocol / Ports">
         <span v-if="humanProtocol">{{ humanProtocol }}</span>
@@ -66,6 +60,29 @@
 </template>
 
 <script>
+
+const EptUnknown   = 0;
+const EptAny       = 1;
+const EptDomain    = 2;
+const EptIPv4      = 3;
+const EptIPv6      = 4;
+const EptIPv4Range = 5;
+const EptIPv6Range = 6;
+const EptASN       = 7;
+const EptCountry   = 8;
+
+const endpointTypeNames = {
+  0: "Unknown",
+  1: "Any",
+  2: "Domain",
+  3: "IPv4",
+  4: "IPv6",
+  5: "IPv4 Range",
+  6: "IPv6 Range",
+  7: "AS",
+  8: "Country"
+};
+
 // prettier-ignore
 const protocolNumbers = {
   "ICMP": 1,
@@ -130,8 +147,17 @@ const portNames = {
 };
 
 // eslint-disable-next-line
-const domainRegex = new RegExp("^([a-z0-9][a-z0-9-]{0,61}[a-z0-9]?\\.)*[a-z]{2,}\\.$");
+const countryRegex = new RegExp("^[A-Z]{2}$");
+const domainRegex  = new RegExp("^\\*?(([A-z0-9][A-z0-9-]{0,61}[A-z0-9])?\\.)*[A-z]{2,}\\.$");
+const altDomainRegex = new RegExp("^\\*?[A-z0-9\\.-]+\\*$");
+const asnRegex = new RegExp("^(AS)?[0-9]+$");
+
 const { IP } = require("@hownetworks/ipv46");
+import { IPv4 } from "ip-num/IPv4";
+import { IPv6 } from "ip-num/IPv6";
+import { IPv4Range } from "ip-num/IPv4Range";
+import { IPv6Range } from "ip-num/IPv6Range";
+import { Validator } from "ip-num/Validator";
 
 export default {
   name: "Endpoint",
@@ -151,6 +177,9 @@ export default {
       this.modifiedEntry = JSON.parse(JSON.stringify(this.entry));
       this.modifiedEntry.protocol = this.humanProtocol;
       this.modifiedEntry.ports = this.humanPort;
+      if (this.modifiedEntry.Type == EptAny) {
+        this.modifiedEntry.Value = "*";
+      }
     },
     save() {
       var error = this.clean();
@@ -186,8 +215,8 @@ export default {
       return text;
     },
     clean() {
-      var cleanedDomainOrIP = this.cleanedEndpoint;
-      if (!cleanedDomainOrIP[2]) {
+      var cleanedEP = this.cleanedEndpoint;
+      if (!cleanedEP[2]) {
         return "invalid endpoint";
       }
 
@@ -201,14 +230,11 @@ export default {
         return "invalid port(s)";
       }
 
-      this.modifiedEntry.DomainOrIP = cleanedDomainOrIP[0];
+      this.modifiedEntry.Type = cleanedEP[0];
+      this.modifiedEntry.Value = cleanedEP[1];
       this.modifiedEntry.Protocol = cleanedProtocol[0];
       this.modifiedEntry.StartPort = cleanedPorts[0];
       this.modifiedEntry.EndPort = cleanedPorts[1];
-
-      if (cleanedDomainOrIP[1] == "IPv4" || cleanedDomainOrIP[1] == "IPv6") {
-        this.modifiedEntry.Wildcard = false;
-      }
 
       return null;
     },
@@ -259,44 +285,76 @@ export default {
       return this.entry.Protocol;
     },
     cleanedEndpoint() {
-      // returns: newValue, valueType, ok
+      // returns: newType, newValue, ok
 
       if (this.modifiedEntry == null) {
-        return ["ERROR", "ERROR", false];
+        return [EptUnknown, "ERROR", false];
       }
 
-      var endpoint = this.modifiedEntry.DomainOrIP.trim().toLowerCase();
+      var endpoint = this.modifiedEntry.Value.trim();
 
-      // wildcard
-      if (endpoint == "") {
-        return ["", "", true];
+      // Any
+      if (endpoint == "*") {
+        return [EptAny, "", true];
       }
 
-      // IP address
-      var ip = IP.parse(endpoint);
-      if (ip != null) {
-        if (ip.version == 4) {
-          return [ip.toString(), "IPv4", true];
-        } else {
-          return [ip.toString(), "IPv6", true];
+      // IPv4
+      if (Validator.isValidIPv4String(endpoint)[0]) {
+        return [EptIPv4, IPv4.fromDecimalDottedString(endpoint).toString(), true];
+      }
+
+      // IPv6
+      if (Validator.isValidIPv6String(endpoint)[0]) {
+        return [EptIPv6, IP.parse(endpoint).toString(), true];
+      }
+
+      // IPv4 Network
+      if (Validator.isValidIPv4CidrNotation(endpoint)[0]) {
+        return [EptIPv4Range, IPv4Range.fromCidr(endpoint).toCidrString(), true];
+      }
+
+      // IPv6 Network
+      if (Validator.isValidIPv6CidrNotation(endpoint)[0]) {
+        var range = IPv6Range.fromCidr(endpoint)
+        var s = IP.parse(range.ipv6.toString()).toString() + "/" + range.cidrPrefix
+        return [EptIPv6Range, s, true];
+      }
+
+      // ASN
+      if (asnRegex.test(endpoint)) {
+        if (endpoint.startsWith("AS")) {
+          return [EptASN, endpoint.substring(2), true];
         }
+        return [EptASN, endpoint, true];
+      }
+
+      // country
+      if (countryRegex.test(endpoint)) {
+        return [EptCountry, endpoint.toUpperCase(), true];
       }
 
       // domain
       if (domainRegex.test(endpoint)) {
-        return [endpoint, "Domain", true];
-      } else {
-        endpoint = endpoint + ".";
-        if (domainRegex.test(endpoint)) {
-          return [endpoint, "Domain", true];
-        }
+        return [EptDomain, endpoint.toLowerCase(), true];
+      }
+
+      // try fixing domain
+      var fixed = endpoint + ".";
+      if (domainRegex.test(fixed)) {
+        return [EptDomain, fixed.toLowerCase(), true];
+      }
+
+      // try domain with wildcard at end
+      if (altDomainRegex.test(endpoint)) {
+        return [EptDomain, endpoint.toLowerCase(), true];
       }
 
       // invalid
-      return ["ERROR", "?", false];
+      this.modifiedEntry.Type = EptUnknown;
+      return [EptUnknown, "ERROR", false];
     },
     endpointType() {
-      return this.cleanedEndpoint[1];
+      return this.cleanedEndpoint[0];
     },
     endpointIsValid() {
       return this.cleanedEndpoint[2];
@@ -378,6 +436,11 @@ export default {
     portsAreValid() {
       return this.cleanedPorts[2];
     }
+  },
+  filters: {
+    fmt_type(value) {
+      return endpointTypeNames[value];
+    }
   }
 };
 </script>
@@ -408,5 +471,9 @@ export default {
   border-left: 1px solid #e8e8e8;
   border-top: 1px solid #e8e8e8;
   border-bottom: 1px solid #e8e8e8;
+}
+
+.type-button:hover {
+  cursor: auto;
 }
 </style>

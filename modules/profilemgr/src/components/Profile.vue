@@ -289,7 +289,7 @@
         <h2>Endpoints</h2>
 
         <div v-if="showHelp" class="ui info message">
-          White- or blacklist certain domains or IP addresses.<br>
+          White- or blacklist domains, IP address and ranges, ASNs or countries.<br>
           If needed, you may also specify a protocol and a port (range).<br>
           Please note, that this list will not be checked for localhost entries.
         </div>
@@ -321,7 +321,7 @@
         <h2>Service Endpoints</h2>
 
         <div v-if="showHelp" class="ui info message">
-          White- or blacklist certain domains or IP addresses for incoming connections.<br>
+          White- or blacklist domains, IP address and ranges, ASNs or countries.<br>
           If needed, you may also specify a protocol and a port (range).<br>
           This list will also be checked for localhost endpoints.
         </div>
@@ -536,12 +536,12 @@ export default {
     newEndpoint(service) {
       this.startEditing();
       var newEntry = {
-        DomainOrIP: "",
-        Wildcard: false,
+        Type: 1,
+        Value: "",
         Protocol: 0,
         StartPort: 0,
         EndPort: 0,
-        Permit: true,
+        Permit: false,
         Created: Math.floor((new Date()).getTime() / 1000) // eslint-disable-line
       };
 
