@@ -3,18 +3,18 @@
 
     <div class="ui selection dropdown no-input" v-if="displayDefault">
       <div class="default text">
-        <img v-if="record.DefaultValue <= 1" src="/assets/icons/security_levels/level_dynamic.svg">
-        <img v-if="record.DefaultValue <= 2" src="/assets/icons/security_levels/level_secure.svg">
-        <img v-if="record.DefaultValue <= 3" src="/assets/icons/security_levels/level_fortress.svg">
+        <img v-if="(record.DefaultValue&1) > 0" src="/assets/icons/security_levels/level_dynamic.svg"></img>
+        <img v-if="(record.DefaultValue&2) > 0" src="/assets/icons/security_levels/level_secure.svg"></img>
+        <img v-if="(record.DefaultValue&4) > 0" src="/assets/icons/security_levels/level_fortress.svg"></img>
       </div>
     </div>
 
     <div class="ui action input" v-else-if="!editing || successState">
       <div class="ui selection dropdown no-input">
         <div class="default text">
-          <img v-if="record.Value <= 1" src="/assets/icons/security_levels/level_dynamic.svg">
-          <img v-if="record.Value <= 2" src="/assets/icons/security_levels/level_secure.svg">
-          <img v-if="record.Value <= 3" src="/assets/icons/security_levels/level_fortress.svg">
+          <img v-if="(record.Value&1) > 0" src="/assets/icons/security_levels/level_dynamic.svg"></img>
+          <img v-if="(record.Value&2) > 0" src="/assets/icons/security_levels/level_secure.svg"></img>
+          <img v-if="(record.Value&4) > 0" src="/assets/icons/security_levels/level_fortress.svg"></img>
         </div>
       </div>
 
@@ -27,22 +27,22 @@
     </div>
 
     <div class="ui action input" v-else>
-      <div :id="dropdownID" class="ui selection dropdown">
-        <input type="hidden" v-model="newValue">
+      <div v-bind:id="dropdownID" class="ui selection dropdown">
+        <input type="hidden" v-model="newValue"></input>
         <i class="dropdown icon"></i>
         <div class="default text">{{ newValue }}</div>
         <div class="menu">
-          <div class="item" data-value="1">
-            <img src="/assets/icons/security_levels/level_dynamic.svg">
-            <img src="/assets/icons/security_levels/level_secure.svg">
-            <img src="/assets/icons/security_levels/level_fortress.svg">
+          <div class="item" data-value="7">
+            <img src="/assets/icons/security_levels/level_dynamic.svg"></img>
+            <img src="/assets/icons/security_levels/level_secure.svg"></img>
+            <img src="/assets/icons/security_levels/level_fortress.svg"></img>
           </div>
-          <div class="item" data-value="2">
-            <img src="/assets/icons/security_levels/level_secure.svg">
-            <img src="/assets/icons/security_levels/level_fortress.svg">
+          <div class="item" data-value="6">
+            <img src="/assets/icons/security_levels/level_secure.svg"></img>
+            <img src="/assets/icons/security_levels/level_fortress.svg"></img>
           </div>
-          <div class="item" data-value="3">
-            <img src="/assets/icons/security_levels/level_fortress.svg">
+          <div class="item" data-value="4">
+            <img src="/assets/icons/security_levels/level_fortress.svg"></img>
           </div>
         </div>
       </div>
