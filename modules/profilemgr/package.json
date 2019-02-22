@@ -1,6 +1,6 @@
 {
   "name": "Portmaster-UI-Profile-Manager",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "private": true,
   "scripts": {
     "serve": "vue-cli-service serve",
@@ -9,6 +9,7 @@
   },
   "dependencies": {
     "@hownetworks/ipv46": "^2.0.2",
+    "ip-num": "^1.1.1",
     "jquery": "^3.3.1",
     "sortablejs": "^1.8.0-rc1",
     "vue": "^2.5.17"
