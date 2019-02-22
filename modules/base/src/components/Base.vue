@@ -143,6 +143,49 @@ export default {
       if (this.activeModule == this.uiModules[index].url) {
         this.activeModule = "-";
       }
+    },
+    updateModuleHelpFlag() {
+//       function getIframeWindow(iframe_object) {
+//   var doc;
+//
+//   if (iframe_object.contentWindow) {
+//     return iframe_object.contentWindow;
+//   }
+//
+//   if (iframe_object.window) {
+//     return iframe_object.window;
+//   }
+//
+//   if (!doc && iframe_object.contentDocument) {
+//     doc = iframe_object.contentDocument;
+//   }
+//
+//   if (!doc && iframe_object.document) {
+//     doc = iframe_object.document;
+//   }
+//
+//   if (doc && doc.defaultView) {
+//    return doc.defaultView;
+//   }
+//
+//   if (doc && doc.parentWindow) {
+//     return doc.parentWindow;
+//   }
+// 
+//   return undefined;
+// }
+// and
+//
+// ...
+// var el = document.getElementById('targetFrame');
+//
+// var frame_win = getIframeWindow(el);
+//
+// if (frame_win) {
+//   frame_win.reset();
+//   ...
+// }
+// ...
     }
   }
 };

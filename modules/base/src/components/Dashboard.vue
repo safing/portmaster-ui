@@ -78,7 +78,29 @@
 
     <div class="versions">
       <div class="ui segment">
-        <h3>Versions</h3>
+
+        <h3>Core Version Info</h3>
+        <div v-if="showHelp" class="ui info message">
+          <p>
+            This is some information about the Portmaster that is added to the binary at compile time. This is helpful for checking the exact version and source.
+          </p>
+        </div>
+
+        <div v-if="coreInfo">
+          <p style="padding: 5px;">
+            <strong>Name</strong>:         {{ coreInfo.Name }}<br>
+            <strong>Version</strong>:      {{ coreInfo.Version }}<br>
+            <strong>Commit</strong>:       {{ coreInfo.Commit }}<br>
+            <strong>BuildOptions</strong>: {{ coreInfo.BuildOptions }}<br>
+            <strong>BuildUser</strong>:    {{ coreInfo.BuildUser }}<br>
+            <strong>BuildHost</strong>:    {{ coreInfo.BuildHost }}<br>
+            <strong>BuildDate</strong>:    {{ coreInfo.BuildDate }}<br>
+            <strong>BuildSource</strong>:  {{ coreInfo.BuildSource }}<br>
+          </p>
+        </div>
+        <span v-else>loading...</span>
+
+        <h3>Module Versions</h3>
         <div v-if="showHelp" class="ui info message">
           <p>
             The following list displays the current versions of all the portmaster submodules.
@@ -88,7 +110,8 @@
             Detected threats will be displayed here.
           </p>
         </div>
-        <table v-if="versions" class="ui very basic compact table">
+
+        <table v-if="moduleVersions" class="ui very basic compact table">
           <thead>
             <tr>
               <th>Module</th>
@@ -99,7 +122,7 @@
             </tr>
           </thead>
           <tbody>
-            <tr v-for="vStatus in versions">
+            <tr v-for="vStatus in moduleVersions">
               <td>{{ vStatus.identifier }}</td>
               <td>{{ vStatus.LastVersionUsed }}</td>
               <td>{{ vStatus.LocalVersion }}</td>
@@ -109,6 +132,7 @@
           </tbody>
         </table>
         <span v-else>loading...</span>
+
       </div>
     </div>
 
@@ -131,16 +155,24 @@ export default {
     status() {
       return this.$parent.op.records["core:status/status"];
     },
-    versions() {
+    coreInfo() {
+      var status = this.$parent.op.records["core:status/updates"];
+      if (status == undefined) {
+        return null;
+      }
+
+      return status.Core;
+    },
+    moduleVersions() {
       var status = this.$parent.op.records["core:status/updates"];
       if (status == undefined) {
         return null;
       }
 
       var sortedVersions = [];
-      for (var key in status.Versions){
-        status.Versions[key]["identifier"] = key;
-        sortedVersions.push(status.Versions[key]);
+      for (var key in status.Modules){
+        status.Modules[key]["identifier"] = key;
+        sortedVersions.push(status.Modules[key]);
       }
 
       sortedVersions.sort(function(a, b) {
