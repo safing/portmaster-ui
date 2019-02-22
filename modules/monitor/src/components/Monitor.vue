@@ -21,28 +21,28 @@
               <div class="ui label">
                 <i class="stream icon"></i>
                 <div class="detail">
-                  {{ process.data.ConnectionCount }}
+                  {{ process.data.CommCount }}
                 </div>
               </div>
             </div>
 
             <div class="ui one column grid container">
-              <div v-for="connection in process.children" v-bind:key="connection.key" v-on:click="selectConnection(connection)" class="column connection-item">
+              <div v-for="communication in process.children" v-bind:key="communication.key" v-on:click="selectCommunication(communication)" class="column communication-item">
                 <div>
-                  <Verdict :verdict="connection.data.Verdict"></Verdict>
-                  <span v-if="connection.data.Domain == 'IH'" class="connection-name">Incoming from Localhost</span>
-                  <span v-else-if="connection.data.Domain == 'IL'" class="connection-name">Incoming from the LAN</span>
-                  <span v-else-if="connection.data.Domain == 'II'" class="connection-name">Incoming from the Internet</span>
-                  <span v-else-if="connection.data.Domain == 'IX'" class="connection-name">Incoming - Invalid</span>
-                  <span v-else-if="connection.data.Domain == 'PH'" class="connection-name">Peers on Localhost</span>
-                  <span v-else-if="connection.data.Domain == 'PL'" class="connection-name">Peers on the LAN</span>
-                  <span v-else-if="connection.data.Domain == 'PI'" class="connection-name">Peers on the Internet</span>
-                  <span v-else-if="connection.data.Domain == 'PX'" class="connection-name">Peers - Invalid</span>
-                  <span v-else class="connection-name">{{ connection.data.Domain }}</span>
+                  <Verdict :verdict="communication.data.Verdict"></Verdict>
+                  <span v-if="communication.data.Domain == 'IH'" class="communication-name">Incoming from Localhost</span>
+                  <span v-else-if="communication.data.Domain == 'IL'" class="communication-name">Incoming from the LAN</span>
+                  <span v-else-if="communication.data.Domain == 'II'" class="communication-name">Incoming from the Internet</span>
+                  <span v-else-if="communication.data.Domain == 'IX'" class="communication-name">Incoming - Invalid</span>
+                  <span v-else-if="communication.data.Domain == 'PH'" class="communication-name">Peers on Localhost</span>
+                  <span v-else-if="communication.data.Domain == 'PL'" class="communication-name">Peers on the LAN</span>
+                  <span v-else-if="communication.data.Domain == 'PI'" class="communication-name">Peers on the Internet</span>
+                  <span v-else-if="communication.data.Domain == 'PX'" class="communication-name">Peers - Invalid</span>
+                  <span v-else class="communication-name">{{ communication.data.Domain }}</span>
                   <div class="ui label">
                     <i class="project diagram icon"></i>
                     <div class="detail">
-                      {{ connection.data.LinkCount }}
+                      {{ communication.data.LinkCount }}
                     </div>
                   </div>
                 </div>
@@ -61,52 +61,52 @@
     <div v-if="selected == 1" class="eleven wide column container content-pane">
       <h2>{{ selectedProcess.data.Name }} ({{ selectedProcess.data.Pid }})</h2>
 
-      <h4>CmdLine: {{ selectedConnection.parent.data.CmdLine }}</h4>
-      <h4>ConnectionCount: {{ selectedConnection.parent.data.ConnectionCount }}</h4>
-      <h4>Cwd: {{ selectedConnection.parent.data.Cwd }}</h4>
-      <h4>ExecHashes: {{ selectedConnection.parent.data.ExecHashes }}</h4>
-      <h4>ExecName: {{ selectedConnection.parent.data.ExecName }}</h4>
-      <h4>FirstArg: {{ selectedConnection.parent.data.FirstArg }}</h4>
-      <h4>FirstConnectionEstablished: {{ selectedConnection.parent.data.FirstConnectionEstablished|fmt_time }}</h4>
-      <h4>Icon: {{ selectedConnection.parent.data.Icon }}</h4>
-      <h4>LastConnectionEstablished: {{ selectedConnection.parent.data.LastConnectionEstablished|fmt_time }}</h4>
-      <h4>Name: {{ selectedConnection.parent.data.Name }}</h4>
-      <h4>ParentPid: {{ selectedConnection.parent.data.ParentPid }}</h4>
-      <h4>Path: {{ selectedConnection.parent.data.Path }}</h4>
-      <h4>Pid: {{ selectedConnection.parent.data.Pid }}</h4>
-      <h4>UserHome: {{ selectedConnection.parent.data.UserHome }}</h4>
-      <h4>UserID: {{ selectedConnection.parent.data.UserID }}</h4>
-      <h4>UserName: {{ selectedConnection.parent.data.UserName }}</h4>
-      <h4>UserProfileKey: {{ selectedConnection.parent.data.UserProfileKey }}</h4>
+      <h4>CmdLine: {{ selectedCommunication.parent.data.CmdLine }}</h4>
+      <h4>CommCount: {{ selectedCommunication.parent.data.CommCount }}</h4>
+      <h4>Cwd: {{ selectedCommunication.parent.data.Cwd }}</h4>
+      <h4>ExecHashes: {{ selectedCommunication.parent.data.ExecHashes }}</h4>
+      <h4>ExecName: {{ selectedCommunication.parent.data.ExecName }}</h4>
+      <h4>FirstArg: {{ selectedCommunication.parent.data.FirstArg }}</h4>
+      <h4>FirstCommEstablished: {{ selectedCommunication.parent.data.FirstCommEstablished|fmt_time }}</h4>
+      <h4>Icon: {{ selectedCommunication.parent.data.Icon }}</h4>
+      <h4>LastCommEstablished: {{ selectedCommunication.parent.data.LastCommEstablished|fmt_time }}</h4>
+      <h4>Name: {{ selectedCommunication.parent.data.Name }}</h4>
+      <h4>ParentPid: {{ selectedCommunication.parent.data.ParentPid }}</h4>
+      <h4>Path: {{ selectedCommunication.parent.data.Path }}</h4>
+      <h4>Pid: {{ selectedCommunication.parent.data.Pid }}</h4>
+      <h4>UserHome: {{ selectedCommunication.parent.data.UserHome }}</h4>
+      <h4>UserID: {{ selectedCommunication.parent.data.UserID }}</h4>
+      <h4>UserName: {{ selectedCommunication.parent.data.UserName }}</h4>
+      <h4>UserProfileKey: {{ selectedCommunication.parent.data.UserProfileKey }}</h4>
     </div>
     <div v-else-if="selected == 2" class="eleven wide column container content-pane">
-      <h2>{{ selectedConnection.parent.data.Name }} ({{ selectedConnection.parent.data.Pid }}) >
-        <span v-if="selectedConnection.data.Domain == 'IH'">Incoming from Localhost</span>
-        <span v-else-if="selectedConnection.data.Domain == 'IL'">Incoming from the LAN</span>
-        <span v-else-if="selectedConnection.data.Domain == 'II'">Incoming from the Internet</span>
-        <span v-else-if="selectedConnection.data.Domain == 'IX'">Incoming - Invalid</span>
-        <span v-else-if="selectedConnection.data.Domain == 'PH'">Peers on Localhost</span>
-        <span v-else-if="selectedConnection.data.Domain == 'PL'">Peers on the LAN</span>
-        <span v-else-if="selectedConnection.data.Domain == 'PI'">Peers on the Internet</span>
-        <span v-else-if="selectedConnection.data.Domain == 'PX'">Peers - Invalid</span>
-        <span v-else>{{ selectedConnection.data.Domain }}</span>
+      <h2>{{ selectedCommunication.parent.data.Name }} ({{ selectedCommunication.parent.data.Pid }}) >
+        <span v-if="selectedCommunication.data.Domain == 'IH'">Incoming from Localhost</span>
+        <span v-else-if="selectedCommunication.data.Domain == 'IL'">Incoming from the LAN</span>
+        <span v-else-if="selectedCommunication.data.Domain == 'II'">Incoming from the Internet</span>
+        <span v-else-if="selectedCommunication.data.Domain == 'IX'">Incoming - Invalid</span>
+        <span v-else-if="selectedCommunication.data.Domain == 'PH'">Peers on Localhost</span>
+        <span v-else-if="selectedCommunication.data.Domain == 'PL'">Peers on the LAN</span>
+        <span v-else-if="selectedCommunication.data.Domain == 'PI'">Peers on the Internet</span>
+        <span v-else-if="selectedCommunication.data.Domain == 'PX'">Peers - Invalid</span>
+        <span v-else>{{ selectedCommunication.data.Domain }}</span>
       </h2>
       <div class="ui one column grid">
         <div class="column">
-          <h4>Direction: {{ selectedConnection.data.Direction }}</h4>
-          <h4>Domain: {{ selectedConnection.data.Domain }}</h4>
-          <h4>FirstLinkEstablished: {{ selectedConnection.data.FirstLinkEstablished|fmt_time }}</h4>
-          <h4>Inspect: {{ selectedConnection.data.Inspect }}</h4>
-          <h4>Intel: {{ selectedConnection.data.Intel }}</h4>
-          <h4>LastLinkEstablished: {{ selectedConnection.data.LastLinkEstablished|fmt_time }}</h4>
-          <h4>LinkCount: {{ selectedConnection.data.LinkCount }}</h4>
-          <h4>Reason: {{ selectedConnection.data.Reason }}</h4>
-          <h4>Verdict: {{ selectedConnection.data.Verdict }}</h4>
+          <h4>Direction: {{ selectedCommunication.data.Direction }}</h4>
+          <h4>Domain: {{ selectedCommunication.data.Domain }}</h4>
+          <h4>FirstLinkEstablished: {{ selectedCommunication.data.FirstLinkEstablished|fmt_time }}</h4>
+          <h4>Inspect: {{ selectedCommunication.data.Inspect }}</h4>
+          <h4>Intel: {{ selectedCommunication.data.Intel }}</h4>
+          <h4>LastLinkEstablished: {{ selectedCommunication.data.LastLinkEstablished|fmt_time }}</h4>
+          <h4>LinkCount: {{ selectedCommunication.data.LinkCount }}</h4>
+          <h4>Reason: {{ selectedCommunication.data.Reason }}</h4>
+          <h4>Verdict: {{ selectedCommunication.data.Verdict }}</h4>
         </div>
         <div class="column">
           <div class="ui divider"></div>
 
-          <table v-if="selectedConnection.children.length > 0" class="ui celled table">
+          <table v-if="selectedCommunication.children.length > 0" class="ui celled table">
             <thead>
               <tr>
                 <th>Verdict, Reason</th>
@@ -119,7 +119,7 @@
               </tr>
             </thead>
             <tbody>
-              <tr v-for="link in selectedConnection.children" v-bind:key="link.key">
+              <tr v-for="link in selectedCommunication.children" v-bind:key="link.key">
                 <td><Verdict :verdict="link.data.Verdict" :reason="link.data.Reason" :long="true"></Verdict></td>
                 <td>{{ link.data.RemoteAddress }}</td>
                 <td>{{ link.data.Started|fmt_time }}</td>
@@ -148,7 +148,7 @@
       <div class="ui grid middle aligned">
         <div class="row">
           <div class="column">
-            <h1>select process or connection on the left</h1>
+            <h1>select process or communication on the left</h1>
           </div>
         </div>
       </div>
@@ -181,7 +181,7 @@ export default {
       op: this.$api.qsub("query network:tree/"),
       selected: 0,
       selectedProcess: null,
-      selectedConnection: null
+      selectedCommunication: null
     };
   },
   computed: {
@@ -205,29 +205,29 @@ export default {
           return countChar(key, "/") == 2 && key.startsWith(process.key);
         });
         for (var j = 0; j < l2Keys.length; j++) {
-          var connection = {
+          var communication = {
             key: l2Keys[j],
             data: this.op.records[l2Keys[j]],
             children: [],
             parent: process
           };
-          process.children.push(connection);
+          process.children.push(communication);
 
           // level 3
           var l3Keys = Object.keys(this.op.records).filter(function(key) {
-            return countChar(key, "/") == 3 && key.startsWith(connection.key);
+            return countChar(key, "/") == 3 && key.startsWith(communication.key);
           });
           for (var k = 0; k < l3Keys.length; k++) {
             var link = {
               key: l3Keys[k],
               data: this.op.records[l3Keys[k]],
-              parent: connection
+              parent: communication
             };
-            connection.children.push(link);
+            communication.children.push(link);
           }
 
           // order level 3
-          connection.children.sort(function(a, b) {
+          communication.children.sort(function(a, b) {
             return a.data.Started - b.data.Started;
           });
         }
@@ -240,7 +240,7 @@ export default {
 
       // order level 1
       tree.sort(function(a, b) {
-        return a.LastConnectionEstablished - b.LastConnectionEstablished;
+        return a.LastCommEstablished - b.LastCommEstablished;
       });
 
       return tree;
@@ -258,9 +258,9 @@ export default {
       this.selected = 1;
       this.selectedProcess = p;
     },
-    selectConnection(c) {
+    selectCommunication(c) {
       this.selected = 2;
-      this.selectedConnection = c;
+      this.selectedCommunication = c;
     }
   },
   filters: {
@@ -319,7 +319,7 @@ export default {
   padding-bottom: 5px;
 }
 .process-item:hover,
-.connection-item:hover {
+.communication-item:hover {
   background-color: #eee;
   cursor: pointer;
 }
