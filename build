@@ -11,6 +11,7 @@ echo ""
 
 ./modules/build check
 ./app/build check
+./notifier/build check
 ./assets/build check
 
 # confirm
@@ -27,6 +28,11 @@ if [[ $? -ne 0 ]]; then
 fi
 
 ./app/build build
+if [[ $? -ne 0 ]]; then
+  exit 1
+fi
+
+./notifier/build build
 if [[ $? -ne 0 ]]; then
   exit 1
 fi

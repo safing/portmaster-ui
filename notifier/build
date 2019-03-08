@@ -8,21 +8,21 @@ COL_BOLD="\033[01;01m"
 COL_YELLOW="\033[33m"
 
 destDirPart1="../dist"
-destDirPart2="app"
+destDirPart2="notifier"
 
 function check {
   # get version
   version=$(cat version.txt | tr -d '[:space:]')
   # build versioned file name
-  filename="portmaster-ui_v${version//./-}"
+  filename="portmaster-notifier_v${version//./-}"
   # build destination path
   destPath=${destDirPart1}/linux_amd64/${destDirPart2}/$filename
 
   # check if file exists
   if [[ -f $destPath ]]; then
-    echo "[app] linux_amd64 $version already built"
+    echo "[notifier] linux_amd64 $version already built"
   else
-    echo -e "${COL_BOLD}[app] linux_amd64 $version${COL_OFF}"
+    echo -e "${COL_BOLD}[notifier] linux_amd64 $version${COL_OFF}"
   fi
 }
 
@@ -30,13 +30,13 @@ function build {
   # get version
   version=$(cat version.txt | tr -d '[:space:]')
   # build versioned file name
-  filename="portmaster-ui_v${version//./-}"
+  filename="portmaster-notifier_v${version//./-}"
   # build destination path
   destPath=${destDirPart1}/linux_amd64/${destDirPart2}/$filename
 
   # check if file exists
   if [[ -f $destPath ]]; then
-    echo "app[linux_amd64] already built in version $version, skipping..."
+    echo "notifier[linux_amd64] already built in version $version, skipping..."
     exit 0
   fi
 
