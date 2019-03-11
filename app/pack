@@ -14,7 +14,7 @@ function check {
   # get version
   version=$(cat version.txt | tr -d '[:space:]')
   # build versioned file name
-  filename="portmaster-ui_v${version//./-}"
+  filename="portmaster-app_v${version//./-}"
   # build destination path
   destPath=${destDirPart1}/linux_amd64/${destDirPart2}/$filename
 
@@ -30,7 +30,7 @@ function build {
   # get version
   version=$(cat version.txt | tr -d '[:space:]')
   # build versioned file name
-  filename="portmaster-ui_v${version//./-}"
+  filename="portmaster-app_v${version//./-}"
   # build destination path
   destPath=${destDirPart1}/linux_amd64/${destDirPart2}/$filename
 

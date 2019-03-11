@@ -6,42 +6,42 @@ cd "$baseDir"
 # first check what will be built
 
 echo ""
-echo "build list:"
+echo "pack list:"
 echo ""
 
-./modules/build check
-./app/build check
-./notifier/build check
-./assets/build check
+./modules/pack check
+./app/pack check
+./notifier/pack check
+./assets/pack check
 
 # confirm
 
 echo ""
-read -p "press [Enter] to start building" x
+read -p "press [Enter] to start packing" x
 echo ""
 
 # build
 
-./modules/build build
+./modules/pack build
 if [[ $? -ne 0 ]]; then
   exit 1
 fi
 
-./app/build build
+./app/pack build
 if [[ $? -ne 0 ]]; then
   exit 1
 fi
 
-./notifier/build build
+./notifier/pack build
 if [[ $? -ne 0 ]]; then
   exit 1
 fi
 
-./assets/build build
+./assets/pack build
 if [[ $? -ne 0 ]]; then
   exit 1
 fi
 
 echo ""
-echo "finished building."
+echo "finished packing."
 echo ""
