@@ -13,6 +13,7 @@ import (
 	"time"
 
 	"github.com/Safing/portbase/api/client"
+	"github.com/Safing/portbase/info"
 	"github.com/Safing/portbase/log"
 )
 
@@ -34,6 +35,21 @@ func init() {
 func main() {
 	// parse flags
 	flag.Parse()
+
+	// set meta info
+	info.Set("Portmaster Notifier", "0.1.1")
+
+	// check if meta info is ok
+	err := info.CheckVersion()
+	if err != nil {
+		fmt.Println("compile error: please compile using the provided build script")
+		os.Exit(1)
+	}
+
+	// react to version flag
+	if info.PrintVersion() {
+		os.Exit(0)
+	}
 
 	// start log writer
 	log.Start()
