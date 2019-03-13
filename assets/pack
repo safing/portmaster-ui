@@ -43,9 +43,11 @@ function build {
   mkdir -p $destDir
   zip -r $destPath * -x build README.md
   if [[ $? -ne 0 ]]; then
-    echo -e "\nassets: BUILD FAILED."
+    echo -e "\n${COL_BOLD}assets: ${COL_RED}BUILD FAILED.${COL_OFF}"
     exit 1
   fi
+
+  echo -e "\n${COL_BOLD}assets: successfully built.${COL_OFF}"
 }
 
 case $1 in

@@ -9,10 +9,15 @@ echo ""
 echo "pack list:"
 echo ""
 
-./modules/pack check
-./app/pack check
-./notifier/pack check
-./assets/pack check
+if [[ $1 == "" || $1 == "js" ]]; then
+  ./modules/pack check
+  ./assets/pack check
+fi
+
+if [[ $1 == "" || $1 == "go" ]]; then
+  ./app/pack check
+  ./notifier/pack check
+fi
 
 # confirm
 
@@ -22,24 +27,28 @@ echo ""
 
 # build
 
-./modules/pack build
-if [[ $? -ne 0 ]]; then
-  exit 1
+if [[ $1 == "" || $1 == "js" ]]; then
+  ./modules/pack build
+  if [[ $? -ne 0 ]]; then
+    exit 1
+  fi
+
+  ./assets/pack build
+  if [[ $? -ne 0 ]]; then
+    exit 1
+  fi
 fi
 
-./app/pack build
-if [[ $? -ne 0 ]]; then
-  exit 1
-fi
+if [[ $1 == "" || $1 == "go" ]]; then
+  ./app/pack build
+  if [[ $? -ne 0 ]]; then
+    exit 1
+  fi
 
-./notifier/pack build
-if [[ $? -ne 0 ]]; then
-  exit 1
-fi
-
-./assets/pack build
-if [[ $? -ne 0 ]]; then
-  exit 1
+  ./notifier/pack build
+  if [[ $? -ne 0 ]]; then
+    exit 1
+  fi
 fi
 
 echo ""

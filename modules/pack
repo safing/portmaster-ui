@@ -5,7 +5,7 @@ cd "$baseDir"
 
 COL_OFF="\033[00m"
 COL_BOLD="\033[01;01m"
-COL_YELLOW="\033[33m"
+COL_RED="\033[31m"
 
 destDir="../../dist/all/ui/modules"
 
@@ -64,6 +64,7 @@ function build {
       npm run build
       if [[ $? -ne 0 ]]; then
         echo -e "\n$module: BUILD FAILED."
+        echo -e "\n${COL_BOLD}[modules] $module: ${COL_RED}BUILD FAILED.${COL_OFF}"
         exit 1
       fi
 
@@ -77,6 +78,9 @@ function build {
       mkdir -p ../$destDir
       zip -r ../$destPath *
 
+      echo -e "\n${COL_BOLD}[modules] $module: successfully built.${COL_OFF}"
+
+      # go back to base dir
       cd "$baseDir"
     fi
   done
