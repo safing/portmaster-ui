@@ -1,5 +1,7 @@
 # Portmaster UI
 
+This repo holds all the UI related components for the [portmaster](https://github.com/Safing/portmaster).
+
 ### Repo structure
 
 - `app`: Thin web wrapper app to run the UI modules.
@@ -10,7 +12,7 @@
 
 ### Building
 
-Running the `build` script in the root directory will build all UI components for all supported systems (you must be on linux).
+Running the `pack` script in the root directory will build all UI components for all supported systems (you must be on linux).
 
 The output in the `dist` directory will look something like this:
 
