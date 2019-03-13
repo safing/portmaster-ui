@@ -63,7 +63,6 @@ function build {
       # build
       npm run build
       if [[ $? -ne 0 ]]; then
-        echo -e "\n$module: BUILD FAILED."
         echo -e "\n${COL_BOLD}[modules] $module: ${COL_RED}BUILD FAILED.${COL_OFF}"
         exit 1
       fi
