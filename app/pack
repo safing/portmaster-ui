@@ -12,7 +12,7 @@ destDirPart2="app"
 
 function check {
   # get version
-  version=$(cat version.txt | tr -d '[:space:]')
+  version=$(grep "info.Set" main.go | cut -d'"' -f4)
   # build versioned file name
   filename="portmaster-app_v${version//./-}"
   # build destination path
@@ -28,7 +28,7 @@ function check {
 
 function build {
   # get version
-  version=$(cat version.txt | tr -d '[:space:]')
+  version=$(grep "info.Set" main.go | cut -d'"' -f4)
   # build versioned file name
   filename="portmaster-app_v${version//./-}"
   # build destination path
@@ -41,7 +41,8 @@ function build {
   fi
 
   # build
-  GOOS=linux GOARCH=amd64 go build -o $destPath
+  GOOS=linux GOARCH=amd64 ./build
+  cp app $destPath
   if [[ $? -ne 0 ]]; then
     echo -e "\nlinux_amd64: BUILD FAILED."
     exit 1
