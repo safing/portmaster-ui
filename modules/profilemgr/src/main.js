@@ -10,7 +10,7 @@ Vue.config.productionTip = false;
 require("../../../assets/themed/fomantic/semantic.min.js");
 
 Vue.use(PortAPI, {
-  url: "ws://127.0.0.1:18/api/database/v1",
+  url: "ws://127.0.0.1:817/api/database/v1",
   debug: true
 });
 
