@@ -1,4 +1,7 @@
 dist
 
+# dev utils
+http-redir
+
 # meta
 .DS_Store

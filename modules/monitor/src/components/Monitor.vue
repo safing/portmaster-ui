@@ -21,7 +21,7 @@
               <div class="ui label">
                 <i class="stream icon"></i>
                 <div class="detail">
-                  {{ process.data.CommCount }}
+                  {{ process.childCnt() }}
                 </div>
               </div>
             </div>
@@ -42,7 +42,7 @@
                   <div class="ui label">
                     <i class="project diagram icon"></i>
                     <div class="detail">
-                      {{ communication.data.LinkCount }}
+                      {{ communication.childCnt() }}
                     </div>
                   </div>
                 </div>
@@ -61,23 +61,29 @@
     <div v-if="selected == 1" class="eleven wide column container content-pane">
       <h2>{{ selectedProcess.data.Name }} ({{ selectedProcess.data.Pid }})</h2>
 
-      <h4>CmdLine: {{ selectedCommunication.parent.data.CmdLine }}</h4>
-      <h4>CommCount: {{ selectedCommunication.parent.data.CommCount }}</h4>
-      <h4>Cwd: {{ selectedCommunication.parent.data.Cwd }}</h4>
-      <h4>ExecHashes: {{ selectedCommunication.parent.data.ExecHashes }}</h4>
-      <h4>ExecName: {{ selectedCommunication.parent.data.ExecName }}</h4>
-      <h4>FirstArg: {{ selectedCommunication.parent.data.FirstArg }}</h4>
-      <h4>FirstCommEstablished: {{ selectedCommunication.parent.data.FirstCommEstablished|fmt_time }}</h4>
-      <h4>Icon: {{ selectedCommunication.parent.data.Icon }}</h4>
-      <h4>LastCommEstablished: {{ selectedCommunication.parent.data.LastCommEstablished|fmt_time }}</h4>
-      <h4>Name: {{ selectedCommunication.parent.data.Name }}</h4>
-      <h4>ParentPid: {{ selectedCommunication.parent.data.ParentPid }}</h4>
-      <h4>Path: {{ selectedCommunication.parent.data.Path }}</h4>
-      <h4>Pid: {{ selectedCommunication.parent.data.Pid }}</h4>
-      <h4>UserHome: {{ selectedCommunication.parent.data.UserHome }}</h4>
-      <h4>UserID: {{ selectedCommunication.parent.data.UserID }}</h4>
-      <h4>UserName: {{ selectedCommunication.parent.data.UserName }}</h4>
-      <h4>UserProfileKey: {{ selectedCommunication.parent.data.UserProfileKey }}</h4>
+      <h4>CmdLine: {{ selectedProcess.data.CmdLine }}</h4>
+      <h4>CommCount: {{ selectedProcess.data.CommCount }}</h4>
+      <h4>Cwd: {{ selectedProcess.data.Cwd }}</h4>
+      <h4>ExecHashes: {{ selectedProcess.data.ExecHashes }}</h4>
+      <h4>ExecName: {{ selectedProcess.data.ExecName }}</h4>
+      <h4>FirstArg: {{ selectedProcess.data.FirstArg }}</h4>
+      <h4>FirstCommEstablished: {{ selectedProcess.data.FirstCommEstablished|fmt_time }}</h4>
+      <h4>Icon: {{ selectedProcess.data.Icon }}</h4>
+      <h4>LastCommEstablished: {{ selectedProcess.data.LastCommEstablished|fmt_time }}</h4>
+      <h4>Name: {{ selectedProcess.data.Name }}</h4>
+      <h4>ParentPid: {{ selectedProcess.data.ParentPid }}</h4>
+      <h4>Path: {{ selectedProcess.data.Path }}</h4>
+      <h4>Pid: {{ selectedProcess.data.Pid }}</h4>
+      <h4>UserHome: {{ selectedProcess.data.UserHome }}</h4>
+      <h4>UserID: {{ selectedProcess.data.UserID }}</h4>
+      <h4>UserName: {{ selectedProcess.data.UserName }}</h4>
+      <h4>UserProfileKey: {{ selectedProcess.data.UserProfileKey }}</h4>
+
+      <div v-if="selectedProcess.childProcesses">
+        <h4>childProcesses:</h4>
+        <ChildProcessList v-bind:processes="selectedProcess.childProcesses"></ChildProcessList>
+      </div>
+
     </div>
     <div v-else-if="selected == 2" class="eleven wide column container content-pane">
       <h2>{{ selectedCommunication.parent.data.Name }} ({{ selectedCommunication.parent.data.Pid }}) >
@@ -160,6 +166,7 @@
 
 <script>
 import Verdict from "./Verdict.vue";
+import ChildProcessList from "./ChildProcessList.vue";
 
 function countChar(s, c) {
   var count = 0;
@@ -171,10 +178,34 @@ function countChar(s, c) {
   return count;
 }
 
+function addVirtualProcessToParent(proc, processes, childProcesses) {
+  // search in process list
+  for (var i = 0; i < processes.length; i++) {
+    if (proc.data.ParentPid == processes[i].data.Pid) {
+      if (processes[i].childProcesses == undefined) {
+        processes[i].childProcesses = []
+      }
+      processes[i].childProcesses.push(proc)
+      return;
+    }
+  }
+  // search in childProcesses list
+  for (var i = 0; i < childProcesses.length; i++) {
+    if (proc.data.ParentPid == childProcesses[i].data.Pid) {
+      if (processes[i].childProcesses == undefined) {
+        processes[i].childProcesses = []
+      }
+      childProcesses[i].childProcesses.push(proc)
+      return;
+    }
+  }
+}
+
 export default {
   name: "Monitor",
   components: {
-    Verdict
+    Verdict,
+    ChildProcessList
   },
   data() {
     return {
@@ -187,17 +218,27 @@ export default {
   computed: {
     tree() {
       var tree = [];
+      var virtualProcesses = [];
 
       // level 1
       var l1Keys = Object.keys(this.op.records).filter(function(key) {
         return countChar(key, "/") == 1;
       });
+
       for (var i = 0; i < l1Keys.length; i++) {
         var process = {
           key: l1Keys[i],
           data: this.op.records[l1Keys[i]],
-          children: []
+          children: [],
+          // childProcesses: []
+          childCnt: function() {
+            return this.children.length;
+          }
         };
+        if (process.data.Virtual) {
+          virtualProcesses.push(process);
+          continue;
+        }
         tree.push(process);
 
         // level 2
@@ -209,7 +250,10 @@ export default {
             key: l2Keys[j],
             data: this.op.records[l2Keys[j]],
             children: [],
-            parent: process
+            parent: process,
+            childCnt: function() {
+              return this.children.length;
+            }
           };
           process.children.push(communication);
 
@@ -242,6 +286,14 @@ export default {
       tree.sort(function(a, b) {
         return a.LastCommEstablished - b.LastCommEstablished;
       });
+
+      // add virtual processes
+      virtualProcesses.sort(function(a, b) {
+        return a.Pid - b.Pid;
+      });
+      for (var i = 0; i < virtualProcesses.length; i++) {
+        addVirtualProcessToParent(virtualProcesses[i], tree, virtualProcesses)
+      }
 
       return tree;
     },
