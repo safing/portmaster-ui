@@ -124,6 +124,12 @@ export default {
           url: "/ui/modules/settings/",
           icon: "cog",
           loaded: false
+        },
+        {
+          name: "Dev Console",
+          url: "/ui/modules/console/",
+          icon: "terminal",
+          loaded: false
         }
       ]
     };
@@ -171,7 +177,7 @@ export default {
 //   if (doc && doc.parentWindow) {
 //     return doc.parentWindow;
 //   }
-// 
+//
 //   return undefined;
 // }
 // and
