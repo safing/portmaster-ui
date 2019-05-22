@@ -153,11 +153,11 @@ const altDomainRegex = new RegExp("^\\*?[A-z0-9\\.-]+\\*$");
 const asnRegex = new RegExp("^(AS)?[0-9]+$");
 
 const { IP } = require("@hownetworks/ipv46");
-import { IPv4 } from "ip-num/IPv4";
-import { IPv6 } from "ip-num/IPv6";
-import { IPv4Range } from "ip-num/IPv4Range";
-import { IPv6Range } from "ip-num/IPv6Range";
-import { Validator } from "ip-num/Validator";
+import { IPv4 } from "ip-num";
+import { IPv6 } from "ip-num";
+import { IPv4Range } from "ip-num";
+import { IPv6Range } from "ip-num";
+import { Validator } from "ip-num";
 
 export default {
   name: "Endpoint",
