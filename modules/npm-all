@@ -21,6 +21,13 @@ function safe_execute {
   fi
 }
 
+if [[ $1 == "reset" ]]; then
+  safe_execute rm -rf ~/.npm
+  safe_execute rm -rf */node_modules
+  safe_execute rm -f */package-lock.json
+  exit 0
+fi
+
 for module in *; do
   if [[ -f "$module/package.json" ]]; then
     # go to module dir
