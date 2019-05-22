@@ -4,6 +4,7 @@ class Operation {
   constructor(name, type) {
     this.name = name;
     this.type = type;
+    this.isGetReq = type == "get";
     this.record = null;
     this.records = {};
     this.loading = true;
@@ -11,34 +12,73 @@ class Operation {
     this.warnings = [];
     this.error = null;
     this.prepFns = {};
+    // init this.changes
+    this.getChanges();
+  }
+  getChanges() {
+    var changes = this.changes;
+    this.changes = {
+      created: 0,
+      updated: 0,
+      deleted: 0,
+      warnings: 0
+    }
+    return changes;
   }
   prepFn(keyPrefix, fn) {
     this.prepFns[keyPrefix] = fn;
     return this;
   }
-  prepData(key, obj) {
+  prepRecord(key, obj) {
+    // run through prep fns
     for (const [keyPrefix, prepFn] of Object.entries(this.prepFns)) {
       if (key.startsWith(keyPrefix)) {
         prepFn(key, obj)
       }
     }
   }
-  updateRecord(key, data) {
+  updateRecord(key, data, created) {
     var obj = this.parseObject(key, data);
-    this.prepData(key, obj);
+    if (obj == null) {
+      return;
+    }
 
-    console.log(obj)
-
-    if (this.type == "get") {
+    // set new object
+    if (this.isGetReq) {
+      // single object
       this.record = obj;
+      this.prepRecord(key, this.record);
     } else {
-      Vue.set(this.records, key, obj);
+      // query: many objects
+      if (created) {
+        // set new
+        Vue.set(this.records, key, obj);
+        this.prepRecord(key, obj);
+      } else {
+        // update existing
+        var existing = this.records[key];
+        if (existing) {
+          Object.assign(existing, obj);
+          this.prepRecord(key, existing);
+        } else {
+          // if not exists, set new
+          Vue.set(this.records, key, obj);
+          this.prepRecord(key, obj);
+        }
+      }
     }
   }
   deleteRecord(key) {
-    if (this.type == "get") {
+    if (this.isGetReq) {
+      if (this.record) {
+        this.record._deleted = true; // mark deleted for copied references
+      }
       this.record = null;
     } else {
+      var recordToDelete = this.records[key];
+      if (recordToDelete) {
+        recordToDelete._deleted = true; // mark deleted for copied references
+      }
       Vue.delete(this.records, key);
     }
   }
@@ -56,7 +96,7 @@ class Operation {
   }
   cleanLowerCase(obj) {
     for (const [key, value] of Object.entries(obj)) {
-      if (key.charAt(0) != key.charAt(0).toUpperCase() || value == null) {
+      if (key.charAt(0) != key.charAt(0).toUpperCase()) {
         delete obj[key]
       } else if (value instanceof Object) {
         this.cleanLowerCase(value)
@@ -154,6 +194,8 @@ function install(vue, options) {
       connected: false,
     },
     requestCnt: 0,
+    recvQueue: [],
+    recvHandlerScheduled: false,
     connect() {
       vue.portapi.ws = new WebSocket(vue.portapi.url);
 
@@ -191,76 +233,115 @@ function install(vue, options) {
       vue.portapi.ws.onmessage = function(e) {
         var reader = new FileReader();
         reader.onload = function(e) {
-          // console.log("DEBUG: recv: " + e.target.result);
-          var splitted = e.target.result.split("|");
-
-          // dirty hack :(
-          if (splitted.length > 4) {
-            splitted[3] = splitted.slice(3).join("|");
+          // add msg to recvQueue
+          vue.portapi.recvQueue.push(e.target.result)
+          // schedule recvHandler
+          if (!vue.portapi.recvHandlerScheduled) {
+            window.setTimeout(vue.portapi.recvHandler, 100);
+            vue.portapi.recvHandlerScheduled = true;
           }
-
-          if (splitted.length < 2) {
-            console.log("received invalid message: " + e.target.result);
-            return;
-          }
-
-          var opID = splitted[0];
-          var op = vue.portapi.requests[opID];
-          if (op == undefined) {
-            console.log("no op with ID " + opID);
-            return;
-          }
-
-          var msgType = splitted[1];
-          switch (msgType) {
-            case "ok":
-              //    127|ok|<key>|<data>
-              op.updateRecord(splitted[2], splitted[3])
-              console.log(opID + ": ok " + splitted[2]);
-              break;
-            case "done":
-              //    127|done
-              op.loading = false;
-              break;
-            case "success":
-              //    127|success
-              op.success = true;
-              op.loading = false;
-              break;
-            case "error":
-              //    127|error|<message>
-              op.error = splitted[2];
-              op.loading = false;
-              break;
-            case "upd":
-              //    127|upd|<key>|<data>
-              op.updateRecord(splitted[2], splitted[3])
-              console.log(opID + ": update " + splitted[2]);
-              break;
-            case "new":
-              //    127|new|<key>|<data>
-              op.updateRecord(splitted[2], splitted[3])
-              console.log(opID + ": new " + splitted[2]);
-              break;
-            case "del":
-              //    127|del|<key>
-              op.deleteRecord(splitted[2])
-              console.log(opID + ": delete " + splitted[2]);
-              break;
-            case "warning":
-              //    127|warning|<message> // error with single record, operation continues
-              op.warnings.append(splitted[2]);
-              break;
-            default:
-              console.log("received invalid message type: " + e.target.result);
-              return;
-          }
-
-          // console.log("updated " + opID);
-          // console.log(op);
         };
         reader.readAsText(e.data);
       };
+    },
+    recvHandler() {
+      vue.portapi.recvHandlerScheduled = false;
+      // process queue
+      for (var i = 0; i < vue.portapi.recvQueue.length; i++) {
+        var msg = vue.portapi.recvQueue[i];
+
+        // console.log("DEBUG: recv: " + e.target.result);
+        var splitted = msg.split("|");
+
+        // dirty hack :(
+        if (splitted.length > 4) {
+          splitted[3] = splitted.slice(3).join("|");
+        }
+
+        if (splitted.length < 2) {
+          console.warn("received invalid message: " + msg);
+          continue;
+        }
+
+        var opID = splitted[0];
+        var op = vue.portapi.requests[opID];
+        if (op == undefined) {
+          console.log("no op with ID " + opID);
+          continue;
+        }
+
+        var msgType = splitted[1];
+        switch (msgType) {
+          case "ok":
+            //    127|ok|<key>|<data>
+            if (splitted.length < 4) {
+              console.warn("received invalid message: " + msg);
+              break;
+            }
+            op.changes.created++;
+            op.updateRecord(splitted[2], splitted[3], true)
+            console.log(opID + ": ok " + splitted[2]);
+            break;
+          case "done":
+            //    127|done
+            op.loading = false;
+            break;
+          case "success":
+            //    127|success
+            op.success = true;
+            op.loading = false;
+            break;
+          case "error":
+            //    127|error|<message>
+            op.error = splitted.slice(2).join("|");
+            op.loading = false;
+            break;
+          case "upd":
+            //    127|upd|<key>|<data>
+            if (splitted.length < 4) {
+              console.warn("received invalid message: " + msg);
+              break;
+            }
+            op.changes.updated++;
+            op.updateRecord(splitted[2], splitted[3], false)
+            console.log(opID + ": update " + splitted[2]);
+            break;
+          case "new":
+            //    127|new|<key>|<data>
+            if (splitted.length < 4) {
+              console.warn("received invalid message: " + msg);
+              break;
+            }
+            op.changes.created++;
+            op.updateRecord(splitted[2], splitted[3], true)
+            console.log(opID + ": new " + splitted[2]);
+            break;
+          case "del":
+            //    127|del|<key>
+            if (splitted.length < 3) {
+              console.warn("received invalid message: " + msg);
+              break;
+            }
+            op.changes.deleted++;
+            op.deleteRecord(splitted[2])
+            console.log(opID + ": delete " + splitted[2]);
+            break;
+          case "warning":
+            //    127|warning|<message> // error with single record, operation continues
+            op.changes.warnings++;
+            op.warnings.append(splitted.slice(2).join("|"));
+            break;
+          default:
+            console.log("received invalid message type: " + msg);
+            return;
+        }
+
+        // console.log("updated " + opID);
+        // console.log(op);
+
+      }
+      // reset queue
+      vue.portapi.recvQueue = [];
     },
     newRequest(name, msgType, msgText, data) {
       if (name == undefined || name == null || name == "") {
