@@ -9,7 +9,7 @@
   },
   "dependencies": {
     "@hownetworks/ipv46": "^2.0.2",
-    "ip-num": "^1.1.1",
+    "ip-num": "^1.2.1",
     "jquery": "^3.4.1",
     "sortablejs": "^1.9.0",
     "vue": "^2.6.10"
