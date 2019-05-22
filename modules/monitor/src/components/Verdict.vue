@@ -3,26 +3,31 @@
   <span v-if="verdict == 0">
     <i class="question circle icon" title="not yet decided"></i>
     <span v-if="reason">{{ reason }}</span>
+    <span v-else-if="long">not yet decided</span>
   </span>
   <!-- VerdictUndeterminable -->
   <span v-else-if="verdict == 1">
     <i class="question circle icon" title="undeterminable"></i>
     <span v-if="reason">{{ reason }}</span>
+    <span v-else-if="long">undeterminable</span>
   </span>
   <!-- VerdictAccept -->
   <span v-else-if="verdict == 2">
     <i class="check circle icon" title="accepted"></i>
     <span v-if="reason">{{ reason }}</span>
+    <span v-else-if="long">accepted</span>
   </span>
   <!-- VerdictBlock -->
   <span v-else-if="verdict == 3">
     <i class="times circle icon" title="blocked"></i>
     <span v-if="reason">{{ reason }}</span>
+    <span v-else-if="long">blocked</span>
   </span>
   <!-- VerdictDrop -->
   <span v-else-if="verdict == 4" title="dropped">
     <i class="times circle icon"></i>
     <span v-if="reason">{{ reason }}</span>
+    <span v-else-if="long">dropped</span>
   </span>
   <!-- VerdictRerouteToNameserver -->
   <span v-else-if="verdict == 5">
