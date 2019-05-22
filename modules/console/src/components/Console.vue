@@ -6,7 +6,7 @@
         <tbody>
           <tr v-for="line, index in lines" v-bind:key="index" v-bind:class="[{'blue': line.self}, line.addClass]">
             <td style="width: 50px;">&nbsp;{{ line.lineNo }}</td>
-            <td>{{ line.msg }}</td>
+            <td style="word-wrap: break-word;">{{ line.msg }}</td>
             <td style="width: 100px;">{{ line.time.toLocaleTimeString() }}&nbsp;</td>
           </tr>
         </tbody>
@@ -80,7 +80,9 @@
       <button class="ui button" v-on:click="toggleCheckDupes">
         <i v-if="checkDupes" class="green circle icon"></i>
         <i v-else class="grey circle icon"></i>
-        [Ctrl+D] Detect Duplicates ({{ checkDupeLimit }}L)
+        [Ctrl+D]
+        <span v-if="!checkDupes">Detect Duplicates ({{ checkDupeLimit }}L)</span>
+        <span v-else>Dupes: {{ dupeCnt }}</span>
       </button>
       <button class="ui button" v-on:click="toggleTruncate">
         <i v-if="truncate" class="green circle icon"></i>
@@ -105,6 +107,7 @@ export default {
       lineCnt: 1,
       scroll: true,
       checkDupes: false,
+      dupeCnt: 0,
       truncate: true,
       command: "",
       reqCnt: 1,
@@ -133,6 +136,7 @@ export default {
     },
     toggleCheckDupes() {
       this.checkDupes = !this.checkDupes;
+      this.dupeCnt = 0;
     },
     checkForDupe(msg) {
       // should we?
@@ -147,6 +151,7 @@ export default {
       // check
       for (var i = this.lines.length-1; i >= limit; i--) {
         if (this.lines[i].msg == msg) {
+          this.dupeCnt++;
           return true;
         }
       }
