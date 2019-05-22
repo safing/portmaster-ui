@@ -1,6 +1,6 @@
 <template>
 
-  <div class="row" style="margin-top: 40px;">
+  <div class="row" style="margin-top: 0px;">
     <div class=" column" style="text-align: left;">
       <h5>
         {{ record.Name }}
@@ -185,7 +185,7 @@ export default {
       this.request = this.$api.insert(this.rKey, data);
     },
     deleteValue() {
-      this.request = this.$api.insert(this.rKey, { Value: null });
+      this.request = this.$api.insert(this.rKey, {"Value": null});
     },
     resetState() {
       this.validationError = "";
