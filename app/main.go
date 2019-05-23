@@ -1,6 +1,9 @@
+//go:generate goversioninfo -64
+
 package main
 
 import (
+	"flag"
 	"fmt"
 	"os"
 
@@ -9,8 +12,11 @@ import (
 )
 
 func main() {
+	// parse flags
+	flag.Parse()
+
 	// set meta info
-	info.Set("Portmaster App", "0.1.2", "GPLv3", false)
+	info.Set("Portmaster App", "0.1.4", "GPLv3", false)
 
 	// check if meta info is ok
 	err := info.CheckVersion()
@@ -24,5 +30,23 @@ func main() {
 		os.Exit(0)
 	}
 
-	webview.Open("Portmaster", "http://127.0.0.1:18/", 1400, 900, true)
+	settings := webview.Settings{
+		// WebView main window title
+		Title: "Portmaster",
+		// URL to open in a webview
+		URL: "http://127.0.0.1:817/",
+		// Window width in pixels
+		Width: 1400,
+		// Window height in pixels
+		Height: 900,
+		// Allows/disallows window resizing
+		Resizable: true,
+		// Enable debugging tools (Linux/BSD/MacOS, on Windows use Firebug)
+		Debug: true,
+	}
+
+	wv := webview.New(settings)
+	wv.SetColor(68, 68, 68, 1)
+	wv.Run()
+
 }

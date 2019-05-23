@@ -2,4 +2,4 @@
 
 The base runtime to run the Portmaster Webapp on the desktop.
 
-Run `./package` to build to `./dist`.
+Run `./pack` to build to `../dist`.
