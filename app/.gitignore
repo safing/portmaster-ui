@@ -2,6 +2,9 @@
 app
 app.exe
 
+# Go vendor
+vendor
+
 # resource files
 resource.syso
 
