@@ -9,17 +9,22 @@ COL_RED="\033[31m"
 
 destDir="../../dist/all/ui/modules"
 
+function prep {
+  # get version
+  version=$(jq -r '.version' package.json)
+  # build versioned file name
+  filename="${module}_v${version//./-}.zip"
+  # build destination path
+  destPath=$destDir/$filename
+}
+
 function check {
   for module in *; do
     if [[ -f "$module/package.json" ]]; then
       # go to module dir
       cd $module
-      # get version
-      version=$(jq -r '.version' package.json)
-      # build versioned file name
-      filename="${module}_v${version//./-}.zip"
-      # build destination path
-      destPath=$destDir/$filename
+      # prep env
+      prep
 
       # check if file exists
       if [[ -f $destPath ]]; then
@@ -41,12 +46,8 @@ function build {
 
       # go to module dir
       cd $module
-      # get version
-      version=$(jq -r '.version' package.json)
-      # build versioned file name
-      filename="${module}_v${version//./-}.zip"
-      # build destination path
-      destPath=$destDir/$filename
+      # prep env
+      prep
 
       # check if file exists
       if [[ -f $destPath ]]; then
@@ -85,12 +86,33 @@ function build {
   done
 }
 
+function reset {
+  for module in *; do
+    if [[ -f "$module/package.json" ]]; then
+      # go to module dir
+      cd $module
+      # prep env
+      prep
+
+      # delete if file exists
+      if [[ -f $destPath ]]; then
+        rm $destPath
+      fi
+
+      cd "$baseDir"
+    fi
+  done
+}
+
 case $1 in
   "check" )
     check
     ;;
   "build" )
     build
+    ;;
+  "reset" )
+    reset
     ;;
   * )
     echo ""
