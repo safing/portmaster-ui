@@ -1,0 +1,7 @@
+[[constraint]]
+  branch = "master"
+  name = "github.com/mattn/go-gtk"
+
+[prune]
+  go-tests = true
+  unused-packages = true
