@@ -19,15 +19,15 @@
                 There are three security levels that enable you to easily adapt to your current threat environment:
                 <ul>
                   <li>
-                    <img src="/assets/icons/security_levels/level_dynamic.svg" title="Dynamic"></img>
+                    <img src="/assets/icons/level_dynamic.svg" title="Dynamic"></img>
                     Dynamic: The usual operating mode for trusted environments.
                   </li>
                   <li>
-                    <img src="/assets/icons/security_levels/level_secure.svg" title="Secure"></img>
+                    <img src="/assets/icons/level_secure.svg" title="Secure"></img>
                     Secure: For untrusted environments, such as a public WiFi networks.
                   </li>
                   <li>
-                    <img src="/assets/icons/security_levels/level_fortress.svg" title="Fortress"></img>
+                    <img src="/assets/icons/level_fortress.svg" title="Fortress"></img>
                     Fortress: Emergency mode for when you panic.
                   </li>
                 </ul>
@@ -42,13 +42,13 @@
               Autopilot
             </div>
             <div v-on:click="selectSecurityLevel(1)" v-bind:class="['ui button img', {'blue': status.SelectedSecurityLevel == 1, 'inverted': status.SelectedSecurityLevel != 1}]">
-              <img src="/assets/icons/security_levels/level_dynamic.svg" title="Dynamic"></img>
+              <img src="/assets/icons/level_dynamic.svg" title="Dynamic"></img>
             </div>
             <div v-on:click="selectSecurityLevel(2)" v-bind:class="['ui button img', {'blue': status.SelectedSecurityLevel == 2, 'inverted': status.SelectedSecurityLevel != 2}]">
-              <img src="/assets/icons/security_levels/level_secure.svg" title="Secure"></img>
+              <img src="/assets/icons/level_secure.svg" title="Secure"></img>
             </div>
             <div v-on:click="selectSecurityLevel(4)" v-bind:class="['ui button img', {'blue': status.SelectedSecurityLevel == 4, 'inverted': status.SelectedSecurityLevel != 4}]">
-              <img src="/assets/icons/security_levels/level_fortress.svg" title="Fortress"></img>
+              <img src="/assets/icons/level_fortress.svg" title="Fortress"></img>
             </div>
           </div>
           <span v-else>loading...</span>

@@ -20,9 +20,9 @@
 
     <div class="sl-security-levels">
       <div class="ui icon buttons">
-        <button v-on:click="$parent.setSecurityLevel(1)" v-bind:class="['ui button', {'active': sl.SecurityLevel == 1}]"><img src="/assets/icons/security_levels/level_dynamic.svg" title="Dynamic"></button>
-        <button v-on:click="$parent.setSecurityLevel(2)" v-bind:class="['ui button', {'active': sl.SecurityLevel == 2}]"><img src="/assets/icons/security_levels/level_secure.svg" title="Secure"></button>
-        <button v-on:click="$parent.setSecurityLevel(4)" v-bind:class="['ui button', {'active': sl.SecurityLevel == 4}]"><img src="/assets/icons/security_levels/level_fortress.svg" title="Fortress"></button>
+        <button v-on:click="$parent.setSecurityLevel(1)" v-bind:class="['ui button', {'active': sl.SecurityLevel == 1}]"><img src="/assets/icons/level_dynamic.svg" title="Dynamic"></button>
+        <button v-on:click="$parent.setSecurityLevel(2)" v-bind:class="['ui button', {'active': sl.SecurityLevel == 2}]"><img src="/assets/icons/level_secure.svg" title="Secure"></button>
+        <button v-on:click="$parent.setSecurityLevel(4)" v-bind:class="['ui button', {'active': sl.SecurityLevel == 4}]"><img src="/assets/icons/level_fortress.svg" title="Fortress"></button>
       </div>
     </div>
 

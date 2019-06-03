@@ -19,9 +19,9 @@
     <div class="flag-security-levels">
 
       <div class="ui icon buttons">
-        <button v-on:click="$parent.setFlag(flag.ID, flag.SecurityLevels^1)" v-bind:class="['ui button', {'active': (flag.SecurityLevels&1) > 0}]"><img src="/assets/icons/security_levels/level_dynamic.svg" title="Dynamic"></button>
-        <button v-on:click="$parent.setFlag(flag.ID, flag.SecurityLevels^2)" v-bind:class="['ui button', {'active': (flag.SecurityLevels&2) > 0}]"><img src="/assets/icons/security_levels/level_secure.svg" title="Secure"></button>
-        <button v-on:click="$parent.setFlag(flag.ID, flag.SecurityLevels^4)" v-bind:class="['ui button', {'active': (flag.SecurityLevels&4) > 0}]"><img src="/assets/icons/security_levels/level_fortress.svg" title="Fortress"></button>
+        <button v-on:click="$parent.setFlag(flag.ID, flag.SecurityLevels^1)" v-bind:class="['ui button', {'active': (flag.SecurityLevels&1) > 0}]"><img src="/assets/icons/level_dynamic.svg" title="Dynamic"></button>
+        <button v-on:click="$parent.setFlag(flag.ID, flag.SecurityLevels^2)" v-bind:class="['ui button', {'active': (flag.SecurityLevels&2) > 0}]"><img src="/assets/icons/level_secure.svg" title="Secure"></button>
+        <button v-on:click="$parent.setFlag(flag.ID, flag.SecurityLevels^4)" v-bind:class="['ui button', {'active': (flag.SecurityLevels&4) > 0}]"><img src="/assets/icons/level_fortress.svg" title="Fortress"></button>
       </div>
     </div>
 
