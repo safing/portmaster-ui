@@ -49,6 +49,9 @@
   "browserslist": [
     "> 1%",
     "last 2 versions",
-    "not ie <= 8"
+    "Firefox ESR",
+    "IE >= 10",
+    "not dead",
+    "not IE <= 8"
   ]
 }
