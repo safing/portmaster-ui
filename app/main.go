@@ -7,7 +7,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/Safing/portbase/info"
+	"github.com/safing/portbase/info"
 	"github.com/zserge/webview"
 )
 

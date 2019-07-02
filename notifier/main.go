@@ -12,9 +12,9 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/Safing/portbase/api/client"
-	"github.com/Safing/portbase/info"
-	"github.com/Safing/portbase/log"
+	"github.com/safing/portbase/api/client"
+	"github.com/safing/portbase/info"
+	"github.com/safing/portbase/log"
 )
 
 var (

@@ -3,7 +3,7 @@
 
 [[projects]]
   digest = "1:15db299b8cc0a331f24a3a24bdf1e23eeeb62de47a411926d14d8c24247304da"
-  name = "github.com/Safing/portbase"
+  name = "github.com/safing/portbase"
   packages = [
     "info",
     "log",
@@ -34,7 +34,7 @@
   analyzer-name = "dep"
   analyzer-version = 1
   input-imports = [
-    "github.com/Safing/portbase/info",
+    "github.com/safing/portbase/info",
     "github.com/zserge/webview",
   ]
   solver-name = "gps-cdcl"

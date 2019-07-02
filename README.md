@@ -1,6 +1,6 @@
 # Portmaster UI
 
-This repo holds all the UI related components for the [portmaster](https://github.com/Safing/portmaster).
+This repo holds all the UI related components for the [portmaster](https://github.com/safing/portmaster).
 
 ### Repo structure
 

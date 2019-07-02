@@ -4,8 +4,8 @@ import (
 	"context"
 	"sync"
 
-	"github.com/Safing/portbase/log"
-	"github.com/Safing/portmaster-ui/notifier/icons"
+	"github.com/safing/portbase/log"
+	"github.com/safing/portmaster-ui/notifier/icons"
 	notify "github.com/dhaavi/go-notify"
 )
 

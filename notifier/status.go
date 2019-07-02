@@ -6,9 +6,9 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/Safing/portbase/api/client"
-	"github.com/Safing/portbase/formats/dsd"
-	"github.com/Safing/portbase/log"
+	"github.com/safing/portbase/api/client"
+	"github.com/safing/portbase/formats/dsd"
+	"github.com/safing/portbase/log"
 )
 
 const (
