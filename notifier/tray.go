@@ -3,8 +3,6 @@ package main
 import (
 	"sync"
 
-	"./icons"
-
 	"github.com/safing/portbase/log"
 	"github.com/getlantern/systray"
 )
@@ -40,9 +38,9 @@ func onReady() {
 	defer trayLock.Unlock()
 
 	// icon
-	systray.SetIcon(icons.PNGs[SecurityLevelOffline])
+	systray.SetIcon(securityLevelIcons[SecurityLevelOffline])
 	systray.SetTitle("Portmaster Notifier")
-	systray.SetTooltip("The Portmaster Notifier notifies and prompts the user for the Portmaster.")
+	systray.SetTooltip("The Portmaster Notifier notifies you and prompts you for decisions if necessary.")
 
 	// menu: security levels
 	menuItemAutopilot = systray.AddMenuItem("Autopilot", "")
@@ -121,7 +119,7 @@ func displayActiveLevel(level uint8) {
 		level = 3
 	}
 
-	systray.SetIcon(icons.PNGs[level])
+	systray.SetIcon(securityLevelIcons[level])
 
 	log.Infof("tray: set active security level to %s", fmtLevel(level, true))
 }
