@@ -1,6 +1,16 @@
+ignored = ["github.com/safing/portbase/*"]
+
 [[constraint]]
   branch = "master"
   name = "github.com/mattn/go-gtk"
+
+[[constraint]]
+  branch = "master"
+  name = "github.com/dhaavi/go-notify"
+
+[[constraint]]
+  branch = "master"
+  name = "github.com/getlantern/systray"
 
 [prune]
   go-tests = true

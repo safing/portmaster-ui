@@ -3,6 +3,86 @@
 
 [[projects]]
   branch = "master"
+  digest = "1:2aaa32caffb45acd75d204d21113fd06927ee17a20475fbee191b4c29e353cb9"
+  name = "github.com/dhaavi/go-notify"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "c404b1f22435f01609acb55e48d4b6419d5626ec"
+
+[[projects]]
+  branch = "master"
+  digest = "1:e189a74ad21c3d1e10630172d9468f3f641414725a50326045ca360d71e753a6"
+  name = "github.com/getlantern/context"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "c447772a6520c1a3ae6294a7df725ee08230f14e"
+
+[[projects]]
+  branch = "master"
+  digest = "1:754e0e024892bc771720c72116ff521fe02bfddcca91c69cc2ff08a25aeb62f3"
+  name = "github.com/getlantern/errors"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "abdb3e3e36f7e64b4bfbe96e860db91e7534aa6e"
+
+[[projects]]
+  branch = "master"
+  digest = "1:128515bf48085482f3b1269701a0be1b119087447d8f666a27211bdacf0b5dc9"
+  name = "github.com/getlantern/golog"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "cca714f7feb5df8e455f409b549d384441ac4578"
+
+[[projects]]
+  branch = "master"
+  digest = "1:ef7d3553cc70a0406baf828fe62f741777135d1248e7cd96a26f743aa11e6565"
+  name = "github.com/getlantern/hex"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "c6586a6fe0b7c95eef767657ab1031cbcfc7af66"
+
+[[projects]]
+  branch = "master"
+  digest = "1:f65fd0ed3e1794ab0a5cf824c0e498b954e0a5311ce486d8f177cc65d4a60356"
+  name = "github.com/getlantern/hidden"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "f02dbb02be5552811eec1040d7906424c52ae539"
+
+[[projects]]
+  branch = "master"
+  digest = "1:e90f0d30bdecee063f54137a1c3267b9f65bb5432da2f90efde981f935812d37"
+  name = "github.com/getlantern/ops"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "d70cb0d6f85f5066bcf4d693721f382e075b9366"
+
+[[projects]]
+  branch = "master"
+  digest = "1:52a763e28f3e48a737ede1205afc03c3a316307ba5d92c3e5e738f55edead2e0"
+  name = "github.com/getlantern/systray"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "f2fa635d0474eae70a9d869b7d90423e85c5baef"
+
+[[projects]]
+  digest = "1:586ea76dbd0374d6fb649a91d70d652b7fe0ccffb8910a77468e7702e7901f3d"
+  name = "github.com/go-stack/stack"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "2fee6af1a9795aafbe0253a0cfbdf668e1fb8a9a"
+  version = "v1.8.0"
+
+[[projects]]
+  digest = "1:b3d20bcdedab2050e6bc58e52f4fdc46f710b4c74e1a1ecee262ebec1aee7b6e"
+  name = "github.com/godbus/dbus"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "2ff6f7ffd60f0f2410b3105864bdd12c7894f844"
+  version = "v5.0.1"
+
+[[projects]]
+  branch = "master"
   digest = "1:034db2877215ad52373f090e304f0b0b057a55729335c27b60d62edbddc87042"
   name = "github.com/mattn/go-gtk"
   packages = [
@@ -13,9 +93,29 @@
   pruneopts = "UT"
   revision = "4deadb416788be678fb9cac22ea76dba83c946b0"
 
+[[projects]]
+  branch = "master"
+  digest = "1:8ad686b49b509bf03549281c04b5fe11f609e9b12bf34a0690acad8cecc94f15"
+  name = "github.com/oxtoacart/bpool"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "03653db5a59cd88b481403d312d7c324b56af377"
+
+[[projects]]
+  branch = "master"
+  digest = "1:1ed0196f0b3fcdc592c7deb8519aaa6176dae23c89cf2871d5d6a00874d50968"
+  name = "golang.org/x/sys"
+  packages = ["windows"]
+  pruneopts = "UT"
+  revision = "04f50cda93cbb67f2afa353c52f342100e80e625"
+
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  input-imports = ["github.com/mattn/go-gtk/gdkpixbuf"]
+  input-imports = [
+    "github.com/dhaavi/go-notify",
+    "github.com/getlantern/systray",
+    "github.com/mattn/go-gtk/gdkpixbuf",
+  ]
   solver-name = "gps-cdcl"
   solver-version = 1
