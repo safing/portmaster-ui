@@ -20,7 +20,7 @@ import (
 var (
 	printStackOnExit bool
 
-	apiClient = client.NewClient("127.0.0.1:18")
+	apiClient = client.NewClient("127.0.0.1:817")
 
 	mainCtx, cancelMainCtx = context.WithCancel(context.Background())
 	mainWg                 = &sync.WaitGroup{}
@@ -37,7 +37,7 @@ func main() {
 	flag.Parse()
 
 	// set meta info
-	info.Set("Portmaster Notifier", "0.1.2", "GPLv3", false)
+	info.Set("Portmaster Notifier", "0.1.3", "GPLv3", false)
 
 	// check if meta info is ok
 	err := info.CheckVersion()
@@ -81,7 +81,7 @@ func main() {
 
 	if printStackOnExit {
 		fmt.Println("=== PRINTING STACK ===")
-		pprof.Lookup("goroutine").WriteTo(os.Stdout, 1)
+		pprof.Lookup("goroutine").WriteTo(os.Stdout, 2)
 		fmt.Println("=== END STACK ===")
 	}
 	go func() {
