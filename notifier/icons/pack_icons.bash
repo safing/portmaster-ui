@@ -41,4 +41,24 @@ for entry in $(ls *.png); do
     fi
   fi
 
+
+
+done
+
+for entry in $(ls ../../assets/icons/level_*.ico); do
+
+  name=${entry%.ico}
+  name=${name#*/level_}
+  name=${name^} # uppercase first character
+  filename="${name}.go"
+
+  # ico byte array
+  echo "packging ico$filename"
+  echo -e "//+build windows\n" > ico$filename
+  cat "$entry" | 2goarray ${name}ICO icons >> ico$filename
+  if [ $? -ne 0 ]; then
+    echo "error processing ICO $entry"
+    exit
+  fi
+
 done
