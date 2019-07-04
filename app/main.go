@@ -11,12 +11,20 @@ import (
 	"github.com/zserge/webview"
 )
 
+var (
+	databaseDir string
+)
+
+func init() {
+	flag.StringVar(&databaseDir, "db", "", "set database directory (for starting UI)")
+}
+
 func main() {
 	// parse flags
 	flag.Parse()
 
 	// set meta info
-	info.Set("Portmaster App", "0.1.4", "GPLv3", false)
+	info.Set("Portmaster App", "0.1.5", "GPLv3", false)
 
 	// check if meta info is ok
 	err := info.CheckVersion()

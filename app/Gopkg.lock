@@ -2,27 +2,6 @@
 
 
 [[projects]]
-  digest = "1:15db299b8cc0a331f24a3a24bdf1e23eeeb62de47a411926d14d8c24247304da"
-  name = "github.com/safing/portbase"
-  packages = [
-    "info",
-    "log",
-    "modules",
-    "taskmanager",
-  ]
-  pruneopts = "UT"
-  revision = "1b6ab93302b4cdb31dff90d1793e78a63d2a335c"
-  version = "v0.1.0"
-
-[[projects]]
-  branch = "master"
-  digest = "1:93d6687fc19da8a35c7352d72117a6acd2072dfb7e9bfd65646227bf2a913b2a"
-  name = "github.com/tevino/abool"
-  packages = ["."]
-  pruneopts = "UT"
-  revision = "9b9efcf221b50905aab9bbabd3daed56dc10f339"
-
-[[projects]]
   digest = "1:790ea41e483319fef6700fa09614250d2f1051157df39059fac0fda3a8d82ada"
   name = "github.com/zserge/webview"
   packages = ["."]
@@ -33,9 +12,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  input-imports = [
-    "github.com/safing/portbase/info",
-    "github.com/zserge/webview",
-  ]
+  input-imports = ["github.com/zserge/webview"]
   solver-name = "gps-cdcl"
   solver-version = 1

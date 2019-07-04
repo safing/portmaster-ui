@@ -1,6 +1,4 @@
-[[constraint]]
-  name = "github.com/safing/portbase"
-  version = "0.1.0"
+ignored = ["github.com/safing/portbase/*"]
 
 [[constraint]]
   name = "github.com/zserge/webview"
