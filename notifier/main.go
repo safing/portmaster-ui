@@ -19,6 +19,7 @@ import (
 
 var (
 	printStackOnExit bool
+	databaseDir      string
 
 	apiClient = client.NewClient("127.0.0.1:817")
 
@@ -28,6 +29,7 @@ var (
 
 func init() {
 	flag.BoolVar(&printStackOnExit, "print-stack-on-exit", false, "prints the stack before of shutting down")
+	flag.StringVar(&databaseDir, "db", "", "set database directory (for starting UI)")
 
 	runtime.GOMAXPROCS(2)
 }
@@ -37,7 +39,7 @@ func main() {
 	flag.Parse()
 
 	// set meta info
-	info.Set("Portmaster Notifier", "0.1.3", "GPLv3", false)
+	info.Set("Portmaster Notifier", "0.1.5", "GPLv3", false)
 
 	// check if meta info is ok
 	err := info.CheckVersion()
