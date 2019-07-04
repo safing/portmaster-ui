@@ -3,8 +3,8 @@ package main
 import (
 	"sync"
 
-	"github.com/safing/portbase/log"
 	"github.com/getlantern/systray"
+	"github.com/safing/portbase/log"
 )
 
 var (
@@ -39,8 +39,8 @@ func onReady() {
 
 	// icon
 	systray.SetIcon(securityLevelIcons[SecurityLevelOffline])
-	systray.SetTitle("Portmaster Notifier")
-	systray.SetTooltip("The Portmaster Notifier notifies you and prompts you for decisions if necessary.")
+	// systray.SetTitle("Portmaster Notifier") // Don't set title, as it may be displayed in full in the menu/tray bar. (Ubuntu)
+	systray.SetTooltip("The Portmaster Notifier alerts you of important things and prompts you for decisions if necessary.")
 
 	// menu: security levels
 	menuItemAutopilot = systray.AddMenuItem("Autopilot", "")
