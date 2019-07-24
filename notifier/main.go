@@ -77,19 +77,23 @@ func main() {
 	)
 
 	// wait for shutdown
-	<-signalCh
-	fmt.Println(" <INTERRUPT>")
-	log.Warning("program was interrupted, shutting down.")
+	select {
+	case <-signalCh:
+		fmt.Println(" <INTERRUPT>")
+		log.Warning("program was interrupted, shutting down")
+	case <-mainCtx.Done():
+		log.Warning("program is shutting down")
+	}
 
 	if printStackOnExit {
 		fmt.Println("=== PRINTING STACK ===")
-		pprof.Lookup("goroutine").WriteTo(os.Stdout, 2)
+		pprof.Lookup("goroutine").WriteTo(os.Stdout, 1)
 		fmt.Println("=== END STACK ===")
 	}
 	go func() {
 		time.Sleep(3 * time.Second)
 		fmt.Println("===== TAKING TOO LONG FOR SHUTDOWN - PRINTING STACK TRACES =====")
-		pprof.Lookup("goroutine").WriteTo(os.Stdout, 2)
+		pprof.Lookup("goroutine").WriteTo(os.Stdout, 1)
 		os.Exit(1)
 	}()
 

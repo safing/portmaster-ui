@@ -1,6 +1,9 @@
 package main
 
 import (
+	"os/exec"
+	"path/filepath"
+	"runtime"
 	"sync"
 
 	"github.com/getlantern/systray"
@@ -11,12 +14,7 @@ var (
 	trayLock       sync.Mutex
 	displayedLevel uint8
 
-	menuItemAutopilot    *systray.MenuItem
-	menuItemLevelDynamic *systray.MenuItem
-	menuItemLevelSecure  *systray.MenuItem
-	menuItemLevelFortess *systray.MenuItem
-	levelItems           [4]*systray.MenuItem
-
+	menuLevelItems     [4]*systray.MenuItem
 	menuItemThreatInfo *systray.MenuItem
 )
 
@@ -42,34 +40,62 @@ func onReady() {
 	// systray.SetTitle("Portmaster Notifier") // Don't set title, as it may be displayed in full in the menu/tray bar. (Ubuntu)
 	systray.SetTooltip("The Portmaster Notifier alerts you of important things and prompts you for decisions if necessary.")
 
+	// menu: open app
+	if databaseDir != "" {
+		menuItemOpenApp := systray.AddMenuItem("Open App", "")
+		go clickListener(menuItemOpenApp, func() {
+			// build path to app
+			appPath := filepath.Join(databaseDir, "portmaster-control")
+			if runtime.GOOS == "windows" {
+				appPath += ".exe"
+			}
+
+			// start app
+			cmd := exec.Command(appPath, "run", "app", "--db", databaseDir)
+			err := cmd.Start()
+			if err != nil {
+				log.Warningf("failed to start app: %s", err)
+				return
+			}
+			cmd.Process.Release()
+		})
+		systray.AddSeparator()
+	}
+
 	// menu: security levels
-	menuItemAutopilot = systray.AddMenuItem("Autopilot", "")
+	menuItemAutopilot := systray.AddMenuItem("Autopilot", "")
 	go clickListener(menuItemAutopilot, func() {
 		SelectSecurityLevel(0)
 	})
-	menuItemAutopilot.Check()
 
-	menuItemLevelDynamic = systray.AddMenuItem("Level Dynamic", "")
+	menuItemLevelDynamic := systray.AddMenuItem("Level Dynamic", "")
 	go clickListener(menuItemLevelDynamic, func() {
 		SelectSecurityLevel(SecurityLevelDynamic)
 	})
 
-	menuItemLevelSecure = systray.AddMenuItem("Level Secure", "")
+	menuItemLevelSecure := systray.AddMenuItem("Level Secure", "")
 	go clickListener(menuItemLevelSecure, func() {
 		SelectSecurityLevel(SecurityLevelSecure)
 	})
 
-	menuItemLevelFortess = systray.AddMenuItem("Level Fortess", "")
+	menuItemLevelFortess := systray.AddMenuItem("Level Fortess", "")
 	go clickListener(menuItemLevelFortess, func() {
 		SelectSecurityLevel(SecurityLevelFortress)
 	})
 
-	levelItems = [4]*systray.MenuItem{menuItemAutopilot, menuItemLevelDynamic, menuItemLevelSecure, menuItemLevelFortess}
+	menuLevelItems = [4]*systray.MenuItem{menuItemAutopilot, menuItemLevelDynamic, menuItemLevelSecure, menuItemLevelFortess}
 
 	// menu: threat info
 	systray.AddSeparator()
 	menuItemThreatInfo = systray.AddMenuItem("Loading threat information...", "")
 	menuItemThreatInfo.Disable()
+
+	// menu: quit
+	systray.AddSeparator()
+	menuItemQuit := systray.AddMenuItem("Quit Notifier", "")
+	go clickListener(menuItemQuit, func() {
+		cancelMainCtx()
+	})
 }
 
 func onExit() {
@@ -85,7 +111,7 @@ func displaySelectedLevel(level uint8) {
 		level = 3
 	}
 
-	for index, menuItem := range levelItems {
+	for index, menuItem := range menuLevelItems {
 		if menuItem == nil {
 			continue
 		}
@@ -132,7 +158,7 @@ func displayThreatInfo(info string) {
 }
 
 func clickListener(item *systray.MenuItem, fn func()) {
-	for _ = range item.ClickedCh {
+	for range item.ClickedCh {
 		fn()
 	}
 }

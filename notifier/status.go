@@ -11,6 +11,7 @@ import (
 	"github.com/safing/portbase/log"
 )
 
+// Security Level constants
 const (
 	SecurityLevelOffline  uint8 = 0
 	SecurityLevelDynamic  uint8 = 1
