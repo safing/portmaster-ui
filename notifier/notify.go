@@ -54,7 +54,9 @@ func handleNotification(m *client.Message) {
 		}
 
 		notifications[n.ID] = n
-		n.Show()
+		if n.Responded == 0 && n.SelectedActionID != "" {
+			n.Show()
+		}
 
 	case client.MsgDelete:
 

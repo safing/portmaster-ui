@@ -9,22 +9,20 @@ import (
 	"path/filepath"
 	"runtime"
 	"strings"
+	"syscall"
 
 	"github.com/Microsoft/go-winio"
 	"github.com/safing/portbase/log"
 	"golang.org/x/text/encoding/unicode"
 )
 
-func actionListener() {
-
-}
-
 var (
-	notifierPath = "C:\\snoretoast.exe"
+	notifierPath = "C:\\snoretoast.exe" //TODO: remove
 )
 
 const (
-	pipeName = "\\\\.\\pipe\\portmasterNotifierToast"
+	pipeName     = "\\\\.\\pipe\\portmasterNotifierToast"
+	logoLocation = "C:\\logo.png" //TODO
 )
 
 func init() {
@@ -38,12 +36,33 @@ func init() {
 			//TODO: what to do?
 		}
 	}
+}
 
+//API called functions:
+
+func actionListener() {
 	go notificationListener()
 }
 
+// Show shows the notification.
+func (n *Notification) Show() {
+	log.Debugf("called to show: %+v", n)
+	if n.Message == "" {
+		log.Errorf("Snoretoast was asked to create this notification with empty messag - impossible: %+v", n)
+		return
+	}
+	snoreToastRunCmdAsync(exec.Command(notifierPath, "-id", n.GUID, "-t", "Portmaster", "-m", n.Message, "-b", buildSnoreToastButtonArgument(n.AvailableActions), "-appID", "io.safing.portmaster", "-pipeName", pipeName))
+}
+
+// Cancel cancels the notification.
+func (n *Notification) Cancel() {
+	snoreToastRunCmdAsync(exec.Command(notifierPath, "-close", n.GUID))
+}
+
+//internal functions:
+
 func notificationListener() {
-	log.Debugf("Listening on %s\n", pipeName)
+	log.Debugf("Listening on Pipe %s\n", pipeName)
 	l, err := winio.ListenPipe(pipeName, nil)
 	if err != nil {
 		log.Errorf("Error while starting Pipe for SnoreToast: %s", err)
@@ -61,25 +80,27 @@ func notificationListener() {
 	}
 }
 
-// Show shows the notification.
-func (n *Notification) Show() {
-	go asyncCmd(exec.Command(notifierPath, "-id", n.ID, "-t", "Portmaster", "-m", n.Message, "-b", buildSnoreToastButtonArgument(n.AvailableActions), "-appID", "io.safing.portmaster", "-pipeName", pipeName))
-}
-
 func onCallback(conn net.Conn) {
-	data := snoreToastStrToMap(readWstrConnToStr(conn))
-	log.Debugf("%+v", data)
+	data := snoreToastStrToMap(readWstrConnToStr(conn)) //TODO: what  if some required attribute isn't there?
+	log.Debugf("onCallback: %+v", data)
 
 	if data["action"] == "timedout" {
 		return
 	}
 
 	notificationsLock.Lock()
-	n := notifications[data["notificationId"]]
+	var n *Notification
+	for _, elem := range notifications {
+		if elem.GUID == data["notificationId"] {
+			n = elem
+		}
+	}
+	notificationsLock.Unlock()
+	if n == nil {
+		return
+	}
 	n.Lock()
 	defer n.Unlock()
-	log.Debugf("%+v", n.AvailableActions[0])
-	notificationsLock.Unlock()
 
 	switch data["action"] {
 	case "buttonClicked":
@@ -89,13 +110,8 @@ func onCallback(conn net.Conn) {
 			}
 		}
 	default:
-		log.Debugf("SnoreToast-Action %s not implemented yet")
+		log.Debugf("SnoreToast-Action %s not implemented yet", data["action"])
 	}
-}
-
-// Cancel cancels the notification.
-func (n *Notification) Cancel() {
-	//TODO
 }
 
 //Snoretoast helper-Functions:
@@ -103,12 +119,12 @@ func (n *Notification) Cancel() {
 func snoreToastStrToMap(in string) map[string]string {
 	ret := make(map[string]string)
 
-	for _, el := range strings.Split(in, ";") {
+	for _, el := range strings.Split(in, ";") { //TODO: make sure, there is no ; in any value!
 		if el == "" {
 			continue
 		}
 
-		kv := strings.Split(el, "=")
+		kv := strings.Split(el, "=") //TODO: make sure, there is no = in any value!
 		if len(kv) != 2 {
 			log.Warning("SnoreToast-Callback: " + el + " cannot be parsed in Key=Value")
 			continue
@@ -120,7 +136,7 @@ func snoreToastStrToMap(in string) map[string]string {
 	return ret
 }
 
-func buildSnoreToastButtonArgument(a []*Action) (text string) {
+func buildSnoreToastButtonArgument(a []*Action) string {
 	temp := make([]string, 0, len(a))
 	for _, elem := range a {
 		if elem.Text != "" {
@@ -130,16 +146,51 @@ func buildSnoreToastButtonArgument(a []*Action) (text string) {
 	return strings.Join(temp, ";")
 }
 
+func snoreToastRunCmdAsync(cmd *exec.Cmd) {
+	go func() {
+		exit, err := execCmd(cmd)
+
+		switch exit {
+		case 0: //do nothing
+		case 1: //do nothing
+		case 2: //do nothing
+		case 3: //do nothing
+		case 4: //do nothing
+		case 5: //do nothing
+		default:
+			log.Errorf("Error while running %+v: %s", cmd.Args, err)
+		}
+	}()
+}
+
 //Generel helper-Functions:
 
-func asyncCmd(cmd *exec.Cmd) {
+func execCmd(cmd *exec.Cmd) (exitCode int, err error) {
 	log.Debugf("Run snoretoast:%+v", cmd.Args)
 
-	err := cmd.Run()
+	err = cmd.Run()
 
+	//Used: https://stackoverflow.com/questions/10385551/get-exit-code-go
 	if err != nil {
-		//TODO
+		exitError, ok := err.(*exec.ExitError)
+		if ok {
+			ws := exitError.Sys().(syscall.WaitStatus)
+			exitCode = ws.ExitStatus()
+		} else {
+			// This will happen (in OSX) if `name` is not available in $PATH,
+			// in this situation, exit code could not be get, and stderr will be
+			// empty string very likely, so we use the default fail code, and format err
+			// to string and set to stderr
+			log.Warningf("Could not get exit code for failed program: %v", cmd.Args)
+			exitCode = -2 //We want to have something that sticks out somehow
+		}
+	} else {
+		// success, exitCode should be 0 if go is ok
+		ws := cmd.ProcessState.Sys().(syscall.WaitStatus)
+		exitCode = ws.ExitStatus()
 	}
+
+	return
 }
 
 func readWstrConnToStr(conn net.Conn) string {
@@ -149,7 +200,7 @@ func readWstrConnToStr(conn net.Conn) string {
 
 readloop:
 	for {
-		buffer := make([]byte, 100)
+		buffer := make([]byte, 512)
 
 		n, err := conn.Read(buffer)
 		switch err {
