@@ -17,6 +17,7 @@ type Notification struct {
 	sync.Mutex
 
 	ID      string
+	GUID    string
 	Message string
 	// MessageTemplate string
 	// MessageData []string
