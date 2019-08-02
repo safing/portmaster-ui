@@ -92,6 +92,14 @@ export default {
   margin-left: 40px;
 }
 
+.ui.checkbox {
+  padding: 8px;
+}
+
+.ui.checkbox label::before {
+  border: 2px solid white !important;
+}
+
 .no-input {
   pointer-events: none;
 }
