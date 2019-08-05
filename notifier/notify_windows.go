@@ -1,7 +1,5 @@
 package main
 
-//TODO: Pipe Security
-
 import (
 	"io"
 	"net"
@@ -17,30 +15,17 @@ import (
 )
 
 var (
-	notifierPath = "C:\\snoretoast.exe" //TODO: remove
+	notifierPath = ""
 )
 
 const (
-	pipeName     = "\\\\.\\pipe\\portmasterNotifierToast"
-	logoLocation = "C:\\logo.png" //TODO
+	pipeName = "\\\\.\\pipe\\portmasterNotifierToast"
 )
-
-func init() {
-	if notifierPath == "" {
-		var err error
-		notifierPath, err = getPath("notifier-snoretoast")
-
-		if err != nil {
-			log.Errorf("Error while getting SnoreToast-Path: %s", err)
-			return
-			//TODO: what to do?
-		}
-	}
-}
 
 //API called functions:
 
 func actionListener() {
+	initNotifierPath()
 	go notificationListener()
 }
 
@@ -56,10 +41,26 @@ func (n *Notification) Show() {
 
 // Cancel cancels the notification.
 func (n *Notification) Cancel() {
-	snoreToastRunCmdAsync(exec.Command(notifierPath, "-close", n.GUID))
+	if n == nil || n.GUID == "" {
+		return
+	}
+	snoreToastRunCmdAsync(exec.Command(notifierPath, "-close", n.GUID, "-appID", "io.safing.portmaster"))
 }
 
 //internal functions:
+
+func initNotifierPath() {
+	if notifierPath == "" {
+		var err error
+		notifierPath, err = getPath("notifier-snoretoast")
+
+		if err != nil {
+			log.Errorf("Error while getting SnoreToast-Path: %s %s", err, notifierPath)
+			return
+			//TODO: what to do?
+		}
+	}
+}
 
 func notificationListener() {
 	log.Debugf("Listening on Pipe %s\n", pipeName)
@@ -227,6 +228,10 @@ readloop:
 
 func getPath(what string) (string, error) {
 	// build path to app
+	if databaseDir == "" {
+		log.Errorf("databaseDir is empty!!!")
+	}
+
 	appPath := filepath.Join(databaseDir, "portmaster-control")
 	if runtime.GOOS == "windows" {
 		appPath += ".exe"
