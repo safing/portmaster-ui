@@ -3,6 +3,8 @@ package main
 import (
 	"io"
 	"net"
+	"net/http"
+	"os"
 	"os/exec"
 	"path/filepath"
 	"runtime"
@@ -16,17 +18,26 @@ import (
 
 var (
 	notifierPath = ""
+	logoLocation = ""
 )
 
 const (
-	pipeName = "\\\\.\\pipe\\portmasterNotifierToast"
+	pipeName        = "\\\\.\\pipe\\portmasterNotifierToast"
+	webLogoLocation = "http://127.0.0.1:817/ui/modules/assets/favicons/ms-icon-310x310.png" //TODO
 )
+
+func init() {
+	if logoLocation == "" {
+		logoLocation = filepath.Join(os.TempDir(), "Portmaster", "logo-310x310.png")
+	}
+}
 
 //API called functions:
 
 func actionListener() {
 	initNotifierPath()
 	go notificationListener()
+	initLogo()
 }
 
 // Show shows the notification.
@@ -36,7 +47,8 @@ func (n *Notification) Show() {
 		log.Errorf("Snoretoast was asked to create this notification with empty messag - impossible: %+v", n)
 		return
 	}
-	snoreToastRunCmdAsync(exec.Command(notifierPath, "-id", n.GUID, "-t", "Portmaster", "-m", n.Message, "-b", buildSnoreToastButtonArgument(n.AvailableActions), "-appID", "io.safing.portmaster", "-pipeName", pipeName))
+	initLogo()
+	snoreToastRunCmdAsync(exec.Command(notifierPath, "-id", n.GUID, "-t", "Portmaster", "-m", n.Message, "-b", buildSnoreToastButtonArgument(n.AvailableActions), "-appID", "io.safing.portmaster", "-p", logoLocation, "-pipeName", pipeName))
 }
 
 // Cancel cancels the notification.
@@ -58,6 +70,15 @@ func initNotifierPath() {
 			log.Errorf("Error while getting SnoreToast-Path: %s %s", err, notifierPath)
 			return
 			//TODO: what to do?
+		}
+	}
+}
+
+func initLogo() {
+	if _, err := os.Stat(logoLocation); err != nil { //File doesn't exist or another Error that is handled while copying file there
+		os.MkdirAll(filepath.Dir(logoLocation), os.ModePerm)
+		if err = downloadFile(logoLocation, webLogoLocation); err != nil {
+			log.Errorf("Can't copy Logo for SnoreToast from %s to %s: %s", webLogoLocation, logoLocation, err)
 		}
 	}
 }
@@ -104,6 +125,8 @@ func onCallback(conn net.Conn) {
 	defer n.Unlock()
 
 	switch data["action"] {
+	case "dismissed": //do nothing
+	case "clicked": //like dismissed: do nothing
 	case "buttonClicked":
 		for _, actions := range n.AvailableActions {
 			if actions.Text == data["button"] {
@@ -242,4 +265,26 @@ func getPath(what string) (string, error) {
 	ret, err := cmd.Output()
 
 	return strings.TrimSpace(string(ret)), err
+}
+
+//from https://golangcode.com/download-a-file-from-a-url/
+func downloadFile(filepath string, url string) error {
+
+	// Get the data
+	resp, err := http.Get(url)
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+
+	// Create the file
+	out, err := os.Create(filepath)
+	if err != nil {
+		return err
+	}
+	defer out.Close()
+
+	// Write the body to file
+	_, err = io.Copy(out, resp.Body)
+	return err
 }

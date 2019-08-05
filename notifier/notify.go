@@ -20,10 +20,10 @@ var (
 )
 
 func notifClient() {
+	actionListener()
+
 	notifOp := apiClient.Qsub(fmt.Sprintf("query %s", dbNotifBasePath), handleNotification)
 	notifOp.EnableResuscitation()
-
-	actionListener()
 }
 
 func handleNotification(m *client.Message) {
