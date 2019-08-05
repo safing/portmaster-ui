@@ -41,17 +41,17 @@ func onReady() {
 	systray.SetTooltip("The Portmaster Notifier alerts you of important things and prompts you for decisions if necessary.")
 
 	// menu: open app
-	if databaseDir != "" {
+	if dataDir != "" {
 		menuItemOpenApp := systray.AddMenuItem("Open App", "")
 		go clickListener(menuItemOpenApp, func() {
 			// build path to app
-			appPath := filepath.Join(databaseDir, "portmaster-control")
+			appPath := filepath.Join(dataDir, "portmaster-control")
 			if runtime.GOOS == "windows" {
 				appPath += ".exe"
 			}
 
 			// start app
-			cmd := exec.Command(appPath, "run", "app", "--db", databaseDir)
+			cmd := exec.Command(appPath, "run", "app", "--db", dataDir)
 			err := cmd.Start()
 			if err != nil {
 				log.Warningf("failed to start app: %s", err)
