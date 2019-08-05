@@ -251,17 +251,17 @@ readloop:
 
 func getPath(what string) (string, error) {
 	// build path to app
-	if databaseDir == "" {
-		log.Errorf("databaseDir is empty!!!")
+	if dataDir == "" {
+		log.Errorf("dataDir is empty!!!")
 	}
 
-	appPath := filepath.Join(databaseDir, "portmaster-control")
+	appPath := filepath.Join(dataDir, "portmaster-control")
 	if runtime.GOOS == "windows" {
 		appPath += ".exe"
 	}
 
 	// get path
-	cmd := exec.Command(appPath, "show", what, "--db", databaseDir)
+	cmd := exec.Command(appPath, "show", what, "--db", dataDir)
 	ret, err := cmd.Output()
 
 	return strings.TrimSpace(string(ret)), err
