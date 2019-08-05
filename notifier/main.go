@@ -53,6 +53,11 @@ func main() {
 		os.Exit(0)
 	}
 
+	if databaseDir == "" {
+		log.Errorf("databaseDir is empty!!!")
+		os.Exit(1)
+	}
+
 	// start log writer
 	log.Start()
 
