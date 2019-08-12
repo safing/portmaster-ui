@@ -10,15 +10,19 @@ import (
 	"path/filepath"
 	"runtime"
 	"strings"
+	"sync"
 
 	"github.com/Microsoft/go-winio"
 	"github.com/safing/portbase/log"
+	"github.com/safing/portbase/utils/osdetail"
 	"golang.org/x/text/encoding/unicode"
 )
 
 var (
-	notifierPath string
-	logoLocation string
+	notifierPath         string
+	notifierPathMutex    sync.Mutex
+	logoLocation         string // no locking done since only written in init()
+	notificationsEnabled bool   // Are Notifications even enabled? (not on Windows Versions < 8); no locking done since only written in init()
 )
 
 const (
@@ -30,15 +34,23 @@ const (
 
 type actionCallback struct {
 	action string
-	button string
+	button string // actionCallback.button is NOT garanteed to exist in the Callback. Therefore make sure to handle empty String
 	id     string
 }
 
 type cmdArgs []string
 
 func init() {
+	var err error
+
 	if logoLocation == "" {
 		logoLocation = filepath.Join(os.TempDir(), "Portmaster", "logo-310x310.png")
+	}
+
+	notificationsEnabled, err = osdetail.IsAtLeastWindowsVersion("8")
+	if err != nil {
+		log.Errorf("failed to obtain and compare Windows-Version: %s", err)
+		notificationsEnabled = true
 	}
 }
 
@@ -46,40 +58,45 @@ func init() {
 
 func actionListener() {
 	initNotifierPath()
-	go notificationListener()
 	initLogo()
+	go notificationListener()
 }
 
 // Show shows the notification.
 func (n *Notification) Show() {
-	log.Debugf("notification to show: %+v", n)
+	log.Debugf("showing notification: %+v", n)
+
+	if !notificationsEnabled {
+		log.Warningf("showing notifications is not implemented on Windows Versions < 8.")
+		return
+	}
 
 	initLogo() // if not already there
 
-	//beeing very safe while building the Snoretoast-Arguments because malformed arguments sometimes install the SnoreToast default shortcut, see https://bugs.kde.org/show_bug.cgi?id=410622
+	// beeing very safe while building the Snoretoast-Arguments because malformed arguments sometimes install the SnoreToast default shortcut, see https://bugs.kde.org/show_bug.cgi?id=410622
 	args := make(cmdArgs, 0, 10)
 	if err := snoreToastVerifyArgumentSyntax(n.GUID); err != nil {
-		log.Errorf("verification of the GUID failed when building the SnoreToast-Command: %s", err)
+		log.Errorf("failed verifiying the GUID when building the SnoreToast-Command: %s", err)
 		return
 	}
 	args.addKeyVal("-id", n.GUID, false)
 	if err := args.addKeyVal("-t", notificationTitle, true); err != nil {
-		log.Errorf("adding Title while building SnoreToast-Command failed: %s Notification: %+v", err, n)
+		log.Errorf("failed adding Title when building SnoreToast-Command: %s Notification: %+v", err, n)
 		return
 	}
 	if err := args.addKeyVal("-m", n.Message, true); err != nil {
-		log.Errorf("adding Message while building SnoreToast-Command failed: %s Notification: %+v", err, n)
+		log.Errorf("failed adding Message when building SnoreToast-Command: %s Notification: %+v", err, n)
 		return
 	}
 	args.addKeyVal("-b", n.buildSnoreToastButtonArgument(), false)
 	if err := snoreToastVerifyArgumentSyntax(appID); err != nil {
-		log.Errorf("verification of the appID failed when building the SnoreToast-Command: %s", err)
+		log.Errorf("failed verifying the appID when building the SnoreToast-Command: %s", err)
 		return
 	}
 	args.addKeyVal("-appID", appID, false)
 	args.addKeyVal("-p", logoLocation, false)
 	if err := snoreToastVerifyArgumentSyntax(pipeName); err != nil {
-		log.Errorf("verification of the pipeName failed when building the SnoreToast-Command: %s", err)
+		log.Errorf("failed verifying the pipeName when building the SnoreToast-Command: %s", err)
 		return
 	}
 	args.addKeyVal("-pipeName", pipeName, false)
@@ -89,17 +106,17 @@ func (n *Notification) Show() {
 
 // Cancel cancels the notification.
 func (n *Notification) Cancel() {
-	if n == nil || n.GUID == "" {
+	if n == nil || n.GUID == "" || !notificationsEnabled {
 		return
 	}
 
 	args := make(cmdArgs, 0, 4)
 	if err := args.addKeyVal("-close", n.GUID, true); err != nil {
-		log.Errorf("adding ID of Notification while building SnoreToast-Close-Command failed: %s Notification: %+v", err, n)
+		log.Errorf("failed adding ID of Notification when building SnoreToast-Close-Command: %s Notification: %+v", err, n)
 		return
 	}
 	if err := args.addKeyVal("-appID", appID, true); err != nil {
-		log.Errorf("adding appID while building SnoreToast-Close-Command failed: %s Notification: %+v", err, n)
+		log.Errorf("failed adding appID when building SnoreToast-Close-Command: %s Notification: %+v", err, n)
 		return
 	}
 
@@ -109,12 +126,15 @@ func (n *Notification) Cancel() {
 // internal functions:
 
 func initNotifierPath() {
+	notifierPathMutex.Lock()
+	defer notifierPathMutex.Unlock()
+
 	if notifierPath == "" {
 		var err error
 		notifierPath, err = getPath("notifier-snoretoast")
 
 		if err != nil {
-			log.Errorf("error while getting SnoreToast-Path: %s %s", err, notifierPath)
+			log.Errorf("failed obtaining SnoreToast-Path: %s %s", err, notifierPath)
 			return
 		}
 	}
@@ -123,19 +143,19 @@ func initNotifierPath() {
 func initLogo() {
 	if _, err := os.Stat(logoLocation); err != nil { // File doesn't exist or another Error that is handled while copying file there
 		if err = os.MkdirAll(filepath.Dir(logoLocation), 0644); err != nil {
-			log.Errorf("can't create Directory %s for Logo for SnoreToast: %s", logoLocation, err)
+			log.Errorf("failed to create Directory %s for Logo for SnoreToast: %s", logoLocation, err)
 		}
 		if err = downloadFile(logoLocation, webLogoLocation); err != nil {
-			log.Errorf("can't copy Logo for SnoreToast from %s to %s: %s", webLogoLocation, logoLocation, err)
+			log.Errorf("failed to copy Logo for SnoreToast from %s to %s: %s", webLogoLocation, logoLocation, err)
 		}
 	}
 }
 
 func notificationListener() {
-	log.Debugf("running Callback-Pipe for SnoreToast: %s", pipeName)
+	log.Debugf("starting Callback-Pipe for SnoreToast: %s", pipeName)
 	l, err := winio.ListenPipe(pipeName, nil)
 	if err != nil {
-		log.Errorf("error while starting Pipe for SnoreToast: %s", err)
+		log.Errorf("failed to start Pipe for SnoreToast: %s", err)
 		return
 	}
 	defer l.Close()
@@ -143,7 +163,7 @@ func notificationListener() {
 	for {
 		conn, err := l.Accept()
 		if err != nil {
-			log.Errorf("Error while accepting namedPipe-connection (for receiving Callbacks from SnoreToast): %s", err)
+			log.Errorf("failed to accept namedPipe-connection (for receiving Callbacks from SnoreToast): %s", err)
 			continue
 		}
 		go handlePipeMessage(conn)
@@ -152,7 +172,7 @@ func notificationListener() {
 
 func handlePipeMessage(conn net.Conn) {
 	data := snoreToastStrToStruct(readWstrConnToStr(conn))
-	log.Debugf("handlePipeMessage: %+v", data)
+	log.Debugf("handling PipeMessage: %+v", data)
 
 	if data.action == "timedout" {
 		return
@@ -184,28 +204,15 @@ func handlePipeMessage(conn net.Conn) {
 			}
 		}
 
-		log.Warningf("button %s is reported to have been clicked but is not available. Available options: %+v", data.button, n.AvailableActions)
+		log.Warningf("failed to handle button click: button %s is reported to have been clicked but is no registered button. Available options: %+v", data.button, n.AvailableActions)
 	default:
-		log.Debugf("SnoreToast-Action %s not implemented yet", data.action)
+		log.Debugf("failed to handle SnoreToast-Action %s: not implemented yet", data.action)
 	}
 }
 
 // Snoretoast helper-Functions:
 
-func (list *cmdArgs) addKeyVal(key, val string, required bool) error {
-	if val == "" {
-		if required {
-			return fmt.Errorf("required value for %s is empty", key)
-		}
-		return nil
-	}
-
-	*list = append(*list, key, val)
-
-	return nil
-}
-
-//Verifies that the Argument contians no Semicolon which would be difficult (in some cases impossible) to parse in a Pipe-Response
+// Verifies that the Argument contians no Semicolon which would be difficult (in some cases impossible) to parse in a Pipe-Response
 func snoreToastVerifyArgumentSyntax(arg string) error {
 	if strings.Contains(arg, ";") {
 		return fmt.Errorf("the SnoreToast-Argument %s would contain a semicolon which would screw up the pipe responses", arg)
@@ -213,7 +220,6 @@ func snoreToastVerifyArgumentSyntax(arg string) error {
 	return nil
 }
 
-//actionCallback.button is NOT garanteed to exist in the Callback. Therefore make sure to handle empty String
 func snoreToastStrToStruct(in string) actionCallback {
 	ret := actionCallback{}
 
@@ -224,7 +230,7 @@ func snoreToastStrToStruct(in string) actionCallback {
 
 		elemSplit := strings.SplitN(elem, "=", 2)
 		if len(elemSplit) != 2 {
-			log.Warningf("snoretoast-Callback %s cannot be parsed into Key=Value-Pair; whole String: %s", elem, in)
+			log.Warningf("failing to parse snoretoast-Response %s into Key=Value-Pair; Response: %s", elem, in)
 			continue
 		}
 
@@ -237,16 +243,16 @@ func snoreToastStrToStruct(in string) actionCallback {
 			ret.id = elemSplit[1]
 		case "version", "pipe": // not needed: do nothing
 		default:
-			log.Infof("key %s received from SnoreToast isn't known to Portmaster (%s)", elemSplit[0], elem)
+			log.Infof("failed to parse key %s from SnoreToast-Response into struct: receivedkey is unknown to Portmaster (%s)", elemSplit[0], elem)
 		}
 	}
 
 	if ret.action == "" {
-		log.Errorf("no action specified in the SnoreToast Callback: %s", in)
+		log.Errorf("missing attribute action in SnoreToast Response: %s", in)
 	}
 
 	if ret.id == "" {
-		log.Errorf("no notificationId specified in the SnoreToast Callback: %s", in)
+		log.Errorf("missing attribute id in SnoreToast Response: %s", in)
 	}
 
 	return ret
@@ -259,7 +265,7 @@ func (n *Notification) buildSnoreToastButtonArgument() string {
 	temp := make([]string, 0, len(n.AvailableActions))
 	for _, elem := range n.AvailableActions {
 		if err := snoreToastVerifyArgumentSyntax(elem.Text); err != nil {
-			log.Errorf("failed building SnoreToast Button-Argument: failed to validate Text for %+v: %s", elem, err)
+			log.Errorf("failed to build SnoreToast Button-Argument: failed to validate Text for %+v: %s", elem, err)
 			continue
 		}
 
@@ -277,15 +283,28 @@ func snoreToastRunCmdAsync(cmd *exec.Cmd) {
 		switch exit {
 		case 0, 1, 2, 3, 4, 5: // do nothing
 		default:
-			log.Errorf("error while running %+v: %s", cmd.Args, err)
+			log.Errorf("executing %+v failed: %s", cmd.Args, err)
 		}
 	}()
 }
 
 // Generel helper-Functions:
 
+func (list *cmdArgs) addKeyVal(key, val string, required bool) error {
+	if val == "" {
+		if required {
+			return fmt.Errorf("required value for %s is empty", key)
+		}
+		return nil
+	}
+
+	*list = append(*list, key, val)
+
+	return nil
+}
+
 func execCmd(cmd *exec.Cmd) (exitCode int, err error) {
-	log.Debugf("run snoretoast: %+v", cmd.Args)
+	log.Debugf("running command: %+v", cmd.Args)
 
 	err = cmd.Run()
 	exitCode = cmd.ProcessState.ExitCode()
@@ -309,7 +328,7 @@ readloop:
 		case io.EOF:
 			break readloop
 		default:
-			log.Warningf("error while reading from pipe (SnoreToast-Callback): %s", err)
+			log.Warningf("failed to read from pipe: %s", err)
 			return ""
 		}
 		bufferslice = append(bufferslice, buffer[:n]...)
@@ -318,7 +337,7 @@ readloop:
 	dec := unicode.UTF16(unicode.LittleEndian, unicode.UseBOM).NewDecoder()
 	out, err := dec.Bytes(bufferslice)
 	if err != nil {
-		log.Warningf("error while converting wstr to str: %s", err)
+		log.Warningf("failed to convert wstr to str: %s", err)
 		return ""
 	}
 
@@ -328,7 +347,7 @@ readloop:
 func getPath(module string) (string, error) {
 	// build path to app
 	if dataDir == "" {
-		return "", fmt.Errorf("error while getting Path for %s: dataDir is empty", module)
+		return "", fmt.Errorf("failed to get Path for %s: dataDir is empty", module)
 	}
 
 	appPath := filepath.Join(dataDir, "portmaster-control")
