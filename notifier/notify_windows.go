@@ -101,7 +101,7 @@ func (n *Notification) Show() {
 	}
 	args.addKeyVal("-pipeName", pipeName, false)
 
-	runSnoreToastCmdAsync(exec.Command(notifierPath, args...))
+	go runSnoreToastCmd(exec.Command(notifierPath, args...))
 }
 
 // Cancel cancels the notification.
@@ -120,7 +120,7 @@ func (n *Notification) Cancel() {
 		return
 	}
 
-	runSnoreToastCmdAsync(exec.Command(notifierPath, args...))
+	go runSnoreToastCmd(exec.Command(notifierPath, args...))
 }
 
 // internal functions:
@@ -171,7 +171,7 @@ func notificationListener() {
 }
 
 func handlePipeMessage(conn net.Conn) {
-	data := parseSnoreToastStrToStruct(readWideStringAsUnicode(conn))
+	data := parseSnoreToastActionCallback(readWideStringAsUnicode(conn))
 	log.Debugf("handling PipeMessage: %+v", data)
 
 	if data.action == "timedout" {
@@ -220,7 +220,7 @@ func verifySnoreToastArgumentSyntax(arg string) error {
 	return nil
 }
 
-func parseSnoreToastStrToStruct(in string) actionCallback {
+func parseSnoreToastActionCallback(in string) actionCallback {
 	ret := actionCallback{}
 
 	for _, elem := range strings.Split(in, ";") {
@@ -276,16 +276,14 @@ func (n *Notification) buildSnoreToastButtonArgument() string {
 	return strings.Join(temp, ";")
 }
 
-func runSnoreToastCmdAsync(cmd *exec.Cmd) {
-	go func() {
-		exit, err := execCmd(cmd)
+func runSnoreToastCmd(cmd *exec.Cmd) {
+	exit, err := execCmd(cmd)
 
-		switch exit {
-		case 0, 1, 2, 3, 4, 5: // do nothing
-		default:
-			log.Errorf("executing %+v failed: %s", cmd.Args, err)
-		}
-	}()
+	switch exit {
+	case 0, 1, 2, 3, 4, 5: // do nothing
+	default:
+		log.Errorf("executing %+v failed: %s", cmd.Args, err)
+	}
 }
 
 // Generel helper-Functions:
