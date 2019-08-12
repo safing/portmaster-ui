@@ -75,7 +75,7 @@ func (n *Notification) Show() {
 
 	// beeing very safe while building the Snoretoast-Arguments because malformed arguments sometimes install the SnoreToast default shortcut, see https://bugs.kde.org/show_bug.cgi?id=410622
 	args := make(cmdArgs, 0, 10)
-	if err := snoreToastVerifyArgumentSyntax(n.GUID); err != nil {
+	if err := verifySnoreToastArgumentSyntax(n.GUID); err != nil {
 		log.Errorf("failed verifiying the GUID when building the SnoreToast-Command: %s", err)
 		return
 	}
@@ -89,19 +89,19 @@ func (n *Notification) Show() {
 		return
 	}
 	args.addKeyVal("-b", n.buildSnoreToastButtonArgument(), false)
-	if err := snoreToastVerifyArgumentSyntax(appID); err != nil {
+	if err := verifySnoreToastArgumentSyntax(appID); err != nil {
 		log.Errorf("failed verifying the appID when building the SnoreToast-Command: %s", err)
 		return
 	}
 	args.addKeyVal("-appID", appID, false)
 	args.addKeyVal("-p", logoLocation, false)
-	if err := snoreToastVerifyArgumentSyntax(pipeName); err != nil {
+	if err := verifySnoreToastArgumentSyntax(pipeName); err != nil {
 		log.Errorf("failed verifying the pipeName when building the SnoreToast-Command: %s", err)
 		return
 	}
 	args.addKeyVal("-pipeName", pipeName, false)
 
-	snoreToastRunCmdAsync(exec.Command(notifierPath, args...))
+	runSnoreToastCmdAsync(exec.Command(notifierPath, args...))
 }
 
 // Cancel cancels the notification.
@@ -120,7 +120,7 @@ func (n *Notification) Cancel() {
 		return
 	}
 
-	snoreToastRunCmdAsync(exec.Command(notifierPath, args...))
+	runSnoreToastCmdAsync(exec.Command(notifierPath, args...))
 }
 
 // internal functions:
@@ -171,7 +171,7 @@ func notificationListener() {
 }
 
 func handlePipeMessage(conn net.Conn) {
-	data := snoreToastStrToStruct(readWstrConnToStr(conn))
+	data := parseSnoreToastStrToStruct(readWideStringAsUnicode(conn))
 	log.Debugf("handling PipeMessage: %+v", data)
 
 	if data.action == "timedout" {
@@ -213,14 +213,14 @@ func handlePipeMessage(conn net.Conn) {
 // Snoretoast helper-Functions:
 
 // Verifies that the Argument contians no Semicolon which would be difficult (in some cases impossible) to parse in a Pipe-Response
-func snoreToastVerifyArgumentSyntax(arg string) error {
+func verifySnoreToastArgumentSyntax(arg string) error {
 	if strings.Contains(arg, ";") {
 		return fmt.Errorf("the SnoreToast-Argument %s would contain a semicolon which would screw up the pipe responses", arg)
 	}
 	return nil
 }
 
-func snoreToastStrToStruct(in string) actionCallback {
+func parseSnoreToastStrToStruct(in string) actionCallback {
 	ret := actionCallback{}
 
 	for _, elem := range strings.Split(in, ";") {
@@ -264,7 +264,7 @@ func (n *Notification) buildSnoreToastButtonArgument() string {
 
 	temp := make([]string, 0, len(n.AvailableActions))
 	for _, elem := range n.AvailableActions {
-		if err := snoreToastVerifyArgumentSyntax(elem.Text); err != nil {
+		if err := verifySnoreToastArgumentSyntax(elem.Text); err != nil {
 			log.Errorf("failed to build SnoreToast Button-Argument: failed to validate Text for %+v: %s", elem, err)
 			continue
 		}
@@ -276,7 +276,7 @@ func (n *Notification) buildSnoreToastButtonArgument() string {
 	return strings.Join(temp, ";")
 }
 
-func snoreToastRunCmdAsync(cmd *exec.Cmd) {
+func runSnoreToastCmdAsync(cmd *exec.Cmd) {
 	go func() {
 		exit, err := execCmd(cmd)
 
@@ -312,7 +312,7 @@ func execCmd(cmd *exec.Cmd) (exitCode int, err error) {
 	return
 }
 
-func readWstrConnToStr(conn net.Conn) string {
+func readWideStringAsUnicode(conn net.Conn) string {
 	defer conn.Close()
 
 	var bufferslice []byte
