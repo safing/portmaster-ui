@@ -19,6 +19,9 @@ import (
 var (
 	dataDir     string
 	databaseDir string
+	urlFlag     string
+
+	url = "http://127.0.0.1:817/"
 )
 
 func init() {
@@ -31,7 +34,7 @@ func main() {
 	flag.Parse()
 
 	// set meta info
-	info.Set("Portmaster App", "0.1.6", "GPLv3", false)
+	info.Set("Portmaster App", "0.1.7", "GPLv3", false)
 
 	// check if meta info is ok
 	err := info.CheckVersion()
@@ -65,6 +68,11 @@ func main() {
 	// backwards compatibility
 	databaseDir = dataDir
 
+	// set custom url for development
+	if urlFlag != "" {
+		url = urlFlag
+	}
+
 	// start log writer
 	log.Start()
 
@@ -73,7 +81,7 @@ func main() {
 		// WebView main window title
 		Title: "Portmaster",
 		// URL to open in a webview
-		URL: "http://127.0.0.1:817/",
+		URL: url,
 		// Window width in pixels
 		Width: 1400,
 		// Window height in pixels
