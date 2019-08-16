@@ -45,7 +45,7 @@
             </div>
           </div>
 
-          <Option v-for="(record, rKey) in section.options" v-bind:key="rKey" v-bind:rKey="rKey" v-bind:record="record"/>
+          <Option v-for="(record, rKey) in section.options" v-bind:key="rKey" v-bind:rKey="rKey" v-bind:record="record" v-if="record.ExpertiseLevel <= activeExpertiseLevel"/>
         </div>
       </div>
 
