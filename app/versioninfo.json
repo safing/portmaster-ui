@@ -38,6 +38,6 @@
             "CharsetID": "04B0"
         }
     },
-    "IconPath": "../assets/icons/windows/portmaster.ico",
+    "IconPath": "../assets/icons/portmaster.ico",
     "ManifestPath": "app.exe.manifest"
 }
