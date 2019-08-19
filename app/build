@@ -60,7 +60,7 @@ if [[ $GOOS == "windows" ]]; then
   export CXX=$CXX_FOR_windows_amd64
   # custom
   export CGO_ENABLED=1
-  EXTRA_LD_FLAGS='-H windowsgui'
+  EXTRA_LD_FLAGS='-H windowsgui' # needed for GUI
   # generate resource.syso for windows metadata / icon
   go generate
 fi

@@ -205,6 +205,9 @@ export default {
   .inverted.card {
     background-color: #2a2a2a !important;
   }
+  .inverted.button {
+    box-shadow: none !important;
+  }
   // border-left: 2px solid #2185d0 !important;
 
   .img.button {

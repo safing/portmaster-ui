@@ -12,14 +12,17 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/safing/portbase/modules"
+
 	"github.com/safing/portbase/api/client"
 	"github.com/safing/portbase/info"
 	"github.com/safing/portbase/log"
 )
 
 var (
-	printStackOnExit bool
+	dataDir          string
 	databaseDir      string
+	printStackOnExit bool
 
 	apiClient = client.NewClient("127.0.0.1:817")
 
@@ -28,8 +31,9 @@ var (
 )
 
 func init() {
+	flag.StringVar(&dataDir, "data", "", "set data directory")
+	flag.StringVar(&databaseDir, "db", "", "alias to --data (deprecated)")
 	flag.BoolVar(&printStackOnExit, "print-stack-on-exit", false, "prints the stack before of shutting down")
-	flag.StringVar(&databaseDir, "db", "", "set database directory (for starting UI)")
 
 	runtime.GOMAXPROCS(2)
 }
@@ -39,7 +43,7 @@ func main() {
 	flag.Parse()
 
 	// set meta info
-	info.Set("Portmaster Notifier", "0.1.5", "GPLv3", false)
+	info.Set("Portmaster Notifier", "0.1.6", "GPLv3", false)
 
 	// check if meta info is ok
 	err := info.CheckVersion()
@@ -48,10 +52,30 @@ func main() {
 		os.Exit(1)
 	}
 
-	// react to version flag
+	// print help
+	if modules.HelpFlag {
+		flag.Usage()
+		os.Exit(0)
+	}
+
+	// print version
 	if info.PrintVersion() {
 		os.Exit(0)
 	}
+
+	// backwards compatibility
+	if dataDir == "" {
+		dataDir = databaseDir
+	}
+
+	// check data dir
+	if dataDir == "" {
+		fmt.Fprintln(os.Stderr, "please set the data directory using --data=/path/to/data/dir")
+		os.Exit(1)
+	}
+
+	// backwards compatibility
+	databaseDir = dataDir
 
 	// start log writer
 	log.Start()
@@ -77,19 +101,23 @@ func main() {
 	)
 
 	// wait for shutdown
-	<-signalCh
-	fmt.Println(" <INTERRUPT>")
-	log.Warning("program was interrupted, shutting down.")
+	select {
+	case <-signalCh:
+		fmt.Println(" <INTERRUPT>")
+		log.Warning("program was interrupted, shutting down")
+	case <-mainCtx.Done():
+		log.Warning("program is shutting down")
+	}
 
 	if printStackOnExit {
 		fmt.Println("=== PRINTING STACK ===")
-		pprof.Lookup("goroutine").WriteTo(os.Stdout, 2)
+		pprof.Lookup("goroutine").WriteTo(os.Stdout, 1)
 		fmt.Println("=== END STACK ===")
 	}
 	go func() {
-		time.Sleep(3 * time.Second)
+		time.Sleep(10 * time.Second)
 		fmt.Println("===== TAKING TOO LONG FOR SHUTDOWN - PRINTING STACK TRACES =====")
-		pprof.Lookup("goroutine").WriteTo(os.Stdout, 2)
+		pprof.Lookup("goroutine").WriteTo(os.Stdout, 1)
 		os.Exit(1)
 	}()
 

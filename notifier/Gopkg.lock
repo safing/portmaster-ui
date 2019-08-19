@@ -2,6 +2,17 @@
 
 
 [[projects]]
+  digest = "1:d5e752c67b445baa5b6cb6f8aa706775c2aa8e41aca95a0c651520ff2c80361a"
+  name = "github.com/Microsoft/go-winio"
+  packages = [
+    ".",
+    "pkg/guid",
+  ]
+  pruneopts = "UT"
+  revision = "6c72808b55902eae4c5943626030429ff20f3b63"
+  version = "v0.4.14"
+
+[[projects]]
   branch = "master"
   digest = "1:2aaa32caffb45acd75d204d21113fd06927ee17a20475fbee191b4c29e353cb9"
   name = "github.com/dhaavi/go-notify"
@@ -109,13 +120,33 @@
   pruneopts = "UT"
   revision = "04f50cda93cbb67f2afa353c52f342100e80e625"
 
+[[projects]]
+  digest = "1:c059487b0a766e256f53290955649ca2d2915dc71230689006a893b364e75f33"
+  name = "golang.org/x/text"
+  packages = [
+    "encoding",
+    "encoding/internal",
+    "encoding/internal/identifier",
+    "encoding/unicode",
+    "internal/gen",
+    "internal/utf8internal",
+    "runes",
+    "transform",
+    "unicode/cldr",
+  ]
+  pruneopts = "UT"
+  revision = "342b2e1fbaa52c93f31447ad2c6abc048c63e475"
+  version = "v0.3.2"
+
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
   input-imports = [
+    "github.com/Microsoft/go-winio",
     "github.com/dhaavi/go-notify",
     "github.com/getlantern/systray",
     "github.com/mattn/go-gtk/gdkpixbuf",
+    "golang.org/x/text/encoding/unicode",
   ]
   solver-name = "gps-cdcl"
   solver-version = 1

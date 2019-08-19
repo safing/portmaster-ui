@@ -3,12 +3,21 @@
   <div class="row" style="margin-top: 0px;">
     <div class=" column" style="text-align: left;">
       <h5>
+        <span v-if="record.ExpertiseLevel == 2" data-tooltip="Changing this setting may impair or break Portmaster functionality." data-position="right center">
+          <i class="ui yellow exclamation icon"></i>
+        </span>
+        <span v-if="record.ExpertiseLevel == 3" data-tooltip="Changing this setting may have a disastrous impact on Portmaster. Only change if you really know what you are doing." data-position="right center">
+          <i class="ui red radiation icon"></i>
+        </span>
         {{ record.Name }}
+        <span v-if="record.RequiresRestart" data-tooltip="Requires (manually) restarting the Portmaster in order to take effect." data-position="right center">
+          <i class="ui blue redo icon"></i>
+        </span>
       </h5>
       {{ record.Description }}
     </div>
 
-    <div v-bind:class="[inactiveState ? 'inactive' : '', 'column']">
+    <div v-bind:class="[activeState() ? 'active' : '', 'column']">
 
       <!-- Status -->
       <span style="width: 10px; margin-right: 10px;">
@@ -41,7 +50,7 @@
     </div>
 
     <!-- Default Value -->
-    <div v-bind:class="[!inactiveState ? 'inactive' : '', 'column']">
+    <div v-bind:class="[!activeState() ? 'active' : '', 'column']">
 
       <OptionBoolean v-if="record.OptType == optTypeBool" :record="record" :displayDefault="true"></OptionBoolean>
       <OptionIntSecurityLevel v-else-if="record.ExternalOptType == 'security level'" :record="record" :displayDefault="true"></OptionIntSecurityLevel>
@@ -114,15 +123,15 @@ export default {
         return true;
       }
       return false;
-    },
-    inactiveState() {
-      if (this.record.hasOwnProperty("Value") && this.record.Value !== null) {
-        return false;
-      }
-      return true;
     }
   },
   methods: {
+     activeState() {
+      if (this.record.hasOwnProperty("Value") && this.record.Value !== null) {
+        return true;
+      }
+      return false;
+    },
     updateValue(newValue, error) {
       if (error != undefined) {
         this.validationError = error;
@@ -176,12 +185,6 @@ export default {
       var data = {
         Value: newValue
       };
-      // var rec = this.record
-      // Object.keys(rec).forEach(function(key) {
-      //   data[key] = rec[key]
-      // });
-      // data.Value = newValue
-
       this.request = this.$api.insert(this.rKey, data);
     },
     deleteValue() {
@@ -201,11 +204,9 @@ export default {
   margin-left: 20px;
 }
 
-.inactive.column {
-  opacity: 0.6;
-}
-
-.row:hover .inactive.column {
-  opacity: 1;
+.active.column {
+  background-color: #307DDB;
+  border-radius: 4px;
+  padding: 4px;
 }
 </style>

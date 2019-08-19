@@ -4,9 +4,9 @@ import (
 	"context"
 	"sync"
 
+	notify "github.com/dhaavi/go-notify"
 	"github.com/safing/portbase/log"
 	"github.com/safing/portmaster-ui/notifier/icons"
-	notify "github.com/dhaavi/go-notify"
 )
 
 var (
@@ -62,12 +62,11 @@ func handleActions(ctx context.Context, actions chan notify.Signal) {
 }
 
 func actionListener() {
-	ctx, _ := context.WithCancel(mainCtx)
 	actions := make(chan notify.Signal, 100)
 
-	go handleActions(ctx, actions)
+	go handleActions(mainCtx, actions)
 
-	err := notify.SignalNotify(ctx, actions)
+	err := notify.SignalNotify(mainCtx, actions)
 	if err != nil && err != context.Canceled {
 		log.Errorf("notify: signal listener failed: %s", err)
 	}
