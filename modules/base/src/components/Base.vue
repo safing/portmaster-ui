@@ -1,118 +1,120 @@
 <template>
   <div class="main-container">
-    <div v-bind:class="['ui basic inverted segment controlbar', {'collapsed': collapsed}]">
-      <div>
-
-        <div v-on:click="selectUIModule(0)" class="clickable">
-          <i v-if="!status" class="massive question circle outline icon" style="font-size: 12rem; color: #444;"></i>
-          <img v-else-if="status.ActiveSecurityLevel == 1" class="img" src="/assets/icons/level_dynamic.svg" style="height: 14rem;"></img>
-          <img v-else-if="status.ActiveSecurityLevel == 2" class="img" src="/assets/icons/level_secure.svg" style="height: 14rem;"></img>
-          <img v-else-if="status.ActiveSecurityLevel == 4" class="img" src="/assets/icons/level_fortress.svg" style="height: 14rem;"></img>
-          <i v-else class="massive question circle outline icon" style="font-size: 12rem; color: #444;"></i>
-        </div>
-
-        <div class="ui two column grid">
-          <div class="column" style="padding: 0;">
-            <div v-on:click="selectUIModule(0)" class="clickable gateButton gate_off">
-              <img class='ui circular image' src='/assets/icons/gate17.svg' style='margin:0; height: 4rem; padding: 0 0 0 22px;'></img>
-            </div>
-          </div>
-          <div class="right aligned column" style="padding: 0;">
-            <div v-on:click="collapsed = !collapsed" class="ui circular icon button clickable collapseButton" href="#" style="">
-              <i v-bind:class="['angle double icon', {'right': collapsed, 'left': !collapsed}]" id="Btn"></i>
-            </div>
-          </div>
-        </div>
-
-        <div v-on:click="selectUIModule(0); collapsed = false;" class="ui basic inverted segment mess center aligned clickable">
-          <div v-if="!apiInfo.connected">
-            <i class="orange info icon mess"></i>
-            <span class="wide-text">Connecting to Portmaster...</span>
-          </div>
-          <div v-else>
-            <i class="green check circle outline icon mess"></i>
-            <span class="wide-text">Everything OK.</span>
-          </div>
-          <!-- <div>
-            <i class="red exclamation icon mess"></i>
-            <span class="wide-text">Detected ...</span>
-          </div>
-          <div>
-            <i class="orange info icon mess"></i>
-            <span class="wide-text">3 Notifications</span>
-          </div> -->
-        </div>
-
-        <!-- <div class="ui vertical fluid inverted menu"  style=""> -->
-        <div class="ui secondary vertical fluid inverted pointing menu"  style="">
-          <div v-for="(uiMod, index) in uiModules" v-bind:key="index" v-on:click="selectUIModule(index)" v-bind:class="[{'active': activeModule == uiMod.url}, 'item', 'uiModuleItem']">
-            <h4>
-              <div v-bind:class="['uiIndicator', {'loaded': uiMod.loaded && uiMod.url != '-'}]">
-                <i class="blue tiny circle middle aligned icon loadedIcon"></i>
-                <i v-on:click.stop="killUIModule(index)" class="blue times icon killIcon"></i>
-              </div>
-              <i v-bind:class="[uiMod.icon, 'icon', 'moduleIcon']"></i>
-              <span class="wide-text">{{ uiMod.name }}</span>
-            </h4>
-          </div>
-        </div>
-
-      </div>
-
-      <div class="ui list bottom-stats" id="stats" style="width: 100%; padding: 1rem;">
-        <div class="ui divider" style=""></div>
-        <div class="item" style="text-align: center;">
-          <span v-if="apiInfo.connected" class="ui center aligned">
-            connected.
-          </span>
-          <span v-else class="ui red text">
-            not connected.
-          </span>
+    <div class="ui basic inverted segment controlbar">
+      <!-- sidebar header -->
+      <div v-on:click="selectHome()" class="ui basic inverted segment mess center aligned">
+        <div class="centered">
+          <h4 style="margin-bottom: 0;">Portmaster</h4>
+          <small v-if="versions">
+            v{{ versions.Core.Version }} <span style="color: #FF0000A0;">(pre-alpha)</span>
+          </small>
+          <small v-else>
+            loading...
+          </small>
         </div>
       </div>
 
+      <!-- top menu -->
+      <div class="ui secondary vertical fluid inverted pointing menu" style="">
+        <div
+          v-for="(uiMod, index) in topMenu"
+          v-bind:key="index"
+          v-on:click="selectUIModule(uiMod.url)"
+          v-bind:class="[{ active: activeModule === uiMod.url }, 'item', 'uiModuleItem']"
+        >
+          <h4>
+            <div v-bind:class="['uiIndicator', { loaded: uiMod.loaded && !uiMod.url.startsWith('_') }]">
+              <i class="teal tiny circle middle aligned icon loadedIcon"></i>
+              <i v-on:click.stop="killUIModule(uiMod.url)" class="red times icon killIcon"></i>
+            </div>
+            <i v-bind:class="[uiMod.icon, 'icon', 'moduleIcon']"></i>
+            <span class="wide-text">{{ uiMod.name }}</span>
+          </h4>
+        </div>
+      </div>
+
+      <!-- bottom menu -->
+      <div class="ui secondary vertical fluid inverted pointing menu bottom-section" style="">
+        <div
+          v-for="(uiMod, index) in bottomMenu"
+          v-bind:key="index"
+          v-on:click="selectUIModule(uiMod.url)"
+          v-bind:class="[{ active: activeModule === uiMod.url }, 'item', 'uiModuleItem']"
+        >
+          <h4>
+            <div v-bind:class="['uiIndicator', { loaded: uiMod.loaded && !uiMod.url.startsWith('_') }]">
+              <i class="teal tiny circle middle aligned icon loadedIcon"></i>
+              <i v-on:click.stop="killUIModule(uiMod.url)" class="red times icon killIcon"></i>
+            </div>
+            <i v-bind:class="[uiMod.icon, 'icon', 'moduleIcon']"></i>
+            <span class="wide-text">{{ uiMod.name }}</span>
+          </h4>
+        </div>
+        <!-- connection status -->
+        <div>
+          <div class="ui divider" style="margin-bottom: 0;"></div>
+          <div class="item" style="text-align: center;">
+            <span v-if="apiInfo.connected" class="ui center aligned" style="color: #FFFFFF80">
+              Connected to Core
+            </span>
+            <span v-else class="ui red text">
+              Not connected to Core!<br />
+              Retrying...
+            </span>
+          </div>
+        </div>
+      </div>
     </div>
 
     <div class="content-pane">
-      <div v-for="uiMod in uiModules" v-bind:key="uiMod.url" v-show="uiMod.url == activeModule" class="content-pane-item">
-        <Dashboard v-if="uiMod.url == '-'"></Dashboard>
-        <iframe v-else-if="uiMod.loaded" v-bind:src="basePath + uiMod.url"></iframe>
+      <div
+        v-for="uiMod in uiModules"
+        v-bind:key="uiMod.url"
+        v-show="uiMod.url === activeModule"
+        class="content-pane-item"
+      >
+        <Dashboard v-if="uiMod.url === '_dashboard'" />
+        <Support v-if="uiMod.url === '_support'" />
+        <About v-if="uiMod.url === '_about'" />
+        <iframe v-else-if="uiMod.loaded" v-bind:src="basePath + uiMod.url" />
       </div>
     </div>
   </div>
-
 </template>
 
 <script>
 import Dashboard from "./Dashboard.vue";
+import Support from "./Support.vue";
+import About from "./About.vue";
 
 export default {
   name: "Base",
   components: {
-    Dashboard
+    Dashboard,
+    Support,
+    About
   },
   props: {
     basePath: String
   },
   data() {
     return {
-      op: this.$api.qsub("query core:status/"),
-      activeModule: "-",
-      collapsed: false,
+      statusDB: this.$api.qsub("query core:status/"),
+      activeModule: "_dashboard",
       apiInfo: this.$api.info(),
       uiModules: [
         {
           name: "Dashboard",
-          url: "-",
+          url: "_dashboard",
           icon: "table",
           loaded: true
         },
-        {
+        /*{ 
           name: "Profile Manager",
           url: "/ui/modules/profilemgr/",
           icon: "user",
           loaded: false
-        },
+        },*/
         {
           name: "Monitor",
           url: "/ui/modules/monitor/",
@@ -126,72 +128,113 @@ export default {
           loaded: false
         },
         {
+          name: "Support",
+          url: "_support",
+          icon: "help",
+          loaded: false,
+          bottom: true
+        },
+        {
+          name: "About",
+          url: "_about",
+          icon: "info",
+          loaded: false,
+          bottom: true
+        },
+        {
           name: "Dev Console",
           url: "/ui/modules/console/",
           icon: "terminal",
-          loaded: false
+          loaded: false,
+          bottom: true
         }
       ]
     };
   },
   computed: {
-    status() {
-      return this.op.records["core:status/status"];
+    versions() {
+      return this.statusDB.records["core:status/versions"];
+    },
+    topMenu() {
+      return this.uiModules.filter(value => {
+        return !value.bottom;
+      });
+    },
+    bottomMenu() {
+      return this.uiModules.filter(value => {
+        return value.bottom;
+      });
     }
   },
   methods: {
-    selectUIModule(index) {
-      this.uiModules[index].loaded = true;
-      this.activeModule = this.uiModules[index].url;
-    },
-    killUIModule(index) {
-      this.uiModules[index].loaded = false;
-      if (this.activeModule == this.uiModules[index].url) {
-        this.activeModule = "-";
+    selectUIModule(url) {
+      for (const index in this.uiModules) {
+        if (this.uiModules[index].url === url) {
+          this.uiModules[index].loaded = true;
+          this.activeModule = this.uiModules[index].url;
+          return;
+        }
       }
+      this.selectHome();
+    },
+    killUIModule(url) {
+      for (const index in this.uiModules) {
+        if (this.uiModules[index].url === url) {
+          this.uiModules[index].loaded = false;
+          if (this.activeModule === this.uiModules[index].url) {
+            this.selectHome();
+          }
+          return;
+        }
+      }
+      this.selectHome();
+    },
+    selectHome() {
+      this.uiModules[0].loaded = true;
+      this.activeModule = this.uiModules[0].url;
     },
     updateModuleHelpFlag() {
-//       function getIframeWindow(iframe_object) {
-//   var doc;
-//
-//   if (iframe_object.contentWindow) {
-//     return iframe_object.contentWindow;
-//   }
-//
-//   if (iframe_object.window) {
-//     return iframe_object.window;
-//   }
-//
-//   if (!doc && iframe_object.contentDocument) {
-//     doc = iframe_object.contentDocument;
-//   }
-//
-//   if (!doc && iframe_object.document) {
-//     doc = iframe_object.document;
-//   }
-//
-//   if (doc && doc.defaultView) {
-//    return doc.defaultView;
-//   }
-//
-//   if (doc && doc.parentWindow) {
-//     return doc.parentWindow;
-//   }
-//
-//   return undefined;
-// }
-// and
-//
-// ...
-// var el = document.getElementById('targetFrame');
-//
-// var frame_win = getIframeWindow(el);
-//
-// if (frame_win) {
-//   frame_win.reset();
-//   ...
-// }
-// ...
+      //       function getIframeWindow(iframe_object) {
+      //   var doc;
+      //
+      //   if (iframe_object.contentWindow) {
+      //     return iframe_object.contentWindow;
+      //   }
+      //
+      //   if (iframe_object.window) {
+      //     return iframe_object.window;
+      //   }
+      //
+      //   if (!doc && iframe_object.contentDocument) {
+      //     doc = iframe_object.contentDocument;
+      //   }
+      //
+      //   if (!doc && iframe_object.document) {
+      //     doc = iframe_object.document;
+      //   }
+      //
+      //   if (doc && doc.defaultView) {
+      //    return doc.defaultView;
+      //   }
+      //
+      //   if (doc && doc.parentWindow) {
+      //     return doc.parentWindow;
+      //   }
+      //
+      //   return undefined;
+      // }
+      // and
+      //
+      // ...
+      // var el = document.getElementById('targetFrame');
+      //
+      // var frame_win = getIframeWindow(el);
+      //
+      // if (frame_win) {
+      //   frame_win.reset();
+      //   ...
+      // }
+      // ...
     }
   }
 };
@@ -244,7 +287,6 @@ export default {
       cursor: pointer;
     }
   }
-
 }
 
 .controlbar {
@@ -263,48 +305,12 @@ export default {
 .controlbar .menu .active {
   border-radius: 0;
 }
-.controlbar.collapsed .wide-text {
-  display: none;
-}
-.controlbar.collapsed .moduleIcon {
-  font-size: 1.4rem;
-}
-.controlbar .collapseButton {
-  font-size: 1.3rem;
-  margin: 4px 20px 0 0;
-}
-.controlbar.collapsed .collapseButton {
-  font-size: 0.82rem;
-  // margin: 0 0 0 25px;
-}
-.controlbar.collapsed .img {
-  height: 5.6rem !important;
-}
-.controlbar.collapsed .gateButton img {
-  height: 2.5rem !important;
-  margin: 0 0 0 19px !important;
-  padding: 0 !important;
-}
-.controlbar.collapsed #stats {
-  display: none;
-}
 
-.bottom-stats{
+.bottom-section {
   position: absolute;
   bottom: 0;
 }
-.controlbar.collapsed {
-  width: 80px;
-
-}
-.controlbar.collapsed .mess{
-  padding: 4px 0;
-  text-align: center;
-}
-.controlbar.collapsed .menu{
-  text-align: center;
-}
-.active{
+.active {
   border-color: #2185d0 !important;
   border-right-width: 4px !important;
 }

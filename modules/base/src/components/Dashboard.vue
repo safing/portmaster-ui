@@ -1,193 +1,283 @@
 <template>
+  <div class="dashboard ui very basic inverted segment">
+    <div class="ui grid">
+      <div class="nine wide column">
+        <h3>Status</h3>
 
-  <div class="dashboard">
+        <div class="dashboard-element ui very basic inverted segment" style="padding: 20px;">
+          <div class="ui grid">
+            <div class="twelve wide column">
+              <span v-if="worstFailureStatus === FailureError" class="ui red huge text" style="line-height: 1em;">
+                SYSTEM<br />FAILURE
+              </span>
+              <span
+                v-else-if="worstFailureStatus === FailureWarning"
+                class="ui yellow huge text"
+                style="line-height: 1em;"
+              >
+                SYSTEM<br />ALERT
+              </span>
+              <span v-else class="ui blue huge text" style="line-height: 1em;"> YOU ARE<br />PROTECTED </span>
+              <div v-if="worstFailureStatus === FailureHint" style="margin-top: 20px;">
+                <span class="ui teal large text">
+                  <i class="teal info circle icon"></i>
+                  Hint available.
+                </span>
+              </div>
 
-    <div class="ui basic inverted segment status">
+              <p style="padding-top: 20px;">
+                <span style="color: #FFFFFF80; padding-right: 30px;">Security Level</span>
 
-      <div v-on:click="showHelp=!showHelp" v-bind:class="['ui button help-button', {'blue': showHelp}]" style="position: absolute; top: 20px; right: 20px;">
-        Help
-      </div>
-
-      <div class="ui inverted card">
-        <div class="content">
-          <div class="header">Security Level</div>
-
-          <div class="description">
-            Override the security level
-            <div v-if="showHelp" class="ui inverted info message">
-              <p>
-                There are three security levels that enable you to easily adapt to your current threat environment:
-                <ul>
-                  <li>
-                    <img src="/assets/icons/level_dynamic.svg" title="Dynamic"></img>
-                    Dynamic: The usual operating mode for trusted environments.
-                  </li>
-                  <li>
-                    <img src="/assets/icons/level_secure.svg" title="Secure"></img>
-                    Secure: For untrusted environments, such as a public WiFi networks.
-                  </li>
-                  <li>
-                    <img src="/assets/icons/level_fortress.svg" title="Fortress"></img>
-                    Fortress: Emergency mode for when you panic.
-                  </li>
-                </ul>
+                <span v-if="status && status.ActiveSecurityLevel === 1">
+                  <img class="sl-icon" src="/assets/icons/level_normal.svg" title="Normal" />
+                  <span>Normal</span>
+                </span>
+                <span v-else-if="status && status.ActiveSecurityLevel === 2">
+                  <img class="sl-icon" src="/assets/icons/level_high.svg" title="High" />
+                  <span>High</span>
+                </span>
+                <span v-else-if="status && status.ActiveSecurityLevel === 4">
+                  <img class="sl-icon" src="/assets/icons/level_extreme.svg" title="Extreme" />
+                  <span>Extreme</span>
+                </span>
+                <span v-else>loading...</span>
               </p>
             </div>
-          </div>
-        </div>
-        <div class="extra content">
-          <div v-if="status" class="ui five buttons">
-            <div v-on:click="selectSecurityLevel(0)" v-bind:class="['ui wide button', {'blue': status.SelectedSecurityLevel == 0, 'inverted': status.SelectedSecurityLevel != 0}]">
-              <i class="rocket icon"></i><br>
-              Autopilot
-            </div>
-            <div v-on:click="selectSecurityLevel(1)" v-bind:class="['ui button img', {'blue': status.SelectedSecurityLevel == 1, 'inverted': status.SelectedSecurityLevel != 1}]">
-              <img src="/assets/icons/level_dynamic.svg" title="Dynamic"></img>
-            </div>
-            <div v-on:click="selectSecurityLevel(2)" v-bind:class="['ui button img', {'blue': status.SelectedSecurityLevel == 2, 'inverted': status.SelectedSecurityLevel != 2}]">
-              <img src="/assets/icons/level_secure.svg" title="Secure"></img>
-            </div>
-            <div v-on:click="selectSecurityLevel(4)" v-bind:class="['ui button img', {'blue': status.SelectedSecurityLevel == 4, 'inverted': status.SelectedSecurityLevel != 4}]">
-              <img src="/assets/icons/level_fortress.svg" title="Fortress"></img>
-            </div>
-          </div>
-          <span v-else>loading...</span>
-        </div>
-      </div>
 
-      <div class="ui fluid inverted card">
-        <div class="content">
-          <div class="header">Threats</div>
-
-          <div class="description">
-            coming soon...<br>
-            <div v-if="showHelp" class="ui inverted info message">
-              <p>
-                Threats are what drive the autopilot.
-                Different subsystems of the Portmaster detect threats and will influence the automatic security level.<br>
-              </p>
-              <p>
-                Detected threats will be displayed here.
-              </p>
+            <div class="four wide column" style="padding: 50px;">
+              <i v-if="worstFailureStatus === FailureError" class="red huge times circle icon"></i>
+              <i v-else-if="worstFailureStatus === FailureWarning" class="yellow huge warning circle icon"></i>
+              <i v-else class="blue huge check circle icon"></i>
             </div>
           </div>
         </div>
       </div>
+      <div class="seven wide column">
+        <h3>Security Level</h3>
 
-    </div>
-
-    <div class="versions">
-      <div class="ui segment">
-
-        <h3>Core Version Info</h3>
-        <div v-if="showHelp" class="ui info message">
-          <p>
-            This is some information about the Portmaster that is added to the binary at compile time. This is helpful for checking the exact version and source.
-          </p>
+        <div
+          v-on:click="selectSecurityLevel(0)"
+          v-bind:class="[
+            'dashboard-element ui very basic inverted segment',
+            { 'sl-selected': status && status.SelectedSecurityLevel === 0 }
+          ]"
+        >
+          <i class="rocket icon autopilot-icon" title="Autopilot"></i>
+          <span class="sl-name">Autopilot</span>
+          <span class="sl-description">Switch automatically based on environment and threats. (coming soon)</span>
         </div>
-
-        <div v-if="coreInfo">
-          <p style="padding: 5px;">
-            <strong>Name</strong>:         {{ coreInfo.Name }}<br>
-            <strong>Version</strong>:      {{ coreInfo.Version }}<br>
-            <strong>Commit</strong>:       {{ coreInfo.Commit }}<br>
-            <strong>BuildOptions</strong>: {{ coreInfo.BuildOptions }}<br>
-            <strong>BuildUser</strong>:    {{ coreInfo.BuildUser }}<br>
-            <strong>BuildHost</strong>:    {{ coreInfo.BuildHost }}<br>
-            <strong>BuildDate</strong>:    {{ coreInfo.BuildDate }}<br>
-            <strong>BuildSource</strong>:  {{ coreInfo.BuildSource }}<br>
-          </p>
+        <div
+          v-on:click="selectSecurityLevel(1)"
+          v-bind:class="[
+            'dashboard-element ui very basic inverted segment',
+            { 'sl-selected': status && status.SelectedSecurityLevel === 1 }
+          ]"
+        >
+          <img class="sl-icon" src="/assets/icons/level_normal.svg" title="Normal" />
+          <span class="sl-name">Normal</span>
+          <span class="sl-description">For everyday use in trusted environments.</span>
         </div>
-        <span v-else>loading...</span>
-
-        <h3>Module Versions</h3>
-        <div v-if="showHelp" class="ui info message">
-          <p>
-            The following list displays the current versions of all the portmaster submodules.
-            <i>Last Used</i> is the version that was last used since start.
-          </p>
-          <p>
-            Detected threats will be displayed here.
-          </p>
+        <div
+          v-on:click="selectSecurityLevel(2)"
+          v-bind:class="[
+            'dashboard-element ui very basic inverted segment',
+            { 'sl-selected': status && status.SelectedSecurityLevel === 2 }
+          ]"
+        >
+          <img class="sl-icon" src="/assets/icons/level_high.svg" title="High" />
+          <span class="sl-name">High</span>
+          <span class="sl-description">For untrusted environments, such as public WiFi networks.</span>
         </div>
-
-        <table v-if="moduleVersions" class="ui very basic compact table">
-          <thead>
-            <tr>
-              <th>Module</th>
-              <th>Last Used</th>
-              <th>Local</th>
-              <th>Stable</th>
-              <th></th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-for="vStatus in moduleVersions">
-              <td>{{ vStatus.identifier }}</td>
-              <td>{{ vStatus.LastVersionUsed }}</td>
-              <td>{{ vStatus.LocalVersion }}</td>
-              <td>{{ vStatus.StableVersion }}</td>
-              <td>{{ vStatus.AlphaVersion }}</td>
-            </tr>
-          </tbody>
-        </table>
-        <span v-else>loading...</span>
-
+        <div
+          v-on:click="selectSecurityLevel(4)"
+          v-bind:class="[
+            'dashboard-element ui very basic inverted segment',
+            { 'sl-selected': status && status.SelectedSecurityLevel === 4 }
+          ]"
+        >
+          <img class="sl-icon" src="/assets/icons/level_extreme.svg" title="Extreme" />
+          <span class="sl-name">Extreme</span>
+          <span class="sl-description">Emergency mode for when you panic.</span>
+        </div>
       </div>
     </div>
 
+    <h3>Subsystems</h3>
+    <div class="ui grid">
+      <div v-for="subsystem in subsystems" class="five wide column" v-bind:key="subsystem.Name">
+        <div class="dashboard-element ui very basic inverted segment">
+          <span v-if="subsystem.Modules[0].Status === StatusDead" class="ui grey text" style="float: right;">Dead</span>
+          <span v-else-if="subsystem.Modules[0].Status === StatusPreparing" class="ui yellow text" style="float: right;"
+            >Preparing</span
+          >
+          <span v-else-if="subsystem.Modules[0].Status === StatusOffline" class="ui grey text" style="float: right;"
+            >Offline</span
+          >
+          <span v-else-if="subsystem.Modules[0].Status === StatusStopping" class="ui yellow text" style="float: right;"
+            >Stopping</span
+          >
+          <span v-else-if="subsystem.Modules[0].Status === StatusStarting" class="ui yellow text" style="float: right;"
+            >Starting</span
+          >
+          <span v-else-if="subsystem.Modules[0].Status === StatusOnline" class="ui green text" style="float: right;"
+            >Online</span
+          >
+
+          <h4 style="margin-top: 0;">
+            {{ subsystem.Name }}
+          </h4>
+
+          <div
+            v-if="subsystem.Modules[0].FailureStatus != FailureNone"
+            v-bind:class="['module-item ui inverted secondary segment', moduleStatusColor(subsystem.Modules[0])]"
+          >
+            <div v-bind:class="['ui top attached inverted basic label', moduleStatusColor(subsystem.Modules[0])]">
+              <span v-if="subsystem.Modules[0].FailureStatus === FailureError">Error</span>
+              <span v-else-if="subsystem.Modules[0].FailureStatus === FailureWarning">Warning</span>
+              <span v-else-if="subsystem.Modules[0].FailureStatus === FailureHint">Hint</span>
+            </div>
+            <div class="module-msg">
+              {{ subsystem.Modules[0].FailureMsg }}
+            </div>
+          </div>
+
+          {{ subsystem.Description }}
+
+          <br /><br />
+          <strong>Modules</strong>
+          <br />
+          <!--
+            test with:
+            update core:status/subsystems/zoo|J{"ID":"zoo","Name":"The UI Zoo","Description":"There are weird animals here...","Modules":[{"Name":"zoo","Enabled":true,"Status":5,"FailureStatus":1,"FailureID":"","FailureMsg":"This, obviously, is for testing purposes."},{"Name":"hippo","Enabled":false,"Status":5,"FailureStatus":2,"FailureID":"","FailureMsg":"Water is running low! Seriously, where has all the water gone? Are you nuts? You can't do that to me!"},{"Name":"rhino","Enabled":false,"Status":2,"FailureStatus":0,"FailureID":"","FailureMsg":""},{"Name":"monkey","Enabled":false,"Status":5,"FailureStatus":1,"FailureID":"","FailureMsg":"Need bananas!"},{"Name":"elephant","Enabled":false,"Status":5,"FailureStatus":0,"FailureID":"","FailureMsg":""},{"Name":"zergs","Enabled":false,"Status":4,"FailureStatus":3,"FailureID":"","FailureMsg":"We don't belong here!"},{"Name":"giraffe","Enabled":false,"Status":4,"FailureStatus":0,"FailureID":"","FailureMsg":""},{"Name":"panda","Enabled":false,"Status":1,"FailureStatus":0,"FailureID":"","FailureMsg":""},{"Name":"ant","Enabled":false,"Status":3,"FailureStatus":0,"FailureID":"","FailureMsg":""},{"Name":"bear","Enabled":false,"Status":0,"FailureStatus":0,"FailureID":"","FailureMsg":""}],"FailureStatus":1,"ToggleOptionKey":"filter/enable","ExpertiseLevel":0,"ReleaseLevel":1,"ConfigKeySpace":"config:filter/"}
+          -->
+
+          <!-- Error state -->
+          <span v-for="dep in subsystem.Modules.slice(1)" v-bind:key="'notice-' + dep.Name">
+            <div
+              v-if="dep.FailureStatus != FailureNone"
+              v-bind:class="['module-item ui inverted secondary segment', moduleStatusColor(dep)]"
+            >
+              <div v-bind:class="['ui top attached inverted basic label', moduleStatusColor(dep)]">
+                <span class="module-name">{{ dep.Name }}</span>
+                <span v-if="dep.FailureStatus === FailureError" style="float: right;">Error</span>
+                <span v-else-if="dep.FailureStatus === FailureWarning" style="float: right;">Warning</span>
+                <span v-else-if="dep.FailureStatus === FailureHint" style="float: right;">Hint</span>
+              </div>
+              <div class="module-msg">
+                {{ dep.FailureMsg }}
+              </div>
+            </div>
+          </span>
+
+          <!-- Not online -->
+          <span v-for="dep in subsystem.Modules.slice(1)" v-bind:key="'status-' + dep.Name">
+            <div
+              v-if="dep.FailureStatus === FailureNone && dep.Status != StatusOnline"
+              v-bind:class="['module-item ui inverted basic label', moduleStatusColor(dep)]"
+            >
+              <span class="module-name">{{ dep.Name }}</span>
+              <div v-if="dep.Status === StatusDead" class="detail">Dead</div>
+              <div v-else-if="dep.Status === StatusPreparing" class="detail">Preparing</div>
+              <div v-else-if="dep.Status === StatusOffline" class="detail">Offline</div>
+              <div v-else-if="dep.Status === StatusStopping" class="detail">Stopping</div>
+              <div v-else-if="dep.Status === StatusStarting" class="detail">Starting</div>
+            </div>
+          </span>
+
+          <!-- Online, no error -->
+          <span v-for="dep in subsystem.Modules.slice(1)" v-bind:key="'online-' + dep.Name">
+            <div
+              v-if="dep.Status === StatusOnline && dep.FailureStatus === FailureNone"
+              class="module-item ui black inverted basic label"
+            >
+              <span class="module-name">{{ dep.Name }}</span>
+            </div>
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <div class="coming-soon ui grid middle aligned">
+      <div class="sixteen wide column">
+        <h1>Work in Progress</h1>
+        <h2>Some ducking cool stuff is in the works here...</h2>
+      </div>
+    </div>
   </div>
-
 </template>
 
 <script>
 export default {
   name: "Dashboard",
-  components: {
-  },
+  components: {},
   data() {
     return {
-      // op: this.$api.qsub("query ")
-      showHelp: false
+      StatusDead: 0, // not prepared, not started
+      StatusPreparing: 1,
+      StatusOffline: 2, // prepared, not started
+      StatusStopping: 3,
+      StatusStarting: 4,
+      StatusOnline: 5, // online and running
+      FailureNone: 0,
+      FailureHint: 1,
+      FailureWarning: 2,
+      FailureError: 3
     };
   },
   computed: {
     status() {
-      return this.$parent.op.records["core:status/status"];
+      return this.$parent.statusDB.records["core:status/status"];
     },
-    coreInfo() {
-      var status = this.$parent.op.records["core:status/updates"];
-      if (status == undefined) {
-        return null;
+    subsystems() {
+      var all = [];
+      for (const [key, record] of Object.entries(this.$parent.statusDB.records)) {
+        if (key.startsWith("core:status/subsystems/")) {
+          all.push(record);
+        }
       }
-
-      return status.Core;
+      return all;
     },
-    moduleVersions() {
-      var status = this.$parent.op.records["core:status/updates"];
-      if (status == undefined) {
-        return null;
+    worstFailureStatus() {
+      var worstStatus = 0;
+      for (var subsystem of this.subsystems) {
+        if (subsystem.FailureStatus > worstStatus) {
+          worstStatus = subsystem.FailureStatus;
+        }
       }
-
-      var sortedVersions = [];
-      for (var key in status.Modules){
-        status.Modules[key]["identifier"] = key;
-        sortedVersions.push(status.Modules[key]);
-      }
-
-      sortedVersions.sort(function(a, b) {
-        return a.identifier > b.identifier;
-      });
-
-      return sortedVersions;
+      return worstStatus;
     }
   },
   methods: {
     selectSecurityLevel(level) {
       this.$api.update("core:status/status", {
-        SelectedSecurityLevel: level,
-      })
-      console.log(`selecting new security level: ${level}`)
+        SelectedSecurityLevel: level
+      });
+      // console.log(`selecting new security level: ${level}`)
+    },
+    moduleStatusColor(moduleStatus) {
+      switch (moduleStatus.FailureStatus) {
+        case this.FailureError:
+          return "red";
+        case this.FailureWarning:
+          return "yellow";
+        case this.FailureHint:
+          return "teal";
+        default:
+          switch (moduleStatus.Status) {
+            case this.StatusDead:
+              return "yellow";
+            case this.StatusPreparing:
+              return "teal";
+            case this.StatusOffline:
+              return "grey";
+            case this.StatusStopping:
+              return "yellow";
+            case this.StatusStarting:
+              return "teal";
+            case this.StatusOnline:
+              return "green";
+          }
+      }
     }
   }
 };
@@ -198,61 +288,60 @@ export default {
 .dashboard {
   height: 100vh;
   overflow-y: scroll;
+  padding: 2em !important;
+  background: #1b1c1df2 !important;
+}
+.dashboard-element {
+  border-radius: 5px !important;
 }
 
-.status {
-  background-color: #1b1c1df0 !important;
-  .inverted.card {
-    background-color: #2a2a2a !important;
-  }
-  .inverted.button {
-    box-shadow: none !important;
-  }
-  // border-left: 2px solid #2185d0 !important;
-
-  .img.button {
-    // 53.6×50
-    height: 50px;
-    width: 53.6px;
-    padding: 7px 8.8px;
-    img {
-      height: 36px;
-      width: 36px;
-    }
-  }
-  .wide.button {
-    width: 40% !important;
-  }
-
-  .info.message {
-    margin-top: 15px !important;
-    margin: 5px;
-    ul {
-      padding-left: 20px !important;
-    }
-    img {
-      height: 20px;
-    }
-  }
+.autopilot-icon {
+  margin-right: 15px;
+}
+.sl-icon {
+  height: 20px;
+  margin-bottom: -5px;
+  margin-right: 13px;
+}
+.sl-name {
+  font-weight: bold;
+  display: inline-block;
+  width: 90px;
+}
+.sl-description {
+  display: inline-block;
+  margin-top: -20px;
+  margin-left: 130px;
+}
+.sl-selected {
+  -webkit-box-shadow: 0px 0px 5px 1px rgba(0, 120, 212, 1) !important;
+  -moz-box-shadow: 0px 0px 5px 1px rgba(0, 120, 212, 1) !important;
+  box-shadow: 0px 0px 5px 1px rgba(0, 120, 212, 1) !important;
 }
 
-.versions {
-  padding: 10px;
+.module-item {
+  margin: 1px !important;
+  .module-msg {
+    margin-top: 28px;
+    color: #000;
+  }
+}
+.module-item.segment {
+  margin-top: 5px !important;
+  margin-bottom: 10px !important;
 }
 
-// .content-placeholder {
-//   position: relative;
-//   height: 100%;
-//   width: 100%;
-//   background-color: #eee;
-//   .grid {
-//     position: relative;
-//     height: 100%;
-//   }
-//   h1, h2 {
-//     text-align: center;
-//     font-family: sans-serif;
-//     color: #ccc;
-//   }
-// }
+.coming-soon {
+  height: 300px;
+  width: 100%;
+  .grid {
+    position: relative;
+    height: 100%;
+  }
+  h1,
+  h2 {
+    text-align: center;
+    color: #111;
+  }
+}
 </style>
