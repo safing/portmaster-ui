@@ -30,15 +30,15 @@
                 <span style="color: #FFFFFF80; padding-right: 30px;">Security Level</span>
 
                 <span v-if="status && status.ActiveSecurityLevel == 1">
-                  <img class="sl-icon" src="/assets/icons/level_dynamic.svg" title="Normal"/>
+                  <img class="sl-icon" src="/assets/icons/level_normal.svg" title="Normal"/>
                   <span>Normal</span>
                 </span>
                 <span v-else-if="status && status.ActiveSecurityLevel == 2">
-                  <img class="sl-icon" src="/assets/icons/level_secure.svg" title="High"/>
+                  <img class="sl-icon" src="/assets/icons/level_high.svg" title="High"/>
                   <span>High</span>
                 </span>
                 <span v-else-if="status && status.ActiveSecurityLevel == 4">
-                  <img class="sl-icon" src="/assets/icons/level_fortress.svg" title="Extreme"/>
+                  <img class="sl-icon" src="/assets/icons/level_extreme.svg" title="Extreme"/>
                   <span>Extreme</span>
                 </span>
                 <span v-else>loading...</span>
@@ -70,7 +70,7 @@
           v-on:click="selectSecurityLevel(1)"
           v-bind:class="['dashboard-element ui very basic inverted segment', {'sl-selected': status && status.SelectedSecurityLevel == 1}]"
         >
-          <img class="sl-icon" src="/assets/icons/level_dynamic.svg" title="Normal"/>
+          <img class="sl-icon" src="/assets/icons/level_normal.svg" title="Normal"/>
           <span class="sl-name">Normal</span>
           <span class="sl-description">For everyday use in trusted environments.</span>
         </div>
@@ -78,7 +78,7 @@
           v-on:click="selectSecurityLevel(2)"
           v-bind:class="['dashboard-element ui very basic inverted segment', {'sl-selected': status && status.SelectedSecurityLevel == 2}]"
         >
-          <img class="sl-icon" src="/assets/icons/level_secure.svg" title="High"/>
+          <img class="sl-icon" src="/assets/icons/level_high.svg" title="High"/>
           <span class="sl-name">High</span>
           <span class="sl-description">For untrusted environments, such as public WiFi networks.</span>
         </div>
@@ -86,7 +86,7 @@
           v-on:click="selectSecurityLevel(4)"
           v-bind:class="['dashboard-element ui very basic inverted segment', {'sl-selected': status && status.SelectedSecurityLevel == 4}]"
         >
-          <img class="sl-icon" src="/assets/icons/level_fortress.svg" title="Extreme"/>
+          <img class="sl-icon" src="/assets/icons/level_extreme.svg" title="Extreme"/>
           <span class="sl-name">Extreme</span>
           <span class="sl-description">Emergency mode for when you panic.</span>
         </div>
