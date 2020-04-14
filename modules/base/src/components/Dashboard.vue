@@ -64,7 +64,7 @@
         >
           <i class="rocket icon autopilot-icon" title="Autopilot"></i>
           <span class="sl-name">Autopilot</span>
-          <span class="sl-description">The usual operating mode for trusted environments.</span>
+          <span class="sl-description">Switch automatically based on environment and threats. (coming soon)</span>
         </div>
         <div
           v-on:click="selectSecurityLevel(1)"
