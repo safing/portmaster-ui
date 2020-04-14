@@ -80,7 +80,7 @@
         >
           <img class="sl-icon" src="/assets/icons/level_secure.svg" title="High"/>
           <span class="sl-name">High</span>
-          <span class="sl-description">For untrusted environments, such as a public WiFi networks.</span>
+          <span class="sl-description">For untrusted environments, such as public WiFi networks.</span>
         </div>
         <div
           v-on:click="selectSecurityLevel(4)"
