@@ -23,6 +23,7 @@ var (
 	dataDir          string
 	databaseDir      string
 	printStackOnExit bool
+	showVersion      bool
 
 	apiClient = client.NewClient("127.0.0.1:817")
 
@@ -34,6 +35,7 @@ func init() {
 	flag.StringVar(&dataDir, "data", "", "set data directory")
 	flag.StringVar(&databaseDir, "db", "", "alias to --data (deprecated)")
 	flag.BoolVar(&printStackOnExit, "print-stack-on-exit", false, "prints the stack before of shutting down")
+	flag.BoolVar(&showVersion, "version", false, "show version and exit")
 
 	runtime.GOMAXPROCS(2)
 }
@@ -58,8 +60,8 @@ func main() {
 		os.Exit(0)
 	}
 
-	// print version
-	if info.PrintVersion() {
+	if showVersion {
+		fmt.Println(info.FullVersion())
 		os.Exit(0)
 	}
 
