@@ -39,6 +39,13 @@
     <i class="redo alternate icon" title="redirected to tunnel"></i>
     <span v-if="long">redirected to tunnel</span>
   </span>
+  <!-- VerdictFailed -->
+  <span v-else-if="verdict == 7" title="failed">
+    <i class="exclamation triangle icon"></i>
+    <span v-if="reason">{{ reason }}</span>
+    <span v-else-if="long">dropped</span>
+  </span>
+
   <span v-else>
     <i class="exclamation triangle icon" title="unknown verdict"></i>
   </span>
