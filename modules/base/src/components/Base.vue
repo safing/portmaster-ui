@@ -19,7 +19,7 @@
           <div
           v-for="(uiMod, index) in topMenu"
           v-bind:key="index" v-on:click="selectUIModule(uiMod.url)"
-          v-bind:class="[{'active': activeModule == uiMod.url}, 'item', 'uiModuleItem']"
+          v-bind:class="[{'active': activeModule === uiMod.url}, 'item', 'uiModuleItem']"
           >
             <h4>
               <div v-bind:class="['uiIndicator', {'loaded': uiMod.loaded && !uiMod.url.startsWith('_')}]">
@@ -37,7 +37,7 @@
           <div
             v-for="(uiMod, index) in bottomMenu"
             v-bind:key="index" v-on:click="selectUIModule(uiMod.url)"
-            v-bind:class="[{'active': activeModule == uiMod.url}, 'item', 'uiModuleItem']"
+            v-bind:class="[{'active': activeModule === uiMod.url}, 'item', 'uiModuleItem']"
           >
             <h4>
               <div v-bind:class="['uiIndicator', {'loaded': uiMod.loaded && !uiMod.url.startsWith('_')}]">
@@ -69,12 +69,12 @@
       <div
         v-for="uiMod in uiModules"
         v-bind:key="uiMod.url"
-        v-show="uiMod.url == activeModule"
+        v-show="uiMod.url === activeModule"
         class="content-pane-item"
       >
-        <Dashboard v-if="uiMod.url == '_dashboard'" />
-        <Support v-if="uiMod.url == '_support'" />
-        <About v-if="uiMod.url == '_about'" />
+        <Dashboard v-if="uiMod.url === '_dashboard'" />
+        <Support v-if="uiMod.url === '_support'" />
+        <About v-if="uiMod.url === '_about'" />
         <iframe v-else-if="uiMod.loaded" v-bind:src="basePath + uiMod.url" />
       </div>
     </div>
@@ -168,7 +168,7 @@ export default {
   methods: {
     selectUIModule(url) {
       for (const index in this.uiModules) {
-        if (this.uiModules[index].url == url) {
+        if (this.uiModules[index].url === url) {
           this.uiModules[index].loaded = true;
           this.activeModule = this.uiModules[index].url;
           return;
@@ -178,9 +178,9 @@ export default {
     },
     killUIModule(url) {
       for (const index in this.uiModules) {
-        if (this.uiModules[index].url == url) {
+        if (this.uiModules[index].url === url) {
           this.uiModules[index].loaded = false;
-          if (this.activeModule == this.uiModules[index].url) {
+          if (this.activeModule === this.uiModules[index].url) {
             this.selectHome();
           }
           return;

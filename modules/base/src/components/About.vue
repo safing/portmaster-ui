@@ -7,7 +7,7 @@
 
       <p>
         The Portmaster is licensed under the AGPLv3.<br />
-        More attribution to other Projects and their licenses coming soon.
+        More attribution to other projects and their licenses coming soon.
       </p>
 
       <h4>Attribution</h4>
@@ -35,11 +35,11 @@
           <strong>Name</strong>:         {{ $parent.versions.Core.Name }}<br/>
           <strong>Version</strong>:      {{ $parent.versions.Core.Version }}<br/>
           <strong>Commit</strong>:       {{ $parent.versions.Core.Commit }}<br/>
-          <strong>BuildOptions</strong>: {{ $parent.versions.Core.BuildOptions }}<br/>
-          <strong>BuildUser</strong>:    {{ $parent.versions.Core.BuildUser }}<br/>
-          <strong>BuildHost</strong>:    {{ $parent.versions.Core.BuildHost }}<br/>
-          <strong>BuildDate</strong>:    {{ $parent.versions.Core.BuildDate }}<br/>
-          <strong>BuildSource</strong>:  {{ $parent.versions.Core.BuildSource }}<br/>
+          <strong>Build Options</strong>: {{ $parent.versions.Core.BuildOptions }}<br/>
+          <strong>Build User</strong>:    {{ $parent.versions.Core.BuildUser }}<br/>
+          <strong>Build Host</strong>:    {{ $parent.versions.Core.BuildHost }}<br/>
+          <strong>Build Date</strong>:    {{ $parent.versions.Core.BuildDate }}<br/>
+          <strong>Build Source</strong>:  {{ $parent.versions.Core.BuildSource }}<br/>
         </p>
       </div>
       <span v-else>loading...</span>
@@ -91,7 +91,7 @@ export default {
     },
     resourcesInfo() {
       var status = this.$parent.statusDB.records["core:status/versions"];
-      if (status == undefined) {
+      if (status === undefined) {
         return null;
       }
 

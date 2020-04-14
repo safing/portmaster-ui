@@ -10,16 +10,16 @@
           <div class="ui grid">
             
             <div class="twelve wide column">
-              <span v-if="worstFailureStatus == FailureError" class="ui red huge text" style="line-height: 1em;">
+              <span v-if="worstFailureStatus === FailureError" class="ui red huge text" style="line-height: 1em;">
                 SYSTEM<br />FAILURE
               </span>
-              <span v-else-if="worstFailureStatus == FailureWarning" class="ui yellow huge text" style="line-height: 1em;">
+              <span v-else-if="worstFailureStatus === FailureWarning" class="ui yellow huge text" style="line-height: 1em;">
                 SYSTEM<br />ALERT
               </span>
               <span v-else class="ui blue huge text" style="line-height: 1em;">
                 YOU ARE<br />PROTECTED
               </span>
-              <div v-if="worstFailureStatus == FailureHint" style="margin-top: 20px;">
+              <div v-if="worstFailureStatus === FailureHint" style="margin-top: 20px;">
                 <span class="ui teal large text">
                   <i class="teal info circle icon"></i>
                   Hint available.
@@ -29,15 +29,15 @@
               <p style="padding-top: 20px;">
                 <span style="color: #FFFFFF80; padding-right: 30px;">Security Level</span>
 
-                <span v-if="status && status.ActiveSecurityLevel == 1">
+                <span v-if="status && status.ActiveSecurityLevel === 1">
                   <img class="sl-icon" src="/assets/icons/level_normal.svg" title="Normal"/>
                   <span>Normal</span>
                 </span>
-                <span v-else-if="status && status.ActiveSecurityLevel == 2">
+                <span v-else-if="status && status.ActiveSecurityLevel === 2">
                   <img class="sl-icon" src="/assets/icons/level_high.svg" title="High"/>
                   <span>High</span>
                 </span>
-                <span v-else-if="status && status.ActiveSecurityLevel == 4">
+                <span v-else-if="status && status.ActiveSecurityLevel === 4">
                   <img class="sl-icon" src="/assets/icons/level_extreme.svg" title="Extreme"/>
                   <span>Extreme</span>
                 </span>
@@ -46,8 +46,8 @@
             </div>
 
             <div class="four wide column" style="padding: 50px;">
-              <i v-if="worstFailureStatus == FailureError" class="red huge times circle icon"></i>
-              <i v-else-if="worstFailureStatus == FailureWarning" class="yellow huge warning circle icon"></i>
+              <i v-if="worstFailureStatus === FailureError" class="red huge times circle icon"></i>
+              <i v-else-if="worstFailureStatus === FailureWarning" class="yellow huge warning circle icon"></i>
               <i v-else class="blue huge check circle icon"></i>
             </div>
 
@@ -60,7 +60,7 @@
 
         <div
           v-on:click="selectSecurityLevel(0)"
-          v-bind:class="['dashboard-element ui very basic inverted segment', {'sl-selected': status && status.SelectedSecurityLevel == 0}]"
+          v-bind:class="['dashboard-element ui very basic inverted segment', {'sl-selected': status && status.SelectedSecurityLevel === 0}]"
         >
           <i class="rocket icon autopilot-icon" title="Autopilot"></i>
           <span class="sl-name">Autopilot</span>
@@ -68,7 +68,7 @@
         </div>
         <div
           v-on:click="selectSecurityLevel(1)"
-          v-bind:class="['dashboard-element ui very basic inverted segment', {'sl-selected': status && status.SelectedSecurityLevel == 1}]"
+          v-bind:class="['dashboard-element ui very basic inverted segment', {'sl-selected': status && status.SelectedSecurityLevel === 1}]"
         >
           <img class="sl-icon" src="/assets/icons/level_normal.svg" title="Normal"/>
           <span class="sl-name">Normal</span>
@@ -76,7 +76,7 @@
         </div>
         <div
           v-on:click="selectSecurityLevel(2)"
-          v-bind:class="['dashboard-element ui very basic inverted segment', {'sl-selected': status && status.SelectedSecurityLevel == 2}]"
+          v-bind:class="['dashboard-element ui very basic inverted segment', {'sl-selected': status && status.SelectedSecurityLevel === 2}]"
         >
           <img class="sl-icon" src="/assets/icons/level_high.svg" title="High"/>
           <span class="sl-name">High</span>
@@ -84,7 +84,7 @@
         </div>
         <div
           v-on:click="selectSecurityLevel(4)"
-          v-bind:class="['dashboard-element ui very basic inverted segment', {'sl-selected': status && status.SelectedSecurityLevel == 4}]"
+          v-bind:class="['dashboard-element ui very basic inverted segment', {'sl-selected': status && status.SelectedSecurityLevel === 4}]"
         >
           <img class="sl-icon" src="/assets/icons/level_extreme.svg" title="Extreme"/>
           <span class="sl-name">Extreme</span>
@@ -101,17 +101,17 @@
       v-bind:key="subsystem.Name"
       >
         <div class="dashboard-element ui very basic inverted segment">
-          <span v-if="subsystem.Modules[0].Status == StatusDead"
+          <span v-if="subsystem.Modules[0].Status === StatusDead"
             class="ui grey text" style="float: right;">Dead</span>
-          <span v-else-if="subsystem.Modules[0].Status == StatusPreparing"
+          <span v-else-if="subsystem.Modules[0].Status === StatusPreparing"
             class="ui yellow text" style="float: right;">Preparing</span>
-          <span v-else-if="subsystem.Modules[0].Status == StatusOffline"
+          <span v-else-if="subsystem.Modules[0].Status === StatusOffline"
             class="ui grey text" style="float: right;">Offline</span>
-          <span v-else-if="subsystem.Modules[0].Status == StatusStopping"
+          <span v-else-if="subsystem.Modules[0].Status === StatusStopping"
             class="ui yellow text" style="float: right;">Stopping</span>
-          <span v-else-if="subsystem.Modules[0].Status == StatusStarting"
+          <span v-else-if="subsystem.Modules[0].Status === StatusStarting"
             class="ui yellow text" style="float: right;">Starting</span>
-          <span v-else-if="subsystem.Modules[0].Status == StatusOnline"
+          <span v-else-if="subsystem.Modules[0].Status === StatusOnline"
             class="ui green text" style="float: right;">Online</span>
 
           <h4 style="margin-top: 0;">
@@ -123,9 +123,9 @@
             v-bind:class="['module-item ui inverted secondary segment', moduleStatusColor(subsystem.Modules[0])]"
             >
             <div v-bind:class="['ui top attached inverted basic label', moduleStatusColor(subsystem.Modules[0])]">
-              <span v-if="subsystem.Modules[0].FailureStatus == FailureError">Error</span>
-              <span v-else-if="subsystem.Modules[0].FailureStatus == FailureWarning">Warning</span>
-              <span v-else-if="subsystem.Modules[0].FailureStatus == FailureHint">Hint</span>
+              <span v-if="subsystem.Modules[0].FailureStatus === FailureError">Error</span>
+              <span v-else-if="subsystem.Modules[0].FailureStatus === FailureWarning">Warning</span>
+              <span v-else-if="subsystem.Modules[0].FailureStatus === FailureHint">Hint</span>
             </div>
             <div class="module-msg">
               {{ subsystem.Modules[0].FailureMsg }}
@@ -147,9 +147,9 @@
             <div v-if="dep.FailureStatus != FailureNone" v-bind:class="['module-item ui inverted secondary segment', moduleStatusColor(dep)]">
               <div v-bind:class="['ui top attached inverted basic label', moduleStatusColor(dep)]">
                 <span class="module-name">{{ dep.Name }}</span>
-                <span v-if="dep.FailureStatus == FailureError" style="float: right;">Error</span>
-                <span v-else-if="dep.FailureStatus == FailureWarning" style="float: right;">Warning</span>
-                <span v-else-if="dep.FailureStatus == FailureHint" style="float: right;">Hint</span>
+                <span v-if="dep.FailureStatus === FailureError" style="float: right;">Error</span>
+                <span v-else-if="dep.FailureStatus === FailureWarning" style="float: right;">Warning</span>
+                <span v-else-if="dep.FailureStatus === FailureHint" style="float: right;">Hint</span>
               </div>
               <div class="module-msg">
                 {{ dep.FailureMsg }}
@@ -159,19 +159,19 @@
 
           <!-- Not online -->
           <span v-for="dep in subsystem.Modules.slice(1)" v-bind:key="'status-' + dep.Name">
-            <div v-if="dep.FailureStatus == FailureNone && dep.Status != StatusOnline" v-bind:class="['module-item ui inverted basic label', moduleStatusColor(dep)]">
+            <div v-if="dep.FailureStatus === FailureNone && dep.Status != StatusOnline" v-bind:class="['module-item ui inverted basic label', moduleStatusColor(dep)]">
               <span class="module-name">{{ dep.Name }}</span>
-              <div v-if="dep.Status == StatusDead" class="detail">Dead</div>
-              <div v-else-if="dep.Status == StatusPreparing" class="detail">Preparing</div>
-              <div v-else-if="dep.Status == StatusOffline" class="detail">Offline</div>
-              <div v-else-if="dep.Status == StatusStopping" class="detail">Stopping</div>
-              <div v-else-if="dep.Status == StatusStarting" class="detail">Starting</div>
+              <div v-if="dep.Status === StatusDead" class="detail">Dead</div>
+              <div v-else-if="dep.Status === StatusPreparing" class="detail">Preparing</div>
+              <div v-else-if="dep.Status === StatusOffline" class="detail">Offline</div>
+              <div v-else-if="dep.Status === StatusStopping" class="detail">Stopping</div>
+              <div v-else-if="dep.Status === StatusStarting" class="detail">Starting</div>
             </div>
           </span>
 
           <!-- Online, no error -->
           <span v-for="dep in subsystem.Modules.slice(1)" v-bind:key="'online-' + dep.Name">
-            <div v-if="dep.Status == StatusOnline && dep.FailureStatus == FailureNone" class="module-item ui black inverted basic label">
+            <div v-if="dep.Status === StatusOnline && dep.FailureStatus === FailureNone" class="module-item ui black inverted basic label">
               <span class="module-name">{{ dep.Name }}</span>
             </div>
           </span>
