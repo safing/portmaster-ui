@@ -1,6 +1,6 @@
 <template>
   <div id="app">
-    <Base v-bind:basePath="basePath"/></Base>
+    <Base v-bind:basePath="basePath"/>
   </div>
 </template>
 
