@@ -1,8 +1,6 @@
 <template>
-
   <div class="about">
     <div class="ui basic segment">
-
       <h3>License</h3>
 
       <p>
@@ -23,7 +21,10 @@
           <tr>
             <td>MaxMind GeoLite2</td>
             <td>EULA with CC BY-SA 4.0</td>
-            <td>This product includes GeoLite2 data created by MaxMind, available from <a href="http://www.maxmind.com">http://www.maxmind.com</a>.</td>
+            <td>
+              This product includes GeoLite2 data created by MaxMind, available from
+              <a href="http://www.maxmind.com">http://www.maxmind.com</a>.
+            </td>
           </tr>
         </tbody>
       </table>
@@ -32,14 +33,14 @@
 
       <div v-if="$parent.versions">
         <p style="padding: 5px;">
-          <strong>Name</strong>:         {{ $parent.versions.Core.Name }}<br/>
-          <strong>Version</strong>:      {{ $parent.versions.Core.Version }}<br/>
-          <strong>Commit</strong>:       {{ $parent.versions.Core.Commit }}<br/>
-          <strong>Build Options</strong>: {{ $parent.versions.Core.BuildOptions }}<br/>
-          <strong>Build User</strong>:    {{ $parent.versions.Core.BuildUser }}<br/>
-          <strong>Build Host</strong>:    {{ $parent.versions.Core.BuildHost }}<br/>
-          <strong>Build Date</strong>:    {{ $parent.versions.Core.BuildDate }}<br/>
-          <strong>Build Source</strong>:  {{ $parent.versions.Core.BuildSource }}<br/>
+          <strong>Name</strong>: {{ $parent.versions.Core.Name }}<br />
+          <strong>Version</strong>: {{ $parent.versions.Core.Version }}<br />
+          <strong>Commit</strong>: {{ $parent.versions.Core.Commit }}<br />
+          <strong>Build Options</strong>: {{ $parent.versions.Core.BuildOptions }}<br />
+          <strong>Build User</strong>: {{ $parent.versions.Core.BuildUser }}<br />
+          <strong>Build Host</strong>: {{ $parent.versions.Core.BuildHost }}<br />
+          <strong>Build Date</strong>: {{ $parent.versions.Core.BuildDate }}<br />
+          <strong>Build Source</strong>: {{ $parent.versions.Core.BuildSource }}<br />
         </p>
       </div>
       <span v-else>loading...</span>
@@ -67,10 +68,8 @@
         </tbody>
       </table>
       <span v-else>loading...</span>
-
     </div>
   </div>
-
 </template>
 
 <script>

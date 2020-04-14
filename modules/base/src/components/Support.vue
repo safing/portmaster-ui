@@ -1,29 +1,26 @@
 <template>
-
   <div class="support">
     <div class="ui basic segment">
-
       <h2>Support</h2>
 
       <p>
-        Community Support is available. As soon as we start with the SPN, customers will receive direct priority support.
+        Community Support is available. As soon as we start with the SPN, customers will receive direct priority
+        support.
       </p>
 
       <h3>Get Help</h3>
 
-      <p>
-        You can ask for help on our <a href="https://www.reddit.com/r/safing">Subreddit r/safing</a>.
-      </p>
+      <p>You can ask for help on our <a href="https://www.reddit.com/r/safing">Subreddit r/safing</a>.</p>
 
       <h3>Report Bugs</h3>
 
       <p>
-        Please report bugs in the User Interface in the <a href="https://github.com/safing/portmaster-ui/issues">safing/portmaster-ui Github repo</a>, and bugs in the Portmaster Core in the <a href="https://github.com/safing/portmaster/issues">safing/portmaster Github repo</a>.
+        Please report bugs in the User Interface in the
+        <a href="https://github.com/safing/portmaster-ui/issues">safing/portmaster-ui Github repo</a>, and bugs in the
+        Portmaster Core in the <a href="https://github.com/safing/portmaster/issues">safing/portmaster Github repo</a>.
       </p>
-
     </div>
   </div>
-
 </template>
 
 <script>

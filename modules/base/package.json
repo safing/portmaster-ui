@@ -38,6 +38,9 @@
       "parser": "babel-eslint"
     }
   },
+  "prettier": {
+    "printWidth": 120
+  },
   "postcss": {
     "plugins": {
       "autoprefixer": {}

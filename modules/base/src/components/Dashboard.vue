@@ -1,24 +1,23 @@
 <template>
-
   <div class="dashboard ui very basic inverted segment">
-
     <div class="ui grid">
       <div class="nine wide column">
         <h3>Status</h3>
 
         <div class="dashboard-element ui very basic inverted segment" style="padding: 20px;">
           <div class="ui grid">
-            
             <div class="twelve wide column">
               <span v-if="worstFailureStatus === FailureError" class="ui red huge text" style="line-height: 1em;">
                 SYSTEM<br />FAILURE
               </span>
-              <span v-else-if="worstFailureStatus === FailureWarning" class="ui yellow huge text" style="line-height: 1em;">
+              <span
+                v-else-if="worstFailureStatus === FailureWarning"
+                class="ui yellow huge text"
+                style="line-height: 1em;"
+              >
                 SYSTEM<br />ALERT
               </span>
-              <span v-else class="ui blue huge text" style="line-height: 1em;">
-                YOU ARE<br />PROTECTED
-              </span>
+              <span v-else class="ui blue huge text" style="line-height: 1em;"> YOU ARE<br />PROTECTED </span>
               <div v-if="worstFailureStatus === FailureHint" style="margin-top: 20px;">
                 <span class="ui teal large text">
                   <i class="teal info circle icon"></i>
@@ -30,15 +29,15 @@
                 <span style="color: #FFFFFF80; padding-right: 30px;">Security Level</span>
 
                 <span v-if="status && status.ActiveSecurityLevel === 1">
-                  <img class="sl-icon" src="/assets/icons/level_normal.svg" title="Normal"/>
+                  <img class="sl-icon" src="/assets/icons/level_normal.svg" title="Normal" />
                   <span>Normal</span>
                 </span>
                 <span v-else-if="status && status.ActiveSecurityLevel === 2">
-                  <img class="sl-icon" src="/assets/icons/level_high.svg" title="High"/>
+                  <img class="sl-icon" src="/assets/icons/level_high.svg" title="High" />
                   <span>High</span>
                 </span>
                 <span v-else-if="status && status.ActiveSecurityLevel === 4">
-                  <img class="sl-icon" src="/assets/icons/level_extreme.svg" title="Extreme"/>
+                  <img class="sl-icon" src="/assets/icons/level_extreme.svg" title="Extreme" />
                   <span>Extreme</span>
                 </span>
                 <span v-else>loading...</span>
@@ -50,17 +49,18 @@
               <i v-else-if="worstFailureStatus === FailureWarning" class="yellow huge warning circle icon"></i>
               <i v-else class="blue huge check circle icon"></i>
             </div>
-
           </div>
         </div>
-
       </div>
       <div class="seven wide column">
         <h3>Security Level</h3>
 
         <div
           v-on:click="selectSecurityLevel(0)"
-          v-bind:class="['dashboard-element ui very basic inverted segment', {'sl-selected': status && status.SelectedSecurityLevel === 0}]"
+          v-bind:class="[
+            'dashboard-element ui very basic inverted segment',
+            { 'sl-selected': status && status.SelectedSecurityLevel === 0 }
+          ]"
         >
           <i class="rocket icon autopilot-icon" title="Autopilot"></i>
           <span class="sl-name">Autopilot</span>
@@ -68,51 +68,60 @@
         </div>
         <div
           v-on:click="selectSecurityLevel(1)"
-          v-bind:class="['dashboard-element ui very basic inverted segment', {'sl-selected': status && status.SelectedSecurityLevel === 1}]"
+          v-bind:class="[
+            'dashboard-element ui very basic inverted segment',
+            { 'sl-selected': status && status.SelectedSecurityLevel === 1 }
+          ]"
         >
-          <img class="sl-icon" src="/assets/icons/level_normal.svg" title="Normal"/>
+          <img class="sl-icon" src="/assets/icons/level_normal.svg" title="Normal" />
           <span class="sl-name">Normal</span>
           <span class="sl-description">For everyday use in trusted environments.</span>
         </div>
         <div
           v-on:click="selectSecurityLevel(2)"
-          v-bind:class="['dashboard-element ui very basic inverted segment', {'sl-selected': status && status.SelectedSecurityLevel === 2}]"
+          v-bind:class="[
+            'dashboard-element ui very basic inverted segment',
+            { 'sl-selected': status && status.SelectedSecurityLevel === 2 }
+          ]"
         >
-          <img class="sl-icon" src="/assets/icons/level_high.svg" title="High"/>
+          <img class="sl-icon" src="/assets/icons/level_high.svg" title="High" />
           <span class="sl-name">High</span>
           <span class="sl-description">For untrusted environments, such as public WiFi networks.</span>
         </div>
         <div
           v-on:click="selectSecurityLevel(4)"
-          v-bind:class="['dashboard-element ui very basic inverted segment', {'sl-selected': status && status.SelectedSecurityLevel === 4}]"
+          v-bind:class="[
+            'dashboard-element ui very basic inverted segment',
+            { 'sl-selected': status && status.SelectedSecurityLevel === 4 }
+          ]"
         >
-          <img class="sl-icon" src="/assets/icons/level_extreme.svg" title="Extreme"/>
+          <img class="sl-icon" src="/assets/icons/level_extreme.svg" title="Extreme" />
           <span class="sl-name">Extreme</span>
           <span class="sl-description">Emergency mode for when you panic.</span>
         </div>
-
       </div>
     </div>
 
     <h3>Subsystems</h3>
     <div class="ui grid">
-      <div
-      v-for="subsystem in subsystems" class="five wide column"
-      v-bind:key="subsystem.Name"
-      >
+      <div v-for="subsystem in subsystems" class="five wide column" v-bind:key="subsystem.Name">
         <div class="dashboard-element ui very basic inverted segment">
-          <span v-if="subsystem.Modules[0].Status === StatusDead"
-            class="ui grey text" style="float: right;">Dead</span>
-          <span v-else-if="subsystem.Modules[0].Status === StatusPreparing"
-            class="ui yellow text" style="float: right;">Preparing</span>
-          <span v-else-if="subsystem.Modules[0].Status === StatusOffline"
-            class="ui grey text" style="float: right;">Offline</span>
-          <span v-else-if="subsystem.Modules[0].Status === StatusStopping"
-            class="ui yellow text" style="float: right;">Stopping</span>
-          <span v-else-if="subsystem.Modules[0].Status === StatusStarting"
-            class="ui yellow text" style="float: right;">Starting</span>
-          <span v-else-if="subsystem.Modules[0].Status === StatusOnline"
-            class="ui green text" style="float: right;">Online</span>
+          <span v-if="subsystem.Modules[0].Status === StatusDead" class="ui grey text" style="float: right;">Dead</span>
+          <span v-else-if="subsystem.Modules[0].Status === StatusPreparing" class="ui yellow text" style="float: right;"
+            >Preparing</span
+          >
+          <span v-else-if="subsystem.Modules[0].Status === StatusOffline" class="ui grey text" style="float: right;"
+            >Offline</span
+          >
+          <span v-else-if="subsystem.Modules[0].Status === StatusStopping" class="ui yellow text" style="float: right;"
+            >Stopping</span
+          >
+          <span v-else-if="subsystem.Modules[0].Status === StatusStarting" class="ui yellow text" style="float: right;"
+            >Starting</span
+          >
+          <span v-else-if="subsystem.Modules[0].Status === StatusOnline" class="ui green text" style="float: right;"
+            >Online</span
+          >
 
           <h4 style="margin-top: 0;">
             {{ subsystem.Name }}
@@ -121,7 +130,7 @@
           <div
             v-if="subsystem.Modules[0].FailureStatus != FailureNone"
             v-bind:class="['module-item ui inverted secondary segment', moduleStatusColor(subsystem.Modules[0])]"
-            >
+          >
             <div v-bind:class="['ui top attached inverted basic label', moduleStatusColor(subsystem.Modules[0])]">
               <span v-if="subsystem.Modules[0].FailureStatus === FailureError">Error</span>
               <span v-else-if="subsystem.Modules[0].FailureStatus === FailureWarning">Warning</span>
@@ -144,7 +153,10 @@
 
           <!-- Error state -->
           <span v-for="dep in subsystem.Modules.slice(1)" v-bind:key="'notice-' + dep.Name">
-            <div v-if="dep.FailureStatus != FailureNone" v-bind:class="['module-item ui inverted secondary segment', moduleStatusColor(dep)]">
+            <div
+              v-if="dep.FailureStatus != FailureNone"
+              v-bind:class="['module-item ui inverted secondary segment', moduleStatusColor(dep)]"
+            >
               <div v-bind:class="['ui top attached inverted basic label', moduleStatusColor(dep)]">
                 <span class="module-name">{{ dep.Name }}</span>
                 <span v-if="dep.FailureStatus === FailureError" style="float: right;">Error</span>
@@ -159,7 +171,10 @@
 
           <!-- Not online -->
           <span v-for="dep in subsystem.Modules.slice(1)" v-bind:key="'status-' + dep.Name">
-            <div v-if="dep.FailureStatus === FailureNone && dep.Status != StatusOnline" v-bind:class="['module-item ui inverted basic label', moduleStatusColor(dep)]">
+            <div
+              v-if="dep.FailureStatus === FailureNone && dep.Status != StatusOnline"
+              v-bind:class="['module-item ui inverted basic label', moduleStatusColor(dep)]"
+            >
               <span class="module-name">{{ dep.Name }}</span>
               <div v-if="dep.Status === StatusDead" class="detail">Dead</div>
               <div v-else-if="dep.Status === StatusPreparing" class="detail">Preparing</div>
@@ -171,11 +186,13 @@
 
           <!-- Online, no error -->
           <span v-for="dep in subsystem.Modules.slice(1)" v-bind:key="'online-' + dep.Name">
-            <div v-if="dep.Status === StatusOnline && dep.FailureStatus === FailureNone" class="module-item ui black inverted basic label">
+            <div
+              v-if="dep.Status === StatusOnline && dep.FailureStatus === FailureNone"
+              class="module-item ui black inverted basic label"
+            >
               <span class="module-name">{{ dep.Name }}</span>
             </div>
           </span>
-
         </div>
       </div>
     </div>
@@ -186,16 +203,13 @@
         <h2>Some ducking cool stuff is in the works here...</h2>
       </div>
     </div>
-
   </div>
-
 </template>
 
 <script>
 export default {
   name: "Dashboard",
-  components: {
-  },
+  components: {},
   data() {
     return {
       StatusDead: 0, // not prepared, not started
@@ -227,7 +241,7 @@ export default {
       var worstStatus = 0;
       for (var subsystem of this.subsystems) {
         if (subsystem.FailureStatus > worstStatus) {
-          worstStatus = subsystem.FailureStatus
+          worstStatus = subsystem.FailureStatus;
         }
       }
       return worstStatus;
@@ -236,33 +250,33 @@ export default {
   methods: {
     selectSecurityLevel(level) {
       this.$api.update("core:status/status", {
-        SelectedSecurityLevel: level,
-      })
+        SelectedSecurityLevel: level
+      });
       // console.log(`selecting new security level: ${level}`)
     },
     moduleStatusColor(moduleStatus) {
       switch (moduleStatus.FailureStatus) {
-      case this.FailureError:
-        return "red"
-      case this.FailureWarning:
-        return "yellow"
-      case this.FailureHint:
-        return "teal"
-      default:
-        switch (moduleStatus.Status) {
-        case this.StatusDead:
-          return "yellow"
-        case this.StatusPreparing:
-          return "teal"
-        case this.StatusOffline:
-          return "grey"
-        case this.StatusStopping:
-          return "yellow"
-        case this.StatusStarting:
-          return "teal"
-        case this.StatusOnline:
-          return "green"
-        }
+        case this.FailureError:
+          return "red";
+        case this.FailureWarning:
+          return "yellow";
+        case this.FailureHint:
+          return "teal";
+        default:
+          switch (moduleStatus.Status) {
+            case this.StatusDead:
+              return "yellow";
+            case this.StatusPreparing:
+              return "teal";
+            case this.StatusOffline:
+              return "grey";
+            case this.StatusStopping:
+              return "yellow";
+            case this.StatusStarting:
+              return "teal";
+            case this.StatusOnline:
+              return "green";
+          }
       }
     }
   }
@@ -300,9 +314,9 @@ export default {
   margin-left: 130px;
 }
 .sl-selected {
-  -webkit-box-shadow: 0px 0px 5px 1px rgba(0,120,212,1) !important;
-  -moz-box-shadow: 0px 0px 5px 1px rgba(0,120,212,1) !important;
-  box-shadow: 0px 0px 5px 1px rgba(0,120,212,1) !important;
+  -webkit-box-shadow: 0px 0px 5px 1px rgba(0, 120, 212, 1) !important;
+  -moz-box-shadow: 0px 0px 5px 1px rgba(0, 120, 212, 1) !important;
+  box-shadow: 0px 0px 5px 1px rgba(0, 120, 212, 1) !important;
 }
 
 .module-item {
@@ -324,7 +338,8 @@ export default {
     position: relative;
     height: 100%;
   }
-  h1, h2 {
+  h1,
+  h2 {
     text-align: center;
     color: #111;
   }

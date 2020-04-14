@@ -1,6 +1,6 @@
 <template>
   <div id="app">
-    <Base v-bind:basePath="basePath"/>
+    <Base v-bind:basePath="basePath" />
   </div>
 </template>
 
@@ -15,7 +15,7 @@ export default {
   data() {
     return {
       basePath: process.env.NODE_ENV === "development" ? "http://127.0.0.1:817" : ""
-    }
+    };
   }
 };
 </script>

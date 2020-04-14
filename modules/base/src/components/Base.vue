@@ -1,68 +1,69 @@
 <template>
   <div class="main-container">
     <div class="ui basic inverted segment controlbar">
-        <!-- sidebar header -->
-        <div v-on:click="selectHome()" class="ui basic inverted segment mess center aligned">
-          <div class="centered">
-            <h4 style="margin-bottom: 0;">Portmaster</h4>
-            <small v-if="versions">
-              v{{ versions.Core.Version }} <span style="color: #FF0000A0;">(pre-alpha)</span>
-            </small>
-            <small v-else>
-              loading...
-            </small>
-          </div>
+      <!-- sidebar header -->
+      <div v-on:click="selectHome()" class="ui basic inverted segment mess center aligned">
+        <div class="centered">
+          <h4 style="margin-bottom: 0;">Portmaster</h4>
+          <small v-if="versions">
+            v{{ versions.Core.Version }} <span style="color: #FF0000A0;">(pre-alpha)</span>
+          </small>
+          <small v-else>
+            loading...
+          </small>
         </div>
+      </div>
 
-        <!-- top menu -->
-        <div class="ui secondary vertical fluid inverted pointing menu" style="">
-          <div
+      <!-- top menu -->
+      <div class="ui secondary vertical fluid inverted pointing menu" style="">
+        <div
           v-for="(uiMod, index) in topMenu"
-          v-bind:key="index" v-on:click="selectUIModule(uiMod.url)"
-          v-bind:class="[{'active': activeModule === uiMod.url}, 'item', 'uiModuleItem']"
-          >
-            <h4>
-              <div v-bind:class="['uiIndicator', {'loaded': uiMod.loaded && !uiMod.url.startsWith('_')}]">
-                <i class="teal tiny circle middle aligned icon loadedIcon"></i>
-                <i v-on:click.stop="killUIModule(uiMod.url)" class="red times icon killIcon"></i>
-              </div>
-              <i v-bind:class="[uiMod.icon, 'icon', 'moduleIcon']"></i>
-              <span class="wide-text">{{ uiMod.name }}</span>
-            </h4>
-          </div>
-        </div>
-
-        <!-- bottom menu -->
-        <div class="ui secondary vertical fluid inverted pointing menu bottom-section"  style="">
-          <div
-            v-for="(uiMod, index) in bottomMenu"
-            v-bind:key="index" v-on:click="selectUIModule(uiMod.url)"
-            v-bind:class="[{'active': activeModule === uiMod.url}, 'item', 'uiModuleItem']"
-          >
-            <h4>
-              <div v-bind:class="['uiIndicator', {'loaded': uiMod.loaded && !uiMod.url.startsWith('_')}]">
-                <i class="teal tiny circle middle aligned icon loadedIcon"></i>
-                <i v-on:click.stop="killUIModule(uiMod.url)" class="red times icon killIcon"></i>
-              </div>
-              <i v-bind:class="[uiMod.icon, 'icon', 'moduleIcon']"></i>
-              <span class="wide-text">{{ uiMod.name }}</span>
-            </h4>
-          </div>
-          <!-- connection status -->
-          <div>
-            <div class="ui divider" style="margin-bottom: 0;"></div>
-            <div class="item" style="text-align: center;">
-              <span v-if="apiInfo.connected" class="ui center aligned" style="color: #FFFFFF80">
-                Connected to Core
-              </span>
-              <span v-else class="ui red text">
-                Not connected to Core!<br />
-                Retrying...
-              </span>
+          v-bind:key="index"
+          v-on:click="selectUIModule(uiMod.url)"
+          v-bind:class="[{ active: activeModule === uiMod.url }, 'item', 'uiModuleItem']"
+        >
+          <h4>
+            <div v-bind:class="['uiIndicator', { loaded: uiMod.loaded && !uiMod.url.startsWith('_') }]">
+              <i class="teal tiny circle middle aligned icon loadedIcon"></i>
+              <i v-on:click.stop="killUIModule(uiMod.url)" class="red times icon killIcon"></i>
             </div>
+            <i v-bind:class="[uiMod.icon, 'icon', 'moduleIcon']"></i>
+            <span class="wide-text">{{ uiMod.name }}</span>
+          </h4>
+        </div>
+      </div>
+
+      <!-- bottom menu -->
+      <div class="ui secondary vertical fluid inverted pointing menu bottom-section" style="">
+        <div
+          v-for="(uiMod, index) in bottomMenu"
+          v-bind:key="index"
+          v-on:click="selectUIModule(uiMod.url)"
+          v-bind:class="[{ active: activeModule === uiMod.url }, 'item', 'uiModuleItem']"
+        >
+          <h4>
+            <div v-bind:class="['uiIndicator', { loaded: uiMod.loaded && !uiMod.url.startsWith('_') }]">
+              <i class="teal tiny circle middle aligned icon loadedIcon"></i>
+              <i v-on:click.stop="killUIModule(uiMod.url)" class="red times icon killIcon"></i>
+            </div>
+            <i v-bind:class="[uiMod.icon, 'icon', 'moduleIcon']"></i>
+            <span class="wide-text">{{ uiMod.name }}</span>
+          </h4>
+        </div>
+        <!-- connection status -->
+        <div>
+          <div class="ui divider" style="margin-bottom: 0;"></div>
+          <div class="item" style="text-align: center;">
+            <span v-if="apiInfo.connected" class="ui center aligned" style="color: #FFFFFF80">
+              Connected to Core
+            </span>
+            <span v-else class="ui red text">
+              Not connected to Core!<br />
+              Retrying...
+            </span>
           </div>
         </div>
-
+      </div>
     </div>
 
     <div class="content-pane">
@@ -190,7 +191,7 @@ export default {
     },
     selectHome() {
       this.uiModules[0].loaded = true;
-      this.activeModule = this.uiModules[0].url;   
+      this.activeModule = this.uiModules[0].url;
     },
     updateModuleHelpFlag() {
       //       function getIframeWindow(iframe_object) {
