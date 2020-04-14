@@ -353,7 +353,7 @@ function install(vue, options) {
       var requestText = name + "|" + msgType + "|" + msgText;
       if (data != undefined) {
         var cleanedData = op.prepObjectForSubmission(data)
-        requestText += "|" + JSON.stringify(cleanedData);
+        requestText += "|J" + JSON.stringify(cleanedData);
       }
 
       if (vue.portapi.connected) {
