@@ -93,12 +93,6 @@
         :successState="successState"
         :errorState="errorState"
       ></OptionStringArray>
-      <OptionStringArrayCountries
-        v-else-if="record.ExternalOptType == 'country list'"
-        :record="record"
-        :successState="successState"
-        :errorState="errorState"
-      ></OptionStringArrayCountries>
       <OptionStringArray
         v-else-if="record.OptType == optTypeStringArray"
         :record="record"
@@ -198,7 +192,6 @@
 import OptionString from "./OptionString.vue";
 import OptionStringSelect from "./OptionStringSelect.vue";
 import OptionStringArray from "./OptionStringArray.vue";
-import OptionStringArrayCountries from "./OptionStringArrayCountries.vue";
 import OptionBoolean from "./OptionBoolean.vue";
 import OptionIntSecurityLevel from "./OptionIntSecurityLevel.vue";
 import OptionInt from "./OptionInt.vue";
@@ -209,7 +202,6 @@ export default {
     OptionString,
     OptionStringSelect,
     OptionStringArray,
-    OptionStringArrayCountries,
     OptionBoolean,
     OptionIntSecurityLevel,
     OptionInt
