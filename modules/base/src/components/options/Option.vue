@@ -232,16 +232,13 @@ export default {
   },
   computed: {
     successState() {
-      if (this.request.success === true) {
-        return true;
-      }
-      return false;
+return this.request.success;
     },
     errorState() {
       if (this.validationError !== "") {
         return true;
       }
-      if (this.request.hasOwnProperty("error") && this.request.error !== "") {
+      if (this.request.hasOwnProperty("error") && !!this.request.error) {
         return true;
       }
       return false;

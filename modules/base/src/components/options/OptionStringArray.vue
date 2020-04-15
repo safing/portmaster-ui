@@ -47,13 +47,13 @@ export default {
   },
   data() {
     return {
-      newValue: this.record.hasOwnProperty("Value") ? this.record.Value.join(", ") : "",
+      newValue: (this.record.Value || []).join(", "),
       editing: false
     };
   },
   computed: {
     Value() {
-      return this.record.hasOwnProperty("Value") ? this.record.Value.join(", ") : "";
+      return (this.record.Value || []).join(", ");
     },
     DefaultValue() {
       return this.record.DefaultValue.join(", ");
