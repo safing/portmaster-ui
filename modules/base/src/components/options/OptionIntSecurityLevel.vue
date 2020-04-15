@@ -1,12 +1,11 @@
 <template>
   <span>
-
     <div class="ui selection dropdown no-input" v-if="displayDefault">
       <div class="default text">
         <span v-if="record.DefaultValue == 0">OFF</span>
-        <img v-if="(record.DefaultValue&1) > 0" src="/assets/icons/level_normal.svg" />
-        <img v-if="(record.DefaultValue&2) > 0" src="/assets/icons/level_high.svg" />
-        <img v-if="(record.DefaultValue&4) > 0" src="/assets/icons/level_extreme.svg" />
+        <img v-if="(record.DefaultValue & 1) > 0" src="/assets/icons/level_normal.svg" />
+        <img v-if="(record.DefaultValue & 2) > 0" src="/assets/icons/level_high.svg" />
+        <img v-if="(record.DefaultValue & 4) > 0" src="/assets/icons/level_extreme.svg" />
       </div>
     </div>
 
@@ -14,9 +13,9 @@
       <div class="ui selection dropdown no-input">
         <div class="default text">
           <span v-if="record.Value == 0">OFF</span>
-          <img v-if="(record.Value&1) > 0" src="/assets/icons/level_normal.svg" />
-          <img v-if="(record.Value&2) > 0" src="/assets/icons/level_high.svg" />
-          <img v-if="(record.Value&4) > 0" src="/assets/icons/level_extreme.svg" />
+          <img v-if="(record.Value & 1) > 0" src="/assets/icons/level_normal.svg" />
+          <img v-if="(record.Value & 2) > 0" src="/assets/icons/level_high.svg" />
+          <img v-if="(record.Value & 4) > 0" src="/assets/icons/level_extreme.svg" />
         </div>
       </div>
 
@@ -59,8 +58,6 @@
         <i class="cancel icon"></i>
       </button>
     </div>
-
-
   </span>
 </template>
 

@@ -1,6 +1,5 @@
 <template>
   <span>
-
     <div class="ui inline form" v-if="displayDefault">
       <div class="field">
         <textarea rows="2" :value="DefaultValue" readonly></textarea>
@@ -44,7 +43,6 @@
         <i class="cancel icon"></i>
       </button>
     </div>
-
   </span>
 </template>
 
@@ -64,22 +62,16 @@ export default {
   },
   data() {
     return {
-      newValue: this.record.hasOwnProperty("Value")
-        ? this.record.Value.join(", ")
-        : "",
+      newValue: this.record.hasOwnProperty("Value") ? this.record.Value.join(", ") : "",
       editing: false
     };
   },
   computed: {
     Value() {
-      return this.record.hasOwnProperty("Value")
-        ? this.record.Value.join(", ")
-        : "";
+      return this.record.hasOwnProperty("Value") ? this.record.Value.join(", ") : "";
     },
     ValueList() {
-      return this.record.hasOwnProperty("Value")
-        ? this.record.Value.join(",")
-        : "";
+      return this.record.hasOwnProperty("Value") ? this.record.Value.join(",") : "";
     },
     DefaultValue() {
       return this.record.DefaultValue.join(", ");

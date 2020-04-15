@@ -1,14 +1,13 @@
 <template>
   <span>
-
     <div class="ui toggle checkbox no-input" v-if="displayDefault">
-      <input tabindex="0" class="hidden" type="checkbox" v-model="record.DefaultValue">
+      <input tabindex="0" class="hidden" type="checkbox" v-model="record.DefaultValue" />
       <label>{{ record.Name }}</label>
     </div>
 
     <div v-else-if="!editing || successState">
       <div class="ui toggle checkbox no-input">
-        <input tabindex="0" class="hidden" type="checkbox" v-model="record.Value">
+        <input tabindex="0" class="hidden" type="checkbox" v-model="record.Value" />
         <label>{{ record.Name }}</label>
       </div>
 
@@ -24,10 +23,10 @@
 
     <div v-else>
       <div :id="checkboxID" class="ui toggle checkbox">
-        <input tabindex="0" class="hidden" type="checkbox" v-model="newValue">
+        <input tabindex="0" class="hidden" type="checkbox" v-model="newValue" />
         <label>{{ record.Name }}</label>
       </div>
-      
+
       <div class="ui icon buttons">
         <button class="ui button" v-on:click="updateValue">
           <i class="check icon"></i>
@@ -37,7 +36,6 @@
         </button>
       </div>
     </div>
-
   </span>
 </template>
 
