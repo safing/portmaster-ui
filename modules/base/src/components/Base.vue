@@ -74,6 +74,7 @@
         class="content-pane-item"
       >
         <Dashboard v-if="uiMod.url === '_dashboard'" />
+        <Settings v-if="uiMod.url === '_settings'" />
         <Support v-if="uiMod.url === '_support'" />
         <About v-if="uiMod.url === '_about'" />
         <iframe v-else-if="uiMod.loaded" v-bind:src="basePath + uiMod.url" />
@@ -84,6 +85,7 @@
 
 <script>
 import Dashboard from "./Dashboard.vue";
+import Settings from "./Settings.vue";
 import Support from "./Support.vue";
 import About from "./About.vue";
 
@@ -91,6 +93,7 @@ export default {
   name: "Base",
   components: {
     Dashboard,
+    Settings,
     Support,
     About
   },
@@ -100,6 +103,7 @@ export default {
   data() {
     return {
       statusDB: this.$api.qsub("query core:status/"),
+      configDB: this.$api.qsub("query config"),
       activeModule: "_dashboard",
       apiInfo: this.$api.info(),
       uiModules: [
@@ -109,12 +113,6 @@ export default {
           icon: "table",
           loaded: true
         },
-        /*{ 
-          name: "Profile Manager",
-          url: "/ui/modules/profilemgr/",
-          icon: "user",
-          loaded: false
-        },*/
         {
           name: "Monitor",
           url: "/ui/modules/monitor/",
@@ -123,10 +121,16 @@ export default {
         },
         {
           name: "Settings",
-          url: "/ui/modules/settings/",
+          url: "_settings",
           icon: "cog",
           loaded: false
         },
+        /*{
+          name: "App Settings",
+          url: "_app-settings",
+          icon: "user",
+          loaded: false
+        },*/
         {
           name: "Support",
           url: "_support",
@@ -148,7 +152,8 @@ export default {
           loaded: false,
           bottom: true
         }
-      ]
+      ],
+      selectedExpertiseLevel: -1
     };
   },
   computed: {
@@ -164,6 +169,58 @@ export default {
       return this.uiModules.filter(value => {
         return value.bottom;
       });
+    },
+    activeReleaseLevel() {
+      // get db record
+      var record = this.configDB.records["config:core/releaseLevel"];
+      if (!record) {
+        return 0; // ReleaseLevelStable
+      }
+
+      // get active value
+      var value = record.DefaultValue;
+      if (record.hasOwnProperty("Value") && record.Value !== null) {
+        value = record.Value;
+      }
+
+      switch (value) {
+        case "stable": // ReleaseLevelNameStable
+          return 0; // ReleaseLevelStable
+        case "beta": // ReleaseLevelNameBeta
+          return 1; // ReleaseLevelBeta
+        case "experimental": // ReleaseLevelNameExperimental
+          return 2; // ReleaseLevelExperimental
+        default:
+          return 0; // ReleaseLevelStable
+      }
+    },
+    activeExpertiseLevel() {
+      if (this.selectedExpertiseLevel >= 0) {
+        return this.selectedExpertiseLevel;
+      }
+
+      // get db record
+      var record = this.configDB.records["config:core/expertiseLevel"];
+      if (!record) {
+        return 0; // ExpertiseLevelUser
+      }
+
+      // get active value
+      var value = record.DefaultValue;
+      if (record.hasOwnProperty("Value") && record.Value !== null) {
+        value = record.Value;
+      }
+
+      switch (value) {
+        case "user": // ExpertiseLevelNameUser
+          return 0; // ExpertiseLevelUser
+        case "expert": // ExpertiseLevelNameExpert
+          return 1; // ExpertiseLevelExpert
+        case "developer": // ExpertiseLevelNameDeveloper
+          return 2; // ReleaseLevelExperimental
+        default:
+          return 0; // ExpertiseLevelUser
+      }
     }
   },
   methods: {
@@ -193,48 +250,8 @@ export default {
       this.uiModules[0].loaded = true;
       this.activeModule = this.uiModules[0].url;
     },
-    updateModuleHelpFlag() {
-      //       function getIframeWindow(iframe_object) {
-      //   var doc;
-      //
-      //   if (iframe_object.contentWindow) {
-      //     return iframe_object.contentWindow;
-      //   }
-      //
-      //   if (iframe_object.window) {
-      //     return iframe_object.window;
-      //   }
-      //
-      //   if (!doc && iframe_object.contentDocument) {
-      //     doc = iframe_object.contentDocument;
-      //   }
-      //
-      //   if (!doc && iframe_object.document) {
-      //     doc = iframe_object.document;
-      //   }
-      //
-      //   if (doc && doc.defaultView) {
-      //    return doc.defaultView;
-      //   }
-      //
-      //   if (doc && doc.parentWindow) {
-      //     return doc.parentWindow;
-      //   }
-      //
-      //   return undefined;
-      // }
-      // and
-      //
-      // ...
-      // var el = document.getElementById('targetFrame');
-      //
-      // var frame_win = getIframeWindow(el);
-      //
-      // if (frame_win) {
-      //   frame_win.reset();
-      //   ...
-      // }
-      // ...
+    selectExpertiseLevel(level) {
+      this.selectedExpertiseLevel = level;
     }
   }
 };

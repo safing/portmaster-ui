@@ -1,18 +1,11 @@
 <template>
   <span>
-
-    <div class="ui inline form" v-if="displayDefault">
-      <div class="field">
-        <textarea rows="2" :value="DefaultValue" readonly></textarea>
-      </div>
+    <div class="ui input" v-if="displayDefault">
+      <input type="text" :value="record.DefaultValue" readonly />
     </div>
 
     <div class="ui action input" v-else-if="!editing || successState">
-      <div class="ui inline form">
-        <div class="field">
-          <textarea rows="2" :value="Value" readonly></textarea>
-        </div>
-      </div>
+      <input type="text" :value="record.Value" readonly />
       <button class="ui icon button" v-on:click="startEdit">
         <i class="edit icon"></i>
       </button>
@@ -22,11 +15,7 @@
     </div>
 
     <div class="ui action input" v-else>
-      <div class="ui inline form">
-        <div class="field">
-          <textarea rows="2" v-model="newValue"></textarea>
-        </div>
-      </div>
+      <input type="text" v-model="newValue" />
       <button class="ui icon button" v-on:click="updateValue">
         <i class="check icon"></i>
       </button>
@@ -34,13 +23,12 @@
         <i class="cancel icon"></i>
       </button>
     </div>
-
   </span>
 </template>
 
 <script>
 export default {
-  name: "OptionStringArray",
+  name: "OptionString",
   props: {
     record: Object,
     successState: Boolean,
@@ -49,29 +37,13 @@ export default {
   },
   data() {
     return {
-      newValue: this.record.hasOwnProperty("Value")
-        ? this.record.Value.join(", ")
-        : "",
+      newValue: this.record.Value,
       editing: false
     };
   },
-  computed: {
-    Value() {
-      return this.record.hasOwnProperty("Value")
-        ? this.record.Value.join(", ")
-        : "";
-    },
-    DefaultValue() {
-      return this.record.DefaultValue.join(", ");
-    }
-  },
   methods: {
     updateValue() {
-      var splitted = this.newValue.split(",");
-      for (var i = 0; i < splitted.length; i++) {
-        splitted[i] = splitted[i].trim();
-      }
-      this.$parent.updateValue(splitted);
+      this.$parent.updateValue(this.newValue);
     },
     deleteValue() {
       this.$parent.deleteValue();
@@ -92,8 +64,4 @@ export default {
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
-<style scoped lang="scss">
-.no-input {
-  pointer-events: none;
-}
-</style>
+<style scoped lang="scss"></style>

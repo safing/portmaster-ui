@@ -58,7 +58,7 @@
         <div
           v-on:click="selectSecurityLevel(0)"
           v-bind:class="[
-            'dashboard-element ui very basic inverted segment',
+            'dashboard-element sl-item ui very basic inverted segment',
             { 'sl-selected': status && status.SelectedSecurityLevel === 0 }
           ]"
         >
@@ -69,7 +69,7 @@
         <div
           v-on:click="selectSecurityLevel(1)"
           v-bind:class="[
-            'dashboard-element ui very basic inverted segment',
+            'dashboard-element sl-item ui very basic inverted segment',
             { 'sl-selected': status && status.SelectedSecurityLevel === 1 }
           ]"
         >
@@ -80,7 +80,7 @@
         <div
           v-on:click="selectSecurityLevel(2)"
           v-bind:class="[
-            'dashboard-element ui very basic inverted segment',
+            'dashboard-element sl-item ui very basic inverted segment',
             { 'sl-selected': status && status.SelectedSecurityLevel === 2 }
           ]"
         >
@@ -91,7 +91,7 @@
         <div
           v-on:click="selectSecurityLevel(4)"
           v-bind:class="[
-            'dashboard-element ui very basic inverted segment',
+            'dashboard-element sl-item ui very basic inverted segment',
             { 'sl-selected': status && status.SelectedSecurityLevel === 4 }
           ]"
         >
@@ -297,6 +297,9 @@ export default {
 
 .autopilot-icon {
   margin-right: 15px;
+}
+.sl-item {
+  cursor: pointer;
 }
 .sl-icon {
   height: 20px;
