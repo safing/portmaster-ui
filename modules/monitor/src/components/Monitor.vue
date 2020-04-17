@@ -1,14 +1,23 @@
 <template>
   <div class="ui internally celled grid" style="min-height: 100vh;">
-
     <!-- SIDEBAR -->
     <div class="five wide column list-pane-container">
       <div class="title">
-        <span v-if="tree.unconnectedRecords" style="float: right; padding: 8px;" data-tooltip="# of records that are missing their parent record, ie. are not displayed (check browser console)" data-position="bottom left">
+        <span
+          v-if="tree.unconnectedRecords"
+          style="float: right; padding: 8px;"
+          data-tooltip="# of records that are missing their parent record, ie. are not displayed (check browser console)"
+          data-position="bottom left"
+        >
           <i class="yellow exclamation triangle icon"></i>
           {{ tree.unconnectedRecords }}
         </span>
-        <span v-if="op.warnings.length" style="float: right; padding: 8px;" data-tooltip="# of records that failed to be delivered or parsed" data-position="bottom left">
+        <span
+          v-if="op.warnings.length"
+          style="float: right; padding: 8px;"
+          data-tooltip="# of records that failed to be delivered or parsed"
+          data-position="bottom left"
+        >
           <i class="red exclamation circle icon"></i>
           {{ op.warnings.length }}
         </span>
@@ -17,9 +26,7 @@
       <p v-if="op.loading">
         loading...
       </p>
-      <div v-else-if="op.error">
-        error: {{ op.error }}
-      </div>
+      <div v-else-if="op.error">error: {{ op.error }}</div>
 
       <div v-else class="list-pane">
         <div v-if="tree.activeProcesses.length > 0" class="ui one column grid container list-pane-container">
@@ -35,7 +42,12 @@
             </div>
 
             <div class="ui one column grid container list-pane-container">
-              <div v-for="scope in process._scopes" v-bind:key="scope.key" v-on:click="selectScope(scope)" class="column scope-item">
+              <div
+                v-for="scope in process._scopes"
+                v-bind:key="scope.key"
+                v-on:click="selectScope(scope)"
+                class="column scope-item"
+              >
                 <div>
                   <Verdict :verdict="scope.verdictSummary"></Verdict>
                   <span v-if="scope.name == 'IH'" class="scope-name">Incoming from Localhost</span>
@@ -57,10 +69,8 @@
                     </div>
                   </div>
                 </div>
-
               </div>
             </div>
-
           </div>
         </div>
         <div v-else class="row content-placeholder no-activity">
@@ -69,7 +79,6 @@
           </div>
         </div>
       </div>
-
     </div>
     <!-- END OF SIDEBAR -->
 
@@ -82,12 +91,16 @@
           <tr>
             <td>Active</td>
             <td v-if="!selectedProcess.FirstSeen && !selectedProcess.LastSeen">no activity</td>
-            <td v-else-if="selectedProcess.FirstSeen == selectedProcess.LastSeen">at {{ selectedProcess.FirstSeen|fmt_time }}</td>
-            <td v-else>{{ selectedProcess.FirstSeen|fmt_time }} - {{ selectedProcess.LastSeen|fmt_time }}</td>
+            <td v-else-if="selectedProcess.FirstSeen == selectedProcess.LastSeen">
+              at {{ selectedProcess.FirstSeen | fmt_time }}
+            </td>
+            <td v-else>{{ selectedProcess.FirstSeen | fmt_time }} - {{ selectedProcess.LastSeen | fmt_time }}</td>
           </tr>
           <tr>
             <td>UserName</td>
-            <td>{{ selectedProcess.UserName }} <span v-if="selectedProcess.UserID">({{ selectedProcess.UserID }})</span></td>
+            <td>
+              {{ selectedProcess.UserName }} <span v-if="selectedProcess.UserID">({{ selectedProcess.UserID }})</span>
+            </td>
           </tr>
           <tr>
             <td>Pid</td>
@@ -119,12 +132,12 @@
 
       <div class="debugging">
         <h3>Debugging <small>...left here intentionally, for now.</small></h3>
-        <PRE>{{ selectedProcess|clean_object }}</PRE>
+        <PRE>{{ selectedProcess | clean_object }}</PRE>
       </div>
-
     </div>
     <div v-else-if="selected == 2" class="eleven wide column container content-pane">
-      <h2>{{ selectedScope._process.Name }} ({{ selectedScope._process.Pid }}) >
+      <h2>
+        {{ selectedScope._process.Name }} ({{ selectedScope._process.Pid }}) >
         <span v-if="selectedScope.name == 'IH'">Incoming from Localhost</span>
         <span v-else-if="selectedScope.name == 'IL'">Incoming from the LAN</span>
         <span v-else-if="selectedScope.name == 'II'">Incoming from the Internet</span>
@@ -136,7 +149,6 @@
         <span v-else>{{ selectedScope.name }}</span>
       </h2>
       <div class="ui one column grid">
-
         <div v-if="selectedScope.dnsRequest" class="column">
           <h4>DNS Request</h4>
 
@@ -144,12 +156,22 @@
             <tbody>
               <tr>
                 <td>Verdict</td>
-                <td><Verdict :verdict="selectedScope.dnsRequest.Verdict" :reason="selectedScope.dnsRequest.Reason" :long="true"></Verdict></td>
+                <td>
+                  <Verdict
+                    :verdict="selectedScope.dnsRequest.Verdict"
+                    :reason="selectedScope.dnsRequest.Reason"
+                    :long="true"
+                  ></Verdict>
+                </td>
               </tr>
               <tr>
                 <td>Active</td>
-                <td v-if="selectedScope.dnsRequest.Started == selectedScope.dnsRequest.Ended">at {{ selectedScope.dnsRequest.Started|fmt_time }}</td>
-                <td v-else>{{ selectedScope.dnsRequest.Started|fmt_time }} - {{ selectedScope.dnsRequest.Ended|fmt_time }}</td>
+                <td v-if="selectedScope.dnsRequest.Started == selectedScope.dnsRequest.Ended">
+                  at {{ selectedScope.dnsRequest.Started | fmt_time }}
+                </td>
+                <td v-else>
+                  {{ selectedScope.dnsRequest.Started | fmt_time }} - {{ selectedScope.dnsRequest.Ended | fmt_time }}
+                </td>
               </tr>
               <tr>
                 <td>Entity</td>
@@ -177,8 +199,8 @@
               <tr v-for="conn in selectedScope.connections" v-bind:key="conn.key">
                 <td><Verdict :verdict="conn.Verdict" :reason="conn.Reason" :long="true"></Verdict></td>
                 <td>{{ conn.Entity.IP }} {{ conn.Entity.Protocol }}/{{ conn.Entity.Port }}</td>
-                <td>{{ conn.Started|fmt_time }}</td>
-                <td>{{ conn.Ended|fmt_time }}</td>
+                <td>{{ conn.Started | fmt_time }}</td>
+                <td>{{ conn.Ended | fmt_time }}</td>
               </tr>
             </tbody>
           </table>
@@ -190,7 +212,7 @@
               <div class="column placeholder-text">
                 <h1>no active connections</h1>
                 <p>
-                  Please note that connections may have been attributed to<br>
+                  Please note that connections may have been attributed to<br />
                   another domain that shares at least one IP address.
                 </p>
               </div>
@@ -200,9 +222,8 @@
 
         <div class="debugging">
           <h3>Debugging <small>...left here intentionally, for now.</small></h3>
-          <PRE>{{ selectedScope|clean_object }}</PRE>
+          <PRE>{{ selectedScope | clean_object }}</PRE>
         </div>
-
       </div>
     </div>
     <!-- END OF CONTENT SPACE -->
@@ -216,9 +237,7 @@
         </div>
       </div>
     </div>
-
   </div>
-
 </template>
 
 <script>
@@ -263,15 +282,24 @@ export default {
               case 2:
                 // dns connection
                 obj._treeLayer = 2;
-                obj._processKey = key.split("/").slice(0, 2).join("/");
+                obj._processKey = key
+                  .split("/")
+                  .slice(0, 2)
+                  .join("/");
                 obj._scopeKey = obj._key;
                 obj.lastActivity = 0;
                 break;
               case 3:
                 // connection
                 obj._treeLayer = 3;
-                obj._processKey = key.split("/").slice(0, 2).join("/");
-                obj._scopeKey = key.split("/").slice(0, 3).join("/");
+                obj._processKey = key
+                  .split("/")
+                  .slice(0, 2)
+                  .join("/");
+                obj._scopeKey = key
+                  .split("/")
+                  .slice(0, 3)
+                  .join("/");
                 break;
               default:
                 console.log(`WARNING: unexpected count of / in key ${key}`);
@@ -283,13 +311,13 @@ export default {
       treeCache: null,
       selected: 0,
       selectedProcess: null,
-      selectedScope: null,
+      selectedScope: null
     };
   },
   computed: {
     tree() {
       console.log("======== updating tree structure");
-  
+
       // get changes from api operation
       var changes = this.op.getChanges();
 
@@ -306,11 +334,11 @@ export default {
         t.activeProcesses = [];
         t.scopes = {};
         for (const [key, record] of Object.entries(this.op.records)) {
-          delete record._inTree
-          delete record._active
-          delete record._parent
-          delete record._scopes
-          delete record._childProcesses
+          delete record._inTree;
+          delete record._active;
+          delete record._parent;
+          delete record._scopes;
+          delete record._childProcesses;
         }
       }
       // reset informational attributes
@@ -361,22 +389,22 @@ export default {
               // add connection to scope
               switch (record._treeLayer) {
                 case 2:
-                  scope.dnsRequest = record
+                  scope.dnsRequest = record;
                   break;
                 case 3:
-                  scope.connections.unshift(record)
+                  scope.connections.unshift(record);
                   break;
               }
 
               // update scope's last activity with connection
               if (record.Started > scope.lastActivity) {
-                scope.lastActivity = record.Started
+                scope.lastActivity = record.Started;
               }
 
               // summarize verdict
               if (scope.verdictSummary == 0) {
                 // first encounter
-                scope.verdictSummary = record.Verdict
+                scope.verdictSummary = record.Verdict;
               } else if (scope.verdictSummary != record.Verdict) {
                 // not the same, set to failed
                 scope.verdictSummary = 1;
@@ -395,8 +423,8 @@ export default {
                     process._scopes = [];
                   }
                   // link together
-                  process._scopes.unshift(scope)
-                  scope._process = process
+                  process._scopes.unshift(scope);
+                  scope._process = process;
                 } else {
                   console.log(`could not connect ${scope.key} to ${record._processKey}`);
                   t.unconnectedRecords++;
@@ -407,9 +435,9 @@ export default {
               if (scope._process) {
                 // update scope's last activity with connection
                 if (scope.lastActivity > scope._process.lastActivity) {
-                  scope._process.lastActivity = scope.lastActivity
+                  scope._process.lastActivity = scope.lastActivity;
                 }
-                
+
                 // activate process
                 if (!scope._process._active) {
                   t.activeProcesses.unshift(scope._process);
@@ -428,7 +456,7 @@ export default {
 
       // sort if needed
       if (changes.deleted > 0) {
-        this.sortTree(t)
+        this.sortTree(t);
       }
 
       // silence vue/no-side-effects-in-computed-properties
@@ -446,7 +474,7 @@ export default {
           scope.connections.sort(function(a, b) {
             return a.Started - b.Started;
           });
-        };
+        }
 
         // sort scopes
         process._scopes.sort(function(a, b) {
@@ -459,7 +487,7 @@ export default {
             return b.Pid - a.Pid;
           });
         }
-      };
+      }
 
       // sort processes
       t.activeProcesses.sort(function(a, b) {
@@ -497,7 +525,7 @@ export default {
       var copy = {};
       for (const [key, value] of Object.entries(value)) {
         // don't copy underline values
-        if (!key.startsWith('_')) {
+        if (!key.startsWith("_")) {
           copy[key] = value;
         }
       }

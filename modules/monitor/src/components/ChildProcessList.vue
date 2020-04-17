@@ -1,7 +1,8 @@
 <template>
   <ul>
     <li v-for="process in processes" :key="process._key">
-      <strong>{{ process.data.Pid }}</strong>: {{ process.data.CmdLine }}
+      <strong>{{ process.data.Pid }}</strong
+      >: {{ process.data.CmdLine }}
       <ChildProcessList v-if="process.childProcesses" :processes="process.childProcesses"></ChildProcessList>
     </li>
   </ul>
@@ -16,5 +17,4 @@ export default {
 };
 </script>
 
-<style scoped lang="scss">
-</style>
+<style scoped lang="scss"></style>
