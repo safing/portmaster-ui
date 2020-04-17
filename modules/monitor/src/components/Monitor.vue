@@ -4,9 +4,9 @@
     <!-- SIDEBAR -->
     <div class="five wide column list-pane-container">
       <div class="title">
-        <span v-if="unconnectedRecords" style="float: right; padding: 8px;" data-tooltip="# of records that are missing their parent record, ie. are not displayed (check browser console)" data-position="bottom left">
+        <span v-if="tree.unconnectedRecords" style="float: right; padding: 8px;" data-tooltip="# of records that are missing their parent record, ie. are not displayed (check browser console)" data-position="bottom left">
           <i class="yellow exclamation triangle icon"></i>
-          {{ unconnectedRecords }}
+          {{ tree.unconnectedRecords }}
         </span>
         <span v-if="op.warnings.length" style="float: right; padding: 8px;" data-tooltip="# of records that failed to be delivered or parsed" data-position="bottom left">
           <i class="red exclamation circle icon"></i>
@@ -22,35 +22,35 @@
       </div>
 
       <div v-else class="list-pane">
-        <div v-if="anyActivity" class="ui one column grid container list-pane-container">
-          <div v-for="process in tree" v-bind:key="process._key" v-if="process._children && process._children.length > 0" class="column process-list-container">
+        <div v-if="tree.activeProcesses.length > 0" class="ui one column grid container list-pane-container">
+          <div v-for="process in tree.activeProcesses" v-bind:key="process._key" class="column process-list-container">
             <div v-on:click="selectProcess(process)" class="process-item">
               <span class="process-name">{{ process.Name }}</span> ({{ process.Pid }})
               <div class="ui label">
                 <i class="stream icon"></i>
                 <div class="detail">
-                  {{ process._children.length }}
+                  {{ process._scopes.length }}
                 </div>
               </div>
             </div>
 
             <div class="ui one column grid container list-pane-container">
-              <div v-for="communication in process._children" v-bind:key="communication._key" v-on:click="selectCommunication(communication)" class="column communication-item">
+              <div v-for="scope in process._scopes" v-bind:key="scope.key" v-on:click="selectScope(scope)" class="column scope-item">
                 <div>
-                  <Verdict :verdict="communication.Verdict"></Verdict>
-                  <span v-if="communication.Domain == 'IH'" class="communication-name">Incoming from Localhost</span>
-                  <span v-else-if="communication.Domain == 'IL'" class="communication-name">Incoming from the LAN</span>
-                  <span v-else-if="communication.Domain == 'II'" class="communication-name">Incoming from the Internet</span>
-                  <span v-else-if="communication.Domain == 'IX'" class="communication-name">Incoming - Invalid</span>
-                  <span v-else-if="communication.Domain == 'PH'" class="communication-name">Peers on Localhost</span>
-                  <span v-else-if="communication.Domain == 'PL'" class="communication-name">Peers on the LAN</span>
-                  <span v-else-if="communication.Domain == 'PI'" class="communication-name">Peers on the Internet</span>
-                  <span v-else-if="communication.Domain == 'PX'" class="communication-name">Peers - Invalid</span>
-                  <span v-else class="communication-name">{{ communication.Domain }}</span>
+                  <Verdict :verdict="scope.verdictSummary"></Verdict>
+                  <span v-if="scope.name == 'IH'" class="scope-name">Incoming from Localhost</span>
+                  <span v-else-if="scope.name == 'IL'" class="scope-name">Incoming from the LAN</span>
+                  <span v-else-if="scope.name == 'II'" class="scope-name">Incoming from the Internet</span>
+                  <span v-else-if="scope.name == 'IX'" class="scope-name">Incoming - Invalid</span>
+                  <span v-else-if="scope.name == 'PH'" class="scope-name">Peers on Localhost</span>
+                  <span v-else-if="scope.name == 'PL'" class="scope-name">Peers on the LAN</span>
+                  <span v-else-if="scope.name == 'PI'" class="scope-name">Peers on the Internet</span>
+                  <span v-else-if="scope.name == 'PX'" class="scope-name">Peers - Invalid</span>
+                  <span v-else class="scope-name">{{ scope.name }}</span>
                   <div class="ui label">
                     <i class="project diagram icon"></i>
-                    <div v-if="communication._children" class="detail">
-                      {{ communication._children.length }}
+                    <div v-if="scope.connections.length > 0" class="detail">
+                      {{ scope.connections.length }}
                     </div>
                     <div v-else class="detail">
                       0
@@ -81,9 +81,9 @@
         <tbody>
           <tr>
             <td>Active</td>
-            <td v-if="!selectedProcess.FirstCommEstablished && !selectedProcess.LastCommEstablished">no activity</td>
-            <td v-else-if="selectedProcess.FirstCommEstablished == selectedProcess.LastCommEstablished">at {{ selectedProcess.FirstCommEstablished|fmt_time }}</td>
-            <td v-else>{{ selectedProcess.FirstCommEstablished|fmt_time }} - {{ selectedProcess.LastCommEstablished|fmt_time }}</td>
+            <td v-if="!selectedProcess.FirstSeen && !selectedProcess.LastSeen">no activity</td>
+            <td v-else-if="selectedProcess.FirstSeen == selectedProcess.LastSeen">at {{ selectedProcess.FirstSeen|fmt_time }}</td>
+            <td v-else>{{ selectedProcess.FirstSeen|fmt_time }} - {{ selectedProcess.LastSeen|fmt_time }}</td>
           </tr>
           <tr>
             <td>UserName</td>
@@ -107,101 +107,102 @@
           </tr>
           <tr>
             <td>Profile</td>
-            <td>{{ selectedProcess.UserProfileKey }}</td>
+            <td>{{ selectedProcess.LocalProfileKey }}</td>
           </tr>
         </tbody>
       </table>
 
       <div v-if="selectedProcess._childProcesses">
-        <h4>childProcesses:</h4>
-        <ChildProcessList v-bind:processes="selectedProcess._childProcesses"></ChildProcessList>
+        <h4>Child Processes:</h4>
+        <ChildProcessList :processes="selectedProcess._childProcesses"></ChildProcessList>
+      </div>
+
+      <div class="debugging">
+        <h3>Debugging <small>...left here intentionally, for now.</small></h3>
+        <PRE>{{ selectedProcess|clean_object }}</PRE>
       </div>
 
     </div>
-    <div v-else-if="selected == 2 && !selectedCommunication._deleted" class="eleven wide column container content-pane">
-      <h2>{{ selectedCommunication._parent.Name }} ({{ selectedCommunication._parent.Pid }}) >
-        <span v-if="selectedCommunication.Domain == 'IH'">Incoming from Localhost</span>
-        <span v-else-if="selectedCommunication.Domain == 'IL'">Incoming from the LAN</span>
-        <span v-else-if="selectedCommunication.Domain == 'II'">Incoming from the Internet</span>
-        <span v-else-if="selectedCommunication.Domain == 'IX'">Incoming - Invalid</span>
-        <span v-else-if="selectedCommunication.Domain == 'PH'">Peers on Localhost</span>
-        <span v-else-if="selectedCommunication.Domain == 'PL'">Peers on the LAN</span>
-        <span v-else-if="selectedCommunication.Domain == 'PI'">Peers on the Internet</span>
-        <span v-else-if="selectedCommunication.Domain == 'PX'">Peers - Invalid</span>
-        <span v-else>{{ selectedCommunication.Domain }}</span>
+    <div v-else-if="selected == 2" class="eleven wide column container content-pane">
+      <h2>{{ selectedScope._process.Name }} ({{ selectedScope._process.Pid }}) >
+        <span v-if="selectedScope.name == 'IH'">Incoming from Localhost</span>
+        <span v-else-if="selectedScope.name == 'IL'">Incoming from the LAN</span>
+        <span v-else-if="selectedScope.name == 'II'">Incoming from the Internet</span>
+        <span v-else-if="selectedScope.name == 'IX'">Incoming - Invalid</span>
+        <span v-else-if="selectedScope.name == 'PH'">Peers on Localhost</span>
+        <span v-else-if="selectedScope.name == 'PL'">Peers on the LAN</span>
+        <span v-else-if="selectedScope.name == 'PI'">Peers on the Internet</span>
+        <span v-else-if="selectedScope.name == 'PX'">Peers - Invalid</span>
+        <span v-else>{{ selectedScope.name }}</span>
       </h2>
       <div class="ui one column grid">
-        <div class="column">
+
+        <div v-if="selectedScope.dnsRequest" class="column">
+          <h4>DNS Request</h4>
 
           <table class="ui very basic collapsing very compact table">
             <tbody>
               <tr>
                 <td>Verdict</td>
-                <td><Verdict :verdict="selectedCommunication.Verdict" :reason="selectedCommunication.Reason" :long="true"></Verdict></td>
+                <td><Verdict :verdict="selectedScope.dnsRequest.Verdict" :reason="selectedScope.dnsRequest.Reason" :long="true"></Verdict></td>
               </tr>
-              <tr>
-                <td>Inspecting</td>
-                <td v-if="selectedCommunication.Inspect">yes</td><td v-else>no</td>
-              </tr>
-              <!-- <tr>
-                <td>Intel</td>
-                <td>{{ selectedCommunication.Intel }}</td>
-              </tr> -->
               <tr>
                 <td>Active</td>
-                <td v-if="!selectedCommunication.FirstLinkEstablished && !selectedCommunication.LastLinkEstablished">no activity</td>
-                <td v-else-if="selectedCommunication.FirstLinkEstablished == selectedCommunication.LastLinkEstablished">at {{ selectedCommunication.FirstLinkEstablished|fmt_time }}</td>
-                <td v-else>{{ selectedCommunication.FirstLinkEstablished|fmt_time }} - {{ selectedCommunication.LastLinkEstablished|fmt_time }}</td>
+                <td v-if="selectedScope.dnsRequest.Started == selectedScope.dnsRequest.Ended">at {{ selectedScope.dnsRequest.Started|fmt_time }}</td>
+                <td v-else>{{ selectedScope.dnsRequest.Started|fmt_time }} - {{ selectedScope.dnsRequest.Ended|fmt_time }}</td>
+              </tr>
+              <tr>
+                <td>Entity</td>
+                <td>
+                  <PRE>{{ selectedScope.dnsRequest.Entity }}</PRE>
+                </td>
               </tr>
             </tbody>
           </table>
-
         </div>
-        <div class="column">
-          <div class="ui divider"></div>
 
-          <table v-if="selectedCommunication._children && selectedCommunication._children.length > 0" class="ui celled table">
+        <div v-if="selectedScope.connections && selectedScope.connections.length > 0" class="column">
+          <h4>Connections</h4>
+
+          <table class="ui celled table">
             <thead>
               <tr>
                 <th>Verdict, Reason</th>
-                <th>RemoteAddress</th>
+                <th>Entity</th>
                 <th>Started</th>
                 <th>Ended</th>
-                <th>Inspect</th>
-                <th>Tunneled</th>
-                <th>VerdictPermanent</th>
               </tr>
             </thead>
             <tbody>
-              <tr v-for="link in selectedCommunication._children" v-bind:key="link.key">
-                <td><Verdict :verdict="link.Verdict" :reason="link.Reason" :long="true"></Verdict></td>
-                <td>{{ link.RemoteAddress }}</td>
-                <td>{{ link.Started|fmt_time }}</td>
-                <td>{{ link.Ended|fmt_time }}</td>
-                <td v-if="link.Inspect">yes</td><td v-else>no</td>
-                <td>{{ link.Tunneled }}</td>
-                <td>{{ link.VerdictPermanent }}</td>
+              <tr v-for="conn in selectedScope.connections" v-bind:key="conn.key">
+                <td><Verdict :verdict="conn.Verdict" :reason="conn.Reason" :long="true"></Verdict></td>
+                <td>{{ conn.Entity.IP }} {{ conn.Entity.Protocol }}/{{ conn.Entity.Port }}</td>
+                <td>{{ conn.Started|fmt_time }}</td>
+                <td>{{ conn.Ended|fmt_time }}</td>
               </tr>
             </tbody>
           </table>
+        </div>
 
-          <div v-else class="ui grid middle aligned">
+        <div v-else class="column">
+          <div class="ui grid middle aligned">
             <div class="row">
               <div class="column placeholder-text">
-                <h1>no active links</h1>
+                <h1>no active connections</h1>
                 <p>
-                  Please note that Links may have been attributed to<br>
+                  Please note that connections may have been attributed to<br>
                   another domain that shares at least one IP address.
-                </p>
-                <p>
-                  Also, no activity could mean that the process only<br>
-                  queried DNS and in fact did not open a connection.
                 </p>
               </div>
             </div>
           </div>
-
         </div>
+
+        <div class="debugging">
+          <h3>Debugging <small>...left here intentionally, for now.</small></h3>
+          <PRE>{{ selectedScope|clean_object }}</PRE>
+        </div>
+
       </div>
     </div>
     <!-- END OF CONTENT SPACE -->
@@ -210,7 +211,7 @@
       <div class="ui grid middle aligned">
         <div class="row">
           <div class="column">
-            <h1>select process or communication on the left</h1>
+            <h1>select process or connection scope on the left</h1>
           </div>
         </div>
       </div>
@@ -245,28 +246,32 @@ export default {
   },
   data() {
     return {
-      op: this.$api.qsub("query network:tree/").prepFn("", function(key, obj) {
+      op: this.$api.qsub("query network:tree/ where Hidden is false").prepFn("", function(key, obj) {
         if (!obj._key) {
           obj._key = key;
 
-          if (obj.VirtualProcess) {
+          if (obj.Virtual) {
             obj._treeLayer = -1; // -1, 1, 2, 3
-            obj._parentKey = `network:tree/${obj.ParentPid}`;
+            obj._processKey = `network:tree/${obj.ParentPid}`;
           } else {
             switch (countChar(key, "/")) {
               case 1:
                 // process
                 obj._treeLayer = 1;
+                obj.lastActivity = 0;
                 break;
               case 2:
-                // communication
+                // dns connection
                 obj._treeLayer = 2;
-                obj._parentKey = key.split("/").slice(0, 2).join("/");
+                obj._processKey = key.split("/").slice(0, 2).join("/");
+                obj._scopeKey = obj._key;
+                obj.lastActivity = 0;
                 break;
               case 3:
-                // link
+                // connection
                 obj._treeLayer = 3;
-                obj._parentKey = key.split("/").slice(0, 3).join("/");
+                obj._processKey = key.split("/").slice(0, 2).join("/");
+                obj._scopeKey = key.split("/").slice(0, 3).join("/");
                 break;
               default:
                 console.log(`WARNING: unexpected count of / in key ${key}`);
@@ -274,131 +279,200 @@ export default {
           }
         }
       }),
+      opChanged: this.$api.info().changeCnt,
+      treeCache: null,
       selected: 0,
       selectedProcess: null,
-      selectedCommunication: null,
-      treeCache: [],
-      unconnectedRecords: 0,
-      firstRun: true
+      selectedScope: null,
     };
   },
   computed: {
-    anyActivity() {
-      for (var i = 0; i < this.tree.length; i++) {
-        if (this.tree[i]._children && this.tree[i]._children.length > 0) {
-          return true;
-        }
-      }
-      return false;
-    },
     tree() {
       console.log("======== updating tree structure");
-
+  
+      // get changes from api operation
       var changes = this.op.getChanges();
+
+      // initialize object
+      var t = this.treeCache;
+      if (!t) {
+        t = {};
+        // simulate deletion on first run
+        changes.deleted = 1;
+      }
+
       // reset if something got deleted
       if (changes.deleted > 0) {
-        this.resetTreeCache();
+        t.activeProcesses = [];
+        t.scopes = {};
+        for (const [key, record] of Object.entries(this.op.records)) {
+          delete record._inTree
+          delete record._active
+          delete record._parent
+          delete record._scopes
+          delete record._childProcesses
+        }
       }
-      this.unconnectedRecords = 0;
+      // reset informational attributes
+      t.unconnectedRecords = 0;
 
       // add all missing links
       for (const [key, record] of Object.entries(this.op.records)) {
-        if (!record._parent) {
-          // console.log(`processing ${key}: layer ${record._treeLayer}`);
+        if (!record._inTree) {
           switch (record._treeLayer) {
             case -1:
               // virtual process
-              var parentRecord = this.op.records[record._parentKey];
+              var parentRecord = this.op.records[record._processKey];
               if (parentRecord) {
                 if (!parentRecord._childProcesses) {
                   parentRecord._childProcesses = [];
                 }
-                parentRecord._childProcesses.push(record);
-                record._parent = parentRecord;
+                parentRecord._childProcesses.unshift(record);
+                record._process = parentRecord;
+                record._inTree = true;
               } else {
-                console.log(`could not connect to ${record._parentKey}`)
-                this.unconnectedRecords++;
+                console.log(`could not connect ${record._key} to ${record._processKey}`);
+                t.unconnectedRecords++;
               }
               break;
             case 1:
-              // process
-              this.treeCache.push(record);
-              record._parent = true;
+              // all handling to activeProcesses is done later, when the first connection is added
+              // mark as handled
+              record._inTree = true;
               break;
             case 2:
             case 3:
-              // communication, link
-              var parentRecord = this.op.records[record._parentKey];
-              if (parentRecord) {
-                if (!parentRecord._children) {
-                  parentRecord._children = [];
-                }
-                parentRecord._children.push(record);
-                record._parent = parentRecord;
-              } else {
-                console.log(`could not connect to ${record._parentKey}`)
-                this.unconnectedRecords++;
+              // dns requests & connections:
+              // get or create a scope
+              var scope = t.scopes[record._scopeKey];
+              if (!scope) {
+                // create new
+                scope = {
+                  key: record._scopeKey,
+                  name: record.Scope,
+                  connections: [],
+                  verdictSummary: 0,
+                  lastActivity: 0
+                };
+                // save scope
+                t.scopes[scope.key] = scope;
               }
-              break;
+
+              // add connection to scope
+              switch (record._treeLayer) {
+                case 2:
+                  scope.dnsRequest = record
+                  break;
+                case 3:
+                  scope.connections.unshift(record)
+                  break;
+              }
+
+              // update scope's last activity with connection
+              if (record.Started > scope.lastActivity) {
+                scope.lastActivity = record.Started
+              }
+
+              // summarize verdict
+              if (scope.verdictSummary == 0) {
+                // first encounter
+                scope.verdictSummary = record.Verdict
+              } else if (scope.verdictSummary != record.Verdict) {
+                // not the same, set to failed
+                scope.verdictSummary = 1;
+              }
+
+              // mark as handled
+              record._inTree = true;
+
+              // add scope to process
+              if (!scope._process) {
+                // add to process
+                var process = this.op.records[record._processKey];
+                if (process) {
+                  // create scopes
+                  if (!process._scopes) {
+                    process._scopes = [];
+                  }
+                  // link together
+                  process._scopes.unshift(scope)
+                  scope._process = process
+                } else {
+                  console.log(`could not connect ${scope.key} to ${record._processKey}`);
+                  t.unconnectedRecords++;
+                }
+              }
+
+              // mark as in tree if scope is connected
+              if (scope._process) {
+                // update scope's last activity with connection
+                if (scope.lastActivity > scope._process.lastActivity) {
+                  scope._process.lastActivity = scope.lastActivity
+                }
+                
+                // activate process
+                if (!scope._process._active) {
+                  t.activeProcesses.unshift(scope._process);
+                  scope._process._active = true;
+                }
+              }
+            // end switch
           }
         }
       }
 
-      if (this.unconnectedRecords > 0) {
-        console.warn(`${this.unconnectedRecords} records could not be connected.`)
+      // unconnected?
+      if (t.unconnectedRecords > 0) {
+        console.warn(`${t.unconnectedRecords} records could not be connected.`);
       }
 
-      this.sortTreeCache()
-      return this.treeCache;
+      // sort if needed
+      if (changes.deleted > 0) {
+        this.sortTree(t)
+      }
+
+      // silence vue/no-side-effects-in-computed-properties
+      // this really seems to the best way, changes are not picked up when using a watcher
+      // eslint-disable-next-line
+      this.treeCache = t;
+      return t;
     }
   },
   methods: {
-    resetTreeCache() {
-      this.treeCache = [];
-      for (const [key, record] of Object.entries(this.op.records)) {
-        delete record._parent
-        delete record._children
-        delete record._childProcesses
-      }
-    },
-    sortTreeCache() {
-      // order level 1
-      this.treeCache.sort(function(a, b) {
-        return b.LastCommEstablished - a.LastCommEstablished;
-      });
-
-      for (const [key, process] of Object.entries(this.treeCache)) {
-        // order level 2
-        if (process._children) {
-          process._children.sort(function(a, b) {
-            return b.LastLinkEstablished - a.LastLinkEstablished;
+    sortTree(t) {
+      for (const [key, process] of Object.entries(t.activeProcesses)) {
+        for (const [key, scope] of Object.entries(process._scopes)) {
+          // sort connections
+          scope.connections.sort(function(a, b) {
+            return a.Started - b.Started;
           });
+        };
 
-          for (const [key, communication] of Object.entries(process._children)) {
-            // order level 3
-            if (communication._children) {
-              communication._children.sort(function(a, b) {
-                return b.Started - a.Started;
-              });
-            }
-          }
-        }
+        // sort scopes
+        process._scopes.sort(function(a, b) {
+          return a.lastActivity - b.lastActivity;
+        });
 
-        // order level -1
+        // sort child processes
         if (process._childProcesses) {
           process._childProcesses.sort(function(a, b) {
-            return a.Pid - b.Pid;
+            return b.Pid - a.Pid;
           });
         }
-      }
+      };
+
+      // sort processes
+      t.activeProcesses.sort(function(a, b) {
+        return a.lastActivity - b.lastActivity;
+      });
     },
     selectProcess(p) {
       this.selected = 1;
       this.selectedProcess = p;
     },
-    selectCommunication(c) {
+    selectScope(c) {
       this.selected = 2;
-      this.selectedCommunication = c;
+      this.selectedScope = c;
     }
   },
   filters: {
@@ -417,6 +491,17 @@ export default {
 
       var date = new Date(value * 1000);
       return date.toLocaleDateString() + " " + date.toLocaleTimeString();
+    },
+    clean_object(value) {
+      // make copy
+      var copy = {};
+      for (const [key, value] of Object.entries(value)) {
+        // don't copy underline values
+        if (!key.startsWith('_')) {
+          copy[key] = value;
+        }
+      }
+      return copy;
     }
   }
 };
@@ -458,15 +543,15 @@ export default {
   font-weight: bold;
 }
 .process-item,
-.communication-item {
+.scope-item {
   padding: 4px !important;
 }
-.communication-item {
+.scope-item {
   padding-left: 8px !important;
   padding-bottom: 0 !important;
 }
 .process-item:hover,
-.communication-item:hover {
+.scope-item:hover {
   background-color: #eee;
   cursor: pointer;
 }
@@ -495,6 +580,10 @@ export default {
   text-align: center;
   font-family: sans-serif;
   color: #999;
+}
+
+.debugging {
+  margin-top: 200px;
 }
 
 .status {
