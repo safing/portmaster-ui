@@ -50,15 +50,7 @@
               >
                 <div>
                   <Verdict :verdict="scope.verdictSummary"></Verdict>
-                  <span v-if="scope.name == 'IH'" class="scope-name">Incoming from Localhost</span>
-                  <span v-else-if="scope.name == 'IL'" class="scope-name">Incoming from the LAN</span>
-                  <span v-else-if="scope.name == 'II'" class="scope-name">Incoming from the Internet</span>
-                  <span v-else-if="scope.name == 'IX'" class="scope-name">Incoming - Invalid</span>
-                  <span v-else-if="scope.name == 'PH'" class="scope-name">Peers on Localhost</span>
-                  <span v-else-if="scope.name == 'PL'" class="scope-name">Peers on the LAN</span>
-                  <span v-else-if="scope.name == 'PI'" class="scope-name">Peers on the Internet</span>
-                  <span v-else-if="scope.name == 'PX'" class="scope-name">Peers - Invalid</span>
-                  <span v-else class="scope-name">{{ scope.name }}</span>
+                  <span class="scope-name">{{ scope.name | fmtScopeName }}</span>
                   <div class="ui label">
                     <i class="project diagram icon"></i>
                     <div v-if="scope.connections.length > 0" class="detail">
@@ -132,21 +124,12 @@
 
       <div class="debugging">
         <h3>Debugging <small>...left here intentionally, for now.</small></h3>
-        <PRE>{{ selectedProcess | clean_object }}</PRE>
+        <pre>{{ selectedProcess | clean_object }}</pre>
       </div>
     </div>
     <div v-else-if="selected == 2" class="eleven wide column container content-pane">
       <h2>
-        {{ selectedScope._process.Name }} ({{ selectedScope._process.Pid }}) >
-        <span v-if="selectedScope.name == 'IH'">Incoming from Localhost</span>
-        <span v-else-if="selectedScope.name == 'IL'">Incoming from the LAN</span>
-        <span v-else-if="selectedScope.name == 'II'">Incoming from the Internet</span>
-        <span v-else-if="selectedScope.name == 'IX'">Incoming - Invalid</span>
-        <span v-else-if="selectedScope.name == 'PH'">Peers on Localhost</span>
-        <span v-else-if="selectedScope.name == 'PL'">Peers on the LAN</span>
-        <span v-else-if="selectedScope.name == 'PI'">Peers on the Internet</span>
-        <span v-else-if="selectedScope.name == 'PX'">Peers - Invalid</span>
-        <span v-else>{{ selectedScope.name }}</span>
+        {{ selectedScope._process.Name }} ({{ selectedScope._process.Pid }}) > {{ selectedScope.name | fmtScopeName }}
       </h2>
       <div class="ui one column grid">
         <div v-if="selectedScope.dnsRequest" class="column">
@@ -176,7 +159,7 @@
               <tr>
                 <td>Entity</td>
                 <td>
-                  <PRE>{{ selectedScope.dnsRequest.Entity }}</PRE>
+                  <pre>{{ selectedScope.dnsRequest.Entity }}</pre>
                 </td>
               </tr>
             </tbody>
@@ -222,7 +205,7 @@
 
         <div class="debugging">
           <h3>Debugging <small>...left here intentionally, for now.</small></h3>
-          <PRE>{{ selectedScope | clean_object }}</PRE>
+          <pre>{{ selectedScope | clean_object }}</pre>
         </div>
       </div>
     </div>
@@ -265,7 +248,7 @@ export default {
   },
   data() {
     return {
-      op: this.$api.qsub("query network:tree/ where Hidden is false").prepFn("", function(key, obj) {
+      op: this.$api.qsub("query network:tree/ where not Internal is true").prepFn("", function(key, obj) {
         if (!obj._key) {
           obj._key = key;
 
@@ -333,6 +316,7 @@ export default {
       if (changes.deleted > 0) {
         t.activeProcesses = [];
         t.scopes = {};
+        t.unconnectedRecords = 0;
         for (const [key, record] of Object.entries(this.op.records)) {
           delete record._inTree;
           delete record._active;
@@ -341,8 +325,6 @@ export default {
           delete record._childProcesses;
         }
       }
-      // reset informational attributes
-      t.unconnectedRecords = 0;
 
       // add all missing links
       for (const [key, record] of Object.entries(this.op.records)) {
@@ -358,10 +340,8 @@ export default {
                 parentRecord._childProcesses.unshift(record);
                 record._process = parentRecord;
                 record._inTree = true;
-              } else {
-                console.log(`could not connect ${record._key} to ${record._processKey}`);
-                t.unconnectedRecords++;
               }
+              // Do not alert about not being able to connect virtual processes, as they themselves could be a non-matching parent when the Portmaster tries to find the primary process of a connection.
               break;
             case 1:
               // all handling to activeProcesses is done later, when the first connection is added
@@ -426,7 +406,7 @@ export default {
                   process._scopes.unshift(scope);
                   scope._process = process;
                 } else {
-                  console.log(`could not connect ${scope.key} to ${record._processKey}`);
+                  console.log(`could not connect ${record._key} to ${record._processKey}`);
                   t.unconnectedRecords++;
                 }
               }
@@ -519,6 +499,28 @@ export default {
 
       var date = new Date(value * 1000);
       return date.toLocaleDateString() + " " + date.toLocaleTimeString();
+    },
+    fmtScopeName(value) {
+      switch (value) {
+        case "IH":
+          return "Incoming from Localhost";
+        case "IL":
+          return "Incoming from the LAN";
+        case "II":
+          return "Incoming from the Internet";
+        case "IX":
+          return "Incoming - Invalid";
+        case "PH":
+          return "Peers on Localhost";
+        case "PL":
+          return "Peers on the LAN";
+        case "PI":
+          return "Peers on the Internet";
+        case "PX":
+          return "Peers - Invalid";
+        default:
+          return value;
+      }
     },
     clean_object(value) {
       // make copy
