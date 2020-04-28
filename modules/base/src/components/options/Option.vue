@@ -3,54 +3,54 @@
     <div class=" column" style="text-align: left;">
       <h5>
         <span
-          v-if="record.ExpertiseLevel == 1"
+          v-if="option.ExpertiseLevel == 1"
           data-tooltip="Changing this setting may impair or break Portmaster functionality."
           data-position="right center"
         >
           <i class="ui yellow exclamation icon"></i>
         </span>
         <span
-          v-if="record.ExpertiseLevel == 2"
+          v-if="option.ExpertiseLevel == 2"
           data-tooltip="Changing this setting may have a disastrous impact on Portmaster. Only change if you really know what you are doing."
           data-position="right center"
         >
           <i class="ui red radiation icon"></i>
         </span>
-        {{ record.Name }}
+        {{ option.Name }}
         <span
-          v-if="record.RequiresRestart"
+          v-if="option.RequiresRestart"
           data-tooltip="Requires (manually) restarting the Portmaster in order to take effect."
           data-position="right center"
         >
           <i class="ui blue redo icon"></i>
         </span>
         <div
-          v-if="record.ReleaseLevel == 1"
+          v-if="option.ReleaseLevel == 1"
           data-tooltip="This feature/setting is in beta and changing it might not work as expected."
           class="ui yellow tiny label"
         >
           Beta
         </div>
         <div
-          v-if="record.ReleaseLevel == 2"
+          v-if="option.ReleaseLevel == 2"
           data-tooltip="This feature/setting is experimental and changing it might not work as expected or have an unforeseen, potentially disastrous impact."
           class="ui red tiny label"
         >
           Experimental
         </div>
       </h5>
-      {{ record.Description }}
-      <div v-if="record.Help" v-on:click="showHelp = !showHelp" class="ui small button">
+      {{ option.Description }}
+      <div v-if="option.Help" v-on:click="showHelp = !showHelp" class="ui tiny button">
         Input Help
       </div>
       <!-- TODO: replace with interactive version -->
-      <div v-else-if="rKey == 'config:filter/lists'" v-on:click="showHelp = !showHelp" class="ui small button">
+      <div v-else-if="option.Key == 'filter/lists'" v-on:click="showHelp = !showHelp" class="ui tiny button">
         Show Available Filter Lists
       </div>
     </div>
 
-    <div v-bind:class="[activeState() ? 'active' : 'inactive', 'column']">
-      <i v-bind:class="[activeState() ? 'green' : 'grey outline', 'circle icon']"></i>
+    <div v-bind:class="[optionValueActive() ? 'active' : 'inactive', 'column']">
+      <i v-bind:class="[optionValueActive() ? 'green' : 'grey outline', 'circle icon']"></i>
 
       <!-- Status -->
       <span style="width: 10px; margin-right: 10px;">
@@ -64,48 +64,55 @@
       </div>
 
       <OptionBoolean
-        v-if="record.OptType == optTypeBool"
-        :record="record"
+        v-if="option.OptType == optTypeBool"
+        :record="option"
+        :optionValue="optionValue"
         :successState="successState"
         :errorState="errorState"
       ></OptionBoolean>
       <OptionIntSecurityLevel
-        v-else-if="record.ExternalOptType == 'security level'"
-        :record="record"
+        v-else-if="option.ExternalOptType == 'security level'"
+        :record="option"
+        :optionValue="optionValue"
         :successState="successState"
         :errorState="errorState"
       ></OptionIntSecurityLevel>
       <OptionInt
-        v-else-if="record.OptType == optTypeInt"
-        :record="record"
+        v-else-if="option.OptType == optTypeInt"
+        :record="option"
+        :optionValue="optionValue"
         :successState="successState"
         :errorState="errorState"
       ></OptionInt>
       <OptionStringArray
-        v-else-if="record.ExternalOptType == 'endpoint list'"
-        :record="record"
+        v-else-if="option.ExternalOptType == 'endpoint list'"
+        :record="option"
+        :optionValue="optionValue"
         :successState="successState"
         :errorState="errorState"
       ></OptionStringArray>
       <OptionStringArray
-        v-else-if="record.ExternalOptType == 'filter list'"
-        :record="record"
+        v-else-if="option.ExternalOptType == 'filter list'"
+        :record="option"
+        :optionValue="optionValue"
         :successState="successState"
         :errorState="errorState"
       ></OptionStringArray>
       <OptionStringArray
-        v-else-if="record.OptType == optTypeStringArray"
-        :record="record"
+        v-else-if="option.OptType == optTypeStringArray"
+        :record="option"
+        :optionValue="optionValue"
         :successState="successState"
         :errorState="errorState"
       ></OptionStringArray>
       <OptionStringSelect
-        v-else-if="record.ExternalOptType == 'string list'"
-        :record="record"
+        v-else-if="option.ExternalOptType == 'string list'"
+        :record="option"
+        :optionValue="optionValue"
         :successState="successState"
         :errorState="errorState"
       ></OptionStringSelect>
-      <OptionString v-else :record="record" :successState="successState" :errorState="errorState"></OptionString>
+      <OptionString v-else :record="option" :successState="successState" :errorState="errorState"></OptionString>
 
       <div v-if="validationError" class="ui error message">
         <div class="header">Validation failed</div>
@@ -118,38 +125,55 @@
     </div>
 
     <!-- Default Value -->
-    <div v-bind:class="[!activeState() ? 'active' : 'inactive', 'column']">
-      <i v-bind:class="[!activeState() ? 'green' : 'grey outline', 'circle icon']"></i>
+    <div v-bind:class="[optionDefaultActive() ? 'active' : 'inactive', 'column']">
+      <i v-bind:class="[optionDefaultActive() ? 'green' : 'grey outline', 'circle icon']"></i>
 
-      <OptionBoolean v-if="record.OptType == optTypeBool" :record="record" :displayDefault="true"></OptionBoolean>
+      <OptionBoolean
+        v-if="option.OptType == optTypeBool"
+        :record="option"
+        :optionValue="optionDefaultValue"
+        :displayDefault="true"
+      ></OptionBoolean>
       <OptionIntSecurityLevel
-        v-else-if="record.ExternalOptType == 'security level'"
-        :record="record"
+        v-else-if="option.ExternalOptType == 'security level'"
+        :record="option"
+        :optionValue="optionDefaultValue"
         :displayDefault="true"
       ></OptionIntSecurityLevel>
-      <OptionInt v-else-if="record.OptType == optTypeInt" :record="record" :displayDefault="true"></OptionInt>
+      <OptionInt
+        v-else-if="option.OptType == optTypeInt"
+        :record="option"
+        :optionValue="optionDefaultValue"
+        :displayDefault="true"
+      ></OptionInt>
       <OptionStringArray
-        v-else-if="record.OptType == optTypeStringArray"
-        :record="record"
+        v-else-if="option.OptType == optTypeStringArray"
+        :record="option"
+        :optionValue="optionDefaultValue"
         :displayDefault="true"
       ></OptionStringArray>
-      <OptionString v-else :record="record" :displayDefault="true"></OptionString>
+      <OptionString
+        v-else
+        :record="option"
+        :optionValue="optionDefaultValue"
+        :displayDefault="true"
+      ></OptionString>
     </div>
 
     <div v-if="showHelp" class="sixteen wide column">
-      <div v-if="record.Help" class="ui raised segment help-popup">
-        <div class="ui top left attached label">Input Help for {{ record.Name }}</div>
+      <div v-if="option.Help" class="ui raised segment help-popup">
+        <div class="ui top left attached label">Input Help for {{ option.Name }}</div>
         <div v-on:click="showHelp = false" class="ui top right attached label" style="cursor: pointer;">
           <i class="times icon"></i>
         </div>
         <p>
-          {{ record.Help }}
+          {{ option.Help }}
         </p>
       </div>
 
       <!-- TODO: replace with interactive version -->
-      <div v-else-if="rKey == 'config:filter/lists'" class="ui raised segment help-popup">
-        <div class="ui top left attached label">Input Help for {{ record.Name }}</div>
+      <div v-else-if="option.Key == 'filter/lists'" class="ui raised segment help-popup">
+        <div class="ui top left attached label">Input Help for {{ option.Name }}</div>
         <div v-on:click="showHelp = false" class="ui top right attached label" style="cursor: pointer;">
           <i class="times icon"></i>
         </div>
@@ -207,12 +231,13 @@ export default {
     OptionInt
   },
   props: {
-    rKey: String,
-    record: Object
+    option: Object,
+    optionValue: [Boolean, Number, String, Array], // Multiple possible types
+    optionDefaultValue: [Boolean, Number, String, Array] // Multiple possible types
   },
   data() {
     return {
-      newValue: this.record.Value,
+      newValue: this.optionValue,
       validationError: "",
       request: {},
       optTypeString: 1,
@@ -224,7 +249,7 @@ export default {
   },
   computed: {
     successState() {
-return this.request.success;
+      return this.request.success;
     },
     errorState() {
       if (this.validationError !== "") {
@@ -243,11 +268,23 @@ return this.request.success;
     }
   },
   methods: {
-    activeState() {
-      if (this.record.hasOwnProperty("Value") && this.record.Value !== null) {
+    optionValueActive() {
+      // check for always active values
+      switch (this.option.Key) {
+      case "filter/endpoints":
+      case "filter/serviceEndpoints":
         return true;
       }
-      return false;
+      return this.optionValue !== null && this.optionValue !== undefined;
+    },
+    optionDefaultActive() {
+      // check for always active values
+      switch (this.option.Key) {
+      case "filter/endpoints":
+      case "filter/serviceEndpoints":
+        return true;
+      }
+      return !(this.optionValue !== null && this.optionValue !== undefined);
     },
     updateValue(newValue, error) {
       if (error != undefined) {
@@ -256,19 +293,19 @@ return this.request.success;
       }
 
       // regex
-      if (this.record.ValidationRegex != undefined && this.record.ValidationRegex != "") {
-        var re = new RegExp(this.record.ValidationRegex);
+      if (this.option.ValidationRegex != undefined && this.option.ValidationRegex != "") {
+        var re = new RegExp(this.option.ValidationRegex);
 
         switch (typeof newValue) {
           case "string":
             if (!re.test(newValue)) {
-              this.validationError = "validation regex `" + this.record.ValidationRegex + "` failed";
+              this.validationError = "validation regex `" + this.option.ValidationRegex + "` failed";
               return;
             }
             break;
           case "number":
             if (!re.test(String(newValue))) {
-              this.validationError = "validation regex `" + this.record.ValidationRegex + "` failed";
+              this.validationError = "validation regex `" + this.option.ValidationRegex + "` failed";
               return;
             }
             break;
@@ -276,7 +313,7 @@ return this.request.success;
             var vm = this;
             newValue.forEach(function(val) {
               if (!re.test(val)) {
-                vm.validationError = "validation regex `" + vm.record.ValidationRegex + "` failed for value " + val;
+                vm.validationError = "validation regex `" + vm.option.ValidationRegex + "` failed for value " + val;
                 return;
               }
             });
@@ -290,13 +327,10 @@ return this.request.success;
       }
       this.validationError = "";
 
-      var data = {
-        Value: newValue
-      };
-      this.request = this.$api.update(this.rKey, data);
+      this.request = this.$parent.setConfig(this.option.Key, newValue);
     },
     deleteValue() {
-      this.request = this.$api.update(this.rKey, { Value: null });
+      this.request = this.$parent.setConfig(this.option.Key, null);
     },
     resetState() {
       this.validationError = "";
@@ -312,28 +346,11 @@ return this.request.success;
   margin-left: 20px;
 }
 
-.active.column {
-  // background-color: rgb(48, 219, 148);
-  border-radius: 4px;
-  padding: 4px;
-  .status {
-    // color: white;
-  }
-}
-.inactive.column {
-  // background-color: rgb(43, 43, 43);
-  border-radius: 4px;
-  padding: 4px;
-  .status {
-    // color: grey;
-  }
-}
-
 .help-popup {
   margin: 20px !important;
   p {
     text-align: left;
-    white-space: pre-wrap;
+    white-space: pre-wrap; // respect \n
   }
 }
 </style>

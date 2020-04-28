@@ -1,11 +1,17 @@
 <template>
   <div class="settings">
     <OptionsView
-      :configLayers="configLayers"
+      :editColumnName="'Your Setting'"
+      :defaultColumnName="'Default'"
       :configOptions="configOptions"
       :activeReleaseLevel="activeReleaseLevel"
       :activeExpertiseLevel="activeExpertiseLevel"
     />
+
+    <div class="debugging" style="">
+      <h3>Debugging <small>...left here intentionally, for now.</small></h3>
+      <pre>{{ configOptions | fmtObject }}</pre>
+    </div>
   </div>
 </template>
 
@@ -18,9 +24,7 @@ export default {
     OptionsView
   },
   data() {
-    return {
-      configLayers: {}
-    };
+    return {};
   },
   computed: {
     configOptions() {
@@ -35,11 +39,20 @@ export default {
   },
   methods: {
     setConfig(key, value) {
-      // TODO
-      console.log("setting " + key + " to " + value); // eslint-disable-line
+      // FIXME: remove
+      console.log("setting global " + key + " to " + value); // eslint-disable-line
+      // add config: prefix to config key
+      key = "config:" + key
+      // send to Portmaster
+      return this.$api.update(key, {Value: value});
     },
     selectExpertiseLevel(level) {
       this.$parent.selectExpertiseLevel(level);
+    }
+  },
+  filters: {
+    fmtObject(value) {
+      return JSON.stringify(value, null, '    ');
     }
   }
 };
@@ -50,6 +63,10 @@ export default {
 .settings {
   height: 100vh;
   overflow-y: scroll;
-  padding: 10px;
+  padding: 50px;
+}
+
+.debugging {
+  margin-top: 200px;
 }
 </style>

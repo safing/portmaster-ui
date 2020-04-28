@@ -2,14 +2,14 @@
   <span>
     <div class="ui inline form" v-if="displayDefault">
       <div class="field">
-        <textarea rows="2" :value="DefaultValue" readonly></textarea>
+        <textarea rows="2" :value="value" readonly></textarea>
       </div>
     </div>
 
     <div class="ui action input" v-else-if="!editing || successState">
       <div class="ui inline form">
         <div class="field">
-          <textarea rows="2" :value="Value" readonly></textarea>
+          <textarea rows="2" :value="value" readonly></textarea>
         </div>
       </div>
       <button class="ui icon button" v-on:click="startEdit">
@@ -41,22 +41,20 @@ export default {
   name: "OptionStringArray",
   props: {
     record: Object,
+    optionValue: Array,
+    displayDefault: Boolean,
     successState: Boolean,
-    errorState: Boolean,
-    displayDefault: Boolean
+    errorState: Boolean
   },
   data() {
     return {
-      newValue: (this.record.Value || []).join(", "),
+      newValue: this.value,
       editing: false
     };
   },
   computed: {
-    Value() {
-      return (this.record.Value || []).join(", ");
-    },
-    DefaultValue() {
-      return this.record.DefaultValue.join(", ");
+    value() {
+      return (this.optionValue || []).join(", ");
     }
   },
   methods: {

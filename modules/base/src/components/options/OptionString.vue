@@ -1,11 +1,11 @@
 <template>
   <span>
     <div class="ui input" v-if="displayDefault">
-      <input type="text" :value="record.DefaultValue" readonly />
+      <input type="text" :value="optionValue" readonly />
     </div>
 
     <div class="ui action input" v-else-if="!editing || successState">
-      <input type="text" :value="record.Value" readonly />
+      <input type="text" :value="optionValue" readonly />
       <button class="ui icon button" v-on:click="startEdit">
         <i class="edit icon"></i>
       </button>
@@ -31,13 +31,14 @@ export default {
   name: "OptionString",
   props: {
     record: Object,
+    optionValue: String,
+    displayDefault: Boolean,
     successState: Boolean,
-    errorState: Boolean,
-    displayDefault: Boolean
+    errorState: Boolean
   },
   data() {
     return {
-      newValue: this.record.Value,
+      newValue: this.optionValue,
       editing: false
     };
   },
