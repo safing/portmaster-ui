@@ -55,6 +55,9 @@
             </div>
           </div>
         </div>
+
+        <Notifications />
+
       </div>
       <div class="seven wide column">
         <h3>Security Level</h3>
@@ -240,9 +243,13 @@
 </template>
 
 <script>
+import Notifications from "./Notifications.vue";
+
 export default {
   name: "Dashboard",
-  components: {},
+  components: {
+    Notifications
+  },
   data() {
     return {
       controlOp: null,
