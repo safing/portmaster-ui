@@ -42,6 +42,10 @@
                 </span>
                 <span v-else>loading...</span>
               </p>
+
+              <p v-if="!allSubsystemsEnabled" style="opacity: 0.3;">
+                <i class="yellow exclamation triangle icon"></i> There are disabled subsystems.
+              </p>
             </div>
 
             <div class="four wide column" style="padding: 50px;">
@@ -197,6 +201,35 @@
       </div>
     </div>
 
+    <h3>System Control</h3>
+    <div class="ui grid">
+      <div class="sixteen wide column">
+        <div class="dashboard-element ui very basic inverted segment">
+          <div class="ui buttons">
+            <button class="ui inverted basic red button" v-on:click="control('module/core/trigger/shutdown')">Shutdown</button>
+            <button class="ui inverted basic orange button" v-on:click="control('module/core/trigger/restart')">Restart</button>
+            <button class="ui inverted basic blue button" v-on:click="reloadUI()">Reload UI</button>
+            <button class="ui inverted basic blue button" v-on:click="control('module/updates/trigger/trigger update')">Download updates</button>
+          </div>
+          <span v-if="controlOp" style="padding-left: 20px;">
+            <span v-if="controlOp.loading">loading...</span>
+            <span v-else-if="controlOp.success">
+              <span v-if="controlOp.record.Success">
+                <i class="green check circle icon"></i> Success
+                <span v-if="controlOp.record.Message">: {{ controlOp.record.Message }}</span>
+              </span>
+              <span v-else>
+                <i class="red times circle icon"></i> Control Error: {{ controlOp.record.Message }}
+              </span>
+            </span>
+            <span v-else>
+              <i class="red times circle icon"></i> Communication Error: {{ controlOp.error }}
+            </span>
+          </span>
+        </div>
+      </div>
+    </div>
+
     <div class="coming-soon ui grid middle aligned">
       <div class="sixteen wide column">
         <h1>Work in Progress</h1>
@@ -212,6 +245,7 @@ export default {
   components: {},
   data() {
     return {
+      controlOp: null,
       StatusDead: 0, // not prepared, not started
       StatusPreparing: 1,
       StatusOffline: 2, // prepared, not started
@@ -230,7 +264,7 @@ export default {
     },
     subsystems() {
       var all = [];
-      for (const [key, record] of Object.entries(this.$parent.statusDB.records)) {
+      for (var [key, record] of Object.entries(this.$parent.statusDB.records)) {
         if (key.startsWith("core:status/subsystems/")) {
           all.push(record);
         }
@@ -245,6 +279,14 @@ export default {
         }
       }
       return worstStatus;
+    },
+    allSubsystemsEnabled() {
+      for (var subsystem of this.subsystems) {
+        if (!subsystem.Modules[0].Enabled) {
+          return false;
+        }
+      }
+      return true;
     }
   },
   methods: {
@@ -278,7 +320,24 @@ export default {
               return "green";
           }
       }
+    },
+    control(value) {
+      this.controlOp = this.$api.get("control:" + value);
+    },
+    reloadUI() {
+      this.beforeOnUnload();
+      // add an extra second, in case waiting is broken on a client
+      setTimeout(function(){
+        location.reload();
+      }, 1000);
+    },
+    beforeOnUnload() {
+      this.controlOp = this.$api.get("control:module/ui/trigger/reload");
+      this.controlOp.wait();
     }
+  },
+  beforeMount() {
+    window.addEventListener("beforeunload", this.beforeOnUnload)
   }
 };
 </script>
@@ -327,6 +386,7 @@ export default {
   .module-msg {
     margin-top: 28px;
     color: #000;
+    white-space: pre-wrap; // respect \n
   }
 }
 .module-item.segment {
