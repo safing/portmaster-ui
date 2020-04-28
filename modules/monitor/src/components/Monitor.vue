@@ -124,7 +124,7 @@
 
       <div class="debugging">
         <h3>Debugging <small>...left here intentionally, for now.</small></h3>
-        <pre>{{ selectedProcess | clean_object }}</pre>
+        <pre>{{ selectedProcess | cleanObject | fmtObject }}</pre>
       </div>
     </div>
     <div v-else-if="selected == 2" class="eleven wide column container content-pane">
@@ -205,7 +205,7 @@
 
         <div class="debugging">
           <h3>Debugging <small>...left here intentionally, for now.</small></h3>
-          <pre>{{ selectedScope | clean_object }}</pre>
+          <pre>{{ selectedScope | cleanObject | fmtObject }}</pre>
         </div>
       </div>
     </div>
@@ -522,7 +522,7 @@ export default {
           return value;
       }
     },
-    clean_object(value) {
+    cleanObject(value) {
       // make copy
       var copy = {};
       for (const [key, value] of Object.entries(value)) {
@@ -532,6 +532,9 @@ export default {
         }
       }
       return copy;
+    },
+    fmtObject(value) {
+      return JSON.stringify(value, null, '    ');
     }
   }
 };
