@@ -71,22 +71,22 @@ func onReady() {
 		SelectSecurityLevel(0)
 	})
 
-	menuItemLevelDynamic := systray.AddMenuItem("Level Dynamic", "")
-	go clickListener(menuItemLevelDynamic, func() {
-		SelectSecurityLevel(SecurityLevelDynamic)
+	menuItemLevelNormal := systray.AddMenuItem("Level Dynamic", "")
+	go clickListener(menuItemLevelNormal, func() {
+		SelectSecurityLevel(SecurityLevelNormal)
 	})
 
-	menuItemLevelSecure := systray.AddMenuItem("Level Secure", "")
-	go clickListener(menuItemLevelSecure, func() {
-		SelectSecurityLevel(SecurityLevelSecure)
+	menuItemLevelHigh := systray.AddMenuItem("Level Secure", "")
+	go clickListener(menuItemLevelHigh, func() {
+		SelectSecurityLevel(SecurityLevelHigh)
 	})
 
-	menuItemLevelFortess := systray.AddMenuItem("Level Fortess", "")
-	go clickListener(menuItemLevelFortess, func() {
-		SelectSecurityLevel(SecurityLevelFortress)
+	menuItemLevelExtreme := systray.AddMenuItem("Level Fortess", "")
+	go clickListener(menuItemLevelExtreme, func() {
+		SelectSecurityLevel(SecurityLevelExtreme)
 	})
 
-	menuLevelItems = [4]*systray.MenuItem{menuItemAutopilot, menuItemLevelDynamic, menuItemLevelSecure, menuItemLevelFortess}
+	menuLevelItems = [4]*systray.MenuItem{menuItemAutopilot, menuItemLevelNormal, menuItemLevelHigh, menuItemLevelExtreme}
 
 	// menu: threat info
 	systray.AddSeparator()
