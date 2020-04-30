@@ -7,8 +7,8 @@ import (
 
 // Notification types
 const (
-	Info    uint8 = 0
-	Warning uint8 = 1
+	Info    uint8 = 0 //nolint:deadcode
+	Warning uint8 = 1 //nolint:deadcode
 	Prompt  uint8 = 2
 )
 

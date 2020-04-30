@@ -57,7 +57,10 @@ func onReady() {
 				log.Warningf("failed to start app: %s", err)
 				return
 			}
-			cmd.Process.Release()
+			err = cmd.Process.Release()
+			if err != nil {
+				log.Warningf("failed to release app process: %s", err)
+			}
 		})
 		systray.AddSeparator()
 	}
