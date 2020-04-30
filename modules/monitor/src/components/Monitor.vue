@@ -49,7 +49,9 @@
                 class="column scope-item"
               >
                 <div>
-                  <Verdict :verdict="scope.verdictSummary"></Verdict>
+                  <Verdict v-if="scope.connections.length > 0" :verdict="scope.verdictSummary"></Verdict>
+                  <Verdict v-else-if="scope.dnsRequest" :verdict="scope.dnsRequest.Verdict"></Verdict>
+                  <Verdict v-else :verdict="0"></Verdict>
                   <span class="scope-name">{{ scope.name | fmtScopeName }}</span>
                   <div class="ui label">
                     <i class="project diagram icon"></i>
@@ -381,13 +383,15 @@ export default {
                 scope.lastActivity = record.Started;
               }
 
-              // summarize verdict
-              if (scope.verdictSummary == 0) {
-                // first encounter
-                scope.verdictSummary = record.Verdict;
-              } else if (scope.verdictSummary != record.Verdict) {
-                // not the same, set to failed
-                scope.verdictSummary = 1;
+              // summarize connection verdict
+              if (record._treeLayer == 3) {
+                if (scope.verdictSummary == 0) {
+                    // first encounter
+                  scope.verdictSummary = record.Verdict;
+                } else if (scope.verdictSummary != record.Verdict) {
+                  // not the same, set to failed
+                  scope.verdictSummary = 1;
+                }
               }
 
               // mark as handled
