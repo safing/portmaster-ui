@@ -19,10 +19,10 @@ import (
 )
 
 var (
-	notifierPath         string
-	notifierPathMutex    sync.Mutex
-	logoLocation         string // no locking done since only written in init()
-	notificationsEnabled bool   // Are Notifications even enabled? (not on Windows Versions < 8); no locking done since only written in init()
+	notifierPath                  string
+	notifierPathMutex             sync.Mutex
+	logoLocation                  string // no locking done since only written in init()
+	notificationsEnabledForThisOS bool   // Are Notifications even enabled? (not on Windows Versions < 8); no locking done since only written in init()
 )
 
 const (
@@ -47,10 +47,10 @@ func init() {
 		logoLocation = filepath.Join(os.TempDir(), "Portmaster", "logo-310x310.png")
 	}
 
-	notificationsEnabled, err = osdetail.IsAtLeastWindowsVersion("8")
+	notificationsEnabledForThisOS, err = osdetail.IsAtLeastWindowsVersion("8")
 	if err != nil {
 		log.Errorf("failed to obtain and compare Windows-Version: %s", err)
-		notificationsEnabled = true
+		notificationsEnabledForThisOS = true
 	}
 }
 
@@ -66,7 +66,7 @@ func actionListener() {
 func (n *Notification) Show() {
 	log.Debugf("showing notification: %+v", n)
 
-	if !notificationsEnabled {
+	if !notificationsEnabledForThisOS {
 		log.Warningf("showing notifications is not implemented on Windows Versions < 8.")
 		return
 	}
@@ -106,7 +106,7 @@ func (n *Notification) Show() {
 
 // Cancel cancels the notification.
 func (n *Notification) Cancel() {
-	if n == nil || n.GUID == "" || !notificationsEnabled {
+	if n == nil || n.GUID == "" || !notificationsEnabledForThisOS {
 		return
 	}
 
