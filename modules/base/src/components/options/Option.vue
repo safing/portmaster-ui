@@ -206,6 +206,12 @@
           not categorized, or lists <br />have mixed categories. See individual descriptions for more information.<br />
           <strong>NSFW</strong>: NSFW<br />
           Services that are generally not accepted in work environments.<br />
+          <span style="margin-left: 20px;"></span><strong>PORN</strong>: Pornography<br />
+          <span style="margin-left: 20px;"></span>Services that provide pornographic content.<br />
+          <span style="margin-left: 20px;"></span><strong>VIOL</strong>: Violence<br />
+          <span style="margin-left: 20px;"></span>Services that provide graphic depictions of violence. May include things like gore, fighting, or weapons.<br />
+          <span style="margin-left: 20px;"></span><strong>GAMBL</strong>: Gambling<br />
+          <span style="margin-left: 20px;"></span>Services that provide pornographic content in addition to other content that is safe for work.<br />
         </p>
       </div>
     </div>
