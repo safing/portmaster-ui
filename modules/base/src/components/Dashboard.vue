@@ -44,7 +44,7 @@
               </p>
 
               <p v-if="!allSubsystemsEnabled" style="opacity: 0.3;">
-                <i class="yellow exclamation triangle icon"></i> There are disabled subsystems.
+                <i class="yellow exclamation triangle icon"></i> Some subsystems are disabled.
               </p>
             </div>
 
