@@ -301,7 +301,6 @@ export default {
       this.$api.update("core:status/status", {
         SelectedSecurityLevel: level
       });
-      // console.log(`selecting new security level: ${level}`)
     },
     moduleStatusColor(moduleStatus) {
       switch (moduleStatus.FailureStatus) {

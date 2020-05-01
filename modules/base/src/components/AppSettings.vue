@@ -142,16 +142,14 @@ export default {
       this.selectedProfileKey = key;
     },
     setConfig(key, value) {
-      // FIXME: remove
-      console.log("setting profile " + key + " to " + value); // eslint-disable-line
+      // console.log("setting profile " + key + " to " + value); // eslint-disable-line
       // add to config
       if (!this.selectedProfile.Config) {
         this.selectedProfile.Config = {};
       }
       this.addToConfig(key, value);
-      console.log("new profile config:"); // eslint-disable-line
-      console.log(this.selectedProfile.Config); // eslint-disable-line
-      console.log(JSON.stringify(this.selectedProfile.Config)); // eslint-disable-line
+      // console.log("new profile config:"); // eslint-disable-line
+      // console.log(this.selectedProfile.Config); // eslint-disable-line
       // send to Portmaster
       return this.$api.update(this.selectedProfile.dbKey, this.selectedProfile);
     },

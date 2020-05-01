@@ -39,8 +39,7 @@ export default {
   },
   methods: {
     setConfig(key, value) {
-      // FIXME: remove
-      console.log("setting global " + key + " to " + value); // eslint-disable-line
+      // console.log("setting global " + key + " to " + value); // eslint-disable-line
       // add config: prefix to config key
       key = "config:" + key
       // send to Portmaster
