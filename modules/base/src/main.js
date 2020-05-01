@@ -20,11 +20,11 @@ Vue.use(PortAPI, {
 // handle URLs via OS
 function handleClick(e) {
   var target = e.target || e.srcElement;
-  if (target.tagName === 'A') {
+  if (target.tagName === "A") {
     // do not navigate
     e.preventDefault();
     // open with OS
-    var href = target.getAttribute('href');
+    var href = target.getAttribute("href");
     if (typeof openWithOS !== 'undefined') { // eslint-disable-line
       openWithOS(href); // eslint-disable-line
     } else {
@@ -34,9 +34,9 @@ function handleClick(e) {
 }
 // listen for clicks
 if (document.addEventListener) {
-  document.addEventListener('click', handleClick);
+  document.addEventListener("click", handleClick);
 } else if (document.attachEvent) {
-  document.attachEvent('onclick', handleClick);
+  document.attachEvent("onclick", handleClick);
 }
 
 // render app

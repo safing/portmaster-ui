@@ -57,7 +57,6 @@
         </div>
 
         <Notifications />
-
       </div>
       <div class="seven wide column">
         <h3>Security Level</h3>
@@ -209,10 +208,16 @@
       <div class="sixteen wide column">
         <div class="dashboard-element ui very basic inverted segment">
           <div class="ui buttons">
-            <button class="ui inverted basic red button" v-on:click="control('module/core/trigger/shutdown')">Shutdown</button>
-            <button class="ui inverted basic orange button" v-on:click="control('module/core/trigger/restart')">Restart</button>
+            <button class="ui inverted basic red button" v-on:click="control('module/core/trigger/shutdown')">
+              Shutdown
+            </button>
+            <button class="ui inverted basic orange button" v-on:click="control('module/core/trigger/restart')">
+              Restart
+            </button>
             <button class="ui inverted basic blue button" v-on:click="reloadUI()">Reload UI</button>
-            <button class="ui inverted basic blue button" v-on:click="control('module/updates/trigger/trigger update')">Download updates</button>
+            <button class="ui inverted basic blue button" v-on:click="control('module/updates/trigger/trigger update')">
+              Download updates
+            </button>
           </div>
           <span v-if="controlOp" style="padding-left: 20px;">
             <span v-if="controlOp.loading">loading...</span>
@@ -221,13 +226,9 @@
                 <i class="green check circle icon"></i> Success
                 <span v-if="controlOp.record.Message">: {{ controlOp.record.Message }}</span>
               </span>
-              <span v-else>
-                <i class="red times circle icon"></i> Control Error: {{ controlOp.record.Message }}
-              </span>
+              <span v-else> <i class="red times circle icon"></i> Control Error: {{ controlOp.record.Message }} </span>
             </span>
-            <span v-else>
-              <i class="red times circle icon"></i> Communication Error: {{ controlOp.error }}
-            </span>
+            <span v-else> <i class="red times circle icon"></i> Communication Error: {{ controlOp.error }} </span>
           </span>
         </div>
       </div>
@@ -333,7 +334,7 @@ export default {
     reloadUI() {
       this.beforeOnUnload();
       // add an extra second, in case waiting is broken on a client
-      setTimeout(function(){
+      setTimeout(function() {
         location.reload();
       }, 1000);
     },
@@ -343,7 +344,7 @@ export default {
     }
   },
   beforeMount() {
-    window.addEventListener("beforeunload", this.beforeOnUnload)
+    window.addEventListener("beforeunload", this.beforeOnUnload);
   }
 };
 </script>

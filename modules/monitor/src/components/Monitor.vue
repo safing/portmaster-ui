@@ -386,7 +386,7 @@ export default {
               // summarize connection verdict
               if (record._treeLayer == 3) {
                 if (scope.verdictSummary == 0) {
-                    // first encounter
+                  // first encounter
                   scope.verdictSummary = record.Verdict;
                 } else if (scope.verdictSummary != record.Verdict) {
                   // not the same, set to failed
@@ -538,7 +538,7 @@ export default {
       return copy;
     },
     fmtObject(value) {
-      return JSON.stringify(value, null, '    ');
+      return JSON.stringify(value, null, "    ");
     }
   }
 };

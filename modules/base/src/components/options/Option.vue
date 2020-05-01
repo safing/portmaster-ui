@@ -152,12 +152,7 @@
         :optionValue="optionDefaultValue"
         :displayDefault="true"
       ></OptionStringArray>
-      <OptionString
-        v-else
-        :record="option"
-        :optionValue="optionDefaultValue"
-        :displayDefault="true"
-      ></OptionString>
+      <OptionString v-else :record="option" :optionValue="optionDefaultValue" :displayDefault="true"></OptionString>
     </div>
 
     <div v-if="showHelp" class="sixteen wide column">
@@ -209,9 +204,11 @@
           <span style="margin-left: 20px;"></span><strong>PORN</strong>: Pornography<br />
           <span style="margin-left: 20px;"></span>Services that provide pornographic content.<br />
           <span style="margin-left: 20px;"></span><strong>VIOL</strong>: Violence<br />
-          <span style="margin-left: 20px;"></span>Services that provide graphic depictions of violence. May include things like gore, fighting, or weapons.<br />
+          <span style="margin-left: 20px;"></span>Services that provide graphic depictions of violence. May include
+          things like gore, fighting, or weapons.<br />
           <span style="margin-left: 20px;"></span><strong>GAMBL</strong>: Gambling<br />
-          <span style="margin-left: 20px;"></span>Services that provide pornographic content in addition to other content that is safe for work.<br />
+          <span style="margin-left: 20px;"></span>Services that provide pornographic content in addition to other
+          content that is safe for work.<br />
         </p>
       </div>
     </div>
@@ -277,18 +274,18 @@ export default {
     optionValueActive() {
       // check for always active values
       switch (this.option.Key) {
-      case "filter/endpoints":
-      case "filter/serviceEndpoints":
-        return true;
+        case "filter/endpoints":
+        case "filter/serviceEndpoints":
+          return true;
       }
       return this.optionValue !== null && this.optionValue !== undefined;
     },
     optionDefaultActive() {
       // check for always active values
       switch (this.option.Key) {
-      case "filter/endpoints":
-      case "filter/serviceEndpoints":
-        return true;
+        case "filter/endpoints":
+        case "filter/serviceEndpoints":
+          return true;
       }
       return !(this.optionValue !== null && this.optionValue !== undefined);
     },

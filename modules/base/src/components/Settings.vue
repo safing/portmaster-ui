@@ -41,9 +41,9 @@ export default {
     setConfig(key, value) {
       // console.log("setting global " + key + " to " + value); // eslint-disable-line
       // add config: prefix to config key
-      key = "config:" + key
+      key = "config:" + key;
       // send to Portmaster
-      return this.$api.update(key, {Value: value});
+      return this.$api.update(key, { Value: value });
     },
     selectExpertiseLevel(level) {
       this.$parent.selectExpertiseLevel(level);
@@ -51,7 +51,7 @@ export default {
   },
   filters: {
     fmtObject(value) {
-      return JSON.stringify(value, null, '    ');
+      return JSON.stringify(value, null, "    ");
     }
   }
 };

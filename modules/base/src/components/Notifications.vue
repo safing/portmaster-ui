@@ -1,14 +1,7 @@
 <template>
   <div class="notifications">
-
-    <div
-      v-if="notifications.length > 0"
-      class="ui segments"
-    >
-      <div
-        v-for="n in notifications" :key="n.ID"
-        :class="['ui inverted segment', notificationClass(n.Type)]"
-      >
+    <div v-if="notifications.length > 0" class="ui segments">
+      <div v-for="n in notifications" :key="n.ID" :class="['ui inverted segment', notificationClass(n.Type)]">
         <p>
           {{ n.Message }}
         </p>
@@ -17,7 +10,11 @@
             v-for="action in n.AvailableActions"
             :key="n.ID + ':' + action.ID"
             v-on:click="selectAction(n, action.ID)"
-            :class="['ui inverted button', notificationColorClass(n.Type), action.ID != n.SelectedActionID ? 'basic' : '']"
+            :class="[
+              'ui inverted button',
+              notificationColorClass(n.Type),
+              action.ID != n.SelectedActionID ? 'basic' : ''
+            ]"
           >
             {{ action.Text }}
           </button>
@@ -25,10 +22,7 @@
       </div>
     </div>
 
-    <p v-else class="placeholder">
-      <i class="envelope outline icon"></i> No notifications.
-    </p>
-
+    <p v-else class="placeholder"><i class="envelope outline icon"></i> No notifications.</p>
   </div>
 </template>
 
@@ -38,9 +32,9 @@ export default {
   components: {},
   data() {
     return {
-        notifDB: this.$api.qsub("query notifications").prepFn("", function(key, obj) {
-          obj.dbKey = key;
-        })
+      notifDB: this.$api.qsub("query notifications").prepFn("", function(key, obj) {
+        obj.dbKey = key;
+      })
     };
   },
   computed: {
@@ -66,25 +60,24 @@ export default {
     },
     notificationClass(nType) {
       switch (nType) {
-      case 0: // Info
-        return "notif-info"
-	    case 1: // Warning
-        return "notif-warning"
-	    case 2: // Prompt
-        return "notif-prompt"
+        case 0: // Info
+          return "notif-info";
+        case 1: // Warning
+          return "notif-warning";
+        case 2: // Prompt
+          return "notif-prompt";
       }
     },
     notificationColorClass(nType) {
       switch (nType) {
-      case 0: // Info
-        return "teal"
-	    case 1: // Warning
-        return "yellow"
-	    case 2: // Prompt
-        return "blue"
+        case 0: // Info
+          return "teal";
+        case 1: // Warning
+          return "yellow";
+        case 2: // Prompt
+          return "blue";
       }
     }
-
   }
 };
 </script>
@@ -97,7 +90,7 @@ export default {
 .placeholder {
   padding: 20px;
   text-align: center;
-  color: #FFF6;
+  color: #fff6;
 }
 
 .notif-info {

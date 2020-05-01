@@ -8,62 +8,80 @@
       <p v-if="profileDB.loading">
         loading...
       </p>
-      <div v-else-if="profileDB.error">
-        error: {{ profileDB.error }}
-      </div>
+      <div v-else-if="profileDB.error">error: {{ profileDB.error }}</div>
 
       <div v-else class="list-pane">
         <div class="ui relaxed divided selection list">
-          <div v-for="profile in profiles" v-bind:key="profile.dbKey" v-on:click="selectProfile(profile.dbKey)" v-bind:class="[{'active': selectedProfileKey == profile.dbKey}, 'item']">
+          <div
+            v-for="profile in profiles"
+            v-bind:key="profile.dbKey"
+            v-on:click="selectProfile(profile.dbKey)"
+            v-bind:class="[{ active: selectedProfileKey == profile.dbKey }, 'item']"
+          >
             <i class="large question circle outline middle aligned icon"></i>
             <div class="content">
               <div class="header">{{ profile.Name }}</div>
               <div class="description">
                 Approx. last used:<br />
-                {{ profile.ApproxLastUsed|fmtDatetime }}
+                {{ profile.ApproxLastUsed | fmtDatetime }}
               </div>
             </div>
           </div>
         </div>
       </div>
-
     </div>
     <!-- END OF SIDEBAR -->
 
     <!-- CONTENT SPACE -->
     <div v-if="selectedProfileKey" class="thirteen wide column container content-pane">
-
       <h2>
         {{ selectedProfile.Name }}
       </h2>
-          <table class="ui celled table">
-            <tbody>
-              <tr><td>ID</td><td>{{ selectedProfile.ID }}</td></tr>
-              <tr><td>Source</td><td>{{ selectedProfile.Source }}</td></tr>
-              <tr><td>Name</td><td>{{ selectedProfile.Name }}</td></tr>
-              <tr><td>Linked Path</td><td>{{ selectedProfile.LinkedPath }}</td></tr>
-              <tr><td>ApproxLastUsed</td><td>{{ selectedProfile.ApproxLastUsed | fmtDatetime }}</td></tr>
-              <tr><td>Created</td><td>{{ selectedProfile.Created | fmtDatetime }}</td></tr>
-            </tbody>
-          </table>
+      <table class="ui celled table">
+        <tbody>
+          <tr>
+            <td>ID</td>
+            <td>{{ selectedProfile.ID }}</td>
+          </tr>
+          <tr>
+            <td>Source</td>
+            <td>{{ selectedProfile.Source }}</td>
+          </tr>
+          <tr>
+            <td>Name</td>
+            <td>{{ selectedProfile.Name }}</td>
+          </tr>
+          <tr>
+            <td>Linked Path</td>
+            <td>{{ selectedProfile.LinkedPath }}</td>
+          </tr>
+          <tr>
+            <td>ApproxLastUsed</td>
+            <td>{{ selectedProfile.ApproxLastUsed | fmtDatetime }}</td>
+          </tr>
+          <tr>
+            <td>Created</td>
+            <td>{{ selectedProfile.Created | fmtDatetime }}</td>
+          </tr>
+        </tbody>
+      </table>
 
-          <div class="ui segment">
-            <OptionsView
-              :editColumnName="'App Setting'"
-              :defaultColumnName="'Global Setting'"
-              :configLayer="selectedProfile.Config"
-              :configLayerID="selectedProfile.ID"
-              :configOptions="configOptions"
-              :activeReleaseLevel="activeReleaseLevel"
-              :activeExpertiseLevel="activeExpertiseLevel"
-            />
-          </div>
+      <div class="ui segment">
+        <OptionsView
+          :editColumnName="'App Setting'"
+          :defaultColumnName="'Global Setting'"
+          :configLayer="selectedProfile.Config"
+          :configLayerID="selectedProfile.ID"
+          :configOptions="configOptions"
+          :activeReleaseLevel="activeReleaseLevel"
+          :activeExpertiseLevel="activeExpertiseLevel"
+        />
+      </div>
 
-        <div class="debugging">
-          <h3>Debugging <small>...left here intentionally, for now.</small></h3>
-          <pre>{{ selectedProfile | fmtObject }}</pre>
-        </div>
-
+      <div class="debugging">
+        <h3>Debugging <small>...left here intentionally, for now.</small></h3>
+        <pre>{{ selectedProfile | fmtObject }}</pre>
+      </div>
     </div>
     <!-- END OF CONTENT SPACE -->
 
@@ -76,9 +94,7 @@
         </div>
       </div>
     </div>
-
   </div>
-
 </template>
 
 <script>
@@ -91,11 +107,9 @@ export default {
   },
   data() {
     return {
-      profileDB: this.$api
-        .qsub("query core:profiles/")
-        .prepFn("", function(key, obj) {
-          obj.dbKey = key;
-        }),
+      profileDB: this.$api.qsub("query core:profiles/").prepFn("", function(key, obj) {
+        obj.dbKey = key;
+      }),
       selectedProfileKey: null
     };
   },
@@ -154,26 +168,26 @@ export default {
       return this.$api.update(this.selectedProfile.dbKey, this.selectedProfile);
     },
     addToConfig(key, value) {
-        // create root object if not exists
-        if (!this.selectedProfile.Config) {
-          this.selectedProfile.Config = {};
+      // create root object if not exists
+      if (!this.selectedProfile.Config) {
+        this.selectedProfile.Config = {};
+      }
+      // find child object
+      var path = key.split("/");
+      var config = this.selectedProfile.Config;
+      for (var i = 0; i < path.length - 1; i++) {
+        var pathElement = path[i];
+        if (!config[pathElement]) {
+          config[pathElement] = {};
         }
-        // find child object
-        var path = key.split("/");
-        var config = this.selectedProfile.Config;
-        for (var i = 0; i < path.length-1; i++) {
-          var pathElement = path[i];
-          if (!config[pathElement]) {
-            config[pathElement] = {};
-          }
-          config = config[pathElement];
-        }
-        // set to last element
-        if (value) {
-          config[path[path.length-1]] = value;
-        } else {
-          delete config[path[path.length-1]];
-        }
+        config = config[pathElement];
+      }
+      // set to last element
+      if (value) {
+        config[path[path.length - 1]] = value;
+      } else {
+        delete config[path[path.length - 1]];
+      }
     },
     selectExpertiseLevel(level) {
       this.$parent.selectExpertiseLevel(level);
@@ -192,7 +206,7 @@ export default {
           rootMap[subbedKey] = entry;
         }
       }
-    },
+    }
   },
   filters: {
     fmtDatetime(value) {
@@ -204,7 +218,7 @@ export default {
       return date.toLocaleDateString() + " " + date.toLocaleTimeString();
     },
     fmtObject(value) {
-      return JSON.stringify(value, null, '    ');
+      return JSON.stringify(value, null, "    ");
     }
   }
 };
