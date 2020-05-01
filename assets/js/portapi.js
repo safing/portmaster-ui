@@ -120,12 +120,11 @@ class Operation {
     await this.newWaitPromise();
   }
   newWaitPromise() {
-    var that = this;
     return new Promise((resolve, reject) => {
       // create function to check if loading has finished
       var checkIfFinishedLoading = null;
-      checkIfFinishedLoading = function() {
-        if (that.loading) {
+      checkIfFinishedLoading = () => {
+        if (this.loading) {
           // check again later
           setTimeout(checkIfFinishedLoading, 10);
           return;
