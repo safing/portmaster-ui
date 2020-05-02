@@ -1,13 +1,13 @@
 <template>
   <span>
     <div class="ui toggle checkbox no-input" v-if="displayDefault">
-      <input tabindex="0" class="hidden" type="checkbox" v-model="record.DefaultValue" />
+      <input tabindex="0" class="hidden" type="checkbox" v-model="optionValue" />
       <label>{{ record.Name }}</label>
     </div>
 
     <div v-else-if="!editing || successState">
       <div class="ui toggle checkbox no-input">
-        <input tabindex="0" class="hidden" type="checkbox" v-model="record.Value" />
+        <input tabindex="0" class="hidden" type="checkbox" v-model="optionValue" />
         <label>{{ record.Name }}</label>
       </div>
 
@@ -44,13 +44,14 @@ export default {
   name: "OptionBoolean",
   props: {
     record: Object,
+    optionValue: Boolean,
+    displayDefault: Boolean,
     successState: Boolean,
-    errorState: Boolean,
-    displayDefault: Boolean
+    errorState: Boolean
   },
   data() {
     return {
-      newValue: this.record.Value,
+      newValue: this.optionValue,
       editing: false
     };
   },

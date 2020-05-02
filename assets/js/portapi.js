@@ -48,22 +48,28 @@ class Operation {
       // single object
       this.record = obj;
       this.prepRecord(key, this.record);
+      this.changes.created++;
+      this.success = true;
+      this.loading = false;
     } else {
       // query: many objects
       if (created) {
         // set new
         Vue.set(this.records, key, obj);
         this.prepRecord(key, obj);
+        this.changes.created++;
       } else {
         // update existing
         var existing = this.records[key];
         if (existing) {
           Object.assign(existing, obj);
           this.prepRecord(key, existing);
+          this.changes.updated++;
         } else {
           // if not exists, set new
           Vue.set(this.records, key, obj);
           this.prepRecord(key, obj);
+          this.changes.created++;
         }
       }
     }
@@ -81,6 +87,7 @@ class Operation {
       }
       Vue.delete(this.records, key);
     }
+    this.changes.deleted++;
   }
   parseObject(key, data) {
     if (data[0] == "J") {
@@ -98,8 +105,6 @@ class Operation {
     for (const [key, value] of Object.entries(obj)) {
       if (key.charAt(0) != key.charAt(0).toUpperCase()) {
         delete obj[key]
-      } else if (value instanceof Object) {
-        this.cleanLowerCase(value)
       }
     }
   }
@@ -110,6 +115,25 @@ class Operation {
     this.cleanLowerCase(sub)
     // return
     return sub
+  }
+  async wait() {
+    await this.newWaitPromise();
+  }
+  newWaitPromise() {
+    return new Promise((resolve, reject) => {
+      // create function to check if loading has finished
+      var checkIfFinishedLoading = null;
+      checkIfFinishedLoading = () => {
+        if (this.loading) {
+          // check again later
+          setTimeout(checkIfFinishedLoading, 10);
+          return;
+        }
+        resolve();
+      }
+      // kick off
+      setTimeout(checkIfFinishedLoading, 10);
+    });
   }
 }
 
@@ -278,7 +302,6 @@ function install(vue, options) {
               console.warn("received invalid message: " + msg);
               break;
             }
-            op.changes.created++;
             op.updateRecord(splitted[2], splitted[3], true)
             console.log(opID + ": ok " + splitted[2]);
             break;
@@ -302,7 +325,6 @@ function install(vue, options) {
               console.warn("received invalid message: " + msg);
               break;
             }
-            op.changes.updated++;
             op.updateRecord(splitted[2], splitted[3], false)
             console.log(opID + ": update " + splitted[2]);
             break;
@@ -312,7 +334,6 @@ function install(vue, options) {
               console.warn("received invalid message: " + msg);
               break;
             }
-            op.changes.created++;
             op.updateRecord(splitted[2], splitted[3], true)
             console.log(opID + ": new " + splitted[2]);
             break;
@@ -322,7 +343,6 @@ function install(vue, options) {
               console.warn("received invalid message: " + msg);
               break;
             }
-            op.changes.deleted++;
             op.deleteRecord(splitted[2])
             console.log(opID + ": delete " + splitted[2]);
             break;

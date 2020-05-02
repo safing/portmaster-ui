@@ -9,10 +9,10 @@ import (
 	"os/signal"
 	"syscall"
 
-	"github.com/safing/portbase/modules"
-
 	"github.com/safing/portbase/info"
 	"github.com/safing/portbase/log"
+	"github.com/safing/portbase/modules"
+
 	"github.com/zserge/webview"
 )
 
@@ -20,6 +20,7 @@ var (
 	dataDir     string
 	databaseDir string
 	urlFlag     string
+	showVersion bool
 
 	url = "http://127.0.0.1:817/"
 )
@@ -27,6 +28,7 @@ var (
 func init() {
 	flag.StringVar(&dataDir, "data", "", "set data directory")
 	flag.StringVar(&databaseDir, "db", "", "alias to --data (deprecated)")
+	flag.BoolVar(&showVersion, "version", false, "show version and exit")
 }
 
 func main() {
@@ -34,7 +36,7 @@ func main() {
 	flag.Parse()
 
 	// set meta info
-	info.Set("Portmaster App", "0.1.7", "GPLv3", false)
+	info.Set("Portmaster App", "0.1.8", "GPLv3", false)
 
 	// check if meta info is ok
 	err := info.CheckVersion()
@@ -50,7 +52,8 @@ func main() {
 	}
 
 	// print version
-	if info.PrintVersion() {
+	if showVersion {
+		fmt.Println(info.FullVersion())
 		os.Exit(0)
 	}
 
@@ -74,34 +77,34 @@ func main() {
 	}
 
 	// start log writer
-	log.Start()
-
-	// configure
-	settings := webview.Settings{
-		// WebView main window title
-		Title: "Portmaster",
-		// URL to open in a webview
-		URL: url,
-		// Window width in pixels
-		Width: 1400,
-		// Window height in pixels
-		Height: 900,
-		// Allows/disallows window resizing
-		Resizable: true,
-		// Enable debugging tools (Linux/BSD/MacOS, on Windows use Firebug)
-		Debug: true,
+	err = log.Start()
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "failed to start logging: %s\n", err)
+		os.Exit(1)
 	}
 
-	wv := webview.New(settings)
+	// create webview
+	wv := webview.New(true)
 	go shutdownHandler(wv)
 
-	wv.SetColor(68, 68, 68, 1)
+	// configure
+	wv.SetTitle("Portmaster")
+	wv.SetSize(1400, 900, webview.HintNone)
+	wv.Navigate(url)
+
+	// register helper to open links in default browser
+	err = registerUrlOpener(wv)
+	if err != nil {
+		log.Warningf("failed to register URL opener: %s", err)
+	}
+
+	// render
 	wv.Run()
 }
 
 func shutdownHandler(wv webview.WebView) {
 	// catch interrupt for clean shutdown
-	signalCh := make(chan os.Signal)
+	signalCh := make(chan os.Signal, 1)
 	signal.Notify(
 		signalCh,
 		os.Interrupt,
@@ -112,12 +115,10 @@ func shutdownHandler(wv webview.WebView) {
 	)
 
 	// wait for shutdown
-	select {
-	case <-signalCh:
-		fmt.Println(" <INTERRUPT>")
-		log.Warning("program was interrupted, shutting down")
-	}
+	<-signalCh
+	fmt.Println(" <INTERRUPT>")
+	log.Warning("program was interrupted, shutting down")
 
 	// exit
-	wv.Dispatch(wv.Exit)
+	wv.Dispatch(wv.Destroy)
 }

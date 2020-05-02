@@ -1,9 +1,9 @@
 ignored = ["github.com/safing/portbase/*"]
 
-[[constraint]]
-  name = "github.com/zserge/webview"
-  version = "0.1.0"
-
 [prune]
   go-tests = true
   unused-packages = true
+
+[[constraint]]
+  name = "github.com/zserge/webview"
+  branch = "master"

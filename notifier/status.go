@@ -13,10 +13,10 @@ import (
 
 // Security Level constants
 const (
-	SecurityLevelOffline  uint8 = 0
-	SecurityLevelDynamic  uint8 = 1
-	SecurityLevelSecure   uint8 = 2
-	SecurityLevelFortress uint8 = 4
+	SecurityLevelOffline uint8 = 0
+	SecurityLevelNormal  uint8 = 1
+	SecurityLevelHigh    uint8 = 2
+	SecurityLevelExtreme uint8 = 4
 
 	systemStatusKey = "core:status/status"
 )
@@ -102,12 +102,12 @@ func fmtLevel(level uint8, active bool) string {
 			return "Offline"
 		}
 		return "Autopilot"
-	case SecurityLevelDynamic:
-		return "Dynamic"
-	case SecurityLevelSecure:
-		return "Secure"
-	case 3, SecurityLevelFortress:
-		return "Fortress"
+	case SecurityLevelNormal:
+		return "Normal"
+	case SecurityLevelHigh:
+		return "High"
+	case SecurityLevelExtreme:
+		return "Extreme"
 	}
 	return "Unknown"
 }

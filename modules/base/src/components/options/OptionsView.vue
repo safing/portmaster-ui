@@ -1,5 +1,5 @@
 <template>
-  <div style="padding: 40px;">
+  <div>
     <h2>
       Settings
 
@@ -44,7 +44,7 @@
     </p>
     <div v-else>
       <div v-for="section in sections" v-bind:key="section.key">
-        <div v-if="section.options" class="ui three column center aligned middle aligned grid">
+        <div v-if="section.layeredOptions" class="ui three column center aligned middle aligned grid">
           <div class="row" style="padding-top: 70px;">
             <div class="column" style="text-align: left;">
               <h3>
@@ -54,17 +54,23 @@
             </div>
             <div class="column">
               <h4>
-                Your Setting
+                {{ editColumnName }}
               </h4>
             </div>
             <div class="column">
               <h4>
-                Default
+                {{ defaultColumnName }}
               </h4>
             </div>
           </div>
 
-          <Option v-for="(option, optionKey) in section.options" :key="optionKey" :rKey="optionKey" :record="option" />
+          <Option
+            v-for="layeredOption in section.layeredOptions"
+            :key="layeredOption.key"
+            :option="layeredOption.option"
+            :optionValue="layeredOption.value"
+            :optionDefaultValue="layeredOption.defaultValue"
+          />
         </div>
       </div>
     </div>
@@ -80,7 +86,10 @@ export default {
     Option
   },
   props: {
-    configLayers: Object,
+    editColumnName: String,
+    defaultColumnName: String,
+    configLayer: Object,
+    configLayerID: String,
     configOptions: Object,
     activeReleaseLevel: Number,
     activeExpertiseLevel: Number
@@ -110,23 +119,75 @@ export default {
     sections() {
       // reset
       for (const section of Object.values(this.sectionTemplate)) {
-        section.options = null;
+        section.layeredOptions = null;
       }
       // add options
       for (const [key, option] of Object.entries(this.configOptions)) {
         if (option.ExpertiseLevel <= this.activeExpertiseLevel && option.ReleaseLevel <= this.activeReleaseLevel) {
           var section = this.getSection(key);
-          if (!section.options) {
-            section.options = {};
+          if (!section.layeredOptions) {
+            section.layeredOptions = [];
           }
-          section.options[key] = option;
+          section.layeredOptions.push(this.createLayeredOption(option));
+        }
+      }
+      // sort
+      for (const section of Object.values(this.sectionTemplate)) {
+        if (section.layeredOptions) {
+          section.layeredOptions.sort(function(a, b) {
+            return a.option.Order - b.option.Order;
+          });
         }
       }
       // return
       return this.sectionTemplate;
+    },
+    flattenedConfigLayer() {
+      var flattened = {};
+      if (this.configLayer) {
+        this.flattenConfigObject(flattened, this.configLayer);
+      }
+      return flattened;
     }
   },
   methods: {
+    flattenConfigObject(rootMap, subMap, subKey) {
+      for (const [key, entry] of Object.entries(subMap)) {
+        // get next level key
+        var subbedKey = key;
+        if (subKey) {
+          subbedKey = subKey + "/" + key;
+        }
+        // check for next subMap
+        if (entry.constructor === Object) {
+          this.flattenConfigObject(rootMap, entry, subbedKey);
+        } else {
+          rootMap[subbedKey] = entry;
+        }
+      }
+    },
+    createLayeredOption(option) {
+      // check if we have a layer
+      if (this.configLayer) {
+        return {
+          key: this.configLayerID + ":" + option.Key,
+          option: option,
+          value: this.flattenedConfigLayer[option.Key],
+          defaultValue: option.Value ? option.Value : option.DefaultValue
+        };
+      }
+      // else return the global version
+      return {
+        key: "global:" + option.Key,
+        option: option,
+        value: option.Value,
+        defaultValue: option.DefaultValue
+      };
+    },
+    setConfig(key, value) {
+      // proxy to parent
+      return this.$parent.setConfig(key, value);
+    },
     getSection(key) {
       var sectionKey = key.split("/", 1)[0].substring(7); // take first part, remove "config:"
       var section = null;
@@ -157,8 +218,12 @@ export default {
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
-<style scoped lang="scss">
+<style lang="scss">
 .grid {
-  padding: 40px;
+  padding-bottom: 10px !important;
+  // experiment with row backgrounds
+  .row:nth-of-type(2n + 3) {
+    background-color: #00000008;
+  }
 }
 </style>

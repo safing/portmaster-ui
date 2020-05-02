@@ -114,6 +114,14 @@
 
 [[projects]]
   branch = "master"
+  digest = "1:93d6687fc19da8a35c7352d72117a6acd2072dfb7e9bfd65646227bf2a913b2a"
+  name = "github.com/tevino/abool"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "9b9efcf221b50905aab9bbabd3daed56dc10f339"
+
+[[projects]]
+  branch = "master"
   digest = "1:1ed0196f0b3fcdc592c7deb8519aaa6176dae23c89cf2871d5d6a00874d50968"
   name = "golang.org/x/sys"
   packages = ["windows"]
@@ -146,6 +154,7 @@
     "github.com/dhaavi/go-notify",
     "github.com/getlantern/systray",
     "github.com/mattn/go-gtk/gdkpixbuf",
+    "github.com/tevino/abool",
     "golang.org/x/text/encoding/unicode",
   ]
   solver-name = "gps-cdcl"

@@ -55,7 +55,18 @@ func handleNotification(m *client.Message) {
 			existing.Unlock()
 		}
 
+		// save
 		notifications[n.ID] = n
+
+		// check if notifications are enabled
+		if !notificationsEnabled.IsSet() {
+			return
+		}
+		// check if prompts are enabled
+		if n.Type == Prompt && !promptsEnabled.IsSet() {
+			return
+		}
+
 		if n.Responded == 0 && n.SelectedActionID == "" {
 			n.Show()
 		}

@@ -6,8 +6,8 @@ var (
 	// ICOs holds all the security level icons as .ICOs
 	ICOs = [][]byte{
 		OffICO,
-		DynamicICO,
-		SecureICO,
-		FortressICO,
+		NormalICO,
+		HighICO,
+		ExtremeICO,
 	}
 )

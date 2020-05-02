@@ -49,7 +49,9 @@
                 class="column scope-item"
               >
                 <div>
-                  <Verdict :verdict="scope.verdictSummary"></Verdict>
+                  <Verdict v-if="scope.connections.length > 0" :verdict="scope.verdictSummary"></Verdict>
+                  <Verdict v-else-if="scope.dnsRequest" :verdict="scope.dnsRequest.Verdict"></Verdict>
+                  <Verdict v-else :verdict="0"></Verdict>
                   <span class="scope-name">{{ scope.name | fmtScopeName }}</span>
                   <div class="ui label">
                     <i class="project diagram icon"></i>
@@ -124,7 +126,7 @@
 
       <div class="debugging">
         <h3>Debugging <small>...left here intentionally, for now.</small></h3>
-        <pre>{{ selectedProcess | clean_object }}</pre>
+        <pre>{{ selectedProcess | cleanObject | fmtObject }}</pre>
       </div>
     </div>
     <div v-else-if="selected == 2" class="eleven wide column container content-pane">
@@ -205,7 +207,7 @@
 
         <div class="debugging">
           <h3>Debugging <small>...left here intentionally, for now.</small></h3>
-          <pre>{{ selectedScope | clean_object }}</pre>
+          <pre>{{ selectedScope | cleanObject | fmtObject }}</pre>
         </div>
       </div>
     </div>
@@ -381,13 +383,15 @@ export default {
                 scope.lastActivity = record.Started;
               }
 
-              // summarize verdict
-              if (scope.verdictSummary == 0) {
-                // first encounter
-                scope.verdictSummary = record.Verdict;
-              } else if (scope.verdictSummary != record.Verdict) {
-                // not the same, set to failed
-                scope.verdictSummary = 1;
+              // summarize connection verdict
+              if (record._treeLayer == 3) {
+                if (scope.verdictSummary == 0) {
+                  // first encounter
+                  scope.verdictSummary = record.Verdict;
+                } else if (scope.verdictSummary != record.Verdict) {
+                  // not the same, set to failed
+                  scope.verdictSummary = 1;
+                }
               }
 
               // mark as handled
@@ -522,7 +526,7 @@ export default {
           return value;
       }
     },
-    clean_object(value) {
+    cleanObject(value) {
       // make copy
       var copy = {};
       for (const [key, value] of Object.entries(value)) {
@@ -532,6 +536,9 @@ export default {
         }
       }
       return copy;
+    },
+    fmtObject(value) {
+      return JSON.stringify(value, null, "    ");
     }
   }
 };

@@ -16,8 +16,4 @@ Vue.use(PortAPI, {
 
 new Vue({
   render: h => h(App)
-  // created() {
-  //   console.log(this)
-  //   this.$options._base.portapi.connect()
-  // }
 }).$mount("#app");

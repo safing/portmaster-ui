@@ -75,6 +75,7 @@
       >
         <Dashboard v-if="uiMod.url === '_dashboard'" />
         <Settings v-if="uiMod.url === '_settings'" />
+        <AppSettings v-if="uiMod.url === '_app-settings'" />
         <Support v-if="uiMod.url === '_support'" />
         <About v-if="uiMod.url === '_about'" />
         <iframe v-else-if="uiMod.loaded" v-bind:src="basePath + uiMod.url" />
@@ -86,6 +87,7 @@
 <script>
 import Dashboard from "./Dashboard.vue";
 import Settings from "./Settings.vue";
+import AppSettings from "./AppSettings.vue";
 import Support from "./Support.vue";
 import About from "./About.vue";
 
@@ -94,6 +96,7 @@ export default {
   components: {
     Dashboard,
     Settings,
+    AppSettings,
     Support,
     About
   },
@@ -125,12 +128,12 @@ export default {
           icon: "cog",
           loaded: false
         },
-        /*{
+        {
           name: "App Settings",
           url: "_app-settings",
           icon: "user",
           loaded: false
-        },*/
+        },
         {
           name: "Support",
           url: "_support",

@@ -45,7 +45,7 @@ func main() {
 	flag.Parse()
 
 	// set meta info
-	info.Set("Portmaster Notifier", "0.1.6", "GPLv3", false)
+	info.Set("Portmaster Notifier", "0.1.7", "GPLv3", false)
 
 	// check if meta info is ok
 	err := info.CheckVersion()
@@ -80,7 +80,11 @@ func main() {
 	databaseDir = dataDir
 
 	// start log writer
-	log.Start()
+	err = log.Start()
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "failed to start logging: %s\n", err)
+		os.Exit(1)
+	}
 
 	// connect to API
 	go apiClient.StayConnected()
@@ -89,10 +93,11 @@ func main() {
 	go tray()
 	go statusClient()
 	go notifClient()
+	go configClient()
 
 	// Shutdown
 	// catch interrupt for clean shutdown
-	signalCh := make(chan os.Signal)
+	signalCh := make(chan os.Signal, 1)
 	signal.Notify(
 		signalCh,
 		os.Interrupt,
@@ -113,15 +118,18 @@ func main() {
 
 	if printStackOnExit {
 		fmt.Println("=== PRINTING STACK ===")
-		pprof.Lookup("goroutine").WriteTo(os.Stdout, 1)
+		_ = pprof.Lookup("goroutine").WriteTo(os.Stdout, 2)
 		fmt.Println("=== END STACK ===")
 	}
 	go func() {
 		time.Sleep(10 * time.Second)
 		fmt.Println("===== TAKING TOO LONG FOR SHUTDOWN - PRINTING STACK TRACES =====")
-		pprof.Lookup("goroutine").WriteTo(os.Stdout, 1)
+		_ = pprof.Lookup("goroutine").WriteTo(os.Stdout, 2)
 		os.Exit(1)
 	}()
+
+	// clear all notifications
+	clearNotifications()
 
 	// shutdown
 	cancelMainCtx()
