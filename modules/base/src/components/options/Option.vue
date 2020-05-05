@@ -1,5 +1,5 @@
 <template>
-  <div class="row" style="margin-top: 0px;">
+  <div class="row" style="margin-top: 0px; justify-content: space-around;">
     <div class=" column" style="text-align: left;">
       <h5>
         <span
@@ -355,5 +355,12 @@ export default {
     text-align: left;
     white-space: pre-wrap; // respect \n
   }
+}
+
+@media (max-width: 1100px) { 
+  div.row > div:first-of-type {
+    // force wrap after title/help
+    flex-basis: 100%; 
+  } 
 }
 </style>
