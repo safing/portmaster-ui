@@ -83,23 +83,51 @@ func main() {
 		os.Exit(1)
 	}
 
-	// create webview
-	wv := webview.New(true)
-	go shutdownHandler(wv)
-
 	// configure
-	wv.SetTitle("Portmaster")
-	wv.SetSize(1400, 900, webview.HintNone)
-	wv.Navigate(url)
+	// using v0.1.1: https://github.com/zserge/webview/tree/0.1.1
+	settings := webview.Settings{
+		// WebView main window title
+		Title: "Portmaster",
+		// URL to open in a webview
+		URL: url,
+		// Window width in pixels
+		Width: 1400,
+		// Window height in pixels
+		Height: 900,
+		// Allows/disallows window resizing
+		Resizable: true,
+		// Enable debugging tools (Linux/BSD/MacOS, on Windows use Firebug)
+		Debug: true,
+		// handle invokes
+		ExternalInvokeCallback: handleExternalInvokeCallback,
+	}
+	wv := webview.New(settings)
 
 	// register helper to open links in default browser
-	err = registerUrlOpener(wv)
+	err = registerSystemAPI(wv)
 	if err != nil {
-		log.Warningf("failed to register URL opener: %s", err)
+		log.Warningf("failed to register system api: %s", err)
 	}
 
+	// listen for interrupts
+	go shutdownHandler(wv)
+
 	// render
+	wv.SetColor(68, 68, 68, 1)
 	wv.Run()
+}
+
+func handleExternalInvokeCallback(wv webview.WebView, data string) {
+	switch data {
+	case "DOMContentLoaded":
+		// finished loading
+
+		// register helper to open links in default browser
+		err := registerSystemAPI(wv)
+		if err != nil {
+			log.Warningf("failed to register system api: %s", err)
+		}
+	}
 }
 
 func shutdownHandler(wv webview.WebView) {
@@ -120,5 +148,5 @@ func shutdownHandler(wv webview.WebView) {
 	log.Warning("program was interrupted, shutting down")
 
 	// exit
-	wv.Dispatch(wv.Destroy)
+	wv.Dispatch(wv.Exit)
 }

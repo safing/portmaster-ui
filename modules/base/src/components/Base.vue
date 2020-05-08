@@ -5,12 +5,22 @@
       <div v-on:click="selectHome()" class="ui basic inverted segment mess center aligned">
         <div class="centered">
           <h4 style="margin-bottom: 0;">Portmaster</h4>
-          <small v-if="versions">
-            v{{ versions.Core.Version }} <span style="color: #FF0000A0;">(pre-alpha)</span>
-          </small>
-          <small v-else>
-            loading...
-          </small>
+          <p v-if="versions" class="ui small text">
+            <span class="ui small text">
+              v{{ versions.Core.Version }} <span class="ui red text">(pre-alpha)</span>
+            </span>
+          </p>
+          <p v-else>
+            <span class="ui small text">
+              loading core version...
+            </span>
+          </p>
+          <p v-if="!runningInApp">
+            <span class="ui small yellow text" style="line-height: 1em;">
+              running in browser<br />
+              functionality may be impaired
+            </span>
+          </p>
         </div>
       </div>
 
@@ -255,6 +265,9 @@ export default {
     },
     selectExpertiseLevel(level) {
       this.selectedExpertiseLevel = level;
+    },
+    runningInApp() {
+      return typeof system !== 'undefined' // eslint-disable-line
     }
   }
 };

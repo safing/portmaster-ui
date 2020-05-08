@@ -6,4 +6,4 @@ ignored = ["github.com/safing/portbase/*"]
 
 [[constraint]]
   name = "github.com/zserge/webview"
-  branch = "master"
+  version = "v0.1.1"
