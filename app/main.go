@@ -115,6 +115,19 @@ func main() {
 		// handle invokes
 		ExternalInvokeCallback: handleExternalInvokeCallback,
 	}
+
+	wCfg, err := getWindowConfig()
+	if err != nil {
+		log.Warningf("failed to get window config: %s", err)
+	} else if wCfg != nil {
+		if wCfg.Height > 0 {
+			settings.Height = wCfg.Height
+		}
+		if wCfg.Width > 0 {
+			settings.Width = wCfg.Width
+		}
+	}
+
 	wv := webview.New(settings)
 
 	// register helper to open links in default browser
@@ -127,7 +140,7 @@ func main() {
 	go shutdownHandler(wv)
 
 	// render
-	wv.SetColor(68, 68, 68, 1)
+	// wv.SetColor(68, 68, 68, 1)
 	wv.Run()
 }
 
