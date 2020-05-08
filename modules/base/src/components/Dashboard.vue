@@ -26,7 +26,7 @@
               </div>
 
               <p style="padding-top: 20px;">
-                <span style="color: #FFFFFF80; padding-right: 30px;">Security Level</span>
+                <span style="color: #888; padding-right: 30px;">Security Level</span>
 
                 <span v-if="status && status.ActiveSecurityLevel === 1">
                   <img class="sl-icon" src="/assets/icons/level_normal.svg" title="Normal" />
@@ -365,7 +365,7 @@ export default {
   height: 100vh;
   overflow-y: scroll;
   padding: 2em !important;
-  background: #1b1c1df2 !important;
+  background: #242526 !important;
 }
 .dashboard-element {
   border-radius: 5px !important;

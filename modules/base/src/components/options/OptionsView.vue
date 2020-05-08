@@ -221,9 +221,5 @@ export default {
 <style lang="scss">
 .grid {
   padding-bottom: 10px !important;
-  // experiment with row backgrounds
-  .row:nth-of-type(2n + 3) {
-    background-color: #00000008;
-  }
 }
 </style>

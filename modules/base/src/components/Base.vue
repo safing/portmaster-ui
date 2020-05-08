@@ -66,7 +66,7 @@
         <div>
           <div class="ui divider" style="margin-bottom: 0;"></div>
           <div class="item" style="text-align: center;">
-            <span v-if="apiInfo.connected" class="ui center aligned" style="color: #FFFFFF80">
+            <span v-if="apiInfo.connected" class="ui center aligned" style="color: #888">
               Connected to Core
             </span>
             <span v-else class="ui red text">
