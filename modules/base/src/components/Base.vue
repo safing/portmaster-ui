@@ -1,5 +1,7 @@
 <template>
   <div class="main-container">
+    <SaveWindowSize />
+
     <div class="ui basic inverted segment controlbar">
       <!-- sidebar header -->
       <div v-on:click="selectHome()" class="ui basic inverted segment mess center aligned">
@@ -95,6 +97,7 @@
 </template>
 
 <script>
+import SaveWindowSize from "./SaveWindowSize.vue";
 import Dashboard from "./Dashboard.vue";
 import Settings from "./Settings.vue";
 import AppSettings from "./AppSettings.vue";
@@ -104,6 +107,7 @@ import About from "./About.vue";
 export default {
   name: "Base",
   components: {
+    SaveWindowSize,
     Dashboard,
     Settings,
     AppSettings,
