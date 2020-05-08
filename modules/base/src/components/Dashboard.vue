@@ -214,6 +214,9 @@
             <button class="ui inverted basic orange button" v-on:click="control('module/core/trigger/restart')">
               Restart
             </button>
+            <button class="ui inverted basic blue button" v-on:click="openDataDir()">
+              Open Data Directory
+            </button>
             <button class="ui inverted basic blue button" v-on:click="reloadUI()">Reload UI</button>
             <button class="ui inverted basic blue button" v-on:click="control('module/updates/trigger/trigger update')">
               Download updates
@@ -330,6 +333,13 @@ export default {
     },
     control(value) {
       this.controlOp = this.$api.get("control:" + value);
+    },
+    openDataDir() {
+      if (typeof system !== 'undefined') { // eslint-disable-line
+        system.openDataDir(); // eslint-disable-line
+      } else {
+        console.warn('cannot open data dir, running in browser');
+      }
     },
     reloadUI() {
       this.beforeOnUnload();
