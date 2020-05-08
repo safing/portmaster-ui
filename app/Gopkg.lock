@@ -10,12 +10,12 @@
   revision = "eef8423979666925a58eb77f9db583e54320d5a4"
 
 [[projects]]
-  branch = "master"
-  digest = "1:e8ffbbae6237f2cc257842a501097ce0566df7fd8e9e320d806377e76fa2217d"
+  digest = "1:8831fb6cc883752232e020a56ba40d5538e6409623f94b0d6d4df4e0f7878fdf"
   name = "github.com/zserge/webview"
   packages = ["."]
   pruneopts = "UT"
-  revision = "50e4bcc420abdc7be96a54b7c79934a000b76901"
+  revision = "9c1b0a888aa40039d501c1ea9f60b22a076a25ea"
+  version = "0.1.1"
 
 [solve-meta]
   analyzer-name = "dep"

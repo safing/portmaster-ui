@@ -26,7 +26,7 @@
               </div>
 
               <p style="padding-top: 20px;">
-                <span style="color: #FFFFFF80; padding-right: 30px;">Security Level</span>
+                <span style="color: #888; padding-right: 30px;">Security Level</span>
 
                 <span v-if="status && status.ActiveSecurityLevel === 1">
                   <img class="sl-icon" src="/assets/icons/level_normal.svg" title="Normal" />
@@ -214,6 +214,9 @@
             <button class="ui inverted basic orange button" v-on:click="control('module/core/trigger/restart')">
               Restart
             </button>
+            <button class="ui inverted basic blue button" v-on:click="openDataDir()">
+              Open Data Directory
+            </button>
             <button class="ui inverted basic blue button" v-on:click="reloadUI()">Reload UI</button>
             <button class="ui inverted basic blue button" v-on:click="control('module/updates/trigger/trigger update')">
               Download updates
@@ -331,6 +334,13 @@ export default {
     control(value) {
       this.controlOp = this.$api.get("control:" + value);
     },
+    openDataDir() {
+      if (typeof system !== 'undefined') { // eslint-disable-line
+        system.openDataDir(); // eslint-disable-line
+      } else {
+        console.warn('cannot open data dir, running in browser');
+      }
+    },
     reloadUI() {
       this.beforeOnUnload();
       // add an extra second, in case waiting is broken on a client
@@ -355,7 +365,7 @@ export default {
   height: 100vh;
   overflow-y: scroll;
   padding: 2em !important;
-  background: #1b1c1df2 !important;
+  background: #242526 !important;
 }
 .dashboard-element {
   border-radius: 5px !important;

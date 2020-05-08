@@ -17,6 +17,16 @@ Vue.use(PortAPI, {
   debug: true
 });
 
+// notify app that we have finished loading
+document.addEventListener('DOMContentLoaded', () => {
+  try {
+    window.external['invoke']('DOMContentLoaded');
+  }
+  catch(e) {
+    console.warn(`failed to notify app that we have finished loading: ${e}`);
+  }
+});
+
 // handle URLs via OS
 function handleClick(e) {
   var target = e.target || e.srcElement;
@@ -25,8 +35,8 @@ function handleClick(e) {
     e.preventDefault();
     // open with OS
     var href = target.getAttribute("href");
-    if (typeof openWithOS !== 'undefined') { // eslint-disable-line
-      openWithOS(href); // eslint-disable-line
+    if (typeof system !== 'undefined') { // eslint-disable-line
+      system.open(href); // eslint-disable-line
     } else {
       window.location.href = href;
     }

@@ -61,6 +61,12 @@ if [[ $GOOS == "windows" ]]; then
   # custom
   export CGO_ENABLED=1
   EXTRA_LD_FLAGS='-H windowsgui' # needed for GUI
+  # check if we have goversioninfo installed
+  if [[ $(which goversioninfo) == "" ]]; then
+    echo "goversioninfo command not found"
+    echo "install with: go get -u github.com/josephspurrier/goversioninfo/cmd/goversioninfo"
+    exit 1
+  fi
   # generate resource.syso for windows metadata / icon
   go generate
 fi

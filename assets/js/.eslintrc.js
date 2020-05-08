@@ -1,3 +1,10 @@
 module.exports = {
-  "parser": "babel-eslint"
+  "env": {
+    "root": true,
+    "node": true
+  },
+  "rules": {},
+  "parserOptions": {
+    "parser": "babel-eslint"
+  }
 };
