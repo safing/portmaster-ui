@@ -7,6 +7,9 @@ import (
 	"fmt"
 	"os"
 	"os/signal"
+	"path/filepath"
+	"runtime"
+	"strings"
 	"syscall"
 
 	"github.com/safing/portbase/info"
@@ -62,6 +65,11 @@ func main() {
 		dataDir = databaseDir
 	}
 
+	// auto detect
+	if dataDir == "" {
+		dataDir = detectDataDir()
+	}
+
 	// check data dir
 	if dataDir == "" {
 		fmt.Fprintln(os.Stderr, "please set the data directory using --data=/path/to/data/dir")
@@ -70,6 +78,12 @@ func main() {
 
 	// backwards compatibility
 	databaseDir = dataDir
+
+	// switch to safe exec dir
+	err = os.Chdir(filepath.Join(dataDir, "exec"))
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "warning: failed to switch to safe exec dir: %s\n", err)
+	}
 
 	// set custom url for development
 	if urlFlag != "" {
@@ -149,4 +163,21 @@ func shutdownHandler(wv webview.WebView) {
 
 	// exit
 	wv.Dispatch(wv.Exit)
+}
+
+func detectDataDir() string {
+	// get path of executable
+	binPath, err := os.Executable()
+	if err != nil {
+		return ""
+	}
+	// get directory
+	binDir := filepath.Dir(binPath)
+	// check if we in the updates directory
+	identifierDir := filepath.Join("updates", runtime.GOOS+"_"+runtime.GOARCH, "app")
+	// check if there is a match and return data dir
+	if strings.HasSuffix(binDir, identifierDir) {
+		return filepath.Clean(strings.TrimSuffix(binDir, identifierDir))
+	}
+	return ""
 }
