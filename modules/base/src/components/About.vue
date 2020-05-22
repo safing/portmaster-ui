@@ -1,33 +1,6 @@
 <template>
   <div class="about">
     <div class="ui basic segment">
-      <h3>License</h3>
-
-      <p>
-        The Portmaster is licensed under the AGPLv3.<br />
-        More attribution to other projects and their licenses coming soon.
-      </p>
-
-      <h4>Attribution</h4>
-      <table class="ui very basic compact table">
-        <thead>
-          <tr>
-            <th>Name</th>
-            <th>License</th>
-            <th>Notice</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>MaxMind GeoLite2</td>
-            <td>EULA with CC BY-SA 4.0</td>
-            <td>
-              This product includes GeoLite2 data created by MaxMind, available from
-              <a href="http://www.maxmind.com">http://www.maxmind.com</a>.
-            </td>
-          </tr>
-        </tbody>
-      </table>
 
       <h3>Core Version Info</h3>
 
@@ -68,6 +41,95 @@
         </tbody>
       </table>
       <span v-else>loading...</span>
+
+      <h3>License</h3>
+
+      <p>
+        The Portmaster is licensed under the AGPLv3.<br />
+        More attribution to other projects and their licenses coming soon.
+      </p>
+
+      <h4>Attribution</h4>
+      <table class="ui very basic compact table">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>License</th>
+            <th>Notice</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>github.com/tevino/abool</td>
+            <td>MIT</td>
+          </tr>
+          <tr>
+            <td>github.com/spf13/cobra</td>
+            <td>Apache-2.0</td>
+          </tr>
+          <tr>
+            <td>github.com/godbus/dbus</td>
+            <td>BSD-2-Clause</td>
+          </tr>
+          <tr>
+            <td>github.com/miekg/dns</td>
+            <td>BSD-3-Clause</td>
+          </tr>
+          <tr>
+            <td>github.com/golang/go</td>
+            <td>BSD-3-Clause</td>
+          </tr>
+          <tr>
+            <td>github.com/coreos/go-iptables</td>
+            <td>Apache-2.0</td>
+          </tr>
+          <tr>
+            <td>github.com/hashicorp/go-version</td>
+            <td>MPL-2.0-no-copyleft-exception</td>
+          </tr>
+          <tr>
+            <td>github.com/satori/go.uuid</td>
+            <td>MIT</td>
+          </tr>
+          <tr>
+            <td>github.com/google/gopacket</td>
+            <td>BSD-3-Clause</td>
+          </tr>
+          <tr>
+            <td>github.com/shirou/gopsutil</td>
+            <td>BSD-3-Clause</td>
+          </tr>
+          <tr>
+            <td>github.com/umahmood/haversine</td>
+            <td>MIT</td>
+          </tr>
+          <tr>
+            <td>github.com/agext/levenshtein</td>
+            <td>Apache-2.0</td>
+          </tr>
+          <tr>
+            <td>github.com/oschwald/maxminddb-golang</td>
+            <td>MIT</td>
+          </tr>
+          <tr>
+            <td>github.com/google/renameio</td>
+            <td>Apache-2.0</td>
+          </tr>
+          <tr>
+            <td>github.com/cookieo9/resources-go</td>
+            <td>MIT</td>
+          </tr>
+          <tr>
+            <td>github.com/TheTannerRyan/ring</td>
+            <td>BSD-2-Clause</td>
+          </tr>
+          <tr>
+            <td>github.com/stretchr/testify</td>
+            <td>MIT</td>
+          </tr>
+        </tbody>
+      </table>
+
     </div>
   </div>
 </template>
