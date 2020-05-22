@@ -156,6 +156,7 @@ func handleSystemStatus(m *client.Message) {
 	case client.MsgDelete:
 	case client.MsgWarning:
 	case client.MsgOffline:
+		activeStatus = nil // reset status so that everything is refreshed on reconnect
 		go displayActiveLevel(SecurityLevelOffline)
 	}
 }
