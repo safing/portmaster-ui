@@ -118,8 +118,13 @@ func main() {
 
 	wCfg, err := getWindowConfig()
 	if err != nil {
-		log.Warningf("failed to get window config: %s", err)
+		if err != errNotFound {
+			log.Warningf("failed to get window config: %s", err)
+		} else {
+			log.Debug("no custom window config set")
+		}
 	} else if wCfg != nil {
+		log.Debugf("loaded custom window size: width=%d height=%d", wCfg.Width, wCfg.Height)
 		if wCfg.Height > 0 {
 			settings.Height = wCfg.Height
 		}

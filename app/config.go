@@ -3,6 +3,7 @@ package main
 import (
 	"errors"
 	"fmt"
+	"strings"
 	"sync"
 	"time"
 
@@ -13,6 +14,8 @@ import (
 var (
 	apiClient = client.NewClient("127.0.0.1:817")
 	initAPI   sync.Once
+
+	errNotFound = errors.New("database entry not found")
 )
 
 type WindowConfig struct {
@@ -33,10 +36,7 @@ func getRecord(dataStruct interface{}) error {
 
 	select {
 	case err := <-errs:
-		if err != nil {
-			return err
-		}
-		return nil
+		return err
 	case <-time.After(5 * time.Second):
 		return errors.New("request timed out")
 	}
@@ -57,7 +57,16 @@ func parseDataFn(dataStruct interface{}, errs chan error) func(*client.Message) 
 				close(errs)
 			}
 		default:
-			errs <- fmt.Errorf("received unexpected reply: %s %s", m.Type, m.Value)
+			errMsg := m.Key // message space is where the key would be
+
+			// detect not found
+			// TODO: This is hacky, find a better way. Probably needs a protocol improvement.
+			if strings.Contains(errMsg, "not found") {
+				errs <- errNotFound
+				return
+			}
+
+			errs <- fmt.Errorf("received unexpected reply: %s %s", m.Type, errMsg)
 		}
 	}
 }
