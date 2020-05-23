@@ -47,7 +47,7 @@ func main() {
 	flag.Parse()
 
 	// set meta info
-	info.Set("Portmaster Notifier", "0.1.7", "GPLv3", false)
+	info.Set("Portmaster Notifier", "0.1.8", "GPLv3", false)
 
 	// check if meta info is ok
 	err := info.CheckVersion()

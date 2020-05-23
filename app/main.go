@@ -39,7 +39,7 @@ func main() {
 	flag.Parse()
 
 	// set meta info
-	info.Set("Portmaster App", "0.1.8", "GPLv3", false)
+	info.Set("Portmaster App", "0.1.9", "GPLv3", false)
 
 	// check if meta info is ok
 	err := info.CheckVersion()

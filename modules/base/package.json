@@ -1,6 +1,6 @@
 {
   "name": "portmaster-ui-base",
-  "version": "0.2.2",
+  "version": "0.2.4",
   "private": true,
   "scripts": {
     "serve": "vue-cli-service serve --host 0.0.0.0",
