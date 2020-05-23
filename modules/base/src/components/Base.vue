@@ -4,7 +4,7 @@
 
     <div class="ui basic inverted segment controlbar">
       <!-- sidebar header -->
-      <div v-on:click="selectHome()" class="ui basic inverted segment mess center aligned">
+      <div v-on:click="selectUIModule('_about')" class="ui basic inverted segment mess center aligned">
         <div class="centered">
           <h4 style="margin-bottom: 0;">Portmaster</h4>
           <p v-if="versions" class="ui small text">
