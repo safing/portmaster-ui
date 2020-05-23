@@ -135,7 +135,7 @@ export default {
     configOptions() {
       var appOptions = {};
       for (var [key, option] of Object.entries(this.$parent.configDB.records)) {
-        if (this.perAppGlobalConfig[option.Key]) {
+        if (this.perAppGlobalConfig[option.Key] !== undefined) {
           appOptions[key] = option;
         }
       }

@@ -5,7 +5,7 @@
         <p>
           {{ n.Message }}
         </p>
-        <div v-if="n.AvailableActions.length > 0" class="ui buttons">
+        <div v-if="n.AvailableActions && n.AvailableActions.length > 0" class="ui buttons">
           <button
             v-for="action in n.AvailableActions"
             :key="n.ID + ':' + action.ID"

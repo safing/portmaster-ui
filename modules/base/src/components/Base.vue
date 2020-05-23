@@ -1,16 +1,28 @@
 <template>
   <div class="main-container">
+    <SaveWindowSize />
+
     <div class="ui basic inverted segment controlbar">
       <!-- sidebar header -->
-      <div v-on:click="selectHome()" class="ui basic inverted segment mess center aligned">
+      <div v-on:click="selectUIModule('_about')" class="ui basic inverted segment mess center aligned">
         <div class="centered">
           <h4 style="margin-bottom: 0;">Portmaster</h4>
-          <small v-if="versions">
-            v{{ versions.Core.Version }} <span style="color: #FF0000A0;">(pre-alpha)</span>
-          </small>
-          <small v-else>
-            loading...
-          </small>
+          <p v-if="versions" class="ui small text">
+            <span class="ui small text">
+              v{{ versions.Core.Version }} <span class="ui red text">(pre-alpha)</span>
+            </span>
+          </p>
+          <p v-else>
+            <span class="ui small text">
+              loading core version...
+            </span>
+          </p>
+          <p v-if="!runningInApp">
+            <span class="ui small yellow text" style="line-height: 1em;">
+              running in browser<br />
+              functionality may be impaired
+            </span>
+          </p>
         </div>
       </div>
 
@@ -54,7 +66,7 @@
         <div>
           <div class="ui divider" style="margin-bottom: 0;"></div>
           <div class="item" style="text-align: center;">
-            <span v-if="apiInfo.connected" class="ui center aligned" style="color: #FFFFFF80">
+            <span v-if="apiInfo.connected" class="ui center aligned" style="color: #888">
               Connected to Core
             </span>
             <span v-else class="ui red text">
@@ -85,6 +97,7 @@
 </template>
 
 <script>
+import SaveWindowSize from "./SaveWindowSize.vue";
 import Dashboard from "./Dashboard.vue";
 import Settings from "./Settings.vue";
 import AppSettings from "./AppSettings.vue";
@@ -94,6 +107,7 @@ import About from "./About.vue";
 export default {
   name: "Base",
   components: {
+    SaveWindowSize,
     Dashboard,
     Settings,
     AppSettings,
@@ -255,6 +269,9 @@ export default {
     },
     selectExpertiseLevel(level) {
       this.selectedExpertiseLevel = level;
+    },
+    runningInApp() {
+      return typeof system !== 'undefined' // eslint-disable-line
     }
   }
 };

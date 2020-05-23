@@ -4,7 +4,7 @@ class Operation {
   constructor(name, type) {
     this.name = name;
     this.type = type;
-    this.isGetReq = type == "get";
+    this.queryText = null;
     this.record = null;
     this.records = {};
     this.loading = true;
@@ -44,7 +44,7 @@ class Operation {
     }
 
     // set new object
-    if (this.isGetReq) {
+    if (this.type == "get") {
       // single object
       this.record = obj;
       this.prepRecord(key, this.record);
@@ -75,7 +75,7 @@ class Operation {
     }
   }
   deleteRecord(key) {
-    if (this.isGetReq) {
+    if (this.type == "get") {
       if (this.record) {
         this.record._deleted = true; // mark deleted for copied references
       }
@@ -236,6 +236,14 @@ function install(vue, options) {
             console.log("sending queued request: " + requestText);
         });
         vue.portapi.requestQueue = [];
+
+        // refresh existing subscriptions
+        for (var request of Object.values(vue.portapi.requests)) {
+          if (request.queryText) {
+            vue.portapi.ws.send(request.queryText);
+            console.log("refreshing request: " + request.queryText);
+          }
+        }
       };
 
       vue.portapi.ws.onclose = function(event) {
@@ -374,6 +382,9 @@ function install(vue, options) {
       if (data != undefined) {
         var cleanedData = op.prepObjectForSubmission(data)
         requestText += "|J" + JSON.stringify(cleanedData);
+      }
+      if (msgType == "sub" || msgType == "qsub") {
+        op.queryText = requestText;
       }
 
       if (vue.portapi.connected) {

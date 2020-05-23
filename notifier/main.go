@@ -6,8 +6,10 @@ import (
 	"fmt"
 	"os"
 	"os/signal"
+	"path/filepath"
 	"runtime"
 	"runtime/pprof"
+	"strings"
 	"sync"
 	"syscall"
 	"time"
@@ -45,7 +47,7 @@ func main() {
 	flag.Parse()
 
 	// set meta info
-	info.Set("Portmaster Notifier", "0.1.7", "GPLv3", false)
+	info.Set("Portmaster Notifier", "0.1.8", "GPLv3", false)
 
 	// check if meta info is ok
 	err := info.CheckVersion()
@@ -70,6 +72,11 @@ func main() {
 		dataDir = databaseDir
 	}
 
+	// auto detect
+	if dataDir == "" {
+		dataDir = detectDataDir()
+	}
+
 	// check data dir
 	if dataDir == "" {
 		fmt.Fprintln(os.Stderr, "please set the data directory using --data=/path/to/data/dir")
@@ -78,6 +85,12 @@ func main() {
 
 	// backwards compatibility
 	databaseDir = dataDir
+
+	// switch to safe exec dir
+	err = os.Chdir(filepath.Join(dataDir, "exec"))
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "warning: failed to switch to safe exec dir: %s\n", err)
+	}
 
 	// start log writer
 	err = log.Start()
@@ -140,4 +153,21 @@ func main() {
 	log.Shutdown()
 
 	os.Exit(0)
+}
+
+func detectDataDir() string {
+	// get path of executable
+	binPath, err := os.Executable()
+	if err != nil {
+		return ""
+	}
+	// get directory
+	binDir := filepath.Dir(binPath)
+	// check if we in the updates directory
+	identifierDir := filepath.Join("updates", runtime.GOOS+"_"+runtime.GOARCH, "notifier")
+	// check if there is a match and return data dir
+	if strings.HasSuffix(binDir, identifierDir) {
+		return filepath.Clean(strings.TrimSuffix(binDir, identifierDir))
+	}
+	return ""
 }

@@ -161,7 +161,7 @@
               <tr>
                 <td>Entity</td>
                 <td>
-                  <pre>{{ selectedScope.dnsRequest.Entity }}</pre>
+                  <pre>{{ selectedScope.dnsRequest.Entity | fmtObject }}</pre>
                 </td>
               </tr>
             </tbody>
