@@ -101,7 +101,7 @@
           <tr><td><a href="https://github.com/oschwald/maxminddb-golang"> github.com/oschwald/maxminddb-golang </a></td><td> ISC </td></tr>
           <tr><td><a href="https://github.com/oxtoacart/bpool"> github.com/oxtoacart/bpool </a></td><td> Apache-2.0 </td></tr>
           <tr><td><a href="https://github.com/pkg/errors"> github.com/pkg/errors </a></td><td> BSD-2-Clause </td></tr>
-          <tr><td><a href="https://github.com/satori/go.uuid"> github.com/satori/go.uuid </a></td><td> MIT </td></tr>
+          <tr><td><a href="https://github.com/gofrs/uuid"> github.com/gofrs/uuid </a></td><td> MIT </td></tr>
           <tr><td><a href="https://github.com/seehuhn/fortuna"> github.com/seehuhn/fortuna </a></td><td> GPL-3.0 </td></tr>
           <tr><td><a href="https://github.com/seehuhn/sha256d"> github.com/seehuhn/sha256d </a></td><td> GPL-3.0 </td></tr>
           <tr><td><a href="https://github.com/shirou/gopsutil"> github.com/shirou/gopsutil </a></td><td> BSD-3-Clause </td></tr>
