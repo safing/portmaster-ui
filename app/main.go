@@ -179,8 +179,8 @@ func shutdownHandler(wv webview.WebView) {
 	fmt.Println(" <INTERRUPT>")
 	log.Warning("program was interrupted, shutting down")
 
-	// exit
-	wv.Dispatch(wv.Exit)
+	// close window
+	wv.Dispatch(wv.Terminate)
 }
 
 func detectDataDir() string {

@@ -211,7 +211,7 @@
             <button class="ui inverted basic red button" v-on:click="control('module/core/trigger/shutdown')">
               Shutdown
             </button>
-            <button class="ui inverted basic orange button" v-on:click="control('module/core/trigger/restart')">
+            <button class="ui inverted basic orange button" v-on:click="restart()">
               Restart
             </button>
             <button class="ui inverted basic blue button" v-on:click="openDataDir()">
@@ -333,6 +333,12 @@ export default {
     },
     control(value) {
       this.controlOp = this.$api.get("control:" + value);
+    },
+    restart() {
+      this.control('module/core/trigger/restart');
+      setTimeout(function() {
+        location.reload();
+      }, 1000);
     },
     openDataDir() {
       if (typeof system !== 'undefined') { // eslint-disable-line
