@@ -32,7 +32,8 @@ func getRecord(dataStruct interface{}) error {
 	initAPI.Do(connectToAPI)
 
 	errs := make(chan error)
-	apiClient.Get("core:ui/app/window", parseDataFn(dataStruct, errs))
+	op := apiClient.Get("core:ui/app/window", parseDataFn(dataStruct, errs))
+	defer op.Cancel()
 
 	select {
 	case err := <-errs:
@@ -54,7 +55,7 @@ func parseDataFn(dataStruct interface{}, errs chan error) func(*client.Message) 
 			if err != nil {
 				errs <- fmt.Errorf("failed to parse message: %s", err)
 			} else {
-				close(errs)
+				errs <- nil // playing it safe: don't close
 			}
 		default:
 			errMsg := m.Key // message space is where the key would be
