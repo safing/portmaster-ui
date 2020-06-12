@@ -65,18 +65,18 @@
           v-on:click="selectSecurityLevel(0)"
           v-bind:class="[
             'dashboard-element sl-item ui very basic inverted segment',
-            { 'sl-selected': status && status.SelectedSecurityLevel === 0 }
+            { 'sl-selected': status && status.SelectedSecurityLevel === 0 },
           ]"
         >
           <i class="rocket icon autopilot-icon" title="Autopilot"></i>
           <span class="sl-name">Autopilot</span>
-          <span class="sl-description">Switch automatically based on environment and threats. (coming soon)</span>
+          <span class="sl-description">Switch automatically based on environment and threats. (In development)</span>
         </div>
         <div
           v-on:click="selectSecurityLevel(1)"
           v-bind:class="[
             'dashboard-element sl-item ui very basic inverted segment',
-            { 'sl-selected': status && status.SelectedSecurityLevel === 1 }
+            { 'sl-selected': status && status.SelectedSecurityLevel === 1 },
           ]"
         >
           <img class="sl-icon" src="/assets/icons/level_normal.svg" title="Normal" />
@@ -87,7 +87,7 @@
           v-on:click="selectSecurityLevel(2)"
           v-bind:class="[
             'dashboard-element sl-item ui very basic inverted segment',
-            { 'sl-selected': status && status.SelectedSecurityLevel === 2 }
+            { 'sl-selected': status && status.SelectedSecurityLevel === 2 },
           ]"
         >
           <img class="sl-icon" src="/assets/icons/level_high.svg" title="High" />
@@ -98,7 +98,7 @@
           v-on:click="selectSecurityLevel(4)"
           v-bind:class="[
             'dashboard-element sl-item ui very basic inverted segment',
-            { 'sl-selected': status && status.SelectedSecurityLevel === 4 }
+            { 'sl-selected': status && status.SelectedSecurityLevel === 4 },
           ]"
         >
           <img class="sl-icon" src="/assets/icons/level_extreme.svg" title="Extreme" />
@@ -110,95 +110,135 @@
 
     <h3>Subsystems</h3>
     <div class="ui grid">
-      <div v-for="subsystem in subsystems" class="five wide column" v-bind:key="subsystem.Name">
-        <div class="dashboard-element ui very basic inverted segment">
-          <span v-if="subsystem.Modules[0].Status === StatusDead" class="ui grey text" style="float: right;">Dead</span>
-          <span v-else-if="subsystem.Modules[0].Status === StatusPreparing" class="ui yellow text" style="float: right;"
-            >Preparing</span
-          >
-          <span v-else-if="subsystem.Modules[0].Status === StatusOffline" class="ui grey text" style="float: right;"
-            >Offline</span
-          >
-          <span v-else-if="subsystem.Modules[0].Status === StatusStopping" class="ui yellow text" style="float: right;"
-            >Stopping</span
-          >
-          <span v-else-if="subsystem.Modules[0].Status === StatusStarting" class="ui yellow text" style="float: right;"
-            >Starting</span
-          >
-          <span v-else-if="subsystem.Modules[0].Status === StatusOnline" class="ui green text" style="float: right;"
-            >Online</span
-          >
-
-          <h4 style="margin-top: 0;">
-            {{ subsystem.Name }}
-          </h4>
-
+      <div class="doubling four column row">
+        <div v-for="subsystem in subsystems" class="column" v-bind:key="subsystem.Name">
           <div
-            v-if="subsystem.Modules[0].FailureStatus != FailureNone"
-            v-bind:class="['module-item ui inverted secondary segment', moduleStatusColor(subsystem.Modules[0])]"
+            v-bind:class="['dashboard-element ui very basic inverted segment', { 'subsystem-page': subsystem.pageURL }]"
+            v-on:click="selectUIModule(subsystem.pageURL)"
           >
-            <div v-bind:class="['ui top attached inverted basic label', moduleStatusColor(subsystem.Modules[0])]">
-              <span v-if="subsystem.Modules[0].FailureStatus === FailureError">Error</span>
-              <span v-else-if="subsystem.Modules[0].FailureStatus === FailureWarning">Warning</span>
-              <span v-else-if="subsystem.Modules[0].FailureStatus === FailureHint">Hint</span>
-            </div>
-            <div class="module-msg">
-              {{ subsystem.Modules[0].FailureMsg }}
-            </div>
-          </div>
-
-          {{ subsystem.Description }}
-
-          <br /><br />
-          <strong>Modules</strong>
-          <br />
-          <!--
-            test with:
-            update core:status/subsystems/zoo|J{"ID":"zoo","Name":"The UI Zoo","Description":"There are weird animals here...","Modules":[{"Name":"zoo","Enabled":true,"Status":5,"FailureStatus":1,"FailureID":"","FailureMsg":"This, obviously, is for testing purposes."},{"Name":"hippo","Enabled":false,"Status":5,"FailureStatus":2,"FailureID":"","FailureMsg":"Water is running low! Seriously, where has all the water gone? Are you nuts? You can't do that to me!"},{"Name":"rhino","Enabled":false,"Status":2,"FailureStatus":0,"FailureID":"","FailureMsg":""},{"Name":"monkey","Enabled":false,"Status":5,"FailureStatus":1,"FailureID":"","FailureMsg":"Need bananas!"},{"Name":"elephant","Enabled":false,"Status":5,"FailureStatus":0,"FailureID":"","FailureMsg":""},{"Name":"zergs","Enabled":false,"Status":4,"FailureStatus":3,"FailureID":"","FailureMsg":"We don't belong here!"},{"Name":"giraffe","Enabled":false,"Status":4,"FailureStatus":0,"FailureID":"","FailureMsg":""},{"Name":"panda","Enabled":false,"Status":1,"FailureStatus":0,"FailureID":"","FailureMsg":""},{"Name":"ant","Enabled":false,"Status":3,"FailureStatus":0,"FailureID":"","FailureMsg":""},{"Name":"bear","Enabled":false,"Status":0,"FailureStatus":0,"FailureID":"","FailureMsg":""}],"FailureStatus":1,"ToggleOptionKey":"filter/enable","ExpertiseLevel":0,"ReleaseLevel":1,"ConfigKeySpace":"config:filter/"}
-          -->
-
-          <!-- Error state -->
-          <span v-for="dep in subsystem.Modules.slice(1)" v-bind:key="'notice-' + dep.Name">
-            <div
-              v-if="dep.FailureStatus != FailureNone"
-              v-bind:class="['module-item ui inverted secondary segment', moduleStatusColor(dep)]"
+            <span v-if="subsystem.Modules[0].Status === StatusDead" class="ui grey text" style="float: right;"
+              >Dead</span
             >
-              <div v-bind:class="['ui top attached inverted basic label', moduleStatusColor(dep)]">
-                <span class="module-name">{{ dep.Name }}</span>
-                <span v-if="dep.FailureStatus === FailureError" style="float: right;">Error</span>
-                <span v-else-if="dep.FailureStatus === FailureWarning" style="float: right;">Warning</span>
-                <span v-else-if="dep.FailureStatus === FailureHint" style="float: right;">Hint</span>
+            <span
+              v-else-if="subsystem.Modules[0].Status === StatusPreparing"
+              class="ui yellow text"
+              style="float: right;"
+              >Preparing</span
+            >
+            <span v-else-if="subsystem.Modules[0].Status === StatusOffline" class="ui grey text" style="float: right;">
+              Offline</span
+            >
+            <span
+              v-else-if="subsystem.Modules[0].Status === StatusStopping"
+              class="ui yellow text"
+              style="float: right;"
+              >Stopping</span
+            >
+            <span
+              v-else-if="subsystem.Modules[0].Status === StatusStarting"
+              class="ui yellow text"
+              style="float: right;"
+              >Starting</span
+            >
+            <span v-else-if="subsystem.Modules[0].Status === StatusOnline" class="ui green text" style="float: right;"
+              >Online</span
+            >
+            <span v-else-if="subsystem.Modules[0].Status === StatusSoon" class="ui grey text" style="float: right;"
+              >Coming in July</span
+            >
+
+            <h4 style="margin-top: 0;">
+              {{ subsystem.Name }}
+            </h4>
+
+            <div
+              v-if="subsystem.Modules[0].FailureStatus != FailureNone"
+              v-bind:class="['module-item ui inverted secondary segment', moduleStatusColor(subsystem.Modules[0])]"
+            >
+              <div v-bind:class="['ui top attached inverted basic label', moduleStatusColor(subsystem.Modules[0])]">
+                <span v-if="subsystem.Modules[0].FailureStatus === FailureError">Error</span>
+                <span v-else-if="subsystem.Modules[0].FailureStatus === FailureWarning">Warning</span>
+                <span v-else-if="subsystem.Modules[0].FailureStatus === FailureHint">Hint</span>
               </div>
               <div class="module-msg">
-                {{ dep.FailureMsg }}
+                {{ subsystem.Modules[0].FailureMsg }}
               </div>
             </div>
-          </span>
 
-          <!-- Not online -->
-          <span v-for="dep in subsystem.Modules.slice(1)" v-bind:key="'status-' + dep.Name">
-            <div
-              v-if="dep.FailureStatus === FailureNone && dep.Status != StatusOnline"
-              v-bind:class="['module-item ui inverted basic label', moduleStatusColor(dep)]"
-            >
-              <span class="module-name">{{ dep.Name }}</span>
-              <div v-if="dep.Status === StatusDead" class="detail">Dead</div>
-              <div v-else-if="dep.Status === StatusPreparing" class="detail">Preparing</div>
-              <div v-else-if="dep.Status === StatusOffline" class="detail">Offline</div>
-              <div v-else-if="dep.Status === StatusStopping" class="detail">Stopping</div>
-              <div v-else-if="dep.Status === StatusStarting" class="detail">Starting</div>
-            </div>
-          </span>
+            <span>
+              {{ subsystem.Description }}
+            </span>
 
-          <!-- Online, no error -->
-          <span v-for="dep in subsystem.Modules.slice(1)" v-bind:key="'online-' + dep.Name">
-            <div
-              v-if="dep.Status === StatusOnline && dep.FailureStatus === FailureNone"
-              class="module-item ui black inverted basic label"
-            >
-              <span class="module-name">{{ dep.Name }}</span>
+            <span v-if="subsystem.Modules.length > 1">
+              <br /><br />
+              <strong>Modules</strong>
+              <br />
+
+              <!--
+                test with:
+                update core:status/subsystems/zoo|J{"ID":"zoo","Name":"The UI Zoo","Description":"There are weird animals here...","Modules":[{"Name":"zoo","Enabled":true,"Status":5,"FailureStatus":1,"FailureID":"","FailureMsg":"This, obviously, is for testing purposes."},{"Name":"hippo","Enabled":false,"Status":5,"FailureStatus":2,"FailureID":"","FailureMsg":"Water is running low! Seriously, where has all the water gone? Are you nuts? You can't do that to me!"},{"Name":"rhino","Enabled":false,"Status":2,"FailureStatus":0,"FailureID":"","FailureMsg":""},{"Name":"monkey","Enabled":false,"Status":5,"FailureStatus":1,"FailureID":"","FailureMsg":"Need bananas!"},{"Name":"elephant","Enabled":false,"Status":5,"FailureStatus":0,"FailureID":"","FailureMsg":""},{"Name":"zergs","Enabled":false,"Status":4,"FailureStatus":3,"FailureID":"","FailureMsg":"We don't belong here!"},{"Name":"giraffe","Enabled":false,"Status":4,"FailureStatus":0,"FailureID":"","FailureMsg":""},{"Name":"panda","Enabled":false,"Status":1,"FailureStatus":0,"FailureID":"","FailureMsg":""},{"Name":"ant","Enabled":false,"Status":3,"FailureStatus":0,"FailureID":"","FailureMsg":""},{"Name":"bear","Enabled":false,"Status":0,"FailureStatus":0,"FailureID":"","FailureMsg":""}],"FailureStatus":1,"ToggleOptionKey":"filter/enable","ExpertiseLevel":0,"ReleaseLevel":1,"ConfigKeySpace":"config:filter/"}
+
+                update core:status/subsystems/spn|J{"ID":"spn","Name":"SPN","Description":"There are weird animals here...","Modules":[{"Name":"spn","Enabled":false,"Status":2,"FailureStatus":0,"FailureID":"","FailureMsg":"This, obviously, is for testing purposes."},{"Name":"hippo","Enabled":false,"Status":5,"FailureStatus":2,"FailureID":"","FailureMsg":"Water is running low! Seriously, where has all the water gone? Are you nuts? You can't do that to me!"},{"Name":"rhino","Enabled":false,"Status":2,"FailureStatus":0,"FailureID":"","FailureMsg":""},{"Name":"monkey","Enabled":false,"Status":5,"FailureStatus":1,"FailureID":"","FailureMsg":"Need bananas!"},{"Name":"elephant","Enabled":false,"Status":5,"FailureStatus":0,"FailureID":"","FailureMsg":""},{"Name":"zergs","Enabled":false,"Status":4,"FailureStatus":3,"FailureID":"","FailureMsg":"We don't belong here!"},{"Name":"giraffe","Enabled":false,"Status":4,"FailureStatus":0,"FailureID":"","FailureMsg":""},{"Name":"panda","Enabled":false,"Status":1,"FailureStatus":0,"FailureID":"","FailureMsg":""},{"Name":"ant","Enabled":false,"Status":3,"FailureStatus":0,"FailureID":"","FailureMsg":""},{"Name":"bear","Enabled":false,"Status":0,"FailureStatus":0,"FailureID":"","FailureMsg":""}],"FailureStatus":1,"ToggleOptionKey":"filter/enable","ExpertiseLevel":0,"ReleaseLevel":1,"ConfigKeySpace":"config:filter/"}
+
+                update core:status/subsystems/spn|J{"ID":"spn","Name":"SPN","Description":"There are weird animals here...","Modules":[{"Name":"spn","Enabled":false,"Status":2,"FailureStatus":0,"FailureID":"","FailureMsg":"This, obviously, is for testing purposes."}],"FailureStatus":1,"ToggleOptionKey":"filter/enable","ExpertiseLevel":0,"ReleaseLevel":1,"ConfigKeySpace":"config:filter/"}
+
+                delete core:status/subsystems/spn
+              -->
+
+              <!-- Error state -->
+              <span v-for="dep in subsystem.Modules.slice(1)" v-bind:key="'notice-' + dep.Name">
+                <div
+                  v-if="dep.FailureStatus != FailureNone"
+                  v-bind:class="['module-item ui inverted secondary segment', moduleStatusColor(dep)]"
+                >
+                  <div v-bind:class="['ui top attached inverted basic label', moduleStatusColor(dep)]">
+                    <span class="module-name">{{ dep.Name }}</span>
+                    <span v-if="dep.FailureStatus === FailureError" style="float: right;">Error</span>
+                    <span v-else-if="dep.FailureStatus === FailureWarning" style="float: right;">Warning</span>
+                    <span v-else-if="dep.FailureStatus === FailureHint" style="float: right;">Hint</span>
+                  </div>
+                  <div class="module-msg">
+                    {{ dep.FailureMsg }}
+                  </div>
+                </div>
+              </span>
+
+              <!-- Not online -->
+              <span v-for="dep in subsystem.Modules.slice(1)" v-bind:key="'status-' + dep.Name">
+                <div
+                  v-if="dep.FailureStatus === FailureNone && dep.Status != StatusOnline"
+                  v-bind:class="['module-item ui inverted basic label', moduleStatusColor(dep)]"
+                >
+                  <span class="module-name">{{ dep.Name }}</span>
+                  <div v-if="dep.Status === StatusDead" class="detail">Dead</div>
+                  <div v-else-if="dep.Status === StatusPreparing" class="detail">Preparing</div>
+                  <div v-else-if="dep.Status === StatusOffline" class="detail">Offline</div>
+                  <div v-else-if="dep.Status === StatusStopping" class="detail">Stopping</div>
+                  <div v-else-if="dep.Status === StatusStarting" class="detail">Starting</div>
+                </div>
+              </span>
+
+              <!-- Online, no error -->
+              <span v-for="dep in subsystem.Modules.slice(1)" v-bind:key="'online-' + dep.Name">
+                <div
+                  v-if="dep.Status === StatusOnline && dep.FailureStatus === FailureNone"
+                  class="module-item ui black inverted basic label"
+                >
+                  <span class="module-name">{{ dep.Name }}</span>
+                </div>
+              </span>
+            </span>
+          </div>
+
+          <a v-if="subsystem.ID === 'spn'" href="https://account.safing.io/pricing">
+            <div class="dashboard-element support-portmaster ui very basic inverted segment">
+              <div class="text">Support the<br />Portmaster</div>
+              <div class="button">
+                <!--<span class="icon wiggle">🎉</span>-->
+                Pre-order SPN
+              </div>
             </div>
-          </span>
+          </a>
         </div>
       </div>
     </div>
@@ -252,7 +292,7 @@ import Notifications from "./Notifications.vue";
 export default {
   name: "Dashboard",
   components: {
-    Notifications
+    Notifications,
   },
   data() {
     return {
@@ -263,10 +303,16 @@ export default {
       StatusStopping: 3,
       StatusStarting: 4,
       StatusOnline: 5, // online and running
+      StatusSoon: 6, // UI only status
       FailureNone: 0,
       FailureHint: 1,
       FailureWarning: 2,
-      FailureError: 3
+      FailureError: 3,
+      SubsystemTemplates: {
+        "core:status/subsystems/spn": {
+          pageURL: "_spn",
+        },
+      },
     };
   },
   computed: {
@@ -274,11 +320,53 @@ export default {
       return this.$parent.statusDB.records["core:status/status"];
     },
     subsystems() {
-      var all = [];
+      let all = [];
+      let foundSPN = false; // TODO: remove when SPN is released
       for (var [key, record] of Object.entries(this.$parent.statusDB.records)) {
         if (key.startsWith("core:status/subsystems/")) {
+          // apply template
+          let template = this.SubsystemTemplates[key];
+          if (template) {
+            Object.assign(record, template);
+          }
+          // add to subsystems
           all.push(record);
+          // check if we already have the SPN module - TODO: remove when SPN is released
+          if (key === "core:status/subsystems/spn") {
+            foundSPN = true;
+          }
         }
+      }
+      // fake SPN module - TODO: remove when SPN is released
+      if (!foundSPN) {
+        // fake subsystem
+        let record = {
+          ID: "spn",
+          Name: "SPN",
+          Description: "Safing Privacy Network",
+          Modules: [
+            {
+              Name: "spn",
+              Enabled: false,
+              Status: this.StatusSoon,
+              FailureStatus: 0,
+              FailureID: "",
+              FailureMsg: "",
+            },
+          ],
+          FailureStatus: 0,
+          ToggleOptionKey: "",
+          ExpertiseLevel: 0,
+          ReleaseLevel: 0,
+          ConfigKeySpace: "config:spn/",
+        };
+        // apply template
+        let template = this.SubsystemTemplates["core:status/subsystems/spn"];
+        if (template) {
+          Object.assign(record, template);
+        }
+        // add to subsystems
+        all.push(record);
       }
       return all;
     },
@@ -293,17 +381,18 @@ export default {
     },
     allSubsystemsEnabled() {
       for (var subsystem of this.subsystems) {
-        if (!subsystem.Modules[0].Enabled) {
+        // TODO: remove SPN exception when SPN reaches beta/stable
+        if (subsystem.ID !== "spn" && !subsystem.Modules[0].Enabled) {
           return false;
         }
       }
       return true;
-    }
+    },
   },
   methods: {
     selectSecurityLevel(level) {
       this.$api.update("core:status/status", {
-        SelectedSecurityLevel: level
+        SelectedSecurityLevel: level,
       });
     },
     moduleStatusColor(moduleStatus) {
@@ -335,8 +424,8 @@ export default {
       this.controlOp = this.$api.get("control:" + value);
     },
     restart() {
-      this.control('module/core/trigger/restart');
-      setTimeout(function() {
+      this.control("module/core/trigger/restart");
+      setTimeout(function () {
         location.reload();
       }, 1000);
     },
@@ -344,24 +433,27 @@ export default {
       if (typeof system !== 'undefined') { // eslint-disable-line
         system.openDataDir(); // eslint-disable-line
       } else {
-        console.warn('cannot open data dir, running in browser');
+        console.warn("cannot open data dir, running in browser");
       }
     },
     reloadUI() {
       this.beforeOnUnload();
       // add an extra second, in case waiting is broken on a client
-      setTimeout(function() {
+      setTimeout(function () {
         location.reload();
       }, 1000);
     },
     beforeOnUnload() {
       this.controlOp = this.$api.get("control:module/ui/trigger/reload");
       this.controlOp.wait();
-    }
+    },
+    selectUIModule(url) {
+      this.$parent.selectUIModule(url);
+    },
   },
   beforeMount() {
     window.addEventListener("beforeunload", this.beforeOnUnload);
-  }
+  },
 };
 </script>
 
@@ -375,6 +467,9 @@ export default {
 }
 .dashboard-element {
   border-radius: 5px !important;
+  &.subsystem-page {
+    cursor: pointer;
+  }
 }
 
 .autopilot-icon {
@@ -428,6 +523,57 @@ export default {
   h2 {
     text-align: center;
     color: #111;
+  }
+}
+
+.support-portmaster {
+  margin-top: -7px !important;
+  background-image: url("/assets/img/plants1-br.png") !important;
+  background-position: bottom right !important;
+  background-repeat: no-repeat !important;
+  background-size: 40% !important;
+
+  .text {
+    margin: 10px;
+    display: inline-block;
+    font-family: Roboto;
+    font-weight: 800;
+  }
+
+  .button {
+    margin: 10px;
+    font-family: Roboto;
+    color: #fff;
+    font-size: 0.75rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    background-color: #6188ff;
+    border-radius: 10rem;
+    padding: 0.42rem 2.5rem 0.42rem 2.5rem;
+    display: inline-block;
+    align-items: center;
+    transition: all 0.1s ease-in-out;
+
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+
+    .icon {
+      padding-right: 0.75rem;
+      font-size: 1.5rem;
+    }
+
+    .wiggle {
+      animation: wiggle 0.6s infinite alternate;
+    }
+
+    @keyframes wiggle {
+      0% {
+        transform: rotate(4deg);
+      }
+      100% {
+        transform: rotate(10deg);
+      }
+    }
   }
 }
 </style>

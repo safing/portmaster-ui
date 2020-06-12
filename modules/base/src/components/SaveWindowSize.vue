@@ -5,11 +5,10 @@
 <script>
 export default {
   name: "Dashboard",
-  components: {
-  },
+  components: {},
   data() {
     return {
-      updateID: 0
+      updateID: 0,
     };
   },
   methods: {
@@ -31,14 +30,13 @@ export default {
       };
       // save after one second
       setTimeout(save, 1000);
-    }
+    },
   },
   beforeMount() {
     window.addEventListener("resize", this.saveWindowSize);
-  }
+  },
 };
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
-<style scoped lang="scss">
-</style>
+<style scoped lang="scss"></style>

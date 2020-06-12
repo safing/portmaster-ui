@@ -1,7 +1,6 @@
 <template>
   <div class="about">
     <div class="ui basic segment">
-
       <h3>Core Version Info</h3>
 
       <div v-if="$parent.versions">
@@ -49,12 +48,16 @@
       </p>
 
       <p>
-        Here you can find project attribution for Golang libraries and data. We are still working on a way how to display the gazillion dependencies we get through npm. Attribution for filter lists is found where they are displayed.<br />
+        Here you can find project attribution for Golang libraries and data. We are still working on a way how to
+        display the gazillion dependencies we get through npm. Attribution for filter lists is found where they are
+        displayed.<br />
         Also, this is not yet automated, so it might not be up to date all the time.
       </p>
 
       <p>
-        While not all the licenses listed require attribution, we still want to give it. Additionally, as soon as project funding allows, we will investigate how we can financially support project and library authors we depend on.
+        While not all the licenses listed require attribution, we still want to give it. Additionally, as soon as
+        project funding allows, we will investigate how we can financially support project and library authors we depend
+        on.
       </p>
 
       <h4>Attribution</h4>

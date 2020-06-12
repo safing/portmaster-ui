@@ -103,14 +103,14 @@ import OptionsView from "./options/OptionsView.vue";
 export default {
   name: "AppSettings",
   components: {
-    OptionsView
+    OptionsView,
   },
   data() {
     return {
-      profileDB: this.$api.qsub("query core:profiles/").prepFn("", function(key, obj) {
+      profileDB: this.$api.qsub("query core:profiles/").prepFn("", function (key, obj) {
         obj.dbKey = key;
       }),
-      selectedProfileKey: null
+      selectedProfileKey: null,
     };
   },
   computed: {
@@ -121,7 +121,7 @@ export default {
         all.push(profile);
       }
       // sort
-      all.sort(function(a, b) {
+      all.sort(function (a, b) {
         return b.ApproxLastUsed - a.ApproxLastUsed;
       });
       return all;
@@ -149,7 +149,7 @@ export default {
     },
     selectedProfile() {
       return this.profileDB.records[this.selectedProfileKey];
-    }
+    },
   },
   methods: {
     selectProfile(key) {
@@ -206,7 +206,7 @@ export default {
           rootMap[subbedKey] = entry;
         }
       }
-    }
+    },
   },
   filters: {
     fmtDatetime(value) {
@@ -219,8 +219,8 @@ export default {
     },
     fmtObject(value) {
       return JSON.stringify(value, null, "    ");
-    }
-  }
+    },
+  },
 };
 </script>
 

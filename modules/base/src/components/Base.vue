@@ -66,7 +66,7 @@
         <div>
           <div class="ui divider" style="margin-bottom: 0;"></div>
           <div class="item" style="text-align: center;">
-            <span v-if="apiInfo.connected" class="ui center aligned" style="color: #888">
+            <span v-if="apiInfo.connected" class="ui center aligned" style="color: #888;">
               Connected to Core
             </span>
             <span v-else class="ui red text">
@@ -86,10 +86,11 @@
         class="content-pane-item"
       >
         <Dashboard v-if="uiMod.url === '_dashboard'" />
-        <Settings v-if="uiMod.url === '_settings'" />
-        <AppSettings v-if="uiMod.url === '_app-settings'" />
-        <Support v-if="uiMod.url === '_support'" />
-        <About v-if="uiMod.url === '_about'" />
+        <SPN v-else-if="uiMod.url === '_spn'" />
+        <Settings v-else-if="uiMod.url === '_settings'" />
+        <AppSettings v-else-if="uiMod.url === '_app-settings'" />
+        <Support v-else-if="uiMod.url === '_support'" />
+        <About v-else-if="uiMod.url === '_about'" />
         <iframe v-else-if="uiMod.loaded" v-bind:src="basePath + uiMod.url" />
       </div>
     </div>
@@ -99,6 +100,7 @@
 <script>
 import SaveWindowSize from "./SaveWindowSize.vue";
 import Dashboard from "./Dashboard.vue";
+import SPN from "./SPN.vue";
 import Settings from "./Settings.vue";
 import AppSettings from "./AppSettings.vue";
 import Support from "./Support.vue";
@@ -109,13 +111,14 @@ export default {
   components: {
     SaveWindowSize,
     Dashboard,
+    SPN,
     Settings,
     AppSettings,
     Support,
-    About
+    About,
   },
   props: {
-    basePath: String
+    basePath: String,
   },
   data() {
     return {
@@ -128,49 +131,55 @@ export default {
           name: "Dashboard",
           url: "_dashboard",
           icon: "table",
-          loaded: true
+          loaded: true,
+        },
+        {
+          name: "SPN",
+          url: "_spn",
+          icon: "route",
+          loaded: false,
         },
         {
           name: "Monitor",
           url: "/ui/modules/monitor/",
           icon: "eye",
-          loaded: false
+          loaded: false,
         },
         {
           name: "Settings",
           url: "_settings",
           icon: "cog",
-          loaded: false
+          loaded: false,
         },
         {
           name: "App Settings",
           url: "_app-settings",
           icon: "user",
-          loaded: false
+          loaded: false,
         },
         {
           name: "Support",
           url: "_support",
           icon: "help",
           loaded: false,
-          bottom: true
+          bottom: true,
         },
         {
           name: "About",
           url: "_about",
           icon: "info",
           loaded: false,
-          bottom: true
+          bottom: true,
         },
         {
           name: "Dev Console",
           url: "/ui/modules/console/",
           icon: "terminal",
           loaded: false,
-          bottom: true
-        }
+          bottom: true,
+        },
       ],
-      selectedExpertiseLevel: -1
+      selectedExpertiseLevel: -1,
     };
   },
   computed: {
@@ -178,12 +187,12 @@ export default {
       return this.statusDB.records["core:status/versions"];
     },
     topMenu() {
-      return this.uiModules.filter(value => {
+      return this.uiModules.filter((value) => {
         return !value.bottom;
       });
     },
     bottomMenu() {
-      return this.uiModules.filter(value => {
+      return this.uiModules.filter((value) => {
         return value.bottom;
       });
     },
@@ -238,10 +247,13 @@ export default {
         default:
           return 0; // ExpertiseLevelUser
       }
-    }
+    },
   },
   methods: {
     selectUIModule(url) {
+      if (!url) {
+        return;
+      }
       for (const index in this.uiModules) {
         if (this.uiModules[index].url === url) {
           this.uiModules[index].loaded = true;
@@ -272,8 +284,8 @@ export default {
     },
     runningInApp() {
       return typeof system !== 'undefined' // eslint-disable-line
-    }
-  }
+    },
+  },
 };
 </script>
 
