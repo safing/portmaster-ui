@@ -1,6 +1,6 @@
 <template>
   <div class="row" style="margin-top: 0px; justify-content: space-between;">
-    <div class=" column" style="text-align: left;">
+    <div class="column" style="text-align: left;">
       <h5>
         <span
           v-if="option.ExpertiseLevel == 1"
@@ -231,12 +231,12 @@ export default {
     OptionStringArray,
     OptionBoolean,
     OptionIntSecurityLevel,
-    OptionInt
+    OptionInt,
   },
   props: {
     option: Object,
     optionValue: [Boolean, Number, String, Array], // Multiple possible types
-    optionDefaultValue: [Boolean, Number, String, Array] // Multiple possible types
+    optionDefaultValue: [Boolean, Number, String, Array], // Multiple possible types
   },
   data() {
     return {
@@ -247,7 +247,7 @@ export default {
       optTypeStringArray: 2,
       optTypeInt: 3,
       optTypeBool: 4,
-      showHelp: false
+      showHelp: false,
     };
   },
   computed: {
@@ -268,7 +268,7 @@ export default {
         return true;
       }
       return false;
-    }
+    },
   },
   methods: {
     optionValueActive() {
@@ -314,7 +314,7 @@ export default {
             break;
           case "object":
             var vm = this;
-            newValue.forEach(function(val) {
+            newValue.forEach(function (val) {
               if (!re.test(val)) {
                 vm.validationError = "validation regex `" + vm.option.ValidationRegex + "` failed for value " + val;
                 return;
@@ -338,8 +338,8 @@ export default {
     resetState() {
       this.validationError = "";
       this.request = {};
-    }
-  }
+    },
+  },
 };
 </script>
 
@@ -361,10 +361,10 @@ div.row > div {
   flex-grow: 1;
 }
 
-@media (max-width: 1100px) { 
+@media (max-width: 1100px) {
   div.row > div:first-of-type {
     // force wrap after title/help
-    flex-basis: 100%; 
-  } 
+    flex-basis: 100%;
+  }
 }
 </style>

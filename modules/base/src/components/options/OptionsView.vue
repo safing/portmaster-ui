@@ -83,7 +83,7 @@ import Option from "./Option.vue";
 export default {
   name: "OptionsView",
   components: {
-    Option
+    Option,
   },
   props: {
     editColumnName: String,
@@ -92,7 +92,7 @@ export default {
     configLayerID: String,
     configOptions: Object,
     activeReleaseLevel: Number,
-    activeExpertiseLevel: Number
+    activeExpertiseLevel: Number,
   },
   data() {
     return {
@@ -100,19 +100,19 @@ export default {
         core: {
           name: "Core",
           scopes: ["core", "api"],
-          icon: "certificate"
+          icon: "certificate",
         },
         dns: {
           name: "Secure DNS",
           scopes: ["dns"],
-          icon: "globe"
+          icon: "globe",
         },
         filter: {
           name: "Privacy Filter",
           scopes: ["filter"],
-          icon: "fire alternate"
-        }
-      }
+          icon: "fire alternate",
+        },
+      },
     };
   },
   computed: {
@@ -134,7 +134,7 @@ export default {
       // sort
       for (const section of Object.values(this.sectionTemplate)) {
         if (section.layeredOptions) {
-          section.layeredOptions.sort(function(a, b) {
+          section.layeredOptions.sort(function (a, b) {
             return a.option.Order - b.option.Order;
           });
         }
@@ -148,7 +148,7 @@ export default {
         this.flattenConfigObject(flattened, this.configLayer);
       }
       return flattened;
-    }
+    },
   },
   methods: {
     flattenConfigObject(rootMap, subMap, subKey) {
@@ -173,7 +173,7 @@ export default {
           key: this.configLayerID + ":" + option.Key,
           option: option,
           value: this.flattenedConfigLayer[option.Key],
-          defaultValue: option.Value ? option.Value : option.DefaultValue
+          defaultValue: option.Value ? option.Value : option.DefaultValue,
         };
       }
       // else return the global version
@@ -181,7 +181,7 @@ export default {
         key: "global:" + option.Key,
         option: option,
         value: option.Value,
-        defaultValue: option.DefaultValue
+        defaultValue: option.DefaultValue,
       };
     },
     setConfig(key, value) {
@@ -208,12 +208,12 @@ export default {
         key: sectionKey,
         scopes: [sectionKey],
         name: sectionKey.charAt(0).toUpperCase() + sectionKey.slice(1),
-        icon: "code"
+        icon: "code",
       };
       this.sectionTemplate[sectionKey] = section;
       return section;
-    }
-  }
+    },
+  },
 };
 </script>
 

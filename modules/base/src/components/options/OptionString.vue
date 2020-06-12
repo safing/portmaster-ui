@@ -34,12 +34,12 @@ export default {
     optionValue: String,
     displayDefault: Boolean,
     successState: Boolean,
-    errorState: Boolean
+    errorState: Boolean,
   },
   data() {
     return {
       newValue: this.optionValue,
-      editing: false
+      editing: false,
     };
   },
   methods: {
@@ -52,15 +52,13 @@ export default {
     startEdit(event) {
       this.$parent.resetState();
       this.editing = true;
-      $(event.target)
-        .siblings("input")
-        .focus();
+      $(event.target).siblings("input").focus();
     },
     endEdit() {
       this.$parent.resetState();
       this.editing = false;
-    }
-  }
+    },
+  },
 };
 </script>
 

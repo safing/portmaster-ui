@@ -65,7 +65,7 @@
           v-on:click="selectSecurityLevel(0)"
           v-bind:class="[
             'dashboard-element sl-item ui very basic inverted segment',
-            { 'sl-selected': status && status.SelectedSecurityLevel === 0 }
+            { 'sl-selected': status && status.SelectedSecurityLevel === 0 },
           ]"
         >
           <i class="rocket icon autopilot-icon" title="Autopilot"></i>
@@ -76,7 +76,7 @@
           v-on:click="selectSecurityLevel(1)"
           v-bind:class="[
             'dashboard-element sl-item ui very basic inverted segment',
-            { 'sl-selected': status && status.SelectedSecurityLevel === 1 }
+            { 'sl-selected': status && status.SelectedSecurityLevel === 1 },
           ]"
         >
           <img class="sl-icon" src="/assets/icons/level_normal.svg" title="Normal" />
@@ -87,7 +87,7 @@
           v-on:click="selectSecurityLevel(2)"
           v-bind:class="[
             'dashboard-element sl-item ui very basic inverted segment',
-            { 'sl-selected': status && status.SelectedSecurityLevel === 2 }
+            { 'sl-selected': status && status.SelectedSecurityLevel === 2 },
           ]"
         >
           <img class="sl-icon" src="/assets/icons/level_high.svg" title="High" />
@@ -98,7 +98,7 @@
           v-on:click="selectSecurityLevel(4)"
           v-bind:class="[
             'dashboard-element sl-item ui very basic inverted segment',
-            { 'sl-selected': status && status.SelectedSecurityLevel === 4 }
+            { 'sl-selected': status && status.SelectedSecurityLevel === 4 },
           ]"
         >
           <img class="sl-icon" src="/assets/icons/level_extreme.svg" title="Extreme" />
@@ -113,21 +113,31 @@
       <div class="doubling four column row">
         <div v-for="subsystem in subsystems" class="column" v-bind:key="subsystem.Name">
           <div
-          v-bind:class='["dashboard-element ui very basic inverted segment", { "subsystem-page": subsystem.pageURL }]'
-          v-on:click="selectUIModule(subsystem.pageURL)"
+            v-bind:class="['dashboard-element ui very basic inverted segment', { 'subsystem-page': subsystem.pageURL }]"
+            v-on:click="selectUIModule(subsystem.pageURL)"
           >
-            <span v-if="subsystem.Modules[0].Status === StatusDead" class="ui grey text" style="float: right;">Dead</span>
-            <span v-else-if="subsystem.Modules[0].Status === StatusPreparing" class="ui yellow text" style="float: right;"
+            <span v-if="subsystem.Modules[0].Status === StatusDead" class="ui grey text" style="float: right;"
+              >Dead</span
+            >
+            <span
+              v-else-if="subsystem.Modules[0].Status === StatusPreparing"
+              class="ui yellow text"
+              style="float: right;"
               >Preparing</span
             >
-            <span v-else-if="subsystem.Modules[0].Status === StatusOffline" class="ui grey text" style="float: right;"
-            >
+            <span v-else-if="subsystem.Modules[0].Status === StatusOffline" class="ui grey text" style="float: right;">
               Offline</span
             >
-            <span v-else-if="subsystem.Modules[0].Status === StatusStopping" class="ui yellow text" style="float: right;"
+            <span
+              v-else-if="subsystem.Modules[0].Status === StatusStopping"
+              class="ui yellow text"
+              style="float: right;"
               >Stopping</span
             >
-            <span v-else-if="subsystem.Modules[0].Status === StatusStarting" class="ui yellow text" style="float: right;"
+            <span
+              v-else-if="subsystem.Modules[0].Status === StatusStarting"
+              class="ui yellow text"
+              style="float: right;"
               >Starting</span
             >
             <span v-else-if="subsystem.Modules[0].Status === StatusOnline" class="ui green text" style="float: right;"
@@ -217,22 +227,18 @@
                   <span class="module-name">{{ dep.Name }}</span>
                 </div>
               </span>
-
             </span>
           </div>
 
           <a v-if="subsystem.ID === 'spn'" href="https://account.safing.io/pricing">
             <div class="dashboard-element support-portmaster ui very basic inverted segment">
-              <div class="text">
-                Support the<br/>Portmaster
-              </div>
+              <div class="text">Support the<br />Portmaster</div>
               <div class="button">
                 <!--<span class="icon wiggle">🎉</span>-->
                 Pre-order SPN
               </div>
             </div>
           </a>
-
         </div>
       </div>
     </div>
@@ -286,7 +292,7 @@ import Notifications from "./Notifications.vue";
 export default {
   name: "Dashboard",
   components: {
-    Notifications
+    Notifications,
   },
   data() {
     return {
@@ -305,8 +311,8 @@ export default {
       SubsystemTemplates: {
         "core:status/subsystems/spn": {
           pageURL: "_spn",
-        }
-      }
+        },
+      },
     };
   },
   computed: {
@@ -346,13 +352,13 @@ export default {
               FailureStatus: 0,
               FailureID: "",
               FailureMsg: "",
-            }
+            },
           ],
           FailureStatus: 0,
           ToggleOptionKey: "",
           ExpertiseLevel: 0,
           ReleaseLevel: 0,
-          ConfigKeySpace: "config:spn/"
+          ConfigKeySpace: "config:spn/",
         };
         // apply template
         let template = this.SubsystemTemplates["core:status/subsystems/spn"];
@@ -381,12 +387,12 @@ export default {
         }
       }
       return true;
-    }
+    },
   },
   methods: {
     selectSecurityLevel(level) {
       this.$api.update("core:status/status", {
-        SelectedSecurityLevel: level
+        SelectedSecurityLevel: level,
       });
     },
     moduleStatusColor(moduleStatus) {
@@ -418,8 +424,8 @@ export default {
       this.controlOp = this.$api.get("control:" + value);
     },
     restart() {
-      this.control('module/core/trigger/restart');
-      setTimeout(function() {
+      this.control("module/core/trigger/restart");
+      setTimeout(function () {
         location.reload();
       }, 1000);
     },
@@ -427,13 +433,13 @@ export default {
       if (typeof system !== 'undefined') { // eslint-disable-line
         system.openDataDir(); // eslint-disable-line
       } else {
-        console.warn('cannot open data dir, running in browser');
+        console.warn("cannot open data dir, running in browser");
       }
     },
     reloadUI() {
       this.beforeOnUnload();
       // add an extra second, in case waiting is broken on a client
-      setTimeout(function() {
+      setTimeout(function () {
         location.reload();
       }, 1000);
     },
@@ -443,11 +449,11 @@ export default {
     },
     selectUIModule(url) {
       this.$parent.selectUIModule(url);
-    }
+    },
   },
   beforeMount() {
     window.addEventListener("beforeunload", this.beforeOnUnload);
-  }
+  },
 };
 </script>
 
@@ -546,18 +552,18 @@ export default {
     padding: 0.42rem 2.5rem 0.42rem 2.5rem;
     display: inline-block;
     align-items: center;
-    transition: all .1s ease-in-out; 
+    transition: all 0.1s ease-in-out;
 
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
 
-    .icon{
-        padding-right: 0.75rem;
-        font-size: 1.5rem;
+    .icon {
+      padding-right: 0.75rem;
+      font-size: 1.5rem;
     }
 
     .wiggle {
-        animation: wiggle .6s infinite alternate;
+      animation: wiggle 0.6s infinite alternate;
     }
 
     @keyframes wiggle {

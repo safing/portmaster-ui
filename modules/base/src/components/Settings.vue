@@ -21,7 +21,7 @@ import OptionsView from "./options/OptionsView.vue";
 export default {
   name: "Settings",
   components: {
-    OptionsView
+    OptionsView,
   },
   data() {
     return {};
@@ -35,7 +35,7 @@ export default {
     },
     activeExpertiseLevel() {
       return this.$parent.activeExpertiseLevel;
-    }
+    },
   },
   methods: {
     setConfig(key, value) {
@@ -47,13 +47,13 @@ export default {
     },
     selectExpertiseLevel(level) {
       this.$parent.selectExpertiseLevel(level);
-    }
+    },
   },
   filters: {
     fmtObject(value) {
       return JSON.stringify(value, null, "    ");
-    }
-  }
+    },
+  },
 };
 </script>
 

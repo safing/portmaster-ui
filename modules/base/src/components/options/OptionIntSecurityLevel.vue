@@ -69,18 +69,18 @@ export default {
     optionValue: Number,
     displayDefault: Boolean,
     successState: Boolean,
-    errorState: Boolean
+    errorState: Boolean,
   },
   data() {
     return {
       newValue: this.optionValue,
-      editing: false
+      editing: false,
     };
   },
   computed: {
     dropdownID() {
       return this._uid + "_dropdown";
-    }
+    },
   },
   methods: {
     updateValue() {
@@ -105,17 +105,15 @@ export default {
     endEdit() {
       this.$parent.resetState();
       this.editing = false;
-      $(event.target)
-        .siblings("input")
-        .focus();
+      $(event.target).siblings("input").focus();
     },
     setNewValue(number) {
       this.newValue = number;
-    }
+    },
   },
   updated() {
     $("#" + this.dropdownID).dropdown();
-  }
+  },
 };
 </script>
 

@@ -14,15 +14,14 @@ require("../../../assets/themed/fomantic/semantic.min.js");
 // load portbase api
 Vue.use(PortAPI, {
   url: "ws://127.0.0.1:817/api/database/v1",
-  debug: true
+  debug: true,
 });
 
 // notify app that we have finished loading
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener("DOMContentLoaded", () => {
   try {
-    window.external['invoke']('DOMContentLoaded');
-  }
-  catch(e) {
+    window.external["invoke"]("DOMContentLoaded");
+  } catch (e) {
     console.warn(`failed to notify app that we have finished loading: ${e}`);
   }
 });
@@ -51,5 +50,5 @@ if (document.addEventListener) {
 
 // render app
 new Vue({
-  render: h => h(App)
+  render: (h) => h(App),
 }).$mount("#app");

@@ -13,7 +13,7 @@
             :class="[
               'ui inverted button',
               notificationColorClass(n.Type),
-              action.ID != n.SelectedActionID ? 'basic' : ''
+              action.ID != n.SelectedActionID ? 'basic' : '',
             ]"
           >
             {{ action.Text }}
@@ -32,9 +32,9 @@ export default {
   components: {},
   data() {
     return {
-      notifDB: this.$api.qsub("query notifications").prepFn("", function(key, obj) {
+      notifDB: this.$api.qsub("query notifications").prepFn("", function (key, obj) {
         obj.dbKey = key;
-      })
+      }),
     };
   },
   computed: {
@@ -47,11 +47,11 @@ export default {
         }
       }
       // sort
-      active.sort(function(a, b) {
+      active.sort(function (a, b) {
         return a.Created - b.Created;
       });
       return active;
-    }
+    },
   },
   methods: {
     selectAction(n, actionID) {
@@ -77,8 +77,8 @@ export default {
         case 2: // Prompt
           return "blue";
       }
-    }
-  }
+    },
+  },
 };
 </script>
 
