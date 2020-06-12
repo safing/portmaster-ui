@@ -86,10 +86,11 @@
         class="content-pane-item"
       >
         <Dashboard v-if="uiMod.url === '_dashboard'" />
-        <Settings v-if="uiMod.url === '_settings'" />
-        <AppSettings v-if="uiMod.url === '_app-settings'" />
-        <Support v-if="uiMod.url === '_support'" />
-        <About v-if="uiMod.url === '_about'" />
+        <SPN v-else-if="uiMod.url === '_spn'" />
+        <Settings v-else-if="uiMod.url === '_settings'" />
+        <AppSettings v-else-if="uiMod.url === '_app-settings'" />
+        <Support v-else-if="uiMod.url === '_support'" />
+        <About v-else-if="uiMod.url === '_about'" />
         <iframe v-else-if="uiMod.loaded" v-bind:src="basePath + uiMod.url" />
       </div>
     </div>
@@ -99,6 +100,7 @@
 <script>
 import SaveWindowSize from "./SaveWindowSize.vue";
 import Dashboard from "./Dashboard.vue";
+import SPN from "./SPN.vue";
 import Settings from "./Settings.vue";
 import AppSettings from "./AppSettings.vue";
 import Support from "./Support.vue";
@@ -109,6 +111,7 @@ export default {
   components: {
     SaveWindowSize,
     Dashboard,
+    SPN,
     Settings,
     AppSettings,
     Support,
@@ -129,6 +132,12 @@ export default {
           url: "_dashboard",
           icon: "table",
           loaded: true
+        },
+        {
+          name: "SPN",
+          url: "_spn",
+          icon: "route",
+          loaded: false
         },
         {
           name: "Monitor",
@@ -242,6 +251,9 @@ export default {
   },
   methods: {
     selectUIModule(url) {
+      if (!url) {
+        return
+      }
       for (const index in this.uiModules) {
         if (this.uiModules[index].url === url) {
           this.uiModules[index].loaded = true;
