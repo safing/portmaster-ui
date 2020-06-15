@@ -108,7 +108,11 @@
       </div>
     </div>
 
-    <h3>Subsystems</h3>
+    <h3>
+      Modules
+      <span v-if="$parent.activeExpertiseLevel > 1" class="ui small grey text"> Subsystems</span>
+    </h3>
+
     <div class="ui grid">
       <div class="doubling four column row">
         <div v-for="subsystem in subsystems" class="column" v-bind:key="subsystem.Name">
@@ -116,36 +120,12 @@
             v-bind:class="['dashboard-element ui very basic inverted segment', { 'subsystem-page': subsystem.pageURL }]"
             v-on:click="selectUIModule(subsystem.pageURL)"
           >
-            <span v-if="subsystem.Modules[0].Status === StatusDead" class="ui grey text" style="float: right;"
-              >Dead</span
-            >
-            <span
-              v-else-if="subsystem.Modules[0].Status === StatusPreparing"
-              class="ui yellow text"
-              style="float: right;"
-              >Preparing</span
-            >
-            <span v-else-if="subsystem.Modules[0].Status === StatusOffline" class="ui grey text" style="float: right;">
-              Offline</span
-            >
-            <span
-              v-else-if="subsystem.Modules[0].Status === StatusStopping"
-              class="ui yellow text"
-              style="float: right;"
-              >Stopping</span
-            >
-            <span
-              v-else-if="subsystem.Modules[0].Status === StatusStarting"
-              class="ui yellow text"
-              style="float: right;"
-              >Starting</span
-            >
-            <span v-else-if="subsystem.Modules[0].Status === StatusOnline" class="ui green text" style="float: right;"
-              >Online</span
-            >
-            <span v-else-if="subsystem.Modules[0].Status === StatusSoon" class="ui grey text" style="float: right;"
-              >Coming in July</span
-            >
+            <span v-if="subsystem.Modules[0].Status === StatusSoon" class="ui grey text" style="float: right;">
+              Coming in July
+            </span>
+            <span v-else v-bind:class="['ui text', moduleStatusColor(subsystem.Modules[0])]" style="float: right;">
+              {{ moduleStatusName(subsystem.Modules[0]) }}
+            </span>
 
             <h4 style="margin-top: 0;">
               {{ subsystem.Name }}
@@ -160,35 +140,31 @@
                 <span v-else-if="subsystem.Modules[0].FailureStatus === FailureWarning">Warning</span>
                 <span v-else-if="subsystem.Modules[0].FailureStatus === FailureHint">Hint</span>
               </div>
-              <div class="module-msg">
-                {{ subsystem.Modules[0].FailureMsg }}
-              </div>
+              <div class="module-msg">{{ subsystem.Modules[0].FailureMsg }}</div>
             </div>
 
             <span>
               {{ subsystem.Description }}
             </span>
 
-            <span v-if="subsystem.Modules.length > 1">
+            <span v-if="subsystem.FailureStatus > 0 || $parent.activeExpertiseLevel > 0">
               <br /><br />
-              <strong>Modules</strong>
+              <strong>Components</strong>
+              <span v-if="$parent.activeExpertiseLevel > 1" class="ui small grey text"> Modules</span>
               <br />
 
               <!--
                 test with:
-                update core:status/subsystems/zoo|J{"ID":"zoo","Name":"The UI Zoo","Description":"There are weird animals here...","Modules":[{"Name":"zoo","Enabled":true,"Status":5,"FailureStatus":1,"FailureID":"","FailureMsg":"This, obviously, is for testing purposes."},{"Name":"hippo","Enabled":false,"Status":5,"FailureStatus":2,"FailureID":"","FailureMsg":"Water is running low! Seriously, where has all the water gone? Are you nuts? You can't do that to me!"},{"Name":"rhino","Enabled":false,"Status":2,"FailureStatus":0,"FailureID":"","FailureMsg":""},{"Name":"monkey","Enabled":false,"Status":5,"FailureStatus":1,"FailureID":"","FailureMsg":"Need bananas!"},{"Name":"elephant","Enabled":false,"Status":5,"FailureStatus":0,"FailureID":"","FailureMsg":""},{"Name":"zergs","Enabled":false,"Status":4,"FailureStatus":3,"FailureID":"","FailureMsg":"We don't belong here!"},{"Name":"giraffe","Enabled":false,"Status":4,"FailureStatus":0,"FailureID":"","FailureMsg":""},{"Name":"panda","Enabled":false,"Status":1,"FailureStatus":0,"FailureID":"","FailureMsg":""},{"Name":"ant","Enabled":false,"Status":3,"FailureStatus":0,"FailureID":"","FailureMsg":""},{"Name":"bear","Enabled":false,"Status":0,"FailureStatus":0,"FailureID":"","FailureMsg":""}],"FailureStatus":1,"ToggleOptionKey":"filter/enable","ExpertiseLevel":0,"ReleaseLevel":1,"ConfigKeySpace":"config:filter/"}
+                update core:status/subsystems/zoo|J{"ID":"zoo","Name":"The UI Zoo","Description":"There are weird animals here...","Modules":[{"Name":"zoo","Enabled":true,"Status":5,"FailureStatus":1,"FailureID":"","FailureMsg":"This, obviously, is for testing purposes."},{"Name":"hippo","Enabled":true,"Status":5,"FailureStatus":2,"FailureID":"","FailureMsg":"Water is running low! Seriously, where has all the water gone? Are you nuts? You can't do that to me!"},{"Name":"rhino","Enabled":true,"Status":2,"FailureStatus":0,"FailureID":"","FailureMsg":""},{"Name":"monkey","Enabled":true,"Status":5,"FailureStatus":1,"FailureID":"","FailureMsg":"Need bananas!"},{"Name":"elephant","Enabled":true,"Status":5,"FailureStatus":0,"FailureID":"","FailureMsg":""},{"Name":"zergs","Enabled":true,"Status":4,"FailureStatus":3,"FailureID":"","FailureMsg":"We don't belong here!"},{"Name":"giraffe","Enabled":true,"Status":4,"FailureStatus":0,"FailureID":"","FailureMsg":""},{"Name":"panda","Enabled":true,"Status":1,"FailureStatus":0,"FailureID":"","FailureMsg":""},{"Name":"ant","Enabled":true,"Status":3,"FailureStatus":0,"FailureID":"","FailureMsg":""},{"Name":"bear","Enabled":true,"Status":0,"FailureStatus":0,"FailureID":"","FailureMsg":""},{"Name":"cthulhu","Enabled":false,"Status":4,"FailureStatus":0,"FailureID":"","FailureMsg":""},{"Name":"leviathan","Enabled":false,"Status":2,"FailureStatus":0,"FailureID":"","FailureMsg":""}],"FailureStatus":1,"ToggleOptionKey":"filter/enable","ExpertiseLevel":0,"ReleaseLevel":1,"ConfigKeySpace":"config:filter/"}
 
-                update core:status/subsystems/spn|J{"ID":"spn","Name":"SPN","Description":"There are weird animals here...","Modules":[{"Name":"spn","Enabled":false,"Status":2,"FailureStatus":0,"FailureID":"","FailureMsg":"This, obviously, is for testing purposes."},{"Name":"hippo","Enabled":false,"Status":5,"FailureStatus":2,"FailureID":"","FailureMsg":"Water is running low! Seriously, where has all the water gone? Are you nuts? You can't do that to me!"},{"Name":"rhino","Enabled":false,"Status":2,"FailureStatus":0,"FailureID":"","FailureMsg":""},{"Name":"monkey","Enabled":false,"Status":5,"FailureStatus":1,"FailureID":"","FailureMsg":"Need bananas!"},{"Name":"elephant","Enabled":false,"Status":5,"FailureStatus":0,"FailureID":"","FailureMsg":""},{"Name":"zergs","Enabled":false,"Status":4,"FailureStatus":3,"FailureID":"","FailureMsg":"We don't belong here!"},{"Name":"giraffe","Enabled":false,"Status":4,"FailureStatus":0,"FailureID":"","FailureMsg":""},{"Name":"panda","Enabled":false,"Status":1,"FailureStatus":0,"FailureID":"","FailureMsg":""},{"Name":"ant","Enabled":false,"Status":3,"FailureStatus":0,"FailureID":"","FailureMsg":""},{"Name":"bear","Enabled":false,"Status":0,"FailureStatus":0,"FailureID":"","FailureMsg":""}],"FailureStatus":1,"ToggleOptionKey":"filter/enable","ExpertiseLevel":0,"ReleaseLevel":1,"ConfigKeySpace":"config:filter/"}
-
-                update core:status/subsystems/spn|J{"ID":"spn","Name":"SPN","Description":"There are weird animals here...","Modules":[{"Name":"spn","Enabled":false,"Status":2,"FailureStatus":0,"FailureID":"","FailureMsg":"This, obviously, is for testing purposes."}],"FailureStatus":1,"ToggleOptionKey":"filter/enable","ExpertiseLevel":0,"ReleaseLevel":1,"ConfigKeySpace":"config:filter/"}
-
-                delete core:status/subsystems/spn
+                remove after testing:
+                delete core:status/subsystems/zoo
               -->
 
               <!-- Error state -->
               <span v-for="dep in subsystem.Modules.slice(1)" v-bind:key="'notice-' + dep.Name">
                 <div
-                  v-if="dep.FailureStatus != FailureNone"
+                  v-if="moduleStatusOrder(dep) === 1"
                   v-bind:class="['module-item ui inverted secondary segment', moduleStatusColor(dep)]"
                 >
                   <div v-bind:class="['ui top attached inverted basic label', moduleStatusColor(dep)]">
@@ -197,33 +173,24 @@
                     <span v-else-if="dep.FailureStatus === FailureWarning" style="float: right;">Warning</span>
                     <span v-else-if="dep.FailureStatus === FailureHint" style="float: right;">Hint</span>
                   </div>
-                  <div class="module-msg">
-                    {{ dep.FailureMsg }}
-                  </div>
+                  <div class="module-msg">{{ dep.FailureMsg }}</div>
                 </div>
               </span>
 
               <!-- Not online -->
               <span v-for="dep in subsystem.Modules.slice(1)" v-bind:key="'status-' + dep.Name">
                 <div
-                  v-if="dep.FailureStatus === FailureNone && dep.Status != StatusOnline"
+                  v-if="moduleStatusOrder(dep) === 2"
                   v-bind:class="['module-item ui inverted basic label', moduleStatusColor(dep)]"
                 >
                   <span class="module-name">{{ dep.Name }}</span>
-                  <div v-if="dep.Status === StatusDead" class="detail">Dead</div>
-                  <div v-else-if="dep.Status === StatusPreparing" class="detail">Preparing</div>
-                  <div v-else-if="dep.Status === StatusOffline" class="detail">Offline</div>
-                  <div v-else-if="dep.Status === StatusStopping" class="detail">Stopping</div>
-                  <div v-else-if="dep.Status === StatusStarting" class="detail">Starting</div>
+                  <div class="detail">{{ moduleStatusName(dep) }}</div>
                 </div>
               </span>
 
               <!-- Online, no error -->
               <span v-for="dep in subsystem.Modules.slice(1)" v-bind:key="'online-' + dep.Name">
-                <div
-                  v-if="dep.Status === StatusOnline && dep.FailureStatus === FailureNone"
-                  class="module-item ui black inverted basic label"
-                >
+                <div v-if="moduleStatusOrder(dep) === 3" class="module-item ui black inverted basic label">
                   <span class="module-name">{{ dep.Name }}</span>
                 </div>
               </span>
@@ -234,7 +201,6 @@
             <div class="dashboard-element support-portmaster ui very basic inverted segment">
               <div class="text">Support the<br />Portmaster</div>
               <div class="button">
-                <!--<span class="icon wiggle">🎉</span>-->
                 Pre-order SPN
               </div>
             </div>
@@ -243,12 +209,12 @@
       </div>
     </div>
 
-    <h3>System Control</h3>
+    <h3>Portmaster Controls</h3>
     <div class="ui grid">
       <div class="sixteen wide column">
         <div class="dashboard-element ui very basic inverted segment">
           <div class="ui buttons">
-            <button class="ui inverted basic red button" v-on:click="control('module/core/trigger/shutdown')">
+            <button class="ui inverted basic red button" v-on:click="shutdown()">
               Shutdown
             </button>
             <button class="ui inverted basic orange button" v-on:click="restart()">
@@ -395,6 +361,76 @@ export default {
         SelectedSecurityLevel: level,
       });
     },
+    moduleStatusOrder(moduleStatus) {
+      // Failing
+      if (moduleStatus.FailureStatus !== this.FailureNone) {
+        return 1;
+      }
+      // Unusual Status
+      if (
+        (moduleStatus.Enabled && moduleStatus.Status !== this.StatusOnline) ||
+        (!moduleStatus.Enabled && moduleStatus.Status !== this.StatusOffline)
+      ) {
+        return 2;
+      }
+      // Usual Status
+      return 3;
+    },
+    moduleStatusName(moduleStatus) {
+      // Define status names
+      let statusName = "";
+      let statusTechnical = "";
+      switch (moduleStatus.Status) {
+        case this.StatusDead:
+          statusName = "Waiting";
+          statusTechnical = "Dead";
+          break;
+        case this.StatusPreparing:
+          statusName = "Preparing";
+          break;
+        case this.StatusOffline:
+          statusName = "Waiting";
+          statusTechnical = "Offline";
+          break;
+        case this.StatusStopping:
+          statusName = "Stopping";
+          break;
+        case this.StatusStarting:
+          statusName = "Starting";
+          break;
+        case this.StatusOnline:
+          statusName = "Active";
+          // This would be correct, but is awful in terms of UX:
+          // statusTechnical = "Online";
+          break;
+      }
+
+      // Enabled
+      if (moduleStatus.Enabled) {
+        if (this.$parent.activeExpertiseLevel > 0 && statusTechnical !== "") {
+          return `${statusName} (</> ${statusTechnical})`;
+        } else {
+          return statusName;
+        }
+      }
+
+      // Disabled
+      if (moduleStatus.Status === this.StatusOffline) {
+        // Desired state for disabled module
+        if (this.$parent.activeExpertiseLevel > 0) {
+          return `Disabled (${statusTechnical})`;
+        } else {
+          return "Disabled";
+        }
+      } else {
+        // Undesired state for disabled module
+        if (this.$parent.activeExpertiseLevel > 0 && statusTechnical !== "") {
+          return `Disabled (${statusName} </> ${statusTechnical})`;
+        } else {
+          return `Disabled (${statusName})`;
+        }
+      }
+    },
     moduleStatusColor(moduleStatus) {
       switch (moduleStatus.FailureStatus) {
         case this.FailureError:
@@ -422,6 +458,15 @@ export default {
     },
     control(value) {
       this.controlOp = this.$api.get("control:" + value);
+    },
+    shutdown() {
+      if (
+        confirm(
+          "Are you sure you want to shutdown the Portmaster? You will have to reboot your device to start it again!"
+        )
+      ) {
+        this.control("module/core/trigger/shutdown");
+      }
     },
     restart() {
       this.control("module/core/trigger/restart");
