@@ -28,8 +28,14 @@ document.addEventListener("DOMContentLoaded", () => {
 
 // handle URLs via OS
 function handleClick(e) {
+  // get click target
   var target = e.target || e.srcElement;
-  if (target.tagName === "A") {
+  // traverse until we reach an a tag
+  while (target && target.tagName !== "A") {
+    target = target.parentElement;
+  }
+  // check if we found one
+  if (target) {
     // do not navigate
     e.preventDefault();
     // open with OS
