@@ -9,7 +9,7 @@
           <h4 style="margin-bottom: 0;">Portmaster</h4>
           <p v-if="versions" class="ui small text">
             <span class="ui small text">
-              v{{ versions.Core.Version }} <span class="ui red text">(pre-alpha)</span>
+              v{{ versions.Core.Version }} <span class="ui red text">(alpha)</span>
             </span>
           </p>
           <p v-else>
