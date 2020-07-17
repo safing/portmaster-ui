@@ -227,6 +227,9 @@
             <button class="ui inverted basic blue button" v-on:click="control('module/updates/trigger/trigger update')">
               Download updates
             </button>
+            <button class="ui inverted basic blue button" v-on:click="control('module/resolver/trigger/clear name cache')">
+              Clear DNS Cache
+            </button>
           </div>
           <span v-if="controlOp" style="padding-left: 20px;">
             <span v-if="controlOp.loading">loading...</span>
