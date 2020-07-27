@@ -348,13 +348,13 @@ func getPath(module string) (string, error) {
 		return "", fmt.Errorf("failed to get Path for %s: dataDir is empty", module)
 	}
 
-	appPath := filepath.Join(dataDir, "portmaster-control")
+	pmStartPath := filepath.Join(dataDir, "portmaster-start")
 	if runtime.GOOS == "windows" {
-		appPath += ".exe"
+		pmStartPath += ".exe"
 	}
 
 	// get path
-	cmd := exec.Command(appPath, "show", module, "--db", dataDir)
+	cmd := exec.Command(pmStartPath, "show", module, "--data", dataDir)
 	ret, err := cmd.Output()
 
 	if err != nil {
