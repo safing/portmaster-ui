@@ -45,13 +45,13 @@ func onReady() {
 		menuItemOpenApp := systray.AddMenuItem("Open App", "")
 		go clickListener(menuItemOpenApp, func() {
 			// build path to app
-			appPath := filepath.Join(dataDir, "portmaster-control")
+			pmStartPath := filepath.Join(dataDir, "portmaster-start")
 			if runtime.GOOS == "windows" {
-				appPath += ".exe"
+				pmStartPath += ".exe"
 			}
 
 			// start app
-			cmd := exec.Command(appPath, "run", "app", "--db", dataDir)
+			cmd := exec.Command(pmStartPath, "app", "--data", dataDir)
 			err := cmd.Start()
 			if err != nil {
 				log.Warningf("failed to start app: %s", err)

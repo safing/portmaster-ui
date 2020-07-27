@@ -23,7 +23,6 @@ import (
 
 var (
 	dataDir          string
-	databaseDir      string
 	printStackOnExit bool
 	showVersion      bool
 
@@ -35,7 +34,6 @@ var (
 
 func init() {
 	flag.StringVar(&dataDir, "data", "", "set data directory")
-	flag.StringVar(&databaseDir, "db", "", "alias to --data (deprecated)")
 	flag.BoolVar(&printStackOnExit, "print-stack-on-exit", false, "prints the stack before of shutting down")
 	flag.BoolVar(&showVersion, "version", false, "show version and exit")
 
@@ -67,11 +65,6 @@ func main() {
 		os.Exit(0)
 	}
 
-	// backwards compatibility
-	if dataDir == "" {
-		dataDir = databaseDir
-	}
-
 	// auto detect
 	if dataDir == "" {
 		dataDir = detectDataDir()
@@ -82,9 +75,6 @@ func main() {
 		fmt.Fprintln(os.Stderr, "please set the data directory using --data=/path/to/data/dir")
 		os.Exit(1)
 	}
-
-	// backwards compatibility
-	databaseDir = dataDir
 
 	// switch to safe exec dir
 	err = os.Chdir(filepath.Join(dataDir, "exec"))
