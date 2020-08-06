@@ -11,7 +11,7 @@
               Prevent all Internet Service Providers from collecting and selling your private activities.
             </p>
 
-            <h3>Arriving here in July.</h3>
+            <h3>Currently in closed Pre-Alpha.</h3>
             <p>
               <a href="https://safing.io/spn/">
                 <div class="button">
@@ -30,6 +30,14 @@
 
       <!-- FAQ -->
       <div class="doubling two column row spn-faq">
+        <div class="column">
+          <h4>Is the SPN out yet?</h4>
+          <p>The SPN is currently in a closed pre-alpha with our earliest Kickstarter backers (MARVIN & VISIONARY). A status page to inform you of the networks status, its size and number of users is planned. We will link to it from here as soon as it is out.</p>
+        </div>
+        <div class="column">
+          <h4>When can I use the SPN?</h4>
+          <p>There are two key factors. The most important metric is development: the faster we progress the faster you get access. From our recent experience with the Portmaster, we know it will take weeks or months until it matures enough to progress into the "alpha" stage. The second key factor is your place in the waitlist. Everyone who pre-ordered got enqueued and we will gradually let more people into the network. Feel free to pre-order too or wait until we open the network for instant access.</p>
+        </div>
         <div class="column">
           <h4>Is the SPN like Tor?</h4>
           <p>
