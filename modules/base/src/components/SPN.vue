@@ -32,7 +32,11 @@
       <div class="doubling two column row spn-faq">
         <div class="column">
           <h4>Is the SPN out yet?</h4>
-          <p>The SPN is currently in a closed pre-alpha with our earliest Kickstarter backers (MARVIN & VISIONARY). A status page to inform you of the networks status, its size and number of users is planned. We will link to it from here as soon as it is out.</p>
+          <p>
+            The SPN is currently in a closed pre-alpha with our earliest Kickstarter backers (MARVIN & VISIONARY).
+            To find out about current goals & its status <a href="https://github.com/safing/spn/wiki/Pre-Alpha-Goals-and-Status">visit the GitHub wiki</a>.
+            You can also <a href="https://safing.io/next/">follow our progress on our next page</a>.
+          </p>
         </div>
         <div class="column">
           <h4>When can I use the SPN?</h4>
