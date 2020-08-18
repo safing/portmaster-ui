@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 import { PortapiService } from './services/portapi.service';
+import { ConfigService } from './services/config.service';
 
 @Component({
   selector: 'app-root',
@@ -9,7 +10,9 @@ import { PortapiService } from './services/portapi.service';
 export class AppComponent {
   title = 'portmaster';
 
-  constructor(public portapi: PortapiService) {
+  constructor(public portapi: PortapiService,
+              public configService: ConfigService) {
     (window as any).portapi = portapi;
+    (window as any).config = configService;
   }
 }

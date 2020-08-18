@@ -140,6 +140,14 @@ export type StringSetting = BaseSetting<string, OptionType.String>;
 export type StringArraySetting = BaseSetting<string[], OptionType.StringArray>;
 export type BoolSetting = BaseSetting<boolean, OptionType.Bool>;
 
+/**
+ * SettingValueType is used to infer the type of a settings from it's default value.
+ * Use like this:
+ * 
+ *      validate<S extends Setting>(spec: S, value SettingValueType<S>) { ... }
+ */
+export type SettingValueType<S extends Setting> = S extends {DefaultValue: infer T} ? T : any;
+
 export type Setting = IntSetting
                     | StringSetting
                     | StringArraySetting
