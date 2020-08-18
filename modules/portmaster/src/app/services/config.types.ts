@@ -105,7 +105,7 @@ export interface BaseSetting<T, O extends OptionType> {
     // DefaultValue is the default value of a setting.
     DefaultValue: T;
     // Description is a short description.
-    Description: string;
+    Description?: string;
     // ExpertiseLevel defines the required expertise level for
     // this setting to show up.
     ExpertiseLevel: ExpertiseLevel;
@@ -113,7 +113,7 @@ export interface BaseSetting<T, O extends OptionType> {
     // to display this option.
     ExternalOptType: ExternalOptionHint;
     // Help may contain a longer help text for this option.
-    Help: string;
+    Help?: string;
     // Key is the database key.
     Key: string;
     // Name is the name of the option.
@@ -122,7 +122,7 @@ export interface BaseSetting<T, O extends OptionType> {
     OptType: O;
     // Order defines a priority for ordering items on the UI.
     // @todo(ppacher): this may be deprecated....
-    Order: number;
+    Order?: number;
     // ReleaseLevel defines the release level of the feature 
     // or settings changed by this option.
     ReleaseLevel: ReleaseLevel;
@@ -132,13 +132,21 @@ export interface BaseSetting<T, O extends OptionType> {
     // ValidateRegex defines the regex used to validate this option.
     // The regex is used in Golang but is expected to be valid in 
     // JavaScript as well.
-    ValidationRegex: string;
+    ValidationRegex?: string;
 }
 
 export type IntSetting = BaseSetting<number, OptionType.Int>;
 export type StringSetting = BaseSetting<string, OptionType.String>;
 export type StringArraySetting = BaseSetting<string[], OptionType.StringArray>;
 export type BoolSetting = BaseSetting<boolean, OptionType.Bool>;
+
+/**
+ * SettingValueType is used to infer the type of a settings from it's default value.
+ * Use like this:
+ * 
+ *      validate<S extends Setting>(spec: S, value SettingValueType<S>) { ... }
+ */
+export type SettingValueType<S extends Setting> = S extends {DefaultValue: infer T} ? T : any;
 
 export type Setting = IntSetting
                     | StringSetting
