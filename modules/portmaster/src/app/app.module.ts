@@ -9,6 +9,7 @@ import { AccordionGroupComponent } from './debug/accordion-group/accordion-group
 import { AccordionComponent } from './debug/accordion/accordion.component';
 import { DebugComponent } from './debug/debug.component';
 import { NotificationFactoryComponent } from './debug/notification-factory/notification-factory.component';
+import { PortapiInspectorComponent } from './debug/portapi-inspector/portapi-inspector.component';
 import { NotificationComponent } from './shared/notification/notification.component';
 
 @NgModule({
@@ -18,7 +19,8 @@ import { NotificationComponent } from './shared/notification/notification.compon
     DebugComponent,
     AccordionComponent,
     AccordionGroupComponent,
-    NotificationFactoryComponent
+    NotificationFactoryComponent,
+    PortapiInspectorComponent
   ],
   imports: [
     BrowserModule,

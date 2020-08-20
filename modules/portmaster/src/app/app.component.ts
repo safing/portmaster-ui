@@ -19,9 +19,11 @@ export class AppComponent implements OnInit {
   readonly trackNotification = trackNotification;
 
   constructor(public ngZone: NgZone,
+              public portapi: PortapiService,
               public notifService: NotificationsService,
               public changeDetectorRef: ChangeDetectorRef) {
-    
+
+    (window as any).portapi = portapi;
     (window as any).toggleDebug = () => {
       // this may be called from outside of angulars execution zone.
       // make sure to call toggle and call inside angular.
