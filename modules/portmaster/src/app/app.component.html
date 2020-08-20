@@ -1,3 +1,11 @@
-<p>Test it</p>
+<section>
+    <h1 class="py-4 mx-2 text-xl">Notifications</h1>
+
+    <app-notification
+        *ngFor="let notif of notifications; trackBy: trackNotification"
+        (actionExecuted)="loadNotifications()"
+        [notification]="notif">
+    </app-notification>
+</section>
 
 <router-outlet></router-outlet>

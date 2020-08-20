@@ -4,10 +4,12 @@ import { BrowserModule } from '@angular/platform-browser';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
+import { NotificationComponent } from './shared/notification/notification.component';
 
 @NgModule({
   declarations: [
-    AppComponent
+    AppComponent,
+    NotificationComponent
   ],
   imports: [
     BrowserModule,
