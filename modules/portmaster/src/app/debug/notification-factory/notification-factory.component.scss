@@ -1,0 +1,55 @@
+fieldset{
+    @apply p-2;
+    @apply px-4;
+}
+
+.input-field {
+    @apply p-1;
+    display: flex;
+    align-items: center;
+
+    label {
+        width: 30%;
+    }
+    input, select {
+        @apply bg-white;
+        @apply p-1;
+        @apply px-2;
+        @apply border;
+        @apply rounded-sm;
+        @apply border-teal-300;
+        outline: none;
+
+        flex-grow: 1;
+
+        &:active, &:focus {
+            outline: none;
+            @apply border-teal-700;
+        }
+    }
+
+}
+
+.buttons {
+    display: flex;
+    align-items: center;
+    justify-content: space-evenly;
+
+    @apply mt-4;
+
+    button {
+        @apply p-1;
+        @apply px-2;
+        @apply border;
+        @apply rounded-sm;
+        @apply border-teal-300;
+        @apply bg-teal-300;
+        @apply text-teal-900;
+        width: 90%;
+
+        &:disabled {
+            @apply bg-red-400;
+            @apply text-white;
+        }
+    }
+}

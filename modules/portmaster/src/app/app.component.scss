@@ -1,11 +1,17 @@
 :host {
     display: flex;
+}
+
+div.content {
+    flex-grow: 1;
+    display: flex;
     justify-content: center;
     min-height: 100vh;
     @apply bg-gray-100;
 }
 
 section {
+    width: 50%;
     h1 {
         @apply border-b-2;
         @apply border-teal-600;
@@ -17,4 +23,12 @@ section {
     app-notification {
         @apply bg-white;
     }
+}
+
+app-debug {
+    @apply shadow;
+    @apply border-l;
+    @apply border-gray-400;
+    width: 30vw;
+    min-width: 300px;
 }

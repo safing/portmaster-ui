@@ -1,0 +1,45 @@
+h2 {
+    user-select: none;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    @apply p-2;
+    @apply px-4;
+    @apply text-gray-700;
+    @apply uppercase;
+    @apply text-xs;
+    @apply font-semibold;
+
+    span {
+        display: inline-block;
+        transform: rotate(180deg);
+        transition: all ease-in-out .15s;
+        @apply text-xl;
+    }
+    &.active {
+        @apply shadow;
+        @apply text-blue-500;
+        span {
+            transform: rotate(90deg);
+        }
+    }
+}
+
+.body {
+    opacity: 0;
+    overflow: hidden;
+    height: 0;
+    transform: translateX(100%);
+    transition: all ease-in-out .15s;
+}
+
+.body.active {
+    display: block;
+    opacity: 1;
+    overflow: visible;
+    height: auto;
+    transform: translateX(0%);
+
+    @apply shadow-inner-xs;
+    @apply bg-gray-100;
+}

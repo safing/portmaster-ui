@@ -1,11 +1,14 @@
-<section>
-    <h1 class="py-4 mx-2 text-xl">Notifications</h1>
+<div class="content">
+    <section>
+        <h1 class="py-4 mx-2 text-xl">Notifications</h1>
 
-    <app-notification
-        *ngFor="let notif of notifications; trackBy: trackNotification"
-        (actionExecuted)="loadNotifications()"
-        [notification]="notif">
-    </app-notification>
-</section>
+        <app-notification
+            *ngFor="let notif of notifications; trackBy: trackNotification"
+            (actionExecuted)="loadNotifications()"
+            [notification]="notif">
+        </app-notification>
+    </section>
+    <router-outlet></router-outlet>
+</div>
 
-<router-outlet></router-outlet>
+<app-debug *ngIf="showDebugPanel"></app-debug>

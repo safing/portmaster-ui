@@ -20,6 +20,7 @@ From the project root (the folder containing this [README.md](./)) there are onl
     - **`pages/`** contains the different pages of the application. A page is something that is associated with a dedicated application route.
     - **`services/`** contains shared services (like PortAPI and friends)
     - **`shared/`** contains shared components that are likely used accross other components or pages.
+    - **`debug/`** contains a debug sidebar component
   - **`assets/`** contains static assets that must be shipped seperately.
   - **`environments/`** contains build and production related environment settings (those are handled by `@angular/cli` automatically, see [angular.json](angular.json))
 - **`e2e/`** contains end-to-end testing sources.

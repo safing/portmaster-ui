@@ -1,0 +1,16 @@
+:host {
+    overflow-x: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+div.header {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+
+    @apply bg-teal-800;
+    @apply text-white;
+    @apply font-semibold;
+    @apply p-4;
+}
