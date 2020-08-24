@@ -1,5 +1,5 @@
-import { SecurityLevel } from "./core.types";
 import { ReleaseLevel } from './config.types';
+import { getEnumKey, SecurityLevel } from "./core.types";
 
 export interface CaptivePortal {
     URL: string;
@@ -7,11 +7,20 @@ export interface CaptivePortal {
     Domain: string;
 }
 
-export enum Status {
+export enum ModuleStatus {
     Off = 0,
     Error = 1,
     Warning = 2,
     Operational = 3
+}
+
+/**
+ * Returns a string represetnation of the module status.
+ * 
+ * @param stat The module status to translate
+ */
+export function getModuleStatusString(stat: ModuleStatus): string {
+    return getEnumKey(ModuleStatus, stat)
 }
 
 export enum OnlineStatus {
@@ -21,6 +30,15 @@ export enum OnlineStatus {
     Portal = 3,
     SemiOnline = 4,
     Online = 5,
+}
+
+/**
+ * Converts a online status value to a string.
+ * 
+ * @param stat The online status value to convert
+ */
+export function getOnlineStatusString(stat: OnlineStatus): string {
+    return getEnumKey(OnlineStatus, stat)
 }
 
 export interface Threat<T = any> {
@@ -41,13 +59,29 @@ export interface CoreStatus {
     Threats: Threat[];
 }
 
+export enum FailureStatus {
+    Operational = 0,
+    Hint = 1,
+    Warning = 2,
+    Error = 3
+}
+
+/**
+ * Returns a string representation of a failure status value.
+ * 
+ * @param stat The failure status value.
+ */
+export function getFailureStatusString(stat: FailureStatus): string {
+    return getEnumKey(FailureStatus, stat)
+}
+
 export interface Module {
     Enabled: boolean;
     FailureID: string;
     FailureMsg: string;
-    FaillureStatus: string;
+    FailureStatus: FailureStatus;
     Name: string;
-    Status: Status;
+    Status: ModuleStatus;
 }
 
 export interface Subsystem {

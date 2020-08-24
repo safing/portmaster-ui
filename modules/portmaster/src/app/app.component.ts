@@ -2,6 +2,16 @@ import { ChangeDetectorRef, Component, NgZone, OnInit } from '@angular/core';
 import { NotificationsService } from './services/notifications.service';
 import { Notification } from './services/notifications.types';
 import { PortapiService } from './services/portapi.service';
+import { Subsystem, CoreStatus, getOnlineStatusString } from './services/status.types';
+import { StatusService } from './services/status.service';
+import { delay } from 'rxjs/operators';
+
+/**
+ * Extends the CoreStatus to add string values for all those enums.
+ */
+interface ExtendedCoreStatus extends CoreStatus {
+  online: string;
+}
 
 @Component({
   selector: 'app-root',
@@ -11,11 +21,16 @@ import { PortapiService } from './services/portapi.service';
 export class AppComponent implements OnInit {
   title = 'portmaster';
   notifications: Notification<any>[] = [];
+  subsystems: Subsystem[] = [];
+  subsysDetails: Subsystem | null = null;
 
   showDebugPanel = true;
 
+  status: ExtendedCoreStatus | null = null;
+
   constructor(public ngZone: NgZone,
               public portapi: PortapiService,
+              public statusService: StatusService,
               public notifService: NotificationsService,
               public changeDetectorRef: ChangeDetectorRef) {
 
@@ -29,18 +44,27 @@ export class AppComponent implements OnInit {
       })
     }
 
-    this.notifService.updates$.subscribe(() => this.loadNotifications())
+    this.notifService.watchAll().subscribe(
+      (notifs) => this.notifications = notifs
+    );
+
+    this.statusService.watchSubsystems().subscribe(
+      subsys => this.subsystems = subsys
+    );
+
+    this.statusService.status$
+      .pipe(delay(100)) // for testing
+      .subscribe(
+        status => {
+          console.log(status);
+          this.status = {
+            ...status,
+            online: getOnlineStatusString(status.OnlineStatus),
+          }
+        }
+      )
   }
 
   ngOnInit() {
-    this.loadNotifications();
-  }
-
-  loadNotifications() {
-    console.log(`Loading notifications`)
-    this.notifService.query("")
-      .subscribe(notifs => {
-        this.notifications = notifs;
-      })
   }
 }

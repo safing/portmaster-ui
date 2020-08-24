@@ -2,7 +2,9 @@ import { CommonModule } from '@angular/common';
 import { NgModule } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { BrowserModule } from '@angular/platform-browser';
-import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
+import { FaIconLibrary, FontAwesomeModule } from '@fortawesome/angular-fontawesome';
+import { far } from '@fortawesome/free-regular-svg-icons';
+import { fas } from '@fortawesome/free-solid-svg-icons';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { AccordionGroupComponent } from './debug/accordion-group/accordion-group.component';
@@ -11,6 +13,7 @@ import { DebugComponent } from './debug/debug.component';
 import { NotificationFactoryComponent } from './debug/notification-factory/notification-factory.component';
 import { PortapiInspectorComponent } from './debug/portapi-inspector/portapi-inspector.component';
 import { NotificationComponent } from './shared/notification/notification.component';
+import { SubsystemComponent } from './shared/subsystem/subsystem.component';
 
 @NgModule({
   declarations: [
@@ -20,7 +23,8 @@ import { NotificationComponent } from './shared/notification/notification.compon
     AccordionComponent,
     AccordionGroupComponent,
     NotificationFactoryComponent,
-    PortapiInspectorComponent
+    PortapiInspectorComponent,
+    SubsystemComponent
   ],
   imports: [
     BrowserModule,
@@ -33,4 +37,8 @@ import { NotificationComponent } from './shared/notification/notification.compon
   ],
   bootstrap: [AppComponent]
 })
-export class AppModule { }
+export class AppModule {
+  constructor(library: FaIconLibrary) {
+    library.addIconPacks(fas, far);
+  }
+}
