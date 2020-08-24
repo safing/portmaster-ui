@@ -3,7 +3,7 @@
         <h1 class="py-4 mx-2 text-xl">Notifications</h1>
 
         <app-notification
-            *ngFor="let notif of notifications; trackBy: trackNotification"
+            *ngFor="let notif of notifications; trackBy: notifService.trackBy"
             (actionExecuted)="loadNotifications()"
             [notification]="notif">
         </app-notification>

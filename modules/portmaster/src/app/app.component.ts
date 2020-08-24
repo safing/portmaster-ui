@@ -1,7 +1,5 @@
-import { Component, OnInit, ChangeDetectorRef, NgZone } from '@angular/core';
-import { Observable } from 'rxjs';
-import { ConfigService } from './services/config.service';
-import { NotificationsService, trackNotification } from './services/notifications.service';
+import { ChangeDetectorRef, Component, NgZone, OnInit } from '@angular/core';
+import { NotificationsService } from './services/notifications.service';
 import { Notification } from './services/notifications.types';
 import { PortapiService } from './services/portapi.service';
 
@@ -15,8 +13,6 @@ export class AppComponent implements OnInit {
   notifications: Notification<any>[] = [];
 
   showDebugPanel = true;
-
-  readonly trackNotification = trackNotification;
 
   constructor(public ngZone: NgZone,
               public portapi: PortapiService,
