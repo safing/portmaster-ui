@@ -39,22 +39,34 @@ section {
                 position: relative;
             }
 
-            span.marker {
-                font-size: 1.5rem;
+            span.marker { 
                 position: absolute;
                 text-align: center;
                 display: block;
                 width: 100%;
-                margin-top: -0.35rem;
                 opacity: 0;
                 transform: translateX(10%);
                 transition: all cubic-bezier(0.175, 0.885, 0.32, 1.275) .3s;
                 @apply text-gray-600;
                 @apply font-bold;
 
+                span {
+                    display: inline-block;
+                    transition: all cubic-bezier(0.175, 0.885, 0.32, 1.575) .3s;
+                    width: 0; 
+                    height: 0; 
+                    border-left: 0.7rem solid transparent;
+                    border-right: 0.7rem solid transparent;
+                    border-bottom: 1rem solid #718096;
+                    transform: rotateZ(330deg);
+                }
+
                 &.active {
                     transform: translateX(0);
                     opacity: 1;
+                    span {
+                        transform: rotateZ(360deg);
+                    }
                 }
             }
         }

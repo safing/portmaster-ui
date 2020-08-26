@@ -2,7 +2,7 @@ import { Subscriber, OperatorFunction, Observer, Observable, MonoTypeOperatorFun
 import { retryWhen, concatMap, delay } from 'rxjs/operators';
 
 /**
-* ReplyType contains all possible message types of a reply. 
+* ReplyType contains all possible message types of a reply.
 */
 export type ReplyType = 'ok'
                       | 'upd'
@@ -15,14 +15,14 @@ export type ReplyType = 'ok'
 
 /**
 * RequestType contains all possible message types of a request.
-*/ 
-export type RequestType = 'get' 
-                        | 'query' 
-                        | 'sub' 
-                        | 'qsub' 
-                        | 'create' 
-                        | 'update' 
-                        | 'insert' 
+*/
+export type RequestType = 'get'
+                        | 'query'
+                        | 'sub'
+                        | 'qsub'
+                        | 'create'
+                        | 'update'
+                        | 'insert'
                         | 'delete'
                         | 'cancel';
 
@@ -61,7 +61,7 @@ export interface DataReply<T> extends BaseMessage<'ok' | 'upd' | 'new' | 'del'> 
 
 /**
  * Returns true if d is a DataReply message type.
- * 
+ *
  * @param d The reply message to check
  */
 export function isDataReply(d: ReplyMessage): d is DataReply<any> {
@@ -69,8 +69,8 @@ export function isDataReply(d: ReplyMessage): d is DataReply<any> {
            || d.type === 'upd'
            || d.type === 'new'
            || d.type === 'del';
-           //|| d.type === 'done'; // done is actually not correct 
-} 
+           //|| d.type === 'done'; // done is actually not correct
+}
 
 /**
 * SuccessReply is used to mark an operation as successfully. It does not carry any
@@ -166,7 +166,7 @@ export type Requestable<M extends RequestType> = RequestMessage & { type: M };
 
 /**
  * Returns true if m is a cancellable message type.
- * 
+ *
  * @param m The message type to check.
  */
 export function isCancellable(m: MessageType): boolean {
@@ -190,7 +190,7 @@ export interface InspectedActiveRequest {
     // The actual request payload.
     // @todo(ppacher): typings
     payload: any;
-    // The request observer. Use to inject data 
+    // The request observer. Use to inject data
     // or complete/error the subscriber. Use with
     // care!
     observer: Subscriber<DataReply<any>>;
@@ -206,7 +206,7 @@ export interface InspectedActiveRequest {
 export interface RetryableOpts {
     // A delay in milliseconds before retrying an operation.
     retryDelay?: number;
-    // The maximum number of retries. 
+    // The maximum number of retries.
     maxRetries?: number;
 }
 
@@ -214,7 +214,7 @@ export interface RetryableOpts {
  * Returns a RxJS operator function that implements a retry pipeline
  * with a configurable retry delay and an optional maximum retry count.
  * If maxRetries is reached the last error captured is thrown.
- * 
+ *
  * @param opts  Configuration options for the retryPipeline.
  *        see {@type RetryableOpts} for more information.
  */
@@ -222,7 +222,7 @@ export function retryPipeline<T>({retryDelay, maxRetries}: RetryableOpts = {}): 
     return retryWhen(errors => errors.pipe(
         // use concatMap to keep the errors in order and make sure
         // they don't execute in parallel.
-        concatMap((e, i) => 
+        concatMap((e, i) =>
             iif(
                 // conditional observable seletion, throwError if i > maxRetries
                 // or a retryDelay otherwise
@@ -244,27 +244,27 @@ export interface WatchOpts extends RetryableOpts {
 
 /**
 * Serializes a request or reply message into it's wire format.
-* 
+*
 * @param msg The request or reply messsage to serialize
 */
 export function serializeMessage(msg: RequestMessage | ReplyMessage): any {
     if (msg === undefined) {
         return undefined;
     }
-    
+
     let blob = `${msg.id}|${msg.type}`;
-    
+
     switch (msg.type) {
         case 'done':        // reply
         case 'success':     // reply
         case 'cancel':      // request
         break;
-        
+
         case 'error':       // reply
         case 'warning':     // reply
         blob += `|${msg.message}`
         break;
-        
+
         case 'ok':          // reply
         case 'upd':         // reply
         case 'new':         // reply
@@ -273,20 +273,20 @@ export function serializeMessage(msg: RequestMessage | ReplyMessage): any {
         case 'create':      // request
         blob += `|${msg.key}|J${JSON.stringify(msg.data)}`
         break;
-        
-        
+
+
         case 'del':         // reply
         case 'get':         // request
         case 'delete':      // request
         blob += `|${msg.key}`
         break;
-        
+
         case 'query':       // request
         case 'sub':         // request
         case 'qsub':        // request
         blob += `|query ${msg.query}`
         break;
-        
+
         default:
         // We need (msg as any) here because typescript knows that we covered
         // all possible values above and that .type can never be something else.
@@ -294,53 +294,53 @@ export function serializeMessage(msg: RequestMessage | ReplyMessage): any {
         // types.
         console.error(`Unknown message type ${(msg as any).type}`);
     }
-    
+
     return blob;
 }
 
 /**
 * Deserializes (loads) a PortAPI message from a WebSocket message event.
-* 
+*
 * @param event The WebSocket MessageEvent to parse.
 */
 export function deserializeMessage(event: MessageEvent): RequestMessage | ReplyMessage {
     let data: string;
-    
+
     if (typeof event.data !== 'string') {
         data = String.fromCharCode.apply(null, (new Uint8Array(event.data) as any));
     } else {
         data = event.data;
     }
-    
+
     const parts = data.split("|");
-    
+
     if (parts.length < 2) {
         throw new Error(`invalid number of message parts, expected 3-4 but got ${parts.length}`);
     }
-    
+
     const id = parts[0];
     const type = parts[1] as MessageType;
-    
+
     var msg: Partial<RequestMessage | ReplyMessage> = {
         id,
         type,
     }
-    
+
     if (parts.length > 4) {
         parts[3] = parts.slice(3).join('|')
     }
-    
+
     switch (msg.type) {
         case 'done':        // reply
         case 'success':     // reply
         case 'cancel':      // request
         break;
-        
+
         case 'error':       // reply
         case 'warning':     // reply
         msg.message = parts[2];
         break;
-        
+
         case 'ok':          // reply
         case 'upd':         // reply
         case 'new':         // reply
@@ -354,13 +354,13 @@ export function deserializeMessage(event: MessageEvent): RequestMessage | ReplyM
             msg.data = parts[3];
         }
         break;
-        
+
         case 'del':         // reply
         case 'get':         // request
         case 'delete':      // request
         msg.key = parts[2];
         break;
-        
+
         case 'query':       // request
         case 'sub':         // request
         case 'qsub':        // request
@@ -369,7 +369,7 @@ export function deserializeMessage(event: MessageEvent): RequestMessage | ReplyM
             msg.query = msg.query.slice(6);
         }
         break;
-        
+
         default:
         // We need (msg as any) here because typescript knows that we covered
         // all possible values above and that .type can never be something else.
@@ -377,6 +377,6 @@ export function deserializeMessage(event: MessageEvent): RequestMessage | ReplyM
         // types.
         console.error(`Unknown message type ${(msg as any).type}`);
     }
-    
+
     return msg as (ReplyMessage | RequestMessage); // it's not partitial anymore
 }

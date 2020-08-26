@@ -31,7 +31,9 @@
                 <app-subsystem (mouseenter)="subsysDetails = subsys" (mouseleave)="subsysDetails = null"
                     [subsystem]="subsys">
                 </app-subsystem>
-                <span class="marker" [class.active]="subsysDetails?.ID === subsys.ID">⯅</span>
+                <span class="marker" [class.active]="subsysDetails?.ID === subsys.ID">
+                    <span></span>
+                </span>
             </div>
         </div>
         <div class="subsystem-details" [class.active]="!!subsysDetails">
@@ -45,7 +47,7 @@
         <h1 class="py-4 mx-2 text-xl">Notifications</h1>
 
         <app-notification *ngFor="let notif of notifications; trackBy: notifService.trackBy"
-            (actionExecuted)="loadNotifications()" [notification]="notif">
+            [notification]="notif">
         </app-notification>
     </section>
 
