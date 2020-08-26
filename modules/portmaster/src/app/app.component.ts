@@ -5,6 +5,8 @@ import { PortapiService } from './services/portapi.service';
 import { Subsystem, CoreStatus, getOnlineStatusString } from './services/status.types';
 import { StatusService } from './services/status.service';
 import { delay } from 'rxjs/operators';
+import { ConfigService } from './services/config.service';
+import { Setting } from './services/config.types';
 
 /**
  * Extends the CoreStatus to add string values for all those enums.
@@ -23,6 +25,7 @@ export class AppComponent implements OnInit {
   notifications: Notification<any>[] = [];
   subsystems: Subsystem[] = [];
   subsysDetails: Subsystem | null = null;
+  settings: Setting[] = [];
 
   showDebugPanel = true;
 
@@ -30,6 +33,7 @@ export class AppComponent implements OnInit {
 
   constructor(public ngZone: NgZone,
               public portapi: PortapiService,
+              public configService: ConfigService,
               public statusService: StatusService,
               public notifService: NotificationsService,
               public changeDetectorRef: ChangeDetectorRef) {
@@ -51,6 +55,13 @@ export class AppComponent implements OnInit {
     this.statusService.watchSubsystems().subscribe(
       subsys => this.subsystems = subsys
     );
+
+    this.configService.query("").subscribe(
+      settings => {
+        console.log(settings);
+        this.settings = settings;
+      }
+    )
 
     this.statusService.status$
       .pipe(delay(100)) // for testing

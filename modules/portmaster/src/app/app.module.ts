@@ -14,6 +14,8 @@ import { NotificationFactoryComponent } from './debug/notification-factory/notif
 import { PortapiInspectorComponent } from './debug/portapi-inspector/portapi-inspector.component';
 import { NotificationComponent } from './shared/notification/notification.component';
 import { SubsystemComponent } from './shared/subsystem/subsystem.component';
+import { UnknownTypeComponent } from './shared/config/unknown-type/unknown-type.component';
+import { GenericSettingComponent } from './shared/config/generic-setting/generic-setting.component';
 
 @NgModule({
   declarations: [
@@ -24,7 +26,9 @@ import { SubsystemComponent } from './shared/subsystem/subsystem.component';
     AccordionGroupComponent,
     NotificationFactoryComponent,
     PortapiInspectorComponent,
-    SubsystemComponent
+    SubsystemComponent,
+    UnknownTypeComponent,
+    GenericSettingComponent
   ],
   imports: [
     BrowserModule,

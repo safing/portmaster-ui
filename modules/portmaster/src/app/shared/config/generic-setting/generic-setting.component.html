@@ -1,0 +1,10 @@
+<div class="setting-meta">
+    <label for="setting">{{setting?.Name}}</label>
+    <span class="key">{{setting?.Key}}</span>
+</div>
+<span class="description">{{setting?.Description}}</span>
+
+<ng-container [ngSwitch]="setting?.OptType">
+    <app-unknown-type *ngSwitchDefault [setting]="_setting" [value]="_currentValue"></app-unknown-type>
+</ng-container>
+

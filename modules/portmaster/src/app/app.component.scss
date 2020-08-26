@@ -14,6 +14,7 @@ div.content {
 section {
     width: 50%;
     h1 {
+        width: 100%;
         @apply border-b-2;
         @apply border-teal-600;
         @apply p-4;
@@ -170,6 +171,17 @@ section {
         }
     }
 
+    &.settings {
+        display: flex;
+        align-items: flex-start;
+        flex-direction: column;
+    
+        app-generic-setting {
+            width: 100%;
+            display: block;
+            @apply p-4;
+        }
+    }
 }
 
 app-debug {

@@ -1,0 +1,28 @@
+input:not([type="checkbox"]), textarea {
+    display: block;
+    width: 100%;
+    outline: none;
+    @apply shadow-inner-xs;
+    @apply bg-white;
+    @apply border;
+    transition: border cubic-bezier(0.175, 0.885, 0.32, 1.275) .3s;
+    @apply p-1;
+    @apply px-2;
+    @apply rounded;
+    @apply text-gray-800;
+    @apply text-sm;
+
+
+    &:active, &:focus {
+        @apply border-teal-100;
+    }
+}
+
+label {
+    @apply text-sm;
+}
+
+input[type="checkbox"] {
+    float: right;
+    user-select: none;
+}

@@ -1,0 +1,32 @@
+:host {
+    &:hover {
+        @apply bg-gray-200;
+        span.key {
+            @apply text-gray-700;
+        }
+    }
+}
+div.setting-meta {
+    display: flex;
+    justify-content: space-between;
+}
+
+label {
+    display: block;
+    width: 100%;
+    @apply mb-1;
+    @apply text-xs;
+    @apply uppercase;
+    @apply font-semibold;
+}
+
+span.key {
+    @apply text-xs;
+    @apply text-gray-400;
+}
+
+span.description {
+    display: block;
+    @apply text-xs;
+    @apply text-gray-900;
+}

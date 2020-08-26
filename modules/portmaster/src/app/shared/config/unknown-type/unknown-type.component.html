@@ -1,0 +1,11 @@
+<ng-container *ngIf="!!setting">
+    <ng-container [ngSwitch]="_type">
+        <input *ngSwitchCase="'string'" type="text" [(ngModel)]="_value">
+        <input *ngSwitchCase="'number'" type="number" [(ngModel)]="_value">
+        <ng-container *ngSwitchCase="'boolean'" >
+            <label for="check-{{setting.Key}}">Enable</label>
+            <input type="checkbox" id="check-{{setting.Key}}" name="check" [(ngModel)]="_value">
+        </ng-container>
+        <textarea *ngSwitchDefault [(ngModel)]="_value"></textarea>
+    </ng-container>
+</ng-container>

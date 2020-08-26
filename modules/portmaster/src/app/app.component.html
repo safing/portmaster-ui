@@ -25,7 +25,7 @@
     </section>
 
     <section class="subsys">
-        <h1 class="py-4 mx-2 text-xl">Subsystems</h1>
+        <h1>Subsystems</h1>
         <div class="list">
             <div class="subsys" *ngFor="let subsys of subsystems; trackBy: statusService.trackSubsystem">
                 <app-subsystem (mouseenter)="subsysDetails = subsys" (mouseleave)="subsysDetails = null"
@@ -44,11 +44,18 @@
     </section>
 
     <section class="notifs">
-        <h1 class="py-4 mx-2 text-xl">Notifications</h1>
+        <h1>Notifications</h1>
 
         <app-notification *ngFor="let notif of notifications; trackBy: notifService.trackBy"
             [notification]="notif">
         </app-notification>
+    </section>
+
+    <section class="settings">
+        <h1>Settings</h1>
+
+        <app-generic-setting *ngFor="let setting of settings; trackBy: configService.trackBy"
+            [setting]="setting"></app-generic-setting>
     </section>
 
     <router-outlet></router-outlet>
