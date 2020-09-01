@@ -49,6 +49,13 @@ export class UnknownTypeComponent<S extends BaseSetting<any, any>> implements Co
    */
   _type: string = '';
 
+  /* Returns true if the current _type and _value is managed as JSON */
+  get isJSON(): boolean {
+    return this._type !== 'string'
+            && this._type !== 'number'
+            && this._type !== 'boolean'
+  }
+
   /* _onChange is set using registerOnChange by @angular/forms
    * and satisfies the ControlValueAccessor.
    */
@@ -87,16 +94,10 @@ export class UnknownTypeComponent<S extends BaseSetting<any, any>> implements Co
   setInternalValue(value: string | number | boolean) {
     let toEmit: any = value;
     try {
-      switch (this._type) {
-        case 'string':
-        case 'number':
-        case 'boolean':
+      if (!this.isJSON) {
           toEmit = value;
-          break;
-
-        default:
-            toEmit = JSON.parse(value as string);
-          break; 
+      } else {
+          toEmit = JSON.parse(value as string);
       }
     } catch(err) {
       this._valid = false;
@@ -134,29 +135,24 @@ export class UnknownTypeComponent<S extends BaseSetting<any, any>> implements Co
     if (!!this.setting?.ValidationRegex) {
       const re = new RegExp(this.setting.ValidationRegex);
 
-      switch (typeof value) {
-        case 'string':
-        case 'number':
-        case 'boolean':
-          if (!re.test(`${value}`)) {
-            return {
-              pattern: `"${value}"`
-            }
+      if (!this.isJSON) {
+        if (!re.test(`${value}`)) {
+          return {
+            pattern: `"${value}"`
           }
-          break;
-        default:
-          if (Array.isArray(value)) {
-            const invalidLines = value.filter(v => !re.test(v));
-            if (invalidLines.length) {
-              return {
-                pattern: invalidLines
-              }
-            }
-          } else {
-            return {
-              invalidType: true
-            }
+        }
+      } else {
+        if (!Array.isArray(value)) {
+          return {
+            invalidType: true
           }
+        }
+        const invalidLines = value.filter(v => !re.test(v));
+        if (invalidLines.length) {
+          return {
+            pattern: invalidLines
+          }
+        }
       }
     }
 
@@ -172,10 +168,7 @@ export class UnknownTypeComponent<S extends BaseSetting<any, any>> implements Co
     let t = typeof v;
     this._type = t;
 
-    if (t !== 'string'
-        && t !== 'number'
-        && t !== 'boolean') {
-  
+    if (this.isJSON) {
       this._value = JSON.stringify(v, undefined, 2);
     } else {
       this._value = v;
