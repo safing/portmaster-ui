@@ -2,6 +2,54 @@
 
 Welcome to the new Portmaster User-Interface. It's based on Angular and is built, unit and e2e tested using `@angular/cli`.
 
+## Running locally
+
+This section explains how to prepare your Ubuntu machine to build and test the new Portmaster User-Interface. It's recommended to use
+a virtual machine but running it on bare metal will work as well. You can use the new Portmaster UI as well as the old one in parallel so
+you can simply switch back when something is still missing or buggy.
+
+1. **Prepare your tooling**
+
+There's a simple dockerized way to build and test the new UI. Just make sure to have docker installed:
+
+```bash
+sudo apt update
+sudo apt install -y docker.io git
+sudo systemctl enable --now docker
+sudo gpasswd -a $USER docker
+```
+
+2. **Portmaster installation**
+
+Next, make sure to install the Portmaster using the official .deb installer from [here](https://updates.safing.io/latest/linux_amd64/packages/portmaster-installer.deb). See the [Wiki](https://github.com/safing/portmaster/wiki/Linux) for more information.
+
+Once the Portmaster is installed we need to add two new configuration flags. Execute the following:
+
+```bash
+echo 'PORTMASTER_ARGS="--experimental-nfqueue --devmode"' | sudo tee /etc/default/portmaster
+sudo systemctl daemon-reload
+sudo systemctl restart portmaster
+```
+
+3. **Build and run the new UI**
+
+Now, clone this repository and execute the `docker.sh` script:
+
+```bash
+# Clone the repository
+git clone https://github.com/safing/portmaster-ui
+
+# Enter the repo and checkout the correct branch
+cd portmaster-ui
+git checkout feature/new-ui
+
+# Enter the directory and run docker.sh
+cd modules/portmaster
+sudo bash ./docker.sh
+```
+
+Finally open your browser and point it to http://localhost:8080.
+
 ## Hacking Quick Start
 
 Although everything should work in the docker container as well, for the best development experience it's recommended to install `@angular/cli` locally.
