@@ -85,15 +85,13 @@ export function releaseLevelName(level: ReleaseLevel): string {
  * ExternalOptionHint tells the UI to use a different visual
  * representation and edit menu that the options value would
  * imply. 
- * 
- * @todo(ppacher): portmaster also uses "string list" but that
- *                 seems to be a no-op in the old UI.
  */
 export enum ExternalOptionHint{
     SecurityLevel = 'security level',
     EndpointList = 'endpoint list',
     FilterList = 'filter list',
     DisableUpdates = 'disable updates',
+    StringList = 'string list'
 }
 
 /**
@@ -135,10 +133,47 @@ export interface BaseSetting<T, O extends OptionType> {
     ValidationRegex?: string;
 }
 
+
 export type IntSetting = BaseSetting<number, OptionType.Int>;
 export type StringSetting = BaseSetting<string, OptionType.String>;
 export type StringArraySetting = BaseSetting<string[], OptionType.StringArray>;
 export type BoolSetting = BaseSetting<boolean, OptionType.Bool>;
+
+/**
+ * Parses the ValidationRegex of a setting and returns a list
+ * of supported values.
+ * 
+ * @param s The setting to extract support values from.
+ */
+export function parseSupportedValues<S extends Setting>(s: S): SettingValueType<S>[] {
+    if (!s.ValidationRegex) {
+        return [];
+    }
+
+    const values = s.ValidationRegex.match(/\w+/gmi);
+    const result: SettingValueType<S>[] = [];
+
+    let converter: (s: string) => any;
+
+    switch (s.OptType) {
+        case OptionType.Bool:
+            converter = s => s === 'true';
+            break;
+        case OptionType.Int:
+            converter = s => +s;
+            break;
+        case OptionType.String:
+        case OptionType.StringArray:
+            converter = s => s
+            break
+    }
+
+    values?.forEach(val => { 
+       result.push(converter(val)) 
+    });
+
+    return result;
+}
 
 /**
  * SettingValueType is used to infer the type of a settings from it's default value.

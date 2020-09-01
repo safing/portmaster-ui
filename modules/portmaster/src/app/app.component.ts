@@ -1,10 +1,10 @@
-import { ChangeDetectorRef, Component, NgZone, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, NgZone, OnInit, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
 import { NotificationsService } from './services/notifications.service';
 import { Notification } from './services/notifications.types';
 import { PortapiService } from './services/portapi.service';
 import { Subsystem, CoreStatus, getOnlineStatusString } from './services/status.types';
 import { StatusService } from './services/status.service';
-import { delay } from 'rxjs/operators';
+import { delay, combineLatest } from 'rxjs/operators';
 import { ConfigService } from './services/config.service';
 import { Setting } from './services/config.types';
 
@@ -20,16 +20,26 @@ interface ExtendedCoreStatus extends CoreStatus {
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.scss']
 })
-export class AppComponent implements OnInit {
+export class AppComponent implements OnInit, AfterViewInit {
   title = 'portmaster';
   notifications: Notification<any>[] = [];
   subsystems: Subsystem[] = [];
   subsysDetails: Subsystem | null = null;
-  settings: Setting[] = [];
+  settings: {
+    [key: string]: Setting[]
+  } = {};
 
   showDebugPanel = true;
 
   status: ExtendedCoreStatus | null = null;
+
+  @ViewChild('settingsSpacer', {
+    static: true,
+    read: ElementRef,
+  })
+  settingsSpacer: ElementRef | null = null;
+
+  shouldShowSettingsNav: boolean = false;
 
   constructor(public ngZone: NgZone,
               public portapi: PortapiService,
@@ -52,14 +62,35 @@ export class AppComponent implements OnInit {
       (notifs) => this.notifications = notifs
     );
 
-    this.statusService.watchSubsystems().subscribe(
-      subsys => this.subsystems = subsys
-    );
+    this.configService.query("")
+    .pipe(
+      combineLatest(this.statusService.watchSubsystems())
+    )
+    .subscribe(
+      ([settings, subsystems]) => {
+        this.subsystems = subsystems;
 
-    this.configService.query("").subscribe(
-      settings => {
-        console.log(settings);
-        this.settings = settings;
+        this.settings = {
+          'other': [],
+        };
+        this.subsystems.forEach(subsys => {
+          this.settings[subsys.ConfigKeySpace] = []
+        });
+
+        settings.forEach(setting => {
+          let pushed = false;
+          this.subsystems.forEach(subsys => {
+            if (setting.Key.startsWith(subsys.ConfigKeySpace.slice("config:".length))) {
+              this.settings[subsys.ConfigKeySpace].push(setting);
+              pushed = true;
+            }
+          })
+
+          if (!pushed) {
+            console.log(setting.Key);
+            this.settings['other'].push(setting);
+          }
+        })
       }
     )
 
@@ -77,5 +108,16 @@ export class AppComponent implements OnInit {
   }
 
   ngOnInit() {
+  }
+
+  ngAfterViewInit() {
+    const observer = new IntersectionObserver(this.checkViewPort.bind(this));
+    observer.observe(this.settingsSpacer!.nativeElement);
+  }
+
+  private checkViewPort(entries: IntersectionObserverEntry[]) {
+    console.log(entries);
+    this.shouldShowSettingsNav = entries.some(e => !e.isIntersecting);
+    console.log(`new setting: `, this.shouldShowSettingsNav);
   }
 }

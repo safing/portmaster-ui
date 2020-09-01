@@ -1,4 +1,4 @@
-input:not([type="checkbox"]), textarea {
+input:not([type="checkbox"]), textarea, select {
     display: block;
     width: 100%;
     outline: none;
@@ -12,9 +12,17 @@ input:not([type="checkbox"]), textarea {
     @apply text-gray-800;
     @apply text-sm;
 
-
     &:active, &:focus {
+        @apply text-teal-900;
         @apply border-teal-100;
+    }
+
+}
+
+:host.ng-invalid {
+    input, textarea, select {
+        @apply border-red-500;
+        @apply text-red-500;
     }
 }
 

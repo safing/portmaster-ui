@@ -1,11 +1,31 @@
 :host {
+    display: block;
+    width: 100%;
+    position: relative;
+    @apply p-4;
+    @apply border-l-4;
+    @apply border-transparent;
+    transition: all cubic-bezier(0.455, 0.03, 0.515, 0.955) .3s;
+
     &:hover {
+        @apply shadow-xs;
+        @apply border-gray-400;
         @apply bg-gray-200;
-        span.key {
-            @apply text-gray-700;
-        }
+    }
+    
+    &.changed {
+        @apply border-green-500;
+    }
+
+    &.dirty {
+        @apply border-yellow-500;
+    }
+
+    &.ng-invalid {
+        @apply border-red-500;
     }
 }
+
 div.setting-meta {
     display: flex;
     justify-content: space-between;
@@ -23,10 +43,40 @@ label {
 span.key {
     @apply text-xs;
     @apply text-gray-400;
+    white-space: nowrap;
+
+    fa-icon {
+        @apply text-sm;
+        @apply pl-4;
+        display: inline-block;
+        cursor: pointer;
+    }
+
+    fa-icon[icon="trash"] {
+        @apply text-red-600;
+        &:hover {
+            @apply text-red-800;
+        }
+    }
+
+    fa-icon[icon="check"] {
+        @apply text-green-600;
+        &:hover {
+            @apply text-green-800;
+        }
+    }
+
+    fa-icon[icon="times"] {
+        @apply text-yellow-600;
+        &:hover {
+            @apply text-yellow-800;
+        }
+    }
 }
 
 span.description {
     display: block;
     @apply text-xs;
     @apply text-gray-900;
+    @apply mb-2;
 }
