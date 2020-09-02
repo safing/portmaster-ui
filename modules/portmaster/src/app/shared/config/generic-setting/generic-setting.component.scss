@@ -12,9 +12,9 @@
         @apply border-gray-400;
         @apply bg-gray-200;
     }
-    
+
     &.changed {
-        @apply border-green-500;
+        @apply border-green-300;
     }
 
     &.dirty {
@@ -22,7 +22,7 @@
     }
 
     &.ng-invalid {
-        @apply border-red-500;
+        @apply border-red-300;
     }
 }
 
@@ -71,6 +71,11 @@ span.key {
         &:hover {
             @apply text-yellow-800;
         }
+    }
+
+    fa-icon:focus {
+        outline: none;
+        @apply text-yellow-600;
     }
 }
 

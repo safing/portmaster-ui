@@ -16,6 +16,7 @@ import { NotificationComponent } from './shared/notification/notification.compon
 import { SubsystemComponent } from './shared/subsystem/subsystem.component';
 import { UnknownTypeComponent } from './shared/config/unknown-type/unknown-type.component';
 import { GenericSettingComponent } from './shared/config/generic-setting/generic-setting.component';
+import { SecuritySettingComponent } from './shared/config/security-setting/security-setting.component';
 
 @NgModule({
   declarations: [
@@ -28,7 +29,8 @@ import { GenericSettingComponent } from './shared/config/generic-setting/generic
     PortapiInspectorComponent,
     SubsystemComponent,
     UnknownTypeComponent,
-    GenericSettingComponent
+    GenericSettingComponent,
+    SecuritySettingComponent
   ],
   imports: [
     BrowserModule,

@@ -86,9 +86,9 @@ export class UnknownTypeComponent<S extends BaseSetting<any, any>> implements Co
   /**
    * Sets the user-presented value and emits a change.
    * Used by our view. Not meant to be used from outside!
-   * Use writeValue instead. 
+   * Use writeValue instead.
    * @private
-   * 
+   *
    * @param value The value to set
    */
   setInternalValue(value: string | number | boolean) {
@@ -114,7 +114,7 @@ export class UnknownTypeComponent<S extends BaseSetting<any, any>> implements Co
    * Validates if "value" matches the settings requirements.
    * It satisfies the NG_VALIDATORS interface and validates the
    * value for THIS component.
-   * 
+   *
    * @param param0 The AbstractControl to validate
    */
   validate({ value }: AbstractControl): ValidationErrors | null {
@@ -161,7 +161,7 @@ export class UnknownTypeComponent<S extends BaseSetting<any, any>> implements Co
 
   /**
    * Writes a new value and satisfies the ControlValueAccessor
-   * 
+   *
    * @param v The new value to write
    */
   writeValue(v: SettingValueType<S>) {
@@ -184,7 +184,7 @@ export class UnknownTypeComponent<S extends BaseSetting<any, any>> implements Co
   /**
    * Registers the onChange function requred by the
    * ControlValueAccessor
-   * 
+   *
    * @param fn The fn to register
    */
   registerOnChange(fn: (_: SettingValueType<S>) => void) {
@@ -194,7 +194,7 @@ export class UnknownTypeComponent<S extends BaseSetting<any, any>> implements Co
   /**
    * Registers the onTouch function requred by the
    * ControlValueAccessor
-   * 
+   *
    * @param fn The fn to register
    */
   registerOnTouched(fn: () => void) {
@@ -204,11 +204,18 @@ export class UnknownTypeComponent<S extends BaseSetting<any, any>> implements Co
   /**
    * Enable or disable the component. Required for the
    * ControlValueAccessor.
-   * 
+   *
    * @param disable Whether or not the component is disabled
    */
   setDisabledState(disable: boolean) {
     this._disabled = disable;
     this._changeDetectorRef.markForCheck();
+  }
+
+  lineCount(value: string | number | boolean) {
+      if (typeof value === 'string') {
+          return value.split('\n').length
+      }
+      return 1
   }
 }

@@ -37,7 +37,7 @@
         </ng-container>
 
         <textarea *ngSwitchDefault
-            [attr.rows]="(_value|| '').split('\n').length"
+            [attr.rows]="lineCount(_value)"
             [ngModel]="_value"
             (ngModelChange)="setInternalValue($event)"
             [disabled]="_disabled"

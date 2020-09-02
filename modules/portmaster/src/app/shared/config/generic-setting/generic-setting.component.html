@@ -1,11 +1,11 @@
 <div class="setting-meta">
     <label for="setting">{{setting?.Name}}</label>
     <span class="key">
-        <fa-icon *ngIf="dirty && model?.valid"
+        <fa-icon tabindex="0" *ngIf="dirty && model?.valid"
             (click)="saveValue()" icon="check"></fa-icon>
-        <fa-icon *ngIf="dirty"
+        <fa-icon tabindex="0" *ngIf="dirty"
             (click)="abortChange()" icon="times"></fa-icon>
-        <fa-icon *ngIf="userConfigured && !dirty"
+        <fa-icon tabindex="0" *ngIf="userConfigured && !dirty"
             (click)="resetValue()" icon="trash"></fa-icon>
 
         <ng-container *ngIf="pristine">
@@ -16,7 +16,12 @@
 
 <span class="description">{{setting?.Description}}</span>
 
-<ng-container [ngSwitch]="setting?.OptType">
+<ng-container [ngSwitch]="setting?.ExternalOptType">
+    <app-security-setting *ngSwitchCase="optionHint.SecurityLevel"
+        [setting]="_setting"
+        [ngModel]="_currentValue"
+        (ngModelChange)="updateValue($event)"></app-security-setting>
+
     <app-unknown-type *ngSwitchDefault
         [setting]="_setting"
         [ngModel]="_currentValue"

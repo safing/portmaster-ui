@@ -1,5 +1,5 @@
 import { Component, Input, ChangeDetectionStrategy, HostBinding, ChangeDetectorRef, ViewChild } from '@angular/core';
-import { BaseSetting, SettingValueType, Setting } from '../../../services/config.types';
+import { BaseSetting, SettingValueType, Setting, ExternalOptionHint } from '../../../services/config.types';
 import { ConfigService } from 'src/app/services/config.service';
 import { NgModel } from '@angular/forms';
 
@@ -10,6 +10,8 @@ import { NgModel } from '@angular/forms';
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class GenericSettingComponent<S extends BaseSetting<any, any>> {
+  readonly optionHint = ExternalOptionHint;
+
   /**
    * Returns true if the user has configured the setting on their
    * own or if the default value is being used.
@@ -130,7 +132,7 @@ export class GenericSettingComponent<S extends BaseSetting<any, any>> {
   /**
    * Used in our view as a ngModelChange callback to
    * update the value.
-   * 
+   *
    * @param value The new value as emitted by the view
    */
   updateValue(value: SettingValueType<S>) {
