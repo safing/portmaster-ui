@@ -3,36 +3,36 @@
     @apply py-4;
     @apply pb-10;
     position: relative;
-    display: block;
-    outline: none;
+    display : block;
+    outline : none;
 }
 
 div.line {
-    position: absolute;
-    left: 0.5rem;
-    right: 0.5rem;
-    display: flex;
+    position       : absolute;
+    left           : 0.5rem;
+    right          : 0.5rem;
+    display        : flex;
     justify-content: space-between;
 
-    & > * {
-
-        flex-grow: 1;
+    &>* {
+        flex-grow : 1;
         text-align: center;
         flex-basis: 100%;
         transition: all cubic-bezier(0.445, 0.05, 0.55, 0.95) .3s;
 
-        display: flex;
-        flex-direction: column;
+        display        : flex;
+        flex-direction : column;
         justify-content: space-around;
-        align-items: center;
+        align-items    : center;
     }
 }
 
 div.circle {
-    position: relative;
-    display: inline-block;
-    height: 1rem;
-    width: 1rem;
+    @apply shadow;
+    position     : relative;
+    display      : inline-block;
+    height       : 1rem;
+    width        : 1rem;
     border-radius: 50%;
     @apply bg-gray-400;
     cursor: pointer;
@@ -63,8 +63,8 @@ div.active {
         @apply text-green-700;
     }
 
-    &[name="Off"]{
-            div.circle {
+    &[name="Off"] {
+        div.circle {
             @apply bg-white;
             @apply border-2;
             @apply border-red-500;
@@ -73,6 +73,7 @@ div.active {
                 @apply border-red-700;
             }
         }
+
         span {
             @apply text-red-700;
         }
@@ -90,9 +91,10 @@ div.focused {
 }
 
 div.connector {
-    position: relative;
-    top: 0.5rem;
-    display: inline-block;
+    @apply shadow;
+    position  : relative;
+    top       : 0.45rem;
+    display   : inline-block;
     border-top: 0.2rem solid;
     @apply border-gray-400;
 

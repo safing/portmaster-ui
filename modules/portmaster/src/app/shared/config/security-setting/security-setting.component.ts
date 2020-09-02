@@ -7,12 +7,12 @@ import { ListKeyManager, ListKeyManagerOption } from '@angular/cdk/a11y';
 import { Subscription } from 'rxjs';
 
 export class SecuritySetting implements ListKeyManagerOption {
-    constructor(public name: string,
-                public level: SecurityLevel) {}
+  constructor(public name: string,
+    public level: SecurityLevel) { }
 
-    getLabel(): string {
-        return this.name;
-    }
+  getLabel(): string {
+    return this.name;
+  }
 }
 
 @Component({
@@ -21,11 +21,11 @@ export class SecuritySetting implements ListKeyManagerOption {
   styleUrls: ['./security-setting.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
   providers: [
-      {
-          provide: NG_VALUE_ACCESSOR,
-          multi: true,
-          useExisting: forwardRef(() => SecuritySettingComponent),
-      }
+    {
+      provide: NG_VALUE_ACCESSOR,
+      multi: true,
+      useExisting: forwardRef(() => SecuritySettingComponent),
+    }
   ]
 })
 export class SecuritySettingComponent implements OnDestroy, ControlValueAccessor {
@@ -44,27 +44,27 @@ export class SecuritySettingComponent implements OnDestroy, ControlValueAccessor
   onFocus() {
     const active = this.availableLevels.find(lvl => this.isActive(lvl.level));
     if (!!active) {
-        console.log(`setting active`, active)
-        this._keyManager?.setActiveItem(active);
-        this.activeItem = active.name;
+      console.log(`setting active`, active)
+      this._keyManager?.setActiveItem(active);
+      this.activeItem = active.name;
     }
   }
 
   @HostListener('keyup', ['$event'])
   onKeyUp(event: KeyboardEvent) {
-      console.log(`key`);
-      if (!this._keyManager) {
-          return;
-      }
+    console.log(`key`);
+    if (!this._keyManager) {
+      return;
+    }
 
-      if (event.code === 'Enter') {
-        const activeItem = this.availableLevels.find(lvl => lvl.name === this.activeItem);
-        if (!!activeItem) {
-            this.setLevel(activeItem.level);
-        }
-      } else {
-        this._keyManager.onKeydown(event);
+    if (event.code === 'Enter') {
+      const activeItem = this.availableLevels.find(lvl => lvl.name === this.activeItem);
+      if (!!activeItem) {
+        this.setLevel(activeItem.level);
       }
+    } else {
+      this._keyManager.onKeydown(event);
+    }
   }
 
   /* The security setting represented by this component */
@@ -76,24 +76,24 @@ export class SecuritySettingComponent implements OnDestroy, ControlValueAccessor
     this._keySubscription.unsubscribe();
 
     if (!!s) {
-        this.availableLevels = [
-            new SecuritySetting('Normal', SecurityLevel.Normal),
-            new SecuritySetting('High', SecurityLevel.High),
-            new SecuritySetting('Extreme', SecurityLevel.Extreme),
-        ];
+      this.availableLevels = [
+        new SecuritySetting('Normal', SecurityLevel.Normal),
+        new SecuritySetting('High', SecurityLevel.High),
+        new SecuritySetting('Extreme', SecurityLevel.Extreme),
+      ];
 
-        const values = parseSupportedValues(s);
-        if (values.includes(SecurityLevel.Off)) {
-            this.availableLevels.push(new SecuritySetting('Off', SecurityLevel.Off))
-        }
+      const values = parseSupportedValues(s);
+      if (values.includes(SecurityLevel.Off)) {
+        this.availableLevels.push(new SecuritySetting('Off', SecurityLevel.Off))
+      }
 
-        this._keyManager = new ListKeyManager(this.availableLevels)
-            .withHorizontalOrientation('ltr')
-            .withWrap();
+      this._keyManager = new ListKeyManager(this.availableLevels)
+        .withHorizontalOrientation('ltr')
+        .withWrap();
 
-        this._keySubscription = this._keyManager.change.subscribe(
-            idx => this.activeItem = this.availableLevels[idx].name
-        )
+      this._keySubscription = this._keyManager.change.subscribe(
+        idx => this.activeItem = this.availableLevels[idx].name
+      )
     }
   }
   get setting(): IntSetting | null {
@@ -105,10 +105,10 @@ export class SecuritySettingComponent implements OnDestroy, ControlValueAccessor
   private currentValue: number = 0;
 
   /** called when the value changes. Set by registerOnChange */
-  private _onChange: (value: number) => void = () => {};
+  private _onChange: (value: number) => void = () => { };
 
   /** called when the input is touched. Set by registerOnTouched */
-  private _onTouch: () => void = () => {};
+  private _onTouch: () => void = () => { };
 
   /**
    * Keyboard support
@@ -120,7 +120,7 @@ export class SecuritySettingComponent implements OnDestroy, ControlValueAccessor
   availableLevels: SecuritySetting[] = [];
 
   constructor(private configService: ConfigService,
-              private changeDetectorRef: ChangeDetectorRef) { }
+    private changeDetectorRef: ChangeDetectorRef) { }
 
   ngOnDestroy() {
     this._keySubscription.unsubscribe();
@@ -129,7 +129,7 @@ export class SecuritySettingComponent implements OnDestroy, ControlValueAccessor
   /** Returns true if level is active */
   isActive(level: SecurityLevel): boolean {
     if (level === SecurityLevel.Off) {
-        return this.currentValue === level;
+      return this.currentValue === level;
     }
     return (this.currentValue & level) > 0
   }
@@ -137,23 +137,24 @@ export class SecuritySettingComponent implements OnDestroy, ControlValueAccessor
   /** Sets the new level */
   setLevel(level: SecurityLevel) {
     let newLevel: number = 0;
-    switch(level) {
+    switch (level) {
       case SecurityLevel.Off:
-          newLevel = 0;
-          break;
+        newLevel = 0;
+        break;
       case SecurityLevel.Normal:
-          newLevel = 7;
-          break;
+        newLevel = 7;
+        break;
       case SecurityLevel.High:
-          newLevel = 6;
-          break;
+        newLevel = 6;
+        break;
       case SecurityLevel.Extreme:
-          newLevel = 4;
-          break;
+        newLevel = 4;
+        break;
     }
 
     this.currentValue = newLevel;
     this._onChange(newLevel);
+    this.onFocus(); // update the active item again
   }
 
   /** Registers an onChange function.Satisfies ControlValueAccessor */
