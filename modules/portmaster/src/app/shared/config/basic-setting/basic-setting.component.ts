@@ -3,24 +3,24 @@ import { AbstractControl, ControlValueAccessor, NgModel, NG_VALIDATORS, NG_VALUE
 import { BaseSetting, ExternalOptionHint, parseSupportedValues, SettingValueType } from '../../../services/config.types';
 
 @Component({
-  selector: 'app-unknown-type',
-  templateUrl: './unknown-type.component.html',
-  styleUrls: ['./unknown-type.component.scss'],
+  selector: 'app-basic-setting',
+  templateUrl: './basic-setting.component.html',
+  styleUrls: ['./basic-setting.component.scss'],
   providers: [
     {
       provide: NG_VALUE_ACCESSOR,
       multi: true,
-      useExisting: forwardRef(() => UnknownTypeComponent),
+      useExisting: forwardRef(() => BasicSettingComponent),
     },
     {
       provide: NG_VALIDATORS,
       multi: true,
-      useExisting: forwardRef(() => UnknownTypeComponent),
+      useExisting: forwardRef(() => BasicSettingComponent),
     }
   ],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class UnknownTypeComponent<S extends BaseSetting<any, any>> implements ControlValueAccessor, OnInit, Validator {
+export class BasicSettingComponent<S extends BaseSetting<any, any>> implements ControlValueAccessor, OnInit, Validator {
   readonly optionHints = ExternalOptionHint;
   readonly parseSupportedValues = parseSupportedValues;
 

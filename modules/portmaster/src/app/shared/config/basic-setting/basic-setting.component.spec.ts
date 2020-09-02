@@ -1,20 +1,20 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { UnknownTypeComponent } from './unknown-type.component';
+import { BasicSettingComponent } from './basic-setting.component';
 
 describe('UnknownTypeComponent', () => {
-  let component: UnknownTypeComponent;
-  let fixture: ComponentFixture<UnknownTypeComponent>;
+  let component: BasicSettingComponent<any>;
+  let fixture: ComponentFixture<BasicSettingComponent<any>>;
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ UnknownTypeComponent ]
+      declarations: [ BasicSettingComponent ]
     })
     .compileComponents();
   }));
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(UnknownTypeComponent);
+    fixture = TestBed.createComponent(BasicSettingComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

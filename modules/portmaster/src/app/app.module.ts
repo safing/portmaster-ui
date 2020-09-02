@@ -14,7 +14,7 @@ import { NotificationFactoryComponent } from './debug/notification-factory/notif
 import { PortapiInspectorComponent } from './debug/portapi-inspector/portapi-inspector.component';
 import { NotificationComponent } from './shared/notification/notification.component';
 import { SubsystemComponent } from './shared/subsystem/subsystem.component';
-import { UnknownTypeComponent } from './shared/config/unknown-type/unknown-type.component';
+import { BasicSettingComponent } from './shared/config/basic-setting/basic-setting.component';
 import { GenericSettingComponent } from './shared/config/generic-setting/generic-setting.component';
 import { SecuritySettingComponent } from './shared/config/security-setting/security-setting.component';
 
@@ -28,7 +28,7 @@ import { SecuritySettingComponent } from './shared/config/security-setting/secur
     NotificationFactoryComponent,
     PortapiInspectorComponent,
     SubsystemComponent,
-    UnknownTypeComponent,
+    BasicSettingComponent,
     GenericSettingComponent,
     SecuritySettingComponent
   ],

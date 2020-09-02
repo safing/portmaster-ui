@@ -6,9 +6,11 @@ import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { ListKeyManager, ListKeyManagerOption } from '@angular/cdk/a11y';
 import { Subscription } from 'rxjs';
 
-export class SecuritySetting implements ListKeyManagerOption {
-  constructor(public name: string,
-    public level: SecurityLevel) { }
+class SecuritySetting implements ListKeyManagerOption {
+  constructor(
+      public name: string,
+      public level: SecurityLevel
+  ) { }
 
   getLabel(): string {
     return this.name;
@@ -67,7 +69,12 @@ export class SecuritySettingComponent implements OnDestroy, ControlValueAccessor
     }
   }
 
-  /* The security setting represented by this component */
+  /**
+   * The security setting represented by this component.
+   * Whenever the setting is changed we need to check which
+   * security levels are allowed (with or with OFF) and
+   * recreate a list key manager for keyboard support.
+   */
   @Input()
   set setting(s: IntSetting | null) {
     this._setting = s || null;
@@ -110,13 +117,16 @@ export class SecuritySettingComponent implements OnDestroy, ControlValueAccessor
   /** called when the input is touched. Set by registerOnTouched */
   private _onTouch: () => void = () => { };
 
-  /**
-   * Keyboard support
-   */
+  /** Keyboard support */
   private _keyManager: ListKeyManager<SecuritySetting> | null = null;
+
+  /** Subscription for key manager changes */
   private _keySubscription: Subscription = Subscription.EMPTY;
+
+  /** the currently focused item (via key-manager) */
   activeItem: string = '';
 
+  /** Available security levels for this setting */
   availableLevels: SecuritySetting[] = [];
 
   constructor(private configService: ConfigService,
@@ -157,16 +167,17 @@ export class SecuritySettingComponent implements OnDestroy, ControlValueAccessor
     this.onFocus(); // update the active item again
   }
 
-  /** Registers an onChange function.Satisfies ControlValueAccessor */
+  /** Registers an onChange function. Satisfies ControlValueAccessor */
   registerOnChange(fn: (_: number) => void) {
     this._onChange = fn;
   }
 
-  /** Registers an onTouch function.Satisfies ControlValueAccessor */
+  /** Registers an onTouch function. Satisfies ControlValueAccessor */
   registerOnTouched(fn: () => void) {
     this._onTouch = fn;
   }
 
+  /** writeValues writes a new value for the security setings. It satisfies ControlValueAccessor */
   writeValue(value: number) {
     this.currentValue = value;
     this.changeDetectorRef.markForCheck();
