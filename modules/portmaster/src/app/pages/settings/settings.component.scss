@@ -1,31 +1,39 @@
+:host {
+  display    : flex;
+  white-space: normal;
+  height     : 100%;
+}
+
 .settings {
   display       : flex;
   align-items   : flex-start;
   flex-direction: column;
+  flex-grow     : 1;
+  overflow      : auto;
+  @apply pr-4;
+
+  app-generic-setting {
+    width: 100%;
+  }
 
   h2 {
     @apply p-2;
-    @apply mt-4;
     @apply ml-2;
     @apply font-bold;
     @apply text-xl;
     @apply text-white;
   }
-
-  app-generic-setting {
-    width: 100%;
-  }
 }
 
-
 div.settings-nav {
-  height     : 0;
-  position   : fixed;
+  position   : sticky;
   top        : 2rem;
   width      : 150px;
-  margin-left: -150px;
+  flex-shrink: 0;
   overflow   : hidden;
-  transition : height cubic-bezier(0.25, 0.46, 0.45, 0.94) .5s;
+  @apply p-2;
+  transition: height cubic-bezier(0.25, 0.46, 0.45, 0.94) .5s;
+  @apply text-sm;
 
   ul {
     transform : translateY(200%);
@@ -33,23 +41,18 @@ div.settings-nav {
 
     li {
       @apply mb-1;
-      @apply text-sm;
       @apply font-semibold;
-      @apply text-gray-600;
+      @apply text-gray-400;
 
       &:hover,
       &.active {
         @apply text-gray-200;
       }
-
     }
   }
 
-  @apply text-sm;
 
   &.show {
-    height: auto;
-
     ul {
       transform: translateY(0%);
     }

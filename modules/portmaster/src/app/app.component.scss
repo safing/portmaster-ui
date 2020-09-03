@@ -2,6 +2,10 @@
   display: flex;
   @apply bg-gray-900;
   @apply text-gray-300;
+
+  &>* {
+    flex-shrink: 0;
+  }
 }
 
 div.side-nav {
@@ -10,18 +14,26 @@ div.side-nav {
   @apply bg-gray-900;
   @apply border-gray-700;
   @apply text-gray-100;
-  @apply p-2;
 
   height         : 100vh;
   top            : 0px;
   position       : sticky;
   display        : flex;
+  width          : 3.5rem;
   flex-direction : column;
   justify-content: space-between;
   align-items    : center;
 
-  img {
+  svg {
+    @apply mt-4;
     width: 2rem;
+
+    &.spin {
+      animation-name           : spin;
+      animation-duration       : 2100ms;
+      animation-iteration-count: infinite;
+      animation-timing-function: linear;
+    }
   }
 
   div.nav-list {
@@ -35,9 +47,9 @@ div.side-nav {
     @apply rounded;
     @apply my-2;
 
-    font-size: 1rem;
-    width    : 2rem;
-    height   : 2rem;
+    font-size: 0.9rem;
+    width    : 1.8rem;
+    height   : 1.8rem;
 
     display        : flex;
     justify-content: space-around;
@@ -60,16 +72,48 @@ div.side-nav {
   }
 }
 
+app-side-dash {
+  height  : 100vh;
+  top     : 0px;
+  position: sticky;
+  width   : calc(3.5rem * 5);
+  @apply shadow;
+}
+
 div.main {
-  flex-grow     : 1;
+  flex-grow  : 1;
+  flex-shrink: 1;
+
   display       : flex;
   flex-direction: column;
   align-items   : center;
-  min-height    : 100vh;
   @apply bg-gray-800;
+  height  : 100vh;
+  overflow: hidden;
+
+  .header {
+    display: flex;
+    width  : 100%;
+    @apply pl-12;
+    @apply pr-5;
+    @apply text-xs;
+    @apply font-semibold;
+    @apply mb-2;
+    align-items: center;
+    height     : 4rem;
+    flex-shrink: 0;
+
+    input {
+      flex-grow: 1;
+    }
+  }
 
   .content {
-    width: 50%;
+    flex-grow: 1;
+    width    : 100%;
+    @apply pl-12;
+    @apply pr-20;
+    overflow: hidden;
   }
 }
 

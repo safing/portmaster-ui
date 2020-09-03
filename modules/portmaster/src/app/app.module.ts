@@ -19,6 +19,7 @@ import { GenericSettingComponent } from './shared/config/generic-setting/generic
 import { SecuritySettingComponent } from './shared/config/security-setting/security-setting.component';
 import { SettingsComponent } from './pages/settings/settings.component';
 import { DashboardComponent } from './pages/dashboard/dashboard.component';
+import { SideDashComponent } from './layout/side-dash/side-dash.component';
 
 @NgModule({
   declarations: [
@@ -34,7 +35,8 @@ import { DashboardComponent } from './pages/dashboard/dashboard.component';
     GenericSettingComponent,
     SecuritySettingComponent,
     SettingsComponent,
-    DashboardComponent
+    DashboardComponent,
+    SideDashComponent
   ],
   imports: [
     BrowserModule,

@@ -9,5 +9,56 @@ html {
 }
 
 ::-webkit-scrollbar {
-  display: none;
+  @apply bg-gray-700;
+  width: 2px;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-gray-400;
+  @apply rounded;
+}
+
+input:not([type="checkbox"]),
+textarea,
+select {
+  display: block;
+  width  : 100%;
+  outline: none;
+  @apply shadow-inner-xs;
+  @apply bg-gray-700;
+  @apply text-gray-200;
+  @apply border-gray-800;
+  @apply border;
+  transition: border cubic-bezier(0.175, 0.885, 0.32, 1.275) .3s;
+  @apply p-1;
+  @apply px-2;
+  @apply rounded;
+  @apply text-xs;
+
+  &:active,
+  &:focus {
+    @apply text-gray-100;
+    @apply border-gray-400;
+  }
+
+}
+
+button {
+  @apply text-xs;
+  @apply bg-blue-500;
+  @apply p-1;
+  @apply px-4;
+  @apply ml-2;
+  @apply uppercase;
+  @apply rounded;
+}
+
+.ng-invalid {
+
+  input,
+  textarea,
+  select {
+    @apply border-red-500;
+    @apply text-red-500;
+  }
 }

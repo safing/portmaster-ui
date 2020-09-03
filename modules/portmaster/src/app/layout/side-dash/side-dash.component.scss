@@ -1,0 +1,83 @@
+:host {
+  display        : flex;
+  flex-direction : column;
+  align-items    : center;
+  justify-content: flex-start;
+  @apply p-5;
+}
+
+.dash {
+  overflow: visible;
+  width   : 100%;
+
+  .content {
+    min-height     : calc(3 * 3.5rem);
+    display        : flex;
+    align-items    : center;
+    justify-content: space-around;
+
+    @apply p-5;
+    padding-bottom: calc(3.5rem / 2);
+
+    h1 {
+      @apply text-xl;
+      text-align: center;
+    }
+
+    @apply rounded-md;
+    @apply bg-gray-700;
+  }
+
+  .circle {
+    cursor         : pointer;
+    position       : relative;
+    top            : calc(-3.5rem / 2);
+    height         : 3.5rem;
+    width          : 3.5rem;
+    border-radius  : 50%;
+    display        : flex;
+    align-items    : center;
+    justify-content: space-around;
+
+    margin: {
+      left : auto;
+      right: auto;
+    }
+
+    @apply border-8;
+    @apply border-gray-900;
+    @apply bg-gray-700;
+
+    &:hover {
+      @apply bg-blue-500;
+    }
+  }
+}
+
+.new-widget {
+  cursor: pointer;
+  width : 100%;
+  @apply rounded-md;
+  @apply border-2;
+  @apply border-dashed;
+  @apply border-gray-600;
+  @apply bg-gray-800;
+  @apply p-4;
+
+  @apply text-gray-600;
+  @apply text-xs;
+
+  span,
+  fa-icon {
+    margin: -2px;
+  }
+
+  &:hover {
+    @apply text-gray-300;
+  }
+
+  display        : flex;
+  align-items    : center;
+  flex-direction : column;
+  justify-content: center;
+}
