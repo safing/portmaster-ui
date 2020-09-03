@@ -2,6 +2,7 @@ import { CommonModule } from '@angular/common';
 import { NgModule } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { BrowserModule } from '@angular/platform-browser';
+import { OverlayModule } from '@angular/cdk/overlay';
 import { FaIconLibrary, FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { far } from '@fortawesome/free-regular-svg-icons';
 import { fas } from '@fortawesome/free-solid-svg-icons';
@@ -20,6 +21,9 @@ import { SecuritySettingComponent } from './shared/config/security-setting/secur
 import { SettingsComponent } from './pages/settings/settings.component';
 import { DashboardComponent } from './pages/dashboard/dashboard.component';
 import { SideDashComponent } from './layout/side-dash/side-dash.component';
+import { NavigationComponent } from './layout/navigation/navigation.component';
+import { ExpertiseComponent } from './shared/expertise/expertise.component';
+import { ExpertiseDirective } from './shared/expertise/expertise.directive';
 
 @NgModule({
   declarations: [
@@ -36,14 +40,18 @@ import { SideDashComponent } from './layout/side-dash/side-dash.component';
     SecuritySettingComponent,
     SettingsComponent,
     DashboardComponent,
-    SideDashComponent
+    SideDashComponent,
+    NavigationComponent,
+    ExpertiseComponent,
+    ExpertiseDirective
   ],
   imports: [
     BrowserModule,
     CommonModule,
     FormsModule,
     AppRoutingModule,
-    FontAwesomeModule
+    FontAwesomeModule,
+    OverlayModule,
   ],
   providers: [
   ],

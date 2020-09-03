@@ -1,0 +1,63 @@
+:host {
+  @apply shadow-xl;
+  @apply border-r;
+  @apply bg-gray-900;
+  @apply border-gray-700;
+  @apply text-gray-100;
+
+  height         : 100vh;
+  top            : 0px;
+  position       : sticky;
+  display        : flex;
+  width          : 3.5rem;
+  flex-direction : column;
+  justify-content: space-between;
+  align-items    : center;
+
+  svg {
+    @apply mt-4;
+    width: 2rem;
+
+    &.spin {
+      animation-name           : spin;
+      animation-duration       : 2100ms;
+      animation-iteration-count: infinite;
+      animation-timing-function: linear;
+    }
+  }
+
+  div.nav-list {
+    display        : flex;
+    flex-direction : column;
+    justify-content: flex-start;
+    align-items    : center;
+  }
+
+  div.link {
+    @apply rounded;
+    @apply my-2;
+
+    font-size: 0.9rem;
+    width    : 1.8rem;
+    height   : 1.8rem;
+
+    display        : flex;
+    justify-content: space-around;
+    align-items    : center;
+
+    cursor: pointer;
+    @apply text-gray-300;
+
+    &:hover,
+    &.active {
+      @apply bg-blue-500;
+    }
+
+    &,
+    &:active,
+    &:focus,
+    &:target {
+      outline: none;
+    }
+  }
+}

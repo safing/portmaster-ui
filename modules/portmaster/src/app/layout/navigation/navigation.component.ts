@@ -1,12 +1,12 @@
 import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 
 @Component({
-  selector: 'app-side-dash',
-  templateUrl: './side-dash.component.html',
-  styleUrls: ['./side-dash.component.scss'],
+  selector: 'app-navigation',
+  templateUrl: './navigation.component.html',
+  styleUrls: ['./navigation.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class SideDashComponent implements OnInit {
+export class NavigationComponent implements OnInit {
 
   constructor() { }
 

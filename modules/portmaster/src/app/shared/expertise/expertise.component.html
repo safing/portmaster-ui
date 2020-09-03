@@ -1,0 +1,18 @@
+<!-- This button triggers the overlay and is it's origin -->
+<button (click)="isOpen = !isOpen" type="button" cdkOverlayOrigin #trigger="cdkOverlayOrigin">
+  <span>
+    {{getString(currentLevel | async)}}
+  </span>
+  <div class="arrow">
+    <fa-icon icon="chevron-down"></fa-icon>
+  </div>
+</button>
+
+<!-- This template displays the overlay content and is connected to the button -->
+<ng-template cdkConnectedOverlay [cdkConnectedOverlayOrigin]="trigger" [cdkConnectedOverlayOpen]="isOpen">
+  <ul class="level-list">
+    <li (click)="selectLevel(expertiseLevels.User)">Easy</li>
+    <li (click)="selectLevel(expertiseLevels.Expert)">Expert</li>
+    <li (click)="selectLevel(expertiseLevels.Developer)">Developer</li>
+  </ul>
+</ng-template>

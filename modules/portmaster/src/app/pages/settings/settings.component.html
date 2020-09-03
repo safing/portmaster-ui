@@ -18,16 +18,22 @@
     <h2 [attr.id]="subsys.ConfigKeySpace" #navLink>
       {{subsys.Name}}
     </h2>
-    <app-generic-setting *ngFor="let setting of settings[subsys.ConfigKeySpace]; trackBy: configService.trackBy"
-      [setting]="setting"></app-generic-setting>
+
+    <ng-container *ngFor="let setting of settings[subsys.ConfigKeySpace]; trackBy: configService.trackBy">
+      <app-generic-setting *appExpertiseLevel="setting.ExpertiseLevel" [setting]="setting">
+      </app-generic-setting>
+    </ng-container>
+
   </ng-container>
 
   <ng-container *ngIf="!!settings['other']">
     <h2 id="config:other" #navLink>
       Other
     </h2>
-    <app-generic-setting *ngFor="let setting of settings['other']; trackBy: configService.trackBy" [setting]="setting">
-    </app-generic-setting>
+    <ng-container *ngFor="let setting of settings['other']; trackBy: configService.trackBy">
+      <app-generic-setting [setting]="setting">
+      </app-generic-setting>
+    </ng-container>
   </ng-container>
 
 </div>

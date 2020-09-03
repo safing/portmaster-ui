@@ -2,25 +2,15 @@
  * ExpertiseLevel defines all available expertise levels.
  */
 export enum ExpertiseLevel {
-  Normal = 0,
-  Expert = 1,
-  Developer = 2,
+  User = 'user',
+  Expert = 'expert',
+  Developer = 'developer',
 }
 
-/**
- * Returns a string representation of the expertise level.
- *
- * @param level The level to convert
- */
-export function expirtiseLevelName(level: ExpertiseLevel): string {
-  switch (level) {
-    case ExpertiseLevel.Normal:
-      return 'normal'
-    case ExpertiseLevel.Expert:
-      return 'expert'
-    case ExpertiseLevel.Developer:
-      return 'developer'
-  }
+export enum ExpertiseLevelNumber {
+  user = 0,
+  expert = 1,
+  developer = 2
 }
 
 /**
@@ -106,7 +96,7 @@ export interface BaseSetting<T, O extends OptionType> {
   Description?: string;
   // ExpertiseLevel defines the required expertise level for
   // this setting to show up.
-  ExpertiseLevel: ExpertiseLevel;
+  ExpertiseLevel: ExpertiseLevelNumber;
   // ExternalOptType may contain a hint for the UI on how
   // to display this option.
   ExternalOptType: ExternalOptionHint;

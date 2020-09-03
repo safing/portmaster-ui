@@ -53,9 +53,14 @@ export class SettingsComponent implements OnInit, AfterViewInit, OnDestroy {
             })
 
             if (!pushed) {
-              console.log(setting.Key);
               this.settings['other'].push(setting);
             }
+
+            Object.keys(this.settings).forEach(key => {
+              this.settings[key].sort((a, b) => {
+                return (a.Order || 0) - (b.Order || 0);
+              })
+            })
           })
         }
       )

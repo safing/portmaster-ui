@@ -3,6 +3,8 @@
 @import 'tailwindcss/components';
 @import 'tailwindcss/utilities';
 
+@import '@angular/cdk/overlay-prebuilt';
+
 html {
   scroll-behavior: smooth;
   user-select    : none;
@@ -10,12 +12,13 @@ html {
 
 ::-webkit-scrollbar {
   @apply bg-gray-700;
-  width: 2px;
+  width: 3px;
 }
 
 ::-webkit-scrollbar-thumb {
   @apply bg-gray-400;
   @apply rounded;
+  cursor: pointer;
 }
 
 input:not([type="checkbox"]),

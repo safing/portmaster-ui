@@ -1,0 +1,46 @@
+button {
+  padding    : 0;
+  position   : relative;
+  width      : 6rem;
+  display    : flex;
+  align-items: center;
+  @apply font-semibold;
+  @apply text-xs;
+
+  span {
+    @apply p-1;
+    flex-grow : 1;
+    text-align: center;
+  }
+
+  .arrow {
+    @apply p-1;
+    @apply bg-blue-600;
+    width: 2rem;
+
+    display        : flex;
+    align-items    : center;
+    justify-content: space-around;
+
+    @apply rounded-r;
+  }
+}
+
+ul.level-list {
+  width  : 8rem;
+  display: block;
+  @apply bg-gray-500;
+  @apply text-gray-100;
+  @apply shadow-xl;
+  @apply text-sm;
+
+  li {
+    cursor: pointer;
+    @apply p-2;
+    @apply px-4;
+
+    &:hover {
+      @apply bg-gray-600;
+    }
+  }
+}
