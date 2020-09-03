@@ -1,0 +1,55 @@
+.settings {
+  display       : flex;
+  align-items   : flex-start;
+  flex-direction: column;
+
+  h2 {
+    @apply p-2;
+    @apply mt-4;
+    @apply ml-2;
+    @apply font-bold;
+    @apply text-xl;
+    @apply text-white;
+  }
+
+  app-generic-setting {
+    width: 100%;
+  }
+}
+
+
+div.settings-nav {
+  height     : 0;
+  position   : absolute;
+  top        : 2rem;
+  width      : 150px;
+  margin-left: -150px;
+  overflow   : hidden;
+  transition : height cubic-bezier(0.25, 0.46, 0.45, 0.94) .5s;
+
+  ul {
+    transform : translateY(200%);
+    transition: transform cubic-bezier(0.25, 0.46, 0.45, 0.94) .3s;
+
+    li {
+      @apply mb-1;
+      @apply text-sm;
+      @apply font-semibold;
+      @apply text-gray-600;
+
+      &:hover {
+        @apply text-gray-200;
+      }
+    }
+  }
+
+  @apply text-sm;
+
+  &.show {
+    height: auto;
+
+    ul {
+      transform: translateY(0%);
+    }
+  }
+}

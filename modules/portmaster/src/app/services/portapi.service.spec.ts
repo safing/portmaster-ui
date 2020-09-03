@@ -25,36 +25,36 @@ describe('PortapiService', () => {
   afterEach(() => {
     mock.close();
   })
-  
+
   it('should be created', () => {
     expect(service).toBeTruthy();
   });
 
   describe('on receiving request types', () => {
     it('should send the request message', () => {
-        let messageReceived = false;
-        service.get<any>('some/key')
-          .subscribe(value => {
-            messageReceived = true;
-            expect(value).toBe("some-value");
-          });
+      let messageReceived = false;
+      service.get<any>('some/key')
+        .subscribe(value => {
+          messageReceived = true;
+          expect(value).toBe("some-value");
+        });
 
-        let stream = mock.lastMultiplex
-        expect(stream).toBeTruthy()
+      let stream = mock.lastMultiplex
+      expect(stream).toBeTruthy()
 
-        let req = mock.lastMessageSent
-        expect(req).toBeTruthy();
-        expect(req.type).toBe('get')
-        expect(req.key).toBe('some/key')
+      let req = mock.lastMessageSent
+      expect(req).toBeTruthy();
+      expect(req.type).toBe('get')
+      expect(req.key).toBe('some/key')
 
-        mock.expectLastMessage().toBeTruthy()
-        mock.expectLastMessage('type').toBe('get')
-        mock.expectLastMessage('key').toBe('some/key')
+      mock.expectLastMessage().toBeTruthy()
+      mock.expectLastMessage('type').toBe('get')
+      mock.expectLastMessage('key').toBe('some/key')
 
-        // send the response
-        stream?.next({id: req.id, type: 'ok', key: req.key, data: 'some-value'})
+      // send the response
+      stream?.next({ id: req.id, type: 'ok', key: req.key, data: 'some-value' })
 
-        expect(messageReceived).toBe(true);
+      expect(messageReceived).toBe(true);
     });
 
     it('should send a cancel message', () => {
@@ -243,20 +243,20 @@ describe('PortapiService', () => {
     ];
 
     data.forEach((element, idx) => {
-        stream.next({
-          type: 'ok',
-          data: element,
-          id: mock.lastRequestId!,
-          key: "config:" + element,
-        })
+      stream.next({
+        type: 'ok',
+        data: element,
+        id: mock.lastRequestId!,
+        key: "config:" + element,
+      })
 
-        if (idx === 1) {
-          stream.next({
-            type: 'warning',
-            message: 'some useless warning',
-            id: mock.lastRequestId!,
-          })
-        }
+      if (idx === 1) {
+        stream.next({
+          type: 'warning',
+          message: 'some useless warning',
+          id: mock.lastRequestId!,
+        })
+      }
     });
     expect(observer.next).not.toHaveBeenCalled() // we did not send "done" yet
 
@@ -303,70 +303,70 @@ export function createSpyObserver(): jasmine.SpyObj<PartialObserver<any>> {
 }
 
 export class MockWebSocketSubject<T = ReplyMessage | RequestMessage> extends Subject<T> {
-    sent: any[] = [];
-    multiplexStreams: Observer<T>[] = [];
+  sent: any[] = [];
+  multiplexStreams: Observer<T>[] = [];
 
-    multiplex(subMsg: () => any, unsubMsg: () => any, messageFilter: (value: T) => boolean): Observable<T> {
-      return new Observable((observer) => {
-        this.next(subMsg());
+  multiplex(subMsg: () => any, unsubMsg: () => any, messageFilter: (value: T) => boolean): Observable<T> {
+    return new Observable((observer) => {
+      this.next(subMsg());
 
-        this.multiplexStreams.push(observer);
+      this.multiplexStreams.push(observer);
 
-        return () => {
-          if (unsubMsg() !== undefined) {
-            this.next(unsubMsg());
-          }
+      return () => {
+        if (unsubMsg() !== undefined) {
+          this.next(unsubMsg());
         }
-      })
-    }
-
-    static subjects: MockWebSocketSubject[] = [];
-
-    static createConnection(opts: any): MockWebSocketSubject {
-      const sub = new MockWebSocketSubject();
-      MockWebSocketSubject.subjects.push(sub);
-      return sub
-    }
-
-    static get lastMock(): MockWebSocketSubject | undefined {
-      const mocks = MockWebSocketSubject.subjects;
-      const length = mocks.length;
-      return length > 0 ? mocks[length - 1] : undefined;
-    }
-
-    next(msg: T) {
-      this.sent.push(msg);
-    }
-
-    clearSent() {
-      this.sent.length = 0;
-    }
-
-    close() {
-      this.multiplexStreams.forEach(obs => obs.complete())
-      this.multiplexStreams.length = 0;
-    }
-
-    get lastMessageSent(): any | undefined {
-      const sent = this.sent;
-      const length = this.sent.length;
-      return length > 0 ? sent[length - 1] : undefined;
-    }
-
-    expectLastMessage<M extends MessageType>(key?: string) {
-      if (key === undefined) {
-        return expect(this.lastMessageSent)
       }
-      return expect(this.lastMessageSent![key])
-    }
+    })
+  }
 
-    get lastRequestId(): string | undefined {
-      return this.lastMessageSent?.id;
-    }
+  static subjects: MockWebSocketSubject[] = [];
 
-    get lastMultiplex(): Observer<T> | undefined {
-      const obs = this.multiplexStreams;
-      const length =this.multiplexStreams.length;
-      return length > 0 ? obs[length - 1] : undefined;
+  static createConnection(opts: any): MockWebSocketSubject {
+    const sub = new MockWebSocketSubject();
+    MockWebSocketSubject.subjects.push(sub);
+    return sub
+  }
+
+  static get lastMock(): MockWebSocketSubject | undefined {
+    const mocks = MockWebSocketSubject.subjects;
+    const length = mocks.length;
+    return length > 0 ? mocks[length - 1] : undefined;
+  }
+
+  next(msg: T) {
+    this.sent.push(msg);
+  }
+
+  clearSent() {
+    this.sent.length = 0;
+  }
+
+  close() {
+    this.multiplexStreams.forEach(obs => obs.complete())
+    this.multiplexStreams.length = 0;
+  }
+
+  get lastMessageSent(): any | undefined {
+    const sent = this.sent;
+    const length = this.sent.length;
+    return length > 0 ? sent[length - 1] : undefined;
+  }
+
+  expectLastMessage<M extends MessageType>(key?: string) {
+    if (key === undefined) {
+      return expect(this.lastMessageSent)
     }
+    return expect(this.lastMessageSent![key])
+  }
+
+  get lastRequestId(): string | undefined {
+    return this.lastMessageSent?.id;
+  }
+
+  get lastMultiplex(): Observer<T> | undefined {
+    const obs = this.multiplexStreams;
+    const length = this.multiplexStreams.length;
+    return length > 0 ? obs[length - 1] : undefined;
+  }
 }

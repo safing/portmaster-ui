@@ -1,71 +1,77 @@
 :host {
-    display: block;
-    @apply p-4;
-    @apply m-2;
-    @apply shadow-md;
-    @apply border-black;
-    @apply text-blue-900;
-    @apply border-2;
-    @apply rounded;
+  display: block;
+  @apply p-4;
+  @apply m-2;
+  @apply shadow-md;
+  @apply border-black;
+  @apply text-blue-900;
+  @apply border-2;
+  @apply rounded;
 
-    &.notif {
-        &-action-required, &-new {
-            @apply border-teal-700;
-            @apply border-red-200;
-        }
+  &.notif {
 
-        &-action-pending {
-            @apply border-yellow-700;
-            @apply bg-yellow-100;
-        }
-
-        &-done, &-expired {
-            @apply border-gray-300;
-            @apply bg-gray-100;
-            @apply opacity-50;
-
-            div button {
-                cursor: no-drop;
-                @apply bg-gray-400;
-            }
-        }
+    &-action-required,
+    &-new {
+      @apply border-teal-700;
+      @apply border-red-200;
     }
+
+    &-action-pending {
+      @apply border-yellow-700;
+      @apply bg-yellow-100;
+    }
+
+    &-done,
+    &-expired {
+      @apply border-gray-300;
+      @apply bg-gray-100;
+      @apply opacity-50;
+
+      div button {
+        cursor: no-drop;
+        @apply bg-gray-400;
+      }
+    }
+  }
 }
 
 div {
-    text-align: right;
-    @apply mt-4;
+  text-align: right;
+  @apply mt-4;
 
-    button {
-        @apply text-sm;
-        @apply font-semibold;
-        @apply mx-1;
-        @apply px-4;
-        @apply py-1;
-        @apply border;
-        @apply border-blue-200;
-        @apply bg-blue-100;
-        @apply rounded-sm;
-        @apply text-blue-500;
-        transition: all cubic-bezier(0.075, 0.82, 0.165, 1) .25s;
+  button {
+    @apply text-sm;
+    @apply font-semibold;
+    @apply mx-1;
+    @apply px-4;
+    @apply py-1;
+    @apply border;
+    @apply border-blue-200;
+    @apply bg-blue-100;
+    @apply rounded-sm;
+    @apply text-blue-500;
+    transition: all cubic-bezier(0.075, 0.82, 0.165, 1) .25s;
 
-        &:hover, &:focus, &:active {
-            outline: none;
-        }
-
-        &:hover {
-            @apply bg-blue-400;
-            @apply text-white;
-        }
-
-        &.selected {
-            @apply border-2
-        }
-
-        &:active, &.selected {
-            @apply shadow-inner;
-            @apply bg-blue-500;
-            @apply text-white;
-        }
+    &:hover,
+    &:focus,
+    &:active {
+      outline: none;
     }
+
+    &:hover {
+      @apply bg-blue-400;
+      @apply text-white;
+    }
+
+    &.selected {
+      @apply border-2
+    }
+
+    &:active,
+    &.selected {
+      @apply shadow-inner;
+      @apply bg-blue-500;
+      @apply text-white;
+    }
+  }
 }

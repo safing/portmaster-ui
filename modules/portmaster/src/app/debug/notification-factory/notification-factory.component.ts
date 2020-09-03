@@ -48,7 +48,7 @@ export class NotificationFactoryComponent implements OnInit {
   }
 
   /**
-   * 
+   *
    * @param value Either a datetime, the string "now" or a timestamp.
    */
   private parseTimeSpec(value: string): number | undefined {

@@ -48,7 +48,7 @@ export class GenericSettingComponent<S extends BaseSetting<any, any>> {
     return !this.dirty && !this.userConfigured
   }
 
-  @ViewChild(NgModel, {static: false})
+  @ViewChild(NgModel, { static: false })
   model: NgModel | null = null;
 
   /**
@@ -66,13 +66,13 @@ export class GenericSettingComponent<S extends BaseSetting<any, any>> {
     }
 
     const value = s.Value === undefined
-      ?  s.DefaultValue
+      ? s.DefaultValue
       : s.Value;
 
     this._currentValue = value;
     this._savedValue = value;
   }
-  get setting(): S  | null {
+  get setting(): S | null {
     return this._setting;
   }
 
@@ -89,7 +89,7 @@ export class GenericSettingComponent<S extends BaseSetting<any, any>> {
   _savedValue: SettingValueType<S> | null = null;
 
   constructor(private configService: ConfigService,
-              private changeDetectorRef: ChangeDetectorRef) { }
+    private changeDetectorRef: ChangeDetectorRef) { }
 
   /**
    * Resets the value of setting by discarding any user
@@ -114,7 +114,7 @@ export class GenericSettingComponent<S extends BaseSetting<any, any>> {
 
   saveValue() {
     if (this._currentValue === this._setting!.DefaultValue) {
-      delete(this._setting!['Value']);
+      delete (this._setting!['Value']);
     } else {
       this._setting!.Value = this._currentValue;
     }

@@ -58,6 +58,7 @@ It's highly recommended to:
 - Use [VSCode](https://code.visualstudio.com/) (or it's oss or server-side variant) with
   - the official [Angular Language Service](https://marketplace.visualstudio.com/items?itemName=Angular.ng-template) extension
   - the [Tailwind CSS Extension Pack](https://marketplace.visualstudio.com/items?itemName=andrewmcodes.tailwindcss-extension-pack) extension
+  - the [formate: CSS/LESS/SCSS formatter](https://github.com/mblander/formate) extension
 
 ### Folder Structure
 

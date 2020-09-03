@@ -48,10 +48,10 @@ describe('ConfigService', () => {
 
     expect(observer.complete).toHaveBeenCalled();
     expect(observer.next).toHaveBeenCalledWith({
-        Name: "Disable Updates",
-        Key: "updates/disable",
-        Value: true,
-        DefaultValue: false,
+      Name: "Disable Updates",
+      Key: "updates/disable",
+      Value: true,
+      DefaultValue: false,
     });
     expect(observer.error).not.toHaveBeenCalled();
   });
@@ -201,7 +201,7 @@ describe('ConfigService', () => {
       id: mock.lastRequestId!, // don't expect the request id
       type: 'update',
       data: setting,
-      key: 'config:updates/disable'  
+      key: 'config:updates/disable'
     })
     mock.lastMultiplex!.next({
       id: mock.lastRequestId!,
@@ -224,7 +224,7 @@ describe('ConfigService', () => {
         Key: "updates/disable",
         Value: true,
       },
-      key: 'config:updates/disable'  
+      key: 'config:updates/disable'
     })
     mock.lastMultiplex!.next({
       id: mock.lastRequestId!,

@@ -1,87 +1,98 @@
 :host {
-    display: block;
-    width: 100%;
-    position: relative;
-    @apply p-4;
-    @apply border-l-4;
-    @apply border-transparent;
-    transition: all cubic-bezier(0.455, 0.03, 0.515, 0.955) .3s;
+  display : block;
+  width   : 100%;
+  position: relative;
+  @apply p-6;
+  @apply rounded;
+  @apply border-l-4;
+  @apply border-transparent;
+  transition: all cubic-bezier(0.455, 0.03, 0.515, 0.955) .3s;
 
-    &:hover {
-        @apply shadow-xs;
-        @apply border-gray-400;
-        @apply bg-gray-200;
-    }
+  &:hover {
+    @apply shadow-xs;
+    @apply bg-gray-700;
+    --bg-opacity: 0.2;
+  }
 
-    &.changed {
-        @apply border-green-300;
-    }
+  &.changed {
+    @apply border-green-300;
+    --border-opacity: 0.5;
+  }
 
-    &.dirty {
-        @apply border-yellow-500;
-    }
+  &.dirty {
+    @apply border-yellow-500;
+    --border-opacity: 0.5;
+  }
 
-    &.ng-invalid {
-        @apply border-red-300;
-    }
+  &.ng-invalid {
+    @apply border-red-300;
+    --border-opacity: 0.5;
+  }
 }
 
 div.setting-meta {
-    display: flex;
-    justify-content: space-between;
+  display        : flex;
+  justify-content: space-between;
 }
 
 label {
-    display: block;
-    width: 100%;
-    @apply mb-1;
-    @apply text-xs;
-    @apply uppercase;
-    @apply font-semibold;
+  display: block;
+  width  : 100%;
+  @apply mb-1;
+  @apply text-xs;
+  @apply uppercase;
+  @apply font-semibold;
+  @apply text-white;
 }
 
 span.key {
-    @apply text-xs;
-    @apply text-gray-400;
-    white-space: nowrap;
+  @apply text-xs;
+  @apply text-gray-400;
+  white-space: nowrap;
 
-    fa-icon {
-        @apply text-sm;
-        @apply pl-4;
-        display: inline-block;
-        cursor: pointer;
-    }
+  fa-icon {
+    @apply text-sm;
+    @apply pl-4;
+    display: inline-block;
+    cursor : pointer;
+  }
 
-    fa-icon[icon="trash"] {
-        @apply text-red-600;
-        &:hover {
-            @apply text-red-800;
-        }
-    }
+  fa-icon[icon="trash"] {
+    @apply text-red-600;
+    --text-opacity: 0.5;
 
-    fa-icon[icon="check"] {
-        @apply text-green-600;
-        &:hover {
-            @apply text-green-800;
-        }
+    &:hover {
+      @apply text-red-800;
+      --text-opacity: 0.5;
     }
+  }
 
-    fa-icon[icon="times"] {
-        @apply text-yellow-600;
-        &:hover {
-            @apply text-yellow-800;
-        }
-    }
+  fa-icon[icon="check"] {
+    @apply text-green-600;
 
-    fa-icon:focus {
-        outline: none;
-        @apply text-yellow-600;
+    &:hover {
+      @apply text-green-800;
     }
+  }
+
+  fa-icon[icon="times"] {
+    @apply text-yellow-600;
+
+    &:hover {
+      @apply text-yellow-800;
+    }
+  }
+
+  fa-icon:focus {
+    outline: none;
+    @apply text-yellow-600;
+  }
 }
 
 span.description {
-    display: block;
-    @apply text-xs;
-    @apply text-gray-900;
-    @apply mb-2;
+  display: block;
+  @apply text-xs;
+  @apply text-gray-100;
+  --text-opacity: 0.7;
+  @apply mb-2;
 }

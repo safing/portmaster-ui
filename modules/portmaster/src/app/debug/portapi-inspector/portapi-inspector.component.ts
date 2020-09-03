@@ -13,7 +13,7 @@ export class PortapiInspectorComponent implements OnInit {
 
   constructor(private portapi: PortapiService) {
     this.activeRequests = this.portapi.activeRequests.pipe(
-      map(value => { 
+      map(value => {
         console.log(value);
         return Object.values(value);
       })

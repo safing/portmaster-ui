@@ -1,95 +1,31 @@
-<div class="content">
+<div class="side-nav">
+  <img src="assets/portmaster.svg">
 
-    <section class="status-section">
-        <div class="online-status {{status?.online}}">
-            <fa-icon *ngIf="!status || status.online === 'unknown'; else: onlineIcon" icon="spinner" [spin]="true"></fa-icon>
-            <ng-template #onlineIcon>
-                <fa-stack>
-                    <fa-icon icon="globe-americas" stackItemSize="2x"></fa-icon>
-                    <fa-icon icon="lock" stackItemSize="1x"></fa-icon>
-                </fa-stack>
-            </ng-template>
+  <div class="nav-list">
+    <div routerLinkActive="active" routerLink="dashboard" class="link">
+      <fa-icon icon="desktop"></fa-icon>
+    </div>
 
-            <div [ngSwitch]="status?.online">
-                <label *ngSwitchCase="'online'">You're save!</label>
-                <label *ngSwitchCase="'semionline'">Internet access limited!</label>
-                <label *ngSwitchCase="'portal'">There's a portal around</label>
-                <label *ngSwitchCase="'limited'">Local network access only</label>
-                <label *ngSwitchCase="'offline'">No network access</label>
+    <div routerLinkActive="active" routerLink="notifications" class="link">
+      <fa-icon icon="comment"></fa-icon>
+    </div>
 
-                <label *ngSwitchCase="'unknown'">
-                    Just a moment ...
-                </label>
-            </div>
-        </div>
-    </section>
+    <div routerLinkActive="active" routerLink="cogs" class="link">
+      <fa-icon icon="cogs"></fa-icon>
+    </div>
+  </div>
 
-    <section class="subsys">
-        <h1>Subsystems</h1>
-        <div class="list">
-            <div class="subsys" *ngFor="let subsys of subsystems; trackBy: statusService.trackSubsystem">
-                <app-subsystem (mouseenter)="subsysDetails = subsys" (mouseleave)="subsysDetails = null"
-                    [subsystem]="subsys">
-                </app-subsystem>
-                <span class="marker" [class.active]="subsysDetails?.ID === subsys.ID">
-                    <span></span>
-                </span>
-            </div>
-        </div>
-        <div class="subsystem-details" [class.active]="!!subsysDetails">
-            <ng-container *ngIf="!!subsysDetails">
-                {{ subsysDetails.Description }}
-            </ng-container>
-        </div>
-    </section>
+  <div routerLinkActive="active" routerLink="settings" class="link">
+    <fa-icon icon="cog"></fa-icon>
+  </div>
+</div>
 
-    <section class="notifs">
-        <h1>Notifications</h1>
-
-        <app-notification *ngFor="let notif of notifications; trackBy: notifService.trackBy"
-            [notification]="notif">
-        </app-notification>
-    </section>
-
-
-    <section class="settings">
-        <!-- navigation for the settings -->
-        <div class="settings-nav" [class.show]="shouldShowSettingsNav">
-            <ul>
-                <li *ngFor="let subsys of subsystems; trackBy: statusService.trackSubsystem">
-                    <a href="#{{subsys.ConfigKeySpace}}">{{subsys.Name}}</a>
-                </li>
-                <li *ngIf="!!settings['other']">
-                    <a href="#config:other">Other</a>
-                </li>
-            </ul>
-        </div>
-
-        <span #settingsSpacer></span>
-        <h1>Settings</h1>
-
-        <!-- actual settings -->
-        <ng-container *ngFor="let subsys of subsystems; trackBy: statusService.trackSubsystem">
-            <h2 [attr.id]="subsys.ConfigKeySpace">
-                {{subsys.Name}}
-            </h2>
-            <app-generic-setting *ngFor="let setting of settings[subsys.ConfigKeySpace]; trackBy: configService.trackBy"
-                [setting]="setting"></app-generic-setting>
-        </ng-container>
-
-        <ng-container *ngIf="!!settings['other']">
-            <h2 id="config:other">
-                Other
-            </h2>
-            <app-generic-setting *ngFor="let setting of settings['other']; trackBy: configService.trackBy"
-                [setting]="setting"></app-generic-setting>
-        </ng-container>
-
-    </section>
-
+<div class="main">
+  <div class="content">
     <router-outlet></router-outlet>
+  </div>
 </div>
 
 <div *ngIf="showDebugPanel">
-    <app-debug></app-debug>
+  <app-debug></app-debug>
 </div>

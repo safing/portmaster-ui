@@ -1,0 +1,32 @@
+<section class="settings">
+
+  <!-- actual settings -->
+  <ng-container *ngFor="let subsys of subsystems; trackBy: statusService.trackSubsystem">
+    <h2 [attr.id]="subsys.ConfigKeySpace">
+      {{subsys.Name}}
+    </h2>
+    <app-generic-setting *ngFor="let setting of settings[subsys.ConfigKeySpace]; trackBy: configService.trackBy"
+      [setting]="setting"></app-generic-setting>
+  </ng-container>
+
+  <ng-container *ngIf="!!settings['other']">
+    <h2 id="config:other">
+      Other
+    </h2>
+    <app-generic-setting *ngFor="let setting of settings['other']; trackBy: configService.trackBy" [setting]="setting">
+    </app-generic-setting>
+  </ng-container>
+
+</section>
+
+<!-- navigation for the settings -->
+<div class="settings-nav" [class.show]="shouldShowSettingsNav">
+  <ul>
+    <li *ngFor="let subsys of subsystems; trackBy: statusService.trackSubsystem">
+      <a routerLink="" fragment="subsys.ConfigKeySpace">{{subsys.Name}}</a>
+    </li>
+    <li *ngIf="!!settings['other']">
+      <a routerLink="" fragement="config:other">Other</a>
+    </li>
+  </ul>
+</div>

@@ -8,9 +8,9 @@ describe('UnknownTypeComponent', () => {
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ BasicSettingComponent ]
+      declarations: [BasicSettingComponent]
     })
-    .compileComponents();
+      .compileComponents();
   }));
 
   beforeEach(() => {

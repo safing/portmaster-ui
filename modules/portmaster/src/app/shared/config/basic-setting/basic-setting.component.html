@@ -1,48 +1,30 @@
 <ng-container *ngIf="!!setting">
-    <ng-container [ngSwitch]="_type">
-        <ng-container *ngSwitchCase="'string'">
-            <select
-                *ngIf="setting!.ExternalOptType === optionHints.StringList; else: simpleTextInput"
-                [ngModel]="_value"
-                (ngModelChange)="setInternalValue($event)"
-                [disabled]="_disabled"
-                (blur)="_onTouch()">
-                <option *ngFor="let opt of parseSupportedValues(setting)" [value]="opt">{{opt}}</option>
-            </select>
+  <ng-container [ngSwitch]="_type">
+    <ng-container *ngSwitchCase="'string'">
+      <select *ngIf="setting!.ExternalOptType === optionHints.StringList; else: simpleTextInput" [ngModel]="_value"
+        (ngModelChange)="setInternalValue($event)" [disabled]="_disabled" (blur)="_onTouch()">
+        <option *ngFor="let opt of parseSupportedValues(setting)" [value]="opt">{{opt}}</option>
+      </select>
 
-            <ng-template #simpleTextInput>
-                <input
-                    type="text"
-                    [ngModel]="_value"
-                    (ngModelChange)="setInternalValue($event)"
-                    [disabled]="_disabled"
-                    (blur)="_onTouch()">
-            </ng-template>
-
-        </ng-container>
-
-        <input *ngSwitchCase="'number'" type="number"
-            [ngModel]="_value"
-            (ngModelChange)="setInternalValue($event)"
-            [disabled]="_disabled"
-            (blur)="_onTouch()">
-
-        <ng-container *ngSwitchCase="'boolean'" >
-            <label for="check-{{setting.Key}}">Enable</label>
-            <input type="checkbox" id="check-{{setting.Key}}" name="check"
-                [ngModel]="_value"
-                (ngModelChange)="setInternalValue($event)"
-                [disabled]="_disabled"
-                (blur)="_onTouch()">
-        </ng-container>
-
-        <textarea *ngSwitchDefault
-            [attr.rows]="lineCount(_value)"
-            [ngModel]="_value"
-            (ngModelChange)="setInternalValue($event)"
-            [disabled]="_disabled"
-            (blur)="_onTouch()">
-        </textarea>
+      <ng-template #simpleTextInput>
+        <input type="text" [ngModel]="_value" (ngModelChange)="setInternalValue($event)" [disabled]="_disabled"
+          (blur)="_onTouch()">
+      </ng-template>
 
     </ng-container>
+
+    <input *ngSwitchCase="'number'" type="number" [ngModel]="_value" (ngModelChange)="setInternalValue($event)"
+      [disabled]="_disabled" (blur)="_onTouch()">
+
+    <ng-container *ngSwitchCase="'boolean'">
+      <label for="check-{{setting.Key}}">Enable</label>
+      <input type="checkbox" id="check-{{setting.Key}}" name="check" [ngModel]="_value"
+        (ngModelChange)="setInternalValue($event)" [disabled]="_disabled" (blur)="_onTouch()">
+    </ng-container>
+
+    <textarea *ngSwitchDefault [attr.rows]="lineCount(_value)" [ngModel]="_value"
+      (ngModelChange)="setInternalValue($event)" [disabled]="_disabled" (blur)="_onTouch()">
+        </textarea>
+
+  </ng-container>
 </ng-container>

@@ -1,0 +1,49 @@
+<section class="status-section">
+  <div class="online-status {{status?.online}}">
+    <fa-icon *ngIf="!status || status.online === 'unknown'; else: onlineIcon" icon="spinner" [spin]="true">
+    </fa-icon>
+    <ng-template #onlineIcon>
+      <fa-stack>
+        <fa-icon icon="globe-americas" stackItemSize="2x"></fa-icon>
+        <fa-icon icon="lock" stackItemSize="1x"></fa-icon>
+      </fa-stack>
+    </ng-template>
+
+    <div [ngSwitch]="status?.online">
+      <label *ngSwitchCase="'online'">You're save!</label>
+      <label *ngSwitchCase="'semionline'">Internet access limited!</label>
+      <label *ngSwitchCase="'portal'">There's a portal around</label>
+      <label *ngSwitchCase="'limited'">Local network access only</label>
+      <label *ngSwitchCase="'offline'">No network access</label>
+
+      <label *ngSwitchCase="'unknown'">
+        Just a moment ...
+      </label>
+    </div>
+  </div>
+</section>
+
+<section class="subsys">
+  <h1>Subsystems</h1>
+  <div class="list">
+    <div class="subsys" *ngFor="let subsys of subsystems; trackBy: statusService.trackSubsystem">
+      <app-subsystem (mouseenter)="subsysDetails = subsys" (mouseleave)="subsysDetails = null" [subsystem]="subsys">
+      </app-subsystem>
+      <span class="marker" [class.active]="subsysDetails?.ID === subsys.ID">
+        <span></span>
+      </span>
+    </div>
+  </div>
+  <div class="subsystem-details" [class.active]="!!subsysDetails">
+    <ng-container *ngIf="!!subsysDetails">
+      {{ subsysDetails.Description }}
+    </ng-container>
+  </div>
+</section>
+
+<section class="notifs">
+  <h1>Notifications</h1>
+
+  <app-notification *ngFor="let notif of notifications; trackBy: notifService.trackBy" [notification]="notif">
+  </app-notification>
+</section>

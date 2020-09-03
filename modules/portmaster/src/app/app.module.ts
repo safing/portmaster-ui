@@ -17,6 +17,8 @@ import { SubsystemComponent } from './shared/subsystem/subsystem.component';
 import { BasicSettingComponent } from './shared/config/basic-setting/basic-setting.component';
 import { GenericSettingComponent } from './shared/config/generic-setting/generic-setting.component';
 import { SecuritySettingComponent } from './shared/config/security-setting/security-setting.component';
+import { SettingsComponent } from './pages/settings/settings.component';
+import { DashboardComponent } from './pages/dashboard/dashboard.component';
 
 @NgModule({
   declarations: [
@@ -30,7 +32,9 @@ import { SecuritySettingComponent } from './shared/config/security-setting/secur
     SubsystemComponent,
     BasicSettingComponent,
     GenericSettingComponent,
-    SecuritySettingComponent
+    SecuritySettingComponent,
+    SettingsComponent,
+    DashboardComponent
   ],
   imports: [
     BrowserModule,

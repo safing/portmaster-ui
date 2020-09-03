@@ -16,113 +16,113 @@ let uniqueRequestId = 0;
 })
 export class PortapiService {
   private ws$: WebSocketSubject<ReplyMessage> | null = null;
-  
-  readonly activeRequests = new BehaviorSubject<{[key: string]: InspectedActiveRequest}>({});
+
+  readonly activeRequests = new BehaviorSubject<{ [key: string]: InspectedActiveRequest }>({});
 
   constructor(private websocketFactory: WebsocketService,
-              private ngZone: NgZone) {
+    private ngZone: NgZone) {
     this.ws$ = this.createWebsocket();
   }
 
   /**
    * Allows to inspect currently active requests.
    */
-  inspectActiveRequests(): {[key: string]: InspectedActiveRequest} {
+  inspectActiveRequests(): { [key: string]: InspectedActiveRequest } {
     return this.activeRequests.getValue();
   }
 
   /**
    * Loads a database entry. The returned observable completes
    * after the entry has been loaded.
-   * 
+   *
    * @param key The database key of the entry to load.
    */
   get<T>(key: string): Observable<T> {
-    return this.request('get', {key})
-        .pipe(
-          map(res => res.data)
-        );
+    return this.request('get', { key })
+      .pipe(
+        map(res => res.data)
+      );
   }
 
   /**
    * Searches for multiple database entries at once. Each entry
    * is streams via the returned observable. The observable is
    * closed after the last entry has been published.
-   * 
+   *
    * @param query The query used to search the database.
    */
   query<T>(query: string): Observable<DataReply<T>> {
-    return this.request('query', {query});
+    return this.request('query', { query });
   }
 
   /**
    * Subscribes for updates on entries of the selected query.
-   * 
+   *
    * @param query The query use to subscribe.
    */
   sub<T>(query: string, opts: RetryableOpts = {}): Observable<DataReply<T>> {
-    return this.request('sub', {query})
+    return this.request('sub', { query })
       .pipe(retryPipeline(opts));
-  }  
+  }
 
   /**
    * Subscribes for updates on entries of the selected query and
    * ensures entries are stream once upon subscription.
-   * 
+   *
    * @param query The query use to subscribe.
    * @todo(ppacher): check what a ok/done message mean here.
    */
   qsub<T>(query: string, opts: RetryableOpts = {}): Observable<DataReply<T>> {
-    return this.request('qsub', {query})
+    return this.request('qsub', { query })
       .pipe(retryPipeline(opts))
   }
 
   /**
    * Creates a new database entry.
-   * 
+   *
    * @warn create operations do not validate the type of data
    * to be overwritten (for keys that does already exist).
    * Use {@function insert} for more validation.
-   * 
+   *
    * @param key The database key for the entry.
    * @param data The actual data for the entry.
    */
-  create(key: string, data: any): Observable<void> { 
-    return this.request('create', {key, data})
-      .pipe(map(() => {}));
+  create(key: string, data: any): Observable<void> {
+    return this.request('create', { key, data })
+      .pipe(map(() => { }));
   }
 
   /**
    * Updates an existing entry.
-   * 
+   *
    * @param key The database key for the entry
    * @param data The actual, updated entry data.
    */
   update(key: string, data: any): Observable<void> {
-    return this.request('update', {key, data})
-      .pipe(map(() => {}))
+    return this.request('update', { key, data })
+      .pipe(map(() => { }))
   }
 
   /**
    * Creates a new database entry.
-   * 
+   *
    * @param key The database key for the entry.
    * @param data The actual data for the entry.
    * @todo(ppacher): check what's different to create().
    */
-  insert(key: string, data: any): Observable<void> { 
-    return this.request('insert', {key, data})
-      .pipe(map(() => {}));
+  insert(key: string, data: any): Observable<void> {
+    return this.request('insert', { key, data })
+      .pipe(map(() => { }));
   }
 
   /**
    * Deletes an existing database entry.
-   * 
+   *
    * @param key The key of the database entry to delete.
    */
   delete(key: string): Observable<void> {
-    return this.request('delete', {key})
-      .pipe(map(() => {}));
+    return this.request('delete', { key })
+      .pipe(map(() => { }));
   }
 
   /**
@@ -132,7 +132,7 @@ export class PortapiService {
    * milliseconds. It stops retrying to watch key once
    * maxRetries is exceeded. The returned observable completes
    * when the watched key is deleted.
-   * 
+   *
    * @param key The database key to watch
    * @param opts.retryDelay Number of milliseconds to wait
    *        between retrying the request. Defaults to 1000
@@ -158,8 +158,8 @@ export class PortapiService {
       let values: T[] = [];
       let keys: string[] = [];
       let doneReceived = false;
-  
-      const sub = this.request('qsub', {query}, {forwardDone: true})
+
+      const sub = this.request('qsub', { query }, { forwardDone: true })
         .subscribe({
           next: value => {
             if ((value as any).type === 'done') {
@@ -233,8 +233,8 @@ export class PortapiService {
     this.ws$.complete();
     this.ws$ = null;
   }
-  
-  request<M extends RequestType>(method: M, attrs: Partial<Requestable<M>>, {forwardDone}: {forwardDone?: boolean} = {}): Observable<DataReply<any>> {
+
+  request<M extends RequestType>(method: M, attrs: Partial<Requestable<M>>, { forwardDone }: { forwardDone?: boolean } = {}): Observable<DataReply<any>> {
     return new Observable(observer => {
       const id = `${++uniqueRequestId}`;
 
@@ -255,9 +255,9 @@ export class PortapiService {
       }
 
       const request: any = {
-          ...attrs,
-          id: id,
-          type: method,
+        ...attrs,
+        id: id,
+        type: method,
       }
 
       let inspected: InspectedActiveRequest = {
@@ -305,9 +305,9 @@ export class PortapiService {
           }
 
           if (method === 'create'
-              || method === 'update'
-              || method === 'insert'
-              || method === 'delete' ) {
+            || method === 'update'
+            || method === 'insert'
+            || method === 'delete') {
             // for data-manipulating methods success
             // ends the stream.
             if (data.type === 'success') {
@@ -318,13 +318,13 @@ export class PortapiService {
           }
 
           if (method === 'query'
-              || method === 'sub'
-              || method === 'qsub') {
+            || method === 'sub'
+            || method === 'qsub') {
             if (data.type === 'warning') {
               console.warn(data.message);
               return;
             }
-          
+
             // query based methods send `done` once all
             // results are sent at least once.
             if (data.type === 'done') {
@@ -355,7 +355,7 @@ export class PortapiService {
 
           // for a `get` method the first `ok` message
           // also marks the end of the stream.
-          if (method === 'get' && data.type === 'ok')  {
+          if (method === 'get' && data.type === 'ok') {
             observer.complete();
           }
         },
@@ -377,7 +377,7 @@ export class PortapiService {
         // goes down
         subscription.add(() => {
           const active = this.inspectActiveRequests();
-          delete(active[request.id]) ;
+          delete (active[request.id]);
           this.activeRequests.next(active);
         })
       }
@@ -387,10 +387,10 @@ export class PortapiService {
       }
     });
   }
-  
+
   /**
    * Inject a message into a PortAPI stream.
-   * 
+   *
    * @param id The request ID to inject msg into.
    * @param msg The message to inject.
    */
@@ -409,19 +409,19 @@ export class PortapiService {
 
   /**
    * Injects a 'ok' type message
-   * 
+   *
    * @param id The ID of the request to inject into
    * @param data The data blob to inject
    * @param key [optional] The key of the entry to inject
    */
   _injectData(id: string, data: any, key: string = '') {
-    this._injectMessage(id, {type: 'ok', data: data, key, id: id});
+    this._injectMessage(id, { type: 'ok', data: data, key, id: id });
   }
 
   /**
    * Patches the last message received on id by deeply merging
    * data and re-injects that message.
-   * 
+   *
    * @param id The ID of the request
    * @param data The patch to apply and reinject
    */
@@ -438,7 +438,7 @@ export class PortapiService {
   /**
    * Creates a new websocket subject and configures appropriate serializer
    * and deserializer functions for PortAPI.
-   * 
+   *
    * @private
    */
   private createWebsocket(): WebSocketSubject<ReplyMessage> {
@@ -486,7 +486,7 @@ export class PortapiService {
 }
 
 // Counts the number of "truthy" datafields in obj.
-function countTruthyDataFields(obj: {[key: string]: any}): number {
+function countTruthyDataFields(obj: { [key: string]: any }): number {
   let count = 0;
   Object.keys(obj).forEach(key => {
     let value = obj[key];

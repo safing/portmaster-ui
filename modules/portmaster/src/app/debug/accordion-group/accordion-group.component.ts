@@ -22,7 +22,7 @@ export class AccordionGroupComponent implements OnInit, AfterContentInit, OnDest
     this.accordions?.forEach(a => {
       this.subscriptions.push(a.activeChange.subscribe(() => {
         console.log(`receive toggle`);
-  
+
         this.toggle(a);
       }))
     })

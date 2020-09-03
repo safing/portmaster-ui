@@ -29,7 +29,7 @@ export class StatusService {
       repeatWhen(obs => obs.pipe(delay(2000))),
       map(reply => reply.data),
       multicast(() => {
-        return new BehaviorSubject<CoreStatus|null>(null);
+        return new BehaviorSubject<CoreStatus | null>(null);
       }),
       refCount(),
       filter(value => value !== null),
@@ -39,7 +39,7 @@ export class StatusService {
 
   /**
    * Loads the current status of a subsystem.
-   * 
+   *
    * @param name The ID of the subsystem
    */
   getSubsystemStatus(id: string): Observable<Subsystem> {
@@ -49,7 +49,7 @@ export class StatusService {
   /**
    * Loads the current status of all subsystems matching idPrefix.
    * If idPrefix is an empty string all subsystems are returned.
-   * 
+   *
    * @param idPrefix An optional ID prefix to limit the returned subsystems
    */
   querySubsystem(idPrefix: string = ''): Observable<Subsystem[]> {
@@ -63,7 +63,7 @@ export class StatusService {
   /**
    * Watch a subsystem for changes. Completes when the subsystem is
    * deleted. See {@method PortAPI.watch} for more information.
-   * 
+   *
    * @param id The ID of the subsystem to watch.
    * @param opts Additional options for portapi.watch().
    */
@@ -73,7 +73,7 @@ export class StatusService {
 
   /**
    * Watch for subsystem changes
-   * 
+   *
    * @param opts Additional options for portapi.sub().
    */
   watchSubsystems(opts?: RetryableOpts): Observable<Subsystem[]> {

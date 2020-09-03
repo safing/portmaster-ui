@@ -1,41 +1,44 @@
 :host {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    position: relative;
+  display       : flex;
+  flex-direction: column;
+  align-items   : center;
+  position      : relative;
 
-    @apply p-4;
-    @apply text-white;
-    @apply rounded;
+  @apply p-4;
+  @apply text-white;
+  @apply rounded;
 
-    &:not(.subsys-disabled) {
-        @apply shadow;
+  &:not(.subsys-disabled) {
+    @apply shadow;
+  }
+
+  &.subsys {
+    &-operational {
+      @apply bg-green-500;
     }
 
-    &.subsys {
-        &-operational {
-            @apply bg-green-500;
-        }
-        &-hint {
-            @apply bg-blue-500;
-        }
-        &-warning {
-            @apply bg-yellow-500;
-        }
-        &-error {
-            @apply bg-red-500;
-        }
-
-        &-disabled {
-            @apply shadow-inner;
-            @apply bg-gray-600;
-            @apply opacity-50;
-        }
+    &-hint {
+      @apply bg-blue-500;
     }
+
+    &-warning {
+      @apply bg-yellow-500;
+    }
+
+    &-error {
+      @apply bg-red-500;
+    }
+
+    &-disabled {
+      @apply shadow-inner;
+      @apply bg-gray-600;
+      @apply opacity-50;
+    }
+  }
 }
 
 label.name {
-    @apply font-semibold;
-    @apply uppercase;
-    @apply text-xs;
+  @apply font-semibold;
+  @apply uppercase;
+  @apply text-xs;
 }

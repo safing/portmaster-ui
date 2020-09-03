@@ -8,8 +8,8 @@ import { Subscription } from 'rxjs';
 
 class SecuritySetting implements ListKeyManagerOption {
   constructor(
-      public name: string,
-      public level: SecurityLevel
+    public name: string,
+    public level: SecurityLevel
   ) { }
 
   getLabel(): string {

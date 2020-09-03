@@ -1,9 +1,8 @@
 <label class="message">{{ notification?.Message }} </label>
 <div *ngIf="!!(notification?.AvailableActions)">
-    <button *ngFor="let action of notification!.AvailableActions"
-        [class.selected]="action.ID === notification!.SelectedActionID"
-        [disabled]="state === 'invalid'"
-        (click)="execute(notification!, action.ID)">
-        {{action.Text}}
-    </button>
+  <button *ngFor="let action of notification!.AvailableActions"
+    [class.selected]="action.ID === notification!.SelectedActionID" [disabled]="state === 'invalid'"
+    (click)="execute(notification!, action.ID)">
+    {{action.Text}}
+  </button>
 </div>

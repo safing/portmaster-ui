@@ -1,27 +1,27 @@
 <ol>
-    <ng-container *ngFor="let req of (activeRequests | async); trackBy: trackRequest">
-        <li>
-            <label>
-                <b class="mr-4 text-teal-600">⇄</b>
-                <span class="request-type {{req.type}}">{{req.type}}</span>
-                <span class="text-xs request-id">({{req.payload.id}})</span>
-            </label>
-            <span *ngIf="!!req?.key" class="request-key">{{req?.key}}</span>
-            <span *ngIf="!!req?.payload.query" class="request-query">{{req?.payload.query}}</span>
-            <span>{{req?.messagesReceived}}</span>
+  <ng-container *ngFor="let req of (activeRequests | async); trackBy: trackRequest">
+    <li>
+      <label>
+        <b class="mr-4 text-teal-600">⇄</b>
+        <span class="request-type {{req.type}}">{{req.type}}</span>
+        <span class="text-xs request-id">({{req.payload.id}})</span>
+      </label>
+      <span *ngIf="!!req?.key" class="request-key">{{req?.key}}</span>
+      <span *ngIf="!!req?.payload.query" class="request-query">{{req?.payload.query}}</span>
+      <span>{{req?.messagesReceived}}</span>
 
-            <a class="menu">☰</a>
+      <a class="menu">☰</a>
 
-            <div class="overlay">
-                <button alt="Inject error" type="button" (click)="req?.observer.error('injected error')">Error</button>
-                <button alt="Complete request" type="button" (click)="req?.observer.complete()">Complete</button>
-                <a *ngIf="!!req.lastData" href="#{{req.payload.id}}">Last</a>
-            </div>
+      <div class="overlay">
+        <button alt="Inject error" type="button" (click)="req?.observer.error('injected error')">Error</button>
+        <button alt="Complete request" type="button" (click)="req?.observer.complete()">Complete</button>
+        <a *ngIf="!!req.lastData" href="#{{req.payload.id}}">Last</a>
+      </div>
 
-        </li>
-        <li [attr.id]="req.payload.id" *ngIf="!!req.lastData" class="details">
-            Key: {{req.lastKey}}
-            <pre>{{req.lastData | json}}</pre>
-        </li>
-    </ng-container>
+    </li>
+    <li [attr.id]="req.payload.id" *ngIf="!!req.lastData" class="details">
+      Key: {{req.lastKey}}
+      <pre>{{req.lastData | json}}</pre>
+    </li>
+  </ng-container>
 </ol>

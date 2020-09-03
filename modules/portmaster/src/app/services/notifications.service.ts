@@ -21,13 +21,13 @@ export class NotificationsService {
   /**
    * updates$ watches for updates on all notifications (including new ones).
    * It's multicasted (using share()) to ensure we don't send new sub messages
-   * foreach new subscriber. 
+   * foreach new subscriber.
    */
   readonly updates$ = this.portapi.sub<Notification<any>>(this.notificationPrefix)
     .pipe(
       repeatWhen(obs => obs.pipe(delay(2000))),
       share()
-    ); 
+    );
 
   /** new$ emits new (New and ActionRequired) notifications as they arrive */
   readonly new$ = this.updates$.pipe(
@@ -56,11 +56,11 @@ export class NotificationsService {
     map(msg => msg.data)
   );
 
-  constructor(private portapi: PortapiService) {}
+  constructor(private portapi: PortapiService) { }
 
   /**
    * Watch all notifications that match a query.
-   * 
+   *
    * @param query The query to watch. Defaulta to all notifcations
    * @param opts Optional retry configuration options.
    */
@@ -74,7 +74,7 @@ export class NotificationsService {
    * first which makes it convenient to be used in *ngFor and
    * friends. See {@function trackNotification} for a suitable track-by
    * function.
-   * 
+   *
    * @param query The search query.
    */
   query(query: string): Observable<Notification<any>[]> {
@@ -87,7 +87,7 @@ export class NotificationsService {
 
   /**
    * Returns the notification by ID.
-   * 
+   *
    * @param id The ID of the notification
    */
   get<T>(id: string): Observable<Notification<T>> {
@@ -96,7 +96,7 @@ export class NotificationsService {
 
   /**
    * Execute an action attached to a notification.
-   * 
+   *
    * @param n The notification object.
    * @param actionId The ID of the action to execute.
    */
@@ -104,14 +104,14 @@ export class NotificationsService {
 
   /**
    * Execute an action attached to a notification.
-   * 
+   *
    * @param notificationId The ID of the notification.
    * @param actionId The ID of the action to execute.
    */
   execute(notificationId: string, actionId: string): Observable<void>;
 
   // overloaded implementation of execute
-  execute(notifOrId: Notification<any>|string, actionId: string): Observable<void> {
+  execute(notifOrId: Notification<any> | string, actionId: string): Observable<void> {
     const payload: Partial<Notification<any>> = {};
     if (typeof notifOrId === 'string') {
       payload.ID = notifOrId;
@@ -132,7 +132,7 @@ export class NotificationsService {
 
   /**
    * Resolve a pending notification execution.
-   * 
+   *
    * @param n The notification object to resolve the pending execution.
    * @param time optional The time at which the pending execution took place
    */
@@ -140,7 +140,7 @@ export class NotificationsService {
 
   /**
    * Resolve a pending notification execution.
-   * 
+   *
    * @param n The notification ID to resolve the pending execution.
    * @param time optional The time at which the pending execution took place
    */
@@ -165,42 +165,42 @@ export class NotificationsService {
 
   /**
    * Delete a notification.
-   * 
+   *
    * @param n The notification to delete.
    */
   delete(n: Notification<any>): Observable<void>;
 
   /**
    * Delete a notification.
-   * 
+   *
    * @param n The notification to delete.
    */
   delete(id: string): Observable<void>;
 
   // overloaded implementation of delete.
-  delete(notifOrId: Notification<any>|string): Observable<void> {
+  delete(notifOrId: Notification<any> | string): Observable<void> {
     return this.portapi.delete(typeof notifOrId === 'string' ? notifOrId : notifOrId.ID);
   }
 
   /**
    * Create a new notification.
-   * 
+   *
    * @param n The notification to create.
    */
   create(n: Partial<Notification<any>>): Observable<void>;
 
   /**
    * Create a new notification.
-   * 
+   *
    * @param id The ID of the notificaiton.
    * @param message The default message of the notificaiton.
    * @param type The notification type
    * @param args Additional arguments for the notification.
    */
   create(id: string, message: string, type: NotificationType, args?: Partial<Notification<any>>): Observable<void>;
-  
+
   // overloaded implementation of create.
-  create(notifOrId: Partial<Notification<any>>|string, message?: string, type?: NotificationType, args?: Partial<Notification<any>>): Observable<void> {
+  create(notifOrId: Partial<Notification<any>> | string, message?: string, type?: NotificationType, args?: Partial<Notification<any>>): Observable<void> {
     if (typeof notifOrId === 'string') {
       notifOrId = {
         ...args,

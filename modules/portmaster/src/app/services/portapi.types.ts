@@ -5,26 +5,26 @@ import { retryWhen, concatMap, delay } from 'rxjs/operators';
 * ReplyType contains all possible message types of a reply.
 */
 export type ReplyType = 'ok'
-                      | 'upd'
-                      | 'new'
-                      | 'del'
-                      | 'success'
-                      | 'error'
-                      | 'warning'
-                      | 'done';
+  | 'upd'
+  | 'new'
+  | 'del'
+  | 'success'
+  | 'error'
+  | 'warning'
+  | 'done';
 
 /**
 * RequestType contains all possible message types of a request.
 */
 export type RequestType = 'get'
-                        | 'query'
-                        | 'sub'
-                        | 'qsub'
-                        | 'create'
-                        | 'update'
-                        | 'insert'
-                        | 'delete'
-                        | 'cancel';
+  | 'query'
+  | 'sub'
+  | 'qsub'
+  | 'create'
+  | 'update'
+  | 'insert'
+  | 'delete'
+  | 'cancel';
 
 /**
 * All possible MessageType that are available in PortAPI.
@@ -36,27 +36,27 @@ export type MessageType = RequestType | ReplyType;
 * via PortAPI.
 */
 export interface BaseMessage<M extends MessageType = MessageType> {
-    // ID of the request. Used to correlated (multiplex) requests and
-    // responses across a single websocket connection.
-    id: string;
-    // Type is the request/response message type.
-    type: M;
+  // ID of the request. Used to correlated (multiplex) requests and
+  // responses across a single websocket connection.
+  id: string;
+  // Type is the request/response message type.
+  type: M;
 }
 
 /**
 * DoneReply marks the end of a PortAPI stream.
 */
-export interface DoneReply extends BaseMessage<'done'> {}
+export interface DoneReply extends BaseMessage<'done'> { }
 
 /**
 * DataReply is either sent once as a result on a `get` request or
 * is sent multiple times in the course of a PortAPI stream.
 */
 export interface DataReply<T> extends BaseMessage<'ok' | 'upd' | 'new' | 'del'> {
-    // Key is the database key including the database prefix.
-    key: string;
-    // Data is the actual data of the entry.
-    data: T;
+  // Key is the database key including the database prefix.
+  key: string;
+  // Data is the actual data of the entry.
+  data: T;
 }
 
 /**
@@ -65,18 +65,18 @@ export interface DataReply<T> extends BaseMessage<'ok' | 'upd' | 'new' | 'del'> 
  * @param d The reply message to check
  */
 export function isDataReply(d: ReplyMessage): d is DataReply<any> {
-    return d.type === 'ok'
-           || d.type === 'upd'
-           || d.type === 'new'
-           || d.type === 'del';
-           //|| d.type === 'done'; // done is actually not correct
+  return d.type === 'ok'
+    || d.type === 'upd'
+    || d.type === 'new'
+    || d.type === 'del';
+  //|| d.type === 'done'; // done is actually not correct
 }
 
 /**
 * SuccessReply is used to mark an operation as successfully. It does not carry any
 * data. Think of it as a "201 No Content" in HTTP.
 */
-export interface SuccessReply extends BaseMessage<'success'>{}
+export interface SuccessReply extends BaseMessage<'success'> { }
 
 /**
 * ErrorReply describes an error that happened while processing a
@@ -86,8 +86,8 @@ export interface SuccessReply extends BaseMessage<'success'>{}
 * warning message that can be transmitted via PortAPI.
 */
 export interface ErrorReply extends BaseMessage<'error'> {
-    // Message is the error message from the backend.
-    message: string;
+  // Message is the error message from the backend.
+  message: string;
 }
 
 /**
@@ -97,9 +97,9 @@ export interface ErrorReply extends BaseMessage<'error'> {
 * can only occure during data streams and does not end the stream.
 */
 export interface WarningReply extends BaseMessage<'warning'> {
-    // Message describes the warning/error condition the backend
-    // encountered.
-    message: string;
+  // Message describes the warning/error condition the backend
+  // encountered.
+  message: string;
 }
 
 /**
@@ -108,8 +108,8 @@ export interface WarningReply extends BaseMessage<'warning'> {
 * See ErrorReply, WarningReply and DoneReply for more information.
 */
 export interface QueryRequest extends BaseMessage<'query' | 'sub' | 'qsub'> {
-    // Query is the query for the database.
-    query: string;
+  // Query is the query for the database.
+  query: string;
 }
 
 /**
@@ -119,8 +119,8 @@ export interface QueryRequest extends BaseMessage<'query' | 'sub' | 'qsub'> {
 * receive a `ok` or `error` type message.
 */
 export interface KeyRequest extends BaseMessage<'delete' | 'get'> {
-    // Key is the database entry key.
-    key: string;
+  // Key is the database entry key.
+  key: string;
 }
 
 
@@ -130,33 +130,33 @@ export interface KeyRequest extends BaseMessage<'delete' | 'get'> {
 *                both seem to error when trying to create a new entry.
 */
 export interface DataRequest<T> extends BaseMessage<'update' | 'create' | 'insert'> {
-    // Key is the database entry key.
-    key: string;
-    // Data is the data to store.
-    data: T;
+  // Key is the database entry key.
+  key: string;
+  // Data is the data to store.
+  data: T;
 }
 
 /**
  * CancelRequest can be sent on stream operations to early-abort the request.
  */
-export interface CancelRequest extends BaseMessage<'cancel'> {}
+export interface CancelRequest extends BaseMessage<'cancel'> { }
 
 /**
 * ReplyMessage is a union of all reply message types.
 */
 export type ReplyMessage<T = any> = DataReply<T>
-| DoneReply
-| SuccessReply
-| WarningReply
-| ErrorReply;
+  | DoneReply
+  | SuccessReply
+  | WarningReply
+  | ErrorReply;
 
 /**
 * RequestMessage is a union of all request message types.
 */
 export type RequestMessage<T = any> = QueryRequest
-| KeyRequest
-| DataRequest<T>
-| CancelRequest;
+  | KeyRequest
+  | DataRequest<T>
+  | CancelRequest;
 
 /**
 * Requestable can be used to accept only properties that match
@@ -170,14 +170,14 @@ export type Requestable<M extends RequestType> = RequestMessage & { type: M };
  * @param m The message type to check.
  */
 export function isCancellable(m: MessageType): boolean {
-    switch (m) {
-        case 'qsub':
-        case 'query':
-        case 'sub':
-            return true;
-        default:
-            return false;
-    }
+  switch (m) {
+    case 'qsub':
+    case 'query':
+    case 'sub':
+      return true;
+    default:
+      return false;
+  }
 }
 
 /**
@@ -185,29 +185,29 @@ export function isCancellable(m: MessageType): boolean {
  * intercept and mangle with responses.
  */
 export interface InspectedActiveRequest {
-    // The type of request.
-    type: RequestType;
-    // The actual request payload.
-    // @todo(ppacher): typings
-    payload: any;
-    // The request observer. Use to inject data
-    // or complete/error the subscriber. Use with
-    // care!
-    observer: Subscriber<DataReply<any>>;
-    // Counter for the number of messages received
-    // for this request.
-    messagesReceived: number;
-    // The last data received on the request
-    lastData: any;
-    // The last key received on the request
-    lastKey: string;
+  // The type of request.
+  type: RequestType;
+  // The actual request payload.
+  // @todo(ppacher): typings
+  payload: any;
+  // The request observer. Use to inject data
+  // or complete/error the subscriber. Use with
+  // care!
+  observer: Subscriber<DataReply<any>>;
+  // Counter for the number of messages received
+  // for this request.
+  messagesReceived: number;
+  // The last data received on the request
+  lastData: any;
+  // The last key received on the request
+  lastKey: string;
 }
 
 export interface RetryableOpts {
-    // A delay in milliseconds before retrying an operation.
-    retryDelay?: number;
-    // The maximum number of retries.
-    maxRetries?: number;
+  // A delay in milliseconds before retrying an operation.
+  retryDelay?: number;
+  // The maximum number of retries.
+  maxRetries?: number;
 }
 
 /**
@@ -218,27 +218,27 @@ export interface RetryableOpts {
  * @param opts  Configuration options for the retryPipeline.
  *        see {@type RetryableOpts} for more information.
  */
-export function retryPipeline<T>({retryDelay, maxRetries}: RetryableOpts = {}): MonoTypeOperatorFunction<T> {
-    return retryWhen(errors => errors.pipe(
-        // use concatMap to keep the errors in order and make sure
-        // they don't execute in parallel.
-        concatMap((e, i) =>
-            iif(
-                // conditional observable seletion, throwError if i > maxRetries
-                // or a retryDelay otherwise
-                () => i > (maxRetries || Infinity),
-                throwError(e),
-                of(e).pipe(delay(retryDelay || 1000))
-            )
-        )
-    ))
+export function retryPipeline<T>({ retryDelay, maxRetries }: RetryableOpts = {}): MonoTypeOperatorFunction<T> {
+  return retryWhen(errors => errors.pipe(
+    // use concatMap to keep the errors in order and make sure
+    // they don't execute in parallel.
+    concatMap((e, i) =>
+      iif(
+        // conditional observable seletion, throwError if i > maxRetries
+        // or a retryDelay otherwise
+        () => i > (maxRetries || Infinity),
+        throwError(e),
+        of(e).pipe(delay(retryDelay || 1000))
+      )
+    )
+  ))
 }
 
 export interface WatchOpts extends RetryableOpts {
-    // Whether or not `new` updates should be filtered
-    // or let through. See {@method PortAPI.watch} for
-    // more information.
-    ingoreNew?: boolean;
+  // Whether or not `new` updates should be filtered
+  // or let through. See {@method PortAPI.watch} for
+  // more information.
+  ingoreNew?: boolean;
 }
 
 
@@ -248,54 +248,54 @@ export interface WatchOpts extends RetryableOpts {
 * @param msg The request or reply messsage to serialize
 */
 export function serializeMessage(msg: RequestMessage | ReplyMessage): any {
-    if (msg === undefined) {
-        return undefined;
-    }
+  if (msg === undefined) {
+    return undefined;
+  }
 
-    let blob = `${msg.id}|${msg.type}`;
+  let blob = `${msg.id}|${msg.type}`;
 
-    switch (msg.type) {
-        case 'done':        // reply
-        case 'success':     // reply
-        case 'cancel':      // request
-        break;
+  switch (msg.type) {
+    case 'done':        // reply
+    case 'success':     // reply
+    case 'cancel':      // request
+      break;
 
-        case 'error':       // reply
-        case 'warning':     // reply
-        blob += `|${msg.message}`
-        break;
+    case 'error':       // reply
+    case 'warning':     // reply
+      blob += `|${msg.message}`
+      break;
 
-        case 'ok':          // reply
-        case 'upd':         // reply
-        case 'new':         // reply
-        case 'insert':      // request
-        case 'update':      // request
-        case 'create':      // request
-        blob += `|${msg.key}|J${JSON.stringify(msg.data)}`
-        break;
+    case 'ok':          // reply
+    case 'upd':         // reply
+    case 'new':         // reply
+    case 'insert':      // request
+    case 'update':      // request
+    case 'create':      // request
+      blob += `|${msg.key}|J${JSON.stringify(msg.data)}`
+      break;
 
 
-        case 'del':         // reply
-        case 'get':         // request
-        case 'delete':      // request
-        blob += `|${msg.key}`
-        break;
+    case 'del':         // reply
+    case 'get':         // request
+    case 'delete':      // request
+      blob += `|${msg.key}`
+      break;
 
-        case 'query':       // request
-        case 'sub':         // request
-        case 'qsub':        // request
-        blob += `|query ${msg.query}`
-        break;
+    case 'query':       // request
+    case 'sub':         // request
+    case 'qsub':        // request
+      blob += `|query ${msg.query}`
+      break;
 
-        default:
-        // We need (msg as any) here because typescript knows that we covered
-        // all possible values above and that .type can never be something else.
-        // Still, we want to guard against unexpected portmaster message
-        // types.
-        console.error(`Unknown message type ${(msg as any).type}`);
-    }
+    default:
+      // We need (msg as any) here because typescript knows that we covered
+      // all possible values above and that .type can never be something else.
+      // Still, we want to guard against unexpected portmaster message
+      // types.
+      console.error(`Unknown message type ${(msg as any).type}`);
+  }
 
-    return blob;
+  return blob;
 }
 
 /**
@@ -304,79 +304,79 @@ export function serializeMessage(msg: RequestMessage | ReplyMessage): any {
 * @param event The WebSocket MessageEvent to parse.
 */
 export function deserializeMessage(event: MessageEvent): RequestMessage | ReplyMessage {
-    let data: string;
+  let data: string;
 
-    if (typeof event.data !== 'string') {
-        data = String.fromCharCode.apply(null, (new Uint8Array(event.data) as any));
-    } else {
-        data = event.data;
-    }
+  if (typeof event.data !== 'string') {
+    data = String.fromCharCode.apply(null, (new Uint8Array(event.data) as any));
+  } else {
+    data = event.data;
+  }
 
-    const parts = data.split("|");
+  const parts = data.split("|");
 
-    if (parts.length < 2) {
-        throw new Error(`invalid number of message parts, expected 3-4 but got ${parts.length}`);
-    }
+  if (parts.length < 2) {
+    throw new Error(`invalid number of message parts, expected 3-4 but got ${parts.length}`);
+  }
 
-    const id = parts[0];
-    const type = parts[1] as MessageType;
+  const id = parts[0];
+  const type = parts[1] as MessageType;
 
-    var msg: Partial<RequestMessage | ReplyMessage> = {
-        id,
-        type,
-    }
+  var msg: Partial<RequestMessage | ReplyMessage> = {
+    id,
+    type,
+  }
 
-    if (parts.length > 4) {
-        parts[3] = parts.slice(3).join('|')
-    }
+  if (parts.length > 4) {
+    parts[3] = parts.slice(3).join('|')
+  }
 
-    switch (msg.type) {
-        case 'done':        // reply
-        case 'success':     // reply
-        case 'cancel':      // request
-        break;
+  switch (msg.type) {
+    case 'done':        // reply
+    case 'success':     // reply
+    case 'cancel':      // request
+      break;
 
-        case 'error':       // reply
-        case 'warning':     // reply
-        msg.message = parts[2];
-        break;
+    case 'error':       // reply
+    case 'warning':     // reply
+      msg.message = parts[2];
+      break;
 
-        case 'ok':          // reply
-        case 'upd':         // reply
-        case 'new':         // reply
-        case 'insert':      // request
-        case 'update':      // request
-        case 'create':      // request
-        msg.key = parts[2];
-        if (parts[3][0] === 'J') {
-            msg.data = JSON.parse(parts[3].slice(1));
-        } else {
-            msg.data = parts[3];
-        }
-        break;
+    case 'ok':          // reply
+    case 'upd':         // reply
+    case 'new':         // reply
+    case 'insert':      // request
+    case 'update':      // request
+    case 'create':      // request
+      msg.key = parts[2];
+      if (parts[3][0] === 'J') {
+        msg.data = JSON.parse(parts[3].slice(1));
+      } else {
+        msg.data = parts[3];
+      }
+      break;
 
-        case 'del':         // reply
-        case 'get':         // request
-        case 'delete':      // request
-        msg.key = parts[2];
-        break;
+    case 'del':         // reply
+    case 'get':         // request
+    case 'delete':      // request
+      msg.key = parts[2];
+      break;
 
-        case 'query':       // request
-        case 'sub':         // request
-        case 'qsub':        // request
-        msg.query = parts[2];
-        if (msg.query.startsWith("query ")) {
-            msg.query = msg.query.slice(6);
-        }
-        break;
+    case 'query':       // request
+    case 'sub':         // request
+    case 'qsub':        // request
+      msg.query = parts[2];
+      if (msg.query.startsWith("query ")) {
+        msg.query = msg.query.slice(6);
+      }
+      break;
 
-        default:
-        // We need (msg as any) here because typescript knows that we covered
-        // all possible values above and that .type can never be something else.
-        // Still, we want to guard against unexpected portmaster message
-        // types.
-        console.error(`Unknown message type ${(msg as any).type}`);
-    }
+    default:
+      // We need (msg as any) here because typescript knows that we covered
+      // all possible values above and that .type can never be something else.
+      // Still, we want to guard against unexpected portmaster message
+      // types.
+      console.error(`Unknown message type ${(msg as any).type}`);
+  }
 
-    return msg as (ReplyMessage | RequestMessage); // it's not partitial anymore
+  return msg as (ReplyMessage | RequestMessage); // it's not partitial anymore
 }

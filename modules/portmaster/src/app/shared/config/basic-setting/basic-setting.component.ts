@@ -52,21 +52,21 @@ export class BasicSettingComponent<S extends BaseSetting<any, any>> implements C
   /* Returns true if the current _type and _value is managed as JSON */
   get isJSON(): boolean {
     return this._type !== 'string'
-            && this._type !== 'number'
-            && this._type !== 'boolean'
+      && this._type !== 'number'
+      && this._type !== 'boolean'
   }
 
   /* _onChange is set using registerOnChange by @angular/forms
    * and satisfies the ControlValueAccessor.
    */
-  _onChange: (_: SettingValueType<S>) => void = () => {};
+  _onChange: (_: SettingValueType<S>) => void = () => { };
 
   /* _onTouch is set using registerOnTouched by @angular/forms
    * and satisfies the ControlValueAccessor.
    */
-  _onTouch: () => void = () => {};
+  _onTouch: () => void = () => { };
 
-  _onValidatorChange: () => void = () => {};
+  _onValidatorChange: () => void = () => { };
 
   /* Wether or not the input field is disabled. Set by setDisabledState
    * from @angular/forms
@@ -95,11 +95,11 @@ export class BasicSettingComponent<S extends BaseSetting<any, any>> implements C
     let toEmit: any = value;
     try {
       if (!this.isJSON) {
-          toEmit = value;
+        toEmit = value;
       } else {
-          toEmit = JSON.parse(value as string);
+        toEmit = JSON.parse(value as string);
       }
-    } catch(err) {
+    } catch (err) {
       this._valid = false;
       this._onValidatorChange();
       return;
@@ -213,9 +213,9 @@ export class BasicSettingComponent<S extends BaseSetting<any, any>> implements C
   }
 
   lineCount(value: string | number | boolean) {
-      if (typeof value === 'string') {
-          return value.split('\n').length
-      }
-      return 1
+    if (typeof value === 'string') {
+      return value.split('\n').length
+    }
+    return 1
   }
 }

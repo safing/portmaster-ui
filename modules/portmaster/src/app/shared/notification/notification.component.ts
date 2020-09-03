@@ -13,7 +13,7 @@ export class NotificationComponent implements OnInit {
    * The host tag of the notification component has the notification type
    * and the notification state as a class name set.
    * Examples:
-   * 
+   *
    *    notif-action-required notif-prompt
    */
   @HostBinding('class')
@@ -24,7 +24,7 @@ export class NotificationComponent implements OnInit {
     }
     return cls
   }
-  
+
   state: NotificationState = NotificationState.Invalid;
 
   @Input()
@@ -40,7 +40,7 @@ export class NotificationComponent implements OnInit {
     return this._notification;
   }
   private _notification: Notification<any> | null = null;
-  
+
   @Output()
   actionExecuted: EventEmitter<string> = new EventEmitter();
 

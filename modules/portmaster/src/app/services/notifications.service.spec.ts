@@ -33,14 +33,14 @@ describe('NotificationsService', () => {
   it('should allow to query for notifications', () => {
     const observer = createSpyObserver();
     service.query("updates:").subscribe(observer);
-    
+
     mock.expectLastMessage()
     mock.expectLastMessage('type').toBe('query')
     mock.expectLastMessage('query').toBe('notifications:all/updates:')
 
     mock.lastMultiplex!.next({
       id: mock.lastRequestId!,
-      type:'ok',
+      type: 'ok',
       data: {
         ID: 'updates:core-update-available',
         Message: 'Update available',
@@ -50,7 +50,7 @@ describe('NotificationsService', () => {
 
     mock.lastMultiplex!.next({
       id: mock.lastRequestId!,
-      type:'ok',
+      type: 'ok',
       data: {
         ID: 'updates:ui-reload-required',
         Message: 'UI reload required',
@@ -91,63 +91,63 @@ describe('NotificationsService', () => {
         ID: 'updates:core-update-available',
         Message: 'An update is available',
         Type: NotificationType.Info,
-        AvailableActions: [{ID: "restart", Text: "Restart"}],
+        AvailableActions: [{ ID: "restart", Text: "Restart" }],
       }
-  
+
       service.execute(notif, "restart").subscribe(observer);
-  
+
       expect(observer.error).not.toHaveBeenCalled()
-  
+
       mock.expectLastMessage('type').toBe('update');
       mock.expectLastMessage('key').toBe('notifications:all/updates:core-update-available');
       mock.expectLastMessage('data').toEqual({
         ID: 'updates:core-update-available',
         SelectedActionID: 'restart',
       });
-  
+
       mock.lastMultiplex!.next({
         id: mock.lastRequestId!,
         type: 'success'
       })
-  
+
       expect(observer.next).not.toHaveBeenCalled();
       expect(observer.error).not.toHaveBeenCalled();
       expect(observer.complete).toHaveBeenCalled();
     });
-  
+
     it('should throw when executing an unknown action using a notif object', () => {
       let observer = createSpyObserver();
       let notif: any = {
         ID: 'updates:core-update-available',
         Message: 'An update is available',
         Type: NotificationType.Info,
-        AvailableActions: [{ID: "restart", Text: "Restart"}],
+        AvailableActions: [{ ID: "restart", Text: "Restart" }],
       }
-  
+
       service.execute(notif, "restart-with-typo").subscribe(observer);
-  
+
       expect(observer.error).toHaveBeenCalled()
       expect(mock.lastMessageSent).toBeUndefined();
     });
-  
+
     it('should work using a key', () => {
       let observer = createSpyObserver();
       service.execute("updates:core-update-available", "restart").subscribe(observer);
-  
+
       expect(observer.error).not.toHaveBeenCalled()
-  
+
       mock.expectLastMessage('type').toBe('update');
       mock.expectLastMessage('key').toBe('notifications:all/updates:core-update-available');
       mock.expectLastMessage('data').toEqual({
         ID: 'updates:core-update-available',
         SelectedActionID: 'restart',
       });
-  
+
       mock.lastMultiplex!.next({
         id: mock.lastRequestId!,
         type: 'success'
       })
-  
+
       expect(observer.next).not.toHaveBeenCalled();
       expect(observer.error).not.toHaveBeenCalled();
       expect(observer.complete).toHaveBeenCalled();
@@ -164,28 +164,28 @@ describe('NotificationsService', () => {
         Responded: Math.round(Date.now() / 1000),
         SelectedActionID: "restart",
       }
-  
+
       service.resolvePending(notif, 100).subscribe(observer)
-  
+
       expect(observer.error).not.toHaveBeenCalled()
-  
+
       mock.expectLastMessage('type').toBe('update');
       mock.expectLastMessage('key').toBe('notifications:all/updates:core-update-available');
       mock.expectLastMessage('data').toEqual({
         ID: 'updates:core-update-available',
         Executed: 100,
       });
-  
+
       mock.lastMultiplex!.next({
         id: mock.lastRequestId!,
         type: 'success'
       })
-  
+
       expect(observer.next).not.toHaveBeenCalled();
       expect(observer.error).not.toHaveBeenCalled();
       expect(observer.complete).toHaveBeenCalled();
     });
-  
+
     it('should throw on an executed notification using a notif object', () => {
       let observer = createSpyObserver();
       let notif: any = {
@@ -196,31 +196,31 @@ describe('NotificationsService', () => {
         Responded: Math.round(Date.now() / 1000),
         Executed: Math.round(Date.now() / 1000),
       }
-  
+
       service.resolvePending(notif).subscribe(observer);
-  
+
       expect(observer.error).toHaveBeenCalled()
       expect(mock.lastMessageSent).toBeUndefined();
     });
-  
+
     it('should work using a key', () => {
       let observer = createSpyObserver();
       service.resolvePending("updates:core-update-available", 100).subscribe(observer);
-  
+
       expect(observer.error).not.toHaveBeenCalled()
-  
+
       mock.expectLastMessage('type').toBe('update');
       mock.expectLastMessage('key').toBe('notifications:all/updates:core-update-available');
       mock.expectLastMessage('data').toEqual({
         ID: 'updates:core-update-available',
         Executed: 100,
       });
-  
+
       mock.lastMultiplex!.next({
         id: mock.lastRequestId!,
         type: 'success'
       })
-  
+
       expect(observer.next).not.toHaveBeenCalled();
       expect(observer.error).not.toHaveBeenCalled();
       expect(observer.complete).toHaveBeenCalled();
@@ -246,7 +246,7 @@ describe('NotificationsService', () => {
         Message: "a new notification",
         Responded: 0,
         Executed: 0,
-        Expires: Math.round(Date.now() / 1000) + 60*60,
+        Expires: Math.round(Date.now() / 1000) + 60 * 60,
       }
       let n2 = {
         ID: "new-notif-2",
@@ -254,7 +254,7 @@ describe('NotificationsService', () => {
         Responded: 0,
         Executed: 0,
         Expires: 0,
-        AvailableActions: [{ID: "action-id", Text: "some action"}],
+        AvailableActions: [{ ID: "action-id", Text: "some action" }],
       }
       let expired = {
         ID: "new-notif-3",
@@ -289,8 +289,8 @@ describe('NotificationsService', () => {
       let notification: Partial<Notification<any>> = {
         ID: 'my-awesome-notification',
         AvailableActions: [
-          {ID: 'action-no', Text: 'No'},
-          {ID: 'force-no', Text: 'Hell No'}
+          { ID: 'action-no', Text: 'No' },
+          { ID: 'force-no', Text: 'Hell No' }
         ],
         Message: 'Update complete, do you want to reboot?',
         Persistent: true,
@@ -301,7 +301,7 @@ describe('NotificationsService', () => {
       service.create(notification).subscribe(observer);
 
       expect(observer.error).not.toHaveBeenCalled();
-      
+
       mock.expectLastMessage('type').toBe('create')
       mock.expectLastMessage('key').toBe('notifications:all/my-awesome-notification')
       mock.expectLastMessage('data').toEqual(notification);
@@ -325,7 +325,7 @@ describe('NotificationsService', () => {
       }).subscribe(observer);
 
       expect(observer.error).not.toHaveBeenCalled();
-      
+
       mock.expectLastMessage('type').toBe('create')
       mock.expectLastMessage('key').toBe('notifications:all/my-param-notification')
       mock.expectLastMessage('data').toEqual({
@@ -344,7 +344,7 @@ describe('NotificationsService', () => {
       expect(observer.complete).toHaveBeenCalled()
       expect(observer.error).not.toHaveBeenCalled()
       expect(observer.next).not.toHaveBeenCalled()
-      
+
     })
   })
 });
