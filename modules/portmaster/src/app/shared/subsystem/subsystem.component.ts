@@ -1,5 +1,5 @@
 import { Component, OnInit, Input, HostBinding } from '@angular/core';
-import { Subsystem, getFailureStatusString } from '../../services/status.types';
+import { Subsystem, getFailureStatusString } from '../../services';
 
 @Component({
   selector: 'app-subsystem',

@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, forwardRef, Input, OnInit, ViewChild } from '@angular/core';
 import { AbstractControl, ControlValueAccessor, NgModel, NG_VALIDATORS, NG_VALUE_ACCESSOR, ValidationErrors, Validator } from '@angular/forms';
-import { BaseSetting, ExternalOptionHint, parseSupportedValues, SettingValueType } from '../../../services/config.types';
+import { BaseSetting, ExternalOptionHint, parseSupportedValues, SettingValueType } from 'src/app/services';
 
 @Component({
   selector: 'app-basic-setting',

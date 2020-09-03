@@ -10,7 +10,7 @@ import { PortapiService } from './services/portapi.service';
 export class AppComponent implements OnInit {
   title = 'portmaster';
 
-  showDebugPanel = true;
+  showDebugPanel = false;
 
   constructor(public ngZone: NgZone,
     public portapi: PortapiService,

@@ -1,6 +1,5 @@
 import { Component, OnInit, OnDestroy, Input, ChangeDetectionStrategy, Output, EventEmitter, HostBinding } from '@angular/core';
-import { Notification, notificationState, NotificationState, getNotificationTypeString } from '../../services/notifications.types';
-import { NotificationsService } from 'src/app/services/notifications.service';
+import { Notification, notificationState, NotificationState, getNotificationTypeString, NotificationsService } from '../../services';
 
 @Component({
   selector: 'app-notification',

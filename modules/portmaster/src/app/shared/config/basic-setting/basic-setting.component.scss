@@ -5,18 +5,19 @@ select {
   width  : 100%;
   outline: none;
   @apply shadow-inner-xs;
-  @apply bg-white;
+  @apply bg-gray-700;
+  @apply text-gray-100;
+  @apply border-gray-800;
   @apply border;
   transition: border cubic-bezier(0.175, 0.885, 0.32, 1.275) .3s;
   @apply p-1;
   @apply px-2;
   @apply rounded;
-  @apply text-gray-800;
   @apply text-sm;
 
   &:active,
   &:focus {
-    @apply text-teal-900;
+    @apply text-gray-500;
     @apply border-teal-100;
   }
 

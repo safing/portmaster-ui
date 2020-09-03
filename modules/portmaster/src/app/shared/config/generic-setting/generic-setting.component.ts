@@ -1,7 +1,6 @@
-import { Component, Input, ChangeDetectionStrategy, HostBinding, ChangeDetectorRef, ViewChild } from '@angular/core';
-import { BaseSetting, SettingValueType, Setting, ExternalOptionHint } from '../../../services/config.types';
-import { ConfigService } from 'src/app/services/config.service';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, HostBinding, Input, ViewChild } from '@angular/core';
 import { NgModel } from '@angular/forms';
+import { BaseSetting, ExternalOptionHint, SettingValueType, ConfigService } from 'src/app/services';
 
 @Component({
   selector: 'app-generic-setting',

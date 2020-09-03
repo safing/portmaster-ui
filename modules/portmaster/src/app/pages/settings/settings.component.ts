@@ -1,18 +1,21 @@
-import { Component, OnInit } from '@angular/core';
-import { ConfigService } from 'src/app/services/config.service';
-import { StatusService } from 'src/app/services/status.service';
-import { Subsystem } from 'src/app/services/status.types';
-import { Setting } from 'src/app/services/config.types';
+import { Component, OnInit, AfterViewInit, ViewChildren, ElementRef, QueryList, OnDestroy } from '@angular/core';
+import { ConfigService, Subsystem, Setting, StatusService } from 'src/app/services';
 import { combineLatest } from 'rxjs/operators';
 
 @Component({
   templateUrl: './settings.component.html',
   styleUrls: ['./settings.component.scss']
 })
-export class SettingsComponent implements OnInit {
+export class SettingsComponent implements OnInit, AfterViewInit, OnDestroy {
   subsystems: Subsystem[] = [];
   settings: { [key: string]: Setting[] } = {};
   shouldShowSettingsNav = false;
+  activeSection = '';
+
+  @ViewChildren('navLink', { read: ElementRef })
+  navLinks: QueryList<ElementRef> | null = null;
+
+  private observer: IntersectionObserver | null = null;
 
   constructor(
     public configService: ConfigService,
@@ -56,7 +59,58 @@ export class SettingsComponent implements OnInit {
           })
         }
       )
-
   }
 
+  ngAfterViewInit() {
+    this.navLinks?.changes.subscribe(() => {
+      this.observer?.disconnect();
+
+      this.observer = new IntersectionObserver(this.intersectionCallback.bind(this));
+
+      this.navLinks?.forEach(elem => {
+        console.log(elem.nativeElement);
+        this.observer!.observe(elem.nativeElement);
+      })
+    })
+  }
+
+  ngOnDestroy() {
+    this.observer?.disconnect();
+    this.observer = null;
+  }
+
+  intersectionCallback(entries: IntersectionObserverEntry[]) {
+    if (!entries) {
+      return;
+    }
+
+    console.log(entries[0]);
+
+    const elem = entries[0].target?.id;
+    if (elem === this.activeSection) {
+      return;
+    }
+
+    if (entries[0].isIntersecting) {
+      this.activeSection = elem;
+      return;
+    }
+
+    this.activeSection = this.subsystems[0].ConfigKeySpace;
+    for (let i = 0; i < this.subsystems.length; i++) {
+      const subsys = this.subsystems[i];
+      if (subsys.ConfigKeySpace === elem && i > 0) {
+        this.activeSection = this.subsystems[i - 1].ConfigKeySpace;
+        return;
+      }
+    }
+  }
+
+  scrollTo(id: string) {
+    document.getElementById(id)?.scrollIntoView({
+      behavior: 'smooth',
+      block: 'start',
+      inline: 'nearest',
+    })
+  }
 }

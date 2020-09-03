@@ -20,7 +20,7 @@
 
 div.settings-nav {
   height     : 0;
-  position   : absolute;
+  position   : fixed;
   top        : 2rem;
   width      : 150px;
   margin-left: -150px;
@@ -37,9 +37,11 @@ div.settings-nav {
       @apply font-semibold;
       @apply text-gray-600;
 
-      &:hover {
+      &:hover,
+      &.active {
         @apply text-gray-200;
       }
+
     }
   }
 

@@ -1,3 +1,5 @@
+const purgecss = require('@fullhuman/postcss-purgecss')
+
 // Uses ngx-build-plus to add tailwindcss support
 module.exports = {
   module: {

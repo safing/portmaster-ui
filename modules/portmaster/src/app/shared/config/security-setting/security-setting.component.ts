@@ -1,10 +1,8 @@
-import { Component, OnInit, Input, HostListener, forwardRef, ChangeDetectorRef, ChangeDetectionStrategy, HostBinding, OnDestroy } from '@angular/core';
-import { IntSetting, parseSupportedValues } from 'src/app/services/config.types';
-import { ConfigService } from 'src/app/services/config.service';
-import { SecurityLevel } from 'src/app/services/core.types';
-import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { ListKeyManager, ListKeyManagerOption } from '@angular/cdk/a11y';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, forwardRef, HostBinding, HostListener, Input, OnDestroy } from '@angular/core';
+import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { Subscription } from 'rxjs';
+import { ConfigService, IntSetting, parseSupportedValues, SecurityLevel } from 'src/app/services';
 
 class SecuritySetting implements ListKeyManagerOption {
   constructor(

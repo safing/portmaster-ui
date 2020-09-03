@@ -4,6 +4,10 @@
 @import 'tailwindcss/utilities';
 
 html {
-    scroll-behavior: smooth;
-    user-select: none;
+  scroll-behavior: smooth;
+  user-select    : none;
+}
+
+::-webkit-scrollbar {
+  display: none;
 }

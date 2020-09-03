@@ -1,10 +1,6 @@
 import { Component, OnInit } from '@angular/core';
-import { StatusService } from 'src/app/services/status.service';
-import { NotificationsService } from 'src/app/services/notifications.service';
-import { Notification } from 'src/app/services/notifications.types';
-import { CoreStatus, Subsystem, getOnlineStatusString } from 'src/app/services/status.types';
+import { StatusService, NotificationsService, Notification, CoreStatus, Subsystem, getOnlineStatusString } from 'src/app/services';
 import { delay } from 'rxjs/operators';
-
 
 /**
  * Extends the CoreStatus to add string values for all those enums.

@@ -8,7 +8,7 @@ div.side-nav {
   @apply shadow-xl;
   @apply border-r;
   @apply bg-gray-900;
-  @apply border-gray-800;
+  @apply border-gray-700;
   @apply text-gray-100;
   @apply p-2;
 
@@ -48,8 +48,7 @@ div.side-nav {
 
     &:hover,
     &.active {
-      @apply bg-blue-400;
-      --bg-opacity: 0.4;
+      @apply bg-blue-500;
     }
 
     &,
@@ -67,6 +66,7 @@ div.main {
   flex-direction: column;
   align-items   : center;
   min-height    : 100vh;
+  @apply bg-gray-800;
 
   .content {
     width: 50%;

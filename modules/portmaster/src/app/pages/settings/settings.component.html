@@ -2,7 +2,7 @@
 
   <!-- actual settings -->
   <ng-container *ngFor="let subsys of subsystems; trackBy: statusService.trackSubsystem">
-    <h2 [attr.id]="subsys.ConfigKeySpace">
+    <h2 [attr.id]="subsys.ConfigKeySpace" #navLink>
       {{subsys.Name}}
     </h2>
     <app-generic-setting *ngFor="let setting of settings[subsys.ConfigKeySpace]; trackBy: configService.trackBy"
@@ -10,7 +10,7 @@
   </ng-container>
 
   <ng-container *ngIf="!!settings['other']">
-    <h2 id="config:other">
+    <h2 id="config:other" #navLink>
       Other
     </h2>
     <app-generic-setting *ngFor="let setting of settings['other']; trackBy: configService.trackBy" [setting]="setting">
@@ -22,11 +22,13 @@
 <!-- navigation for the settings -->
 <div class="settings-nav" [class.show]="shouldShowSettingsNav">
   <ul>
-    <li *ngFor="let subsys of subsystems; trackBy: statusService.trackSubsystem">
-      <a routerLink="" fragment="subsys.ConfigKeySpace">{{subsys.Name}}</a>
+    <li *ngFor="let subsys of subsystems; trackBy: statusService.trackSubsystem"
+      [class.active]="activeSection === subsys.ConfigKeySpace" (click)="scrollTo(subsys.ConfigKeySpace)">
+      {{subsys.Name}}
     </li>
-    <li *ngIf="!!settings['other']">
-      <a routerLink="" fragement="config:other">Other</a>
+    <li *ngIf="!!settings['other']" (click)="scrollTo('config:other')"
+      [class.active]="activeSection === 'config:other'">
+      Other
     </li>
   </ul>
 </div>

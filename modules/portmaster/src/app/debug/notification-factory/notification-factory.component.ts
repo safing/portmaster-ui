@@ -1,7 +1,6 @@
 import { Component, OnInit, ViewChild, isDevMode } from '@angular/core';
-import { NotificationType } from 'src/app/services/notifications.types';
+import { NotificationType, NotificationsService } from 'src/app/services';
 import { NgForm } from '@angular/forms';
-import { NotificationsService } from 'src/app/services/notifications.service';
 
 @Component({
   selector: 'app-notication-factory',
