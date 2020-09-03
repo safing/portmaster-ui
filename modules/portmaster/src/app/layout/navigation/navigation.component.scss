@@ -18,11 +18,17 @@
     @apply mt-4;
     width: 2rem;
 
-    &.spin {
-      animation-name           : spin;
-      animation-duration       : 2100ms;
-      animation-iteration-count: infinite;
-      animation-timing-function: linear;
+    animation-name           : spin;
+    animation-duration       : 2100ms;
+    animation-iteration-count: infinite;
+    animation-timing-function: linear;
+
+    &:not(.connected) {
+      animation-timing-function: cubic-bezier(0.445, 0.05, 0.55, 0.95);
+
+      path.inner {
+        fill: #e53e3e;
+      }
     }
   }
 

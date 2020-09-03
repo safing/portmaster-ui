@@ -16,6 +16,11 @@ let uniqueRequestId = 0;
 })
 export class PortapiService {
   private ws$: WebSocketSubject<ReplyMessage> | null = null;
+  private connectedSubject = new BehaviorSubject(false);
+
+  get connected$() {
+    return this.connectedSubject.asObservable();
+  }
 
   readonly activeRequests = new BehaviorSubject<{ [key: string]: InspectedActiveRequest }>({});
 
@@ -469,11 +474,13 @@ export class PortapiService {
       openObserver: {
         next: () => {
           console.log('[portapi] connection to portmaster established');
+          this.connectedSubject.next(true);
         }
       },
       closeObserver: {
         next: () => {
           console.log('[portapi] connection to portmaster closed');
+          this.connectedSubject.next(false);
         },
       },
       closingObserver: {

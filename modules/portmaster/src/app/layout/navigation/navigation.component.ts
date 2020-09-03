@@ -1,4 +1,5 @@
 import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
+import { PortapiService } from 'src/app/services/portapi.service';
 
 @Component({
   selector: 'app-navigation',
@@ -7,8 +8,9 @@ import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class NavigationComponent implements OnInit {
+  readonly connected$ = this.portapi.connected$;
 
-  constructor() { }
+  constructor(private portapi: PortapiService) { }
 
   ngOnInit(): void {
   }
