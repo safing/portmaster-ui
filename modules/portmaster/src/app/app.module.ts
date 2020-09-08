@@ -1,8 +1,10 @@
+import { DragDropModule } from '@angular/cdk/drag-drop';
+import { OverlayModule } from '@angular/cdk/overlay';
+import { PortalModule } from '@angular/cdk/portal';
 import { CommonModule } from '@angular/common';
 import { NgModule } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { BrowserModule } from '@angular/platform-browser';
-import { OverlayModule } from '@angular/cdk/overlay';
 import { FaIconLibrary, FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { far } from '@fortawesome/free-regular-svg-icons';
 import { fas } from '@fortawesome/free-solid-svg-icons';
@@ -13,19 +15,23 @@ import { AccordionComponent } from './debug/accordion/accordion.component';
 import { DebugComponent } from './debug/debug.component';
 import { NotificationFactoryComponent } from './debug/notification-factory/notification-factory.component';
 import { PortapiInspectorComponent } from './debug/portapi-inspector/portapi-inspector.component';
-import { NotificationComponent } from './shared/notification/notification.component';
-import { SubsystemComponent } from './shared/subsystem/subsystem.component';
+import { NavigationComponent } from './layout/navigation/navigation.component';
+import { SideDashComponent } from './layout/side-dash/side-dash.component';
+import { DashboardComponent } from './pages/dashboard/dashboard.component';
+import { SettingsComponent } from './pages/settings/settings.component';
 import { BasicSettingComponent } from './shared/config/basic-setting/basic-setting.component';
 import { GenericSettingComponent } from './shared/config/generic-setting/generic-setting.component';
 import { SecuritySettingComponent } from './shared/config/security-setting/security-setting.component';
-import { SettingsComponent } from './pages/settings/settings.component';
-import { DashboardComponent } from './pages/dashboard/dashboard.component';
-import { SideDashComponent } from './layout/side-dash/side-dash.component';
-import { NavigationComponent } from './layout/navigation/navigation.component';
+import { DropDownItemComponent, DropDownValueDirective } from './shared/dropdown/dropdown-item.component';
+import { DropdownComponent } from './shared/dropdown/dropdown.component';
 import { ExpertiseComponent } from './shared/expertise/expertise.component';
 import { ExpertiseDirective } from './shared/expertise/expertise.directive';
-import { WidgetModule } from './widgets/widget.module';
-import { PortalModule } from '@angular/cdk/portal';
+import { NotificationComponent } from './shared/notification/notification.component';
+import { SubsystemComponent } from './shared/subsystem/subsystem.component';
+import { SettingsOutletComponent } from './widgets/settings-outlet/settings-outlet.component';
+import { WIDGET_DEFINTIONS } from './widgets/widget.types';
+import { StatusWidgetComponent } from './widgets/status-widget/status-widget.component';
+import { StatusWidgetFactoryComponent } from './widgets/status-widget-factory/status-widget-factory.component';
 
 @NgModule({
   declarations: [
@@ -45,7 +51,13 @@ import { PortalModule } from '@angular/cdk/portal';
     SideDashComponent,
     NavigationComponent,
     ExpertiseComponent,
-    ExpertiseDirective
+    ExpertiseDirective,
+    DropdownComponent,
+    DropDownItemComponent,
+    DropDownValueDirective,
+    SettingsOutletComponent,
+    StatusWidgetComponent,
+    StatusWidgetFactoryComponent
   ],
   imports: [
     BrowserModule,
@@ -54,10 +66,20 @@ import { PortalModule } from '@angular/cdk/portal';
     AppRoutingModule,
     FontAwesomeModule,
     OverlayModule,
-    WidgetModule,
     PortalModule,
+    DragDropModule,
   ],
   providers: [
+    {
+      provide: WIDGET_DEFINTIONS,
+      useValue: {
+        type: 'status-widget',
+        name: 'Status Widget',
+        settingsComponent: StatusWidgetFactoryComponent,
+        widgetComponent: StatusWidgetComponent,
+      },
+      multi: true,
+    }
   ],
   bootstrap: [AppComponent]
 })

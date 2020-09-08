@@ -66,3 +66,11 @@ button {
     @apply text-red-500;
   }
 }
+
+.cdk-drag {
+  .widget {
+    fa-icon {
+      opacity: 1;
+    }
+  }
+}

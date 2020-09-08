@@ -1,0 +1,42 @@
+:host {
+  display       : flex;
+  flex-direction: column;
+}
+
+h1 {
+  @apply mb-4;
+  @apply text-base;
+}
+
+.buttons {
+  display        : flex;
+  justify-content: flex-start;
+  @apply p-4;
+}
+
+.widget-setup {
+  @apply text-sm;
+  @apply border;
+  @apply border-gray-600;
+  @apply rounded;
+  @apply p-4;
+
+  h1 {
+    @apply font-semibold;
+    @apply text-base;
+  }
+}
+
+div.select-type {
+  @apply text-sm;
+  @apply mb-4;
+
+  span {
+    @apply p-4;
+  }
+
+  app-dropdown {
+    width  : 7.5rem;
+    display: inline-block;
+  }
+}

@@ -9,7 +9,7 @@ import { StatusWidgetConfig } from '../status-widget/status-widget.component';
 })
 export class StatusWidgetFactoryComponent implements OnInit, WidgetFactory<StatusWidgetConfig> {
   @Input()
-  config: StatusWidgetConfig | null = null;
+  config: StatusWidgetConfig = { text: '' };
 
   @Output()
   onConfigChange = new EventEmitter<StatusWidgetConfig>();
@@ -17,10 +17,21 @@ export class StatusWidgetFactoryComponent implements OnInit, WidgetFactory<Statu
   constructor() { }
 
   ngOnInit(): void {
-    this.onConfigChange.next(
-      this.config || {
-        ts: new Date().getTime(),
-      }
-    )
+    this.config = this.config || {
+      text: '',
+    };
+
+    this.onConfigChange.next(this.config)
+  }
+
+  setValue(value: string) {
+    if (!this.config) {
+      this.config = {
+        text: ''
+      };
+    }
+
+    this.config.text = value;
+    this.onConfigChange.next(this.config);
   }
 }

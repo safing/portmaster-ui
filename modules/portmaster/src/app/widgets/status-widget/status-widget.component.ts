@@ -2,7 +2,7 @@ import { Component, OnInit, Input, Inject } from '@angular/core';
 import { WIDGET_CONFIG, WidgetConfig } from '../widget.types';
 
 export interface StatusWidgetConfig {
-  ts: number;
+  text: string;
 }
 
 @Component({
