@@ -1,0 +1,11 @@
+<h1 *ngIf="isEdit">Edit Widget</h1>
+<h1 *ngIf="!isEdit">New Widget</h1>
+
+<select [ngModel]="selectedWidget?.type" (ngModelChange)="changeWidget($event)">
+  <option *ngFor="let def of definitions" [value]="def.type">{{def.name}}</option>
+</select>
+
+<div [cdkPortalOutlet]="portal" (attached)="portalAttached($event)"></div>
+
+<button type="button" [disabled]="!portal && !config" (click)="saveWidget()">Save</button>
+<button type="button" *ngIf="isEdit" class="bg-red-600" (click)="deleteWidget()">Delete</button>

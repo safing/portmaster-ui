@@ -11,7 +11,7 @@ html {
 }
 
 ::-webkit-scrollbar {
-  @apply bg-gray-700;
+  @apply bg-gray-600;
   width: 3px;
 }
 
@@ -28,7 +28,7 @@ select {
   width  : 100%;
   outline: none;
   @apply shadow-inner-xs;
-  @apply bg-gray-700;
+  @apply bg-gray-600;
   @apply text-gray-200;
   @apply border-gray-800;
   @apply border;
@@ -48,6 +48,7 @@ select {
 
 button {
   @apply text-xs;
+  @apply font-semibold;
   @apply bg-blue-500;
   @apply p-1;
   @apply px-4;

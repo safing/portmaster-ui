@@ -7,7 +7,13 @@
   </div>
 </div>
 
-<div class="new-widget">
+<ng-container *ngFor="let widget of widgets; trackBy: widgetService.trackBy">
+  <div class="widget" routerLink="/widget/edit/{{widget.key}}">
+    <ng-container [cdkPortalOutlet]="widget.portal"></ng-container>
+  </div>
+</ng-container>
+
+<div class="new-widget" routerLink="/widget/new">
   <fa-icon icon="plus-circle" [inverse]="false"></fa-icon>
   <span>Add widget</span>
 </div>

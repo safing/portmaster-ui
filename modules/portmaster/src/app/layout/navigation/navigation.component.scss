@@ -2,14 +2,14 @@
   @apply shadow-xl;
   @apply border-r;
   @apply bg-gray-900;
-  @apply border-gray-700;
+  @apply border-gray-600;
   @apply text-gray-100;
 
   height         : 100vh;
   top            : 0px;
   position       : sticky;
   display        : flex;
-  width          : 3.5rem;
+  width          : 4.5rem;
   flex-direction : column;
   justify-content: space-between;
   align-items    : center;
@@ -44,15 +44,15 @@
     @apply my-2;
 
     font-size: 0.9rem;
-    width    : 1.8rem;
-    height   : 1.8rem;
+    width    : 2rem;
+    height   : 2rem;
 
     display        : flex;
     justify-content: space-around;
     align-items    : center;
 
     cursor: pointer;
-    @apply text-gray-300;
+    @apply text-gray-200;
 
     &:hover,
     &.active {

@@ -42,11 +42,15 @@ div.settings-nav {
     li {
       @apply mb-1;
       @apply font-semibold;
-      @apply text-gray-400;
+      @apply text-gray-300;
 
       &:hover,
       &.active {
         @apply text-gray-200;
+      }
+
+      ul.settings {
+        display: none;
       }
     }
   }

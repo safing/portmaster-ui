@@ -34,6 +34,8 @@ export class SettingsComponent implements OnInit, AfterViewInit, OnDestroy {
       )
       .subscribe(
         ([settings, subsystems]) => {
+          console.log('settings', settings, subsystems);
+
           this.subsystems = subsystems;
 
           this.settings = {

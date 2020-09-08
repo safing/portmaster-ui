@@ -29,7 +29,7 @@ button {
 ul.level-list {
   width  : 8rem;
   display: block;
-  @apply bg-gray-500;
+  @apply bg-gray-400;
   @apply text-gray-100;
   @apply shadow-xl;
   @apply text-sm;
@@ -40,7 +40,7 @@ ul.level-list {
     @apply px-4;
 
     &:hover {
-      @apply bg-gray-600;
+      @apply bg-gray-500;
     }
   }
 }

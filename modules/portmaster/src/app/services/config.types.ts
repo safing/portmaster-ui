@@ -44,6 +44,25 @@ export function optionTypeName(opt: OptionType): string {
   }
 }
 
+/** The actual type an option value can be */
+export type OptionValueType = string | string[] | number | boolean;
+
+export function isStringType(opt: OptionType, vt: OptionValueType): vt is string {
+  return opt === OptionType.String;
+}
+
+export function isStringArrayType(opt: OptionType, vt: OptionValueType): vt is string[] {
+  return opt === OptionType.StringArray;
+}
+
+export function isNumberType(opt: OptionType, vt: OptionValueType): vt is number {
+  return opt === OptionType.Int;
+}
+
+export function isBooleanType(opt: OptionType, vt: OptionValueType): vt is boolean {
+  return opt === OptionType.Bool;
+}
+
 /**
  * ReleaseLevel defines the available release and maturity
  * levels.
@@ -87,7 +106,7 @@ export enum ExternalOptionHint {
 /**
  * BaseSetting describes the general shape of a portbase config setting.
  */
-export interface BaseSetting<T, O extends OptionType> {
+export interface BaseSetting<T extends OptionValueType, O extends OptionType> {
   // Value is the value of a setting.
   Value?: T;
   // DefaultValue is the default value of a setting.

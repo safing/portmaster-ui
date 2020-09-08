@@ -1,21 +1,21 @@
 :host {
   display: flex;
   @apply bg-gray-900;
-  @apply text-gray-300;
+  @apply text-gray-200;
 
   &>* {
     flex-shrink: 0;
   }
 }
 
-
-
 app-side-dash {
   height  : 100vh;
   top     : 0px;
   position: sticky;
-  width   : calc(3.5rem * 5);
-  @apply shadow;
+  width   : calc(4.5rem * 5);
+  @apply border-r;
+  @apply border-black;
+  @apply bg-gray-900;
 }
 
 div.main {

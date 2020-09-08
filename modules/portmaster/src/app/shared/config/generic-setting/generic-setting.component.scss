@@ -9,7 +9,7 @@
 
   &:hover {
     @apply shadow-xs;
-    @apply bg-gray-700;
+    @apply bg-gray-600;
   }
 
   &.changed {
@@ -45,7 +45,7 @@ label {
 
 span.key {
   @apply text-xs;
-  @apply text-gray-400;
+  @apply text-gray-300;
   white-space: nowrap;
 
   fa-icon {

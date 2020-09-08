@@ -64,16 +64,29 @@ export class GenericSettingComponent<S extends BaseSetting<any, any>> {
       return;
     }
 
-    const value = s.Value === undefined
-      ? s.DefaultValue
-      : s.Value;
-
-    this._currentValue = value;
-    this._savedValue = value;
+    this.updateActualValue();
   }
   get setting(): S | null {
     return this._setting;
   }
+
+  /**
+   * The defaultValue input allows to overwrite the default
+   * value of the seting.
+   */
+  @Input()
+  set defaultValue(val: SettingValueType<S>) {
+    this._defaultValue = val;
+    this.updateActualValue();
+  }
+  get defaultValue() {
+    return this._defaultValue === null
+      ? this.setting?.DefaultValue
+      : this._defaultValue;
+  }
+
+  /* An optional default value overwrite */
+  _defaultValue: SettingValueType<S> | null = null;
 
   /* Wether or not the setting has been saved */
   saved = true;
@@ -87,8 +100,10 @@ export class GenericSettingComponent<S extends BaseSetting<any, any>> {
   /* The currently saved value. Updated by the setting() setter */
   _savedValue: SettingValueType<S> | null = null;
 
-  constructor(private configService: ConfigService,
-    private changeDetectorRef: ChangeDetectorRef) { }
+  constructor(
+    private configService: ConfigService,
+    private changeDetectorRef: ChangeDetectorRef
+  ) { }
 
   /**
    * Resets the value of setting by discarding any user
@@ -100,7 +115,11 @@ export class GenericSettingComponent<S extends BaseSetting<any, any>> {
       return;
     }
 
-    this._currentValue = this._setting.DefaultValue;
+    if (this._defaultValue !== null) {
+      this._currentValue = this._defaultValue;
+    } else {
+      this._currentValue = this._setting.DefaultValue;
+    }
   }
 
   /**
@@ -120,7 +139,6 @@ export class GenericSettingComponent<S extends BaseSetting<any, any>> {
     this.configService.save(this.setting!)
       .subscribe(
         () => {
-          console.log(`saved`);
           this._savedValue = this._currentValue
           this.changeDetectorRef.markForCheck();
         },
@@ -136,5 +154,21 @@ export class GenericSettingComponent<S extends BaseSetting<any, any>> {
    */
   updateValue(value: SettingValueType<S>) {
     this._currentValue = value;
+  }
+
+  private updateActualValue() {
+    if (!this.setting) {
+      return
+    }
+    const s = this.setting;
+    const defaultValue = this._defaultValue === null
+      ? s.DefaultValue
+      : this._defaultValue;
+    const value = s.Value === undefined
+      ? defaultValue
+      : s.Value;
+
+    this._currentValue = value;
+    this._savedValue = value;
   }
 }

@@ -24,6 +24,8 @@ import { SideDashComponent } from './layout/side-dash/side-dash.component';
 import { NavigationComponent } from './layout/navigation/navigation.component';
 import { ExpertiseComponent } from './shared/expertise/expertise.component';
 import { ExpertiseDirective } from './shared/expertise/expertise.directive';
+import { WidgetModule } from './widgets/widget.module';
+import { PortalModule } from '@angular/cdk/portal';
 
 @NgModule({
   declarations: [
@@ -52,6 +54,8 @@ import { ExpertiseDirective } from './shared/expertise/expertise.directive';
     AppRoutingModule,
     FontAwesomeModule,
     OverlayModule,
+    WidgetModule,
+    PortalModule,
   ],
   providers: [
   ],

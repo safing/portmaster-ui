@@ -11,13 +11,13 @@
   width   : 100%;
 
   .content {
-    min-height     : calc(3 * 3.5rem);
+    min-height     : calc(3 * 4.5rem);
     display        : flex;
     align-items    : center;
     justify-content: space-around;
 
     @apply p-5;
-    padding-bottom: calc(3.5rem / 2);
+    padding-bottom: calc(4.5rem / 2);
 
     h1 {
       @apply text-xl;
@@ -25,15 +25,15 @@
     }
 
     @apply rounded-md;
-    @apply bg-gray-700;
+    @apply bg-gray-600;
   }
 
   .circle {
     cursor         : pointer;
     position       : relative;
-    top            : calc(-3.5rem / 2);
-    height         : 3.5rem;
-    width          : 3.5rem;
+    top            : calc(-4.5rem / 2);
+    height         : 4.5rem;
+    width          : 4.5rem;
     border-radius  : 50%;
     display        : flex;
     align-items    : center;
@@ -46,7 +46,7 @@
 
     @apply border-8;
     @apply border-gray-900;
-    @apply bg-gray-700;
+    @apply bg-gray-600;
 
     &:hover {
       @apply bg-blue-500;
@@ -60,11 +60,11 @@
   @apply rounded-md;
   @apply border-2;
   @apply border-dashed;
-  @apply border-gray-600;
+  @apply border-gray-500;
   @apply bg-gray-800;
   @apply p-4;
 
-  @apply text-gray-600;
+  @apply text-gray-400;
   @apply text-xs;
 
   span,
@@ -73,7 +73,7 @@
   }
 
   &:hover {
-    @apply text-gray-300;
+    @apply text-gray-200;
   }
 
   display        : flex;
