@@ -1,5 +1,5 @@
 <!-- This button triggers the overlay and is it's origin -->
-<div (click)="isOpen = !isOpen" [class.active]="isOpen" type="button" cdkOverlayOrigin #trigger="cdkOverlayOrigin">
+<button (click)="isOpen = !isOpen" [class.active]="isOpen" type="button" cdkOverlayOrigin #trigger="cdkOverlayOrigin">
   <span *ngIf="currentItem === null">
     Select
   </span>
@@ -9,10 +9,11 @@
   <div class="arrow">
     <fa-icon icon="chevron-down"></fa-icon>
   </div>
-</div>
+</button>
 
 <!-- This template displays the overlay content and is connected to the button -->
-<ng-template cdkConnectedOverlay [cdkConnectedOverlayOrigin]="trigger" [cdkConnectedOverlayOpen]="isOpen">
+<ng-template cdkConnectedOverlay [cdkConnectedOverlayMinWidth]="element.nativeElement.offsetWidth"
+  [cdkConnectedOverlayOrigin]="trigger" [cdkConnectedOverlayOpen]="isOpen">
   <ul class="item-list">
     <li *ngFor="let item of items" (click)="selectItem(item)">
       <ng-container *ngTemplateOutlet="item.templateRef"></ng-container>

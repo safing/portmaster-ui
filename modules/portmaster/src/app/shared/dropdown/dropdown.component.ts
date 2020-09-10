@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, QueryList, ContentChildren, TemplateRef, forwardRef } from '@angular/core';
+import { Component, OnInit, Input, QueryList, ContentChildren, TemplateRef, forwardRef, HostListener, HostBinding, ElementRef } from '@angular/core';
 import { DropDownItemComponent, DropDownValueDirective } from './dropdown-item.component';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 
@@ -18,6 +18,12 @@ export class DropdownComponent<T> implements OnInit, ControlValueAccessor {
   @ContentChildren(DropDownValueDirective)
   items: QueryList<DropDownValueDirective> | null = null;
 
+  @HostBinding('tabindex')
+  readonly tabindex = 0;
+
+  @HostBinding('attr.role')
+  readonly role = 'listbox';
+
   value: T | null = null;
   currentItem: DropDownValueDirective | null = null;
 
@@ -27,9 +33,14 @@ export class DropdownComponent<T> implements OnInit, ControlValueAccessor {
     return item.value;
   }
 
-  constructor() { }
+  constructor(public element: ElementRef) { }
 
   ngOnInit(): void {
+  }
+
+  @HostListener('blur')
+  onBlur(): void {
+    this.onTouch();
   }
 
   selectItem(item: DropDownValueDirective) {
