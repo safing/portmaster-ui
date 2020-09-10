@@ -1,11 +1,12 @@
-import { Component, OnInit, Input, QueryList, ContentChildren, TemplateRef, forwardRef, HostListener, HostBinding, ElementRef } from '@angular/core';
-import { DropDownItemComponent, DropDownValueDirective } from './dropdown-item.component';
+import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, ContentChildren, ElementRef, forwardRef, HostBinding, HostListener, QueryList } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
+import { DropDownValueDirective } from './dropdown-item.component';
 
 @Component({
   selector: 'app-dropdown',
   templateUrl: './dropdown.component.html',
   styleUrls: ['./dropdown.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   providers: [
     {
       provide: NG_VALUE_ACCESSOR,
@@ -14,7 +15,7 @@ import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
     },
   ]
 })
-export class DropdownComponent<T> implements OnInit, ControlValueAccessor {
+export class DropdownComponent<T> implements AfterViewInit, ControlValueAccessor {
   @ContentChildren(DropDownValueDirective)
   items: QueryList<DropDownValueDirective> | null = null;
 
@@ -33,9 +34,14 @@ export class DropdownComponent<T> implements OnInit, ControlValueAccessor {
     return item.value;
   }
 
-  constructor(public element: ElementRef) { }
+  constructor(public element: ElementRef,
+    private changeDetectorRef: ChangeDetectorRef) { }
 
-  ngOnInit(): void {
+  ngAfterViewInit(): void {
+    if (!!this.value && !!this.items) {
+      this.currentItem = this.items.find(item => item.value === this.value) || null;
+      this.changeDetectorRef.detectChanges();
+    }
   }
 
   @HostListener('blur')
@@ -52,6 +58,12 @@ export class DropdownComponent<T> implements OnInit, ControlValueAccessor {
 
   writeValue(value: T): void {
     this.value = value;
+
+    if (!!this.items) {
+      this.currentItem = this.items.find(item => item.value === value) || null;
+    }
+
+    this.changeDetectorRef.markForCheck();
   }
 
   onChange = (value: T): void => { }

@@ -1,16 +1,16 @@
-import { Component, OnInit, Inject, ComponentRef, OnDestroy, ChangeDetectorRef } from '@angular/core';
-import { WIDGET_DEFINTIONS, WidgetDefinition, WidgetFactory } from '../widget.types';
-import { ComponentPortal, CdkPortalOutletAttachedRef } from '@angular/cdk/portal';
+import { CdkPortalOutletAttachedRef, ComponentPortal } from '@angular/cdk/portal';
+import { Component, Inject, OnDestroy, OnInit } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
 import { Subscription } from 'rxjs';
-import { WidgetService } from '../widget.service';
-import { Router, ActivatedRouteSnapshot, ActivatedRoute } from '@angular/router';
+import { WidgetService } from '../../widgets/widget.service';
+import { WidgetDefinition, WidgetFactory, WIDGET_DEFINTIONS } from '../../widgets/widget.types';
 
 @Component({
   selector: 'app-settings-outlet',
   templateUrl: './settings-outlet.component.html',
-  styleUrls: ['./settings-outlet.component.scss']
+  styleUrls: ['./settings-outlet.component.scss'],
 })
-export class SettingsOutletComponent<T = any> implements OnInit, OnDestroy {
+export class WidgetSettingsOutletComponent<T = any> implements OnInit, OnDestroy {
   selectedWidget: WidgetDefinition<T> | null = null;
   portal: ComponentPortal<WidgetFactory<T>> | null = null;
   subscription: Subscription = Subscription.EMPTY;
@@ -21,7 +21,6 @@ export class SettingsOutletComponent<T = any> implements OnInit, OnDestroy {
   isEdit: boolean = false;
 
   constructor(
-    private changeDetector: ChangeDetectorRef,
     private activeRoute: ActivatedRoute,
     private widgetService: WidgetService,
     @Inject(WIDGET_DEFINTIONS) public definitions: WidgetDefinition<any>[],
@@ -88,7 +87,6 @@ export class SettingsOutletComponent<T = any> implements OnInit, OnDestroy {
   }
 
   deleteWidget() {
-    console.log(`deleting `, this.widgetKey)
     this.widgetService.deleteWidget(this.widgetKey!)
       .subscribe(() => window.history.back());
   }

@@ -2,7 +2,7 @@ import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
 import { SettingsComponent } from './pages/settings/settings.component';
 import { DashboardComponent } from './pages/dashboard/dashboard.component';
-import { SettingsOutletComponent } from './widgets/settings-outlet/settings-outlet.component';
+import { WidgetSettingsOutletComponent } from './pages/widget-settings-outlet/settings-outlet.component';
 
 const routes: Routes = [
   {
@@ -20,11 +20,11 @@ const routes: Routes = [
   },
   {
     path: 'widget/new',
-    component: SettingsOutletComponent,
+    component: WidgetSettingsOutletComponent,
   },
   {
     path: 'widget/edit/:widgetId',
-    component: SettingsOutletComponent,
+    component: WidgetSettingsOutletComponent,
   },
   {
     path: '**',

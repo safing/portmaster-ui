@@ -1,20 +1,20 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { SettingsOutletComponent } from './settings-outlet.component';
+import { WidgetSettingsOutletComponent } from './settings-outlet.component';
 
 describe('SettingsOutletComponent', () => {
-  let component: SettingsOutletComponent;
-  let fixture: ComponentFixture<SettingsOutletComponent>;
+  let component: WidgetSettingsOutletComponent;
+  let fixture: ComponentFixture<WidgetSettingsOutletComponent>;
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ SettingsOutletComponent ]
+      declarations: [WidgetSettingsOutletComponent]
     })
-    .compileComponents();
+      .compileComponents();
   }));
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(SettingsOutletComponent);
+    fixture = TestBed.createComponent(WidgetSettingsOutletComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

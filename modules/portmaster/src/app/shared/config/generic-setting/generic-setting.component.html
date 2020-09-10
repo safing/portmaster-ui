@@ -17,6 +17,9 @@
   <app-security-setting *ngSwitchCase="optionHint.SecurityLevel" [setting]="_setting" [ngModel]="_currentValue"
     (ngModelChange)="updateValue($event)"></app-security-setting>
 
+  <app-filter-list *ngSwitchCase="optionHint.EndpointList" [ngModel]="_currentValue"
+    (ngModelChange)="updateValue($event)"></app-filter-list>
+
   <app-basic-setting *ngSwitchDefault [setting]="_setting" [ngModel]="_currentValue"
     (ngModelChange)="updateValue($event)"></app-basic-setting>
 </ng-container>

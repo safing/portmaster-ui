@@ -28,11 +28,13 @@ import { ExpertiseComponent } from './shared/expertise/expertise.component';
 import { ExpertiseDirective } from './shared/expertise/expertise.directive';
 import { NotificationComponent } from './shared/notification/notification.component';
 import { SubsystemComponent } from './shared/subsystem/subsystem.component';
-import { SettingsOutletComponent } from './widgets/settings-outlet/settings-outlet.component';
+import { WidgetSettingsOutletComponent } from './pages/widget-settings-outlet/settings-outlet.component';
 import { WIDGET_DEFINTIONS } from './widgets/widget.types';
 import { StatusWidgetComponent } from './widgets/status-widget/status-widget.component';
 import { StatusWidgetFactoryComponent } from './widgets/status-widget-factory/status-widget-factory.component';
 import { ToggleSwitchComponent } from './shared/toggle-switch/toggle-switch.component';
+import { FilterListComponent } from './shared/config/filter-list/filter-list';
+import { FilterListItemComponent } from './shared/config/filter-list/list-item';
 
 @NgModule({
   declarations: [
@@ -56,10 +58,12 @@ import { ToggleSwitchComponent } from './shared/toggle-switch/toggle-switch.comp
     DropdownComponent,
     DropDownItemComponent,
     DropDownValueDirective,
-    SettingsOutletComponent,
+    WidgetSettingsOutletComponent,
     StatusWidgetComponent,
     StatusWidgetFactoryComponent,
-    ToggleSwitchComponent
+    ToggleSwitchComponent,
+    FilterListComponent,
+    FilterListItemComponent
   ],
   imports: [
     BrowserModule,

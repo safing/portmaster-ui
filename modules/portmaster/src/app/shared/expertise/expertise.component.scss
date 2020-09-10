@@ -5,6 +5,7 @@ button {
   display    : flex;
   align-items: center;
   @apply font-semibold;
+  @apply ml-2;
   @apply text-xs;
 
   span {

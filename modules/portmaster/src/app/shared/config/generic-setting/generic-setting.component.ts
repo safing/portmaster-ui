@@ -34,6 +34,7 @@ export class GenericSettingComponent<S extends BaseSetting<any, any>> {
     // not be the same reference so we need to compare their
     // string representations. That's a bit more costly but should
     // still be fast enough.
+    // TODO(ppacher): calculate this only when required.
     return JSON.stringify(this._currentValue) !== JSON.stringify(this._savedValue)
   }
 

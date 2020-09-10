@@ -66,14 +66,15 @@ From the project root (the folder containing this [README.md](./)) there are onl
 
 - **`src/`** contains the actual application sources:
   - **`app/`** contains the actual application sources (components, services, uni tests ...)
-    - **`pages/`** contains the different pages of the application. A page is something that is associated with a dedicated application route.
+    - **`layout/`** contains components that form the overall application layout. For example the navigation bar and the side dash are located there.
+    - **`pages/`** contains the different pages of the application. A page is something that is associated with a dedicated application route and is rendered at the applications main content.
     - **`services/`** contains shared services (like PortAPI and friends)
     - **`shared/`** contains shared components that are likely used accross other components or pages.
+    - **`widgets/`** contains widgets and their settings components for the application side dash.
     - **`debug/`** contains a debug sidebar component
   - **`assets/`** contains static assets that must be shipped seperately.
   - **`environments/`** contains build and production related environment settings (those are handled by `@angular/cli` automatically, see [angular.json](angular.json))
 - **`e2e/`** contains end-to-end testing sources.
-
 
 
 ### Development server

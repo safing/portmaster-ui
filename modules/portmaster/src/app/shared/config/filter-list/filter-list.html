@@ -1,0 +1,11 @@
+<div class="list-items" cdkDropList (cdkDropListDropped)="drop($event)">
+  <div class="item" *ngFor="let entry of entries; let index=index; trackBy: trackBy" cdkDrag>
+    <fa-icon icon="grip-vertical" cdkDragHandle></fa-icon>
+    <app-filter-list-item [value]="entry" (valueChange)="updateValue(index, $event)" (delete)="deleteEntry(index)">
+    </app-filter-list-item>
+  </div>
+</div>
+
+<div class="button-list">
+  <button type="button" (click)="addEntry()">Add</button>
+</div>
