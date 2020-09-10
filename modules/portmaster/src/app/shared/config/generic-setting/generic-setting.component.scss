@@ -34,12 +34,11 @@ div.setting-meta {
 }
 
 label {
-  display: block;
-  width  : 100%;
+  display       : block;
+  width         : 100%;
+  letter-spacing: -0.03rem;
   @apply mb-1;
-  @apply text-xs;
-  @apply uppercase;
-  @apply font-semibold;
+  @apply text-base;
   @apply text-white;
 }
 

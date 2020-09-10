@@ -17,9 +17,8 @@
       [disabled]="_disabled" (blur)="_onTouch()">
 
     <ng-container *ngSwitchCase="'boolean'">
-      <label for="check-{{setting.Key}}">Enable</label>
-      <input type="checkbox" id="check-{{setting.Key}}" name="check" [ngModel]="_value"
-        (ngModelChange)="setInternalValue($event)" [disabled]="_disabled" (blur)="_onTouch()">
+      <app-toggle-switch id="check-{{setting.Key}}" name="check" [ngModel]="_value"
+        (ngModelChange)="setInternalValue($event)" [disabled]="_disabled" (blur)="_onTouch()"></app-toggle-switch>
     </ng-container>
 
     <textarea *ngSwitchDefault [attr.rows]="lineCount(_value)" [ngModel]="_value"

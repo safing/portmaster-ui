@@ -1,0 +1,58 @@
+$slider-height: 0.5rem;
+$handle-size  : 0.9rem;
+$slider-width : 1.8rem;
+
+:host {
+  position: relative;
+  display : inline-block;
+  width   : $slider-width;
+  height  : $slider-height;
+}
+
+input {
+  opacity: 0;
+  height : 0;
+  width  : 0;
+}
+
+
+.slider {
+  position  : absolute;
+  cursor    : pointer;
+  top       : 0;
+  left      : 0;
+  right     : 0;
+  bottom    : 0;
+  transition: .4s;
+  @apply shadow-inner;
+
+  @apply bg-gray-300;
+  @apply rounded;
+}
+
+.slider:before {
+  position     : absolute;
+  content      : "";
+  height       : $handle-size;
+  width        : $handle-size;
+  bottom       : calc(-0.5*(#{$handle-size} - #{$slider-height}));
+  left         : 0; //calc(-0.5*#{$handle-size});
+  transition   : .4s;
+  border-radius: 50%;
+
+  @apply shadow;
+  @apply bg-gray-300;
+}
+
+input:checked+.slider {
+  @apply bg-green-700;
+}
+
+input:focus+.slider {
+  @apply shadow;
+}
+
+input:checked+.slider:before {
+  transform: translateX(calc(#{$slider-width} - #{$handle-size}));
+  @apply bg-green-500;
+}

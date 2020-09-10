@@ -32,6 +32,7 @@ import { SettingsOutletComponent } from './widgets/settings-outlet/settings-outl
 import { WIDGET_DEFINTIONS } from './widgets/widget.types';
 import { StatusWidgetComponent } from './widgets/status-widget/status-widget.component';
 import { StatusWidgetFactoryComponent } from './widgets/status-widget-factory/status-widget-factory.component';
+import { ToggleSwitchComponent } from './shared/toggle-switch/toggle-switch.component';
 
 @NgModule({
   declarations: [
@@ -57,7 +58,8 @@ import { StatusWidgetFactoryComponent } from './widgets/status-widget-factory/st
     DropDownValueDirective,
     SettingsOutletComponent,
     StatusWidgetComponent,
-    StatusWidgetFactoryComponent
+    StatusWidgetFactoryComponent,
+    ToggleSwitchComponent
   ],
   imports: [
     BrowserModule,
@@ -74,7 +76,7 @@ import { StatusWidgetFactoryComponent } from './widgets/status-widget-factory/st
       provide: WIDGET_DEFINTIONS,
       useValue: {
         type: 'status-widget',
-        name: 'Status Widget',
+        name: 'Demo Widget',
         settingsComponent: StatusWidgetFactoryComponent,
         widgetComponent: StatusWidgetComponent,
       },
