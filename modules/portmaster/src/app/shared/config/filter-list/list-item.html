@@ -20,7 +20,7 @@
     <input type="text" autofocus [ngModel]="display" (ngModelChange)="setEntity($event)">
   </ng-template>
 
-  <div class="buttons">
+  <div class="buttons" *ngIf="!readonly">
     <fa-icon [icon]="_edit ? 'check' : 'edit'" (click)="toggleEdit()"></fa-icon>
     <fa-icon icon="times" (click)="reset()"></fa-icon>
   </div>

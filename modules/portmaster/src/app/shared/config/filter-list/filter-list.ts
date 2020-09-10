@@ -1,6 +1,7 @@
-import { Component, OnInit, ChangeDetectionStrategy, forwardRef, HostBinding, HostListener, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy, forwardRef, HostBinding, HostListener, ChangeDetectorRef, Input } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { moveItemInArray, CdkDragDrop } from '@angular/cdk/drag-drop';
+import { coerceBooleanProperty } from '@angular/cdk/coercion';
 
 @Component({
   selector: 'app-filter-list',
@@ -23,6 +24,15 @@ export class FilterListComponent implements OnInit, ControlValueAccessor {
   onBlur() {
     this.onTouch();
   }
+
+  @Input()
+  set readonly(v: any) {
+    this._readonly = coerceBooleanProperty(v);
+  }
+  get readonly() {
+    return this._readonly;
+  }
+  _readonly = false;
 
   entries: string[] = [];
 

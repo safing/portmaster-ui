@@ -28,6 +28,15 @@ export class FilterListItemComponent implements OnInit {
   }
   _edit: boolean = false;
 
+  @Input()
+  set readonly(v: any) {
+    this._readonly = coerceBooleanProperty(v);
+  }
+  get readonly() {
+    return this._readonly;
+  }
+  _readonly: boolean = false;
+
   @Output()
   editChange = new EventEmitter<boolean>();
 
@@ -77,7 +86,7 @@ export class FilterListItemComponent implements OnInit {
     if (this._edit) {
       // if the user did not change anything we can immediately
       // delete it.
-      if (this.isAllow || this.isBlock || this.display !== '') {
+      if (this._savedValue !== '') {
         this.value = this._savedValue;
         this._edit = false;
         return;
