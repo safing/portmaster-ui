@@ -28,6 +28,11 @@
   </div>
 </div>
 
-<div routerLinkActive="active" routerLink="settings" class="link">
-  <fa-icon icon="cog"></fa-icon>
+<div class="nav-list">
+  <div routerLinkActive="active" routerLink="help" class="link">
+    <fa-icon [icon]="['far', 'question-circle']"></fa-icon>
+  </div>
+  <div routerLinkActive="active" routerLink="settings" class="link">
+    <fa-icon icon="cog"></fa-icon>
+  </div>
 </div>

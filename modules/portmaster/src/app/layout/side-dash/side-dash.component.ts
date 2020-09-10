@@ -3,6 +3,8 @@ import { WidgetService } from '../../widgets/widget.service';
 import { WidgetConfig, WidgetDefinition, WIDGET_DEFINTIONS, WIDGET_CONFIG, } from 'src/app/widgets/widget.types';
 import { ComponentPortal } from '@angular/cdk/portal';
 import { moveItemInArray, CdkDragDrop } from '@angular/cdk/drag-drop';
+import { combineLatest } from 'rxjs';
+import { filter } from 'rxjs/operators';
 
 interface WidgetPortal<T> extends WidgetConfig<T> {
   portal: ComponentPortal<any>;
@@ -15,6 +17,7 @@ interface WidgetPortal<T> extends WidgetConfig<T> {
 })
 export class SideDashComponent implements OnInit {
   widgets: WidgetPortal<any>[] = [];
+  private saveInProgress = false;
 
   widgetTemplates: {
     [key: string]: WidgetDefinition<any>
@@ -33,6 +36,10 @@ export class SideDashComponent implements OnInit {
 
   ngOnInit(): void {
     this.widgetService.watchWidgets()
+      .pipe(
+        // ignore updates while we are saving
+        filter(() => !this.saveInProgress)
+      )
       .subscribe(widgets => {
         this.widgets = widgets
           .map(w => {
@@ -43,8 +50,8 @@ export class SideDashComponent implements OnInit {
             }
           })
           .sort((a, b) => {
-            const aOrder = a.order || 0;
-            const bOrder = b.order || 0;
+            const aOrder = a.order || Infinity;
+            const bOrder = b.order || Infinity;
             return aOrder - bOrder;
           })
       })
@@ -53,16 +60,18 @@ export class SideDashComponent implements OnInit {
   drop(event: CdkDragDrop<string[]>) {
     moveItemInArray(this.widgets, event.previousIndex, event.currentIndex);
 
-    this.widgets.forEach((widget, idx) => {
+    const updates = this.widgets.map((widget, idx) => {
       widget.order = idx;
 
-      this.widgetService.createWidget({
+      return this.widgetService.createWidget({
         ...widget,
         portal: undefined, // get rid of the component portal before saving it
       } as any)
-        .subscribe(() => {
-          console.log('saved at position', idx);
-        });
+    });
+
+    this.saveInProgress = true;
+    combineLatest(updates).subscribe({
+      complete: () => this.saveInProgress = false,
     })
   }
 

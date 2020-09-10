@@ -9,13 +9,13 @@
 
 <div class="widget-list" cdkDropList cdkDragLockAxis="y" (cdkDropListDropped)="drop($event)">
   <div class="widget" *ngFor="let widget of widgets; trackBy: widgetService.trackBy" cdkDrag>
-    <ng-container [cdkPortalOutlet]="widget.portal"></ng-container>
-
     <div class="buttons">
       <fa-icon icon="question-circle"></fa-icon>
       <fa-icon icon="grip-vertical" cdkDragHandle></fa-icon>
       <fa-icon icon="pen" routerLink="/widget/edit/{{widget.key}}"></fa-icon>
     </div>
+
+    <ng-container [cdkPortalOutlet]="widget.portal"></ng-container>
   </div>
 </div>
 
