@@ -1,7 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { PartialObserver } from 'rxjs';
 import { ConfigService } from './config.service';
-import { BoolSetting, ExpertiseLevel, ExternalOptionHint, OptionType, ReleaseLevel, Setting } from './config.types';
+import { BoolSetting, ExpertiseLevel, ExternalOptionHint, OptionType, ReleaseLevel, Setting, ExpertiseLevelNumber } from './config.types';
 import { MockWebSocketSubject } from './portapi.service.spec';
 import { WebsocketService } from './websocket.service';
 
@@ -186,7 +186,7 @@ describe('ConfigService', () => {
     let setting: BoolSetting = {
       DefaultValue: false,
       Name: "Disable Updates",
-      ExpertiseLevel: ExpertiseLevel.Developer,
+      ExpertiseLevel: ExpertiseLevelNumber.developer,
       ExternalOptType: ExternalOptionHint.DisableUpdates,
       Key: "updates/disable",
       OptType: OptionType.Bool,
@@ -210,7 +210,7 @@ describe('ConfigService', () => {
 
     expect(observer.complete).toHaveBeenCalled();
     expect(observer.error).not.toHaveBeenCalled();
-    expect(observer.next).not.toHaveBeenCalled();
+    expect(observer.next).toHaveBeenCalledWith(undefined);
   })
 
   it('should support saving a setting by key/value', () => {
@@ -233,7 +233,7 @@ describe('ConfigService', () => {
 
     expect(observer.complete).toHaveBeenCalled();
     expect(observer.error).not.toHaveBeenCalled();
-    expect(observer.next).not.toHaveBeenCalled();
+    expect(observer.next).toHaveBeenCalledWith(undefined);
   })
 });
 

@@ -110,7 +110,7 @@ describe('NotificationsService', () => {
         type: 'success'
       })
 
-      expect(observer.next).not.toHaveBeenCalled();
+      expect(observer.next).toHaveBeenCalledWith(undefined);
       expect(observer.error).not.toHaveBeenCalled();
       expect(observer.complete).toHaveBeenCalled();
     });
@@ -148,7 +148,7 @@ describe('NotificationsService', () => {
         type: 'success'
       })
 
-      expect(observer.next).not.toHaveBeenCalled();
+      expect(observer.next).toHaveBeenCalledWith(undefined);
       expect(observer.error).not.toHaveBeenCalled();
       expect(observer.complete).toHaveBeenCalled();
     });
@@ -181,7 +181,7 @@ describe('NotificationsService', () => {
         type: 'success'
       })
 
-      expect(observer.next).not.toHaveBeenCalled();
+      expect(observer.next).toHaveBeenCalledWith(undefined);
       expect(observer.error).not.toHaveBeenCalled();
       expect(observer.complete).toHaveBeenCalled();
     });
@@ -221,7 +221,7 @@ describe('NotificationsService', () => {
         type: 'success'
       })
 
-      expect(observer.next).not.toHaveBeenCalled();
+      expect(observer.next).toHaveBeenCalledWith(undefined);
       expect(observer.error).not.toHaveBeenCalled();
       expect(observer.complete).toHaveBeenCalled();
     });
@@ -314,7 +314,7 @@ describe('NotificationsService', () => {
 
       expect(observer.complete).toHaveBeenCalled()
       expect(observer.error).not.toHaveBeenCalled()
-      expect(observer.next).not.toHaveBeenCalled()
+      expect(observer.next).toHaveBeenCalledWith(undefined)
     })
 
     it('should be possible using parameters', () => {
@@ -343,7 +343,7 @@ describe('NotificationsService', () => {
 
       expect(observer.complete).toHaveBeenCalled()
       expect(observer.error).not.toHaveBeenCalled()
-      expect(observer.next).not.toHaveBeenCalled()
+      expect(observer.next).toHaveBeenCalledWith(undefined)
 
     })
   })

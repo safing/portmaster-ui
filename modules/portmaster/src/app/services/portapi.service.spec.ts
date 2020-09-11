@@ -113,7 +113,7 @@ describe('PortapiService', () => {
         id: mock.lastRequestId!,
       })
       expect(observer.error).not.toHaveBeenCalled();
-      expect(observer.next).not.toHaveBeenCalled();
+      expect(observer.next).toHaveBeenCalledWith(undefined);
       expect(observer.complete).toHaveBeenCalled();
     })
 
@@ -156,7 +156,7 @@ describe('PortapiService', () => {
         id: mock.lastRequestId!,
       })
       expect(observer.error).not.toHaveBeenCalled();
-      expect(observer.next).not.toHaveBeenCalled();
+      expect(observer.next).toHaveBeenCalledWith(undefined);
       expect(observer.complete).toHaveBeenCalled();
     })
 
