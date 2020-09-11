@@ -10,31 +10,30 @@ import { far } from '@fortawesome/free-regular-svg-icons';
 import { fas } from '@fortawesome/free-solid-svg-icons';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
-import { AccordionGroupComponent } from './debug/accordion-group/accordion-group.component';
-import { AccordionComponent } from './debug/accordion/accordion.component';
-import { DebugComponent } from './debug/debug.component';
-import { NotificationFactoryComponent } from './debug/notification-factory/notification-factory.component';
-import { PortapiInspectorComponent } from './debug/portapi-inspector/portapi-inspector.component';
-import { NavigationComponent } from './layout/navigation/navigation.component';
-import { SideDashComponent } from './layout/side-dash/side-dash.component';
-import { DashboardComponent } from './pages/dashboard/dashboard.component';
-import { SettingsComponent } from './pages/settings/settings.component';
-import { BasicSettingComponent } from './shared/config/basic-setting/basic-setting.component';
-import { GenericSettingComponent } from './shared/config/generic-setting/generic-setting.component';
-import { SecuritySettingComponent } from './shared/config/security-setting/security-setting.component';
-import { DropDownItemComponent, DropDownValueDirective } from './shared/dropdown/dropdown-item.component';
-import { DropdownComponent } from './shared/dropdown/dropdown.component';
-import { ExpertiseComponent } from './shared/expertise/expertise.component';
-import { ExpertiseDirective } from './shared/expertise/expertise.directive';
-import { NotificationComponent } from './shared/notification/notification.component';
-import { SubsystemComponent } from './shared/subsystem/subsystem.component';
-import { WidgetSettingsOutletComponent } from './pages/widget-settings-outlet/settings-outlet.component';
-import { WIDGET_DEFINTIONS } from './widgets/widget.types';
-import { StatusWidgetComponent } from './widgets/status-widget/status-widget.component';
-import { StatusWidgetFactoryComponent } from './widgets/status-widget-factory/status-widget-factory.component';
-import { ToggleSwitchComponent } from './shared/toggle-switch/toggle-switch.component';
+import { AccordionGroupComponent } from './debug/accordion/accordion-group';
+import { AccordionComponent } from './debug/accordion/accordion';
+import { DebugComponent } from './debug/debug-panel';
+import { NotificationFactoryComponent } from './debug/notification-factory/notification-factory';
+import { PortapiInspectorComponent } from './debug/portapi-inspector/portapi-inspector';
+import { NavigationComponent } from './layout/navigation/navigation';
+import { SideDashComponent } from './layout/side-dash/side-dash';
+import { DashboardComponent } from './pages/dashboard/dashboard';
+import { SettingsComponent } from './pages/settings/settings';
+import { WidgetSettingsOutletComponent } from './pages/widget-settings-outlet/widget-settings-outlet';
+import { BasicSettingComponent } from './shared/config/basic-setting/basic-setting';
 import { FilterListComponent } from './shared/config/filter-list/filter-list';
 import { FilterListItemComponent } from './shared/config/filter-list/list-item';
+import { GenericSettingComponent } from './shared/config/generic-setting/generic-setting';
+import { SecuritySettingComponent } from './shared/config/security-setting/security-setting';
+import { DropDownItemComponent, DropDownValueDirective } from './shared/dropdown/dropdown-item';
+import { DropdownComponent } from './shared/dropdown/dropdown';
+import { ExpertiseComponent } from './shared/expertise/expertise-switch';
+import { ExpertiseDirective } from './shared/expertise/expertise-directive';
+import { NotificationComponent } from './shared/notification/notification';
+import { SubsystemComponent } from './shared/subsystem/subsystem';
+import { ToggleSwitchComponent } from './shared/toggle-switch/toggle-switch';
+import { StatusWidgetComponent, StatusWidgetSettingsComponent } from './widgets/status-widget';
+import { WIDGET_DEFINTIONS } from './widgets/widget.types';
 
 @NgModule({
   declarations: [
@@ -60,7 +59,7 @@ import { FilterListItemComponent } from './shared/config/filter-list/list-item';
     DropDownValueDirective,
     WidgetSettingsOutletComponent,
     StatusWidgetComponent,
-    StatusWidgetFactoryComponent,
+    StatusWidgetSettingsComponent,
     ToggleSwitchComponent,
     FilterListComponent,
     FilterListItemComponent
@@ -81,7 +80,7 @@ import { FilterListItemComponent } from './shared/config/filter-list/list-item';
       useValue: {
         type: 'status-widget',
         name: 'Demo Widget',
-        settingsComponent: StatusWidgetFactoryComponent,
+        settingsComponent: StatusWidgetSettingsComponent,
         widgetComponent: StatusWidgetComponent,
       },
       multi: true,
