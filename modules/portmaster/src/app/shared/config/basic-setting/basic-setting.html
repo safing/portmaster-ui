@@ -2,8 +2,8 @@
   <ng-container [ngSwitch]="_type">
     <ng-container *ngSwitchCase="'string'">
 
-      <app-dropdown *ngIf="setting!.ExternalOptType === optionHints.StringList; else: simpleTextInput"
-        [ngModel]="_value" (ngModelChange)="setInternalValue($event)" [disabled]="_disabled" (blur)="_onTouch()">
+      <app-dropdown *ngIf="externalOptType(setting) === optionHints.OneOf; else: simpleTextInput" [ngModel]="_value"
+        (ngModelChange)="setInternalValue($event)" [disabled]="_disabled" (blur)="_onTouch()">
         <ng-container *ngFor="let opt of parseSupportedValues(setting)">
           <app-dropdown-item *dropDownValue="opt">{{opt}}</app-dropdown-item>
         </ng-container>

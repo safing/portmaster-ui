@@ -11,6 +11,10 @@ import { BaseSetting, ExternalOptionHint, SettingValueType, ConfigService } from
 export class GenericSettingComponent<S extends BaseSetting<any, any>> {
   readonly optionHint = ExternalOptionHint;
 
+  externalOptType(opt: S | null): ExternalOptionHint | null {
+    return opt?.Annotations?.["safing/portbase:ui:display-hint"] || null;
+  }
+
   /**
    * Returns true if the user has configured the setting on their
    * own or if the default value is being used.

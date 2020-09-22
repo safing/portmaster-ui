@@ -24,6 +24,10 @@ export class BasicSettingComponent<S extends BaseSetting<any, any>> implements C
   readonly optionHints = ExternalOptionHint;
   readonly parseSupportedValues = parseSupportedValues;
 
+  externalOptType(opt: S): ExternalOptionHint | null {
+    return opt.Annotations?.["safing/portbase:ui:display-hint"] || null;
+  }
+
   @Input()
   setting: S | null = null;
 

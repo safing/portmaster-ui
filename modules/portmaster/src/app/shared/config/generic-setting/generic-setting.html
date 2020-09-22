@@ -13,7 +13,7 @@
 
 <span class="description">{{setting?.Description}}</span>
 
-<ng-container [ngSwitch]="setting?.ExternalOptType">
+<ng-container [ngSwitch]="externalOptType(setting)">
   <app-security-setting *ngSwitchCase="optionHint.SecurityLevel" [setting]="_setting" [ngModel]="_currentValue"
     (ngModelChange)="updateValue($event)"></app-security-setting>
 

@@ -99,8 +99,21 @@ export enum ExternalOptionHint {
   SecurityLevel = 'security level',
   EndpointList = 'endpoint list',
   FilterList = 'filter list',
-  DisableUpdates = 'disable updates',
-  StringList = 'string list'
+  OneOf = 'one-of',
+  OrderedList = 'ordered'
+}
+
+export interface Annotations {
+  // Well known option annoations and their
+  // types.
+  "safing/portbase:ui:display-hint": ExternalOptionHint;
+  "safing/portbase:ui:order": number;
+  "safing/portbase:ui:unit": string;
+  "safing/portbase:ui:category": string;
+  "safing/portbase:module:subsystem": string;
+
+  // Any thing else...
+  [key: string]: any;
 }
 
 /**
@@ -116,9 +129,6 @@ export interface BaseSetting<T extends OptionValueType, O extends OptionType> {
   // ExpertiseLevel defines the required expertise level for
   // this setting to show up.
   ExpertiseLevel: ExpertiseLevelNumber;
-  // ExternalOptType may contain a hint for the UI on how
-  // to display this option.
-  ExternalOptType: ExternalOptionHint;
   // Help may contain a longer help text for this option.
   Help?: string;
   // Key is the database key.
@@ -127,9 +137,8 @@ export interface BaseSetting<T extends OptionValueType, O extends OptionType> {
   Name: string;
   // OptType is the option's basic type.
   OptType: O;
-  // Order defines a priority for ordering items on the UI.
-  // @todo(ppacher): this may be deprecated....
-  Order?: number;
+  // Annotations holds option specific annotations.
+  Annotations: Annotations;
   // ReleaseLevel defines the release level of the feature
   // or settings changed by this option.
   ReleaseLevel: ReleaseLevel;
@@ -141,7 +150,6 @@ export interface BaseSetting<T extends OptionValueType, O extends OptionType> {
   // JavaScript as well.
   ValidationRegex?: string;
 }
-
 
 export type IntSetting = BaseSetting<number, OptionType.Int>;
 export type StringSetting = BaseSetting<string, OptionType.String>;

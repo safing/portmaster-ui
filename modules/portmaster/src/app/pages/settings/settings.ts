@@ -60,7 +60,8 @@ export class SettingsComponent implements OnInit, AfterViewInit, OnDestroy {
 
             Object.keys(this.settings).forEach(key => {
               this.settings[key].sort((a, b) => {
-                return (a.Order || 0) - (b.Order || 0);
+                return (a.Annotations?.["safing/portbase:ui:order"] || 0)
+                  - (b.Annotations?.["safing/portbase:ui:order"] || 0);
               })
             })
           })
