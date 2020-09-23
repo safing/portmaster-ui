@@ -13,7 +13,7 @@
 }
 
 div.action {
-  @apply p-1;
+  @apply p-2;
   @apply text-xs;
   @apply font-semibold;
   flex-shrink: 0;
@@ -36,7 +36,7 @@ div.action {
 div.value {
   @apply text-xs;
   @apply font-semibold;
-  @apply p-1;
+  @apply p-2;
   @apply px-2;
 
   &.edit {

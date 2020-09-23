@@ -1,25 +1,29 @@
 <div class="setting-meta">
-  <label for="setting">{{setting?.Name}}</label>
-  <span class="key">
-    <fa-icon *ngIf="dirty && model?.valid" tabindex="0" (click)="saveValue()" icon="check"></fa-icon>
-    <fa-icon *ngIf="dirty" tabindex="0" (click)="abortChange()" icon="times"></fa-icon>
-    <fa-icon *ngIf="userConfigured && !dirty" tabindex="0" (click)="resetValue()" icon="trash"></fa-icon>
-
-    <ng-container *ngIf="pristine">
-      {{setting?.Key}}
-    </ng-container>
-  </span>
+  <label for="setting">
+    <span class="release-level beta" *ngIf="setting?.ReleaseLevel === releaseLevel.Beta">Beta</span>
+    <span class="release-level experimental"
+      *ngIf="setting?.ReleaseLevel === releaseLevel.Experimental">Experimental</span>
+    {{setting?.Name}}
+    <span class="expertise" *ngIf="setting?.ExpertiseLevel === expertise.expert">Expert</span>
+    <span class="expertise" *ngIf="setting?.ExpertiseLevel === expertise.developer">Developer</span>
+  </label>
 </div>
 
 <span class="description">{{setting?.Description}}</span>
 
 <ng-container [ngSwitch]="externalOptType(setting)">
   <app-security-setting *ngSwitchCase="optionHint.SecurityLevel" [setting]="_setting" [ngModel]="_currentValue"
-    (ngModelChange)="updateValue($event)"></app-security-setting>
+    (ngModelChange)="updateValue($event, true)"></app-security-setting>
 
   <app-filter-list *ngSwitchCase="optionHint.EndpointList" [ngModel]="_currentValue"
-    (ngModelChange)="updateValue($event)"></app-filter-list>
+    (ngModelChange)="updateValue($event, true)"></app-filter-list>
 
   <app-basic-setting *ngSwitchDefault [setting]="_setting" [ngModel]="_currentValue"
-    (ngModelChange)="updateValue($event)"></app-basic-setting>
+    (ngModelChange)="updateValue($event)" (onBlur)="updateValue(_currentValue!, true)"></app-basic-setting>
 </ng-container>
+
+<div class="secondary-actions">
+  <span [class.visible]="userConfigured && !dirty" tabindex="0" (click)="resetValue()">
+    Reset to default
+  </span>
+</div>

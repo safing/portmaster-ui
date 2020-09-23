@@ -1,6 +1,13 @@
-import { Component, OnInit, AfterViewInit, ViewChildren, ElementRef, QueryList, OnDestroy } from '@angular/core';
-import { ConfigService, Subsystem, Setting, StatusService } from 'src/app/services';
-import { combineLatest } from 'rxjs/operators';
+import { Component, OnInit, AfterViewInit, ViewChildren, ElementRef, QueryList, OnDestroy, ViewChild, ChangeDetectorRef } from '@angular/core';
+import { ConfigService, Subsystem, Setting, StatusService, ExpertiseLevelNumber } from 'src/app/services';
+import { combineLatest, fromEvent, Subscription } from 'rxjs';
+import { debounceTime, startWith } from 'rxjs/operators';
+
+interface Category {
+  name: string;
+  settings: Setting[];
+  minimumExpertise: ExpertiseLevelNumber;
+}
 
 @Component({
   templateUrl: './settings.html',
@@ -8,110 +15,126 @@ import { combineLatest } from 'rxjs/operators';
 })
 export class SettingsComponent implements OnInit, AfterViewInit, OnDestroy {
   subsystems: Subsystem[] = [];
-  settings: { [key: string]: Setting[] } = {};
+  others: Setting[] | null = null
+  settings: Map<string, Category[]> = new Map();
+
   shouldShowSettingsNav = false;
   activeSection = '';
+  activeCategory = '';
 
   @ViewChildren('navLink', { read: ElementRef })
   navLinks: QueryList<ElementRef> | null = null;
 
-  private observer: IntersectionObserver | null = null;
+  @ViewChild('scrollContainer', { read: ElementRef, static: true })
+  scrollContainer: ElementRef | null = null;
+
+  private subscription = Subscription.EMPTY;
 
   constructor(
     public configService: ConfigService,
     public statusService: StatusService,
+    private changeDetectorRef: ChangeDetectorRef,
   ) { }
 
   ngOnInit(): void {
-    // poor mans animation ...
-    setTimeout(() => {
-      this.shouldShowSettingsNav = true;
-    }, 500);
-
-    this.configService.query("")
-      .pipe(
-        combineLatest(this.statusService.watchSubsystems())
-      )
+    combineLatest([this.configService.query(""), this.statusService.watchSubsystems()])
       .subscribe(
         ([settings, subsystems]) => {
           console.log('settings', settings, subsystems);
 
           this.subsystems = subsystems;
+          this.others = [];
+          this.settings = new Map();
 
-          this.settings = {
-            'other': [],
-          };
-          this.subsystems.forEach(subsys => {
-            this.settings[subsys.ConfigKeySpace] = []
+          settings.sort((a, b) => {
+            const orderA = a.Annotations?.["safing/portbase:ui:order"] || 0;
+            const orderB = b.Annotations?.["safing/portbase:ui:order"] || 0;
+            return orderB - orderA;
           });
 
           settings.forEach(setting => {
             let pushed = false;
             this.subsystems.forEach(subsys => {
               if (setting.Key.startsWith(subsys.ConfigKeySpace.slice("config:".length))) {
-                this.settings[subsys.ConfigKeySpace].push(setting);
+
+                let catName = 'other';
+                if (!!setting.Annotations && !!setting.Annotations["safing/portbase:ui:category"]) {
+                  catName = setting.Annotations["safing/portbase:ui:category"]
+                }
+
+                let categories = this.settings.get(subsys.ConfigKeySpace);
+                if (!categories) {
+                  categories = [];
+                  this.settings.set(subsys.ConfigKeySpace, categories);
+                }
+
+                let cat = categories.find(c => c.name === catName)
+                if (!cat) {
+                  cat = {
+                    name: catName,
+                    minimumExpertise: ExpertiseLevelNumber.developer,
+                    settings: []
+                  }
+                  categories.push(cat);
+                }
+
+                cat.settings.push(setting)
+                if (setting.ExpertiseLevel < cat.minimumExpertise) {
+                  cat.minimumExpertise = setting.ExpertiseLevel;
+                }
+
                 pushed = true;
               }
             })
 
             if (!pushed) {
-              this.settings['other'].push(setting);
+              this.others!.push(setting);
             }
-
-            Object.keys(this.settings).forEach(key => {
-              this.settings[key].sort((a, b) => {
-                return (a.Annotations?.["safing/portbase:ui:order"] || 0)
-                  - (b.Annotations?.["safing/portbase:ui:order"] || 0);
-              })
-            })
           })
+
+          this.shouldShowSettingsNav = true;
         }
       )
   }
 
   ngAfterViewInit() {
-    this.navLinks?.changes.subscribe(() => {
-      this.observer?.disconnect();
+    this.subscription = fromEvent(this.scrollContainer?.nativeElement, 'scroll')
+      .pipe(debounceTime(10))
+      .subscribe(() => this.intersectionCallback())
 
-      this.observer = new IntersectionObserver(this.intersectionCallback.bind(this));
-
-      this.navLinks?.forEach(elem => {
-        console.log(elem.nativeElement);
-        this.observer!.observe(elem.nativeElement);
+    this.subscription.add(
+      this.navLinks?.changes.subscribe(() => {
+        this.intersectionCallback();
+        this.changeDetectorRef.detectChanges();
       })
-    })
+    );
   }
 
   ngOnDestroy() {
-    this.observer?.disconnect();
-    this.observer = null;
+    this.subscription.unsubscribe();
   }
 
-  intersectionCallback(entries: IntersectionObserverEntry[]) {
-    if (!entries) {
-      return;
-    }
+  intersectionCallback() {
+    this.navLinks?.some(link => {
+      const subsystem = link.nativeElement.getAttribute("subsystem");
+      const category = link.nativeElement.getAttribute("category");
 
-    console.log(entries[0]);
+      const lastChild = (link.nativeElement as HTMLElement).lastElementChild as HTMLElement;
 
-    const elem = entries[0].target?.id;
-    if (elem === this.activeSection) {
-      return;
-    }
+      const rect = lastChild.getBoundingClientRect();
+      const styleBox = getComputedStyle(lastChild);
 
-    if (entries[0].isIntersecting) {
-      this.activeSection = elem;
-      return;
-    }
+      const offset = rect.top + rect.height - parseInt(styleBox.marginBottom) - parseInt(styleBox.paddingBottom);
+      console.log(offset, rect, lastChild);
 
-    this.activeSection = this.subsystems[0].ConfigKeySpace;
-    for (let i = 0; i < this.subsystems.length; i++) {
-      const subsys = this.subsystems[i];
-      if (subsys.ConfigKeySpace === elem && i > 0) {
-        this.activeSection = this.subsystems[i - 1].ConfigKeySpace;
-        return;
+      if (offset > 70) {
+        this.activeSection = subsystem;
+        this.activeCategory = category;
+        return true;
       }
-    }
+
+      return false;
+    })
   }
 
   scrollTo(id: string) {

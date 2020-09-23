@@ -12,15 +12,44 @@
   overflow      : auto;
   @apply pr-4;
 
-  app-generic-setting {
-    width: 100%;
+
+  .category {
+    width        : 100%;
+    padding-left : 4rem;
+    margin-top   : 1rem;
+    margin-bottom: 1rem;
+    position     : relative;
+
+    h3 {
+      @apply text-sm;
+      @apply text-gray-300;
+    }
+
+    app-generic-setting {
+      width: 100%;
+
+      &:first-of-type {
+        @apply mt-4;
+      }
+    }
+
+    .border {
+      position    : absolute;
+      top         : 0.7rem;
+      bottom      : -0.7rem;
+      width       : 0.5rem;
+      margin-left : -1rem;
+      border      : 1px solid;
+      border-right: none;
+      @apply border-gray-300;
+    }
   }
 
   h2 {
     @apply p-2;
     @apply ml-2;
-    @apply font-bold;
     @apply text-xl;
+    @apply font-normal;
     @apply text-white;
   }
 }
@@ -39,18 +68,38 @@ div.settings-nav {
     transform : translateY(200%);
     transition: transform cubic-bezier(0.25, 0.46, 0.45, 0.94) .3s;
 
-    li {
+    &>li {
       @apply mb-1;
       @apply font-semibold;
       @apply text-gray-300;
+
+      span {
+        cursor : pointer;
+        display: block;
+      }
 
       &:hover,
       &.active {
         @apply text-gray-200;
       }
 
+      &.active {
+        ul.settings {
+          display: inline-block;
+        }
+      }
+
       ul.settings {
+        @apply m-2;
+        @apply px-3;
+        @apply text-xs;
+        @apply border-l;
+        @apply border-gray-200;
         display: none;
+
+        li {
+          cursor: pointer;
+        }
       }
     }
   }

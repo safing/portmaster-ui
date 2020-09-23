@@ -1,6 +1,8 @@
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, HostBinding, Input, ViewChild } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, HostBinding, Input, ViewChild, OnInit, OnDestroy } from '@angular/core';
 import { NgModel } from '@angular/forms';
-import { BaseSetting, ExternalOptionHint, SettingValueType, ConfigService } from 'src/app/services';
+import { Subject, Subscription } from 'rxjs';
+import { debounceTime } from 'rxjs/operators';
+import { BaseSetting, ExternalOptionHint, SettingValueType, ConfigService, ExpertiseLevelNumber, ReleaseLevel, SecurityLevel } from 'src/app/services';
 
 @Component({
   selector: 'app-generic-setting',
@@ -8,8 +10,13 @@ import { BaseSetting, ExternalOptionHint, SettingValueType, ConfigService } from
   styleUrls: ['./generic-setting.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class GenericSettingComponent<S extends BaseSetting<any, any>> {
+export class GenericSettingComponent<S extends BaseSetting<any, any>> implements OnInit, OnDestroy {
   readonly optionHint = ExternalOptionHint;
+  readonly expertise = ExpertiseLevelNumber;
+  readonly releaseLevel = ReleaseLevel;
+
+  private readonly save = new Subject();
+  private subscription = Subscription.EMPTY;
 
   externalOptType(opt: S | null): ExternalOptionHint | null {
     return opt?.Annotations?.["safing/portbase:ui:display-hint"] || null;
@@ -110,6 +117,16 @@ export class GenericSettingComponent<S extends BaseSetting<any, any>> {
     private changeDetectorRef: ChangeDetectorRef
   ) { }
 
+  ngOnInit() {
+    this.subscription = this.save.pipe(
+      debounceTime(500),
+    ).subscribe(() => this.saveValue())
+  }
+
+  ngOnDestroy() {
+    this.subscription.unsubscribe();
+  }
+
   /**
    * Resets the value of setting by discarding any user
    * configured values and reverting back to the default
@@ -120,11 +137,9 @@ export class GenericSettingComponent<S extends BaseSetting<any, any>> {
       return;
     }
 
-    if (this._defaultValue !== null) {
-      this._currentValue = this._defaultValue;
-    } else {
-      this._currentValue = this._setting.DefaultValue;
-    }
+    this._currentValue = this.defaultValue
+
+    this.save.next();
   }
 
   /**
@@ -136,7 +151,13 @@ export class GenericSettingComponent<S extends BaseSetting<any, any>> {
   }
 
   saveValue() {
-    if (this._currentValue === this._setting!.DefaultValue) {
+    const isObject = typeof this._currentValue === 'object';
+
+    const isDefault = isObject
+      ? JSON.stringify(this._currentValue) === JSON.stringify(this.defaultValue)
+      : this._currentValue === this._defaultValue;
+
+    if (isDefault) {
       delete (this._setting!['Value']);
     } else {
       this._setting!.Value = this._currentValue;
@@ -157,8 +178,12 @@ export class GenericSettingComponent<S extends BaseSetting<any, any>> {
    *
    * @param value The new value as emitted by the view
    */
-  updateValue(value: SettingValueType<S>) {
+  updateValue(value: SettingValueType<S>, save = false) {
     this._currentValue = value;
+
+    if (save) {
+      this.save.next();
+    }
   }
 
   private updateActualValue() {

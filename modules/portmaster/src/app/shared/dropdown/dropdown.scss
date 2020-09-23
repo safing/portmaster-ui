@@ -32,14 +32,14 @@ button {
   }
 
   span {
-    @apply p-1;
+    @apply p-2;
     @apply px-3;
     flex-grow : 1;
     text-align: center;
   }
 
   .arrow {
-    @apply p-1;
+    @apply p-2;
     @apply bg-gray-500;
     width: 2rem;
 

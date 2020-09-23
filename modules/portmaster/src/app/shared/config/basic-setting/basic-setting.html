@@ -3,7 +3,7 @@
     <ng-container *ngSwitchCase="'string'">
 
       <app-dropdown *ngIf="externalOptType(setting) === optionHints.OneOf; else: simpleTextInput" [ngModel]="_value"
-        (ngModelChange)="setInternalValue($event)" [disabled]="_disabled" (blur)="_onTouch()">
+        (ngModelChange)="setInternalValue($event); touched()" [disabled]="_disabled">
         <ng-container *ngFor="let opt of parseSupportedValues(setting)">
           <app-dropdown-item *dropDownValue="opt">{{opt}}</app-dropdown-item>
         </ng-container>
@@ -11,21 +11,22 @@
 
       <ng-template #simpleTextInput>
         <input type="text" [ngModel]="_value" (ngModelChange)="setInternalValue($event)" [disabled]="_disabled"
-          (blur)="_onTouch()">
+          (blur)="touched()">
       </ng-template>
 
     </ng-container>
 
     <input *ngSwitchCase="'number'" type="number" [ngModel]="_value" (ngModelChange)="setInternalValue($event)"
-      [disabled]="_disabled" (blur)="_onTouch()">
+      [disabled]="_disabled" (blur)="touched()">
 
     <ng-container *ngSwitchCase="'boolean'">
       <app-toggle-switch id="check-{{setting.Key}}" name="check" [ngModel]="_value"
-        (ngModelChange)="setInternalValue($event)" [disabled]="_disabled" (blur)="_onTouch()"></app-toggle-switch>
+        (ngModelChange)="setInternalValue($event); touched()" [disabled]="_disabled">
+      </app-toggle-switch>
     </ng-container>
 
     <textarea *ngSwitchDefault [attr.rows]="lineCount(_value)" [ngModel]="_value"
-      (ngModelChange)="setInternalValue($event)" [disabled]="_disabled" (blur)="_onTouch()">
+      (ngModelChange)="setInternalValue($event)" [disabled]="_disabled" (blur)="touched()">
         </textarea>
 
   </ng-container>

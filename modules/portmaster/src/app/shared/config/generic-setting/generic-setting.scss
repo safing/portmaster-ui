@@ -1,26 +1,8 @@
 :host {
   display : block;
   position: relative;
-  @apply p-6;
-  @apply rounded;
-  @apply border-l-4;
-  @apply border-transparent;
-  transition: all cubic-bezier(0.455, 0.03, 0.515, 0.955) .3s;
-
-  &:hover {
-    @apply shadow-xs;
-    @apply bg-gray-600;
-  }
-
-  &.changed {
-    @apply border-green-300;
-    --border-opacity: 0.5;
-  }
-
-  &.dirty {
-    @apply border-yellow-500;
-    --border-opacity: 0.5;
-  }
+  @apply px-6;
+  @apply pt-2;
 
   &.ng-invalid {
     @apply border-red-300;
@@ -40,51 +22,56 @@ label {
   @apply mb-1;
   @apply text-base;
   @apply text-white;
-}
 
-span.key {
-  @apply text-xs;
-  @apply text-gray-300;
-  white-space: nowrap;
-
-  fa-icon {
+  .expertise {
+    @apply ml-3;
+    @apply text-gray-300;
     @apply text-sm;
-    @apply pl-4;
-    display: inline-block;
-    cursor : pointer;
   }
 
-  fa-icon[icon="trash"] {
-    @apply text-red-600;
-    --text-opacity: 0.5;
+  .release-level {
+    @apply mr-1;
 
-    &:hover {
-      @apply text-red-800;
-      --text-opacity: 0.5;
+    &.beta {
+      @apply text-yellow-500;
     }
-  }
 
-  fa-icon[icon="check"] {
-    @apply text-green-600;
-
-    &:hover {
-      @apply text-green-800;
+    &.experimental {
+      @apply text-red-500;
     }
-  }
-
-  fa-icon[icon="times"] {
-    @apply text-yellow-600;
-
-    &:hover {
-      @apply text-yellow-800;
-    }
-  }
-
-  fa-icon:focus {
-    outline: none;
-    @apply text-yellow-600;
   }
 }
+
+div.secondary-actions {
+  @apply mt-1;
+  @apply mb-1;
+
+  span {
+    cursor    : pointer;
+    visibility: hidden;
+    @apply text-xs;
+    @apply text-gray-300;
+
+    &:hover {
+      @apply text-gray-200;
+    }
+
+    &.visible {
+      visibility: visible;
+    }
+
+    &:active,
+    &:focus {
+      outline: none;
+      @apply text-yellow-300;
+    }
+
+    &:not(:first-of-type) {
+      @apply ml-3;
+    }
+  }
+}
+
 
 span.description {
   display: block;

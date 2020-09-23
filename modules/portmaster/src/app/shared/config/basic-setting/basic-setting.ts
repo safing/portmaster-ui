@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, forwardRef, Input, OnInit, ViewChild } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, forwardRef, Input, OnInit, Output, ViewChild } from '@angular/core';
 import { AbstractControl, ControlValueAccessor, NgModel, NG_VALIDATORS, NG_VALUE_ACCESSOR, ValidationErrors, Validator } from '@angular/forms';
 import { BaseSetting, ExternalOptionHint, parseSupportedValues, SettingValueType } from 'src/app/services';
 
@@ -30,6 +30,9 @@ export class BasicSettingComponent<S extends BaseSetting<any, any>> implements C
 
   @Input()
   setting: S | null = null;
+
+  @Output()
+  onBlur = new EventEmitter<void>();
 
   @ViewChild(NgModel)
   model: NgModel | null = null;
@@ -193,6 +196,11 @@ export class BasicSettingComponent<S extends BaseSetting<any, any>> implements C
    */
   registerOnChange(fn: (_: SettingValueType<S>) => void) {
     this._onChange = fn;
+  }
+
+  touched() {
+    this._onTouch();
+    this.onBlur.next();
   }
 
   /**
