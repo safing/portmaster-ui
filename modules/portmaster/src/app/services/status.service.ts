@@ -1,7 +1,7 @@
 import { Injectable, TrackByFunction } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { delay, filter, map, multicast, refCount, repeatWhen, toArray } from 'rxjs/operators';
-import { trackById } from './core.types';
+import { SecurityLevel, trackById } from './core.types';
 import { PortapiService } from './portapi.service';
 import { DataReply, RetryableOpts, WatchOpts } from './portapi.types';
 import { CoreStatus, Subsystem } from './status.types';
@@ -16,7 +16,7 @@ export class StatusService {
   static trackSubsystem: TrackByFunction<Subsystem> = trackById;
   readonly trackSubsystem = StatusService.trackSubsystem;
 
-  readonly statusPrefix = "core:status/"
+  readonly statusPrefix = "runtime:"
   readonly subsystemPrefix = this.statusPrefix + "subsystems/"
 
   /**
@@ -24,7 +24,7 @@ export class StatusService {
    * subscribers will automatically get the latest version while only one subscription
    * to the backend is held.
    */
-  readonly status$: Observable<CoreStatus> = this.portapi.qsub<CoreStatus>(this.statusPrefix + "status")
+  readonly status$: Observable<CoreStatus> = this.portapi.qsub<CoreStatus>(`runtime:system/status`)
     .pipe(
       repeatWhen(obs => obs.pipe(delay(2000))),
       map(reply => reply.data),
@@ -36,6 +36,19 @@ export class StatusService {
     ) as Observable<CoreStatus>; // we filtered out the null values but we cannot make that typed with RxJS.
 
   constructor(private portapi: PortapiService) { }
+
+  /**
+   * Selectes a new security level. SecurityLevel.Off means that
+   * the auto-pilot should take over.
+   *
+   * @param securityLevel The security level to select
+   */
+  selectLevel(securityLevel: SecurityLevel): Observable<void> {
+    return this.portapi.update(`runtime:system/security-level`, {
+      SelectedSecurityLevel: securityLevel,
+    });
+  }
+
 
   /**
    * Loads the current status of a subsystem.

@@ -1,0 +1,34 @@
+:host {
+  display   : block;
+  background: none;
+  max-height: 50vh;
+  overflow  : auto;
+}
+
+app-notification,
+div.placeholder {
+  display: block;
+  width  : 100%;
+  margin : 0;
+  border : none;
+  @apply bg-gray-600;
+  @apply p-4;
+  @apply rounded;
+
+  &:not(:last-of-type) {
+    @apply mb-2;
+  }
+}
+
+div.placeholder {
+  @apply text-xs;
+  @apply font-medium;
+  height         : 4rem;
+  display        : flex;
+  justify-content: center;
+  align-items    : center;
+
+  fa-icon {
+    @apply mr-2;
+  }
+}

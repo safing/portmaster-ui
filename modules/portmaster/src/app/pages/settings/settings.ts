@@ -1,7 +1,10 @@
 import { Component, OnInit, AfterViewInit, ViewChildren, ElementRef, QueryList, OnDestroy, ViewChild, ChangeDetectorRef } from '@angular/core';
-import { ConfigService, Subsystem, Setting, StatusService, ExpertiseLevelNumber } from 'src/app/services';
-import { combineLatest, fromEvent, Subscription } from 'rxjs';
+import { ConfigService, Subsystem, Setting, StatusService, ExpertiseLevelNumber, getExpertiseLevelNumber } from 'src/app/services';
+import { BehaviorSubject, combineLatest, fromEvent, Subscription } from 'rxjs';
 import { debounceTime, startWith } from 'rxjs/operators';
+import { ScrollDispatcher } from '@angular/cdk/overlay';
+import { FuzzySearchService } from 'src/app/shared/fuzzySearch';
+import { ExpertiseService } from 'src/app/shared/expertise/expertise.service';
 
 interface Category {
   name: string;
@@ -11,7 +14,10 @@ interface Category {
 
 @Component({
   templateUrl: './settings.html',
-  styleUrls: ['./settings.scss']
+  styleUrls: [
+    '../page.scss',
+    './settings.scss'
+  ]
 })
 export class SettingsComponent implements OnInit, AfterViewInit, OnDestroy {
   subsystems: Subsystem[] = [];
@@ -21,12 +27,12 @@ export class SettingsComponent implements OnInit, AfterViewInit, OnDestroy {
   shouldShowSettingsNav = false;
   activeSection = '';
   activeCategory = '';
+  searchTerm: string = '';
+
+  private onSearch = new BehaviorSubject<string>('');
 
   @ViewChildren('navLink', { read: ElementRef })
   navLinks: QueryList<ElementRef> | null = null;
-
-  @ViewChild('scrollContainer', { read: ElementRef, static: true })
-  scrollContainer: ElementRef | null = null;
 
   private subscription = Subscription.EMPTY;
 
@@ -34,22 +40,43 @@ export class SettingsComponent implements OnInit, AfterViewInit, OnDestroy {
     public configService: ConfigService,
     public statusService: StatusService,
     private changeDetectorRef: ChangeDetectorRef,
+    private scrollDispatcher: ScrollDispatcher,
+    private searchService: FuzzySearchService,
   ) { }
 
   ngOnInit(): void {
-    combineLatest([this.configService.query(""), this.statusService.watchSubsystems()])
+    combineLatest([
+      this.configService.query(""),
+      this.statusService.watchSubsystems(),
+      this.onSearch.pipe(debounceTime(250)),
+    ])
+      .pipe(debounceTime(10))
       .subscribe(
-        ([settings, subsystems]) => {
-          console.log('settings', settings, subsystems);
+        ([settings, subsystems, searchTerm]) => {
 
           this.subsystems = subsystems;
           this.others = [];
           this.settings = new Map();
 
+          const filtered = this.searchService.searchList(settings, searchTerm, {
+            ignoreLocation: true,
+            ignoreFieldNorm: true,
+            threshold: 0.1,
+            minMatchCharLength: 3,
+            keys: [
+              { name: 'Name', weight: 3 },
+              { name: 'Description', weight: 2 },
+            ]
+          })
+
+          settings = filtered
+            .map(res => res.item);
+
+
           settings.sort((a, b) => {
             const orderA = a.Annotations?.["safing/portbase:ui:order"] || 0;
             const orderB = b.Annotations?.["safing/portbase:ui:order"] || 0;
-            return orderB - orderA;
+            return orderA - orderB;
           });
 
           settings.forEach(setting => {
@@ -92,15 +119,18 @@ export class SettingsComponent implements OnInit, AfterViewInit, OnDestroy {
             }
           })
 
+          this.subsystems = this.subsystems.filter(subsys => {
+            return !!this.settings.get(subsys.ConfigKeySpace);
+          })
+
           this.shouldShowSettingsNav = true;
         }
       )
   }
 
   ngAfterViewInit() {
-    this.subscription = fromEvent(this.scrollContainer?.nativeElement, 'scroll')
-      .pipe(debounceTime(10))
-      .subscribe(() => this.intersectionCallback())
+    this.subscription = this.scrollDispatcher.scrolled(10)
+      .subscribe(() => this.intersectionCallback());
 
     this.subscription.add(
       this.navLinks?.changes.subscribe(() => {
@@ -112,6 +142,12 @@ export class SettingsComponent implements OnInit, AfterViewInit, OnDestroy {
 
   ngOnDestroy() {
     this.subscription.unsubscribe();
+    this.onSearch.complete();
+  }
+
+  searchSettings(searchTerm: string) {
+    this.searchTerm = searchTerm;
+    this.onSearch.next(searchTerm);
   }
 
   intersectionCallback() {
@@ -119,13 +155,16 @@ export class SettingsComponent implements OnInit, AfterViewInit, OnDestroy {
       const subsystem = link.nativeElement.getAttribute("subsystem");
       const category = link.nativeElement.getAttribute("category");
 
+
       const lastChild = (link.nativeElement as HTMLElement).lastElementChild as HTMLElement;
+      if (!lastChild) {
+        return false;
+      }
 
       const rect = lastChild.getBoundingClientRect();
       const styleBox = getComputedStyle(lastChild);
 
       const offset = rect.top + rect.height - parseInt(styleBox.marginBottom) - parseInt(styleBox.paddingBottom);
-      console.log(offset, rect, lastChild);
 
       if (offset > 70) {
         this.activeSection = subsystem;
@@ -135,6 +174,7 @@ export class SettingsComponent implements OnInit, AfterViewInit, OnDestroy {
 
       return false;
     })
+    this.changeDetectorRef.detectChanges();
   }
 
   scrollTo(id: string) {

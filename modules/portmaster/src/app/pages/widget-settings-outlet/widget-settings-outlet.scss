@@ -10,8 +10,12 @@ h1 {
 
 .buttons {
   display        : flex;
-  justify-content: flex-start;
+  justify-content: space-between;
   @apply p-4;
+
+  button:not(:last-of-type) {
+    @apply mr-4;
+  }
 }
 
 .widget-setup {

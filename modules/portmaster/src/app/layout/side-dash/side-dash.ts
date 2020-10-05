@@ -1,4 +1,4 @@
-import { Component, OnInit, ChangeDetectionStrategy, Inject, Injector, INJECTOR } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy, Inject, Injector, INJECTOR, ChangeDetectorRef } from '@angular/core';
 import { WidgetService } from '../../widgets/widget.service';
 import { WidgetConfig, WidgetDefinition, WIDGET_DEFINTIONS, WIDGET_CONFIG, } from 'src/app/widgets/widget.types';
 import { ComponentPortal } from '@angular/cdk/portal';
@@ -8,6 +8,7 @@ import { filter } from 'rxjs/operators';
 
 interface WidgetPortal<T> extends WidgetConfig<T> {
   portal: ComponentPortal<any>;
+  definition: WidgetDefinition<T>;
 }
 
 @Component({
@@ -17,7 +18,7 @@ interface WidgetPortal<T> extends WidgetConfig<T> {
 })
 export class SideDashComponent implements OnInit {
   widgets: WidgetPortal<any>[] = [];
-  private saveInProgress = false;
+  private ignoreCount = 0;
 
   widgetTemplates: {
     [key: string]: WidgetDefinition<any>
@@ -26,6 +27,7 @@ export class SideDashComponent implements OnInit {
   constructor(
     @Inject(WIDGET_DEFINTIONS) definitions: WidgetDefinition<any>[],
     public widgetService: WidgetService,
+    private changeDetectorRef: ChangeDetectorRef,
     @Inject(INJECTOR) private injector: Injector,
   ) {
     this.widgetTemplates = {};
@@ -37,8 +39,16 @@ export class SideDashComponent implements OnInit {
   ngOnInit(): void {
     this.widgetService.watchWidgets()
       .pipe(
-        // ignore updates while we are saving
-        filter(() => !this.saveInProgress)
+        filter(() => {
+          // ignore exactly `ignoreCount` update
+          // notifications.
+          if (this.ignoreCount === 0) {
+            return true;
+          }
+
+          this.ignoreCount--;
+          return false;
+        })
       )
       .subscribe(widgets => {
         this.widgets = widgets
@@ -46,12 +56,14 @@ export class SideDashComponent implements OnInit {
             const injector = this.createInjector(w);
             return {
               ...w,
+              definition: this.widgetTemplates[w.type],
               portal: new ComponentPortal(this.widgetTemplates[w.type].widgetComponent, null, injector),
             }
           })
           .sort((a, b) => {
-            const aOrder = a.order || Infinity;
-            const bOrder = b.order || Infinity;
+            const aOrder = a.order !== undefined ? a.order : 1000;
+            const bOrder = b.order !== undefined ? b.order : 1000;
+
             return aOrder - bOrder;
           })
       })
@@ -65,20 +77,27 @@ export class SideDashComponent implements OnInit {
 
       return this.widgetService.createWidget({
         ...widget,
-        portal: undefined, // get rid of the component portal before saving it
+        portal: undefined, // get rid of the component portal and the definition before saving it
+        definition: undefined,
       } as any)
     });
 
-    this.saveInProgress = true;
+    // we'll get an "upd" for each notitification
+    // that we need to ignore (we already have the new order
+    // saved).
+    this.ignoreCount = this.widgets.length;
     combineLatest(updates).subscribe({
-      complete: () => this.saveInProgress = false,
+      error: console.error
     })
   }
 
   private createInjector(w: WidgetConfig): Injector {
-    return Injector.create([{
-      provide: WIDGET_CONFIG,
-      useValue: w,
-    }], this.injector);
+    return Injector.create({
+      providers: [{
+        provide: WIDGET_CONFIG,
+        useValue: w,
+      }],
+      parent: this.injector
+    });
   }
 }

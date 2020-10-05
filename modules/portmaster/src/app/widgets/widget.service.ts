@@ -2,6 +2,7 @@ import { Injectable, TrackByFunction } from '@angular/core';
 import { PortapiService } from '../services/portapi.service';
 import { Observable, throwError } from 'rxjs';
 import { WidgetConfig } from './widget.types';
+import { map, tap } from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root'
@@ -63,7 +64,28 @@ export class WidgetService {
    * Watches all widgets and their configuration.
    */
   watchWidgets(): Observable<WidgetConfig[]> {
-    return this.portapi.watchAll<WidgetConfig>(this.widgetPrefix);
+    return this.portapi.watchAll<WidgetConfig>(this.widgetPrefix)
+      .pipe(
+        map(widgets => {
+          let existingPilotIndex = widgets.findIndex(w => w.type === 'pilot-widget');
+
+          const pilot: WidgetConfig<null> = {
+            config: null,
+            key: 'pilot-widget',
+            type: 'pilot-widget',
+            order: existingPilotIndex >= 0 ? widgets[existingPilotIndex].order : -1,
+          }
+
+          if (existingPilotIndex >= 0) {
+            widgets[existingPilotIndex] = pilot;
+          } else {
+            widgets.splice(0, 0, pilot);
+          }
+
+
+          return widgets
+        })
+      );
   }
 
   loadWidget(id: string): Observable<WidgetConfig> {

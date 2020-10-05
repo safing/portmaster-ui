@@ -13,6 +13,17 @@ export enum ExpertiseLevelNumber {
   developer = 2
 }
 
+export function getExpertiseLevelNumber(lvl: ExpertiseLevel): ExpertiseLevelNumber {
+  switch (lvl) {
+    case ExpertiseLevel.User:
+      return ExpertiseLevelNumber.user;
+    case ExpertiseLevel.Expert:
+      return ExpertiseLevelNumber.expert;
+    case ExpertiseLevel.Developer:
+      return ExpertiseLevelNumber.developer
+  }
+}
+
 /**
  * OptionType defines the type of an option as stored in
  * the backend. Note that ExternalOptionHint may be used
@@ -116,6 +127,15 @@ export interface Annotations {
   [key: string]: any;
 }
 
+export interface PossilbeValue {
+  /** Name is the name of the value and should be displayed */
+  Name: string;
+  /** Description may hold an additional description of the value */
+  Description: string;
+  /** Value is the actual value expected by the portmaster */
+  Value: any;
+}
+
 /**
  * BaseSetting describes the general shape of a portbase config setting.
  */
@@ -149,6 +169,7 @@ export interface BaseSetting<T extends OptionValueType, O extends OptionType> {
   // The regex is used in Golang but is expected to be valid in
   // JavaScript as well.
   ValidationRegex?: string;
+  PossibleValues?: PossilbeValue[];
 }
 
 export type IntSetting = BaseSetting<number, OptionType.Int>;

@@ -1,10 +1,23 @@
 :host {
+  position     : relative;
+  display      : flex;
+  outline      : none;
+  justify-items: flex-start;
+}
+
+label {
   @apply p-2;
-  @apply py-4;
-  @apply pb-10;
+  @apply px-3;
+  @apply text-xs;
+  @apply text-orange-400;
+  @apply bg-gray-400;
+  @apply font-medium;
+  @apply mr-1;
+  display: inline-block;
+}
+
+app-dropdown-item {
   position: relative;
-  display : block;
-  outline : none;
 }
 
 div.line {

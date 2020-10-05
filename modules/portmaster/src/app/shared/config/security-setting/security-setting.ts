@@ -142,6 +142,22 @@ export class SecuritySettingComponent implements OnDestroy, ControlValueAccessor
     return (this.currentValue & level) > 0
   }
 
+  getLevel(): SecurityLevel {
+    if (this.isActive(SecurityLevel.Normal)) {
+      return SecurityLevel.Normal;
+    }
+
+    if (this.isActive(SecurityLevel.High)) {
+      return SecurityLevel.High;
+    }
+
+    if (this.isActive(SecurityLevel.Extreme)) {
+      return SecurityLevel.Extreme;
+    }
+
+    return SecurityLevel.Off;
+  }
+
   /** Sets the new level */
   setLevel(level: SecurityLevel) {
     let newLevel: number = 0;

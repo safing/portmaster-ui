@@ -1,15 +1,17 @@
 <div class="setting-meta">
-  <label for="setting">
+  <h3 for="setting">
     <span class="release-level beta" *ngIf="setting?.ReleaseLevel === releaseLevel.Beta">Beta</span>
     <span class="release-level experimental"
       *ngIf="setting?.ReleaseLevel === releaseLevel.Experimental">Experimental</span>
-    {{setting?.Name}}
+
+    <span [innerHTML]="setting?.Name | safe:'html'"></span>
+
     <span class="expertise" *ngIf="setting?.ExpertiseLevel === expertise.expert">Expert</span>
     <span class="expertise" *ngIf="setting?.ExpertiseLevel === expertise.developer">Developer</span>
-  </label>
+  </h3>
 </div>
 
-<span class="description">{{setting?.Description}}</span>
+<span class="description" [innerHTML]="setting?.Description | safe:'html'"></span>
 
 <ng-container [ngSwitch]="externalOptType(setting)">
   <app-security-setting *ngSwitchCase="optionHint.SecurityLevel" [setting]="_setting" [ngModel]="_currentValue"

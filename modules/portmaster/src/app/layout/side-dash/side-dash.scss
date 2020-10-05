@@ -8,70 +8,13 @@
   overflow-y: auto;
 }
 
-.dash {
-  overflow: visible;
-  position: relative;
-  width   : 100%;
-
-  .content {
-    min-height     : calc(3 * 4.5rem);
-    display        : flex;
-    align-items    : center;
-    justify-content: space-around;
-
-    @apply p-5;
-    padding-bottom: calc(4.5rem / 2);
-
-    h1 {
-      @apply text-xl;
-      text-align: center;
-    }
-
-    @apply rounded-md;
-    @apply bg-gray-600;
-  }
-
-  margin-bottom : calc(4.5rem / 2);
-
-  .circle {
-    cursor         : pointer;
-    position       : absolute;
-    bottom         : calc(-4.5rem / 2);
-    left           : calc(50% - 4.5rem / 2);
-    height         : 4.5rem;
-    width          : 4.5rem;
-    border-radius  : 50%;
-    display        : flex;
-    align-items    : center;
-    justify-content: space-around;
-    font-size      : 1.3rem;
-
-    margin: {
-      left : auto;
-      right: auto;
-    }
-
-    @apply border-8;
-    @apply border-gray-900;
-    @apply bg-gray-600;
-
-    &:hover {
-      @apply bg-blue-500;
-    }
-  }
-}
-
 
 .widget-list {
   width: 100%;
-}
 
-.cdk-drag-placeholder {
-  opacity   : 0.5;
-  box-sizing: border-box;
-  @apply border-2;
-  @apply border-dashed;
-  @apply border-blue-500;
+  &>* {
+    @apply mb-3;
+  }
 }
 
 .cdk-drag-animating {
@@ -83,23 +26,13 @@
 }
 
 .widget {
-  @apply rounded-md;
-  @apply bg-gray-600;
-  @apply p-3;
-  position       : relative;
-  width          : 100%;
-  min-height     : 4rem;
-  display        : flex;
-  justify-content: center;
-  align-items    : center;
-  @apply text-xs;
-  @apply mb-2;
-
-  outline: none;
+  position: relative;
+  width   : 100%;
+  @apply pb-1;
 
   &:hover {
     .buttons fa-icon {
-      opacity: 1;
+      opacity: 1 !important; // TODO(ppacher): make a more detailed selector
     }
   }
 
@@ -117,15 +50,14 @@
       cursor   : pointer;
       font-size: 0.6rem;
       @apply text-gray-300;
-      opacity   : 0;
       transition: all cubic-bezier(0.175, 0.885, 0.32, 1.275) .2s;
 
       &[icon="grip-vertical"] {
         font-size: 0.85rem;
       }
 
-      &:not(:last-of-type) {
-        opacity: 1;
+      &.edit-icon {
+        opacity: 0;
       }
 
       &:hover,
@@ -158,11 +90,11 @@
   position: relative;
   cursor  : pointer;
   width   : 100%;
+  height  : 4rem;
   @apply rounded-md;
   @apply border-2;
   @apply border-dashed;
   @apply border-gray-500;
-  @apply bg-gray-800;
 
   @apply text-gray-400;
   @apply text-xs;
@@ -184,4 +116,14 @@
   align-items    : center;
   flex-direction : column;
   justify-content: center;
+}
+
+.cdk-drag-placeholder {
+  opacity   : 0.5;
+  box-sizing: border-box;
+  @apply border-2;
+  @apply border-dashed;
+  @apply border-blue-500;
+  border-radius: 4px;
+  padding      : 0;
 }

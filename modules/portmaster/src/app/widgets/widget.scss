@@ -1,0 +1,13 @@
+:host {
+  display        : block;
+  width          : 100%;
+  min-height     : 4rem;
+  display        : flex;
+  justify-content: center;
+  align-items    : center;
+  @apply text-xs;
+
+  @apply rounded-md;
+  @apply bg-gray-600;
+  outline: none;
+}

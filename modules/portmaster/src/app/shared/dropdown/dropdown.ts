@@ -1,3 +1,4 @@
+import { ScrollStrategy, ScrollStrategyOptions } from '@angular/cdk/overlay';
 import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, ContentChildren, ElementRef, forwardRef, HostBinding, HostListener, QueryList } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { DropDownValueDirective } from './dropdown-item';
@@ -30,12 +31,19 @@ export class DropdownComponent<T> implements AfterViewInit, ControlValueAccessor
 
   isOpen = false;
 
+  scrollStrategy: ScrollStrategy;
+
   trackItem(_: number, item: DropDownValueDirective) {
     return item.value;
   }
 
-  constructor(public element: ElementRef,
-    private changeDetectorRef: ChangeDetectorRef) { }
+  constructor(
+    public element: ElementRef,
+    private changeDetectorRef: ChangeDetectorRef,
+    scrollOptions: ScrollStrategyOptions,
+  ) {
+    this.scrollStrategy = scrollOptions.close();
+  }
 
   ngAfterViewInit(): void {
     if (!!this.value && !!this.items) {
@@ -74,5 +82,10 @@ export class DropdownComponent<T> implements AfterViewInit, ControlValueAccessor
   onTouch = (): void => { }
   registerOnTouched(fn: () => void): void {
     this.onTouch = fn;
+  }
+
+  onOverlayClosed() {
+    this.isOpen = false;
+    this.changeDetectorRef.markForCheck();
   }
 }

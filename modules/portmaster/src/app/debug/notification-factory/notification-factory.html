@@ -6,7 +6,7 @@
     </div>
 
     <div class="input-field">
-      <label for="type">Type⭑</label>
+      <label for="type">Type</label>
       <select required name="type" [(ngModel)]="type">
         <option [value]="0">Info</option>
         <option [value]="1">Warning</option>
@@ -15,30 +15,22 @@
     </div>
 
     <div class="input-field">
-      <label for="message">Message⭑</label>
+      <label for="message">Message</label>
       <input required type="text" name="message" [(ngModel)]="message" placeholder="Message">
     </div>
 
     <div class="input-field">
-      <label for="persistent">Persistent</label>
-      <input type="checkbox" name="persistent" [(ngModel)]="persistent">
-    </div>
-
-    <div class="input-field">
-      <label for="created">Created</label>
-      <input type="datetime" name="created" [(ngModel)]="created" placeholder="Timestamp, 'now' or date">
-    </div>
-    <div class="input-field">
       <label for="expires">Expires</label>
       <input type="datetime" name="expires" [(ngModel)]="expires" placeholder="Timestamp, 'now' or date">
     </div>
+
     <div class="input-field">
-      <label for="responded">Responded</label>
-      <input type="datetime" name="responded" [(ngModel)]="responded" placeholder="Timestamp, 'now' or date">
-    </div>
-    <div class="input-field">
-      <label for="executed">Executed</label>
-      <input type="datetime" name="executed" [(ngModel)]="executed" placeholder="Timestamp, 'now' or date">
+      <label for="type">Type⭑</label>
+      <select required name="type" [(ngModel)]="state">
+        <option value="active">Active</option>
+        <option value="responded">Responded</option>
+        <option value="executed">Executed</option>
+      </select>
     </div>
 
     <div class="buttons">

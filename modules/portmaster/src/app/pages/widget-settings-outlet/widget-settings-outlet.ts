@@ -8,12 +8,16 @@ import { WidgetDefinition, WidgetFactory, WIDGET_DEFINTIONS } from '../../widget
 @Component({
   selector: 'app-settings-outlet',
   templateUrl: './widget-settings-outlet.html',
-  styleUrls: ['./widget-settings-outlet.scss'],
+  styleUrls: [
+    '../page.scss',
+    './widget-settings-outlet.scss'
+  ],
 })
 export class WidgetSettingsOutletComponent<T = any> implements OnInit, OnDestroy {
   selectedWidget: WidgetDefinition<T> | null = null;
   portal: ComponentPortal<WidgetFactory<T>> | null = null;
   subscription: Subscription = Subscription.EMPTY;
+  dirty = false;
   config: any | null = null;
   widgetKey: string | null = null;
   private _order?: number;
@@ -24,7 +28,9 @@ export class WidgetSettingsOutletComponent<T = any> implements OnInit, OnDestroy
     private activeRoute: ActivatedRoute,
     private widgetService: WidgetService,
     @Inject(WIDGET_DEFINTIONS) public definitions: WidgetDefinition<any>[],
-  ) { }
+  ) {
+    this.definitions = this.definitions.filter(def => !def.disableCustom);
+  }
 
   ngOnInit(): void {
     this.activeRoute.paramMap.subscribe(params => {
@@ -64,8 +70,15 @@ export class WidgetSettingsOutletComponent<T = any> implements OnInit, OnDestroy
       return;
     }
 
+    this.dirty = false;
+
     portal.instance.config = this.config;
     this.subscription = portal.instance.onConfigChange.subscribe((config: T) => {
+      if (JSON.stringify(config) === JSON.stringify(this.config)) {
+        return
+      }
+
+      this.dirty = true;
       this.config = config;
     });
     portal.changeDetectorRef.detectChanges();
@@ -91,16 +104,21 @@ export class WidgetSettingsOutletComponent<T = any> implements OnInit, OnDestroy
       .subscribe(() => window.history.back());
   }
 
+  cancel() {
+    window.history.back();
+  }
+
   changeWidget(type: string) {
     this.subscription.unsubscribe();
     this.subscription = Subscription.EMPTY;
 
     this.selectedWidget = this.definitions.find(def => def.type === type) || null;
 
-    if (!this.selectedWidget) {
+    if (!this.selectedWidget || !this.selectedWidget.settingsComponent) {
       this.portal = null;
       return;
     }
+
     this.portal = new ComponentPortal(this.selectedWidget.settingsComponent);
   }
 }

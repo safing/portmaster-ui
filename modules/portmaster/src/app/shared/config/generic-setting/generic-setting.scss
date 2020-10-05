@@ -15,18 +15,16 @@ div.setting-meta {
   justify-content: space-between;
 }
 
-label {
-  display       : block;
-  width         : 100%;
-  letter-spacing: -0.03rem;
-  @apply mb-1;
-  @apply text-base;
-  @apply text-white;
+h3 {
+  display: block;
+  width  : 100%;
 
   .expertise {
-    @apply ml-3;
-    @apply text-gray-300;
-    @apply text-sm;
+    @apply ml-2;
+    @apply text-gray-200;
+    --text-opacity: 0.5;
+    @apply text-xs;
+    @apply font-medium;
   }
 
   .release-level {
@@ -76,7 +74,9 @@ div.secondary-actions {
 span.description {
   display: block;
   @apply text-xs;
+  @apply font-medium;
   @apply text-gray-100;
-  --text-opacity: 0.7;
-  @apply mb-2;
+  --text-opacity: 0.5;
+  @apply mt-2;
+  @apply mb-4;
 }

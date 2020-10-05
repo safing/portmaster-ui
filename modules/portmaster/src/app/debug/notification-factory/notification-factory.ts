@@ -1,5 +1,5 @@
 import { Component, OnInit, ViewChild, isDevMode } from '@angular/core';
-import { NotificationType, NotificationsService } from 'src/app/services';
+import { NotificationType, NotificationsService, NotificationState } from 'src/app/services';
 import { NgForm } from '@angular/forms';
 
 @Component({
@@ -11,11 +11,8 @@ export class NotificationFactoryComponent implements OnInit {
   id: string = '';
   type: NotificationType = NotificationType.Info;
   message: string = '';
-  created: string = '';
   expires: string = '';
-  responded: string = '';
-  executed: string = '';
-  persistent: boolean = false;
+  state: NotificationState = NotificationState.Active;
 
   @ViewChild(NgForm)
   createForm?: NgForm;
@@ -27,11 +24,8 @@ export class NotificationFactoryComponent implements OnInit {
 
   createNotification() {
     this.notifService.create(this.id, this.message, +this.type, {
-      Created: this.parseTimeSpec(this.created),
       Expires: this.parseTimeSpec(this.expires),
-      Responded: this.parseTimeSpec(this.responded),
-      Executed: this.parseTimeSpec(this.executed),
-      Persistent: this.persistent,
+      State: this.state,
     })
       .subscribe(
         () => {

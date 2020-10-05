@@ -9,11 +9,12 @@
 html {
   scroll-behavior: smooth;
   user-select    : none;
+  font-family    : 'Roboto', sans-serif;
 }
 
 ::-webkit-scrollbar {
   @apply bg-gray-600;
-  width: 3px;
+  width: 4px;
 }
 
 ::-webkit-scrollbar-thumb {
@@ -36,7 +37,7 @@ select {
   transition: border cubic-bezier(0.175, 0.885, 0.32, 1.275) .3s;
   @apply p-2;
   @apply px-4;
-  @apply rounded;
+  @apply rounded-sm;
   @apply text-xs;
 
   &:active,
@@ -49,12 +50,17 @@ select {
 
 button {
   @apply text-xs;
-  @apply font-semibold;
   @apply bg-blue-500;
   @apply p-1;
   @apply px-4;
   @apply uppercase;
-  @apply rounded;
+  @apply rounded-sm;
+  @apply font-medium;
+
+  &:disabled {
+    @apply cursor-not-allowed;
+    opacity: 0.5;
+  }
 }
 
 .ng-invalid {
@@ -73,4 +79,164 @@ button {
       opacity: 1;
     }
   }
+}
+
+@function hexToRGB($hex) {
+  @return red($hex),
+  green($hex),
+  blue($hex);
+}
+
+span.trust-level {
+  display : inline-block;
+  position: relative;
+  @apply pl-2;
+
+  &:before {
+    content      : "";
+    display      : block;
+    position     : relative;
+    height       : 6px;
+    width        : 6px;
+    top          : -1px;
+    left         : -6px;
+    border-radius: 50%;
+  }
+
+  &:before {
+    background-color: rgb(var(--bg-color));
+    @apply shadow-inner-xs;
+  }
+
+  &.pulse:before {
+    animation : pulsate-trust 1s ease-out infinite;
+    box-shadow: 0 0 10px rgb(var(--glow-color));
+  }
+
+  &.off {
+    --bg-color  : #{hexToRGB(theme('colors.gray.300'))};
+    --glow-color: #{hexToRGB(theme('colors.gray.100'))};
+  }
+
+  &.auto {
+    --bg-color  : #{hexToRGB(theme('colors.blue.400'))};
+    --glow-color: #{hexToRGB(theme('colors.teal.200'))};
+  }
+
+  &.low {
+    --bg-color  : #{hexToRGB(theme('colors.green.400'))};
+    --glow-color: #{hexToRGB(theme('colors.teal.200'))};
+  }
+
+  &.medium {
+    --bg-color  : #{hexToRGB(theme('colors.orange.400'))};
+    --glow-color: #{hexToRGB(theme('colors.yellow.400'))};
+  }
+
+  &.high {
+    --bg-color  : #{hexToRGB(theme('colors.red.400'))};
+    --glow-color: #{hexToRGB(theme('colors.red.200'))};
+  }
+
+}
+
+@keyframes pulsate-trust {
+  0% {
+    background: rgb(var(--glow-color));
+    border    : 3px solid rgba(var(--glow-color), 1);
+    box-shadow: 0 0 0 rgba(var(--glow-color), 1);
+  }
+
+  60% {
+    background: rgb(var(--bg-color));
+    border    : 2px solid rgba(var(--glow-color), .3);
+    box-shadow: 0 0 15px rgba(var(--glow-color), 1);
+  }
+
+  100% {
+    border    : 1px solid rgba(var(--glow-color), 0);
+    box-shadow: 0 0 15px rgba(var(--glow-color), 0);
+  }
+
+}
+
+.main {
+  .content {
+    flex-grow: 1;
+    width    : 100%;
+    @apply pl-12;
+    @apply pr-20;
+    overflow: hidden;
+  }
+
+  .header {
+    display: flex;
+    width  : 100%;
+    @apply pl-12;
+    @apply pr-5;
+    @apply text-xs;
+    @apply font-semibold;
+    @apply mb-2;
+    align-items: center;
+    height     : 3rem;
+    flex-shrink: 0;
+
+    &:first-of-type {
+      @apply mt-2;
+    }
+
+    >* {
+      flex-grow: 1;
+      margin   : 0;
+    }
+
+    >app-expertise {
+      flex-grow  : 0;
+      flex-shrink: 0;
+    }
+  }
+}
+
+h1 {
+  display: block;
+  @apply mb-1;
+  @apply text-xl;
+  @apply text-white;
+  @apply font-normal;
+
+  @apply mb-2;
+}
+
+h2 {
+  @apply p-2;
+  @apply ml-2;
+  @apply text-lg;
+  @apply font-medium;
+  @apply text-white;
+  letter-spacing: -0.01rem;
+}
+
+h3 {
+  @apply mb-1;
+  @apply text-base;
+  @apply text-white;
+  @apply font-medium;
+}
+
+h4 {
+  @apply text-xs;
+  @apply font-medium;
+  @apply text-gray-200;
+  --text-opacity: 0.5;
+}
+
+em.search-result {
+  @apply text-gray-500;
+  @apply bg-yellow-400;
+  @apply border;
+  @apply border-yellow-500;
+  @apply rounded-sm;
+
+  text-decoration: none;
+  font-style     : inherit;
 }

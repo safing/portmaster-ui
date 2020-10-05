@@ -53,7 +53,7 @@ export interface Threat<T = any> {
 
 export interface CoreStatus {
   ActiveSecurityLevel: SecurityLevel;
-  SelectedSecurityLeveL: SecurityLevel;
+  SelectedSecurityLevel: SecurityLevel;
   ThreatMitigationLevel: SecurityLevel;
   OnlineStatus: OnlineStatus;
   Threats: Threat[];

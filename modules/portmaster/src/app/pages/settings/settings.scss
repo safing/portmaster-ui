@@ -1,4 +1,4 @@
-:host {
+.content {
   display    : flex;
   white-space: normal;
   height     : 100%;
@@ -12,7 +12,6 @@
   overflow      : auto;
   @apply pr-4;
 
-
   .category {
     width        : 100%;
     padding-left : 4rem;
@@ -20,10 +19,6 @@
     margin-bottom: 1rem;
     position     : relative;
 
-    h3 {
-      @apply text-sm;
-      @apply text-gray-300;
-    }
 
     app-generic-setting {
       width: 100%;
@@ -35,9 +30,9 @@
 
     .border {
       position    : absolute;
-      top         : 0.7rem;
-      bottom      : -0.7rem;
-      width       : 0.5rem;
+      top         : 0.5rem;
+      bottom      : -0.5rem;
+      width       : 0.7rem;
       margin-left : -1rem;
       border      : 1px solid;
       border-right: none;
@@ -45,32 +40,28 @@
     }
   }
 
-  h2 {
-    @apply p-2;
-    @apply ml-2;
-    @apply text-xl;
-    @apply font-normal;
-    @apply text-white;
-  }
 }
 
 div.settings-nav {
-  position   : sticky;
-  top        : 2rem;
-  width      : 150px;
+  @apply mt-10;
+  width      : 120px;
   flex-shrink: 0;
-  overflow   : hidden;
-  @apply p-2;
+  overflow   : visible;
+  white-space: nowrap;
+
   transition: height cubic-bezier(0.25, 0.46, 0.45, 0.94) .5s;
-  @apply text-sm;
+  @apply text-xs;
 
   ul {
     transform : translateY(200%);
     transition: transform cubic-bezier(0.25, 0.46, 0.45, 0.94) .3s;
 
+    li {
+      @apply font-medium;
+    }
+
     &>li {
       @apply mb-1;
-      @apply font-semibold;
       @apply text-gray-300;
 
       span {
@@ -90,8 +81,9 @@ div.settings-nav {
       }
 
       ul.settings {
-        @apply m-2;
-        @apply px-3;
+        @apply mt-2;
+        @apply ml-2;
+        @apply pl-3;
         @apply text-xs;
         @apply border-l;
         @apply border-gray-200;

@@ -8,5 +8,8 @@
 </div>
 
 <div class="button-list" *ngIf="!readonly">
-  <button type="button" (click)="addEntry()">Add</button>
+  <div class="new-entry" (click)="addEntry()">
+    <fa-icon icon="plus-circle" [inverse]="false"></fa-icon>
+    <span>Add rule</span>
+  </div>
 </div>

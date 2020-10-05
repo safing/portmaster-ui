@@ -28,31 +28,6 @@ div.main {
   @apply bg-gray-800;
   height  : 100vh;
   overflow: hidden;
-
-  .header {
-    display: flex;
-    width  : 100%;
-    @apply pl-12;
-    @apply pr-5;
-    @apply text-xs;
-    @apply font-semibold;
-    @apply mb-2;
-    align-items: center;
-    height     : 4rem;
-    flex-shrink: 0;
-
-    input {
-      flex-grow: 1;
-    }
-  }
-
-  .content {
-    flex-grow: 1;
-    width    : 100%;
-    @apply pl-12;
-    @apply pr-20;
-    overflow: hidden;
-  }
 }
 
 app-debug {

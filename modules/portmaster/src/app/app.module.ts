@@ -8,10 +8,11 @@ import { BrowserModule } from '@angular/platform-browser';
 import { FaIconLibrary, FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { far } from '@fortawesome/free-regular-svg-icons';
 import { fas } from '@fortawesome/free-solid-svg-icons';
+import { MarkdownModule } from 'ngx-markdown';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
-import { AccordionGroupComponent } from './debug/accordion/accordion-group';
 import { AccordionComponent } from './debug/accordion/accordion';
+import { AccordionGroupComponent } from './debug/accordion/accordion-group';
 import { DebugComponent } from './debug/debug-panel';
 import { NotificationFactoryComponent } from './debug/notification-factory/notification-factory';
 import { PortapiInspectorComponent } from './debug/portapi-inspector/portapi-inspector';
@@ -25,14 +26,19 @@ import { FilterListComponent } from './shared/config/filter-list/filter-list';
 import { FilterListItemComponent } from './shared/config/filter-list/list-item';
 import { GenericSettingComponent } from './shared/config/generic-setting/generic-setting';
 import { SecuritySettingComponent } from './shared/config/security-setting/security-setting';
-import { DropDownItemComponent, DropDownValueDirective } from './shared/dropdown/dropdown-item';
 import { DropdownComponent } from './shared/dropdown/dropdown';
-import { ExpertiseComponent } from './shared/expertise/expertise-switch';
+import { DropDownItemComponent, DropDownValueDirective } from './shared/dropdown/dropdown-item';
 import { ExpertiseDirective } from './shared/expertise/expertise-directive';
+import { ExpertiseComponent } from './shared/expertise/expertise-switch';
+import { FuzzySearchPipe } from './shared/fuzzySearch';
 import { NotificationComponent } from './shared/notification/notification';
 import { SubsystemComponent } from './shared/subsystem/subsystem';
 import { ToggleSwitchComponent } from './shared/toggle-switch/toggle-switch';
+import { MarkdownWidgetComponent, MarkdownWidgetSettingsComponent } from './widgets/markdown-widget';
+import { PilotWidgetComponent } from './widgets/pilot-widget';
 import { StatusWidgetComponent, StatusWidgetSettingsComponent } from './widgets/status-widget';
+import { NotificationWidgetComponent, NotificationWidgetSettingsComponent } from './widgets/notification-widget';
+import { SafePipe } from './shared/save.pipe';
 import { WIDGET_DEFINTIONS } from './widgets/widget.types';
 
 @NgModule({
@@ -62,7 +68,16 @@ import { WIDGET_DEFINTIONS } from './widgets/widget.types';
     StatusWidgetSettingsComponent,
     ToggleSwitchComponent,
     FilterListComponent,
-    FilterListItemComponent
+    FilterListItemComponent,
+    PilotWidgetComponent,
+    StatusWidgetComponent,
+    StatusWidgetSettingsComponent,
+    MarkdownWidgetSettingsComponent,
+    MarkdownWidgetComponent,
+    NotificationWidgetSettingsComponent,
+    NotificationWidgetComponent,
+    FuzzySearchPipe,
+    SafePipe,
   ],
   imports: [
     BrowserModule,
@@ -73,18 +88,49 @@ import { WIDGET_DEFINTIONS } from './widgets/widget.types';
     OverlayModule,
     PortalModule,
     DragDropModule,
+    MarkdownModule.forRoot(),
   ],
   providers: [
     {
       provide: WIDGET_DEFINTIONS,
       useValue: {
         type: 'status-widget',
-        name: 'Demo Widget',
+        name: 'Demo',
         settingsComponent: StatusWidgetSettingsComponent,
         widgetComponent: StatusWidgetComponent,
       },
       multi: true,
-    }
+    },
+    {
+      provide: WIDGET_DEFINTIONS,
+      useValue: {
+        type: 'markdown-widget',
+        name: 'Markdown',
+        settingsComponent: MarkdownWidgetSettingsComponent,
+        widgetComponent: MarkdownWidgetComponent,
+      },
+      multi: true,
+    },
+    {
+      provide: WIDGET_DEFINTIONS,
+      useValue: {
+        type: 'pilot-widget',
+        name: 'Pilot',
+        widgetComponent: PilotWidgetComponent,
+        disableCustom: true,
+      },
+      multi: true,
+    },
+    {
+      provide: WIDGET_DEFINTIONS,
+      useValue: {
+        type: 'notification-widget',
+        name: 'Notifications',
+        widgetComponent: NotificationWidgetComponent,
+        settingsComponent: NotificationWidgetSettingsComponent,
+      },
+      multi: true,
+    },
   ],
   bootstrap: [AppComponent]
 })

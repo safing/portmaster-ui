@@ -13,7 +13,8 @@
 
 <!-- This template displays the overlay content and is connected to the button -->
 <ng-template cdkConnectedOverlay [cdkConnectedOverlayMinWidth]="element.nativeElement.offsetWidth"
-  [cdkConnectedOverlayOrigin]="trigger" [cdkConnectedOverlayOpen]="isOpen">
+  [cdkConnectedOverlayOrigin]="trigger" [cdkConnectedOverlayOpen]="isOpen" (detach)="onOverlayClosed()"
+  [cdkConnectedOverlayScrollStrategy]="scrollStrategy">
   <ul class="item-list">
     <li *ngFor="let item of items" (click)="selectItem(item)">
       <ng-container *ngTemplateOutlet="item.templateRef"></ng-container>

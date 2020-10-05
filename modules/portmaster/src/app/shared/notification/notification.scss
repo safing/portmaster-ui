@@ -1,12 +1,6 @@
 :host {
   display: block;
-  @apply p-4;
-  @apply m-2;
-  @apply shadow-md;
-  @apply border-black;
-  @apply text-blue-900;
-  @apply border-2;
-  @apply rounded;
+  @apply text-gray-200;
 
   &.notif {
 
@@ -36,21 +30,30 @@
 }
 
 div {
-  text-align: right;
-  @apply mt-4;
+  display        : flex;
+  flex-wrap      : nowrap;
+  text-align     : right;
+  justify-content: flex-end;
+  align-items    : center;
+  @apply mt-2;
 
   button {
-    @apply text-sm;
-    @apply font-semibold;
-    @apply mx-1;
+    @apply text-xs;
+    @apply font-medium;
     @apply px-4;
     @apply py-1;
     @apply border;
-    @apply border-blue-200;
-    @apply bg-blue-100;
     @apply rounded-sm;
-    @apply text-blue-500;
-    transition: all cubic-bezier(0.075, 0.82, 0.165, 1) .25s;
+    @apply bg-transparent;
+    @apply whitespace-no-wrap;
+    @apply text-white;
+
+    text-overflow: ellipsis;
+    transition   : all cubic-bezier(0.075, 0.82, 0.165, 1) .25s;
+
+    &:not(:last-of-type) {
+      @apply mr-2;
+    }
 
     &:hover,
     &:focus,
@@ -59,8 +62,7 @@ div {
     }
 
     &:hover {
-      @apply bg-blue-400;
-      @apply text-white;
+      @apply bg-gray-500;
     }
 
     &.selected {
@@ -70,8 +72,8 @@ div {
     &:active,
     &.selected {
       @apply shadow-inner;
-      @apply bg-blue-500;
-      @apply text-white;
+      @apply bg-gray-600;
+      @apply text-gray-200;
     }
   }
 }

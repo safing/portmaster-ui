@@ -28,6 +28,9 @@
     "@fortawesome/fontawesome-svg-core": "^1.2.28",
     "@fortawesome/free-regular-svg-icons": "^5.13.0",
     "@fortawesome/free-solid-svg-icons": "^5.13.0",
+    "emoji-toolkit": "^6.0.1",
+    "fuse.js": "^6.4.1",
+    "ngx-markdown": "^10.1.1",
     "rxjs": "~6.5.5",
     "tslib": "^2.0.0",
     "zone.js": "~0.10.3"

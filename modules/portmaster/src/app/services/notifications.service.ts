@@ -1,9 +1,8 @@
 import { Injectable, TrackByFunction } from '@angular/core';
-import { Observable, throwError } from 'rxjs';
-import { delay, filter, map, repeatWhen, retryWhen, share, toArray } from 'rxjs/operators';
-import { Notification, notificationState, NotificationState, NotificationType } from './notifications.types';
+import { BehaviorSubject, Observable, throwError } from 'rxjs';
+import { delay, filter, map, repeatWhen, multicast, refCount, share, toArray } from 'rxjs/operators';
+import { Notification, NotificationState, NotificationType } from './notifications.types';
 import { PortapiService } from './portapi.service';
-import { trackById } from './core.types';
 import { RetryableOpts } from './portapi.types';
 
 @Injectable({
@@ -13,7 +12,10 @@ export class NotificationsService {
   /**
    * A {@link TrackByFunction} from tracking notifications.
    */
-  static trackBy: TrackByFunction<Notification<any>> = trackById;
+  static trackBy: TrackByFunction<Notification<any>> = function (_: number, n: Notification<any>) {
+    return n.EventID;
+  };
+
   trackBy = NotificationsService.trackBy;
 
   readonly notificationPrefix = "notifications:all/";
@@ -29,16 +31,15 @@ export class NotificationsService {
       share()
     );
 
-  /** new$ emits new (New and ActionRequired) notifications as they arrive */
-  readonly new$ = this.updates$.pipe(
-    filter(msg => {
-      return msg.type !== 'del';
+  /** new$ emits new (active) notifications as they arrive */
+  readonly new$ = this.watchAll().pipe(
+    map(msgs => {
+      return msgs.filter(msg => msg.State === NotificationState.Active)
     }),
-    filter(msg => {
-      const state = notificationState(msg.data);
-      return state === NotificationState.New || state === NotificationState.ActionRequired;
+    multicast(() => {
+      return new BehaviorSubject<Notification<any>[]>([]);
     }),
-    map(msg => msg.data),
+    refCount(),
   );
 
   /**
@@ -50,8 +51,7 @@ export class NotificationsService {
       return msg.type !== 'del';
     }),
     filter(msg => {
-      const state = notificationState(msg.data);
-      return state === NotificationState.ActionPending;
+      return msg.data.State === NotificationState.Responded;
     }),
     map(msg => msg.data)
   );
@@ -114,19 +114,19 @@ export class NotificationsService {
   execute(notifOrId: Notification<any> | string, actionId: string): Observable<void> {
     const payload: Partial<Notification<any>> = {};
     if (typeof notifOrId === 'string') {
-      payload.ID = notifOrId;
+      payload.EventID = notifOrId;
     } else {
       const actionExists = (notifOrId.AvailableActions || []).some(a => a.ID === actionId);
       if (!actionExists) {
         return throwError(`Action ${actionId} does not exist`);
       }
 
-      payload.ID = notifOrId.ID;
+      payload.EventID = notifOrId.EventID;
     }
 
     payload.SelectedActionID = actionId;
 
-    const key = this.notificationPrefix + payload.ID;
+    const key = this.notificationPrefix + payload.EventID;
     return this.portapi.update(key, payload);
   }
 
@@ -150,16 +150,16 @@ export class NotificationsService {
   resolvePending(notifOrID: Notification<any> | string, time: number = (Math.round(Date.now() / 1000))): Observable<void> {
     const payload: Partial<Notification<any>> = {};
     if (typeof notifOrID === 'string') {
-      payload.ID = notifOrID;
+      payload.EventID = notifOrID;
     } else {
-      payload.ID = notifOrID.ID;
-      if (!!notifOrID.Executed) {
-        return throwError(`Notification ${notifOrID.ID} already executed at ${new Date(notifOrID.Executed)}`);
+      payload.EventID = notifOrID.EventID;
+      if (notifOrID.State === NotificationState.Executed) {
+        return throwError(`Notification ${notifOrID.EventID} already executed`);
       }
     }
 
-    payload.Executed = time;
-    const key = this.notificationPrefix + payload.ID
+    payload.State = NotificationState.Responded;
+    const key = this.notificationPrefix + payload.EventID
     return this.portapi.update(key, payload);
   }
 
@@ -179,7 +179,7 @@ export class NotificationsService {
 
   // overloaded implementation of delete.
   delete(notifOrId: Notification<any> | string): Observable<void> {
-    return this.portapi.delete(typeof notifOrId === 'string' ? notifOrId : notifOrId.ID);
+    return this.portapi.delete(typeof notifOrId === 'string' ? notifOrId : notifOrId.EventID);
   }
 
   /**
@@ -204,13 +204,14 @@ export class NotificationsService {
     if (typeof notifOrId === 'string') {
       notifOrId = {
         ...args,
-        ID: notifOrId,
+        EventID: notifOrId,
+        State: NotificationState.Active,
         Message: message,
         Type: type,
       } as Notification<any>; // it's actual Partial but that's fine.
     }
 
-    if (!notifOrId.ID) {
+    if (!notifOrId.EventID) {
       return throwError(`Notification ID is required`);
     }
 
@@ -222,10 +223,6 @@ export class NotificationsService {
       return throwError(`Notification type is required`);
     }
 
-    if (!notifOrId.Created) {
-      notifOrId.Created = Math.round(Date.now() / 1000);
-    }
-
-    return this.portapi.create(this.notificationPrefix + notifOrId.ID, notifOrId);
+    return this.portapi.create(this.notificationPrefix + notifOrId.EventID, notifOrId);
   }
 }

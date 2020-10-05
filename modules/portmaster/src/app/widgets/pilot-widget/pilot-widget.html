@@ -1,0 +1,35 @@
+<div class="status">
+  <svg version="1.1" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
+    class="lock {{lockLevel?.class}}">
+    <g stroke-linecap="round" stroke-width="0.5" fill="none" stroke-linejoin="round">
+      <path stroke-width="3.5"
+        d="M5.973,5.067l5.342,-1.946c0.442,-0.161 0.927,-0.161 1.369,0l5.342,1.946c1.186,0.432 1.974,1.558 1.974,2.819v4.872c0,3.581 -1.828,5.05 -7.005,7.981c-0.617,0.349 -1.373,0.349 -1.99,0c-5.177,-2.931 -7.005,-4.4 -7.005,-7.981v-4.872c0,-1.261 0.788,-2.387 1.973,-2.819Z">
+      </path>
+      <path class="locker"
+        d="M10,10.447h4c0.55,0 1,0.45 1,1v3.053c0,0.552 -0.448,1 -1,1h-4c-0.552,0 -1,-0.448 -1,-1v-3.053c0,-0.552 0.448,-1 1,-1Z">
+      </path>
+      <path class="locker"
+        d="M10.316,10.447v-1.263c0,-0.93 0.754,-1.684 1.684,-1.684c0.93,0 1.684,0.754 1.684,1.684v1.261"></path>
+    </g>
+  </svg>
+
+  <h2>{{lockLevel?.displayText}}</h2>
+  <label>
+    <span class="trust-level {{selectedOption?.class}}"></span>
+    {{selectedOption?.displayText}}
+  </label>
+</div>
+
+<div class="level-list" [class.auto-pilot]="selectedOption?.level === 0">
+  <label>Rate your network</label>
+
+  <ng-container *ngFor="let opt of options">
+    <div *ngIf="opt.level !== selectedLevel" class="level" [class.selected]="activeLevel == opt.level"
+      (click)="selectLevel(opt.level)">
+      <div>
+        <span class="trust-level {{opt.class}}" [class.pulse]="opt.level === 0 && activeLevel < suggestedLevel"></span>
+        {{opt.displayText}}
+      </div>
+    </div>
+  </ng-container>
+</div>

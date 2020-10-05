@@ -189,7 +189,7 @@ export class PortapiService {
                   const existingCount = countTruthyDataFields(values[idx]);
                   const newCount = countTruthyDataFields(value.data);
 
-                  if (existingCount < newCount) {
+                  if (existingCount <= newCount) {
                     console.log(`"new" value has ${newCount} instead of ${existingCount}, using that ...`, value.data, values[idx])
                     values[idx] = value.data;
                   } else {
@@ -223,7 +223,7 @@ export class PortapiService {
       return () => {
         sub.unsubscribe();
       }
-    })
+    }).pipe(retryPipeline(opts))
   }
 
   /**

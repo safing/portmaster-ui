@@ -6,9 +6,11 @@ export interface StatusWidgetConfig {
 }
 
 @Component({
-  selector: 'app-status-widget',
   templateUrl: './status-widget.html',
-  styleUrls: ['./status-widget.scss']
+  styleUrls: [
+    '../widget.scss',
+    './status-widget.scss'
+  ]
 })
 export class StatusWidgetComponent implements OnInit {
   constructor(

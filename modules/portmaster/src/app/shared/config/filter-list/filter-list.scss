@@ -60,3 +60,42 @@
 .button-list {
   @apply mt-2;
 }
+
+.new-entry {
+  position: relative;
+  cursor  : pointer;
+  width   : 100%;
+  @apply rounded-sm;
+  @apply p-1;
+  @apply border-2;
+  @apply border-dashed;
+  @apply border-gray-500;
+  @apply bg-gray-800;
+
+  @apply text-gray-200;
+  --text-opacity: 0.5;
+  @apply text-xs;
+
+  span {
+    @apply ml-2;
+    @apply font-medium;
+
+  }
+
+  fa-icon {
+    font-size: 1rem;
+  }
+
+  &:hover {
+    @apply text-gray-200;
+    @apply border-gray-300;
+
+    span {
+      @apply text-gray-200;
+    }
+  }
+
+  display        : flex;
+  align-items    : center;
+  justify-content: center;
+}

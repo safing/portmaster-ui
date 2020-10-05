@@ -1,5 +1,5 @@
 import { Component, OnInit, OnDestroy, Input, ChangeDetectionStrategy, Output, EventEmitter, HostBinding } from '@angular/core';
-import { Notification, notificationState, NotificationState, getNotificationTypeString, NotificationsService } from '../../services';
+import { Notification, NotificationState, getNotificationTypeString, NotificationsService } from '../../services';
 
 @Component({
   selector: 'app-notification',
@@ -30,7 +30,7 @@ export class NotificationComponent implements OnInit {
   set notification(n: Notification<any> | null) {
     this._notification = n;
     if (!!n) {
-      this.state = notificationState(n);
+      this.state = n.State || NotificationState.Invalid;
     } else {
       this.state = NotificationState.Invalid;
     }

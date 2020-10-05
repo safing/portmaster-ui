@@ -3,15 +3,7 @@
 <app-side-dash></app-side-dash>
 
 <div class="main">
-  <div class="header">
-    <input type="text" placeholder="Search">
-    <app-expertise></app-expertise>
-  </div>
-
-  <div class="content">
-    <router-outlet></router-outlet>
-  </div>
-
+  <router-outlet></router-outlet>
 </div>
 
 <div *ngIf="showDebugPanel">

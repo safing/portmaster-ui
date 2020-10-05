@@ -35,4 +35,6 @@ export interface WidgetDefinition<T> {
   settingsComponent: Type<WidgetFactory<T>>;
   /* The actual component to render for the widget */
   widgetComponent: Type<any>;
+  /* Disable custom user widgets of this type */
+  disableCustom?: boolean;
 }

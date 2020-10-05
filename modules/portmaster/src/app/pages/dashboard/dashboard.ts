@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { StatusService, NotificationsService, Notification, CoreStatus, Subsystem, getOnlineStatusString } from 'src/app/services';
+import { StatusService, NotificationsService, Notification, CoreStatus, Subsystem, getOnlineStatusString, NotificationState } from 'src/app/services';
 import { delay } from 'rxjs/operators';
 
 /**
@@ -11,7 +11,10 @@ interface ExtendedCoreStatus extends CoreStatus {
 
 @Component({
   templateUrl: './dashboard.html',
-  styleUrls: ['./dashboard.scss']
+  styleUrls: [
+    '../page.scss',
+    './dashboard.scss'
+  ]
 })
 export class DashboardComponent implements OnInit {
   status: ExtendedCoreStatus | null = null;
@@ -26,7 +29,7 @@ export class DashboardComponent implements OnInit {
 
   ngOnInit(): void {
     this.notifService.watchAll().subscribe(
-      (notifs) => this.notifications = notifs
+      (notifs) => this.notifications = notifs.filter(no => no.State === NotificationState.Active)
     );
 
     this.statusService.watchSubsystems()

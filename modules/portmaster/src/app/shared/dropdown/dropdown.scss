@@ -4,16 +4,16 @@
 }
 
 button {
-  cursor     : pointer;
-  padding    : 0;
-  position   : relative;
-  min-width  : 6rem;
-  width      : fit-content;
-  white-space: nowrap;
-  display    : flex;
-  align-items: center;
-  outline    : none;
-  @apply font-semibold;
+  cursor        : pointer;
+  padding       : 0;
+  position      : relative;
+  min-width     : 6rem;
+  width         : fit-content;
+  white-space   : nowrap;
+  display       : flex;
+  align-items   : center;
+  outline       : none;
+  text-transform: none;
   @apply text-xs;
   @apply bg-gray-400;
   transition: all cubic-bezier(0.175, 0.885, 0.32, 1) .2s;
@@ -47,11 +47,12 @@ button {
       transition: all cubic-bezier(0.175, 0.885, 0.32, 1) .3s;
     }
 
+    @apply rounded-r-sm;
+
     display        : flex;
     align-items    : center;
     justify-content: space-around;
 
-    @apply rounded-r;
   }
 }
 
@@ -65,6 +66,7 @@ ul.item-list {
 
   li {
     cursor: pointer;
+    @apply text-xs;
     @apply p-2;
     @apply px-4;
 
