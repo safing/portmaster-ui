@@ -1,0 +1,11 @@
+:host {
+  @apply text-xs;
+}
+
+p {
+  @apply font-medium;
+  @apply text-gray-200;
+  --text-opacity: 0.8;
+
+  @apply mb-2;
+}

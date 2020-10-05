@@ -12,7 +12,9 @@ export class WidgetService {
   readonly widgetPrefix = 'core:ui/widgets';
 
   /** A {@link TrackByFunction} for widgets. */
-  readonly trackBy: TrackByFunction<WidgetConfig> = (_: number, widget: WidgetConfig) => widget.key;
+  readonly trackBy: TrackByFunction<WidgetConfig> = (_: number, widget: WidgetConfig) => {
+    return widget.key;
+  };
 
   constructor(private portapi: PortapiService) { }
 

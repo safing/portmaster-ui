@@ -1,7 +1,7 @@
 <app-notification *ngFor="let notif of (notifsService.new$ | async); trackBy: notifsService.trackBy"
-  [notification]="notif">
+  [allowMarkdown]="config?.config?.markdown || false" [notification]="notif">
 </app-notification>
 
-<div class="placeholder" *ngIf="!(notifsService.new$ | async).length">
+<div class="placeholder" *ngIf="!(notifsService.new$ | async)?.length">
   <fa-icon icon="check"></fa-icon> No notifications
 </div>

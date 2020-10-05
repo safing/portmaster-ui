@@ -8,7 +8,9 @@ import { NotificationWidgetConfig } from './notification-widget';
 })
 export class NotificationWidgetSettingsComponent implements OnInit, WidgetFactory<NotificationWidgetConfig> {
   @Input()
-  config: NotificationWidgetConfig = { text: '' };
+  config: NotificationWidgetConfig = {
+    markdown: true,
+  };
 
   @Output()
   onConfigChange = new EventEmitter<NotificationWidgetConfig>();
@@ -23,6 +25,7 @@ export class NotificationWidgetSettingsComponent implements OnInit, WidgetFactor
     this.onConfigChange.next(this.config)
   }
 
-  setValue(value: string) {
+  update() {
+    this.onConfigChange.next(this.config);
   }
 }

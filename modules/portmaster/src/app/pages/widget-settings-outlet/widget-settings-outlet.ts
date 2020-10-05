@@ -4,6 +4,7 @@ import { ActivatedRoute } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { WidgetService } from '../../widgets/widget.service';
 import { WidgetDefinition, WidgetFactory, WIDGET_DEFINTIONS } from '../../widgets/widget.types';
+import { deepClone } from '../../shared/utils';
 
 @Component({
   selector: 'app-settings-outlet',
@@ -72,7 +73,8 @@ export class WidgetSettingsOutletComponent<T = any> implements OnInit, OnDestroy
 
     this.dirty = false;
 
-    portal.instance.config = this.config;
+    portal.instance.config = deepClone(this.config);
+
     this.subscription = portal.instance.onConfigChange.subscribe((config: T) => {
       if (JSON.stringify(config) === JSON.stringify(this.config)) {
         return

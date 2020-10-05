@@ -18,11 +18,12 @@
     </app-dropdown>
   </div>
 
-  <fieldset *ngIf="!!portal" class="widget-setup">
-    <h1>Settings</h1>
-    <div [cdkPortalOutlet]="portal" (attached)="portalAttached($event)"></div>
+  <div *ngIf="!!portal" class="widget-setup">
+    <div class="border"></div>
 
-  </fieldset>
+    <h4>Widget Settings</h4>
+    <div [cdkPortalOutlet]="portal" (attached)="portalAttached($event)"></div>
+  </div>
 
 
   <div class="buttons">

@@ -87,6 +87,16 @@ button {
   blue($hex);
 }
 
+.form-field {
+  display        : flex;
+  justify-content: flext-start;
+  align-items    : center;
+
+  *:not(:last-child) {
+    @apply mr-1;
+  }
+}
+
 span.trust-level {
   display : inline-block;
   position: relative;

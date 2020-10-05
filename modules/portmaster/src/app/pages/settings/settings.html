@@ -40,7 +40,9 @@
       <ng-container *ngFor="let cat of settings.get(subsys.ConfigKeySpace); let index=index">
         <div class="category" #navLink anchor="top" [attr.subsystem]="subsys.ConfigKeySpace" [attr.category]="cat.name"
           *appExpertiseLevel="cat.minimumExpertise">
+
           <div class="border"></div>
+
           <h4 [attr.id]="subsys.ConfigKeySpace +':' + cat.name">{{cat.name}}</h4>
           <ng-container *ngFor="let setting of cat.settings; trackBy: configService.trackBy">
             <app-generic-setting *appExpertiseLevel="setting.ExpertiseLevel" [setting]="setting">

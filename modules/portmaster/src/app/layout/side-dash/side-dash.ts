@@ -51,8 +51,14 @@ export class SideDashComponent implements OnInit {
         })
       )
       .subscribe(widgets => {
-        this.widgets = widgets
+        const widgetsWithMeta = widgets
           .map(w => {
+            const existing = this.widgets.find(e => e.key === w.key);
+
+            if (!!existing && JSON.stringify(existing.config) === JSON.stringify(w.config)) {
+              return existing;
+            }
+
             const injector = this.createInjector(w);
             return {
               ...w,
@@ -65,8 +71,10 @@ export class SideDashComponent implements OnInit {
             const bOrder = b.order !== undefined ? b.order : 1000;
 
             return aOrder - bOrder;
-          })
-      })
+          });
+        this.widgets = widgetsWithMeta;
+      });
+
   }
 
   drop(event: CdkDragDrop<string[]>) {

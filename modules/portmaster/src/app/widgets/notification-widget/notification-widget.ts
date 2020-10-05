@@ -2,7 +2,9 @@ import { Component, OnInit, Inject } from '@angular/core';
 import { NotificationsService } from 'src/app/services';
 import { WIDGET_CONFIG, WidgetConfig } from '../widget.types';
 
-export interface NotificationWidgetConfig { }
+export interface NotificationWidgetConfig {
+  markdown: boolean;
+}
 
 @Component({
   templateUrl: './notification-widget.html',

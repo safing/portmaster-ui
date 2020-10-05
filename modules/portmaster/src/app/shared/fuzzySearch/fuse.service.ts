@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core'
 import Fuse from 'fuse.js'
+import { deepClone } from '../utils';
 
 export type FuseResult<T> = Fuse.FuseResult<T & {
   highlighted?: string;
@@ -97,13 +98,4 @@ function setOnMatch<T>(result: Fuse.FuseResult<T>, match: Fuse.FuseResultMatch, 
   }
 
   (result.item as any)[match.key!][match.refIndex] = value;
-}
-
-function deepClone<T = any>(o: T): T {
-  let _out: T = (Array.isArray(o) ? [] : {}) as any;
-  for (let _key in o) {
-    let v = o[_key];
-    _out[_key] = (typeof v === "object") ? deepClone(v) : v;
-  }
-  return _out as T;
 }

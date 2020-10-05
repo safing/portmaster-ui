@@ -1,3 +1,4 @@
+import { coerceBooleanProperty } from '@angular/cdk/coercion';
 import { Component, OnInit, OnDestroy, Input, ChangeDetectionStrategy, Output, EventEmitter, HostBinding } from '@angular/core';
 import { Notification, NotificationState, getNotificationTypeString, NotificationsService } from '../../services';
 
@@ -39,6 +40,13 @@ export class NotificationComponent implements OnInit {
     return this._notification;
   }
   private _notification: Notification<any> | null = null;
+
+  @Input()
+  set allowMarkdown(v: any) {
+    this._markdown = coerceBooleanProperty(v);
+  }
+  get allowMarkdown() { return this._markdown; }
+  private _markdown: boolean = false;
 
   @Output()
   actionExecuted: EventEmitter<string> = new EventEmitter();
