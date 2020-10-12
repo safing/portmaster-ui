@@ -1,6 +1,7 @@
 import { DragDropModule } from '@angular/cdk/drag-drop';
 import { OverlayModule } from '@angular/cdk/overlay';
 import { PortalModule } from '@angular/cdk/portal';
+import { CdkTableModule } from '@angular/cdk/table';
 import { CommonModule } from '@angular/common';
 import { NgModule } from '@angular/core';
 import { FormsModule } from '@angular/forms';
@@ -11,34 +12,37 @@ import { fas } from '@fortawesome/free-solid-svg-icons';
 import { MarkdownModule } from 'ngx-markdown';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
-import { AccordionComponent } from './debug/accordion/accordion';
-import { AccordionGroupComponent } from './debug/accordion/accordion-group';
 import { DebugComponent } from './debug/debug-panel';
 import { NotificationFactoryComponent } from './debug/notification-factory/notification-factory';
 import { PortapiInspectorComponent } from './debug/portapi-inspector/portapi-inspector';
 import { NavigationComponent } from './layout/navigation/navigation';
 import { SideDashComponent } from './layout/side-dash/side-dash';
 import { DashboardComponent } from './pages/dashboard/dashboard';
+import { MonitorApplicationViewComponent, MonitorPageComponent } from './pages/monitor';
 import { SettingsComponent } from './pages/settings/settings';
 import { WidgetSettingsOutletComponent } from './pages/widget-settings-outlet/widget-settings-outlet';
+import { AccordionComponent, AccordionGroupComponent } from './shared/accordion';
 import { BasicSettingComponent } from './shared/config/basic-setting/basic-setting';
 import { FilterListComponent } from './shared/config/filter-list/filter-list';
 import { FilterListItemComponent } from './shared/config/filter-list/list-item';
 import { GenericSettingComponent } from './shared/config/generic-setting/generic-setting';
 import { SecuritySettingComponent } from './shared/config/security-setting/security-setting';
+import { ConnectionsViewComponent } from './shared/connections-view/connections-view';
 import { DropdownComponent } from './shared/dropdown/dropdown';
 import { DropDownItemComponent, DropDownValueDirective } from './shared/dropdown/dropdown-item';
 import { ExpertiseDirective } from './shared/expertise/expertise-directive';
 import { ExpertiseComponent } from './shared/expertise/expertise-switch';
 import { FuzzySearchPipe } from './shared/fuzzySearch';
 import { NotificationComponent } from './shared/notification/notification';
+import { SafePipe } from './shared/save.pipe';
+import { CountryFlagDirective } from './shared/country-flag/country-flag';
 import { SubsystemComponent } from './shared/subsystem/subsystem';
 import { ToggleSwitchComponent } from './shared/toggle-switch/toggle-switch';
 import { MarkdownWidgetComponent, MarkdownWidgetSettingsComponent } from './widgets/markdown-widget';
+import { NotificationWidgetComponent, NotificationWidgetSettingsComponent } from './widgets/notification-widget';
 import { PilotWidgetComponent } from './widgets/pilot-widget';
 import { StatusWidgetComponent, StatusWidgetSettingsComponent } from './widgets/status-widget';
-import { NotificationWidgetComponent, NotificationWidgetSettingsComponent } from './widgets/notification-widget';
-import { SafePipe } from './shared/save.pipe';
+import { CountIndicatorComponent } from './shared/count-indicator/count-indicator';
 import { WIDGET_DEFINTIONS } from './widgets/widget.types';
 
 @NgModule({
@@ -56,11 +60,13 @@ import { WIDGET_DEFINTIONS } from './widgets/widget.types';
     SecuritySettingComponent,
     SettingsComponent,
     DashboardComponent,
+    MonitorPageComponent,
     SideDashComponent,
     NavigationComponent,
     ExpertiseComponent,
     ExpertiseDirective,
     DropdownComponent,
+    ConnectionsViewComponent,
     DropDownItemComponent,
     DropDownValueDirective,
     WidgetSettingsOutletComponent,
@@ -78,6 +84,9 @@ import { WIDGET_DEFINTIONS } from './widgets/widget.types';
     NotificationWidgetComponent,
     FuzzySearchPipe,
     SafePipe,
+    MonitorApplicationViewComponent,
+    CountIndicatorComponent,
+    CountryFlagDirective,
   ],
   imports: [
     BrowserModule,
@@ -87,6 +96,7 @@ import { WIDGET_DEFINTIONS } from './widgets/widget.types';
     FontAwesomeModule,
     OverlayModule,
     PortalModule,
+    CdkTableModule,
     DragDropModule,
     MarkdownModule.forRoot(),
   ],

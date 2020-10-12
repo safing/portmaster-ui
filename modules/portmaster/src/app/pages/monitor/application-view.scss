@@ -1,0 +1,8 @@
+:host {
+  display: block;
+}
+
+fa-icon[icon="chevron-right"] {
+  font-size: 0.8em;
+  @apply mx-1;
+}

@@ -1,0 +1,204 @@
+:host {
+  display : flex;
+  height  : 100%;
+  width   : 100%;
+  overflow: hidde;
+}
+
+div.sidebar {
+  width   : calc(4.5rem * 4);
+  overflow: auto;
+  @apply border-r-2;
+  @apply border-gray-500;
+}
+
+.sidebar-header {
+  @apply py-1;
+  @apply px-3;
+
+  display        : flex;
+  justify-content: space-between;
+  align-items    : center;
+  flex-wrap      : nowrap;
+
+  h4 {
+    @apply text-white;
+    @apply py-3;
+    flex-shrink  : 1;
+    overflow     : hidden;
+    white-space  : nowrap;
+    text-overflow: ellipsis;
+  }
+
+  .buttons {
+    display        : flex;
+    justify-content: space-evenly;
+    align-items    : center;
+    height         : 100%;
+
+    @apply text-gray-300;
+    @apply text-xs;
+
+    &>*:not(:last-child) {
+      @apply mr-2;
+    }
+  }
+}
+
+fa-icon[icon="chevron-right"] {
+  font-size: 0.8em;
+  @apply mx-1;
+}
+
+div.details-view {
+  flex-grow: 1;
+
+  display       : flex;
+  flex-direction: column;
+
+  .content {
+    display  : block;
+    flex-grow: 1;
+  }
+}
+
+
+li.profile,
+h1.profile {
+  display    : flex;
+  align-items: center;
+
+  fa-icon.app-icon {
+    font-size: 1.5em; // em!!
+    @apply text-green-500;
+  }
+
+  fa-icon.app-icon {
+    @apply pr-2;
+  }
+}
+
+h1.profile {
+  justify-content: flex-start;
+  @apply m-0;
+  @apply mt-2;
+  @apply mb-4;
+}
+
+li.profile {
+  cursor         : pointer;
+  outline        : none;
+  justify-content: space-between;
+
+  @apply mb-2;
+
+  @apply text-xs;
+  @apply font-medium;
+  @apply bg-gray-500;
+  @apply p-2;
+  @apply px-3;
+  @apply rounded;
+
+  &.active {
+    @apply bg-gray-300;
+    --bg-opacity: 0.8;
+    @apply shadow-inner;
+  }
+
+  &:hover {
+    @apply bg-gray-400;
+  }
+
+  &:active {
+    @apply shadow-inner;
+  }
+
+  fa-icon.app-icon {
+    @apply px-2;
+  }
+
+  &>*:not(:last-child) {
+    @apply mr-1;
+  }
+
+  span.app-name {
+    flex-grow: 1;
+  }
+}
+
+li.overview {
+  @apply bg-gray-500;
+  @apply text-gray-200;
+
+  --text-opacity: 0.8;
+  --bg-opacity  : 0.4;
+
+  justify-content: center;
+}
+
+
+$transition-duration : .3s;
+
+.search-container {
+  position       : relative;
+  width          : 1rem;
+  height         : 100%;
+  display        : flex;
+  justify-content: flex-start;
+  align-items    : center;
+  margin         : auto;
+  overflow       : hidden;
+  transition     : all, $transition-duration;
+
+  &:hover,
+  &.active {
+    width: calc(4.5 * 4rem - 2*0.75rem);
+  }
+
+  & input[type="text"] {
+    width      : 0px;
+    flex-shrink: 1;
+    float      : left;
+    transition : all, $transition-duration;
+    @apply rounded;
+
+    &::-webkit-input-placeholder {
+      @apply text-gray-200;
+      --text-opacity: 0.8;
+    }
+  }
+
+  &:hover,
+  &.active {
+    input[type="text"] {
+      flex-grow: 1;
+      width    : auto;
+    }
+
+    .search-button {
+      display: none;
+    }
+  }
+
+  .search-button {
+    width : 1rem;
+    height: 1rem;
+    @apply mr-2;
+  }
+
+  fa-icon[icon="times"] {
+    position  : absolute;
+    right     : 1rem;
+    cursor    : pointer;
+    opacity   : 0;
+    transition: all, $transition-duration;
+
+    &.visible {
+      opacity: 1;
+    }
+
+    &:hover {
+      @apply text-gray-200;
+    }
+  }
+}

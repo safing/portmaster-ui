@@ -1,0 +1,47 @@
+<div class="sidebar no-scroll">
+  <div class="sidebar-header">
+    <h4>Network Monitor</h4>
+
+    <span class="buttons">
+      <div class="search-container" [class.active]="!!(onSearch | async)">
+        <div class="search-button">
+          <fa-icon icon="search"></fa-icon>
+        </div>
+        <input type="text" placeholder="Search" [ngModel]="(onSearch | async)" (ngModelChange)="search($event)">
+
+        <fa-icon icon="times" [class.visible]="!!(onSearch | async)" (click)="search('')"></fa-icon>
+      </div>
+    </span>
+  </div>
+
+  <div class="scrollable">
+    <li class="profile overview" routerLink="/monitor/profile/overview" routerLinkActive="active">
+      Overview
+    </li>
+
+    <li class="profile" *ngFor="let data of profiles" [routerLink]="['/', 'monitor', 'profile', data.id]"
+      routerLinkActive="active">
+      <fa-icon class="app-icon" icon="futbol"></fa-icon>
+      <span class="app-name">{{ data.name }}</span>
+      <app-count-indicator [count]="data.connections.size" [risk]="getBlockStatus(data)">
+      </app-count-indicator>
+    </li>
+  </div>
+</div>
+
+<div class="details-view" *ngIf="!!selected">
+  <div class="header">
+    <h4>
+      Network Monitor
+      <span class="text-white">
+        <fa-icon icon="chevron-right"></fa-icon>
+        {{ selected.name }}
+      </span>
+    </h4>
+    <app-expertise></app-expertise>
+  </div>
+
+  <div class="content">
+    <app-monitor-application class="scrollable" [profile]="selected"></app-monitor-application>
+  </div>
+</div>

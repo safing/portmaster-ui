@@ -9,12 +9,8 @@
 }
 
 app-side-dash {
-  height  : 100vh;
-  top     : 0px;
-  position: sticky;
-  width   : calc(4.5rem * 5);
+  width: calc(4.5rem * 5);
   @apply border-r;
-  @apply border-black;
   @apply bg-gray-900;
 }
 

@@ -1,6 +1,6 @@
 import { Injectable, TrackByFunction } from '@angular/core';
 import { BehaviorSubject, Observable, throwError } from 'rxjs';
-import { delay, filter, map, repeatWhen, multicast, refCount, share, toArray } from 'rxjs/operators';
+import { delay, filter, map, repeatWhen, multicast, refCount, share, toArray, tap } from 'rxjs/operators';
 import { Notification, NotificationState, NotificationType } from './notifications.types';
 import { PortapiService } from './portapi.service';
 import { RetryableOpts } from './portapi.types';
@@ -34,7 +34,7 @@ export class NotificationsService {
   /** new$ emits new (active) notifications as they arrive */
   readonly new$ = this.watchAll().pipe(
     map(msgs => {
-      return msgs.filter(msg => msg.State === NotificationState.Active)
+      return msgs.filter(msg => msg.State === NotificationState.Active || !msg.State)
     }),
     multicast(() => {
       return new BehaviorSubject<Notification<any>[]>([]);

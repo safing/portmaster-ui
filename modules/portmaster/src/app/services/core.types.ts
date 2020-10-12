@@ -7,6 +7,14 @@ export enum SecurityLevel {
   Extreme = 4,
 }
 
+export enum RiskLevel {
+  Off = 'off',
+  Auto = 'auto',
+  Low = 'low',
+  Medium = 'medium',
+  High = 'high'
+}
+
 /** Interface capturing any object that has an ID member. */
 export interface Identifyable {
   ID: string | number;

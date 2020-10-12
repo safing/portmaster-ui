@@ -239,7 +239,7 @@ export class PortapiService {
     this.ws$ = null;
   }
 
-  request<M extends RequestType>(method: M, attrs: Partial<Requestable<M>>, { forwardDone }: { forwardDone?: boolean } = {}): Observable<DataReply<any>> {
+  request<M extends RequestType, R = any>(method: M, attrs: Partial<Requestable<M>>, { forwardDone }: { forwardDone?: boolean } = {}): Observable<DataReply<R>> {
     return new Observable(observer => {
       const id = `${++uniqueRequestId}`;
 
@@ -292,7 +292,8 @@ export class PortapiService {
         // methods. This also includes updates to subscriptions.
         stream$ = stream$.pipe(
           tap(
-            msg => console.log(`[portapi] reply for ${method} ${id}: `, msg),
+            msg => { },
+            //msg => console.log(`[portapi] reply for ${method} ${id}: `, msg),
             err => console.error(`[portapi] error in ${method} ${id}: `, err),
           )
         )

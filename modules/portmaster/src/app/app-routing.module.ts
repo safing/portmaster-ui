@@ -3,6 +3,7 @@ import { Routes, RouterModule } from '@angular/router';
 import { SettingsComponent } from './pages/settings/settings';
 import { DashboardComponent } from './pages/dashboard/dashboard';
 import { WidgetSettingsOutletComponent } from './pages/widget-settings-outlet/widget-settings-outlet';
+import { MonitorPageComponent } from './pages/monitor';
 
 const routes: Routes = [
   {
@@ -17,6 +18,14 @@ const routes: Routes = [
   {
     path: 'settings',
     component: SettingsComponent,
+  },
+  {
+    path: 'monitor',
+    redirectTo: 'monitor/profile/overview',
+  },
+  {
+    path: 'monitor/profile/:profile',
+    component: MonitorPageComponent,
   },
   {
     path: 'widget/new',

@@ -1,0 +1,35 @@
+:host {
+  display        : flex;
+  width          : 3rem;
+  height         : 18px;
+  align-items    : center;
+  justify-content: flex-end;
+
+  font-size: 0.6rem;
+  @apply text-gray-200;
+  --text-opacity: 0.8;
+  line-height   : 18px;
+
+  @apply pl-2;
+
+  @apply bg-gray-400;
+  border-radius: 0.5rem;
+
+  span.counter {
+    flex-grow : 1;
+    display   : inline-block;
+    text-align: center;
+  }
+
+  div.state {
+    width : 18px;
+    height: 18px;
+    @apply bg-gray-300;
+    @apply rounded-full;
+
+    .trust-level:before {
+      top : 0px;
+      left: -2px;
+    }
+  }
+}
