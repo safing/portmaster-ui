@@ -366,7 +366,7 @@ export class PortapiService {
           }
         },
         error: err => {
-          console.error(err);
+          console.error(err, attrs);
           // TODO(ppacher): re-enable that once "cancel" support
           // landed in portbase.
 
@@ -390,6 +390,7 @@ export class PortapiService {
 
       return () => {
         subscription.unsubscribe();
+        console.log(`done`);
       }
     });
   }

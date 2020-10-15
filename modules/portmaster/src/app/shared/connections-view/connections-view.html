@@ -10,82 +10,85 @@
       </ng-template>
     </span>
 
-    <span class="buttons">
-      <span class="selected">Auto</span>
-      <span>Block All</span>
+    <span class="buttons" *ngIf="!!data.domain">
+      <span [class.selected]="!isScopeBlocked(data)" (click)="unblockAll($event, data)">Auto</span>
+      <span [class.selected]="isScopeBlocked(data)" (click)="blockAll($event, data)">Block All</span>
     </span>
 
-    <app-count-indicator [count]="data.connections.length" [risk]="data.blockStatus"></app-count-indicator>
+    <app-count-indicator [count]="data.size" [risk]="data.blockStatus"></app-count-indicator>
   </div>
 </ng-template>
 
-<app-accordion-group [headerTemplate]="accordionHeader" singleMode="true">
-  <app-accordion *ngFor="let grp of (groups | keyvalue)" [data]="grp.value">
+<app-accordion-group [headerTemplate]="accordionHeader" singleMode="false">
+  <app-accordion *ngFor="let grp of (connections!.scopeGroups | async); trackBy: trackByScope" [data]="grp">
     <section class="connection">
       <div class="meta">
         <div>
-          <span *ngIf="grp.value.domain">
+          <span *ngIf="grp.domain">
             <span>Domain:</span>
-            <span>{{grp.value.domain}}</span>
+            <span>{{grp.scope}}</span>
           </span>
 
-          <span *ngIf="!grp.value.domain">
+          <span *ngIf="!grp.domain">
             <span>Scope:</span>
-            <span>{{ scopeTranslation[grp.value.scope] }}</span>
+            <span>{{ scopeTranslation[grp.scope] }}</span>
           </span>
 
-          <span *ngIf="!grp.value.connections[0]?.ProcessContext?.ProfileID">
+          <!--
+          <span *ngIf="!grp.connections[0]?.ProcessContext?.ProfileID">
             <span>Profile:</span>
-            <span>{{grp.value.connections[0]!.ProcessContext!.ProfileID}}</span>
+            <span>{{grp.connections[0]!.ProcessContext!.ProfileID}}</span>
           </span>
+        -->
 
           <span>
             <span>Most recent:</span>
-            <span>{{grp.value.lastConn * 1000 | date:'medium'}}</span>
+            <span>
+              {{ (grp.stats.lastConn || grp.stats.firstConn) * 1000 | date:'medium'}}</span>
           </span>
         </div>
 
         <div>
           <span>
-            <span># Total:</span>
-            <span>{{grp.value.connections?.length}}</span>
+            <span>Connections:</span>
+            <span>{{grp.size}}</span>
           </span>
 
           <span>
-            <span># Encrypted:</span>
-            <span>{{100 / grp.value.connections!.length * grp.value.countEncrypted}}%</span>
+            <span>Encrypted:</span>
+            <span>{{100 / grp.size * grp.stats.countEncrypted | number:'1.0-2'}}%</span>
           </span>
 
-          <span *ngIf="!!grp.value.countDNS">
-            <span># DNS Requests: </span>
-            <span>{{100 / grp.value.connections!.length * grp.value.countDNS}}%</span>
+          <span *ngIf="!!grp.stats.countDNS">
+            <span>DNS Requests: </span>
+            <span>{{100 / grp.size * grp.stats.countDNS | number:'1.0-2'}}%</span>
           </span>
 
-          <span *ngIf="!!grp.value.countTCP">
-            <span># TCP: </span>
-            <span>{{100 / grp.value.connections!.length * grp.value.countTCP}}%</span>
+          <span *ngIf="!!grp.stats.countTCP">
+            <span>TCP: </span>
+            <span>{{100 / grp.size * grp.stats.countTCP | number:'1.0-2'}}%</span>
           </span>
 
-          <span *ngIf="!!grp.value.countUDP">
-            <span># UDP: </span>
-            <span>{{100 / grp.value.connections!.length * grp.value.countUDP}}%</span>
+          <span *ngIf="!!grp.stats.countUDP">
+            <span>UDP: </span>
+            <span>{{100 / grp.size * grp.stats.countUDP | number:'1.0-2'}}%</span>
           </span>
         </div>
 
         <div>
-          <span *ngIf="!!grp.value.distinctIPs?.size">
-            <span># IPs:</span>
-            <span>{{grp.value.distinctIPs?.size}}</span>
+          <span *ngIf="!!grp.stats.distinctIPs?.size">
+            <span>IPs:</span>
+            <span>{{grp.stats.distinctIPs?.size}}</span>
           </span>
 
-          <span *ngIf="!!grp.value.distinctCountries?.size">
-            <span># Countries:</span>
-            <span>{{grp.value.distinctCountries?.size}}</span>
+          <span *ngIf="!!grp.stats.distinctCountries?.size">
+            <span>Countries:</span>
+            <span>{{grp.stats.distinctCountries?.size}}</span>
           </span>
 
-          <span *ngIf="!!grp.value.distinctASNs?.size">
-            <span># ASNs:</span>
-            <span>{{grp.value.distinctASNs?.size}}</span>
+          <span *ngIf="!!grp.stats.distinctASNs?.size">
+            <span>ASNs:</span>
+            <span>{{grp.stats.distinctASNs?.size}}</span>
           </span>
         </div>
       </div>
@@ -93,7 +96,7 @@
       <h4>Connections / DNS Requests</h4>
 
       <div class="tableFixHead">
-        <table cdk-table [dataSource]="grp.value.connections">
+        <table cdk-table [dataSource]="grp.connections">
           <!-- State Column -->
           <ng-container cdkColumnDef="state">
             <th cdk-header-cell *cdkHeaderCellDef> State </th>
@@ -114,6 +117,7 @@
             <td cdk-cell *cdkCellDef="let conn">
               <span *ngIf="!!conn.Entity?.Country" [appCountryFlags]="conn.Entity!.Country"></span>
               {{ conn.Entity?.IP || 'DNS Request'}}
+              <span *ngIf="conn.Entity?.Port" class="port">{{ ':'+conn.Entity.Port }}</span>
             </td>
           </ng-container>
 
@@ -126,7 +130,9 @@
           <!-- Ended Column -->
           <ng-container cdkColumnDef="ended">
             <th cdk-header-cell *cdkHeaderCellDef> Ended </th>
-            <td cdk-cell *cdkCellDef="let conn"> {{conn.Ended * 1000 | date:'shortTime'}} </td>
+            <td cdk-cell *cdkCellDef="let conn">
+              <ng-container *ngIf="conn.Ended > 0">{{conn.Ended * 1000 | date:'shortTime'}}</ng-container>
+            </td>
           </ng-container>
 
           <tr cdk-header-row *cdkHeaderRowDef="displayedColumns"></tr>
@@ -136,3 +142,30 @@
     </section>
   </app-accordion>
 </app-accordion-group>
+
+<!-- loading -->
+<div class="accordion-header" *ngIf="!connections || connections?.loading">
+  <fa-icon icon="chevron-down" class="chevron"></fa-icon>
+  <span class="scope-name">
+    <app-text-placeholder mode="input"></app-text-placeholder>
+  </span>
+  <app-count-indicator [count]="0"></app-count-indicator>
+</div>
+
+<div class="accordion-header"
+  *ngIf="!connections || connections?.loading && ((connections?.scopeGroups | async)?.length || 0) < 2">
+  <fa-icon icon="chevron-down" class="chevron"></fa-icon>
+  <span class="scope-name">
+    <app-text-placeholder mode="input" width="small"></app-text-placeholder>
+  </span>
+  <app-count-indicator [count]="0"></app-count-indicator>
+</div>
+
+<div class="accordion-header"
+  *ngIf="!connections || connections?.loading && ((connections?.scopeGroups | async)?.length || 0) < 3">
+  <fa-icon icon="chevron-down" class="chevron"></fa-icon>
+  <span class="scope-name">
+    <app-text-placeholder mode="input" width="large"></app-text-placeholder>
+  </span>
+  <app-count-indicator [count]="0"></app-count-indicator>
+</div>

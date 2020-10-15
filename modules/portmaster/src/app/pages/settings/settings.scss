@@ -42,6 +42,14 @@
 
 }
 
+fa-icon[icon="spinner"] {
+  @apply text-3xl;
+  display   : block;
+  width     : 100%;
+  text-align: center;
+  height    : 6rem;
+}
+
 div.settings-nav {
   @apply mt-10;
   width      : 120px;
@@ -53,9 +61,6 @@ div.settings-nav {
   @apply text-xs;
 
   ul {
-    transform : translateY(200%);
-    transition: transform cubic-bezier(0.25, 0.46, 0.45, 0.94) .3s;
-
     li {
       @apply font-medium;
     }
@@ -93,13 +98,6 @@ div.settings-nav {
           cursor: pointer;
         }
       }
-    }
-  }
-
-
-  &.show {
-    ul {
-      transform: translateY(0%);
     }
   }
 }

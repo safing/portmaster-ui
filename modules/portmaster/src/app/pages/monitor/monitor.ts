@@ -1,73 +1,61 @@
-import { Component, OnDestroy, OnInit } from '@angular/core'
+import { trigger, transition, style, animate } from '@angular/animations';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { BehaviorSubject, combineLatest, Subscription } from 'rxjs';
-import { debounceTime } from 'rxjs/operators';
-import { NetworkService, Connection, ProcessContext, RiskLevel } from 'src/app/services';
+import { debounceTime, skipUntil, take } from 'rxjs/operators';
+import { RiskLevel } from 'src/app/services';
 import { PortapiService } from 'src/app/services/portapi.service';
-import { Aggregator, Profile } from './aggregator';
+import { ConnTracker, Profile } from 'src/app/services/connection-tracker.service';
+import { fadeInAnimation } from 'src/app/shared/animations';
+//import { Aggregator, Profile } from './aggregator';
 
 @Component({
   templateUrl: './monitor.html',
   styleUrls: ['./monitor.scss'],
-  providers: []
+  providers: [],
+  animations: [fadeInAnimation],
 })
 export class MonitorPageComponent implements OnInit, OnDestroy {
   private subscription: Subscription = Subscription.EMPTY;
-  private aggregator: Aggregator;
 
   profiles: Profile[] = [];
   onSearch = new BehaviorSubject<string>('');
 
-  selected: Profile | null = null;
+  loading = true;
 
+  get selected() {
+    return this.connTrack.inspected;
+  }
 
-  constructor(private portapi: PortapiService,
-    private route: ActivatedRoute) {
-
-    const stream = this.portapi.request('qsub', { query: 'network:' }, { forwardDone: true });
-    this.aggregator = new Aggregator(stream);
+  constructor(
+    private connTrack: ConnTracker,
+    private route: ActivatedRoute
+  ) {
   }
 
   ngOnInit() {
-    this.aggregator.connect();
-
-    this.subscription = combineLatest([
-      this.route.paramMap,
-      this.aggregator.ready,
-      this.onSearch
-    ])
-      .pipe(debounceTime(100))
-      .subscribe(([params, _, search]) => {
-
-        search = search.toLocaleLowerCase();
-        this.profiles = Object.keys(this.aggregator.profiles)
-          .map(key => this.aggregator.profiles[key])
-          .filter(profile => {
-            return search === '' || profile.name.toLocaleLowerCase().includes(search)
-          });
-
+    this.subscription = this.route.paramMap
+      .subscribe(params => {
         const id = params.get("profile");
-        if (id === null || id === 'overview') {
-          this.selected = null;
-          return
-        }
-
-        this.selected = this.aggregator.profiles[id];
+        this.connTrack.inspect(id);
       });
 
-    this.subscription.add(() => this.aggregator.dispose())
-  }
+    this.connTrack.ready.pipe(take(1)).subscribe(
+      () => this.loading = false
+    )
 
-  getBlockStatus(p: Profile): RiskLevel {
-    if (p.countPermitted === p.connections.size) {
-      return RiskLevel.Low;
-    }
-
-    if (p.countPermitted === 0) {
-      return RiskLevel.Medium;
-    }
-
-    return RiskLevel.Off;
+    this.subscription.add(
+      combineLatest([
+        this.connTrack.profiles,
+        this.onSearch,
+        this.connTrack.ready,
+      ])
+        .subscribe(([p, search, _]) => {
+          this.profiles = p.filter(profile => {
+            return search === '' || profile.name.toLocaleLowerCase().includes(search)
+          });
+        })
+    );
   }
 
   ngOnDestroy() {

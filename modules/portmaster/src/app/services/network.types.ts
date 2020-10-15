@@ -1,12 +1,12 @@
 export enum Verdict {
-  Drop = 0,
-  Block = 1,
+  Undecided = 0,
+  Undeterminable = 1,
   Accept = 2,
-  // TODO(ppacher): The the below ones really used??
-  Stolen = 3,
-  Queue = 4,
-  Repeat = 5,
-  Stop = 6,
+  Block = 3,
+  Drop = 4,
+  RerouteToNs = 5,
+  RerouteToTunnel = 6,
+  Failed = 7
 }
 
 export enum IPProtocol {

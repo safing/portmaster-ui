@@ -8,9 +8,10 @@
 </div>
 
 <div class="content">
+  <fa-icon icon="spinner" [spin]="true" *ngIf="loading"></fa-icon>
 
   <!-- navigation for the settings -->
-  <div class="settings-nav" [class.show]="shouldShowSettingsNav">
+  <div class="settings-nav" *ngIf="!loading" [@fadeIn]>
     <ul>
       <li *ngFor="let subsys of subsystems; trackBy: statusService.trackSubsystem"
         [class.active]="activeSection === subsys.ConfigKeySpace">
@@ -30,7 +31,7 @@
     </ul>
   </div>
 
-  <div class="settings" cdkScrollable>
+  <div class="settings" cdkScrollable *ngIf="!loading" [@fadeIn]>
     <!-- actual settings -->
     <ng-container *ngFor="let subsys of subsystems; trackBy: statusService.trackSubsystem">
       <h2 [attr.id]="subsys.ConfigKeySpace">

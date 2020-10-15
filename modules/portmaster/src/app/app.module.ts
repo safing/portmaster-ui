@@ -6,6 +6,7 @@ import { CommonModule } from '@angular/common';
 import { NgModule } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { BrowserModule } from '@angular/platform-browser';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { FaIconLibrary, FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { far } from '@fortawesome/free-regular-svg-icons';
 import { fas } from '@fortawesome/free-solid-svg-icons';
@@ -28,6 +29,8 @@ import { FilterListItemComponent } from './shared/config/filter-list/list-item';
 import { GenericSettingComponent } from './shared/config/generic-setting/generic-setting';
 import { SecuritySettingComponent } from './shared/config/security-setting/security-setting';
 import { ConnectionsViewComponent } from './shared/connections-view/connections-view';
+import { CountIndicatorComponent } from './shared/count-indicator/count-indicator';
+import { CountryFlagDirective } from './shared/country-flag/country-flag';
 import { DropdownComponent } from './shared/dropdown/dropdown';
 import { DropDownItemComponent, DropDownValueDirective } from './shared/dropdown/dropdown-item';
 import { ExpertiseDirective } from './shared/expertise/expertise-directive';
@@ -35,14 +38,13 @@ import { ExpertiseComponent } from './shared/expertise/expertise-switch';
 import { FuzzySearchPipe } from './shared/fuzzySearch';
 import { NotificationComponent } from './shared/notification/notification';
 import { SafePipe } from './shared/save.pipe';
-import { CountryFlagDirective } from './shared/country-flag/country-flag';
 import { SubsystemComponent } from './shared/subsystem/subsystem';
+import { PlaceholderComponent } from './shared/text-placeholder';
 import { ToggleSwitchComponent } from './shared/toggle-switch/toggle-switch';
 import { MarkdownWidgetComponent, MarkdownWidgetSettingsComponent } from './widgets/markdown-widget';
 import { NotificationWidgetComponent, NotificationWidgetSettingsComponent } from './widgets/notification-widget';
 import { PilotWidgetComponent } from './widgets/pilot-widget';
 import { StatusWidgetComponent, StatusWidgetSettingsComponent } from './widgets/status-widget';
-import { CountIndicatorComponent } from './shared/count-indicator/count-indicator';
 import { WIDGET_DEFINTIONS } from './widgets/widget.types';
 
 @NgModule({
@@ -87,10 +89,12 @@ import { WIDGET_DEFINTIONS } from './widgets/widget.types';
     MonitorApplicationViewComponent,
     CountIndicatorComponent,
     CountryFlagDirective,
+    PlaceholderComponent,
   ],
   imports: [
     BrowserModule,
     CommonModule,
+    BrowserAnimationsModule,
     FormsModule,
     AppRoutingModule,
     FontAwesomeModule,

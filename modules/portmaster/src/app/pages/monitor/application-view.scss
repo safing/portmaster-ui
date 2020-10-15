@@ -6,3 +6,165 @@ fa-icon[icon="chevron-right"] {
   font-size: 0.8em;
   @apply mx-1;
 }
+
+fa-icon[icon="spinner"] {
+  @apply text-3xl;
+  display   : block;
+  width     : 100%;
+  text-align: center;
+  height    : 6rem;
+}
+
+.statistics {
+  width          : 100%;
+  display        : flex;
+  justify-content: space-evenly;
+  align-items    : center;
+
+  height       : 4rem;
+  margin-bottom: 2rem;
+
+  .metric {
+    display       : flex;
+    flex-direction: column;
+    align-items   : center;
+
+    label,
+    span {
+      @apply text-gray-200;
+      --text-opacity: 0.4;
+      @apply font-medium;
+      margin-bottom: -0.3rem;
+    }
+
+    label {
+      font-size: 0.7em;
+    }
+
+    span.value {
+      @apply text-xl;
+      @apply font-medium;
+      @apply text-white;
+    }
+
+    span.green {
+      @apply text-green-500;
+
+      span.value {
+        @apply text-green-500;
+      }
+    }
+
+    span.red {
+      @apply text-red-500;
+
+      span.value {
+        @apply text-red-500;
+      }
+    }
+  }
+}
+
+.app-header {
+  display    : flex;
+  align-items: center;
+
+  cursor         : pointer;
+  outline        : none;
+  justify-content: space-between;
+
+  @apply text-xs;
+  @apply font-medium;
+  @apply p-2;
+  @apply px-3;
+  @apply rounded-t;
+
+  @apply bg-gray-300;
+  --bg-opacity: 0.4;
+
+
+  &>*:not(:last-child) {
+    @apply mr-1;
+  }
+
+  span.app-name {
+    flex-grow: 1;
+  }
+
+  fa-icon.app-icon {
+    @apply px-2;
+    font-size: 1.5em;
+    @apply text-green-500;
+    @apply mr-0;
+
+    &.loading {
+      @apply text-gray-200;
+      --text-opacity: 0.5;
+    }
+  }
+
+  .buttons {
+    @apply mr-2;
+
+    span {
+      display   : inline-block;
+      text-align: center;
+
+      min-width: 5rem;
+      @apply px-2;
+      @apply rounded;
+      @apply text-xs;
+
+      padding: {
+        top   : 0.1rem;
+        bottom: 0.1rem;
+      }
+
+      &.selected {
+        @apply bg-gray-300;
+      }
+
+      &:hover {
+        @apply bg-gray-600;
+      }
+    }
+  }
+}
+
+.app-meta {
+  @apply bg-gray-300;
+  --bg-opacity: 0.2;
+  @apply rounded-b;
+
+  @apply py-2;
+  @apply px-4;
+  @apply mb-2;
+
+  display        : flex;
+  justify-content: space-between;
+
+  &>div {
+    flex-grow: 0.9;
+
+    &>span,
+    app-text-placeholder {
+      @apply my-1;
+      display: block;
+      @apply text-xs;
+      @apply font-medium;
+
+      span:first-of-type {
+        @apply font-normal;
+        @apply text-gray-200;
+        @apply mr-1;
+        --text-opacity: 0.6;
+      }
+
+    }
+  }
+}
+
+app-connections-view {
+  display: block;
+  @apply pl-5;
+}

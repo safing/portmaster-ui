@@ -71,6 +71,11 @@ h1.profile {
   fa-icon.app-icon {
     font-size: 1.5em; // em!!
     @apply text-green-500;
+
+    &.loading {
+      @apply text-gray-200;
+      --text-opacity: 0.2;
+    }
   }
 
   fa-icon.app-icon {
@@ -121,7 +126,7 @@ li.profile {
     @apply mr-1;
   }
 
-  span.app-name {
+  .app-name {
     flex-grow: 1;
   }
 }

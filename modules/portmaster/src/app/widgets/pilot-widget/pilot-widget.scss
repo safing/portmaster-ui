@@ -108,6 +108,7 @@
       @apply mt-1;
       cursor  : pointer;
       overflow: hidden;
+      z-index : 1;
 
       &:after {
         transition: all cubic-bezier(0.19, 1, 0.82, 1) .3s;

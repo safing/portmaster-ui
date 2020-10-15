@@ -1,146 +1,128 @@
-import { Component, Input, OnInit } from '@angular/core';
-import { parse } from 'psl';
-import { Connection, RiskLevel, ScopeTranslation, Verdict } from 'src/app/services';
-
-interface Group {
-  scope: string;
-  subdomain?: string;
-  domain?: string;
-  connections: Connection[];
-  blockStatus: RiskLevel;
-  distinctIPs: Set<string>;
-  distinctCountries: Set<string>;
-  distinctASNs: Set<string>;
-  firstConn: number;
-  lastConn: number;
-  countTCP: number;
-  countUDP: number;
-  countDNS: number;
-  countEncrypted: number;
-}
+import { ChangeDetectionStrategy, Component, Input, TrackByFunction } from '@angular/core';
+import { AppProfile, getAppSetting, ScopeTranslation, setAppSetting, Verdict } from 'src/app/services';
+import { AppProfileService } from 'src/app/services/app-profile.service';
+import { InspectedProfile, ScopeGroup } from 'src/app/services/connection-tracker.service';
+import { deepClone } from '../utils';
 
 @Component({
   selector: 'app-connections-view',
   templateUrl: './connections-view.html',
-  styleUrls: ['./connections-view.scss']
+  styleUrls: ['./connections-view.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class ConnectionsViewComponent implements OnInit {
+export class ConnectionsViewComponent {
   readonly scopeTranslation = ScopeTranslation;
   readonly displayedColumns = ['state', 'reason', 'entity', 'started', 'ended'];
   readonly verdict = Verdict;
 
-  groups = new Map<string, Group>();
+  trackByScope: TrackByFunction<ScopeGroup> = (_: number, g: ScopeGroup) => g.scope;
+
+  //groups: Group[] = [];
+  blockedDomains: string[] | null = null;
 
   @Input()
-  set connections(v: Connection[]) {
-    this._connections = v;
-    this.groupConnections(v);
+  set profile(p: AppProfile | null) {
+    this._profile = p;
+    this.blockedDomains = null;
+
+    if (!!p) {
+      this.collectBlockedDomains();
+    }
   }
-  get connections() { return this._connections; }
-  private _connections: Connection[] = [];
+  get profile() {
+    return this._profile
+  }
+  private _profile: AppProfile | null = null;
 
-  ngOnInit() {
+  @Input()
+  connections: InspectedProfile | null = null;
 
+  constructor(private profileService: AppProfileService) { }
+
+  blockAll(event: Event, grp: ScopeGroup) {
+    event.preventDefault();
+    event.stopPropagation();
+
+    if (!grp.domain) {
+      // scope blocking not yet supported
+      return
+    }
+
+    if (this.isScopeBlocked(grp)) {
+      return;
+    }
+
+    const newRule = `- ${grp.scope}`;
+
+    this.updateRules(newRule, true);
   }
 
-  private groupConnections(connections: Connection[]) {
-    this.groups = new Map();
+  unblockAll(event: Event, grp: ScopeGroup) {
+    event.preventDefault();
+    event.stopPropagation();
 
-    connections.forEach(conn => {
-      const key = conn.Scope;
-      let grp = this.groups.get(key);
+    if (!grp.domain) {
+      // scope blocking not yet supported
+      return
+    }
 
-      if (!grp) {
-        grp = {
-          scope: key,
-          connections: [],
-          blockStatus: RiskLevel.Off,
-          firstConn: Infinity,
-          lastConn: 0,
-          distinctASNs: new Set(),
-          distinctCountries: new Set(),
-          distinctIPs: new Set(),
-          countTCP: 0,
-          countUDP: 0,
-          countDNS: 0,
-          countEncrypted: 0,
-        }
+    if (!this.isScopeBlocked(grp)) {
+      return;
+    }
 
-        const parsed = parse(key);
-        if (parsed.error === undefined) {
-          grp.subdomain = parsed.subdomain || '';
-          grp.domain = parsed.domain || '';
-        }
+    const newRule = `- ${grp.scope}`;
 
-        this.groups.set(key, grp);
+    this.updateRules(newRule, false);
+  }
+
+  isScopeBlocked(grp: ScopeGroup) {
+    // blocked domains are not yet loaded
+    if (this.blockedDomains === null) {
+      return false;
+    }
+
+    if (!!grp.domain) {
+      return this.blockedDomains.some(rule => grp.scope === rule);
+    } else {
+      // TODO(ppacher): correctly handle all other scopes here.
+    }
+
+    return false;
+  }
+
+  private updateRules(newRule: string, add: boolean) {
+    if (!this.profile) {
+      return
+    }
+
+    let rules = getAppSetting<string[]>(this.profile!.Config, 'filter/endpoints') || [];
+    rules = rules.filter(rule => rule !== newRule);
+
+    if (add) {
+      rules.splice(0, 0, newRule)
+    }
+
+    const profile = deepClone(this.profile!);
+    setAppSetting(profile.Config, 'filter/endpoints', rules);
+
+    this.profileService.saveLocalProfile(profile)
+      .subscribe();
+  }
+
+  private collectBlockedDomains() {
+    let blockedDomains = new Set<string>();
+
+    const rules = getAppSetting<string[]>(this.profile!.Config, 'filter/endpoints') || [];
+    for (let i = 0; i < rules.length; i++) {
+      const rule = rules[i];
+      if (rule.startsWith('+ ')) {
+        break;
       }
 
-      if (conn.Started < grp.firstConn) {
-        grp.firstConn = conn.Started;
-      }
+      blockedDomains.add(rule.substr(2))
+    }
 
-      if (conn.Ended > grp.lastConn) {
-        grp.lastConn = conn.Ended;
-      }
+    this.blockedDomains = Array.from(blockedDomains)
 
-      if (!!conn.Entity) {
-
-        if (!!conn.Entity.ASN) {
-          grp.distinctASNs.add(`AS${conn.Entity.ASN}`);
-        }
-
-        if (!!conn.Entity.IP) {
-          grp.distinctIPs.add(conn.Entity.IP);
-        } else {
-          // NO ip means that this was a DNS request
-          grp.countDNS++;
-        }
-
-        if (!!conn.Entity.Country) {
-          grp.distinctCountries.add(conn.Entity.Country);
-        }
-      }
-
-
-      if (conn.IPProtocol === 17) {
-        grp.countUDP++;
-      } else if (conn.IPProtocol === 6) {
-        grp.countTCP++;
-      } // TODO(ppacher): should we count others as well?
-
-      if (conn.Encrypted) {
-        grp.countEncrypted++;
-      }
-
-      grp.connections.push(conn);
-    });
-
-    this.groups.forEach(grp => {
-      let hasBlocked = false;
-      let hasAccepted = false;
-
-      for (let i = 0; i < grp.connections.length; i++) {
-        const conn = grp.connections[i];
-        if (conn.Verdict === Verdict.Block || conn.Verdict === Verdict.Drop) {
-          hasBlocked = true;
-        } else if (conn.Verdict === Verdict.Accept) {
-          hasAccepted = true;
-        } else {
-          console.warn(`Unexpected verdict ${conn.Verdict} (${Verdict[conn.Verdict]}) for connection`, conn);
-        }
-
-        if (hasBlocked && hasAccepted) {
-          break;
-        }
-      }
-
-      if (hasBlocked && hasAccepted) {
-        grp.blockStatus = RiskLevel.Off;
-      } else if (hasBlocked) {
-        grp.blockStatus = RiskLevel.Medium;
-      } else {
-        grp.blockStatus = RiskLevel.Low;
-      }
-    })
   }
 }

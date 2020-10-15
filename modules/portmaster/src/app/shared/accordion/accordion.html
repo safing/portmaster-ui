@@ -3,5 +3,7 @@
 </div>
 
 <div class="body" [class.active]="active">
-  <ng-content></ng-content>
+  <ng-container *ngIf="active">
+    <ng-content></ng-content>
+  </ng-container>
 </div>

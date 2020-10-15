@@ -1,7 +1,11 @@
 import { SecurityLevel } from './core.types';
 import { OptionValueType } from './config.types';
 
-export type ConfigObject = OptionValueType | { [key: string]: ConfigObject };
+export interface ConfigMap {
+  [key: string]: ConfigObject;
+}
+
+export type ConfigObject = OptionValueType | ConfigMap;
 
 export interface FlatConfigObject {
   [key: string]: OptionValueType;
@@ -12,7 +16,7 @@ export interface AppProfile {
   LinkedPath: string;
   Created: number;
   ApproxLastUsed: number;
-  Config: ConfigObject;
+  Config: ConfigMap;
   Description: string;
   Homepage: string;
   Icon: string;
@@ -21,45 +25,79 @@ export interface AppProfile {
   Source: 'local';
 }
 
-export function flattenProfileConfig(p: ConfigObject, prefix = ''): FlatConfigObject {
+export function flattenProfileConfig(p: ConfigMap, prefix = ''): FlatConfigObject {
   let result: FlatConfigObject = {};
 
   Object.keys(p).forEach(key => {
-    if (isConfigObject(p[key])) {
-      const childPrefix = prefix === ''
-        ? p[key]
-        : `${prefix}/${p[key]}`;
-      const flattened = flattenProfileConfig(p[key], childPrefix);
-      result = mergeObjects(result, flattened);
+    const childPrefix = prefix === ''
+      ? key
+      : `${prefix}/${key}`;
 
+    const prop = p[key];
+
+    if (isConfigMap(prop)) {
+      const flattened = flattenProfileConfig(prop, childPrefix);
+      result = mergeObjects(result, flattened);
       return;
     }
 
-    result[key] = p[key];
+    result[childPrefix] = prop;
   })
 
   return result;
 }
 
-export function setProfileSetting(obj: ConfigObject, path: string, value: any) {
+export function getAppSetting<T extends OptionValueType>(obj: ConfigMap, path: string): T | null {
   const parts = path.split('/');
+
   let iter = obj;
   for (let idx = 0; idx < parts.length; idx++) {
     const propName = parts[idx];
-    if (obj[propName] === undefined) {
-      if (idx === parts.length - 1) {
-        iter[propName] = value;
-        return
-      } else {
-        iter[propName] = {};
-      }
+
+    if (iter[propName] === undefined) {
+      return null;
     }
-    iter = iter[propName];
+
+    const value = iter[propName];
+    if (idx === parts.length - 1) {
+      return value as T;
+    }
+
+    if (!isConfigMap(value)) {
+      return null;
+    }
+
+    iter = value;
+
+  }
+  return null;
+}
+
+export function setAppSetting(obj: ConfigObject, path: string, value: any) {
+  const parts = path.split('/');
+  if (typeof obj !== 'object' || Array.isArray(obj)) {
+    return;
+  }
+
+  let iter = obj;
+  for (let idx = 0; idx < parts.length; idx++) {
+    const propName = parts[idx];
+
+    if (idx === parts.length - 1) {
+      iter[propName] = value;
+      return
+    }
+
+    if (iter[propName] === undefined) {
+      iter[propName] = {};
+    }
+
+    iter = iter[propName] as ConfigMap;
   }
 }
 
-function isConfigObject(v: any): v is ConfigObject {
-  return typeof v === 'object';
+function isConfigMap(v: any): v is ConfigMap {
+  return typeof v === 'object' && !Array.isArray(v);
 }
 
 function mergeObjects(a: FlatConfigObject, b: FlatConfigObject): FlatConfigObject {

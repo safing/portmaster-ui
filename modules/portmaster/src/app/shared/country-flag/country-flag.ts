@@ -1,10 +1,13 @@
-import { AfterViewInit, Directive, ElementRef, Input, Renderer2 } from '@angular/core';
+import { AfterViewInit, Directive, ElementRef, HostBinding, Input, Renderer2 } from '@angular/core';
 
 @Directive({
-  selector: 'span[appCountryFlags]'
+  selector: 'span[appCountryFlags]',
 })
 export class CountryFlagDirective implements AfterViewInit {
   private readonly OFFSET = 127397;
+
+  @HostBinding('style.text-shadow')
+  textShadow = 'rgba(255, 255, 255, .5) 0px 0px 1px';
 
   @Input('appCountryFlags')
   code: string = '';

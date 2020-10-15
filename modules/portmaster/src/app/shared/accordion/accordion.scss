@@ -11,3 +11,7 @@
   overflow: visible;
   height  : auto;
 }
+
+:host {
+  display: block;
+}

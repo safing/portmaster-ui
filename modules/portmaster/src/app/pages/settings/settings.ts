@@ -5,6 +5,7 @@ import { debounceTime, startWith } from 'rxjs/operators';
 import { ScrollDispatcher } from '@angular/cdk/overlay';
 import { FuzzySearchService } from 'src/app/shared/fuzzySearch';
 import { ExpertiseService } from 'src/app/shared/expertise/expertise.service';
+import { fadeInAnimation } from 'src/app/shared/animations';
 
 interface Category {
   name: string;
@@ -17,17 +18,18 @@ interface Category {
   styleUrls: [
     '../page.scss',
     './settings.scss'
-  ]
+  ],
+  animations: [fadeInAnimation]
 })
 export class SettingsComponent implements OnInit, AfterViewInit, OnDestroy {
   subsystems: Subsystem[] = [];
   others: Setting[] | null = null
   settings: Map<string, Category[]> = new Map();
 
-  shouldShowSettingsNav = false;
   activeSection = '';
   activeCategory = '';
   searchTerm: string = '';
+  loading = true;
 
   private onSearch = new BehaviorSubject<string>('');
 
@@ -123,7 +125,7 @@ export class SettingsComponent implements OnInit, AfterViewInit, OnDestroy {
             return !!this.settings.get(subsys.ConfigKeySpace);
           })
 
-          this.shouldShowSettingsNav = true;
+          this.loading = false;
         }
       )
   }

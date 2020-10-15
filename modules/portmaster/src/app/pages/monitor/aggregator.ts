@@ -8,6 +8,7 @@ export interface Profile {
   name: string;
   connections: Set<string>;
   countPermitted: number;
+  distinctPIDs: Set<number>;
 }
 
 interface ProfileMap {
@@ -15,17 +16,36 @@ interface ProfileMap {
 }
 
 export class Aggregator {
-  private _profiles: ProfileMap = {};
-  private _connections: Map<string, [Profile, Verdict]> = new Map();
+  private profileMap: ProfileMap = {};
+  private connections: Map<string, [Profile, Verdict]> = new Map();
   private subscription: Subscription = Subscription.EMPTY;
-  private _finished = new Subject<void>();
+  private _ready = new Subject<void>();
+  private _selectedProfile = new Subject<Profile>();
 
   get ready(): Observable<void> {
-    return this._finished;
+    return this._ready;
   }
 
   get profiles() {
-    return this._profiles;
+    return this.profileMap;
+  }
+
+  set selected(p: Profile | string | null) {
+    if (typeof p === 'string') {
+      this._selectedProfileKey = p;
+    } else {
+      this._selectedProfileKey = !!p ? p.id : '';
+    }
+
+    const selected = this.profileMap[this._selectedProfileKey] || null;
+    if (!!selected) {
+      this._selectedProfile.next(selected);
+    }
+  }
+  private _selectedProfileKey: string = '';
+
+  get selected$() {
+    return this._selectedProfile.asObservable();
   }
 
   constructor(private updates: Observable<DataReply<Connection>>) { }
@@ -40,8 +60,9 @@ export class Aggregator {
   private handleUpdate(data: DataReply<Connection>) {
     const conn = data.data;
 
+
     if (data.type as any === 'done') {
-      this._finished.next();
+      this._ready.next();
       return;
     }
 
@@ -52,17 +73,17 @@ export class Aggregator {
     }
 
     if (data.type === 'del') {
-      const item = this._connections.get(data.key);
+      const item = this.connections.get(data.key);
       if (!item) {
         return;
       }
       const [profile, verdict] = item;
 
-      this._connections.delete(data.key);
+      this.connections.delete(data.key);
 
       if (profile.connections.delete(data.key)) {
         if (!profile.connections.size) {
-          delete (this._profiles[profile.id])
+          delete (this.profileMap[profile.id])
         } else if (verdict === Verdict.Accept) {
           profile.countPermitted--;
         }
@@ -79,27 +100,37 @@ export class Aggregator {
       return;
     }
 
-    let profile = this._profiles[conn.ProcessContext.ProfileID];
+    let profile = this.profileMap[conn.ProcessContext.ProfileID];
     if (!profile) {
       profile = {
         name: conn.ProcessContext.Name,
         id: conn.ProcessContext.ProfileID,
         connections: new Set(),
+        distinctPIDs: new Set(),
         countPermitted: 0,
       }
 
-      this._profiles[profile.id] = profile;
+      this.profileMap[profile.id] = profile;
     }
 
-    this._connections.set(data.key, [profile, conn.Verdict]);
+    this.connections.set(data.key, [profile, conn.Verdict]);
     profile.connections.add(data.key);
+    profile.distinctPIDs.add(conn.ProcessContext.PID);
     if (conn.Verdict === Verdict.Accept) {
       profile.countPermitted++;
+    }
+
+    // if we just updated the currently selected profile
+    // we push an update.
+    if (profile.id === this._selectedProfileKey) {
+      this._selectedProfile.next({
+        ...profile,
+      });
     }
   }
 
   dispose() {
     this.subscription.unsubscribe();
-    this._finished.complete();
+    this._ready.complete();
   }
 }
