@@ -5,14 +5,12 @@
   align-items    : center;
   justify-content: flex-end;
 
-  font-size: 0.6rem;
-  @apply text-gray-200;
-  --text-opacity: 0.8;
-  line-height   : 18px;
+  font-size  : 0.6rem;
+  line-height: 18px;
 
   @apply pl-2;
 
-  @apply bg-gray-400;
+  @apply bg-buttons-dark;
   border-radius: 0.5rem;
 
   span.counter {
@@ -24,7 +22,7 @@
   div.state {
     width : 18px;
     height: 18px;
-    @apply bg-gray-300;
+    @apply bg-buttons-light;
     @apply rounded-full;
 
     .trust-level:before {

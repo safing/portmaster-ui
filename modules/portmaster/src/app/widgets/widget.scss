@@ -5,9 +5,8 @@
   display        : flex;
   justify-content: center;
   align-items    : center;
-  @apply text-xs;
 
   @apply rounded;
-  @apply bg-gray-600;
+  @apply bg-cards-primary;
   outline: none;
 }

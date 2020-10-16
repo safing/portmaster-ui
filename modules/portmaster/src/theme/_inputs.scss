@@ -1,0 +1,38 @@
+input:not([type="checkbox"]),
+textarea,
+select {
+  display: block;
+  width  : 100%;
+  outline: none;
+  @apply shadow-inner-xs;
+  @apply bg-buttons-dark;
+
+  @apply text-secondary;
+
+  @apply border-buttons-dark;
+  @apply border;
+  transition: border cubic-bezier(0.175, 0.885, 0.32, 1.275) .3s;
+  @apply p-2;
+  @apply px-4;
+  @apply rounded;
+  @apply text-xs;
+
+  &:active,
+  &:focus {
+    @apply text-primary;
+    @apply bg-buttons-light;
+  }
+
+}
+
+
+
+.ng-invalid {
+
+  input,
+  textarea,
+  select {
+    @apply border-info-red;
+    color: theme('colors.info.red');
+  }
+}

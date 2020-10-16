@@ -1,7 +1,7 @@
 import { ScrollStrategy, ScrollStrategyOptions } from '@angular/cdk/overlay';
 import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, ContentChildren, ElementRef, forwardRef, HostBinding, HostListener, QueryList } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
-import { DropDownValueDirective } from './dropdown-item';
+import { DropDownValueDirective } from './item';
 
 @Component({
   selector: 'app-dropdown',

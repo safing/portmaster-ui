@@ -7,6 +7,7 @@ import { PortapiService } from './portapi.service';
 import { BehaviorSubject, forkJoin, Observable, of, Subject, Subscription } from 'rxjs';
 import { DataReply } from './portapi.types';
 import { parse } from 'psl';
+import { ThrowStmt } from '@angular/compiler';
 
 /**
  * ConnectionAddedEvent is emitted by a Profile when a
@@ -65,6 +66,14 @@ export class Profile {
   /** Returns the number of active connections of this profile */
   get size() {
     return this.permitted.size + this.unpermitted.size;
+  }
+
+  get countAllowed() {
+    return this.permitted.size;
+  }
+
+  get countUnpermitted() {
+    return this.unpermitted.size;
   }
 
   constructor(
@@ -391,7 +400,9 @@ export class InspectedProfile {
     if (!!grp) {
       grp.remove(conn);
 
-      if (grp.empty) {
+      // if the group is now empty (and we're not loading)
+      // we can delete it.
+      if (grp.empty && !this.loading) {
         this._scopeGroups.delete(conn.Scope);
         grp.dispose();
         this.publishScopes();

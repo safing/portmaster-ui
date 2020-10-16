@@ -14,12 +14,11 @@ button {
   align-items   : center;
   outline       : none;
   text-transform: none;
-  @apply text-xs;
-  @apply bg-gray-400;
+  @apply bg-buttons-light;
   transition: all cubic-bezier(0.175, 0.885, 0.32, 1) .2s;
 
   &.active {
-    @apply bg-gray-300;
+    @apply bg-buttons-dark;
     @apply shadow-inner;
 
     .arrow {
@@ -40,38 +39,33 @@ button {
 
   .arrow {
     @apply p-2;
-    @apply bg-gray-500;
-    width: 2rem;
-
-    fa-icon {
-      transition: all cubic-bezier(0.175, 0.885, 0.32, 1) .3s;
-    }
-
+    @apply bg-buttons-dark;
     @apply rounded-r-sm;
 
+    width          : 2rem;
     display        : flex;
     align-items    : center;
     justify-content: space-around;
 
+    fa-icon {
+      transition: all cubic-bezier(0.175, 0.885, 0.32, 1) .3s;
+    }
   }
 }
 
 ul.item-list {
   width  : 100%;
   display: block;
-  @apply bg-gray-400;
-  @apply text-gray-100;
+  @apply bg-buttons-light;
   @apply shadow-xl;
-  @apply text-sm;
 
   li {
     cursor: pointer;
-    @apply text-xs;
     @apply p-2;
     @apply px-4;
 
     &:hover {
-      @apply bg-gray-500;
+      @apply bg-buttons-dark;
     }
   }
 }

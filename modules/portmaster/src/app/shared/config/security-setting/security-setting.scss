@@ -8,119 +8,12 @@
 label {
   @apply p-2;
   @apply px-3;
-  @apply text-xs;
-  @apply text-orange-400;
-  @apply bg-gray-400;
-  @apply font-medium;
+  @apply bg-buttons-light;
+  @apply text-primary;
   @apply mr-1;
   display: inline-block;
 }
 
 app-dropdown-item {
   position: relative;
-}
-
-div.line {
-  position       : absolute;
-  left           : 0.5rem;
-  right          : 0.5rem;
-  display        : flex;
-  justify-content: space-between;
-
-  &>* {
-    flex-grow : 1;
-    text-align: center;
-    flex-basis: 100%;
-    transition: all cubic-bezier(0.445, 0.05, 0.55, 0.95) .3s;
-
-    display        : flex;
-    flex-direction : column;
-    justify-content: space-around;
-    align-items    : center;
-  }
-}
-
-div.circle {
-  @apply shadow;
-  position     : relative;
-  display      : inline-block;
-  height       : 1rem;
-  width        : 1rem;
-  border-radius: 50%;
-  @apply bg-gray-400;
-  cursor: pointer;
-
-  &:hover {
-    @apply bg-gray-300;
-  }
-}
-
-div[name="Off"] div.circle {
-  @apply bg-gray-800;
-  @apply border-2;
-  @apply border-green-600;
-}
-
-div.active {
-  div.circle {
-    @apply bg-green-400;
-    @apply border-2;
-    @apply border-green-600;
-
-    &:hover {
-      @apply bg-green-600;
-    }
-  }
-
-  span {
-    @apply text-green-700;
-  }
-
-  &[name="Off"] {
-    div.circle {
-      @apply bg-gray-800;
-      @apply border-2;
-      @apply border-red-500;
-
-      &:hover {
-        @apply border-red-700;
-      }
-    }
-
-    span {
-      @apply text-red-400;
-    }
-  }
-}
-
-div.focused {
-  div.circle {
-    @apply border-yellow-600;
-  }
-
-  span {
-    @apply text-yellow-600;
-  }
-}
-
-div.connector {
-  @apply shadow;
-  position  : relative;
-  top       : 0.45rem;
-  display   : inline-block;
-  border-top: 0.2rem solid;
-  @apply border-gray-400;
-
-  &.active {
-    @apply border-green-600;
-  }
-}
-
-
-span {
-  display: inline-block;
-  @apply text-xs;
-  @apply font-semibold;
-  @apply text-gray-300;
-  text-align: center;
 }

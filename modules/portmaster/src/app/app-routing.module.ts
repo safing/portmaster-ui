@@ -1,7 +1,6 @@
 import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
 import { SettingsComponent } from './pages/settings/settings';
-import { DashboardComponent } from './pages/dashboard/dashboard';
 import { WidgetSettingsOutletComponent } from './pages/widget-settings-outlet/widget-settings-outlet';
 import { MonitorPageComponent } from './pages/monitor';
 
@@ -9,11 +8,7 @@ const routes: Routes = [
   {
     path: '',
     pathMatch: 'full',
-    redirectTo: 'dashboard'
-  },
-  {
-    path: 'dashboard',
-    component: DashboardComponent,
+    redirectTo: 'monitor/profile/overview'
   },
   {
     path: 'settings',

@@ -1,0 +1,31 @@
+.cdk-drag {
+  .widget {
+    fa-icon {
+      opacity: 1;
+    }
+  }
+}
+
+.cdk-drag-placeholder {
+  position  : relative;
+  opacity   : 0.5;
+  box-sizing: border-box;
+  @apply border-2;
+  @apply rounded;
+  @apply border-dashed;
+  @apply border-info-blue;
+}
+
+.cdk-drag-animating {
+  transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
+}
+
+.cdk-drag-preview {
+  box-sizing: border-box;
+
+  @apply rounded;
+  @apply border-2;
+  @apply border-dashed;
+  @apply border-info-blue;
+  @apply text-primary;
+}

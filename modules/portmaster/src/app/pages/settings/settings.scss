@@ -19,9 +19,9 @@
     margin-bottom: 1rem;
     position     : relative;
 
-
     app-generic-setting {
       width: 100%;
+      @apply mt-6;
 
       &:first-of-type {
         @apply mt-4;
@@ -36,7 +36,7 @@
       margin-left : -1rem;
       border      : 1px solid;
       border-right: none;
-      @apply border-gray-300;
+      @apply border-cards-tertiary;
     }
   }
 
@@ -67,7 +67,7 @@ div.settings-nav {
 
     &>li {
       @apply mb-1;
-      @apply text-gray-300;
+      @apply text-secondary;
 
       span {
         cursor : pointer;
@@ -76,7 +76,7 @@ div.settings-nav {
 
       &:hover,
       &.active {
-        @apply text-gray-200;
+        @apply text-primary;
       }
 
       &.active {
@@ -91,7 +91,7 @@ div.settings-nav {
         @apply pl-3;
         @apply text-xs;
         @apply border-l;
-        @apply border-gray-200;
+        @apply border-cards-tertiary;
         display: none;
 
         li {

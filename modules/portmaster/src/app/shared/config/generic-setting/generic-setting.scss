@@ -5,7 +5,7 @@
   @apply pt-2;
 
   &.ng-invalid {
-    @apply border-red-300;
+    @apply border-info-red;
     --border-opacity: 0.5;
   }
 }
@@ -21,21 +21,19 @@ h3 {
 
   .expertise {
     @apply ml-2;
-    @apply text-gray-200;
-    --text-opacity: 0.5;
     @apply text-xs;
-    @apply font-medium;
+    @apply text-tertiary;
   }
 
   .release-level {
     @apply mr-1;
 
     &.beta {
-      @apply text-yellow-500;
+      color: theme('colors.info.yellow');
     }
 
     &.experimental {
-      @apply text-red-500;
+      color: theme('colors.info.red');
     }
   }
 }
@@ -47,11 +45,10 @@ div.secondary-actions {
   span {
     cursor    : pointer;
     visibility: hidden;
-    @apply text-xs;
-    @apply text-gray-300;
+    @apply text-tertiary;
 
     &:hover {
-      @apply text-gray-200;
+      @apply text-primary;
     }
 
     &.visible {
@@ -61,7 +58,7 @@ div.secondary-actions {
     &:active,
     &:focus {
       outline: none;
-      @apply text-yellow-300;
+      color  : theme('colors.info.yellow');
     }
 
     &:not(:first-of-type) {
@@ -70,13 +67,8 @@ div.secondary-actions {
   }
 }
 
-
 span.description {
   display: block;
-  @apply text-xs;
-  @apply font-medium;
-  @apply text-gray-100;
-  --text-opacity: 0.5;
   @apply mt-2;
   @apply mb-4;
 }

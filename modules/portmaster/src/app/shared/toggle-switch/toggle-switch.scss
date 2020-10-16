@@ -26,7 +26,7 @@ input {
   transition: .4s;
   @apply shadow-inner;
 
-  @apply bg-gray-300;
+  @apply bg-buttons-light;
   @apply rounded;
 }
 
@@ -36,16 +36,16 @@ input {
   height       : $handle-size;
   width        : $handle-size;
   bottom       : calc(-0.5*(#{$handle-size} - #{$slider-height}));
-  left         : 0; //calc(-0.5*#{$handle-size});
+  left         : 0;
   transition   : .4s;
   border-radius: 50%;
 
   @apply shadow;
-  @apply bg-gray-300;
+  @apply bg-buttons-dark;
 }
 
 input:checked+.slider {
-  @apply bg-green-700;
+  @apply bg-info-green;
 }
 
 input:focus+.slider {
@@ -54,5 +54,5 @@ input:focus+.slider {
 
 input:checked+.slider:before {
   transform: translateX(calc(#{$slider-width} - #{$handle-size}));
-  @apply bg-green-500;
+  @apply bg-info-green;
 }

@@ -4,7 +4,7 @@
 
   &>* {
     @apply rounded;
-    @apply bg-gray-400;
+    @apply bg-buttons-light;
 
     &:not(:last-child) {
       @apply mr-1;
@@ -14,8 +14,6 @@
 
 div.action {
   @apply p-2;
-  @apply text-xs;
-  @apply font-semibold;
   flex-shrink: 0;
   min-width  : 4rem;
   text-align : center;
@@ -25,17 +23,15 @@ div.action {
   }
 
   &.allow {
-    @apply text-green-500;
+    color: theme('colors.info.green');
   }
 
   &.block {
-    @apply text-red-500;
+    color: theme('colors.info.red');
   }
 }
 
 div.value {
-  @apply text-xs;
-  @apply font-semibold;
   @apply p-2;
   @apply px-2;
 
@@ -62,14 +58,13 @@ div.value {
 
     fa-icon {
       cursor: pointer;
-      @apply text-gray-200;
+      @apply text-primary;
       @apply p-1;
       opacity  : 0.7;
       font-size: 0.6rem;
 
       &:hover {
         opacity: 1;
-        @apply text-gray-100;
       }
     }
   }

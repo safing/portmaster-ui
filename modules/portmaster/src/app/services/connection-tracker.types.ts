@@ -14,6 +14,10 @@ export class ConnectionStatistics {
     public countAccepted: number = 0,
   ) { }
 
+  get firstCountry() {
+    return Array.from(this.distinctCountries.keys())[0];
+  }
+
   /**
    * Update adds conn to the statistics
    *

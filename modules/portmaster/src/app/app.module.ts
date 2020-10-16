@@ -18,8 +18,7 @@ import { NotificationFactoryComponent } from './debug/notification-factory/notif
 import { PortapiInspectorComponent } from './debug/portapi-inspector/portapi-inspector';
 import { NavigationComponent } from './layout/navigation/navigation';
 import { SideDashComponent } from './layout/side-dash/side-dash';
-import { DashboardComponent } from './pages/dashboard/dashboard';
-import { MonitorApplicationViewComponent, MonitorPageComponent } from './pages/monitor';
+import { MonitorApplicationViewComponent, MonitorPageComponent, NetworkOverviewComponent } from './pages/monitor';
 import { SettingsComponent } from './pages/settings/settings';
 import { WidgetSettingsOutletComponent } from './pages/widget-settings-outlet/widget-settings-outlet';
 import { AccordionComponent, AccordionGroupComponent } from './shared/accordion';
@@ -32,13 +31,12 @@ import { ConnectionsViewComponent } from './shared/connections-view/connections-
 import { CountIndicatorComponent } from './shared/count-indicator/count-indicator';
 import { CountryFlagDirective } from './shared/country-flag/country-flag';
 import { DropdownComponent } from './shared/dropdown/dropdown';
-import { DropDownItemComponent, DropDownValueDirective } from './shared/dropdown/dropdown-item';
+import { DropDownItemComponent, DropDownValueDirective } from './shared/dropdown/item';
 import { ExpertiseDirective } from './shared/expertise/expertise-directive';
 import { ExpertiseComponent } from './shared/expertise/expertise-switch';
 import { FuzzySearchPipe } from './shared/fuzzySearch';
 import { NotificationComponent } from './shared/notification/notification';
 import { SafePipe } from './shared/save.pipe';
-import { SubsystemComponent } from './shared/subsystem/subsystem';
 import { PlaceholderComponent } from './shared/text-placeholder';
 import { ToggleSwitchComponent } from './shared/toggle-switch/toggle-switch';
 import { MarkdownWidgetComponent, MarkdownWidgetSettingsComponent } from './widgets/markdown-widget';
@@ -56,12 +54,10 @@ import { WIDGET_DEFINTIONS } from './widgets/widget.types';
     AccordionGroupComponent,
     NotificationFactoryComponent,
     PortapiInspectorComponent,
-    SubsystemComponent,
     BasicSettingComponent,
     GenericSettingComponent,
     SecuritySettingComponent,
     SettingsComponent,
-    DashboardComponent,
     MonitorPageComponent,
     SideDashComponent,
     NavigationComponent,
@@ -90,6 +86,7 @@ import { WIDGET_DEFINTIONS } from './widgets/widget.types';
     CountIndicatorComponent,
     CountryFlagDirective,
     PlaceholderComponent,
+    NetworkOverviewComponent,
   ],
   imports: [
     BrowserModule,

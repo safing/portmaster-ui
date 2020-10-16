@@ -1,0 +1,49 @@
+.statistics {
+  width          : 100%;
+  display        : flex;
+  justify-content: space-evenly;
+  align-items    : center;
+
+  height       : 4rem;
+  margin-bottom: 2rem;
+
+  .metric {
+    display       : flex;
+    flex-direction: column;
+    align-items   : center;
+
+    label,
+    span {
+      @apply text-tertiary;
+      margin-bottom: -0.3rem;
+    }
+
+    label {
+      font-size: 0.9em;
+    }
+
+    span.value {
+      @apply text-xl;
+      @apply text-primary;
+    }
+  }
+}
+
+fa-icon[icon="spinner"] {
+  @apply text-3xl;
+  display   : block;
+  width     : 100%;
+  text-align: center;
+  height    : 6rem;
+}
+
+.card-icon {
+  font-size: 1.5em; // em!!
+  color    : theme('colors.info.green');
+  @apply px-2;
+  @apply pr-2;
+
+  &.loading {
+    @apply text-tertiary;
+  }
+}

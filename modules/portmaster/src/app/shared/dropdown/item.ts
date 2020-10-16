@@ -3,6 +3,7 @@ import { Component, Input, ViewChild, TemplateRef, Directive } from '@angular/co
 @Component({
   selector: 'app-dropdown-item',
   template: `<ng-content></ng-content>`,
+  styleUrls: ['./item.scss'],
 })
 export class DropDownItemComponent {
 }

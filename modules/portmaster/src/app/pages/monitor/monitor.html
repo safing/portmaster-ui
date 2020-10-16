@@ -1,46 +1,51 @@
 <div class="sidebar no-scroll">
   <div class="sidebar-header">
-    <h4>Network Monitor</h4>
+    <div class="row">
+      <h4>Network Monitor</h4>
 
-    <span class="buttons">
-      <div class="search-container" [class.active]="!!(onSearch | async)">
-        <div class="search-button">
-          <fa-icon icon="search"></fa-icon>
+      <span class="buttons">
+        <div class="search-container" [class.active]="!!(onSearch | async)">
+          <div class="search-button">
+            <fa-icon icon="search"></fa-icon>
+          </div>
+          <input type="text" placeholder="Search" [ngModel]="(onSearch | async)" (ngModelChange)="search($event)">
+
+          <fa-icon icon="times" [class.visible]="!!(onSearch | async)" (click)="search('')"></fa-icon>
         </div>
-        <input type="text" placeholder="Search" [ngModel]="(onSearch | async)" (ngModelChange)="search($event)">
-
-        <fa-icon icon="times" [class.visible]="!!(onSearch | async)" (click)="search('')"></fa-icon>
-      </div>
-    </span>
+      </span>
+    </div>
+    <div class="row">
+      <span class="note">Last 5 mins</span>
+    </div>
   </div>
 
   <div class="scrollable">
-    <li class="profile overview" routerLink="/monitor/profile/overview" routerLinkActive="active">
+    <li class="card-header overview" routerLink="/monitor/profile/overview" routerLinkActive="active">
       Overview
     </li>
 
-    <li class="profile" *ngFor="let data of profiles" [routerLink]="['/', 'monitor', 'profile', data.id]" [@fadeIn]
+    <li class="card-header" *ngFor="let data of profiles" [routerLink]="['/', 'monitor', 'profile', data.id]" [@fadeIn]
       routerLinkActive="active">
-      <fa-icon class="app-icon" icon="futbol"></fa-icon>
-      <span class="app-name">{{ data.name }}</span>
+      <fa-icon class="card-icon" icon="futbol"></fa-icon>
+      <span class="card-title">{{ data.name }}</span>
       <app-count-indicator [count]="data.size" [risk]="data.blockStatus">
       </app-count-indicator>
     </li>
 
     <ng-container *ngIf="loading">
-      <li class="profile">
-        <fa-icon class="app-icon loading" icon="square"></fa-icon>
-        <app-text-placeholder mode="input" width="small" class="app-name"></app-text-placeholder>
+      <li class="card-header">
+        <fa-icon class="card-icon loading" icon="square"></fa-icon>
+        <app-text-placeholder mode="input" width="small" class="card-title"></app-text-placeholder>
         <app-count-indicator></app-count-indicator>
       </li>
-      <li class="profile">
-        <fa-icon class="app-icon loading" icon="square"></fa-icon>
-        <app-text-placeholder mode="input" width="small" class="app-name"></app-text-placeholder>
+      <li class="card-header">
+        <fa-icon class="card-icon loading" icon="square"></fa-icon>
+        <app-text-placeholder mode="input" width="7rem" class="card-title"></app-text-placeholder>
         <app-count-indicator></app-count-indicator>
       </li>
-      <li class="profile">
-        <fa-icon class="app-icon loading" icon="square"></fa-icon>
-        <app-text-placeholder mode="input" width="small" class="app-name"></app-text-placeholder>
+      <li class="card-header">
+        <fa-icon class="card-icon loading" icon="square"></fa-icon>
+        <app-text-placeholder mode="input" width="3rem" class="card-title"></app-text-placeholder>
         <app-count-indicator></app-count-indicator>
       </li>
     </ng-container>
@@ -48,20 +53,23 @@
   </div>
 </div>
 
-<div class="details-view" *ngIf="!!selected">
+<div class="details-view">
   <div class="header">
     <h4>
       Network Monitor
-      <span class="text-white">
+      <span class="text-primary" *ngIf="!!selected">
         <fa-icon icon="chevron-right"></fa-icon>
-        {{ selected.profile.name }}
+        {{ selected.profile!.name }}
       </span>
     </h4>
     <app-expertise></app-expertise>
   </div>
 
   <div class="content">
-    <app-monitor-application class="scrollable" [profile]="selected">
+    <app-monitor-application *ngIf="!!selected" class="scrollable" [profile]="selected">
     </app-monitor-application>
+
+    <app-network-overview *ngIf="!selected">
+    </app-network-overview>
   </div>
 </div>

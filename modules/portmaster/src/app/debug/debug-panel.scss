@@ -9,8 +9,6 @@ div.header {
   justify-content: space-between;
   width          : 100%;
 
-  @apply bg-teal-800;
-  @apply text-white;
-  @apply font-semibold;
+  @apply text-primary;
   @apply p-4;
 }

@@ -1,0 +1,26 @@
+html,
+body {
+  scroll-behavior: smooth;
+}
+
+::-webkit-scrollbar {
+  @apply bg-buttons-dark;
+  width: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-buttons-light;
+  @apply rounded;
+  cursor: pointer;
+}
+
+.no-scroll {
+  overflow: hidden;
+}
+
+.scrollable {
+  max-height: 100%;
+  overflow  : auto;
+  flex-grow : 1;
+  @apply px-3;
+}

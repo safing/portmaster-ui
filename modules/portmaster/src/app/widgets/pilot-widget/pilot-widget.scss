@@ -1,27 +1,23 @@
 @keyframes pulse-color {
   100% {
-    filter: drop-shadow(0px 0px 5px rgba(var(--lock-color), .2));
+    filter: drop-shadow(0px 0px 5px var(--lock-color), .2);
   }
 
   0% {
-    filter: drop-shadow(0px 0px 5px rgba(var(--lock-color), 1));
+    filter: drop-shadow(0px 0px 5px var(--lock-color), 1);
   }
 }
 
 @keyframes pulse-fill {
   100% {
-    fill: rgba(var(--lock-color), .4);
+    fill   : var(--lock-color);
+    opacity: 1;
   }
 
   0% {
-    fill: rgba(var(--lock-color), 1);
+    fill   : var(--lock-color);
+    opacity: .7;
   }
-}
-
-@function hexToRGB($hex) {
-  @return red($hex),
-  green($hex),
-  blue($hex);
 }
 
 :host {
@@ -39,27 +35,54 @@
     transition: all ease-in-out .5s;
 
     &.low {
-      --lock-color : #{ hexToRGB(theme('colors.green.500')) };
+      --lock-color: var(--protection-primary);
+
+      .outer-line {
+        color: var(--protection-tertiary);
+      }
+
+      .inner-line {
+        color: var(--protection-secondary);
+      }
     }
 
     &.medium {
-      --lock-color : #{ hexToRGB(theme('colors.orange.500')) };
+      --lock-color: var(--info-yellow);
+
+      // TODO(luke): need proteciton lock colors for yellow
+      .outer-line {
+        color  : var(--info-yellow);
+        opacity: 0.2;
+      }
+
+      .inner-line {
+        color  : var(--info-yellow);
+        opacity: 0.4;
+      }
     }
 
     &.high {
-      --lock-color : #{ hexToRGB(theme('colors.red.500')) };
+      --lock-color: var(--info-red);
+
+      // TODO(luke): need proteciton lock colors for red
+      .outer-line {
+        color  : var(--info-red);
+        opacity: 0.2;
+      }
+
+      .inner-line {
+        color  : var(--info-red);
+        opacity: 0.4;
+      }
     }
 
-    color     : rgba(var(--lock-color), .4);
-    animation : pulse-color 1s ease-in-out infinite alternate;
 
-    path:not(.locker) {
+    .inner-line {
       animation: pulse-fill 1s ease-in-out infinite alternate;
     }
 
     path.locker {
-      @apply stroke-current;
-      @apply text-gray-500;
+      color: theme('colors.background');
     }
   }
 
@@ -75,26 +98,12 @@
     h2 {
       padding: 0;
       margin : 0;
-      @apply font-medium;
       @apply text-sm;
-    }
-
-    label {
-      @apply text-xs;
-      @apply text-gray-200;
-      --text-opacity: 0.5;
     }
   }
 
   .level-list {
     flex-grow: 1;
-
-    label {
-      @apply text-xs;
-      @apply font-medium;
-      @apply text-gray-200;
-      --text-opacity: 0.5;
-    }
 
     &:not(.auto-pilot) {
       div.level:after {
@@ -135,17 +144,16 @@
       &:active {
         div {
           @apply shadow-inner;
-          @apply border-gray-500;
+          @apply bg-cards-secondary;
         }
       }
 
       div {
         @apply rounded;
-        @apply text-xs;
         @apply font-medium;
         @apply p-2;
         @apply pl-4;
-        @apply bg-gray-600;
+        @apply bg-cards-primary;
 
         span {
           @apply mr-2;

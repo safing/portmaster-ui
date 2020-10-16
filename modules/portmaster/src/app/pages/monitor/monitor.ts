@@ -36,7 +36,11 @@ export class MonitorPageComponent implements OnInit, OnDestroy {
   ngOnInit() {
     this.subscription = this.route.paramMap
       .subscribe(params => {
-        const id = params.get("profile");
+        let id = params.get("profile");
+        if (id === 'overview') {
+          id = null;
+        }
+
         this.connTrack.inspect(id);
       });
 

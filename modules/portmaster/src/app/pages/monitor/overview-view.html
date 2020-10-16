@@ -1,0 +1,55 @@
+<h1>Overview</h1>
+
+<div class="statistics" *ngIf="!loading" [@fadeIn]>
+  <div class="metric">
+    <label>Connections</label>
+    <span class="value">{{totalConnections}}</span>
+  </div>
+
+  <div class="metric">
+    <label>Allowed</label>
+    <span>
+      <span class="value">{{(100 / totalConnections) * totalAllowed | number:'1.0-0'}}</span>%
+    </span>
+  </div>
+
+  <div class="metric">
+    <label>Blocked</label>
+    <span>
+      <span class="value">{{(100 / totalConnections) * totalBlocked | number:'1.0-0'}}</span>%
+    </span>
+  </div>
+</div>
+
+<fa-icon icon="spinner" [spin]="true" *ngIf="loading"></fa-icon>
+
+<div>
+  <h4 class="py-4 text-primary">Monitoring</h4>
+
+  <li class="card-header" *ngFor="let data of profiles; trackBy: trackProfile"
+    [routerLink]="['/', 'monitor', 'profile', data.id]" [@fadeIn] [@fadeOut] routerLinkActive="active">
+    <fa-icon class="card-icon" icon="futbol"></fa-icon>
+    <span class="card-title">{{ data.name }}</span>
+    <app-count-indicator [count]="data.size" [risk]="data.blockStatus">
+    </app-count-indicator>
+  </li>
+
+  <ng-container *ngIf="loading">
+    <li class="card-header" [@fadeOut]>
+      <fa-icon class="card-icon loading" icon="square"></fa-icon>
+      <app-text-placeholder mode="input" width="small" class="card-title"></app-text-placeholder>
+      <app-count-indicator></app-count-indicator>
+    </li>
+    <li class="card-header" [@fadeOut]>
+      <fa-icon class="card-icon loading" icon="square"></fa-icon>
+      <app-text-placeholder mode="input" width="small" class="card-title"></app-text-placeholder>
+      <app-count-indicator></app-count-indicator>
+    </li>
+    <li class="card-header" [@fadeOut]>
+      <fa-icon class="card-icon loading" icon="square"></fa-icon>
+      <app-text-placeholder mode="input" width="small" class="card-title"></app-text-placeholder>
+      <app-count-indicator></app-count-indicator>
+    </li>
+  </ng-container>
+
+</div>

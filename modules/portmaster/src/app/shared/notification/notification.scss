@@ -1,32 +1,5 @@
 :host {
   display: block;
-  @apply text-gray-200;
-
-  &.notif {
-
-    &-action-required,
-    &-new {
-      @apply border-teal-700;
-      @apply border-red-200;
-    }
-
-    &-action-pending {
-      @apply border-yellow-700;
-      @apply bg-yellow-100;
-    }
-
-    &-done,
-    &-expired {
-      @apply border-gray-300;
-      @apply bg-gray-100;
-      @apply opacity-50;
-
-      div button {
-        cursor: no-drop;
-        @apply bg-gray-400;
-      }
-    }
-  }
 }
 
 div {
@@ -36,44 +9,4 @@ div {
   justify-content: flex-end;
   align-items    : center;
   @apply mt-2;
-
-  button {
-    @apply text-xs;
-    @apply font-medium;
-    @apply px-4;
-    @apply py-1;
-    @apply border;
-    @apply rounded;
-    @apply bg-transparent;
-    @apply whitespace-no-wrap;
-    @apply text-white;
-
-    text-overflow: ellipsis;
-    transition   : all cubic-bezier(0.075, 0.82, 0.165, 1) .25s;
-
-    &:not(:last-of-type) {
-      @apply mr-2;
-    }
-
-    &:hover,
-    &:focus,
-    &:active {
-      outline: none;
-    }
-
-    &:hover {
-      @apply bg-gray-500;
-    }
-
-    &.selected {
-      @apply border-2
-    }
-
-    &:active,
-    &.selected {
-      @apply shadow-inner;
-      @apply bg-gray-600;
-      @apply text-gray-200;
-    }
-  }
 }

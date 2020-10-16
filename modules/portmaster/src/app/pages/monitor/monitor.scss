@@ -9,38 +9,44 @@ div.sidebar {
   width   : calc(4.5rem * 4);
   overflow: auto;
   @apply border-r-2;
-  @apply border-gray-500;
+  @apply border-cards-tertiary;
 }
 
 .sidebar-header {
   @apply py-1;
   @apply px-3;
 
-  display        : flex;
-  justify-content: space-between;
-  align-items    : center;
-  flex-wrap      : nowrap;
-
-  h4 {
-    @apply text-white;
-    @apply py-3;
-    flex-shrink  : 1;
-    overflow     : hidden;
-    white-space  : nowrap;
-    text-overflow: ellipsis;
-  }
-
-  .buttons {
+  .row {
     display        : flex;
-    justify-content: space-evenly;
+    justify-content: space-between;
     align-items    : center;
-    height         : 100%;
+    flex-wrap      : nowrap;
 
-    @apply text-gray-300;
-    @apply text-xs;
+    h4 {
+      @apply text-primary;
+      @apply py-3;
+      flex-shrink  : 1;
+      overflow     : hidden;
+      white-space  : nowrap;
+      text-overflow: ellipsis;
+    }
 
-    &>*:not(:last-child) {
-      @apply mr-2;
+    .note {
+      position: relative;
+      top     : -1.1rem;
+      @apply text-tertiary;
+    }
+
+    .buttons {
+      z-index        : 1; // need to be above span.note
+      display        : flex;
+      justify-content: space-evenly;
+      align-items    : center;
+      height         : 100%;
+
+      &>*:not(:last-child) {
+        @apply mr-2;
+      }
     }
   }
 }
@@ -62,85 +68,20 @@ div.details-view {
   }
 }
 
+.card-icon {
+  font-size: 1.5em; // em!!
+  color    : theme('colors.info.green');
 
-li.profile,
-h1.profile {
-  display    : flex;
-  align-items: center;
-
-  fa-icon.app-icon {
-    font-size: 1.5em; // em!!
-    @apply text-green-500;
-
-    &.loading {
-      @apply text-gray-200;
-      --text-opacity: 0.2;
-    }
-  }
-
-  fa-icon.app-icon {
-    @apply pr-2;
-  }
-}
-
-h1.profile {
-  justify-content: flex-start;
-  @apply m-0;
-  @apply mt-2;
-  @apply mb-4;
-}
-
-li.profile {
-  cursor         : pointer;
-  outline        : none;
-  justify-content: space-between;
-
-  @apply mb-2;
-
-  @apply text-xs;
-  @apply font-medium;
-  @apply bg-gray-500;
-  @apply p-2;
-  @apply px-3;
-  @apply rounded;
-
-  &.active {
-    @apply bg-gray-300;
-    --bg-opacity: 0.8;
-    @apply shadow-inner;
-  }
-
-  &:hover {
-    @apply bg-gray-400;
-  }
-
-  &:active {
-    @apply shadow-inner;
-  }
-
-  fa-icon.app-icon {
-    @apply px-2;
-  }
-
-  &>*:not(:last-child) {
-    @apply mr-1;
-  }
-
-  .app-name {
-    flex-grow: 1;
+  &.loading {
+    @apply text-tertiary;
   }
 }
 
 li.overview {
-  @apply bg-gray-500;
-  @apply text-gray-200;
-
-  --text-opacity: 0.8;
-  --bg-opacity  : 0.4;
-
-  justify-content: center;
+  display   : block;
+  text-align: center;
+  @apply text-tertiary;
 }
-
 
 $transition-duration : .3s;
 
@@ -168,8 +109,7 @@ $transition-duration : .3s;
     @apply rounded;
 
     &::-webkit-input-placeholder {
-      @apply text-gray-200;
-      --text-opacity: 0.8;
+      @apply text-secondary;
     }
   }
 
@@ -203,7 +143,7 @@ $transition-duration : .3s;
     }
 
     &:hover {
-      @apply text-gray-200;
+      @apply text-primary;
     }
   }
 }

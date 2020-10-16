@@ -5,7 +5,6 @@ button {
   display    : flex;
   align-items: center;
   @apply ml-2;
-  @apply text-xs;
 
   span {
     @apply p-1;
@@ -15,8 +14,8 @@ button {
 
   .arrow {
     @apply p-1;
-    @apply bg-blue-600;
-    width: 2rem;
+    background-color: theme('colors.info.blue');
+    width           : 2rem;
 
     display        : flex;
     align-items    : center;
@@ -29,8 +28,7 @@ button {
 ul.level-list {
   width  : 8rem;
   display: block;
-  @apply bg-gray-400;
-  @apply text-gray-100;
+  @apply bg-buttons-light;
   @apply shadow-xl;
   @apply text-sm;
 
@@ -40,7 +38,7 @@ ul.level-list {
     @apply px-4;
 
     &:hover {
-      @apply bg-gray-500;
+      @apply bg-buttons-dark;
     }
   }
 }

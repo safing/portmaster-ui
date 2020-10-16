@@ -1,7 +1,7 @@
 <ng-template #accordionHeader let-data let-active="active">
-  <div class="accordion-header" [class.active]="active">
-    <fa-icon icon="chevron-down" class="chevron"></fa-icon>
-    <span class="scope-name">
+  <div class="card-header" [class.active]="active">
+    <fa-icon icon="chevron-down" class="chevron card-icon"></fa-icon>
+    <span class="card-title">
       <ng-container *ngIf="!data.domain; else: domainView">
         {{ scopeTranslation[data?.scope] || 'N/A' }}
       </ng-container>
@@ -10,7 +10,7 @@
       </ng-template>
     </span>
 
-    <span class="buttons" *ngIf="!!data.domain">
+    <span class="card-actions" *ngIf="!!data.domain">
       <span [class.selected]="!isScopeBlocked(data)" (click)="unblockAll($event, data)">Auto</span>
       <span [class.selected]="isScopeBlocked(data)" (click)="blockAll($event, data)">Block All</span>
     </span>
@@ -21,7 +21,7 @@
 
 <app-accordion-group [headerTemplate]="accordionHeader" singleMode="false">
   <app-accordion *ngFor="let grp of (connections!.scopeGroups | async); trackBy: trackByScope" [data]="grp">
-    <section class="connection">
+    <section class="card-content">
       <div class="meta">
         <div>
           <span *ngIf="grp.domain">
@@ -144,27 +144,27 @@
 </app-accordion-group>
 
 <!-- loading -->
-<div class="accordion-header" *ngIf="!connections || connections?.loading">
-  <fa-icon icon="chevron-down" class="chevron"></fa-icon>
-  <span class="scope-name">
+<div class="card-header" *ngIf="!connections || connections?.loading">
+  <fa-icon icon="chevron-down" class="chevron card-icon"></fa-icon>
+  <span class="card-title">
     <app-text-placeholder mode="input"></app-text-placeholder>
   </span>
   <app-count-indicator [count]="0"></app-count-indicator>
 </div>
 
-<div class="accordion-header"
+<div class="card-header"
   *ngIf="!connections || connections?.loading && ((connections?.scopeGroups | async)?.length || 0) < 2">
-  <fa-icon icon="chevron-down" class="chevron"></fa-icon>
-  <span class="scope-name">
+  <fa-icon icon="chevron-down" class="chevron card-icon"></fa-icon>
+  <span class="card-title">
     <app-text-placeholder mode="input" width="small"></app-text-placeholder>
   </span>
   <app-count-indicator [count]="0"></app-count-indicator>
 </div>
 
-<div class="accordion-header"
+<div class="card-header"
   *ngIf="!connections || connections?.loading && ((connections?.scopeGroups | async)?.length || 0) < 3">
-  <fa-icon icon="chevron-down" class="chevron"></fa-icon>
-  <span class="scope-name">
+  <fa-icon icon="chevron-down" class="chevron card-icon"></fa-icon>
+  <span class="card-title">
     <app-text-placeholder mode="input" width="large"></app-text-placeholder>
   </span>
   <app-count-indicator [count]="0"></app-count-indicator>

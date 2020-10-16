@@ -11,7 +11,7 @@ div.placeholder {
   width  : 100%;
   margin : 0;
   border : none;
-  @apply bg-gray-600;
+  @apply bg-cards-primary;
   @apply p-4;
   @apply rounded;
 
@@ -21,7 +21,6 @@ div.placeholder {
 }
 
 div.placeholder {
-  @apply text-xs;
   @apply font-medium;
   height         : 4rem;
   display        : flex;

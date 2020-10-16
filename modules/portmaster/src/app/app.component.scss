@@ -1,17 +1,21 @@
 :host {
   display: flex;
-  @apply bg-gray-900;
-  @apply text-gray-200;
+  @apply bg-background;
 
   &>* {
     flex-shrink: 0;
   }
 }
 
+app-navigation,
+app-side-dash {
+  @apply border-r;
+  @apply border-cards-tertiary;
+  @apply bg-background;
+}
+
 app-side-dash {
   width: calc(4.5rem * 5);
-  @apply border-r;
-  @apply bg-gray-900;
 }
 
 div.main {
@@ -21,17 +25,16 @@ div.main {
   display       : flex;
   flex-direction: column;
   align-items   : center;
-  @apply bg-gray-800;
+  @apply bg-background;
   height  : 100vh;
   overflow: hidden;
 }
 
 app-debug {
-  @apply shadow;
   @apply border-l;
-  @apply border-gray-400;
-  @apply bg-gray-300;
-  @apply text-black;
+  @apply border-cards-tertiary;
+  @apply bg-background;
+
   width    : 30vw;
   height   : 100vh;
   min-width: 350px;

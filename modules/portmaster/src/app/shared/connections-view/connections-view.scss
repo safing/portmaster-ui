@@ -1,42 +1,10 @@
-.accordion-header {
-  display    : flex;
-  align-items: center;
-
-  cursor         : pointer;
-  outline        : none;
-  justify-content: space-between;
-
-  @apply text-xs;
-  @apply font-medium;
-  @apply bg-gray-500;
-  @apply p-2;
-  @apply px-3;
-  @apply rounded;
-  @apply mb-2;
-
-  &.active {
-    @apply bg-gray-300;
-    --bg-opacity: 0.4;
-    @apply mb-0;
-    @apply rounded-none;
-    @apply rounded-t;
-  }
-
-  &:hover {
-    @apply bg-gray-400;
-  }
-
-  &:active {
-    @apply shadow-inner;
-  }
-
+.card-header {
   fa-icon.chevron {
     font-size: 0.6rem;
     position : relative;
-    @apply text-gray-200;
-    --text-opacity: 0.7;
-    top           : -2px;
-    transform     : rotate(-180deg);
+    @apply text-secondary;
+    top      : -2px;
+    transform: rotate(-180deg);
 
     transition: all ease-in-out .3s;
 
@@ -49,55 +17,9 @@
     }
   }
 
-  &>*:not(:last-child) {
-    @apply mr-1;
+  .card-title .subdomain {
+    @apply text-secondary;
   }
-
-  span.scope-name {
-    flex-grow: 1;
-    @apply ml-2;
-
-    .subdomain {
-      @apply text-gray-200;
-      --text-opacity: 0.5;
-    }
-  }
-
-  .buttons {
-    @apply mr-2;
-
-    span {
-      display   : inline-block;
-      text-align: center;
-
-      min-width: 5rem;
-      @apply px-2;
-      @apply rounded;
-      @apply text-xs;
-
-      padding: {
-        top   : 0.1rem;
-        bottom: 0.1rem;
-      }
-
-      &.selected {
-        @apply bg-gray-300;
-      }
-
-      &:hover {
-        @apply bg-gray-600;
-      }
-    }
-  }
-}
-
-section.connection {
-  @apply bg-gray-300;
-  --bg-opacity: 0.2;
-  @apply rounded-b;
-
-  @apply p-4;
-  @apply mb-2;
 }
 
 .meta {
@@ -115,9 +37,11 @@ section.connection {
 
       span:first-of-type {
         @apply font-normal;
-        @apply text-gray-200;
         @apply mr-1;
-        --text-opacity: 0.6;
+      }
+
+      span:last-of-type {
+        @apply text-primary;
       }
 
     }
@@ -144,9 +68,8 @@ table {
 
   th {
     text-align: left;
-    @apply text-gray-200;
-    --text-opacity: 0.8;
-    z-index       : 1;
+    @apply text-secondary;
+    z-index: 1;
   }
 
   td,
@@ -156,12 +79,12 @@ table {
   }
 
   tr:nth-child(even) {
-    @apply bg-gray-300;
+    @apply bg-cards-secondary;
     --bg-opacity: 0.5;
   }
 
   tr:nth-child(odd) {
-    @apply bg-gray-500;
+    @apply bg-cards-tertiary;
     --bg-opacity: 0.6;
   }
 
@@ -174,7 +97,7 @@ table {
   }
 
   tr.cdk-header-row th {
-    @apply bg-gray-400;
+    @apply bg-cards-tertiary;
     --bg-opacity: 1;
 
     // we cannot use borders directly due to
@@ -186,6 +109,5 @@ table {
 
 span.port {
   font-size: 0.95em;
-  @apply text-gray-200;
-  --text-opacity: 0.5;
+  @apply text-secondary;
 }

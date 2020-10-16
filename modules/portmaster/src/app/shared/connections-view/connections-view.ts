@@ -8,7 +8,7 @@ import { deepClone } from '../utils';
   selector: 'app-connections-view',
   templateUrl: './connections-view.html',
   styleUrls: ['./connections-view.scss'],
-  changeDetection: ChangeDetectionStrategy.OnPush,
+  //changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ConnectionsViewComponent {
   readonly scopeTranslation = ScopeTranslation;

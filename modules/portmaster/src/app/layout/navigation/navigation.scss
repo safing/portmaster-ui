@@ -1,10 +1,4 @@
 :host {
-  @apply shadow-xl;
-  @apply border-r;
-  @apply bg-gray-900;
-  @apply border-gray-600;
-  @apply text-gray-100;
-
   height         : 100vh;
   top            : 0px;
   position       : sticky;
@@ -14,20 +8,36 @@
   justify-content: space-between;
   align-items    : center;
 
-  svg {
+  div.logo {
+    position: relative;
+    width   : 1.85rem;
     @apply mt-4;
-    width: 1.7rem;
+  }
 
+  .spin {
     animation-name           : spin;
     animation-duration       : 2100ms;
     animation-iteration-count: infinite;
     animation-timing-function: linear;
+  }
+
+  .reverse {
+    animation-name: spin-reverse;
+  }
+
+  svg {
+    width   : 100%;
+    position: absolute;
+    top     : 0;
+    left    : 0;
+
+
 
     &:not(.connected) {
       animation-timing-function: cubic-bezier(0.445, 0.05, 0.55, 0.95);
 
       path.inner {
-        fill: #e53e3e;
+        fill: theme('colors.info.red');
       }
     }
   }
@@ -52,11 +62,10 @@
     align-items    : center;
 
     cursor: pointer;
-    @apply text-gray-200;
 
     &:hover,
     &.active {
-      @apply bg-blue-500;
+      @apply bg-buttons-light;
     }
 
     &,
@@ -65,5 +74,25 @@
     &:target {
       outline: none;
     }
+  }
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes spin-reverse {
+  0% {
+    transform: rotate(360deg);
+  }
+
+  100% {
+    transform: rotate(0deg);
   }
 }
