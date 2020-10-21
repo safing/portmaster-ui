@@ -36,6 +36,7 @@
       @apply font-medium;
 
       span:first-of-type {
+        @apply text-tertiary;
         @apply font-normal;
         @apply mr-1;
       }
@@ -64,6 +65,10 @@ table {
   tr,
   td {
     @apply text-xs;
+  }
+
+  tr.ended {
+    opacity: 0.5;
   }
 
   th {

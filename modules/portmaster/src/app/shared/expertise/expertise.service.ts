@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { ChangeDetectorRef, Injectable } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { delay, distinctUntilChanged, map, repeatWhen, share } from 'rxjs/operators';
 import { ConfigService, ExpertiseLevel, StringSetting } from '../../services';

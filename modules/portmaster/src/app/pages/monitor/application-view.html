@@ -1,59 +1,18 @@
-<div class="statistics" *ngIf="!loading" [@fadeIn]>
-  <div class="metric">
-    <label>Connections</label>
-    <span class="value">{{profile?.size}}</span>
-  </div>
+<app-profile-stats [total]="profile?.size || 0" [stats]="stats" [@fadeIn] *ngIf="!loading"></app-profile-stats>
 
-  <div class="metric">
-    <label>Countries</label>
-    <ng-container *ngIf="stats.distinctCountries.size === 1; else: countryCounter">
-      <span>
-        <!-- we need an ngFor here since Sets() are not indexable -->
-        <span class="value">{{stats.firstCountry}}</span>
-      </span>
-    </ng-container>
-    <ng-template #countryCounter>
-      <span class="value">{{ stats.distinctCountries.size }}</span>
-    </ng-template>
-  </div>
-
-  <div class="metric">
-    <label>Allowed</label>
-    <span>
-      <span class="value">{{ (100 / profile!.size) * stats.countAccepted  | number:'1.0-0' }}</span>%
-    </span>
-  </div>
-
-  <div class="metric">
-    <label>Blocked</label>
-    <span>
-      <span class="value">{{ (100 / profile!.size) * (profile!.size - stats.countAccepted)  | number:'1.0-0' }}</span>%
-    </span>
-  </div>
-
-
-  <div class="metric">
-    <label>Destinations</label>
-    <span class="value">{{ stats.distinctIPs.size }}</span>
-  </div>
-
-  <div class="metric">
-    <label>Encrypted</label>
-    <span>
-      <span class="value">{{(100 / profile!.size) * stats.countEncrypted  | number:'1.0-0'}}</span>%
-    </span>
-  </div>
-</div>
 
 <fa-icon icon="spinner" [spin]="true" *ngIf="loading"></fa-icon>
 
+<h3>App</h3>
+
 <div class="card-header open">
-  <fa-icon class="card-icon" icon="futbol"></fa-icon>
+  <app-icon [profile]="appProfile"></app-icon>
   <span class="card-title">
     <app-text-placeholder mode="input" [loading]="!appProfile">
       {{appProfile?.Name}}
     </app-text-placeholder>
   </span>
+  <fa-icon icon="cog" [routerLink]="['/', 'app', appProfile?.Source, appProfile?.ID]"></fa-icon>
   <app-count-indicator [count]="profile!.size"></app-count-indicator>
 </div>
 

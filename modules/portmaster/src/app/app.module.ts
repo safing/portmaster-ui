@@ -44,6 +44,11 @@ import { NotificationWidgetComponent, NotificationWidgetSettingsComponent } from
 import { PilotWidgetComponent } from './widgets/pilot-widget';
 import { StatusWidgetComponent, StatusWidgetSettingsComponent } from './widgets/status-widget';
 import { WIDGET_DEFINTIONS } from './widgets/widget.types';
+import { AppSettingsPageComponent, AppOverviewComponent } from './pages/app-settings';
+import { ProfileStatisticsComponent } from './shared/profile-stats';
+import { ConfigSettingsViewComponent } from './shared/config/config-settings';
+import { AppIconComponent } from './shared/app-icon';
+import { MenuComponent, MenuTriggerComponent, MenuItemComponent } from './shared/menu';
 
 @NgModule({
   declarations: [
@@ -77,6 +82,7 @@ import { WIDGET_DEFINTIONS } from './widgets/widget.types';
     StatusWidgetComponent,
     StatusWidgetSettingsComponent,
     MarkdownWidgetSettingsComponent,
+    ProfileStatisticsComponent,
     MarkdownWidgetComponent,
     NotificationWidgetSettingsComponent,
     NotificationWidgetComponent,
@@ -84,9 +90,16 @@ import { WIDGET_DEFINTIONS } from './widgets/widget.types';
     SafePipe,
     MonitorApplicationViewComponent,
     CountIndicatorComponent,
+    AppSettingsPageComponent,
     CountryFlagDirective,
+    AppOverviewComponent,
     PlaceholderComponent,
+    ConfigSettingsViewComponent,
+    AppIconComponent,
     NetworkOverviewComponent,
+    MenuComponent,
+    MenuTriggerComponent,
+    MenuItemComponent,
   ],
   imports: [
     BrowserModule,
@@ -138,7 +151,7 @@ import { WIDGET_DEFINTIONS } from './widgets/widget.types';
         type: 'notification-widget',
         name: 'Notifications',
         widgetComponent: NotificationWidgetComponent,
-        settingsComponent: NotificationWidgetSettingsComponent,
+        //settingsComponent: NotificationWidgetSettingsComponent,
       },
       multi: true,
     },

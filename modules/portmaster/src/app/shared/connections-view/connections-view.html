@@ -10,13 +10,15 @@
       </ng-template>
     </span>
 
-    <span class="card-actions" *ngIf="!!data.domain">
-      <span [class.selected]="!isScopeBlocked(data)" (click)="unblockAll($event, data)">Auto</span>
-      <span [class.selected]="isScopeBlocked(data)" (click)="blockAll($event, data)">Block All</span>
-    </span>
-
     <app-count-indicator [count]="data.size" [risk]="data.blockStatus"></app-count-indicator>
+    <app-menu-trigger [menu]="menu"></app-menu-trigger>
   </div>
+
+  <app-menu #menu>
+    <app-menu-item *ngIf="isScopeBlocked(data)" (click)="unblockAll(data)">Allow Domain</app-menu-item>
+    <app-menu-item *ngIf="!isScopeBlocked(data)" (click)="blockAll(data)">Block Domain</app-menu-item>
+    <app-menu-item>Add Rule</app-menu-item>
+  </app-menu>
 </ng-template>
 
 <app-accordion-group [headerTemplate]="accordionHeader" singleMode="false">
@@ -93,52 +95,54 @@
         </div>
       </div>
 
-      <h4>Connections / DNS Requests</h4>
+      <ng-container *appExpertiseLevel="'expert'">
+        <h4>Connections / DNS Requests History</h4>
 
-      <div class="tableFixHead">
-        <table cdk-table [dataSource]="grp.connections">
-          <!-- State Column -->
-          <ng-container cdkColumnDef="state">
-            <th cdk-header-cell *cdkHeaderCellDef> State </th>
-            <td cdk-cell *cdkCellDef="let conn">
-              <span class="trust-level {{ conn.Verdict === verdict.Accept ? 'low' : 'high' }}"></span>
-            </td>
-          </ng-container>
+        <div class="tableFixHead">
+          <table cdk-table [dataSource]="grp.connections">
+            <!-- State Column -->
+            <ng-container cdkColumnDef="state">
+              <th cdk-header-cell *cdkHeaderCellDef> State </th>
+              <td cdk-cell *cdkCellDef="let conn">
+                <span class="trust-level {{ conn.Verdict === verdict.Accept ? 'low' : 'high' }}"></span>
+              </td>
+            </ng-container>
 
-          <!-- Reason Column -->
-          <ng-container cdkColumnDef="reason">
-            <th cdk-header-cell *cdkHeaderCellDef> Reason </th>
-            <td cdk-cell *cdkCellDef="let conn"> {{conn.Reason}} </td>
-          </ng-container>
+            <!-- Reason Column -->
+            <ng-container cdkColumnDef="reason">
+              <th cdk-header-cell *cdkHeaderCellDef> Reason </th>
+              <td cdk-cell *cdkCellDef="let conn"> {{conn.Reason}} </td>
+            </ng-container>
 
-          <!-- Entity Column -->
-          <ng-container cdkColumnDef="entity">
-            <th cdk-header-cell *cdkHeaderCellDef> Entity </th>
-            <td cdk-cell *cdkCellDef="let conn">
-              <span *ngIf="!!conn.Entity?.Country" [appCountryFlags]="conn.Entity!.Country"></span>
-              {{ conn.Entity?.IP || 'DNS Request'}}
-              <span *ngIf="conn.Entity?.Port" class="port">{{ ':'+conn.Entity.Port }}</span>
-            </td>
-          </ng-container>
+            <!-- Entity Column -->
+            <ng-container cdkColumnDef="entity">
+              <th cdk-header-cell *cdkHeaderCellDef> Entity </th>
+              <td cdk-cell *cdkCellDef="let conn">
+                <span *ngIf="!!conn.Entity?.Country" [appCountryFlags]="conn.Entity!.Country"></span>
+                {{ conn.Entity?.IP || 'DNS Request'}}
+                <span *ngIf="conn.Entity?.Port" class="port">{{ ':'+conn.Entity.Port }}</span>
+              </td>
+            </ng-container>
 
-          <!-- Started Column -->
-          <ng-container cdkColumnDef="started">
-            <th cdk-header-cell *cdkHeaderCellDef> Started </th>
-            <td cdk-cell *cdkCellDef="let conn"> {{conn.Started * 1000 | date:'shortTime'}} </td>
-          </ng-container>
+            <!-- Started Column -->
+            <ng-container cdkColumnDef="started">
+              <th cdk-header-cell *cdkHeaderCellDef> Started </th>
+              <td cdk-cell *cdkCellDef="let conn"> {{conn.Started * 1000 | date:'shortTime'}} </td>
+            </ng-container>
 
-          <!-- Ended Column -->
-          <ng-container cdkColumnDef="ended">
-            <th cdk-header-cell *cdkHeaderCellDef> Ended </th>
-            <td cdk-cell *cdkCellDef="let conn">
-              <ng-container *ngIf="conn.Ended > 0">{{conn.Ended * 1000 | date:'shortTime'}}</ng-container>
-            </td>
-          </ng-container>
+            <!-- Ended Column -->
+            <ng-container cdkColumnDef="ended">
+              <th cdk-header-cell *cdkHeaderCellDef> Ended </th>
+              <td cdk-cell *cdkCellDef="let conn">
+                <ng-container *ngIf="conn.Ended > 0">{{conn.Ended * 1000 | date:'shortTime'}}</ng-container>
+              </td>
+            </ng-container>
 
-          <tr cdk-header-row *cdkHeaderRowDef="displayedColumns"></tr>
-          <tr cdk-row *cdkRowDef="let row; columns: displayedColumns;"></tr>
-        </table>
-      </div>
+            <tr cdk-header-row *cdkHeaderRowDef="displayedColumns"></tr>
+            <tr cdk-row *cdkRowDef="let row; columns: displayedColumns;" [class.ended]="row.Ended > 0"></tr>
+          </table>
+        </div>
+      </ng-container>
     </section>
   </app-accordion>
 </app-accordion-group>
@@ -150,6 +154,7 @@
     <app-text-placeholder mode="input"></app-text-placeholder>
   </span>
   <app-count-indicator [count]="0"></app-count-indicator>
+  <app-menu-trigger></app-menu-trigger>
 </div>
 
 <div class="card-header"
@@ -159,6 +164,7 @@
     <app-text-placeholder mode="input" width="small"></app-text-placeholder>
   </span>
   <app-count-indicator [count]="0"></app-count-indicator>
+  <app-menu-trigger></app-menu-trigger>
 </div>
 
 <div class="card-header"
@@ -168,4 +174,5 @@
     <app-text-placeholder mode="input" width="large"></app-text-placeholder>
   </span>
   <app-count-indicator [count]="0"></app-count-indicator>
+  <app-menu-trigger></app-menu-trigger>
 </div>

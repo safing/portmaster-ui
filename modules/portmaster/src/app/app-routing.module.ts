@@ -3,6 +3,7 @@ import { Routes, RouterModule } from '@angular/router';
 import { SettingsComponent } from './pages/settings/settings';
 import { WidgetSettingsOutletComponent } from './pages/widget-settings-outlet/widget-settings-outlet';
 import { MonitorPageComponent } from './pages/monitor';
+import { AppSettingsPageComponent } from './pages/app-settings';
 
 const routes: Routes = [
   {
@@ -13,6 +14,19 @@ const routes: Routes = [
   {
     path: 'settings',
     component: SettingsComponent,
+  },
+  {
+    path: 'app',
+    pathMatch: 'full',
+    redirectTo: 'app/overview',
+  },
+  {
+    path: 'app/overview',
+    component: AppSettingsPageComponent,
+  },
+  {
+    path: 'app/:source/:id',
+    component: AppSettingsPageComponent,
   },
   {
     path: 'monitor',

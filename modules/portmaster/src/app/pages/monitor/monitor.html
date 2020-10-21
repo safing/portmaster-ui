@@ -26,7 +26,7 @@
 
     <li class="card-header" *ngFor="let data of profiles" [routerLink]="['/', 'monitor', 'profile', data.id]" [@fadeIn]
       routerLinkActive="active">
-      <fa-icon class="card-icon" icon="futbol"></fa-icon>
+      <app-icon [profile]="data"></app-icon>
       <span class="card-title">{{ data.name }}</span>
       <app-count-indicator [count]="data.size" [risk]="data.blockStatus">
       </app-count-indicator>
@@ -34,17 +34,17 @@
 
     <ng-container *ngIf="loading">
       <li class="card-header">
-        <fa-icon class="card-icon loading" icon="square"></fa-icon>
+        <app-icon></app-icon>
         <app-text-placeholder mode="input" width="small" class="card-title"></app-text-placeholder>
         <app-count-indicator></app-count-indicator>
       </li>
       <li class="card-header">
-        <fa-icon class="card-icon loading" icon="square"></fa-icon>
+        <app-icon></app-icon>
         <app-text-placeholder mode="input" width="7rem" class="card-title"></app-text-placeholder>
         <app-count-indicator></app-count-indicator>
       </li>
       <li class="card-header">
-        <fa-icon class="card-icon loading" icon="square"></fa-icon>
+        <app-icon></app-icon>
         <app-text-placeholder mode="input" width="3rem" class="card-title"></app-text-placeholder>
         <app-count-indicator></app-count-indicator>
       </li>
@@ -55,12 +55,12 @@
 
 <div class="details-view">
   <div class="header">
-    <h4>
-      Network Monitor
-      <span class="text-primary" *ngIf="!!selected">
+    <h4 class="breadcrumbs">
+      <span routerLink="/monitor">Network Monitor</span>
+      <ng-container *ngIf="!!selected">
         <fa-icon icon="chevron-right"></fa-icon>
-        {{ selected.profile!.name }}
-      </span>
+        <span>{{ selected.profile!.name }}</span>
+      </ng-container>
     </h4>
     <app-expertise></app-expertise>
   </div>

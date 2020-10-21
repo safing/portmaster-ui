@@ -76,6 +76,14 @@ export class Profile {
     return this.unpermitted.size;
   }
 
+  get ID(): string {
+    return this.id;
+  }
+
+  get Name(): string {
+    return this.name;
+  }
+
   constructor(
     public readonly id: string,
     public readonly name: string,
@@ -241,7 +249,28 @@ export class ScopeGroup {
   }
 
   private publishConnections() {
-    this._connectionUpdate.next(this._connections);
+    this._connectionUpdate.next(
+      this._connections
+        .sort((a, b) => {
+          let diff = a.Started - b.Started;
+          if (diff !== 0) {
+            return diff;
+          }
+
+          diff = (a.Ended || 0) - (b.Ended || 0);
+          if (diff !== 0) {
+            return diff;
+          }
+
+          if (a.Scope > b.Scope) {
+            return 1;
+          }
+          if (a.Scope < b.Scope) {
+            return -1;
+          }
+          return 0;
+        })
+    );
   }
 
   /**
@@ -282,6 +311,9 @@ export class InspectedProfile {
   /** An observable used to push a list of scope groups on update */
   private _scopeUpdate = new BehaviorSubject<ScopeGroup[]>([]);
 
+  /** Completes when loading the inspected profile is finished */
+  private _onLoadingDone = new Subject();
+
   /** Used to mark the inspected-profile as loading until all
    *  existing connections have been processed. */
   private _loading = true;
@@ -290,6 +322,7 @@ export class InspectedProfile {
   get stats() { return this._stats; }
   get scopeGroups() { return this._scopeUpdate.asObservable(); }
   get size() { return this._connections.size; }
+  get onDone() { return this._onLoadingDone.asObservable() }
 
   constructor(
     public readonly profile: Profile,
@@ -304,6 +337,7 @@ export class InspectedProfile {
       .map(connKey => {
         return this.portapi.get<Connection>(connKey)
           .pipe(
+            //filter(c => !c.Internal),
             map(c => {
               return {
                 conn: c,
@@ -326,6 +360,7 @@ export class InspectedProfile {
           this.addConnection(c.key, c.conn, false);
         });
         this._loading = false;
+        this._onLoadingDone.complete();
       });
 
     // if we cancel early make sure we cancel all the load
@@ -427,7 +462,23 @@ export class InspectedProfile {
   }
 
   private publishScopes() {
-    this._scopeUpdate.next(Array.from(this._scopeGroups.values()));
+    this._scopeUpdate.next(
+      Array.from(this._scopeGroups.values())
+        .sort((a, b) => {
+          let diff = a.stats.lastConn - b.stats.lastConn;
+          if (diff !== 0) {
+            return diff;
+          }
+
+          if (a.scope > b.scope) {
+            return 1;
+          }
+          if (a.scope < b.scope) {
+            return -1;
+          }
+          return 0;
+        })
+    );
   }
 }
 
@@ -460,6 +511,9 @@ export class ConnTracker {
   /** inspected profile holds the currently inspected profile */
   private _inspectedProfile: InspectedProfile | null = null;
 
+  /** Used to emit the inspected profile whenever it changes. */
+  private _inspectedProfileChange = new BehaviorSubject<InspectedProfile | null>(null);
+
   /** Behavior subject used to push updates to the list of active
    *  profiles */
   private _profileUpdates = new BehaviorSubject<Profile[]>([]);
@@ -469,6 +523,12 @@ export class ConnTracker {
     return this._profileUpdates.asObservable();
   }
 
+  /** Emits the inspected profile whenever it changes. */
+  get inspectedProfileChange() {
+    return this._inspectedProfileChange.asObservable();
+  }
+
+  /** The currently inspected profile, if any. */
   get inspected() {
     return this._inspectedProfile;
   }
@@ -517,11 +577,16 @@ export class ConnTracker {
     );
   }
 
+  clearInspection() {
+    this.inspect(null);
+  }
+
   inspect(profileOrID: Profile | string | null) {
     if (profileOrID === null) {
       if (!!this._inspectedProfile) {
         this._inspectedProfile.dispose();
         this._inspectedProfile = null;
+        this._inspectedProfileChange.next(null);
       }
       return;
     }
@@ -532,6 +597,9 @@ export class ConnTracker {
 
     const profile = this._profiles.get(id);
     if (!profile) {
+      // if the profile does not exist we count it as
+      // "null"
+      this.inspect(null);
       return;
     }
 
@@ -545,6 +613,7 @@ export class ConnTracker {
     }
 
     this._inspectedProfile = new InspectedProfile(profile, this.portapi);
+    this._inspectedProfileChange.next(this._inspectedProfile);
   }
 
   /**
@@ -558,6 +627,10 @@ export class ConnTracker {
       this._inspectedProfile.dispose();
       this._inspectedProfile = null;
     }
+
+    this._inspectedProfileChange.complete();
+    this._profileUpdates.complete();
+    this._ready.complete();
   }
 
   private processUpdate(msg: DataReply<Connection>) {
@@ -578,8 +651,15 @@ export class ConnTracker {
       return
     }
 
+    /*
+    if (msg.data.Internal) {
+      return;
+    }
+    */
+
     const profile = this.getOrCreateProfile(msg.data);
     this._connectionToProfile.set(msg.key, profile);
+
     profile.track(msg.key, msg.data, msg.type === 'upd');
   }
 

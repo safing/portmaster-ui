@@ -1,0 +1,111 @@
+:host {
+  display : flex;
+  overflow: hidden;
+}
+
+.content {
+  display    : flex;
+  white-space: normal;
+  @apply pl-0;
+}
+
+.settings {
+  display       : flex;
+  align-items   : flex-start;
+  flex-direction: column;
+  flex-grow     : 1;
+  @apply pr-4;
+
+  .category {
+    width        : 100%;
+    padding-left : 4rem;
+    margin-top   : 1rem;
+    margin-bottom: 1rem;
+    position     : relative;
+
+    app-generic-setting {
+      width: 100%;
+      @apply pt-6;
+
+      &:first-of-type {
+        @apply pt-4;
+      }
+    }
+
+    .border {
+      position    : absolute;
+      top         : 0.5rem;
+      bottom      : -0.5rem;
+      width       : 0.7rem;
+      margin-left : -1rem;
+      border      : 1px solid;
+      border-right: none;
+      @apply border-cards-tertiary;
+    }
+  }
+
+}
+
+fa-icon[icon="spinner"] {
+  @apply text-3xl;
+  display   : block;
+  width     : 100%;
+  text-align: center;
+  height    : 6rem;
+}
+
+div.settings-nav {
+  @apply mt-4;
+  @apply pl-12;
+  flex-shrink: 0;
+  width      : 200px;
+  overflow   : visible;
+  white-space: nowrap;
+
+  transition: height cubic-bezier(0.25, 0.46, 0.45, 0.94) .5s;
+  @apply text-xs;
+
+  ul {
+    position: fixed;
+
+    li {
+      @apply font-medium;
+    }
+
+    &>li {
+      @apply mb-1;
+      @apply text-tertiary;
+
+      span {
+        cursor : pointer;
+        display: block;
+      }
+
+      &:hover,
+      &.active {
+        @apply text-primary;
+      }
+
+      &.active {
+        ul.settings {
+          display: inline-block;
+        }
+      }
+
+      ul.settings {
+        position: unset;
+        @apply mt-2;
+        @apply ml-2;
+        @apply pl-3;
+        @apply text-xs;
+        @apply border-l;
+        @apply border-cards-tertiary;
+        display: none;
+
+        li {
+          cursor: pointer;
+        }
+      }
+    }
+  }
+}

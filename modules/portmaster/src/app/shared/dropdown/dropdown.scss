@@ -1,6 +1,12 @@
 :host {
   display: block;
   width  : fit-content;
+
+  &:disabled {
+    button {
+      cursor: not-allowed;
+    }
+  }
 }
 
 button {

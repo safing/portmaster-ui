@@ -1,5 +1,5 @@
 <label>Risk Level</label>
-<app-dropdown [ngModel]="getLevel()" (ngModelChange)="setLevel($event)">
+<app-dropdown [ngModel]="getLevel()" (ngModelChange)="setLevel($event)" [disabled]="disabled">
   <app-dropdown-item *dropDownValue="SecurityLevels.Off">
     <span class="trust-level off"></span>
     None

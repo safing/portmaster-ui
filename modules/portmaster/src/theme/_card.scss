@@ -23,25 +23,35 @@
     @apply mr-1;
   }
 
+  &>app-icon:not(:last-child) {
+    @apply mr-2;
+  }
+
   &.active,
   &:hover {
     @apply bg-cards-tertiary;
   }
 
-  .card-icon {
-    @apply px-2;
-    @apply mr-0;
-    font-size: 1.5em;
-    color    : theme('colors.info.green');
-
-    &.loading {
-      color: theme('colors.buttons.icon');
-    }
+  &>.card-icon,
+  &>app-icon {
+    @apply mr-2;
   }
 
   .card-title {
     flex-grow: 1;
     @apply text-primary;
+    overflow     : hidden;
+    white-space  : nowrap;
+    text-overflow: ellipsis;
+
+    .card-sub-title {
+      display   : block;
+      font-size : 0.8em;
+      margin-top: -3px;
+      @apply text-tertiary;
+      text-overflow: ellipsis;
+      overflow     : hidden;
+    }
   }
 
 

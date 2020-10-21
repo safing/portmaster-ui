@@ -1,13 +1,22 @@
-import { Component, OnInit, ChangeDetectionStrategy, Input, Output, EventEmitter } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy, Input, Output, EventEmitter, HostBinding } from '@angular/core';
 import { coerceBooleanProperty } from '@angular/cdk/coercion';
+import { fadeInAnimation, fadeOutAnimation } from '../../animations';
 
 @Component({
   selector: 'app-filter-list-item',
   templateUrl: 'list-item.html',
   styleUrls: ['list-item.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  animations: [
+    fadeInAnimation,
+    fadeOutAnimation
+  ]
 })
 export class FilterListItemComponent implements OnInit {
+  @HostBinding('@fadeIn')
+  @HostBinding('@fadeOut')
+  readonly animation = true;
+
   @Input()
   set value(v: string) {
     this.updateValue(v);
@@ -65,8 +74,14 @@ export class FilterListItemComponent implements OnInit {
   }
 
   toggleEdit() {
-    if (this._edit && this._value !== this._savedValue) {
-      this.valueChange.next(this._value);
+    if (this._edit) {
+      if (this.display === '' || !(this.isAllow || this.isBlock)) {
+        return;
+      }
+
+      if (this._value !== this._savedValue) {
+        this.valueChange.next(this._value);
+      }
     }
 
     this._edit = !this._edit;

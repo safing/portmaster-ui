@@ -39,10 +39,7 @@ export class ConnectionsViewComponent {
 
   constructor(private profileService: AppProfileService) { }
 
-  blockAll(event: Event, grp: ScopeGroup) {
-    event.preventDefault();
-    event.stopPropagation();
-
+  blockAll(grp: ScopeGroup) {
     if (!grp.domain) {
       // scope blocking not yet supported
       return
@@ -57,10 +54,7 @@ export class ConnectionsViewComponent {
     this.updateRules(newRule, true);
   }
 
-  unblockAll(event: Event, grp: ScopeGroup) {
-    event.preventDefault();
-    event.stopPropagation();
-
+  unblockAll(grp: ScopeGroup) {
     if (!grp.domain) {
       // scope blocking not yet supported
       return

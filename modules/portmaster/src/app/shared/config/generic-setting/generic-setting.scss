@@ -8,6 +8,47 @@
     @apply border-info-red;
     --border-opacity: 0.5;
   }
+
+  &.locked {
+    @apply bg-cards-secondary;
+
+    .settings-wrapper {
+      opacity: 0.4;
+    }
+  }
+
+  .settings-wrapper {
+    opacity   : 1;
+    transition: all .3s ease-in-out;
+  }
+}
+
+.unlock-button {
+  --unlock-button-size: 30px;
+
+  display        : flex;
+  width          : var(--unlock-button-size);
+  height         : var(--unlock-button-size);
+  border-radius  : 50%;
+  justify-content: center;
+  align-items    : center;
+  cursor         : pointer;
+  @apply bg-buttons-light;
+  transition: opacity .4s ease-in-out;
+
+  opacity: 0.6;
+
+  &.locked {
+    opacity: 1;
+  }
+
+  position: absolute;
+  right   : calc(-1 *var(--unlock-button-size)/2);
+  top     : calc(50% - var(--unlock-button-size)/2);
+
+  &:hover {
+    @apply bg-buttons-dark;
+  }
 }
 
 div.setting-meta {

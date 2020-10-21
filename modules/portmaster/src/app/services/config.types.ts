@@ -1,3 +1,5 @@
+import { isDevMode } from '@angular/core';
+
 /**
  * ExpertiseLevel defines all available expertise levels.
  */
@@ -117,11 +119,12 @@ export enum ExternalOptionHint {
 export interface Annotations {
   // Well known option annoations and their
   // types.
-  "safing/portbase:ui:display-hint": ExternalOptionHint;
-  "safing/portbase:ui:order": number;
-  "safing/portbase:ui:unit": string;
-  "safing/portbase:ui:category": string;
-  "safing/portbase:module:subsystem": string;
+  "safing/portbase:ui:display-hint"?: ExternalOptionHint;
+  "safing/portbase:ui:order"?: number;
+  "safing/portbase:ui:unit"?: string;
+  "safing/portbase:ui:category"?: string;
+  "safing/portbase:module:subsystem"?: string;
+  "safing/portbase:options:stackable"?: true;
 
   // Any thing else...
   [key: string]: any;
@@ -211,6 +214,19 @@ export function parseSupportedValues<S extends Setting>(s: S): SettingValueType<
   });
 
   return result;
+}
+
+export function isDefaultValue<T extends OptionValueType>(value: T | undefined | null, defaultValue: T): boolean {
+  if (value === undefined) {
+    return true;
+  }
+
+  const isObject = typeof value === 'object';
+  const isDefault = isObject
+    ? JSON.stringify(value) === JSON.stringify(defaultValue)
+    : value === defaultValue;
+
+  return isDefault;
 }
 
 /**

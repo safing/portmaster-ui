@@ -45,7 +45,7 @@
   position: relative;
   cursor  : pointer;
   width   : 100%;
-  @apply rounded-sm;
+  @apply rounded;
   @apply p-1;
   @apply border-2;
   @apply border-dashed;
@@ -65,7 +65,7 @@
 
   &:hover {
     @apply text-primary;
-    @apply bg-buttons-dark;
+    @apply bg-cards-secondary;
 
     span {
       @apply text-primary;

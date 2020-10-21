@@ -12,9 +12,14 @@
 @import 'theme/_trust-level.scss';
 @import 'theme/_typography.scss';
 @import 'theme/_card.scss';
+@import 'theme/_breadcrumbs.scss';
 
 html {
   user-select: none;
+}
+
+*[routerlink] {
+  cursor: pointer;
 }
 
 .form-field {
@@ -44,10 +49,10 @@ html {
 .main {
   .content {
     flex-grow: 1;
-    width    : 100%;
     @apply pl-12;
-    @apply pr-20;
-    overflow: hidden;
+    @apply pr-16;
+    @apply mr-4;
+    overflow: auto;
   }
 
   .header {

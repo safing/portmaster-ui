@@ -1,3 +1,4 @@
+import { coerceBooleanProperty } from '@angular/cdk/coercion';
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, forwardRef, Input, OnInit, Output, ViewChild } from '@angular/core';
 import { AbstractControl, ControlValueAccessor, NgModel, NG_VALIDATORS, NG_VALUE_ACCESSOR, ValidationErrors, Validator } from '@angular/forms';
 import { BaseSetting, ExternalOptionHint, parseSupportedValues, SettingValueType } from 'src/app/services';
@@ -26,6 +27,15 @@ export class BasicSettingComponent<S extends BaseSetting<any, any>> implements C
 
   externalOptType(opt: S): ExternalOptionHint | null {
     return opt.Annotations?.["safing/portbase:ui:display-hint"] || null;
+  }
+
+  @Input()
+  set disabled(v: any) {
+    const disabled = coerceBooleanProperty(v);
+    this.setDisabledState(disabled);
+  }
+  get disabled() {
+    return this._disabled;
   }
 
   @Input()

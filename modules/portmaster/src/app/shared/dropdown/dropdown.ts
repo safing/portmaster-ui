@@ -1,5 +1,6 @@
-import { ScrollStrategy, ScrollStrategyOptions } from '@angular/cdk/overlay';
-import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, ContentChildren, ElementRef, forwardRef, HostBinding, HostListener, QueryList } from '@angular/core';
+import { coerceBooleanProperty } from '@angular/cdk/coercion';
+import { CdkConnectedOverlay, CdkOverlayOrigin, ScrollStrategy, ScrollStrategyOptions } from '@angular/cdk/overlay';
+import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, ContentChildren, ElementRef, forwardRef, HostBinding, HostListener, Input, QueryList, Renderer2, ViewChild } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { DropDownValueDirective } from './item';
 
@@ -20,6 +21,9 @@ export class DropdownComponent<T> implements AfterViewInit, ControlValueAccessor
   @ContentChildren(DropDownValueDirective)
   items: QueryList<DropDownValueDirective> | null = null;
 
+  @ViewChild(CdkOverlayOrigin)
+  trigger: CdkOverlayOrigin | null = null;
+
   @HostBinding('tabindex')
   readonly tabindex = 0;
 
@@ -33,13 +37,56 @@ export class DropdownComponent<T> implements AfterViewInit, ControlValueAccessor
 
   scrollStrategy: ScrollStrategy;
 
+  @Input()
+  @HostBinding('class.disabled')
+  set disabled(v: any) {
+    const disabled = coerceBooleanProperty(v);
+    this.setDisabledState(disabled);
+  }
+  get disabled() {
+    return this._disabled;
+  }
+
+  private _disabled: boolean = false;
+
   trackItem(_: number, item: DropDownValueDirective) {
     return item.value;
+  }
+
+  setDisabledState(disabled: boolean) {
+    this._disabled = disabled;
+    this.changeDetectorRef.markForCheck();
+  }
+
+  toggle() {
+    if (!this.isOpen && this._disabled) {
+      return;
+    }
+
+    this.isOpen = !this.isOpen;
+    this.changeDetectorRef.markForCheck();
+  }
+
+  onOutsideClick(event: MouseEvent) {
+    if (!!this.trigger) {
+      const triggerEl = this.trigger.elementRef.nativeElement;
+
+      let node = event.target;
+      while (!!node) {
+        if (node === triggerEl) {
+          return;
+        }
+        node = this.renderer.parentNode(node);
+      }
+    }
+
+    this.close();
   }
 
   constructor(
     public element: ElementRef,
     private changeDetectorRef: ChangeDetectorRef,
+    private renderer: Renderer2,
     scrollOptions: ScrollStrategyOptions,
   ) {
     this.scrollStrategy = scrollOptions.close();
@@ -50,6 +97,11 @@ export class DropdownComponent<T> implements AfterViewInit, ControlValueAccessor
       this.currentItem = this.items.find(item => item.value === this.value) || null;
       this.changeDetectorRef.detectChanges();
     }
+  }
+
+  close() {
+    this.isOpen = false;
+    this.changeDetectorRef.markForCheck();
   }
 
   @HostListener('blur')
@@ -85,7 +137,6 @@ export class DropdownComponent<T> implements AfterViewInit, ControlValueAccessor
   }
 
   onOverlayClosed() {
-    this.isOpen = false;
-    this.changeDetectorRef.markForCheck();
+    this.close();
   }
 }

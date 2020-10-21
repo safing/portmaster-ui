@@ -1,0 +1,61 @@
+<!-- navigation for the settings -->
+<div class="settings-nav" *ngIf="!loading" [@fadeIn]>
+  <ul>
+    <li *ngFor="let subsys of subsystems; trackBy: statusService.trackSubsystem"
+      [class.active]="activeSection === subsys.ConfigKeySpace">
+      <span (click)="scrollTo(subsys.ConfigKeySpace)">{{subsys.Name}}</span>
+      <ul class="settings">
+        <ng-container *ngFor="let cat of settings.get(subsys.ConfigKeySpace); trackBy: trackCategory">
+          <li [class.active]="activeCategory === cat.name" *appExpertiseLevel="cat.minimumExpertise"
+            (click)="scrollTo(subsys.ConfigKeySpace + ':' + cat.name)">
+            {{cat.name}}
+          </li>
+        </ng-container>
+      </ul>
+    </li>
+    <li *ngIf="!!others" (click)="scrollTo('config:other')" [class.active]="activeSection === 'config:other'">
+      Other
+    </li>
+  </ul>
+</div>
+
+<div class="content" cdkScrollable>
+  <fa-icon icon="spinner" [spin]="true" *ngIf="loading"></fa-icon>
+
+  <div class="settings" *ngIf="!loading" [@fadeIn]>
+    <!-- actual settings -->
+    <ng-container *ngFor="let subsys of subsystems; trackBy: statusService.trackSubsystem">
+      <h2 [attr.id]="subsys.ConfigKeySpace">
+        {{subsys.Name}}
+      </h2>
+
+      <ng-container *ngFor="let cat of settings.get(subsys.ConfigKeySpace); trackBy: trackCategory; let index=index">
+        <div class="category" #navLink anchor="top" [attr.subsystem]="subsys.ConfigKeySpace" [attr.category]="cat.name"
+          *appExpertiseLevel="cat.minimumExpertise">
+
+          <div class="border"></div>
+
+          <h4 [attr.id]="subsys.ConfigKeySpace +':' + cat.name">{{cat.name}}</h4>
+          <ng-container *ngFor="let setting of cat.settings; trackBy: configService.trackBy">
+            <app-generic-setting *appExpertiseLevel="setting.ExpertiseLevel" [setting]="setting"
+              [resetLabelText]="resetLabelText" (onSave)="saveSetting($event)" [lockDefaults]="lockDefaults">
+            </app-generic-setting>
+          </ng-container>
+        </div>
+      </ng-container>
+    </ng-container>
+
+    <ng-container *ngIf="!!others">
+      <h2 id="config:other" #navLink>
+        Other
+      </h2>
+      <div class="category">
+        <ng-container *ngFor="let setting of others; trackBy: configService.trackBy">
+          <app-generic-setting *appExpertiseLevel="setting.ExpertiseLevel" [setting]="setting"
+            [resetLabelText]="resetLabelText" (onSave)="saveSetting($event)" [lockDefaults]="lockDefaults">
+          </app-generic-setting>
+        </ng-container>
+      </div>
+    </ng-container>
+  </div>
+</div>

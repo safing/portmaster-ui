@@ -1,0 +1,17 @@
+:host {
+  display: inline;
+  @apply rounded-t;
+  width    : fit-content;
+  flex-grow: 0;
+
+  transition: all .1s ease-in-out;
+
+  fa-icon {
+    @apply px-3;
+    @apply py-1;
+  }
+
+  &.active {
+    @apply bg-buttons-light;
+  }
+}

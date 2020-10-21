@@ -84,7 +84,11 @@ export function setAppSetting(obj: ConfigObject, path: string, value: any) {
     const propName = parts[idx];
 
     if (idx === parts.length - 1) {
-      iter[propName] = value;
+      if (value === undefined) {
+        delete (iter[propName])
+      } else {
+        iter[propName] = value;
+      }
       return
     }
 

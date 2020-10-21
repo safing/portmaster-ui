@@ -1,0 +1,137 @@
+:host {
+  display       : flex;
+  width         : 100%;
+  flex-direction: column;
+  height        : 100%;
+}
+
+app-settings-overview {
+  @apply pb-4;
+}
+
+h1 {
+  @apply my-6;
+  display       : flex;
+  align-items   : center;
+  text-transform: capitalize;
+
+  app-icon {
+    --app-icon-size: 35px;
+  }
+
+  .link {
+    display        : flex;
+    justify-content: center;
+    align-items    : center;
+    height         : 24px;
+    width          : 24px;
+    opacity        : .5;
+    @apply bg-buttons-dark;
+    @apply ml-4;
+    cursor       : pointer;
+    border-radius: 50%;
+    transition   : all .15s ease-in-out;
+
+    &:hover {
+      opacity: 1;
+      @apply bg-buttons-light;
+    }
+
+    fa-icon {
+      color          : theme('colors.buttons.icon');
+      display        : flex;
+      font-size      : 12px;
+      flex-direction : column;
+      align-items    : center;
+      justify-content: center;
+    }
+  }
+}
+
+app-settings-view {
+  margin-right: calc(200px - 4rem);
+}
+
+h2.app-settings {
+  display        : flex;
+  justify-content: space-between;
+  align-items    : center;
+
+  app-dropdown {
+    margin-right: 200px;
+  }
+}
+
+.no-customization {
+  display        : flex;
+  justify-content: center;
+  align-items    : center;
+  flex-direction : column;
+  @apply p-8;
+  @apply mt-8;
+
+  fa-icon {
+    @apply text-4xl;
+    opacity: 0.5;
+    color  : theme('colors.buttons.icon');
+  }
+
+  p {
+    @apply text-base;
+  }
+
+  button {
+    @apply mt-8;
+    @apply p-2;
+  }
+}
+
+.app-name {
+  text-transform: capitalize;
+  @apply mx-2;
+  opacity  : 0.7;
+  font-size: 0.9em;
+
+  app-icon {
+    @apply mr-0;
+    --app-icon-size: 20px;
+  }
+}
+
+.app-overview {
+  margin-left  : calc(200px + 1rem); // TODO(ppacher): copied from app-settings-view
+  margin-right : 1rem;
+  padding-right: calc(200px - 1rem);
+}
+
+.meta {
+  display              : grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap                  : 1rem;
+
+  @apply mb-8;
+
+  .app-details {
+    @apply bg-cards-primary;
+    @apply rounded;
+    @apply p-4;
+
+    display        : flex;
+    flex-direction : column;
+    justify-content: space-evenly;
+
+    label {
+      @apply font-normal;
+      @apply mr-2;
+    }
+
+    span {
+      @apply text-primary;
+    }
+  }
+}
+
+.scroll-container {
+  overflow: auto;
+  @apply mr-4;
+}

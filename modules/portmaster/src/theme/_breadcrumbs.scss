@@ -1,0 +1,16 @@
+h4.breadcrumbs {
+  span {
+    outline: none;
+    @apply text-secondary;
+    text-transform: capitalize;
+
+    &:hover {
+      @apply text-primary;
+      text-decoration: underline;
+    }
+
+    &:last-of-type {
+      @apply text-primary;
+    }
+  }
+}

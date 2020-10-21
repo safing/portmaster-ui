@@ -1,25 +1,69 @@
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, HostBinding, Input, ViewChild, OnInit, OnDestroy } from '@angular/core';
+import { coerceBooleanProperty } from '@angular/cdk/coercion';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, HostBinding, Input, ViewChild, OnInit, OnDestroy, Output, EventEmitter, Host } from '@angular/core';
 import { NgModel } from '@angular/forms';
+import { EventManager } from '@angular/platform-browser';
 import { Subject, Subscription } from 'rxjs';
 import { debounceTime } from 'rxjs/operators';
-import { BaseSetting, ExternalOptionHint, SettingValueType, ConfigService, ExpertiseLevelNumber, ReleaseLevel, SecurityLevel } from 'src/app/services';
+import { BaseSetting, ExternalOptionHint, SettingValueType, ConfigService, ExpertiseLevelNumber, ReleaseLevel, SecurityLevel, Setting, isDefaultValue } from 'src/app/services';
+import { fadeInAnimation, fadeOutAnimation } from '../../animations';
+
+export interface SaveSettingEvent<S extends BaseSetting<any, any> = any> {
+  key: string;
+  value: SettingValueType<S>;
+  isDefault: boolean;
+}
 
 @Component({
   selector: 'app-generic-setting',
   templateUrl: './generic-setting.html',
   styleUrls: ['./generic-setting.scss'],
-  changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  animations: [
+    fadeInAnimation,
+    fadeOutAnimation
+  ]
 })
 export class GenericSettingComponent<S extends BaseSetting<any, any>> implements OnInit, OnDestroy {
   readonly optionHint = ExternalOptionHint;
   readonly expertise = ExpertiseLevelNumber;
   readonly releaseLevel = ReleaseLevel;
 
-  private readonly save = new Subject();
+  @Input()
+  set disabled(v: any) {
+    this._disabled = coerceBooleanProperty(v);
+  }
+  get disabled() {
+    return this._disabled;
+  }
+  private _disabled: boolean = false;
+
+
+  @Input()
+  set lockDefaults(v: any) {
+    this._lockDefaults = coerceBooleanProperty(v);
+  }
+  get lockDefaults() {
+    return this._lockDefaults;
+  }
+  private _lockDefaults: boolean = false;
+
+  @Input()
+  resetLabelText = 'Reset';
+
+  @Output()
+  onSave = new EventEmitter<SaveSettingEvent<S>>();
+
+  private save = new Subject();
   private subscription = Subscription.EMPTY;
+  private wasReset = false;
 
   externalOptType(opt: S | null): ExternalOptionHint | null {
     return opt?.Annotations?.["safing/portbase:ui:display-hint"] || null;
+  }
+
+  @HostBinding('class.locked')
+  get isLocked() {
+    return (this.wasReset || !this.userConfigured) && this.lockDefaults;
   }
 
   /**
@@ -57,6 +101,39 @@ export class GenericSettingComponent<S extends BaseSetting<any, any>> implements
   @HostBinding('class.pristine')
   get pristine() {
     return !this.dirty && !this.userConfigured
+  }
+
+  /**
+   * Unlock the setting if it is locked. Unlocking will
+   * emit the default value to be safed for the setting.
+   */
+  unlock() {
+    if (!this.isLocked || !this.setting) {
+      return;
+    }
+
+    this.wasReset = false;
+    let value = this.defaultValue;
+
+    if (this.setting.Annotations["safing/portbase:options:stackable"]) {
+      // TODO(ppacher): fix this one once string[] options can be
+      // stackable
+      value = [] as SettingValueType<S>;
+    }
+
+    this.updateValue(value, true);
+    // update the settings value now so the UI
+    // responds immediately.
+    this.setting!.Value = value;
+  }
+
+  toggleLock() {
+    if (this.isLocked) {
+      this.unlock();
+      return;
+    }
+
+    this.resetValue();
   }
 
   @ViewChild(NgModel, { static: false })
@@ -120,7 +197,7 @@ export class GenericSettingComponent<S extends BaseSetting<any, any>> implements
   ngOnInit() {
     this.subscription = this.save.pipe(
       debounceTime(500),
-    ).subscribe(() => this.saveValue())
+    ).subscribe(() => this.emitSaveRequest())
   }
 
   ngOnDestroy() {
@@ -137,7 +214,8 @@ export class GenericSettingComponent<S extends BaseSetting<any, any>> implements
       return;
     }
 
-    this._currentValue = this.defaultValue
+    this._currentValue = this.defaultValue;
+    this.wasReset = true;
 
     this.save.next();
   }
@@ -150,26 +228,22 @@ export class GenericSettingComponent<S extends BaseSetting<any, any>> implements
     this._currentValue = this._savedValue;
   }
 
-  saveValue() {
-    const isObject = typeof this._currentValue === 'object';
-
-    const isDefault = isObject
-      ? JSON.stringify(this._currentValue) === JSON.stringify(this.defaultValue)
-      : this._currentValue === this._defaultValue;
+  private emitSaveRequest() {
+    const isDefault = isDefaultValue(this._currentValue, this.defaultValue) && (!this.lockDefaults || this.wasReset);
 
     if (isDefault) {
       delete (this._setting!['Value']);
     } else {
       this._setting!.Value = this._currentValue;
     }
-    this.configService.save(this.setting!)
-      .subscribe(
-        () => {
-          this._savedValue = this._currentValue
-          this.changeDetectorRef.markForCheck();
-        },
-        console.error,
-      )
+
+    this.wasReset = false;
+
+    this.onSave.next({
+      key: this.setting!.Key,
+      isDefault: isDefault,
+      value: this._setting!.Value,
+    })
   }
 
   /**
@@ -190,12 +264,12 @@ export class GenericSettingComponent<S extends BaseSetting<any, any>> implements
     if (!this.setting) {
       return
     }
+
+    this.wasReset = false;
+
     const s = this.setting;
-    const defaultValue = this._defaultValue === null
-      ? s.DefaultValue
-      : this._defaultValue;
     const value = s.Value === undefined
-      ? defaultValue
+      ? this.defaultValue
       : s.Value;
 
     this._currentValue = value;

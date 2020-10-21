@@ -1,13 +1,9 @@
-import { trigger, transition, style, animate } from '@angular/animations';
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { BehaviorSubject, combineLatest, Subscription } from 'rxjs';
-import { debounceTime, skipUntil, take } from 'rxjs/operators';
-import { RiskLevel } from 'src/app/services';
-import { PortapiService } from 'src/app/services/portapi.service';
+import { delayWhen, take } from 'rxjs/operators';
 import { ConnTracker, Profile } from 'src/app/services/connection-tracker.service';
 import { fadeInAnimation } from 'src/app/shared/animations';
-//import { Aggregator, Profile } from './aggregator';
 
 @Component({
   templateUrl: './monitor.html',
@@ -35,6 +31,7 @@ export class MonitorPageComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     this.subscription = this.route.paramMap
+      .pipe(delayWhen(() => this.connTrack.ready))
       .subscribe(params => {
         let id = params.get("profile");
         if (id === 'overview') {
@@ -64,6 +61,7 @@ export class MonitorPageComponent implements OnInit, OnDestroy {
 
   ngOnDestroy() {
     this.subscription.unsubscribe();
+    this.connTrack.clearInspection();
   }
 
   search(s: string) {

@@ -1,4 +1,4 @@
-<div class="logo">
+<div class="logo" routerLink="monitor">
   <svg [class.connected]="(connected$ | async)" data-name="Layer 1" xmlns="http://www.w3.org/2000/svg"
     xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 128 128" class="spin reverse">
     <g data-name="Main" fill-rule="evenodd">
@@ -35,15 +35,17 @@
     <fa-icon icon="desktop"></fa-icon>
   </div>
 
-  <div routerLinkActive="active" routerLink="cogs" class="link">
+  <div routerLinkActive="active" routerLink="app" class="link">
     <fa-icon icon="cogs"></fa-icon>
   </div>
 </div>
 
 <div class="nav-list">
+  <!--
   <div routerLinkActive="active" routerLink="help" class="link">
     <fa-icon [icon]="['far', 'question-circle']"></fa-icon>
   </div>
+  -->
   <div routerLinkActive="active" routerLink="settings" class="link">
     <fa-icon icon="cog"></fa-icon>
   </div>

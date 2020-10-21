@@ -29,3 +29,7 @@
   @apply border-info-blue;
   @apply text-primary;
 }
+
+.cdk-drag-handle {
+  cursor: move !important;
+}

@@ -12,7 +12,6 @@ body,
   @apply font-medium;
 }
 
-span,
 label,
 .secondary-text {
   @apply text-secondary;
@@ -30,14 +29,6 @@ p,
 h1,
 h2,
 h3 {
-
-  // if we need to split the header into different
-  // parts we'll normally want the font-color of the
-  // header to stay.
-  span {
-    @apply text-primary;
-  }
-
   @apply text-primary;
 }
 

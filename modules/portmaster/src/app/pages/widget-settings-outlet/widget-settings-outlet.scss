@@ -19,7 +19,8 @@ h1 {
 }
 
 .widget-setup {
-  @apply text-sm;
+  @apply text-xs;
+  @apply text-primary;
 
   @apply pb-4;
   padding-left : 1rem;

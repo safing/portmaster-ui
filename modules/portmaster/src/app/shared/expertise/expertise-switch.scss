@@ -1,44 +1,4 @@
-button {
-  padding    : 0;
-  position   : relative;
-  width      : 6rem;
-  display    : flex;
-  align-items: center;
-  @apply ml-2;
-
-  span {
-    @apply p-1;
-    flex-grow : 1;
-    text-align: center;
-  }
-
-  .arrow {
-    @apply p-1;
-    background-color: theme('colors.info.blue');
-    width           : 2rem;
-
-    display        : flex;
-    align-items    : center;
-    justify-content: space-around;
-
-    @apply rounded-r;
-  }
-}
-
-ul.level-list {
-  width  : 8rem;
+:host {
   display: block;
-  @apply bg-buttons-light;
-  @apply shadow-xl;
-  @apply text-sm;
-
-  li {
-    cursor: pointer;
-    @apply p-2;
-    @apply px-4;
-
-    &:hover {
-      @apply bg-buttons-dark;
-    }
-  }
+  @apply pl-2;
 }

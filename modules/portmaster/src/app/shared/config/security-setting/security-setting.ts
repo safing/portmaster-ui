@@ -1,4 +1,5 @@
 import { ListKeyManager, ListKeyManagerOption } from '@angular/cdk/a11y';
+import { coerceArray, coerceBooleanProperty } from '@angular/cdk/coercion';
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, forwardRef, HostBinding, HostListener, Input, OnDestroy } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { Subscription } from 'rxjs';
@@ -65,6 +66,20 @@ export class SecuritySettingComponent implements OnDestroy, ControlValueAccessor
     } else {
       this._keyManager.onKeydown(event);
     }
+  }
+
+  set disabled(v: any) {
+    const disabled = coerceBooleanProperty(v);
+    this.setDisabledState(disabled);
+  }
+  get disabled() {
+    return this._disabled;
+  }
+  private _disabled: boolean = false;
+
+  setDisabledState(v: boolean) {
+    this._disabled = v;
+    this.changeDetectorRef.markForCheck();
   }
 
   /**

@@ -2,6 +2,7 @@ import { Component, OnInit, ChangeDetectionStrategy, forwardRef, HostBinding, Ho
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { moveItemInArray, CdkDragDrop } from '@angular/cdk/drag-drop';
 import { coerceBooleanProperty } from '@angular/cdk/coercion';
+import { fadeInAnimation, fadeOutAnimation } from '../../animations';
 
 @Component({
   selector: 'app-filter-list',
@@ -14,7 +15,7 @@ import { coerceBooleanProperty } from '@angular/cdk/coercion';
       useExisting: forwardRef(() => FilterListComponent),
       multi: true,
     }
-  ]
+  ],
 })
 export class FilterListComponent implements OnInit, ControlValueAccessor {
   @HostBinding('tabindex')
@@ -59,6 +60,11 @@ export class FilterListComponent implements OnInit, ControlValueAccessor {
   }
 
   addEntry() {
+    // if there's already one empty entry abort
+    if (this.entries.some(e => e.trim() === '')) {
+      return;
+    }
+
     this.entries = [...this.entries];
     this.entries.push('');
     this.onChange(this.entries);
@@ -81,6 +87,10 @@ export class FilterListComponent implements OnInit, ControlValueAccessor {
   }
 
   drop(event: CdkDragDrop<string[]>) {
+    if (this._readonly) {
+      return;
+    }
+
     // create a copy of the array
     this.entries = [...this.entries];
     moveItemInArray(this.entries, event.previousIndex, event.currentIndex);
@@ -90,6 +100,6 @@ export class FilterListComponent implements OnInit, ControlValueAccessor {
   }
 
   trackBy(idx: number, value: string) {
-    return `${idx}-${value}`;
+    return `${value}`;
   }
 }

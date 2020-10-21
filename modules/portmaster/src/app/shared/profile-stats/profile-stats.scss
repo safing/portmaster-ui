@@ -1,0 +1,32 @@
+:host {
+  &>div {
+    width          : 100%;
+    display        : flex;
+    justify-content: space-between;
+    align-items    : center;
+    height         : 4rem;
+    margin-bottom  : 2rem;
+  }
+}
+
+
+.metric {
+  display       : flex;
+  flex-direction: column;
+  align-items   : center;
+
+  label,
+  span {
+    @apply text-tertiary;
+    margin-bottom: -0.3rem;
+  }
+
+  label {
+    font-size: 0.9em;
+  }
+
+  span.value {
+    @apply text-xl;
+    @apply text-primary;
+  }
+}

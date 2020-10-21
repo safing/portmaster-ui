@@ -1,31 +1,38 @@
-<div class="setting-meta">
-  <h3 for="setting">
-    <span class="release-level beta" *ngIf="setting?.ReleaseLevel === releaseLevel.Beta">Beta</span>
-    <span class="release-level experimental"
-      *ngIf="setting?.ReleaseLevel === releaseLevel.Experimental">Experimental</span>
+<div class="settings-wrapper">
 
-    <span [innerHTML]="setting?.Name | safe:'html'"></span>
+  <div class="setting-meta">
+    <h3 for="setting">
+      <span class="release-level beta" *ngIf="setting?.ReleaseLevel === releaseLevel.Beta">Beta</span>
+      <span class="release-level experimental"
+        *ngIf="setting?.ReleaseLevel === releaseLevel.Experimental">Experimental</span>
 
-    <span class="expertise" *ngIf="setting?.ExpertiseLevel === expertise.expert">Expert</span>
-    <span class="expertise" *ngIf="setting?.ExpertiseLevel === expertise.developer">Developer</span>
-  </h3>
+      <span [innerHTML]="setting?.Name | safe:'html'"></span>
+
+      <span class="expertise" *ngIf="setting?.ExpertiseLevel === expertise.expert">Expert</span>
+      <span class="expertise" *ngIf="setting?.ExpertiseLevel === expertise.developer">Developer</span>
+    </h3>
+  </div>
+
+  <span class="description" [innerHTML]="setting?.Description | safe:'html'"></span>
+
+  <ng-container [ngSwitch]="externalOptType(setting)">
+    <app-security-setting *ngSwitchCase="optionHint.SecurityLevel" [disabled]="disabled || isLocked"
+      [setting]="_setting" [ngModel]="_currentValue" (ngModelChange)="updateValue($event, true)"></app-security-setting>
+
+    <app-filter-list *ngSwitchCase="optionHint.EndpointList" [readonly]="disabled || isLocked" [ngModel]="_currentValue"
+      (ngModelChange)="updateValue($event, true)"></app-filter-list>
+
+    <app-basic-setting *ngSwitchDefault [setting]="_setting" [disabled]="disabled || isLocked" [ngModel]="_currentValue"
+      (ngModelChange)="updateValue($event)" (onBlur)="updateValue(_currentValue!, true)"></app-basic-setting>
+  </ng-container>
+
+  <div class="secondary-actions">
+    <span [class.visible]="userConfigured" tabindex="0" (click)="resetValue()">
+      {{resetLabelText}}
+    </span>
+  </div>
 </div>
 
-<span class="description" [innerHTML]="setting?.Description | safe:'html'"></span>
-
-<ng-container [ngSwitch]="externalOptType(setting)">
-  <app-security-setting *ngSwitchCase="optionHint.SecurityLevel" [setting]="_setting" [ngModel]="_currentValue"
-    (ngModelChange)="updateValue($event, true)"></app-security-setting>
-
-  <app-filter-list *ngSwitchCase="optionHint.EndpointList" [ngModel]="_currentValue"
-    (ngModelChange)="updateValue($event, true)"></app-filter-list>
-
-  <app-basic-setting *ngSwitchDefault [setting]="_setting" [ngModel]="_currentValue"
-    (ngModelChange)="updateValue($event)" (onBlur)="updateValue(_currentValue!, true)"></app-basic-setting>
-</ng-container>
-
-<div class="secondary-actions">
-  <span [class.visible]="userConfigured && !dirty" tabindex="0" (click)="resetValue()">
-    Reset to default
-  </span>
-</div>
+<span class="unlock-button" [class.locked]="isLocked" *ngIf="lockDefaults" (click)="toggleLock()">
+  <fa-icon [icon]="isLocked ? 'pen' : 'times'"></fa-icon>
+</span>
