@@ -24,13 +24,15 @@
       Overview
     </li>
 
-    <li class="card-header" *ngFor="let data of profiles" [routerLink]="['/', 'monitor', 'profile', data.id]" [@fadeIn]
-      routerLinkActive="active">
-      <app-icon [profile]="data"></app-icon>
-      <span class="card-title">{{ data.name }}</span>
-      <app-count-indicator [count]="data.size" [risk]="data.blockStatus">
-      </app-count-indicator>
-    </li>
+    <ng-container *ngFor="let data of profiles">
+      <li class="card-header" *appExpertiseLevel="data.size === 0 ? 'developer' : 'user'"
+        [routerLink]="['/', 'monitor', 'profile', data.id]" [@fadeIn] routerLinkActive="active">
+        <app-icon [profile]="data"></app-icon>
+        <span class="card-title">{{ data.name }}</span>
+        <app-count-indicator [count]="data.size" [risk]="data.blockStatus">
+        </app-count-indicator>
+      </li>
+    </ng-container>
 
     <ng-container *ngIf="loading">
       <li class="card-header">
@@ -59,7 +61,7 @@
       <span routerLink="/monitor">Network Monitor</span>
       <ng-container *ngIf="!!selected">
         <fa-icon icon="chevron-right"></fa-icon>
-        <span>{{ selected.profile!.name }}</span>
+        <span>{{ selected.name }}</span>
       </ng-container>
     </h4>
     <app-expertise></app-expertise>

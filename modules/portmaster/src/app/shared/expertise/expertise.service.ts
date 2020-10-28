@@ -30,6 +30,10 @@ export class ExpertiseService {
       : this._localOverwrite;
   }
 
+  get savedLevel() {
+    return this._currentLevel;
+  }
+
   get change(): Observable<ExpertiseLevel> {
     return this.level$.asObservable();
   }

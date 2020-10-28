@@ -23,6 +23,18 @@
     margin-bottom: 1rem;
     position     : relative;
 
+    .highlighted {
+      animation: fade-background 5s ease-out;
+      background-color: rgba(var(--cards-secondary-rgb), 1);
+      app-generic-setting {
+        --bg-opacity: 0.5;
+      }
+
+      app-generic-setting.changed, app-generic-setting.dirty {
+        background-color: theme("colors.background");
+      }
+    }
+
     app-generic-setting {
       width: 100%;
       @apply pt-6;
@@ -30,6 +42,7 @@
       &:first-of-type {
         @apply pt-4;
       }
+
     }
 
     .border {
@@ -107,5 +120,19 @@ div.settings-nav {
         }
       }
     }
+  }
+}
+
+@keyframes fade-background {
+  0% {
+    background-color: rgba(var(--info-yellow-rgb), 0.4);
+  }
+
+  90% {
+    background-color: rgba(var(--info-yellow-rgb), 0.4);
+  }
+  
+  100% {
+    background-color: rgba(var(--cards-secondary-rgb), 1);
   }
 }

@@ -25,13 +25,9 @@ export class PilotWidgetComponent implements OnInit {
   selectedOption: SecurityOption | null = null;
 
   lockLevel: SecurityOption | null = null;
+  mode: 'auto' | 'manual' = 'auto';
 
   readonly options: SecurityOption[] = [
-    {
-      level: SecurityLevel.Off,
-      displayText: 'Auto Pilot',
-      class: 'auto',
-    },
     {
       level: SecurityLevel.Normal,
       displayText: 'Trusted',
@@ -64,6 +60,12 @@ export class PilotWidgetComponent implements OnInit {
         this.activeLevel = status.ActiveSecurityLevel;
         this.selectedLevel = status.SelectedSecurityLevel;
         this.suggestedLevel = status.ThreatMitigationLevel;
+
+        if (this.selectedLevel === SecurityLevel.Off) {
+          this.mode = 'auto';
+        } else {
+          this.mode = 'manual';
+        }
 
         this.selectedOption = this.options.find(opt => opt.level === this.selectedLevel) || null;
         this.activeOption = this.options.find(opt => opt.level === this.activeLevel) || null;
@@ -118,7 +120,21 @@ export class PilotWidgetComponent implements OnInit {
       });
   }
 
+  updateMode(mode: 'auto' | 'manual') {
+    this.mode = mode;
+
+    if (mode === 'auto') {
+      this.selectLevel(SecurityLevel.Off);
+    } else {
+      this.selectLevel(this.activeLevel);
+    }
+  }
+
   selectLevel(level: SecurityLevel) {
+    if (this.mode === 'auto' && level !== SecurityLevel.Off) {
+      this.mode = 'manual';
+    }
+
     this.statusService.selectLevel(level).subscribe();
   }
 }

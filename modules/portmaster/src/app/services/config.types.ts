@@ -1,4 +1,6 @@
 import { isDevMode } from '@angular/core';
+import { deepClone } from '../shared/utils';
+import { webSocket } from 'rxjs/webSocket';
 
 /**
  * ExpertiseLevel defines all available expertise levels.
@@ -116,16 +118,28 @@ export enum ExternalOptionHint {
   OrderedList = 'ordered'
 }
 
-export interface Annotations {
+export enum WellKnown {
+  DisplayHint = "safing/portbase:ui:display-hint",
+  Order = "safing/portbase:ui:order",
+  Unit = "safing/portbase:ui:unit",
+  Category = "safing/portbase:ui:category",
+  Subsystem = "safing/portbase:module:subsystem",
+  Stackable = "safing/portbase:options:stackable",
+  QuickSetting = "safing/portbase:ui:quick-setting",
+  Requires = "safing/portbase:config:requires"
+}
+
+export interface Annotations<T extends OptionValueType> {
   // Well known option annoations and their
   // types.
-  "safing/portbase:ui:display-hint"?: ExternalOptionHint;
-  "safing/portbase:ui:order"?: number;
-  "safing/portbase:ui:unit"?: string;
-  "safing/portbase:ui:category"?: string;
-  "safing/portbase:module:subsystem"?: string;
-  "safing/portbase:options:stackable"?: true;
-
+  [WellKnown.DisplayHint]?: ExternalOptionHint;
+  [WellKnown.Order]?: number;
+  [WellKnown.Unit]?: string;
+  [WellKnown.Category]?: string;
+  [WellKnown.Subsystem]?: string;
+  [WellKnown.Stackable]?: true;
+  [WellKnown.QuickSetting]?: QuickSetting<T> | QuickSetting<T>[];
+  [WellKnown.Requires]?: ValueRequirement | ValueRequirement[];
   // Any thing else...
   [key: string]: any;
 }
@@ -136,6 +150,23 @@ export interface PossilbeValue {
   /** Description may hold an additional description of the value */
   Description: string;
   /** Value is the actual value expected by the portmaster */
+  Value: any;
+}
+
+export interface QuickSetting<T extends OptionValueType> {
+  // Name is the name of the quick setting.
+  Name: string;
+  // Value is the value that the quick-setting configures. It must match
+  // the expected value type of the annotated option.
+  Value: T;
+  // Action defines the action of the quick setting.
+  Action: 'replace' | 'merge-top' | 'merge-bottom';
+}
+
+export interface ValueRequirement {
+  // Key is the configuration key of the required setting.
+  Key: string;
+  // Value is the required value of the linked setting.
   Value: any;
 }
 
@@ -161,7 +192,7 @@ export interface BaseSetting<T extends OptionValueType, O extends OptionType> {
   // OptType is the option's basic type.
   OptType: O;
   // Annotations holds option specific annotations.
-  Annotations: Annotations;
+  Annotations: Annotations<T>;
   // ReleaseLevel defines the release level of the feature
   // or settings changed by this option.
   ReleaseLevel: ReleaseLevel;
@@ -179,6 +210,39 @@ export type IntSetting = BaseSetting<number, OptionType.Int>;
 export type StringSetting = BaseSetting<string, OptionType.String>;
 export type StringArraySetting = BaseSetting<string[], OptionType.StringArray>;
 export type BoolSetting = BaseSetting<boolean, OptionType.Bool>;
+
+/**
+ * Apply a quick setting to a value.
+ * 
+ * @param current The current value of the setting.
+ * @param qs The quick setting to apply.
+ */
+export function applyQuickSetting<V extends OptionValueType>(current: V | null, qs: QuickSetting<V>): V | null {
+  if (qs.Action === 'replace' || !qs.Action) {
+    return deepClone(qs.Value);
+  }
+
+  if ((!Array.isArray(current) && current !== null) || !Array.isArray(qs.Value)) {
+    console.warn(`Tried to ${qs.Action} quick-setting on non-array type`);
+    return current;
+  }
+
+  const clone = deepClone(current);
+  let missing: any[] = [];
+
+  qs.Value.forEach(val => {
+    if (clone.includes(val)) {
+      return
+    }
+    missing.push(val);
+  });
+
+  if (qs.Action === 'merge-bottom') {
+    return clone.concat(missing) as V;
+  }
+
+  return missing.concat(clone) as V;
+}
 
 /**
  * Parses the ValidationRegex of a setting and returns a list
@@ -216,6 +280,11 @@ export function parseSupportedValues<S extends Setting>(s: S): SettingValueType<
   return result;
 }
 
+/**
+ * isDefaultValue checks if value is the settings default value.
+ * It supports all available settings type and fallsback to use
+ * JSON encoded string comparision (JS JSON.stringify is stable).
+ */
 export function isDefaultValue<T extends OptionValueType>(value: T | undefined | null, defaultValue: T): boolean {
   if (value === undefined) {
     return true;

@@ -12,6 +12,7 @@ export class ConnectionStatistics {
     public countDNS: number = 0,
     public countEncrypted: number = 0,
     public countAccepted: number = 0,
+    public countInternal: number = 0,
   ) { }
 
   get firstCountry() {
@@ -19,11 +20,18 @@ export class ConnectionStatistics {
   }
 
   /**
-   * Update adds conn to the statistics
+   * Update adds conn to the statistics. If
+   * the connection is marked as internal it is 
+   * ignored.
    *
    * @param conn The connection to add.
    */
   update(conn: Connection) {
+    if (conn.Internal) {
+      this.countInternal++;
+      return;
+    }
+
     if (!!conn.Entity) {
       this.updateEntity(conn.Entity, incMap);
 
@@ -61,7 +69,18 @@ export class ConnectionStatistics {
     }
   }
 
+  /**
+   * Remove a connction from the statistics. Internal
+   * connections are ignored.
+   * 
+   * @param conn The Connection object to remove.
+   */
   remove(conn: Connection) {
+    if (conn.Internal) {
+      this.countInternal--;
+      return;
+    }
+
     if (!!conn.Entity) {
       this.updateEntity(conn.Entity, decMap);
 

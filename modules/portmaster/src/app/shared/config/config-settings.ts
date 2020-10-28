@@ -50,6 +50,23 @@ export class ConfigSettingsViewComponent implements OnInit, OnDestroy, AfterView
     this.onSettingsChange.next(v);
   }
 
+  @Input()
+  set highlightKey(key: string | null) {
+    this._highlightKey = key || null;
+    this._scrolledToHighlighted = false;
+    // If we already loaded the settings then instruct the window
+    // to scroll the setting into the view.
+    if (!!key && !!this.settings && this.settings.size > 0) {
+      this.scrollTo(key);
+      this._scrolledToHighlighted = true;
+    }
+  }
+  get highlightKey() {
+    return this._highlightKey;
+  }
+  private _highlightKey: string | null = null;
+  private _scrolledToHighlighted = false;
+
   @Output()
   onSave = new EventEmitter<SaveSettingEvent>();
 
@@ -104,7 +121,6 @@ export class ConfigSettingsViewComponent implements OnInit, OnDestroy, AfterView
           settings = filtered
             .map(res => res.item);
 
-
           settings.sort((a, b) => {
             const orderA = a.Annotations?.["safing/portbase:ui:order"] || 0;
             const orderB = b.Annotations?.["safing/portbase:ui:order"] || 0;
@@ -156,6 +172,14 @@ export class ConfigSettingsViewComponent implements OnInit, OnDestroy, AfterView
           })
 
           this.loading = false;
+
+          if (this._highlightKey !== null && !this._scrolledToHighlighted) {
+            this._scrolledToHighlighted = true;
+
+            window.requestAnimationFrame(() => {
+              this.scrollTo(this._highlightKey || '');
+            })
+          }
         }
       )
   }

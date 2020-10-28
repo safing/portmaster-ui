@@ -25,8 +25,18 @@ export class AppSettingsPageComponent implements OnInit, OnDestroy {
   showOverview = false;
   settings: Setting[] = [];
   searchTerm = '';
+  highlightSettingKey: string | null = null;
 
   viewSetting: 'all' | 'active' = 'active';
+
+  /**
+   * @private
+   * True if the currently selected app profile is running and has
+   * network connections.
+   */
+  get isActive() {
+    return this.connTrack.inspected !== null;
+  }
 
   constructor(
     private profileService: AppProfileService,
@@ -75,14 +85,28 @@ export class AppSettingsPageComponent implements OnInit, OnDestroy {
     this.subscription =
       combineLatest([
         param,
+        this.route.queryParamMap,
         this.profileService.globalConfig(),
         this.configService.query(""),
         this.viewSettingChange,
       ])
-        .subscribe(([profile, global, allSettings, viewSetting]) => {
+        .subscribe(([profile, queryMap, global, allSettings, viewSetting]) => {
           this.appProfile = profile;
           this.showOverview = this.appProfile === null;
           this.viewSetting = viewSetting;
+          this.highlightSettingKey = queryMap.get('setting');
+
+          // if we should highlight a setting make sure to switch the
+          // viewSetting to all if it's the "global" default (that is, no
+          // value is set). Otherwise the setting won't render and we cannot
+          // highlight it.
+          if (!!this.highlightSettingKey) {
+            const highlightSetting = allSettings.find(setting => setting.Key === this.highlightSettingKey);
+            if (!!highlightSetting && highlightSetting.Value === undefined) {
+              this.viewSettingChange.next('all');
+              this.viewSetting = 'all';
+            }
+          }
 
           if (!!profile) {
             const key = `core:profiles/${profile.Source}/${profile.ID}`;
@@ -101,12 +125,10 @@ export class AppSettingsPageComponent implements OnInit, OnDestroy {
                   return false;
                 }
 
-                if (viewSetting === 'all') {
+                if (this.viewSetting === 'all') {
                   return true;
                 }
-
-                const isDefault = isDefaultValue(setting.Value, setting.DefaultValue);
-                return !isDefault;
+                return setting.Value !== undefined;
               });
 
           } else {

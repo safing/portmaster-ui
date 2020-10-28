@@ -16,7 +16,7 @@
 
   .spin {
     animation-name           : spin;
-    animation-duration       : 2100ms;
+    animation-duration       : 3500ms;
     animation-iteration-count: infinite;
     animation-timing-function: linear;
   }
@@ -30,8 +30,6 @@
     position: absolute;
     top     : 0;
     left    : 0;
-
-
 
     &:not(.connected) {
       animation-timing-function: cubic-bezier(0.445, 0.05, 0.55, 0.95);

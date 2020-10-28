@@ -3,10 +3,11 @@ button {
   @apply bg-buttons-dark;
   @apply p-1;
   @apply px-4;
-  @apply uppercase;
+  @apply capitalize;
   @apply rounded-sm;
   @apply font-medium;
-
+  outline: none;
+  
   &:hover {
     @apply bg-buttons-light;
   }

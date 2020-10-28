@@ -17,7 +17,7 @@ import { fadeInAnimation, fadeOutAnimation } from '../../animations';
     }
   ],
 })
-export class FilterListComponent implements OnInit, ControlValueAccessor {
+export class FilterListComponent implements ControlValueAccessor {
   @HostBinding('tabindex')
   readonly tabindex = 0;
 
@@ -38,9 +38,6 @@ export class FilterListComponent implements OnInit, ControlValueAccessor {
   entries: string[] = [];
 
   constructor(private changeDetector: ChangeDetectorRef) { }
-
-  ngOnInit(): void {
-  }
 
   updateValue(index: number, newValue: string) {
     // we need to make a new object copy here.

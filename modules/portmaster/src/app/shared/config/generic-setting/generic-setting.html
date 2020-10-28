@@ -10,20 +10,52 @@
 
       <span class="expertise" *ngIf="setting?.ExpertiseLevel === expertise.expert">Expert</span>
       <span class="expertise" *ngIf="setting?.ExpertiseLevel === expertise.developer">Developer</span>
+      <span class="expertise" *appExpertiseLevel="'developer'">{{setting?.Key}}</span>
     </h3>
   </div>
 
-  <span class="description" [innerHTML]="setting?.Description | safe:'html'"></span>
+  <markdown class="description" emoji [data]="setting?.Description"></markdown>
+
+  <div class="help-text" *ngIf="!!setting?.Help">
+    <span class="toggle" (click)="toggleHelp()">
+      <fa-icon icon="question-circle"></fa-icon>
+      {{ !showHelp ? 'Show Help' : 'Hide Help'}}
+    </span>
+
+    <markdown *ngIf="showHelp" [@fadeIn] [@fadeOut] class="help-text" emoji [data]="setting?.Help"></markdown>
+  </div>
+
+  <!-- Quick Settings -->
+  <div *ngIf="quickSettings.length > 0" class="quick-settings">
+    <span>Quick Settings: </span>
+    <button *ngFor="let quick of quickSettings" (click)="applyQuickSetting(quick)">
+      {{quick.Name}}
+    </button>
+  </div>
 
   <ng-container [ngSwitch]="externalOptType(setting)">
     <app-security-setting *ngSwitchCase="optionHint.SecurityLevel" [disabled]="disabled || isLocked"
-      [setting]="_setting" [ngModel]="_currentValue" (ngModelChange)="updateValue($event, true)"></app-security-setting>
+      [setting]="_setting" [ngModel]="_currentValue" (ngModelChange)="updateValue($event, true)">
+    </app-security-setting>
 
     <app-filter-list *ngSwitchCase="optionHint.EndpointList" [readonly]="disabled || isLocked" [ngModel]="_currentValue"
       (ngModelChange)="updateValue($event, true)"></app-filter-list>
 
-    <app-basic-setting *ngSwitchDefault [setting]="_setting" [disabled]="disabled || isLocked" [ngModel]="_currentValue"
-      (ngModelChange)="updateValue($event)" (onBlur)="updateValue(_currentValue!, true)"></app-basic-setting>
+    <app-ordered-list *ngSwitchCase="optionHint.OrderedList" [ngModel]="_currentValue"
+      (ngModelChange)="updateValue($event, true)" [readonly]="disabled || isLocked"></app-ordered-list>
+
+    <ng-container *ngSwitchDefault>
+      <app-ordered-list *ngIf="setting?.OptType == optionType.StringArray; else: basicSetting" fixedOrder="true"
+        [ngModel]="_currentValue" (ngModelChange)="updateValue($event, true)" [readonly]="disabled || isLocked">
+      </app-ordered-list>
+
+      <ng-template #basicSetting>
+        <app-basic-setting [setting]="_setting" [disabled]="disabled || isLocked" [ngModel]="_currentValue"
+          (ngModelChange)="updateValue($event)" (onBlur)="updateValue(_currentValue!, true)">
+        </app-basic-setting>
+      </ng-template>
+
+    </ng-container>
   </ng-container>
 
   <div class="secondary-actions">

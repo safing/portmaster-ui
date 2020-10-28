@@ -69,21 +69,19 @@ export class WidgetService {
     return this.portapi.watchAll<WidgetConfig>(this.widgetPrefix)
       .pipe(
         map(widgets => {
-          let existingPilotIndex = widgets.findIndex(w => w.type === 'pilot-widget');
-
-          const pilot: WidgetConfig<null> = {
+          enforceWidget(widgets, {
             config: null,
             key: 'pilot-widget',
             type: 'pilot-widget',
-            order: existingPilotIndex >= 0 ? widgets[existingPilotIndex].order : -1,
-          }
+          })
 
-          if (existingPilotIndex >= 0) {
-            widgets[existingPilotIndex] = pilot;
-          } else {
-            widgets.splice(0, 0, pilot);
-          }
-
+          enforceWidget(widgets, {
+            config: {
+              markdown: true,
+            },
+            key: 'notification-widget',
+            type: 'notification-widget',
+          })
 
           return widgets
         })
@@ -93,5 +91,20 @@ export class WidgetService {
   loadWidget(id: string): Observable<WidgetConfig> {
     const key = `${this.widgetPrefix}/${id}`;
     return this.portapi.get(key);
+  }
+}
+
+function enforceWidget(list: WidgetConfig[], widget: WidgetConfig) {
+  let existingIndex = list.findIndex(w => w.type === widget.type);
+
+  const newWidget: WidgetConfig<null> = {
+    ...widget,
+    order: existingIndex >= 0 ? list[existingIndex].order : -1,
+  }
+
+  if (existingIndex >= 0) {
+    list[existingIndex] = newWidget;
+  } else {
+    list.splice(0, 0, newWidget);
   }
 }

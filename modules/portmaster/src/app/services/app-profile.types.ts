@@ -1,5 +1,6 @@
 import { SecurityLevel } from './core.types';
 import { OptionValueType } from './config.types';
+import { ScopeIdentifier } from './network.types';
 
 export interface ConfigMap {
   [key: string]: ConfigObject;

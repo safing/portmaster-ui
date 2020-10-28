@@ -1,13 +1,23 @@
 import { ChangeDetectorRef, Component, NgZone, OnInit } from '@angular/core';
 import { PortapiService } from './services/portapi.service';
+import { fadeInAnimation, fadeOutAnimation } from './shared/animations';
+import { debounceTime, startWith } from 'rxjs/operators';
 
 
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.scss'],
+  animations: [
+    fadeInAnimation,
+    fadeOutAnimation,
+  ]
 })
 export class AppComponent implements OnInit {
+  readonly connected = this.portapi.connected$.pipe(
+    debounceTime(250),
+    startWith(false)
+  );
   title = 'portmaster';
 
   showDebugPanel = false;

@@ -37,9 +37,11 @@
 
           <h4 [attr.id]="subsys.ConfigKeySpace +':' + cat.name">{{cat.name}}</h4>
           <ng-container *ngFor="let setting of cat.settings; trackBy: configService.trackBy">
-            <app-generic-setting *appExpertiseLevel="setting.ExpertiseLevel" [setting]="setting"
-              [resetLabelText]="resetLabelText" (onSave)="saveSetting($event)" [lockDefaults]="lockDefaults">
-            </app-generic-setting>
+            <div *appExpertiseLevel="setting.ExpertiseLevel" [class.highlighted]="highlightKey === setting.Key">
+              <app-generic-setting [setting]="setting" [attr.id]="setting.Key" [resetLabelText]="resetLabelText"
+                (onSave)="saveSetting($event)" [lockDefaults]="lockDefaults">
+              </app-generic-setting>
+            </div>
           </ng-container>
         </div>
       </ng-container>

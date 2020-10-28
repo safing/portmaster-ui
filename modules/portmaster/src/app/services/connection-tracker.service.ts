@@ -1,13 +1,17 @@
 import { Injectable, isDevMode } from '@angular/core';
 import { Connection, Verdict } from './network.types';
 import { ConnectionStatistics } from './connection-tracker.types';
-import { catchError, combineAll, filter, map, tap } from 'rxjs/operators';
+import { catchError, combineAll, filter, map, tap, refCount, multicast, take } from 'rxjs/operators';
 import { RiskLevel } from './core.types';
 import { PortapiService } from './portapi.service';
 import { BehaviorSubject, forkJoin, Observable, of, Subject, Subscription } from 'rxjs';
 import { DataReply } from './portapi.types';
 import { parse } from 'psl';
 import { ThrowStmt } from '@angular/compiler';
+import { AppProfile } from './app-profile.types';
+import { AppProfileService } from './app-profile.service';
+import { ExpertiseService } from '../shared/expertise/expertise.service';
+import { ExpertiseLevelNumber, ExpertiseLevel } from './config.types';
 
 /**
  * ConnectionAddedEvent is emitted by a Profile when a
@@ -34,12 +38,15 @@ export interface ConnectionDeletedEvent {
  */
 export type ConnectionUpdateEvent = ConnectionAddedEvent | ConnectionDeletedEvent;
 
-export class Profile {
+export class ProcessGroup {
   /** A set of permitted conneciton keys */
   private permitted = new Set<string>();
 
   /** A set of not-permitted (verdict != accept) connection keys */
   private unpermitted = new Set<string>();
+
+  /** A set of internal connections */
+  private internal = new Set<string>();
 
   /** The current block status of the profile. */
   private _blockStatus: RiskLevel = RiskLevel.Off;
@@ -100,18 +107,25 @@ export class Profile {
   /**
    * Track tracks the connection and correctly calculates the
    * the profiles block status.
+   * Internal connections are tracked as well but are not used
+   * for statistic calculations.
    *
    * @param key The database key of the connection
    * @param conn The actual connection object.
    */
   track(key: string, conn: Connection, update = false) {
-    let setToUse = conn.Verdict === Verdict.Accept
-      ? this.permitted
-      : this.unpermitted;
+    if (conn.Internal) {
+      this.internal.add(key);
+    } else {
+      let setToUse = conn.Verdict === Verdict.Accept
+        ? this.permitted
+        : this.unpermitted;
 
-    setToUse.add(key);
+      setToUse.add(key);
 
-    this.updateBlockStatus();
+      this.updateBlockStatus();
+    }
+
     this._notifier.next({
       type: update ? 'update' : 'added',
       key,
@@ -128,6 +142,7 @@ export class Profile {
   forget(connKey: string) {
     this.permitted.delete(connKey);
     this.unpermitted.delete(connKey);
+    this.internal.delete(connKey);
 
     this.updateBlockStatus();
     this._notifier.next({
@@ -139,11 +154,14 @@ export class Profile {
   /**
    * Get all returns a list of all connection keys
    * that are currently associated to the profile.
+   *
+   * @param includeInternal Whether or not internal connections should be included.
    */
-  getAll(): string[] {
+  getAll(includeInternal = false): string[] {
     return [
       ...Array.from(this.permitted),
-      ...Array.from(this.unpermitted)
+      ...Array.from(this.unpermitted),
+      ...(includeInternal ? Array.from(this.internal) : []),
     ]
   }
 
@@ -192,6 +210,9 @@ export class ScopeGroup {
   /** The current block status of the scope group. */
   private _blockStatus: RiskLevel = RiskLevel.Off;
 
+  /** Subscription to changes in the expertise level */
+  private _expertiseSubscription = Subscription.EMPTY;
+
   /** Holds the current block status of the scope group */
   get blockStatus() {
     return this._blockStatus;
@@ -205,24 +226,30 @@ export class ScopeGroup {
 
   /** Empty returns true if the scope group is empty */
   get empty() {
-    return this._connections.length === 0;
+    return this.size === 0;
   }
 
   get size() {
-    return this._connections.length;
+    return this._connections.length - this.stats.countInternal;
   }
 
   constructor(
     public readonly scope: string,
+    private expertiseService: ExpertiseService,
   ) {
     this.domain = null;
     this.subdomain = null;
 
     const parsed = parse(this.scope);
     if ('listed' in parsed) {
-      this.domain = parsed.domain;
+      this.domain = parsed.domain || this.scope;
       this.subdomain = parsed.subdomain;
     }
+
+    // We republish the connections whenever the expertise changes.
+    this._expertiseSubscription = this.expertiseService.change.subscribe(
+      () => this.publishConnections()
+    )
   }
 
   add(conn: Connection) {
@@ -251,6 +278,12 @@ export class ScopeGroup {
   private publishConnections() {
     this._connectionUpdate.next(
       this._connections
+        .filter(conn => {
+          if (this.expertiseService.currentLevel === ExpertiseLevel.Developer) {
+            return true;
+          }
+          return !conn.Internal;
+        })
         .sort((a, b) => {
           let diff = a.Started - b.Started;
           if (diff !== 0) {
@@ -318,22 +351,62 @@ export class InspectedProfile {
    *  existing connections have been processed. */
   private _loading = true;
 
+  /** Emits the underlying app profile whenever it changes or on first-time subscription */
+  private _profileChanges = new BehaviorSubject<AppProfile | null>(null);
+
   get loading() { return this._loading }
   get stats() { return this._stats; }
   get scopeGroups() { return this._scopeUpdate.asObservable(); }
-  get size() { return this._connections.size; }
+  get size() {
+    return this._connections.size - this.stats.countInternal;
+  }
   get onDone() { return this._onLoadingDone.asObservable() }
 
+  /**
+   * Emits updates to the underlying application profile whenever
+   * they occure.
+   */
+  get profileUpdates(): Observable<AppProfile> {
+    return this._profileChanges.pipe(
+      filter(profileOrNull => profileOrNull !== null),
+    ) as Observable<AppProfile>;
+  }
+
+  /**
+   * Returns the underlying application profile or null if
+   * it has not yet been loaded.
+   */
+  get profile(): AppProfile | null {
+    return this._profileChanges.getValue();
+  }
+
+  get name() {
+    return this.processGroup.name;
+  }
+
+  get ID() {
+    return this.processGroup.id;
+  }
+
   constructor(
-    public readonly profile: Profile,
+    public readonly processGroup: ProcessGroup,
     private readonly portapi: PortapiService,
+    private readonly profileService: AppProfileService,
+    private readonly expertiseService: ExpertiseService,
   ) {
-    this._profileSubscription = this.profile.updates
+    this._profileSubscription = this.processGroup.updates
       .subscribe(
         upd => this.processUpdate(upd),
       );
 
-    const loadObservables = this.profile.getAll()
+    const appSub = this.profileService.watchAppProfile(this.processGroup.id)
+      .subscribe(profile => {
+        this._profileChanges.next(profile);
+      });
+
+    this._profileSubscription.add(appSub);
+
+    const loadObservables = this.processGroup.getAll(true)
       .map(connKey => {
         return this.portapi.get<Connection>(connKey)
           .pipe(
@@ -453,7 +526,7 @@ export class InspectedProfile {
   private getOrCreateScopeGroup(conn: Connection): ScopeGroup {
     let grp = this._scopeGroups.get(conn.Scope);
     if (!grp) {
-      grp = new ScopeGroup(conn.Scope);
+      grp = new ScopeGroup(conn.Scope, this.expertiseService);
       this._scopeGroups.set(conn.Scope, grp);
       this.publishScopes();
     }
@@ -503,10 +576,10 @@ export class ConnTracker {
   private _streamSubscription = Subscription.EMPTY;
 
   /** A map of all active profiles indexed by the profile ID */
-  private _profiles = new Map<string, Profile>();
+  private _profiles = new Map<string, ProcessGroup>();
 
   /** A map of connection-Key to profile */
-  private _connectionToProfile = new Map<string, Profile>();
+  private _connectionToProfile = new Map<string, ProcessGroup>();
 
   /** inspected profile holds the currently inspected profile */
   private _inspectedProfile: InspectedProfile | null = null;
@@ -516,7 +589,7 @@ export class ConnTracker {
 
   /** Behavior subject used to push updates to the list of active
    *  profiles */
-  private _profileUpdates = new BehaviorSubject<Profile[]>([]);
+  private _profileUpdates = new BehaviorSubject<ProcessGroup[]>([]);
 
   /** Emits a list of active profiles whenever a change occurs. */
   get profiles() {
@@ -544,7 +617,11 @@ export class ConnTracker {
     );
   }
 
-  constructor(private portapi: PortapiService) {
+  constructor(
+    private portapi: PortapiService,
+    private profileService: AppProfileService,
+    private expertiseService: ExpertiseService
+  ) {
     const stream = this.portapi.request(
       'qsub',
       { query: 'network:' },
@@ -577,12 +654,21 @@ export class ConnTracker {
     );
   }
 
+  /**
+   * Clear the inspection and stop tracking
+   * the currently inspected process-group
+   */
   clearInspection() {
     this.inspect(null);
   }
 
-  inspect(profileOrID: Profile | string | null) {
-    if (profileOrID === null) {
+  /**
+   * Start inspecting a process group.
+   * 
+   * @param processGroupOrID The ID or ProcessGroup to inspect.
+   */
+  inspect(processGroupOrID: ProcessGroup | string | null) {
+    if (processGroupOrID === null) {
       if (!!this._inspectedProfile) {
         this._inspectedProfile.dispose();
         this._inspectedProfile = null;
@@ -591,9 +677,9 @@ export class ConnTracker {
       return;
     }
 
-    const id = typeof profileOrID === 'string'
-      ? profileOrID
-      : profileOrID.id;
+    const id = typeof processGroupOrID === 'string'
+      ? processGroupOrID
+      : processGroupOrID.id;
 
     const profile = this._profiles.get(id);
     if (!profile) {
@@ -604,7 +690,7 @@ export class ConnTracker {
     }
 
     if (this._inspectedProfile !== null) {
-      if (this._inspectedProfile.profile.id === id) {
+      if (this._inspectedProfile.processGroup.id === id) {
         // if we already inspect this profile abort now
         return;
       }
@@ -612,7 +698,12 @@ export class ConnTracker {
       this._inspectedProfile.dispose();
     }
 
-    this._inspectedProfile = new InspectedProfile(profile, this.portapi);
+    this._inspectedProfile = new InspectedProfile(
+      profile,
+      this.portapi,
+      this.profileService,
+      this.expertiseService
+    );
     this._inspectedProfileChange.next(this._inspectedProfile);
   }
 
@@ -651,12 +742,6 @@ export class ConnTracker {
       return
     }
 
-    /*
-    if (msg.data.Internal) {
-      return;
-    }
-    */
-
     const profile = this.getOrCreateProfile(msg.data);
     this._connectionToProfile.set(msg.key, profile);
 
@@ -669,11 +754,11 @@ export class ConnTracker {
    *
    * @param conn The connection object
    */
-  private getOrCreateProfile(conn: Connection): Profile {
+  private getOrCreateProfile(conn: Connection): ProcessGroup {
     const profileID = conn.ProcessContext.ProfileID;
     let profile = this._profiles.get(profileID);
     if (!profile) {
-      profile = new Profile(profileID, conn.ProcessContext.Name);
+      profile = new ProcessGroup(profileID, conn.ProcessContext.Name);
       this._profiles.set(profileID, profile);
 
       this.publishProfiles();

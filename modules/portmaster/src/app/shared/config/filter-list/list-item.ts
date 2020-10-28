@@ -37,6 +37,9 @@ export class FilterListItemComponent implements OnInit {
   }
   _edit: boolean = false;
 
+  @Output()
+  editChange = new EventEmitter<boolean>();
+
   @Input()
   set readonly(v: any) {
     this._readonly = coerceBooleanProperty(v);
@@ -46,8 +49,6 @@ export class FilterListItemComponent implements OnInit {
   }
   _readonly: boolean = false;
 
-  @Output()
-  editChange = new EventEmitter<boolean>();
 
   @Output()
   delete = new EventEmitter<void>();

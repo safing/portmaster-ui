@@ -21,20 +21,27 @@
   </svg>
 
   <h2>{{lockLevel?.displayText}}</h2>
-  <label>
-    <span class="trust-level {{selectedOption?.class}}"></span>
-    {{selectedOption?.displayText}}
-  </label>
 </div>
 
-<div class="level-list" [class.auto-pilot]="selectedOption?.level === 0">
-  <label>Rate your network</label>
+<div class="level-list" [class.auto-pilot]="mode === 'auto'">
+  <div class="rate-header">
+    <label>Rate your network</label>
+    <app-dropdown [ngModel]="mode" (ngModelChange)="updateMode($event)">
+      <app-dropdown-item *dropDownValue="'auto'">
+        <span class="trust-level low"></span>
+        Auto Detect
+      </app-dropdown-item>
+      <app-dropdown-item *dropDownValue="'manual'">
+        <span class="trust-level off"></span>
+        Manual
+      </app-dropdown-item>
+    </app-dropdown>
+  </div>
 
   <ng-container *ngFor="let opt of options">
-    <div *ngIf="opt.level !== selectedLevel" class="level" [class.selected]="activeLevel == opt.level"
-      (click)="selectLevel(opt.level)">
+    <div class="level" [class.selected]="activeLevel == opt.level"
+      [class.suggested]="suggestedLevel === opt.level && suggestedLevel > activeLevel" (click)="selectLevel(opt.level)">
       <div>
-        <span class="trust-level {{opt.class}}" [class.pulse]="opt.level === 0 && activeLevel < suggestedLevel"></span>
         {{opt.displayText}}
       </div>
     </div>

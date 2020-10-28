@@ -1,10 +1,9 @@
 import { coerceBooleanProperty } from '@angular/cdk/coercion';
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, HostBinding, Input, ViewChild, OnInit, OnDestroy, Output, EventEmitter, Host } from '@angular/core';
 import { NgModel } from '@angular/forms';
-import { EventManager } from '@angular/platform-browser';
 import { Subject, Subscription } from 'rxjs';
 import { debounceTime } from 'rxjs/operators';
-import { BaseSetting, ExternalOptionHint, SettingValueType, ConfigService, ExpertiseLevelNumber, ReleaseLevel, SecurityLevel, Setting, isDefaultValue } from 'src/app/services';
+import { BaseSetting, ExternalOptionHint, SettingValueType, ConfigService, ExpertiseLevelNumber, ReleaseLevel, SecurityLevel, Setting, isDefaultValue, OptionType, WellKnown, QuickSetting, applyQuickSetting } from 'src/app/services';
 import { fadeInAnimation, fadeOutAnimation } from '../../animations';
 
 export interface SaveSettingEvent<S extends BaseSetting<any, any> = any> {
@@ -16,6 +15,7 @@ export interface SaveSettingEvent<S extends BaseSetting<any, any> = any> {
 @Component({
   selector: 'app-generic-setting',
   templateUrl: './generic-setting.html',
+  exportAs: 'appGenericSetting',
   styleUrls: ['./generic-setting.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
   animations: [
@@ -24,9 +24,15 @@ export interface SaveSettingEvent<S extends BaseSetting<any, any> = any> {
   ]
 })
 export class GenericSettingComponent<S extends BaseSetting<any, any>> implements OnInit, OnDestroy {
+  //
+  // Constants used in the template.
+  //
+
   readonly optionHint = ExternalOptionHint;
   readonly expertise = ExpertiseLevelNumber;
+  readonly optionType = OptionType;
   readonly releaseLevel = ReleaseLevel;
+  readonly wellKnown = WellKnown;
 
   @Input()
   set disabled(v: any) {
@@ -53,12 +59,14 @@ export class GenericSettingComponent<S extends BaseSetting<any, any>> implements
   @Output()
   onSave = new EventEmitter<SaveSettingEvent<S>>();
 
+  showHelp = false;
+
   private save = new Subject();
   private subscription = Subscription.EMPTY;
   private wasReset = false;
 
   externalOptType(opt: S | null): ExternalOptionHint | null {
-    return opt?.Annotations?.["safing/portbase:ui:display-hint"] || null;
+    return opt?.Annotations?.[WellKnown.DisplayHint] || null;
   }
 
   @HostBinding('class.locked')
@@ -115,7 +123,7 @@ export class GenericSettingComponent<S extends BaseSetting<any, any>> implements
     this.wasReset = false;
     let value = this.defaultValue;
 
-    if (this.setting.Annotations["safing/portbase:options:stackable"]) {
+    if (this.setting.Annotations[WellKnown.Stackable]) {
       // TODO(ppacher): fix this one once string[] options can be
       // stackable
       value = [] as SettingValueType<S>;
@@ -125,6 +133,10 @@ export class GenericSettingComponent<S extends BaseSetting<any, any>> implements
     // update the settings value now so the UI
     // responds immediately.
     this.setting!.Value = value;
+  }
+
+  toggleHelp() {
+    this.showHelp = !this.showHelp;
   }
 
   toggleLock() {
@@ -228,6 +240,15 @@ export class GenericSettingComponent<S extends BaseSetting<any, any>> implements
     this._currentValue = this._savedValue;
   }
 
+  applyQuickSetting(qs: QuickSetting<SettingValueType<S>>) {
+    const value = applyQuickSetting(this._currentValue, qs);
+    if (value === null) {
+      return;
+    }
+
+    this.updateValue(value, true);
+  }
+
   private emitSaveRequest() {
     const isDefault = isDefaultValue(this._currentValue, this.defaultValue) && (!this.lockDefaults || this.wasReset);
 
@@ -258,6 +279,18 @@ export class GenericSettingComponent<S extends BaseSetting<any, any>> implements
     if (save) {
       this.save.next();
     }
+  }
+
+  get quickSettings(): QuickSetting<SettingValueType<S>>[] {
+    if (!this.setting || !this.setting.Annotations[WellKnown.QuickSetting]) {
+      return [];
+    }
+
+    const quickSettings = this.setting.Annotations[WellKnown.QuickSetting]!;
+
+    return Array.isArray(quickSettings)
+      ? quickSettings
+      : [quickSettings];
   }
 
   private updateActualValue() {

@@ -2,7 +2,7 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { BehaviorSubject, combineLatest, Subscription } from 'rxjs';
 import { delayWhen, take } from 'rxjs/operators';
-import { ConnTracker, Profile } from 'src/app/services/connection-tracker.service';
+import { ConnTracker, ProcessGroup } from 'src/app/services/connection-tracker.service';
 import { fadeInAnimation } from 'src/app/shared/animations';
 
 @Component({
@@ -14,7 +14,7 @@ import { fadeInAnimation } from 'src/app/shared/animations';
 export class MonitorPageComponent implements OnInit, OnDestroy {
   private subscription: Subscription = Subscription.EMPTY;
 
-  profiles: Profile[] = [];
+  profiles: ProcessGroup[] = [];
   onSearch = new BehaviorSubject<string>('');
 
   loading = true;

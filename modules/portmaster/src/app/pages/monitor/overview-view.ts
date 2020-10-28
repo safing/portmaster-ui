@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnDestroy, OnInit, TrackByFunction } from '@angular/core';
 import { Subscription } from 'rxjs';
 import { fadeInAnimation, fadeOutAnimation } from 'src/app/shared/animations';
-import { ConnTracker, Profile } from '../../services/connection-tracker.service';
+import { ConnTracker, ProcessGroup } from '../../services/connection-tracker.service';
 
 @Component({
   selector: 'app-network-overview',
@@ -19,9 +19,9 @@ export class NetworkOverviewComponent implements OnInit, OnDestroy {
   totalAllowed = 0;
   totalBlocked = 0;
 
-  profiles: Profile[] = [];
+  profiles: ProcessGroup[] = [];
 
-  trackProfile: TrackByFunction<Profile> = (_: number, p: Profile) => p.id;
+  trackProfile: TrackByFunction<ProcessGroup> = (_: number, p: ProcessGroup) => p.id;
 
   private subscription = Subscription.EMPTY;
 

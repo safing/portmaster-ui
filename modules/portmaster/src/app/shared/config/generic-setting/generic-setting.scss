@@ -10,7 +10,7 @@
   }
 
   &.locked {
-    @apply bg-cards-secondary;
+    background-color: rgba(var(--cards-secondary-rgb), var(--bg-opacity, 1));
 
     .settings-wrapper {
       opacity: 0.4;
@@ -108,8 +108,40 @@ div.secondary-actions {
   }
 }
 
-span.description {
+.quick-settings {
+  width: 100%;
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  @apply py-2;
+  
+  button {
+    @apply ml-2;
+  }
+}
+
+.description, .help-text {
   display: block;
   @apply mt-2;
   @apply mb-4;
+  @apply text-secondary; 
+}
+
+.help-text {
+  @apply p-4;
+  @apply bg-cards-secondary;
+  @apply rounded;
+
+  .toggle {
+    position: relative;
+    left: -0.25rem;
+    cursor: pointer;
+    fa-icon {
+      @apply pr-1;
+    }
+    
+    &:hover {
+      @apply text-primary;
+    }
+  }
 }

@@ -44,7 +44,7 @@ export class ProfileStatisticsComponent implements OnInit, OnDestroy {
       )
       .subscribe(profile => {
         if (!!profile) {
-          this.total = profile.profile.size;
+          this.total = profile.processGroup.size;
           this.stats = profile.stats;
         } else {
           this.total = 0;

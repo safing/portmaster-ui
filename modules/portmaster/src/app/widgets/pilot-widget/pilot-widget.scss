@@ -49,7 +49,7 @@
     &.medium {
       --lock-color: var(--info-yellow);
 
-      // TODO(luke): need proteciton lock colors for yellow
+      // TODO(luke): need protection lock colors for yellow
       .outer-line {
         color  : var(--info-yellow);
         opacity: 0.2;
@@ -105,15 +105,28 @@
   .level-list {
     flex-grow: 1;
 
-    &:not(.auto-pilot) {
-      div.level:after {
-        transition: none;
-      }
+    div.rate-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
     }
 
+    &:not(.auto-pilot) {
+      div.level.selected{
+        div {
+          @apply bg-buttons-light
+        }
+        &:after {
+          transition: none;
+          opacity: 0 !important;
+        }
+      }
+
+    }
+    
     div.level {
       position: relative;
-      padding : 1px;
+      padding : 2px;
       @apply mt-1;
       cursor  : pointer;
       overflow: hidden;
@@ -134,10 +147,25 @@
         //opacity         : 0;
       }
 
-      &.selected {
+      div {
+        @apply rounded;
+        @apply font-medium;
+        @apply p-2;
+        @apply pl-4;
+        @apply bg-cards-primary;
+      }
+      
+
+      &.selected, &.suggested {
         &:after {
           transform: translateX(0%);
           opacity  : 1;
+        }
+      }
+
+      &.suggested {
+        &:after {
+          animation: pulse-opacity 1s ease-in-out infinite alternate; 
         }
       }
 
@@ -148,19 +176,18 @@
         }
       }
 
-      div {
-        @apply rounded;
-        @apply font-medium;
-        @apply p-2;
-        @apply pl-4;
-        @apply bg-cards-primary;
-
-        span {
-          @apply mr-2;
-        }
-      }
     }
   }
 
   @apply pb-5;
+}
+
+@keyframes pulse-opacity {
+  0% {
+    opacity: 0.1;
+  }
+  
+  100% {
+    opacity: 1;
+  }
 }

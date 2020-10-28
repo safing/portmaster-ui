@@ -6,31 +6,31 @@
 <h3>App</h3>
 
 <div class="card-header open">
-  <app-icon [profile]="appProfile"></app-icon>
+  <app-icon [profile]="profile?.profile"></app-icon>
   <span class="card-title">
-    <app-text-placeholder mode="input" [loading]="!appProfile">
-      {{appProfile?.Name}}
+    <app-text-placeholder mode="input" [loading]="!profile?.profile">
+      {{profile?.profile?.Name}}
     </app-text-placeholder>
   </span>
-  <fa-icon icon="cog" [routerLink]="['/', 'app', appProfile?.Source, appProfile?.ID]"></fa-icon>
+  <fa-icon icon="cog" [routerLink]="['/', 'app', profile?.profile?.Source, profile?.profile?.ID]"></fa-icon>
   <app-count-indicator [count]="profile!.size"></app-count-indicator>
 </div>
 
 <div class="card-content">
   <div>
-    <app-text-placeholder mode="input" [loading]="!appProfile" width="large">
+    <app-text-placeholder mode="input" [loading]="!profile?.profile" width="large">
       <span>Executable:</span>
-      <span>{{appProfile?.LinkedPath || 'N/A'}}</span>
+      <span>{{profile?.profile?.LinkedPath || 'N/A'}}</span>
     </app-text-placeholder>
   </div>
 
   <div>
-    <span *ngIf="(appProfile?.ApproxLastUsed || 0) > 0">
+    <span *ngIf="(profile?.profile?.ApproxLastUsed || 0) > 0">
       <span>Last Used:</span>
-      <span>{{appProfile!.ApproxLastUsed * 1000 | date:'medium'}}</span>
+      <span>{{profile!.profile!.ApproxLastUsed * 1000 | date:'medium'}}</span>
     </span>
   </div>
 </div>
 
-<app-connections-view [connections]="profile" [profile]="appProfile" [@fadeIn]>
+<app-connections-view [profile]="profile" [@fadeIn]>
 </app-connections-view>

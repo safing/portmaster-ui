@@ -26,13 +26,15 @@
 <div>
   <h4 class="py-4 text-primary">Monitoring</h4>
 
-  <li class="card-header" *ngFor="let data of profiles; trackBy: trackProfile"
-    [routerLink]="['/', 'monitor', 'profile', data.id]" [@fadeIn] [@fadeOut] routerLinkActive="active">
-    <app-icon [profile]="data"></app-icon>
-    <span class="card-title">{{ data.name }}</span>
-    <app-count-indicator [count]="data.size" [risk]="data.blockStatus">
-    </app-count-indicator>
-  </li>
+  <ng-container *ngFor="let data of profiles; trackBy: trackProfile">
+    <li class="card-header" *appExpertiseLevel="data.size === 0 ? 'developer' : 'user'"
+      [routerLink]="['/', 'monitor', 'profile', data.id]" [@fadeIn] [@fadeOut] routerLinkActive="active">
+      <app-icon [profile]="data"></app-icon>
+      <span class="card-title">{{ data.name }}</span>
+      <app-count-indicator [count]="data.size" [risk]="data.blockStatus">
+      </app-count-indicator>
+    </li>
+  </ng-container>
 
   <ng-container *ngIf="loading">
     <li class="card-header" [@fadeOut]>

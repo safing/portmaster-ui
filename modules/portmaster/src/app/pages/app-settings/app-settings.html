@@ -18,11 +18,11 @@
         <app-icon [profile]="appProfile"></app-icon>
         {{appProfile.Name}}
 
-        <div [routerLink]="['/', 'monitor', 'profile', 'core:profiles/' + appProfile.Source + '/' + appProfile.ID]"
+        <div *ngIf="isActive"
+          [routerLink]="['/', 'monitor', 'profile', 'core:profiles/' + appProfile.Source + '/' + appProfile.ID]"
           class="link">
           <fa-icon icon="desktop"></fa-icon>
         </div>
-
       </h1>
 
       <app-profile-stats mode="inspected"></app-profile-stats>
@@ -34,19 +34,19 @@
             <span>{{appProfile.Name}}</span>
           </p>
           <p>
-            <label>ID:</label>
-            <span>{{appProfile.ID}}</span>
+            <label>Path:</label>
+            <span>{{appProfile.LinkedPath}}</span>
           </p>
         </div>
 
-        <div class="app-details">
+        <div class="app-details" *appExpertiseLevel="'developer'">
           <p>
             <label>Source:</label>
             <span>{{appProfile.Source}}</span>
           </p>
           <p>
-            <label>Path:</label>
-            <span>{{appProfile.LinkedPath}}</span>
+            <label>ID:</label>
+            <span>{{appProfile.ID}}</span>
           </p>
         </div>
 
@@ -76,8 +76,8 @@
     </h2>
 
     <ng-container *ngIf="settings.length > 0; else: noSettingsTemplate">
-      <app-settings-view [searchTerm]="searchTerm" [availableSettings]="settings" (onSave)="saveSetting($event)"
-        resetLabelText="Use global setting" lockDefaults="true">
+      <app-settings-view [searchTerm]="searchTerm" [availableSettings]="settings" [highlightKey]="highlightSettingKey"
+        (onSave)="saveSetting($event)" resetLabelText="Use global setting" lockDefaults="true">
       </app-settings-view>
     </ng-container>
 
@@ -99,3 +99,7 @@
 </ng-container>
 
 <app-settings-overview *ngIf="showOverview"></app-settings-overview>
+
+<div *ngIf="settings.length > 0 && viewSetting !== 'all'" class="no-customization">
+  <button (click)="viewSettingChange.next('all')">🚀 Show all Settings</button>
+</div>

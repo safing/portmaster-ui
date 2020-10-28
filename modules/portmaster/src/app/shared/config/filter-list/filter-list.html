@@ -1,5 +1,6 @@
 <div class="list-items" cdkDropList (cdkDropListDropped)="drop($event)">
-  <div class="item" *ngFor="let entry of entries; let index=index; trackBy: trackBy" cdkDrag>
+  <div class="item" *ngFor="let entry of entries; let index=index; trackBy: trackBy" cdkDrag
+    [cdkDragDisabled]="readonly">
     <fa-icon icon="grip-vertical" cdkDragHandle *ngIf="!readonly"></fa-icon>
     <app-filter-list-item [readonly]="readonly" [value]="entry" (valueChange)="updateValue(index, $event)"
       (delete)="deleteEntry(index)">

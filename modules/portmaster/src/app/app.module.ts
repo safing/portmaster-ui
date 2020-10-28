@@ -49,6 +49,7 @@ import { ProfileStatisticsComponent } from './shared/profile-stats';
 import { ConfigSettingsViewComponent } from './shared/config/config-settings';
 import { AppIconComponent } from './shared/app-icon';
 import { MenuComponent, MenuTriggerComponent, MenuItemComponent } from './shared/menu';
+import { OrderedListComponent, OrderedListItemComponent } from './shared/config/ordererd-list';
 
 @NgModule({
   declarations: [
@@ -100,6 +101,8 @@ import { MenuComponent, MenuTriggerComponent, MenuItemComponent } from './shared
     MenuComponent,
     MenuTriggerComponent,
     MenuItemComponent,
+    OrderedListComponent,
+    OrderedListItemComponent
   ],
   imports: [
     BrowserModule,

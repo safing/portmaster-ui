@@ -33,6 +33,19 @@
       <app-toggle-switch id="check-{{setting.Key}}" name="check" [ngModel]="_value"
         (ngModelChange)="setInternalValue($event); touched()" [disabled]="_disabled">
       </app-toggle-switch>
+
+      <!--
+      <app-dropdown [ngModel]="_value" (ngModelChange)="setInternalValue($event)" [disabled]="_disabled">
+        <app-dropdown-item *dropDownValue="true">
+          <span class="trust-level low"></span>
+          On
+        </app-dropdown-item>
+        <app-dropdown-item *dropDownValue="false">
+          <span class="trust-level high"></span>
+          Off
+        </app-dropdown-item>
+      </app-dropdown>
+      -->
     </ng-container>
 
     <textarea *ngSwitchDefault [attr.rows]="lineCount(_value)" [ngModel]="_value"

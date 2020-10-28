@@ -14,7 +14,7 @@ export interface IDandName {
 })
 export class AppIconComponent {
   @Input()
-  set profile(p: IDandName | null) {
+  set profile(p: IDandName | null | undefined) {
     this._profile = p || null;
 
     if (!!p) {
