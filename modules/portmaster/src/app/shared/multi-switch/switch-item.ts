@@ -1,4 +1,4 @@
-import { Component, ChangeDetectionStrategy, Input, isDevMode, OnInit, HostBinding, Output, EventEmitter, HostListener, ElementRef } from '@angular/core';
+import { Component, ChangeDetectionStrategy, Input, isDevMode, OnInit, HostBinding, Output, EventEmitter, HostListener, ElementRef, ChangeDetectorRef } from '@angular/core';
 import { coerceBooleanProperty } from '@angular/cdk/coercion';
 
 @Component({
@@ -10,6 +10,9 @@ import { coerceBooleanProperty } from '@angular/cdk/coercion';
 export class SwitchItemComponent<T> implements OnInit {
   @Input()
   id: T | null = null;
+
+  @Input()
+  group = '';
 
   @Output()
   clicked = new EventEmitter<MouseEvent>();
@@ -66,5 +69,8 @@ export class SwitchItemComponent<T> implements OnInit {
     }
   }
 
-  constructor(public readonly elementRef: ElementRef) { }
+  constructor(
+    public readonly elementRef: ElementRef,
+    public readonly changeDetectorRef: ChangeDetectorRef,
+  ) { }
 }

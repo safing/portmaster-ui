@@ -1,6 +1,6 @@
 import { coerceBooleanProperty } from '@angular/cdk/coercion';
 import { DOCUMENT } from '@angular/common';
-import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, ContentChildren, ElementRef, EventEmitter, forwardRef, HostBinding, HostListener, Inject, Input, Output, QueryList, ViewChild } from '@angular/core';
+import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, ContentChildren, ElementRef, EventEmitter, forwardRef, HostBinding, HostListener, Inject, Input, Output, QueryList, Renderer2, ViewChild } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { animationFrameScheduler, fromEvent, Subscription } from 'rxjs';
 import { map, startWith, subscribeOn, takeUntil } from 'rxjs/operators';
@@ -63,6 +63,7 @@ export class MultiSwitchComponent<T> implements AfterViewInit, ControlValueAcces
   constructor(
     public host: ElementRef,
     private changeDetectorRef: ChangeDetectorRef,
+    private renderer: Renderer2,
     @Inject(DOCUMENT) private document: Document,
   ) { }
 
@@ -182,10 +183,37 @@ export class MultiSwitchComponent<T> implements AfterViewInit, ControlValueAcces
 
           this.markerOffset = offset;
           this.updatePosition(offset);
+
+          let foundTarget = false;
+          let target = this.findTargetButton(offset);
+
+          if (!!target) {
+            this.marker!.nativeElement.style.backgroundColor = target.borderColorActive;
+
+            this.buttons!.forEach(btn => {
+              if (!foundTarget && btn.group === target!.group) {
+                this.renderer.addClass(btn.elementRef.nativeElement, 'selected');
+              } else {
+                this.renderer.removeClass(btn.elementRef.nativeElement, 'selected');
+              }
+
+              if (target === btn) {
+                foundTarget = true;
+              }
+            });
+          }
         },
         complete: () => {
           this.changeDetectorRef.reattach();
           this.markerDropped();
+
+          // make sure we don't keep the selected class on buttons that
+          // are not selected anymore.
+          this.buttons!.forEach(btn => {
+            if (!btn.selected) {
+              this.renderer.removeClass(btn.elementRef.nativeElement, 'selected');
+            }
+          });
         }
       });
   }
@@ -195,21 +223,32 @@ export class MultiSwitchComponent<T> implements AfterViewInit, ControlValueAcces
     this.marker!.nativeElement.style.transform = `translate3d(${x}px, 0px, 0px)`;
   }
 
-  /** Calculates which button should be activated based on the drop-position of the marker */
-  private markerDropped() {
-    const offset = this.markerOffset;
+  /** Find the button item that is below x */
+  private findTargetButton(x: number, cb?: (item: SwitchItemComponent<T>, target: boolean) => void): SwitchItemComponent<T> | null {
     const host = this.host.nativeElement.getBoundingClientRect();
     let newButton: SwitchItemComponent<T> | null = null;
-
     this.buttons?.forEach(btn => {
       const btnRect = btn.elementRef.nativeElement.getBoundingClientRect();
       const min = btnRect.x - host.x;
       const max = min + btnRect.width;
 
-      if (offset >= min && offset <= max) {
+      if (x >= min && x <= max) {
         newButton = btn;
+
+        if (!!cb) {
+          cb(btn, true);
+        }
+      } else if (!!cb) {
+        cb(btn, false);
       }
     });
+
+    return newButton;
+  }
+
+  /** Calculates which button should be activated based on the drop-position of the marker */
+  private markerDropped() {
+    let newButton = this.findTargetButton(this.markerOffset);
 
     if (!newButton) {
       newButton = Array.from(this.buttons!)[0];

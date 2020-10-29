@@ -1,4 +1,4 @@
 <app-multi-switch [ngModel]="getLevel()" (ngModelChange)="setLevel($event)" [disabled]="disabled">
   <app-switch-item *ngFor="let lvl of availableLevels" [borderColorActive]="lvl.activeBorder" [id]="lvl.level"
-    [selected]="isActive(lvl.level)">{{lvl.name}}</app-switch-item>
+    [group]="lvl.activeBorder" [selected]="isActive(lvl.level)">{{lvl.name}}</app-switch-item>
 </app-multi-switch>
