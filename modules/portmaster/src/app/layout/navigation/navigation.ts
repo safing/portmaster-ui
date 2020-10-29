@@ -7,12 +7,9 @@ import { PortapiService } from 'src/app/services/portapi.service';
   styleUrls: ['./navigation.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class NavigationComponent implements OnInit {
+export class NavigationComponent {
+  /** Emits the current portapi connection state on changes. */
   readonly connected$ = this.portapi.connected$;
 
   constructor(private portapi: PortapiService) { }
-
-  ngOnInit(): void {
-  }
-
 }

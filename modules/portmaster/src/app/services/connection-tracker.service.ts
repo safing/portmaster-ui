@@ -1,17 +1,16 @@
-import { Injectable, isDevMode } from '@angular/core';
-import { Connection, Verdict } from './network.types';
-import { ConnectionStatistics } from './connection-tracker.types';
-import { catchError, combineAll, filter, map, tap, refCount, multicast, take } from 'rxjs/operators';
-import { RiskLevel } from './core.types';
-import { PortapiService } from './portapi.service';
-import { BehaviorSubject, forkJoin, Observable, of, Subject, Subscription } from 'rxjs';
-import { DataReply } from './portapi.types';
+import { Injectable } from '@angular/core';
 import { parse } from 'psl';
-import { ThrowStmt } from '@angular/compiler';
-import { AppProfile } from './app-profile.types';
-import { AppProfileService } from './app-profile.service';
+import { BehaviorSubject, forkJoin, Observable, of, Subject, Subscription } from 'rxjs';
+import { catchError, filter, map, tap } from 'rxjs/operators';
 import { ExpertiseService } from '../shared/expertise/expertise.service';
-import { ExpertiseLevelNumber, ExpertiseLevel } from './config.types';
+import { AppProfileService } from './app-profile.service';
+import { AppProfile } from './app-profile.types';
+import { ExpertiseLevel } from './config.types';
+import { ConnectionStatistics } from './connection-tracker.types';
+import { RiskLevel } from './core.types';
+import { Connection, ScopeIdentifier, ScopeTranslation, Verdict } from './network.types';
+import { PortapiService } from './portapi.service';
+import { DataReply } from './portapi.types';
 
 /**
  * ConnectionAddedEvent is emitted by a Profile when a
@@ -229,6 +228,7 @@ export class ScopeGroup {
     return this.size === 0;
   }
 
+  /** Size returns the number of (non-internal) connections */
   get size() {
     return this._connections.length - this.stats.countInternal;
   }
@@ -240,10 +240,12 @@ export class ScopeGroup {
     this.domain = null;
     this.subdomain = null;
 
-    const parsed = parse(this.scope);
-    if ('listed' in parsed) {
-      this.domain = parsed.domain || this.scope;
-      this.subdomain = parsed.subdomain;
+    if (ScopeTranslation[this.scope] === undefined) {
+      const parsed = parse(this.scope);
+      if ('listed' in parsed) {
+        this.domain = parsed.domain || this.scope;
+        this.subdomain = parsed.subdomain;
+      }
     }
 
     // We republish the connections whenever the expertise changes.

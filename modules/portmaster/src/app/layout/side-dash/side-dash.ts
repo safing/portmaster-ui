@@ -5,6 +5,7 @@ import { ComponentPortal } from '@angular/cdk/portal';
 import { moveItemInArray, CdkDragDrop } from '@angular/cdk/drag-drop';
 import { combineLatest } from 'rxjs';
 import { filter } from 'rxjs/operators';
+import { ExpertiseService } from 'src/app/shared/expertise/expertise.service';
 
 interface WidgetPortal<T> extends WidgetConfig<T> {
   portal: ComponentPortal<any>;
@@ -17,19 +18,29 @@ interface WidgetPortal<T> extends WidgetConfig<T> {
   styleUrls: ['./side-dash.scss'],
 })
 export class SideDashComponent implements OnInit {
+  /** All created and rendered widgets */
   widgets: WidgetPortal<any>[] = [];
+
+  /** Number of updates to ingore. Required while saving a new widget order. */
   private ignoreCount = 0;
 
+  /** A lookup map for available widget definitions by widget-type key */
   widgetTemplates: {
     [key: string]: WidgetDefinition<any>
   };
 
+  /** Returns the current expertise level */
+  get expertise() {
+    return this.expertiseService.currentLevel;
+  }
+
   constructor(
     @Inject(WIDGET_DEFINTIONS) definitions: WidgetDefinition<any>[],
     public widgetService: WidgetService,
-    private changeDetectorRef: ChangeDetectorRef,
+    private expertiseService: ExpertiseService,
     @Inject(INJECTOR) private injector: Injector,
   ) {
+    // Build up a new widget-template lookup map.
     this.widgetTemplates = {};
     definitions.forEach(def => {
       this.widgetTemplates[def.type] = def;
@@ -41,7 +52,8 @@ export class SideDashComponent implements OnInit {
       .pipe(
         filter(() => {
           // ignore exactly `ignoreCount` update
-          // notifications.
+          // notifications. Required when we save a
+          // new widget order.
           if (this.ignoreCount === 0) {
             return true;
           }
@@ -51,6 +63,10 @@ export class SideDashComponent implements OnInit {
         })
       )
       .subscribe(widgets => {
+        // From each widget configuration we are going to create a new WidgetPortal.
+        // The portal holds a widget-specific dependency injector that provides the
+        // widget configuration.
+        // Finally, the widgets are sorted by the user-configured order.
         const widgetsWithMeta = widgets
           .map(w => {
             const existing = this.widgets.find(e => e.key === w.key);
@@ -72,11 +88,14 @@ export class SideDashComponent implements OnInit {
 
             return aOrder - bOrder;
           });
+
         this.widgets = widgetsWithMeta;
       });
 
   }
 
+  /** @private Callback function from the template when a dragged
+   *  widget is dropped at it's new position. */
   drop(event: CdkDragDrop<string[]>) {
     moveItemInArray(this.widgets, event.previousIndex, event.currentIndex);
 
@@ -99,6 +118,7 @@ export class SideDashComponent implements OnInit {
     })
   }
 
+  /** Creates a new injector providing the widget configuration as WIDGET_CONFIG. */
   private createInjector(w: WidgetConfig): Injector {
     return Injector.create({
       providers: [{
