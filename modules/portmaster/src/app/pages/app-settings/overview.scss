@@ -1,8 +1,9 @@
 :host {
-  display       : flex;
-  width         : 100%;
-  flex-direction: column;
-  height        : 100%;
+  display        : flex;
+  width          : 100%;
+  flex-direction : column;
+  justify-content: flex-start;
+  height         : 100%;
 }
 
 
@@ -10,6 +11,11 @@
   display              : grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   gap                  : 1rem;
+}
+
+.content {
+  @apply mb-6;
+  flex-shrink: 0;
 }
 
 .card-header {

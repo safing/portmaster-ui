@@ -78,6 +78,9 @@ export class MultiSwitchComponent<T> implements OnDestroy, AfterViewInit, Contro
   @HostBinding('class.grabbing')
   isGrabbing = false;
 
+  /** External write tracks calls to writeValue so we don't end up re-emitting the values. */
+  private externalWrite = false;
+
   /** Which button is currently active (and holds the marker) */
   activeButton: T | null = null;
 
@@ -108,14 +111,23 @@ export class MultiSwitchComponent<T> implements OnDestroy, AfterViewInit, Contro
   /** Writes a new value for the multi-line switch */
   writeValue(value: T) {
     this.activeButton = value;
-
     if (!!this.buttons) {
+      // Set externalWrite to true while we iterate the buttons
+      // and eventually call `setActiveItem` so we don't re-emit
+      // the active item once the keyManager publishes the change
+      // to use.
+      // This workaround is required as we need to inform the
+      // keyManager about the new active item. Otherwise it would
+      // work with a stale internal state the next time the user
+      // uses the keyboard.
+      this.externalWrite = true;
       this.buttons.forEach(btn => {
         if (btn.id === value) {
-          this.selectButton(btn, false);
+          this.keyManager!.setActiveItem(btn);
           this.repositionMarker(btn);
         }
       })
+      this.externalWrite = false;
     }
   }
 
@@ -132,7 +144,7 @@ export class MultiSwitchComponent<T> implements OnDestroy, AfterViewInit, Contro
     this.keyManagerSub = this.keyManager.change
       .subscribe(activeIndex => {
         const active = Array.from(this.buttons!)[activeIndex];
-        this.selectButton(active, true);
+        this.selectButton(active, !this.externalWrite);
       });
 
     // Subscribe to all (clicked) and (selectedChange) events of

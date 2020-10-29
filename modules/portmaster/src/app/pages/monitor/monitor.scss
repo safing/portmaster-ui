@@ -83,6 +83,10 @@ li.overview {
   @apply text-tertiary;
 }
 
+app-loading {
+  @apply mt-4;
+}
+
 $transition-duration : .3s;
 
 .search-container {

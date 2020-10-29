@@ -15,7 +15,7 @@ app-side-dash {
 }
 
 app-side-dash {
-  width: calc(4.5rem * 5);
+  width: calc(4.5rem * 6);
 }
 
 div.main {
@@ -43,25 +43,25 @@ app-debug {
 }
 
 .loading {
-  z-index: 100;
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  flex-direction: column;
-  backdrop-filter: blur(10px);
+  z-index         : 100;
+  position        : absolute;
+  top             : 0;
+  left            : 0;
+  right           : 0;
+  bottom          : 0;
+  display         : flex;
+  justify-content : center;
+  align-items     : center;
+  flex-direction  : column;
+  backdrop-filter : blur(10px);
   background-color: rgba(#222222, 0.35);
-  
+
   .message {
-    display: flex;
+    display        : flex;
     justify-content: center;
-    align-items: center;
-    width: 100%;
-    flex-direction: column;
+    align-items    : center;
+    width          : 100%;
+    flex-direction : column;
   }
 
   svg {
@@ -72,10 +72,10 @@ app-debug {
   }
 
   div.logo {
-    opacity: 0.8;
+    opacity : 0.8;
     position: relative;
     width   : 10vh;
-    height   : 10vh;
+    height  : 10vh;
     @apply mt-4;
   }
 

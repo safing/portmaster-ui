@@ -108,8 +108,8 @@ h2.app-settings {
   display              : grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   gap                  : 1rem;
-  white-space: normal;
-  text-overflow: ellipsis;
+  white-space          : normal;
+  text-overflow        : ellipsis;
 
   @apply mb-8;
 
@@ -121,9 +121,9 @@ h2.app-settings {
     display        : flex;
     flex-direction : column;
     justify-content: space-evenly;
-    
+
     p {
-      overflow: hidden;
+      overflow     : hidden;
       text-overflow: ellipsis;
     }
 

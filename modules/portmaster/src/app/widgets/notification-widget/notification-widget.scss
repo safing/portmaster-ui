@@ -1,8 +1,9 @@
 :host {
-  display   : block;
-  background: none;
-  max-height: 50vh;
-  overflow  : auto;
+  display       : flex;
+  flex-direction: column;
+  align-items   : center;
+  max-height    : 50vh;
+  overflow      : auto;
 }
 
 app-notification,
@@ -22,8 +23,10 @@ div.placeholder {
 
 div.placeholder {
   @apply font-medium;
-  height         : 4rem;
+  @apply text-tertiary;
+  @apply p-2;
   display        : flex;
+  flex-direction : column;
   justify-content: center;
   align-items    : center;
 

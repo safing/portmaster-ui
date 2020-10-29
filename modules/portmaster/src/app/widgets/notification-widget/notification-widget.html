@@ -3,5 +3,6 @@
 </app-notification>
 
 <div class="placeholder" *ngIf="!(notifsService.new$ | async)?.length">
-  <fa-icon icon="check"></fa-icon> No notifications
+  Waiting for notifications
+  <app-loading></app-loading>
 </div>

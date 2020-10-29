@@ -52,6 +52,7 @@ import { MenuComponent, MenuTriggerComponent, MenuItemComponent } from './shared
 import { OrderedListComponent, OrderedListItemComponent } from './shared/config/ordererd-list';
 import { MultiSwitchComponent, SwitchItemComponent } from './shared/multi-switch';
 import { AutoFocusDirective } from './shared/focus';
+import { LoadingComponent } from './shared/loading';
 
 @NgModule({
   declarations: [
@@ -108,6 +109,7 @@ import { AutoFocusDirective } from './shared/focus';
     MultiSwitchComponent,
     SwitchItemComponent,
     AutoFocusDirective,
+    LoadingComponent,
   ],
   imports: [
     BrowserModule,
