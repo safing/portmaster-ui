@@ -1,18 +1,25 @@
 .buttons {
-    display: flex;
-    align-items: flex-end;
-    position: relative;
-    height: 3rem;
+  display    : flex;
+  align-items: flex-end;
+  position   : relative;
+  height     : 3rem;
 }
 
 .marker {
-    display: block;
-    height: 16px;
-    width: 16px;
-    position: relative;
-    top: -9px;
-    cursor: col-resize;
-    transition: all .5s cubic-bezier(0.175, 0.885, 0.32, 1.075);
-    @apply rounded-full;
-    @apply bg-info-green;
+  display   : block;
+  height    : 16px;
+  width     : 16px;
+  position  : relative;
+  top       : -9px;
+  cursor    : col-resize;
+  transition: all .5s cubic-bezier(0.175, 0.885, 0.32, 1.075);
+  @apply rounded-full;
+}
+
+:host {
+  &.disabled {
+    .marker {
+      cursor: unset;
+    }
+  }
 }

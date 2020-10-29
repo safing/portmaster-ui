@@ -1,28 +1,4 @@
-<!--
-<label>Risk Level</label>
-<app-dropdown [ngModel]="getLevel()" (ngModelChange)="setLevel($event)" [disabled]="disabled">
-  <app-dropdown-item *dropDownValue="SecurityLevels.Off">
-    <span class="trust-level off"></span>
-    None
-  </app-dropdown-item>
-  <app-dropdown-item *dropDownValue="SecurityLevels.Extreme">
-    <span class="trust-level low"></span>
-    Low
-  </app-dropdown-item>
-  <app-dropdown-item *dropDownValue="SecurityLevels.High">
-    <span class="trust-level medium"></span>
-    Medium
-  </app-dropdown-item>
-  <app-dropdown-item *dropDownValue="SecurityLevels.Normal">
-    <span class="trust-level high"></span>
-    High
-  </app-dropdown-item>
-</app-dropdown>
--->
-
-<app-multi-switch>
-  <app-switch-item id="off">Off</app-switch-item>
-  <app-switch-item id="high">Danger</app-switch-item>
-  <app-switch-item id="medium">Untrusted</app-switch-item>
-  <app-switch-item id="low">Trusted </app-switch-item>
+<app-multi-switch [ngModel]="getLevel()" (ngModelChange)="setLevel($event)" [disabled]="disabled">
+  <app-switch-item *ngFor="let lvl of availableLevels" [borderColorActive]="lvl.activeBorder" [id]="lvl.level"
+    [selected]="isActive(lvl.level)">{{lvl.name}}</app-switch-item>
 </app-multi-switch>

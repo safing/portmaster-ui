@@ -5,15 +5,6 @@
   justify-items: flex-start;
 }
 
-label {
-  @apply p-2;
-  @apply px-3;
-  @apply bg-buttons-light;
-  @apply text-primary;
-  @apply mr-1;
-  display: inline-block;
-}
-
-app-dropdown-item {
-  position: relative;
+app-switch-item:first-of-type {
+  --switch-active: theme("colors.info.red");
 }

@@ -51,6 +51,7 @@ import { AppIconComponent } from './shared/app-icon';
 import { MenuComponent, MenuTriggerComponent, MenuItemComponent } from './shared/menu';
 import { OrderedListComponent, OrderedListItemComponent } from './shared/config/ordererd-list';
 import { MultiSwitchComponent, SwitchItemComponent } from './shared/multi-switch';
+import { AutoFocusDirective } from './shared/focus';
 
 @NgModule({
   declarations: [
@@ -106,6 +107,7 @@ import { MultiSwitchComponent, SwitchItemComponent } from './shared/multi-switch
     OrderedListItemComponent,
     MultiSwitchComponent,
     SwitchItemComponent,
+    AutoFocusDirective,
   ],
   imports: [
     BrowserModule,

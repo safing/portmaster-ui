@@ -1,169 +1,262 @@
-import { AfterViewInit, ChangeDetectionStrategy, Component, ContentChildren, QueryList, Output, EventEmitter, ChangeDetectorRef, ElementRef, ViewChild, Inject, Renderer2, NgZone } from '@angular/core';
-import { Subscription, fromEvent, interval, animationFrameScheduler } from 'rxjs';
-import { SwitchItemComponent } from './switch-item';
-import { startWith, throttle, map, subscribeOn, takeUntil } from 'rxjs/operators';
-import { CdkDragDrop, CdkDragEnd } from '@angular/cdk/drag-drop';
+import { coerceBooleanProperty } from '@angular/cdk/coercion';
 import { DOCUMENT } from '@angular/common';
+import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, ContentChildren, ElementRef, EventEmitter, forwardRef, HostBinding, HostListener, Inject, Input, Output, QueryList, ViewChild } from '@angular/core';
+import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
+import { animationFrameScheduler, fromEvent, Subscription } from 'rxjs';
+import { map, startWith, subscribeOn, takeUntil } from 'rxjs/operators';
+import { SwitchItemComponent } from './switch-item';
 
 @Component({
-    selector: 'app-multi-switch',
-    templateUrl: './multi-switch.html',
-    styleUrls: ['./multi-switch.scss'],
-    changeDetection: ChangeDetectionStrategy.OnPush
+  selector: 'app-multi-switch',
+  templateUrl: './multi-switch.html',
+  styleUrls: ['./multi-switch.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  providers: [
+    {
+      provide: NG_VALUE_ACCESSOR,
+      useExisting: forwardRef(() => MultiSwitchComponent),
+      multi: true,
+    }
+  ]
 })
-export class MultiSwitchComponent implements AfterViewInit {
-    private sub = Subscription.EMPTY;
+export class MultiSwitchComponent<T> implements AfterViewInit, ControlValueAccessor {
+  /** Subscription to all button-select changes */
+  private sub = Subscription.EMPTY;
 
-    markerOffset: number = 0;
+  /** Holds the current x-translation offset for the marker */
+  private markerOffset: number = 0;
 
-    @ContentChildren(SwitchItemComponent)
-    buttons: QueryList<SwitchItemComponent> | null = null;
+  /** All buttons projected into the multi-switch */
+  @ContentChildren(SwitchItemComponent)
+  buttons: QueryList<SwitchItemComponent<T>> | null = null;
 
-    @Output()
-    changed = new EventEmitter<string>();
+  /** Emits whenever the selected button changes. */
+  @Output()
+  changed = new EventEmitter<T>();
 
-    @ViewChild('marker', { read: ElementRef, static: true })
-    marker: ElementRef | null = null;
+  /** Reference to the marker inside our view container */
+  @ViewChild('marker', { read: ElementRef, static: true })
+  marker: ElementRef | null = null;
 
-    selectedButton: string = '';
-    selecting = false;
+  @HostListener('blur')
+  onBlur() {
+    this._onTouch();
+  }
 
-    getMarkerOffsetLeft() {
-        const markerRect = this.marker!.nativeElement.getBoundingClientRect();
-        return markerRect.x;
+  /** Whether or not the switch button component is disabled */
+  @Input()
+  @HostBinding('class.disabled')
+  set disabled(v: any) {
+    this._disabled = coerceBooleanProperty(v);
+
+    // Update all buttons states as well.
+    if (!!this.buttons) {
+      this.buttons.forEach(btn => btn.disabled = this.disabled);
     }
+  }
+  get disabled() { return this._disabled; }
+  private _disabled = false;
 
-    constructor(
-        public host: ElementRef,
-        private changeDetectorRef: ChangeDetectorRef,
-        @Inject(DOCUMENT) private document: Document,
-        private renderer: Renderer2,
-        private ngZone: NgZone
-    ) { }
+  /** Which button is currently active (and holds the marker) */
+  activeButton: T | null = null;
 
-    ngAfterViewInit() {
-        if (!this.buttons) {
-            return;
+  constructor(
+    public host: ElementRef,
+    private changeDetectorRef: ChangeDetectorRef,
+    @Inject(DOCUMENT) private document: Document,
+  ) { }
+
+  /** Registeres the change callback. Required for ControlValueAccessor */
+  registerOnChange(fn: (v: T) => void) {
+    this._onChange = fn;
+  }
+  private _onChange: (value: T) => void = () => { }
+
+  /** Registers the touch callback. Required for ControlValueAccessor */
+  registerOnTouched(fn: () => void) {
+    this._onTouch = fn;
+  }
+  private _onTouch: () => void = () => { };
+
+  /** Disable or enable the button. Required for ControlValueAccessor */
+  setDisabledState(disabled: boolean) {
+    this.disabled = disabled;
+  }
+
+  /** Writes a new value for the multi-line switch */
+  writeValue(value: T) {
+    this.activeButton = value;
+
+    if (!!this.buttons) {
+      this.buttons.forEach(btn => {
+        if (btn.id === value) {
+          this.selectButton(btn, false);
+          this.repositionMarker(btn);
         }
-        this.buttons.changes
-            .pipe(startWith(null))
-            .subscribe(() => {
-                this.sub.unsubscribe();
-                this.sub = new Subscription();
+      })
+    }
+  }
 
-                this.buttons!.forEach(btn => {
-                    this.sub.add(
-                        btn.clicked.subscribe((e: MouseEvent) => this.selectButton(btn, e))
-                    );
-
-                    this.sub.add(
-                        btn.selectedChange.subscribe(() => this.repositionMarker())
-                    );
-                })
-            });
+  ngAfterViewInit() {
+    if (!this.buttons) {
+      return;
     }
 
-    selectButton(btn: SwitchItemComponent, event?: MouseEvent) {
-        this.selectedButton = btn.id;
-        this.changed.next(btn.id);
-        this.buttons?.forEach(b => {
-            b.selected = b.id === btn.id;
-        });
+    // Subscribe to all (clicked) and (selectedChange) events of
+    // all buttons projected into our content.
+    this.buttons.changes
+      .pipe(startWith(null))
+      .subscribe(() => {
+        this.sub.unsubscribe();
+        this.sub = new Subscription();
+
+        this.buttons!.forEach(btn => {
+          btn.disabled = this.disabled;
+          this.sub.add(
+            btn.clicked.subscribe((e: MouseEvent) => this.selectButton(btn, true))
+          );
+        })
+      });
+
+    this.buttons.forEach(btn => {
+      if (this.activeButton === btn.id) {
+        btn.selected = true;
+      }
+    })
+
+    this.repositionMarker();
+  }
+
+  /** Selects a new button and deselects all others. */
+  private selectButton(btn: SwitchItemComponent<T>, emit = true) {
+    if (this.disabled) {
+      return;
     }
 
-    dragStarted(event: MouseEvent) {
-        const mousemove$ = fromEvent<MouseEvent>(document, 'mousemove');
-        const hostRect = this.host.nativeElement.getBoundingClientRect();
-        const start = this.markerOffset;
-        const markerWidth = this.marker!.nativeElement.getBoundingClientRect().width;
+    this.activeButton = btn.id;
 
-        this.changeDetectorRef.detach();
-        mousemove$
-            .pipe(
-                map(move => {
-                    move.preventDefault();
-                    return move.clientX - event.clientX;
-                }),
-                takeUntil(fromEvent(document, 'mouseup')),
-                subscribeOn(animationFrameScheduler)
-            )
-            .subscribe({
-                next: diff => {
-                    let offset = start + diff;
-                    if (offset < 0) {
-                        offset = 0;
-                    } else if (offset > hostRect.width) {
-                        offset = hostRect.width;
-                    }
-
-                    offset -= Math.round(markerWidth / 2);
-
-                    this.markerOffset = offset;
-                    this.updatePosition(offset);
-                },
-                complete: () => {
-                    this.changeDetectorRef.reattach();
-                    this.markerDropped();
-                }
-            });
+    if (emit) {
+      this.changed.next(btn.id!);
+      this._onChange(btn.id!);
     }
 
-    private updatePosition(x: number) {
-        this.marker!.nativeElement.style.transform = `translate3d(${x}px, 0px, 0px)`;
+    this.repositionMarker(btn);
+  }
+
+  /** @private View-callback for (mousedown) to start dragging the marker. */
+  dragStarted(event: MouseEvent) {
+    if (this.disabled) {
+      return;
     }
 
-    markerDropped() {
-        const offset = this.markerOffset;
-        const host = this.host.nativeElement.getBoundingClientRect();
-        let newButton: SwitchItemComponent | null = null;
+    const mousemove$ = fromEvent<MouseEvent>(this.document, 'mousemove');
+    const hostRect = this.host.nativeElement.getBoundingClientRect();
+    const start = this.markerOffset;
+    const markerWidth = this.marker!.nativeElement.getBoundingClientRect().width;
 
-        this.buttons?.forEach(btn => {
-            const btnRect = btn.elementRef.nativeElement.getBoundingClientRect();
-            const min = btnRect.x - host.x;
-            const max = min + btnRect.width;
+    // we don't want angular to run change detection all the time we move a pixel
+    // so detach the change-detector for now.
+    this.changeDetectorRef.detach();
 
-            if (offset >= min && offset <= max) {
-                newButton = btn;
-            }
-        });
+    mousemove$
+      .pipe(
+        map(move => {
+          move.preventDefault();
+          return move.clientX - event.clientX;
+        }),
+        takeUntil(fromEvent(document, 'mouseup')),
+        subscribeOn(animationFrameScheduler)
+      )
+      .subscribe({
+        next: diff => {
+          // clip the new offset inside our host-view.
+          let offset = start + diff;
+          if (offset < 0) {
+            offset = 0;
+          } else if (offset > hostRect.width) {
+            offset = hostRect.width;
+          }
 
-        if (!newButton) {
-            newButton = Array.from(this.buttons!)[0];
+          // center the marker at the mouse position.
+          offset -= Math.round(markerWidth / 2);
+
+          this.markerOffset = offset;
+          this.updatePosition(offset);
+        },
+        complete: () => {
+          this.changeDetectorRef.reattach();
+          this.markerDropped();
         }
+      });
+  }
 
-        if (!!newButton) {
-            this.selecting = true;
-            this.selectButton(newButton);
-            this.selecting = false;
+  /** Update the markers position by applying a translate3d */
+  private updatePosition(x: number) {
+    this.marker!.nativeElement.style.transform = `translate3d(${x}px, 0px, 0px)`;
+  }
 
-            this.repositionMarker(newButton);
-        }
+  /** Calculates which button should be activated based on the drop-position of the marker */
+  private markerDropped() {
+    const offset = this.markerOffset;
+    const host = this.host.nativeElement.getBoundingClientRect();
+    let newButton: SwitchItemComponent<T> | null = null;
+
+    this.buttons?.forEach(btn => {
+      const btnRect = btn.elementRef.nativeElement.getBoundingClientRect();
+      const min = btnRect.x - host.x;
+      const max = min + btnRect.width;
+
+      if (offset >= min && offset <= max) {
+        newButton = btn;
+      }
+    });
+
+    if (!newButton) {
+      newButton = Array.from(this.buttons!)[0];
     }
 
-    private repositionMarker(selected: SwitchItemComponent | null = null) {
-        if (this.selecting) {
-            return;
-        }
+    if (!!newButton) {
+      this.selectButton(newButton, true);
 
-        if (selected === null) {
-            this.buttons?.forEach(btn => {
-                if (btn.selected) {
-                    selected = btn;
-                }
-            });
-        }
-
-        if (selected === null) {
-            this.markerOffset = 0;
-            this.updatePosition(0);
-            return;
-        }
-
-        const offsetLeft = selected!.elementRef.nativeElement.offsetLeft;
-        const clientWidth = selected!.elementRef.nativeElement.clientWidth;
-
-        this.markerOffset = Math.round(offsetLeft - 8 + clientWidth / 2);
-        this.updatePosition(this.markerOffset);
-        this.changeDetectorRef.markForCheck();
+      this.repositionMarker(newButton);
     }
+  }
+
+  /**
+   * Calculates the new position required to center the
+   * marker at the currently selected button.
+   * If `selected` is unset the last button with selected == true is
+   * used.
+   *
+   * @param selected The switch item button to select (optional).
+   */
+  private repositionMarker(selected: SwitchItemComponent<T> | null = null) {
+    // If there's no selected button given search for the last one that
+    // matches selected === true.
+    if (selected === null) {
+      this.buttons?.forEach(btn => {
+        if (btn.selected) {
+          selected = btn;
+        }
+      });
+    }
+
+    // There's not button selected so we move the marker back to the
+    // start.
+    if (selected === null) {
+      this.markerOffset = 0;
+      this.updatePosition(0);
+      return;
+    }
+
+    // Calculate and reposition the marker.
+    const offsetLeft = selected!.elementRef.nativeElement.offsetLeft;
+    const clientWidth = selected!.elementRef.nativeElement.clientWidth;
+
+    this.markerOffset = Math.round(offsetLeft - 8 + clientWidth / 2);
+    this.marker!.nativeElement.style.backgroundColor = selected.borderColorActive;
+
+    this.updatePosition(this.markerOffset);
+    this.changeDetectorRef.markForCheck();
+  }
 }

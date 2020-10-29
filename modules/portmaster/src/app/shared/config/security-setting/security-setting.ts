@@ -8,7 +8,8 @@ import { ConfigService, IntSetting, parseSupportedValues, SecurityLevel } from '
 class SecuritySetting implements ListKeyManagerOption {
   constructor(
     public name: string,
-    public level: SecurityLevel
+    public level: SecurityLevel,
+    public activeBorder = 'var(--info-green)'
   ) { }
 
   getLabel(): string {
@@ -37,16 +38,19 @@ export class SecuritySettingComponent implements OnDestroy, ControlValueAccessor
 
   @HostListener('blur')
   onBlur() {
-    this.activeItem = '';
+    if (this.disabled) {
+      return;
+    }
+
     this._onTouch();
   }
 
   @HostListener('focus')
   onFocus() {
-    const active = this.availableLevels.find(lvl => this.isActive(lvl.level));
+    const current = this.getLevel();
+    const active = this.availableLevels.find(lvl => lvl.level === current);
     if (!!active) {
       this._keyManager?.setActiveItem(active);
-      this.activeItem = active.name;
     }
   }
 
@@ -56,14 +60,11 @@ export class SecuritySettingComponent implements OnDestroy, ControlValueAccessor
       return;
     }
 
-    if (event.code === 'Enter') {
-      const activeItem = this.availableLevels.find(lvl => lvl.name === this.activeItem);
-      if (!!activeItem) {
-        this.setLevel(activeItem.level);
-      }
-    } else {
-      this._keyManager.onKeydown(event);
+    if (this.disabled) {
+      return;
     }
+
+    this._keyManager.onKeydown(event);
   }
 
   set disabled(v: any) {
@@ -88,21 +89,29 @@ export class SecuritySettingComponent implements OnDestroy, ControlValueAccessor
    */
   @Input()
   set setting(s: IntSetting | null) {
+    let changed = false;
+
+    if (!!s && !this._setting || s?.Key != this._setting?.Key) {
+      changed = true;
+    }
+
     this._setting = s || null;
 
-    this._keyManager = null;
-    this._keySubscription.unsubscribe();
+    if (!s || changed) {
+      this._keyManager = null;
+      this._keySubscription.unsubscribe();
+    }
 
-    if (!!s) {
+    if (!!s && changed) {
       this.availableLevels = [
-        new SecuritySetting('Normal', SecurityLevel.Normal),
-        new SecuritySetting('High', SecurityLevel.High),
-        new SecuritySetting('Extreme', SecurityLevel.Extreme),
+        new SecuritySetting('Danger', SecurityLevel.Extreme),
+        new SecuritySetting('Untrusted', SecurityLevel.High),
+        new SecuritySetting('Trusted', SecurityLevel.Normal),
       ];
 
       const values = parseSupportedValues(s);
       if (values.includes(SecurityLevel.Off)) {
-        this.availableLevels.push(new SecuritySetting('Off', SecurityLevel.Off))
+        this.availableLevels.splice(0, 0, new SecuritySetting('Off', SecurityLevel.Off, 'var(--info-red)'))
       }
 
       this._keyManager = new ListKeyManager(this.availableLevels)
@@ -110,7 +119,15 @@ export class SecuritySettingComponent implements OnDestroy, ControlValueAccessor
         .withWrap();
 
       this._keySubscription = this._keyManager.change.subscribe(
-        idx => this.activeItem = this.availableLevels[idx].name
+        idx => {
+          // We update the keymanager's internal active item in onFocus
+          // but we need to ignore the change event when we are disabled.
+          if (this.disabled) {
+            return;
+          }
+
+          this.setLevel(this.availableLevels[idx].level);
+        }
       )
     }
   }
@@ -133,9 +150,6 @@ export class SecuritySettingComponent implements OnDestroy, ControlValueAccessor
 
   /** Subscription for key manager changes */
   private _keySubscription: Subscription = Subscription.EMPTY;
-
-  /** the currently focused item (via key-manager) */
-  activeItem: string = '';
 
   /** Available security levels for this setting */
   availableLevels: SecuritySetting[] = [];
