@@ -10,6 +10,7 @@
   position  : relative;
   opacity   : 0.5;
   box-sizing: border-box;
+  cursor    : grabbing !important;
   @apply border-2;
   @apply rounded;
   @apply border-dashed;
@@ -22,6 +23,7 @@
 
 .cdk-drag-preview {
   box-sizing: border-box;
+  cursor    : grabbing !important;
 
   @apply rounded;
   @apply border-2;
@@ -31,5 +33,10 @@
 }
 
 .cdk-drag-handle {
-  cursor: move !important;
+  cursor: grab !important;
+}
+
+
+.document-grabbing {
+  cursor: grabbing !important;
 }

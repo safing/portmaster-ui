@@ -57,6 +57,9 @@ export class MultiSwitchComponent<T> implements AfterViewInit, ControlValueAcces
   get disabled() { return this._disabled; }
   private _disabled = false;
 
+  @HostBinding('class.grabbing')
+  isGrabbing = false;
+
   /** Which button is currently active (and holds the marker) */
   activeButton: T | null = null;
 
@@ -150,6 +153,9 @@ export class MultiSwitchComponent<T> implements AfterViewInit, ControlValueAcces
       return;
     }
 
+    this.isGrabbing = true;
+    this.renderer.addClass(this.document.getElementsByTagName("body")[0], 'document-grabbing');
+
     const mousemove$ = fromEvent<MouseEvent>(this.document, 'mousemove');
     const hostRect = this.host.nativeElement.getBoundingClientRect();
     const start = this.markerOffset;
@@ -217,6 +223,9 @@ export class MultiSwitchComponent<T> implements AfterViewInit, ControlValueAcces
               btn.elementRef.nativeElement.style.borderColor = btn.borderColorInactive;
             }
           });
+
+          this.isGrabbing = false;
+          this.renderer.removeClass(this.document.getElementsByTagName("body")[0], 'document-grabbing');
         }
       });
   }

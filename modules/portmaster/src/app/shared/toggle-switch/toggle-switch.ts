@@ -4,7 +4,6 @@ import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 @Component({
   selector: 'app-toggle-switch',
   templateUrl: './toggle-switch.html',
-  styleUrls: ['./toggle-switch.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
   providers: [
     {
