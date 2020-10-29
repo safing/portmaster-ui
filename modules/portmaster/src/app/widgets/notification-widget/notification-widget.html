@@ -7,7 +7,8 @@
     </div>
     <div class="preview">
       <span>
-        {{notif.Message}}
+        {{notif.Title || notif.Message}}
+        <span *ngIf="!!notif.Category" class="category">{{notif.Category}}</span>
       </span>
       <div class="buttons">
         <button *ngFor="let action of notif!.AvailableActions" (click)="execute(notif!, action.ID, $event)">

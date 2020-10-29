@@ -76,8 +76,15 @@ export interface Notification<T> {
   Type: NotificationType;
   // Message is the default message shown to the user if no localized version
   // of the notification is available. Note that the message should already
-  // have any paramerized values replaced.
+  // have any paramerized values replaced. Message may be formatted using
+  // markdown.
   Message: string;
+  // Title holds a short notification title that quickly informs the user
+  // about the type of notification.
+  Title: string;
+  // Category holds an informative category for the notification and is mainly
+  // used for presentation purposes.
+  Category: string;
   // EventData contains an additional payload for the notification. This payload
   // may contain contextual data and may be used by a localization framework
   // to populate the notification message template.

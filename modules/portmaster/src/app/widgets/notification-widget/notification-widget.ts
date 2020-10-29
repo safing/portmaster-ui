@@ -33,7 +33,7 @@ export interface NotificationWidgetConfig {
 export class NotificationWidgetComponent implements OnInit {
   readonly types = NotificationType;
 
-  @HostBinding('style.height')
+  @HostBinding('style.minHeight')
   height: string | number = 'auto';
 
   expandedNotification: Notification<any> | null = null;
