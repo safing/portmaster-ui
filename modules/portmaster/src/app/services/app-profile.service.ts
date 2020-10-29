@@ -3,12 +3,30 @@ import { PortapiService } from './portapi.service';
 import { AppProfile, ConfigMap, FlatConfigObject, flattenProfileConfig } from './app-profile.types';
 import { Observable } from 'rxjs';
 import { map, tap } from 'rxjs/operators';
+import { keyframes } from '@angular/animations';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AppProfileService {
   constructor(private portapi: PortapiService) { }
+
+  getKey(key: string): string;
+  getKey(source: string, id: string): string;
+  getKey(p: AppProfile): string;
+  getKey(idOrSourceOrProfile: string | AppProfile, id?: string): string {
+    if (typeof idOrSourceOrProfile === 'object') {
+      return this.getKey(idOrSourceOrProfile.Source, idOrSourceOrProfile.ID);
+    }
+
+    let key = idOrSourceOrProfile;
+
+    if (!!id) {
+      key = `core:profiles/${idOrSourceOrProfile}/${id}`;
+    };
+
+    return key;
+  }
 
   getAppProfile(id: string): Observable<AppProfile>;
   getAppProfile(source: string, id: string): Observable<AppProfile>;

@@ -2,6 +2,7 @@ import { Component, OnInit, OnDestroy, ChangeDetectionStrategy, TrackByFunction,
 import { BehaviorSubject, combineLatest, Subscription } from 'rxjs';
 import { debounceTime } from 'rxjs/operators';
 import { AppProfile, AppProfileService, trackById } from 'src/app/services';
+import { ConnTracker } from 'src/app/services/connection-tracker.service';
 import { fadeInAnimation } from 'src/app/shared/animations';
 import { FuzzySearchService } from 'src/app/shared/fuzzySearch';
 
@@ -17,18 +18,29 @@ import { FuzzySearchService } from 'src/app/shared/fuzzySearch';
 export class AppOverviewComponent implements OnInit, OnDestroy {
   private subscription = Subscription.EMPTY;
 
+  /** Whether or not we are currently loading */
   loading = true;
+
+  /** All application profiles that are actually running */
+  runningProfiles: AppProfile[] = [];
+
+  /** All non-running application profiles */
   profiles: AppProfile[] = [];
+
+  /** The current search term */
   searchTerm: string = '';
 
+  /** Observable emitting the search term */
   private onSearch = new BehaviorSubject('');
 
+  /** TrackBy function for the profiles. */
   trackProfile: TrackByFunction<AppProfile> = trackById;
 
   constructor(
     private profileService: AppProfileService,
     private changeDetector: ChangeDetectorRef,
     private searchService: FuzzySearchService,
+    private connTrack: ConnTracker,
   ) { }
 
   ngOnInit() {
@@ -48,7 +60,10 @@ export class AppOverviewComponent implements OnInit, OnDestroy {
             keys: ['Name', 'LinkedPath']
           });
 
-          this.profiles = filtered
+          this.profiles = [];
+          this.runningProfiles = [];
+
+          filtered
             .map(item => item.item)
             .sort((a, b) => {
               const aName = a.Name.toLocaleLowerCase();
@@ -63,6 +78,13 @@ export class AppOverviewComponent implements OnInit, OnDestroy {
               }
 
               return 0;
+            })
+            .forEach(profile => {
+              if (this.connTrack.has(this.profileService.getKey(profile))) {
+                this.runningProfiles.push(profile);
+              } else {
+                this.profiles.push(profile);
+              }
             });
           this.changeDetector.markForCheck();
         }

@@ -7,9 +7,19 @@
   <h1>Apps</h1>
 </div>
 
-<div class="content">
+<div class="content" *ngIf="runningProfiles.length > 0">
+  <h4>Active</h4>
+  <ng-container *ngTemplateOutlet="profileList; context: {$implicit: runningProfiles}"></ng-container>
+</div>
+
+<div class="content" *ngIf="profiles.length > 0">
+  <h4>Apps</h4>
+  <ng-container *ngTemplateOutlet="profileList; context: {$implicit: profiles}"></ng-container>
+</div>
+
+<ng-template #profileList let-list>
   <div class="grid-container">
-    <div *ngFor="let profile of profiles; trackBy: trackProfile" class="card-header"
+    <div *ngFor="let profile of list; trackBy: trackProfile" class="card-header"
       [routerLink]="['..', profile.Source,  profile.ID]" [@fadeIn]>
       <app-icon [profile]="profile"></app-icon>
       <span class="card-title">
@@ -38,4 +48,4 @@
       </div>
     </ng-container>
   </div>
-</div>
+</ng-template>

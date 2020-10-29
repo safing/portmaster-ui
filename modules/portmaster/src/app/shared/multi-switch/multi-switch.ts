@@ -193,8 +193,10 @@ export class MultiSwitchComponent<T> implements AfterViewInit, ControlValueAcces
             this.buttons!.forEach(btn => {
               if (!foundTarget && btn.group === target!.group) {
                 this.renderer.addClass(btn.elementRef.nativeElement, 'selected');
+                btn.elementRef.nativeElement.style.borderColor = btn.borderColorActive;
               } else {
                 this.renderer.removeClass(btn.elementRef.nativeElement, 'selected');
+                btn.elementRef.nativeElement.style.borderColor = btn.borderColorInactive;
               }
 
               if (target === btn) {
@@ -212,6 +214,7 @@ export class MultiSwitchComponent<T> implements AfterViewInit, ControlValueAcces
           this.buttons!.forEach(btn => {
             if (!btn.selected) {
               this.renderer.removeClass(btn.elementRef.nativeElement, 'selected');
+              btn.elementRef.nativeElement.style.borderColor = btn.borderColorInactive;
             }
           });
         }

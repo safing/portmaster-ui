@@ -606,6 +606,11 @@ export class ConnTracker {
     return this._inspectedProfile;
   }
 
+  /** Returns true if the profile is currently active */
+  has(id: string) {
+    return this._profiles.has(id);
+  }
+
   /**
    * Ready emits as soon as the all connections have been loaded
    * and the set of active profiles has been calculated.
@@ -664,7 +669,7 @@ export class ConnTracker {
 
   /**
    * Start inspecting a process group.
-   * 
+   *
    * @param processGroupOrID The ID or ProcessGroup to inspect.
    */
   inspect(processGroupOrID: ProcessGroup | string | null) {

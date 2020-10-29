@@ -99,7 +99,3 @@
 </ng-container>
 
 <app-settings-overview *ngIf="showOverview"></app-settings-overview>
-
-<div *ngIf="settings.length > 0 && viewSetting !== 'all'" class="no-customization">
-  <button (click)="viewSettingChange.next('all')">🚀 Show all Settings</button>
-</div>
