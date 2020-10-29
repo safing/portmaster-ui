@@ -3,6 +3,8 @@
   align-items: flex-end;
   position   : relative;
   height     : 3rem;
+  flex-grow  : 0;
+  width      : fit-content;
 }
 
 .marker {
@@ -17,6 +19,10 @@
 }
 
 :host {
+  flex-grow: 0;
+  width    : fit-content;
+  display  : block;
+
   &.disabled {
     .marker {
       cursor: unset;
