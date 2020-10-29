@@ -20,14 +20,16 @@
   }
 
   div.state {
-    width : 18px;
-    height: 18px;
+    width          : 18px;
+    height         : 18px;
+    display        : flex;
+    justify-content: center;
+    align-items    : center;
     @apply bg-buttons-light;
     @apply rounded-full;
 
     .trust-level:before {
-      top : 0px;
-      left: -2px;
+      top: 0px;
     }
   }
 }

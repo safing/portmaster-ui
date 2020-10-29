@@ -9,27 +9,30 @@
 
   height: calc(var(--internal-dot-size) * 3);
 
-  .dot {
-    display: inline-block;
+  &.animate {
+    .dot {
+      display: inline-block;
 
-    width : var(--internal-dot-size);
-    height: var(--internal-dot-size);
+      width : var(--internal-dot-size);
+      height: var(--internal-dot-size);
 
-    @apply shadow-inner-xs;
-    @apply rounded-full;
-    @apply bg-buttons-icon;
-    @apply mr-1;
+      @apply shadow-inner-xs;
+      @apply rounded-full;
+      @apply bg-buttons-icon;
+      @apply mr-1;
 
-    animation: wave var(--internal-animation-speed) linear infinite;
+      animation: wave var(--internal-animation-speed) linear infinite;
 
-    &:nth-child(2) {
-      animation-delay: -1.1s;
-    }
+      &:nth-child(2) {
+        animation-delay: -1.1s;
+      }
 
-    &:nth-child(3) {
-      animation-delay: -0.9s;
+      &:nth-child(3) {
+        animation-delay: -0.9s;
+      }
     }
   }
+
 }
 
 @keyframes wave {
@@ -41,8 +44,8 @@
     @apply bg-buttons-light;
   }
 
-  30% {
-    transform       : translateY(-3px);
+  90% {
+    transform       : translateY(-9px);
     background-color: white;
   }
 }

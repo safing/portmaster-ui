@@ -21,7 +21,6 @@
   </svg>
 
   <h2>{{lockLevel?.displayText}}</h2>
-  <app-loading></app-loading>
 </div>
 
 <div class="level-list" [class.auto-pilot]="mode === 'auto'">
@@ -30,11 +29,11 @@
     <app-dropdown [ngModel]="mode" (ngModelChange)="updateMode($event)">
       <app-dropdown-item *dropDownValue="'auto'">
         <span class="trust-level low"></span>
-        Auto Detect
+        <span>Auto Detect</span>
       </app-dropdown-item>
       <app-dropdown-item *dropDownValue="'manual'">
         <span class="trust-level off"></span>
-        Manual
+        <span>Manual</span>
       </app-dropdown-item>
     </app-dropdown>
   </div>
@@ -43,7 +42,12 @@
     <div class="level" [class.selected]="activeLevel == opt.level"
       [class.suggested]="suggestedLevel === opt.level && suggestedLevel > activeLevel" (click)="selectLevel(opt.level)">
       <div>
-        {{opt.displayText}}
+        <span>
+          {{opt.displayText}}
+        </span>
+        <span class="help">
+          {{opt.subText || ''}}
+        </span>
       </div>
     </div>
   </ng-container>

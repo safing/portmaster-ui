@@ -7,6 +7,7 @@ interface SecurityOption {
   level: SecurityLevel;
   displayText: string;
   class: string;
+  subText?: string;
 }
 
 @Component({
@@ -32,16 +33,19 @@ export class PilotWidgetComponent implements OnInit {
       level: SecurityLevel.Normal,
       displayText: 'Trusted',
       class: 'low',
+      subText: 'Home'
     },
     {
       level: SecurityLevel.High,
       displayText: 'Untrusted',
       class: 'medium',
+      subText: 'Public Wifi'
     },
     {
       level: SecurityLevel.Extreme,
       displayText: 'Danger',
       class: 'high',
+      subText: 'Hacked Network'
     },
   ];
 

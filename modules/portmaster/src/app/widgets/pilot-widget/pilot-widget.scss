@@ -106,9 +106,9 @@
     flex-grow: 1;
 
     div.rate-header {
-      display: flex;
+      display        : flex;
       justify-content: space-between;
-      align-items: center;
+      align-items    : center;
     }
 
     &:not(.auto-pilot) {
@@ -116,14 +116,15 @@
         div {
           @apply bg-buttons-light
         }
+
         &:after {
           transition: none;
-          opacity: 0 !important;
+          opacity   : 0 !important;
         }
       }
 
     }
-    
+
     div.level {
       position: relative;
       padding : 2px;
@@ -135,15 +136,15 @@
       &:after {
         transition: all cubic-bezier(0.19, 1, 0.82, 1) .3s;
         @apply rounded;
-        content           : "";
-        background-image  : linear-gradient(90deg, #1d5fa0 19%, rgba(2, 0, 36, 0) 80%);
-        transform         : translateX(100%);
-        position          : absolute;
-        top               : 0;
-        left              : 0;
-        right             : 0;
-        bottom            : 0;
-        z-index           : -1;
+        content         : "";
+        background-image: linear-gradient(90deg, #1d5fa0 19%, rgba(2, 0, 36, 0) 80%);
+        transform       : translateX(100%);
+        position        : absolute;
+        top             : 0;
+        left            : 0;
+        right           : 0;
+        bottom          : 0;
+        z-index         : -1;
         opacity         : 0;
       }
 
@@ -154,9 +155,10 @@
         @apply pl-4;
         @apply bg-cards-primary;
       }
-      
 
-      &.selected, &.suggested {
+
+      &.selected,
+      &.suggested {
         &:after {
           transform: translateX(0%);
           opacity  : 1;
@@ -165,7 +167,7 @@
 
       &.suggested {
         &:after {
-          animation: pulse-opacity 1s ease-in-out infinite alternate; 
+          animation: pulse-opacity 1s ease-in-out infinite alternate;
         }
       }
 
@@ -182,11 +184,17 @@
   @apply pb-5;
 }
 
+span.help {
+  font-size: 0.9em;
+  @apply text-tertiary;
+  @apply ml-2;
+}
+
 @keyframes pulse-opacity {
   0% {
     opacity: 0.1;
   }
-  
+
   100% {
     opacity: 1;
   }

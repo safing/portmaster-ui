@@ -1,24 +1,84 @@
 :host {
+  --slot-size: 2.25rem;
+
   display       : flex;
   flex-direction: column;
   align-items   : center;
-  max-height    : 50vh;
+  max-height    : calc(var(--slot-size) * 5);
   overflow      : auto;
 }
 
-app-notification,
+.row,
+.notification-body,
 div.placeholder {
-  display: block;
-  width  : 100%;
-  margin : 0;
-  border : none;
-  @apply bg-cards-primary;
-  @apply p-4;
-  @apply rounded;
+  display       : flex;
+  flex-direction: column;
+  width         : 100%;
+  margin        : 0;
+  border        : none;
+}
 
-  &:not(:last-of-type) {
-    @apply mb-2;
+.row {
+  display       : flex;
+  flex-direction: row;
+  height        : var(--slot-size);
+  transition    : all .3s ease-in-out;
+
+  &.fade-out {
+    opacity: 0.5;
   }
+
+  &.move-up {
+    transform: translateY(calc(-1 * var(--index) * (var(--slot-size) + 0.25rem)));
+    opacity  : 1;
+  }
+
+  &:not(:first-of-type) {
+    @apply mt-1;
+  }
+
+  .type {
+    display        : flex;
+    justify-content: center;
+    align-items    : center;
+    width          : var(--slot-size);
+    flex-shrink    : 0;
+    flex-grow      : 0;
+  }
+
+  .preview {
+    @apply bg-cards-tertiary;
+    @apply px-4;
+    cursor         : pointer;
+    flex-grow      : 1;
+    display        : flex;
+    justify-content: space-between;
+    align-items    : center;
+
+    span {
+      flex-grow: 1;
+    }
+
+    .buttons {
+      flex-grow  : 0;
+      flex-shrink: 0;
+
+      button:not(:first-of-type) {
+        background: transparent;
+        @apply ml-1;
+      }
+    }
+  }
+}
+
+.notification-body {
+  @apply bg-cards-tertiary;
+  flex-grow: 1;
+  @apply p-4;
+
+  position: absolute;
+  top     : var(--slot-size);
+  height  : calc(100% - 2*var(--slot-size));
 }
 
 div.placeholder {
@@ -33,4 +93,12 @@ div.placeholder {
   fa-icon {
     @apply mr-2;
   }
+}
+
+app-loading {
+  opacity     : .5;
+  margin-left : auto;
+  margin-right: auto;
+  position    : relative;
+  top         : 5px;
 }
