@@ -53,7 +53,6 @@ export class AppProfileService {
   }
 
   watchProfiles(): Observable<AppProfile[]> {
-    console.log(`loading profiles`);
     return this.portapi.watchAll<AppProfile>('core:profiles/')
   }
 }

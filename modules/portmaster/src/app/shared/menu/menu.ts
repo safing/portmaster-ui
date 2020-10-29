@@ -30,12 +30,10 @@ export class MenuTriggerComponent {
     }
 
     if (this.menu.isOpen) {
-      console.log(`closing menu`);
       this.menu.close();
       return;
     }
 
-    console.log(`opening menu`);
     this.menu.show(origin);
   }
 }

@@ -28,7 +28,6 @@ export class ToggleSwitchComponent implements OnInit, ControlValueAccessor {
   }
 
   onValueChange(value: boolean) {
-    console.log(`new value`, value);
     this.value = value;
     this.onChange(this.value);
   }

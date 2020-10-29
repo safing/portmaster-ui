@@ -50,6 +50,7 @@ import { ConfigSettingsViewComponent } from './shared/config/config-settings';
 import { AppIconComponent } from './shared/app-icon';
 import { MenuComponent, MenuTriggerComponent, MenuItemComponent } from './shared/menu';
 import { OrderedListComponent, OrderedListItemComponent } from './shared/config/ordererd-list';
+import { MultiSwitchComponent, SwitchItemComponent } from './shared/multi-switch';
 
 @NgModule({
   declarations: [
@@ -102,7 +103,9 @@ import { OrderedListComponent, OrderedListItemComponent } from './shared/config/
     MenuTriggerComponent,
     MenuItemComponent,
     OrderedListComponent,
-    OrderedListItemComponent
+    OrderedListItemComponent,
+    MultiSwitchComponent,
+    SwitchItemComponent,
   ],
   imports: [
     BrowserModule,

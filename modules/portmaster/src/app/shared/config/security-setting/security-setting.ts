@@ -45,7 +45,6 @@ export class SecuritySettingComponent implements OnDestroy, ControlValueAccessor
   onFocus() {
     const active = this.availableLevels.find(lvl => this.isActive(lvl.level));
     if (!!active) {
-      console.log(`setting active`, active)
       this._keyManager?.setActiveItem(active);
       this.activeItem = active.name;
     }
@@ -53,7 +52,6 @@ export class SecuritySettingComponent implements OnDestroy, ControlValueAccessor
 
   @HostListener('keyup', ['$event'])
   onKeyUp(event: KeyboardEvent) {
-    console.log(`key`);
     if (!this._keyManager) {
       return;
     }

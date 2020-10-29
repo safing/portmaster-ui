@@ -112,7 +112,7 @@
     }
 
     &:not(.auto-pilot) {
-      div.level.selected{
+      div.level.selected {
         div {
           @apply bg-buttons-light
         }
@@ -144,7 +144,7 @@
         right             : 0;
         bottom            : 0;
         z-index           : -1;
-        //opacity         : 0;
+        opacity         : 0;
       }
 
       div {

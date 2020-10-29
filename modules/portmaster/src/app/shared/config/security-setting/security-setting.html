@@ -1,3 +1,4 @@
+<!--
 <label>Risk Level</label>
 <app-dropdown [ngModel]="getLevel()" (ngModelChange)="setLevel($event)" [disabled]="disabled">
   <app-dropdown-item *dropDownValue="SecurityLevels.Off">
@@ -17,3 +18,11 @@
     High
   </app-dropdown-item>
 </app-dropdown>
+-->
+
+<app-multi-switch>
+  <app-switch-item id="off">Off</app-switch-item>
+  <app-switch-item id="high">Danger</app-switch-item>
+  <app-switch-item id="medium">Untrusted</app-switch-item>
+  <app-switch-item id="low">Trusted </app-switch-item>
+</app-multi-switch>

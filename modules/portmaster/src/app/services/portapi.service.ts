@@ -390,7 +390,6 @@ export class PortapiService {
 
       return () => {
         subscription.unsubscribe();
-        console.log(`done`);
       }
     });
   }

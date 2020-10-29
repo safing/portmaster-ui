@@ -40,7 +40,7 @@ export class PilotWidgetComponent implements OnInit {
     },
     {
       level: SecurityLevel.Extreme,
-      displayText: 'Panic',
+      displayText: 'Danger',
       class: 'high',
     },
   ];

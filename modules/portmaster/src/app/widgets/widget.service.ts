@@ -73,6 +73,7 @@ export class WidgetService {
             config: null,
             key: 'pilot-widget',
             type: 'pilot-widget',
+            order: -1,
           })
 
           enforceWidget(widgets, {
@@ -81,6 +82,7 @@ export class WidgetService {
             },
             key: 'notification-widget',
             type: 'notification-widget',
+            order: -2,
           })
 
           return widgets
@@ -99,7 +101,7 @@ function enforceWidget(list: WidgetConfig[], widget: WidgetConfig) {
 
   const newWidget: WidgetConfig<null> = {
     ...widget,
-    order: existingIndex >= 0 ? list[existingIndex].order : -1,
+    order: existingIndex >= 0 ? list[existingIndex].order : (widget.order || -1),
   }
 
   if (existingIndex >= 0) {
