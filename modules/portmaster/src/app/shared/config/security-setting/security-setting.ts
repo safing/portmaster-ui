@@ -1,9 +1,8 @@
-import { ListKeyManager, ListKeyManagerOption } from '@angular/cdk/a11y';
-import { coerceArray, coerceBooleanProperty } from '@angular/cdk/coercion';
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, forwardRef, HostBinding, HostListener, Input, OnDestroy } from '@angular/core';
+import { ListKeyManagerOption } from '@angular/cdk/a11y';
+import { coerceBooleanProperty } from '@angular/cdk/coercion';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, forwardRef, HostListener, Input } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
-import { Subscription } from 'rxjs';
-import { ConfigService, IntSetting, parseSupportedValues, SecurityLevel } from 'src/app/services';
+import { IntSetting, parseSupportedValues, SecurityLevel } from 'src/app/services';
 
 class SecuritySetting implements ListKeyManagerOption {
   constructor(
@@ -30,11 +29,8 @@ class SecuritySetting implements ListKeyManagerOption {
     }
   ]
 })
-export class SecuritySettingComponent implements OnDestroy, ControlValueAccessor {
+export class SecuritySettingComponent implements ControlValueAccessor {
   readonly SecurityLevels = SecurityLevel;
-
-  @HostBinding('[attr.tabindex]')
-  readonly tabindex = 0;
 
   @HostListener('blur')
   onBlur() {
@@ -43,28 +39,6 @@ export class SecuritySettingComponent implements OnDestroy, ControlValueAccessor
     }
 
     this._onTouch();
-  }
-
-  @HostListener('focus')
-  onFocus() {
-    const current = this.getLevel();
-    const active = this.availableLevels.find(lvl => lvl.level === current);
-    if (!!active) {
-      this._keyManager?.setActiveItem(active);
-    }
-  }
-
-  @HostListener('keyup', ['$event'])
-  onKeyUp(event: KeyboardEvent) {
-    if (!this._keyManager) {
-      return;
-    }
-
-    if (this.disabled) {
-      return;
-    }
-
-    this._keyManager.onKeydown(event);
   }
 
   set disabled(v: any) {
@@ -97,11 +71,6 @@ export class SecuritySettingComponent implements OnDestroy, ControlValueAccessor
 
     this._setting = s || null;
 
-    if (!s || changed) {
-      this._keyManager = null;
-      this._keySubscription.unsubscribe();
-    }
-
     if (!!s && changed) {
       this.availableLevels = [
         new SecuritySetting('Danger', SecurityLevel.Extreme),
@@ -113,22 +82,6 @@ export class SecuritySettingComponent implements OnDestroy, ControlValueAccessor
       if (values.includes(SecurityLevel.Off)) {
         this.availableLevels.splice(0, 0, new SecuritySetting('Off', SecurityLevel.Off, 'var(--info-red)'))
       }
-
-      this._keyManager = new ListKeyManager(this.availableLevels)
-        .withHorizontalOrientation('ltr')
-        .withWrap();
-
-      this._keySubscription = this._keyManager.change.subscribe(
-        idx => {
-          // We update the keymanager's internal active item in onFocus
-          // but we need to ignore the change event when we are disabled.
-          if (this.disabled) {
-            return;
-          }
-
-          this.setLevel(this.availableLevels[idx].level);
-        }
-      )
     }
   }
   get setting(): IntSetting | null {
@@ -145,21 +98,10 @@ export class SecuritySettingComponent implements OnDestroy, ControlValueAccessor
   /** called when the input is touched. Set by registerOnTouched */
   private _onTouch: () => void = () => { };
 
-  /** Keyboard support */
-  private _keyManager: ListKeyManager<SecuritySetting> | null = null;
-
-  /** Subscription for key manager changes */
-  private _keySubscription: Subscription = Subscription.EMPTY;
-
   /** Available security levels for this setting */
   availableLevels: SecuritySetting[] = [];
 
-  constructor(private configService: ConfigService,
-    private changeDetectorRef: ChangeDetectorRef) { }
-
-  ngOnDestroy() {
-    this._keySubscription.unsubscribe();
-  }
+  constructor(private changeDetectorRef: ChangeDetectorRef) { }
 
   /** Returns true if level is active */
   isActive(level: SecurityLevel): boolean {
@@ -205,7 +147,6 @@ export class SecuritySettingComponent implements OnDestroy, ControlValueAccessor
 
     this.currentValue = newLevel;
     this._onChange(newLevel);
-    this.onFocus(); // update the active item again
   }
 
   /** Registers an onChange function. Satisfies ControlValueAccessor */

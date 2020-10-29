@@ -22,6 +22,7 @@
   flex-grow: 0;
   width    : fit-content;
   display  : block;
+  outline  : none;
 
   &.disabled {
     .marker {

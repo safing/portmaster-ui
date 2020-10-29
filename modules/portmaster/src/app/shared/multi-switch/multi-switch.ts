@@ -1,6 +1,7 @@
+import { ListKeyManager } from '@angular/cdk/a11y';
 import { coerceBooleanProperty } from '@angular/cdk/coercion';
 import { DOCUMENT } from '@angular/common';
-import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, ContentChildren, ElementRef, EventEmitter, forwardRef, HostBinding, HostListener, Inject, Input, Output, QueryList, Renderer2, ViewChild } from '@angular/core';
+import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, ContentChildren, ElementRef, EventEmitter, forwardRef, HostBinding, HostListener, Inject, Input, OnDestroy, Output, QueryList, Renderer2, ViewChild } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { animationFrameScheduler, fromEvent, Subscription } from 'rxjs';
 import { map, startWith, subscribeOn, takeUntil } from 'rxjs/operators';
@@ -19,12 +20,18 @@ import { SwitchItemComponent } from './switch-item';
     }
   ]
 })
-export class MultiSwitchComponent<T> implements AfterViewInit, ControlValueAccessor {
+export class MultiSwitchComponent<T> implements OnDestroy, AfterViewInit, ControlValueAccessor {
   /** Subscription to all button-select changes */
   private sub = Subscription.EMPTY;
 
   /** Holds the current x-translation offset for the marker */
   private markerOffset: number = 0;
+
+  /** Keymanager used for keyboard navigation support */
+  private keyManager: ListKeyManager<SwitchItemComponent<T>> | null = null;
+
+  /** Subscription to the key manager */
+  private keyManagerSub = Subscription.EMPTY;
 
   /** All buttons projected into the multi-switch */
   @ContentChildren(SwitchItemComponent)
@@ -41,6 +48,17 @@ export class MultiSwitchComponent<T> implements AfterViewInit, ControlValueAcces
   @HostListener('blur')
   onBlur() {
     this._onTouch();
+  }
+
+  @HostBinding('attr.tabindex')
+  readonly tabindex = 0;
+
+  @HostListener('keyup', ['$event'])
+  onKeyUp(event: KeyboardEvent) {
+    if (this.disabled) {
+      return;
+    }
+    this.keyManager!.onKeydown(event);
   }
 
   /** Whether or not the switch button component is disabled */
@@ -106,6 +124,17 @@ export class MultiSwitchComponent<T> implements AfterViewInit, ControlValueAcces
       return;
     }
 
+    this.keyManager = new ListKeyManager(this.buttons)
+      .withHorizontalOrientation('ltr')
+      .withTypeAhead()
+      .withWrap();
+
+    this.keyManagerSub = this.keyManager.change
+      .subscribe(activeIndex => {
+        const active = Array.from(this.buttons!)[activeIndex];
+        this.selectButton(active, true);
+      });
+
     // Subscribe to all (clicked) and (selectedChange) events of
     // all buttons projected into our content.
     this.buttons.changes
@@ -117,7 +146,9 @@ export class MultiSwitchComponent<T> implements AfterViewInit, ControlValueAcces
         this.buttons!.forEach(btn => {
           btn.disabled = this.disabled;
           this.sub.add(
-            btn.clicked.subscribe((e: MouseEvent) => this.selectButton(btn, true))
+            btn.clicked.subscribe((e: MouseEvent) => {
+              this.keyManager!.setActiveItem(btn);
+            })
           );
         })
       });
@@ -129,6 +160,11 @@ export class MultiSwitchComponent<T> implements AfterViewInit, ControlValueAcces
     })
 
     this.repositionMarker();
+  }
+
+  ngOnDestroy() {
+    this.sub.unsubscribe();
+    this.keyManagerSub.unsubscribe();
   }
 
   /** Selects a new button and deselects all others. */

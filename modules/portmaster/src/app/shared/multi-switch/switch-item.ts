@@ -60,6 +60,10 @@ export class SwitchItemComponent<T> implements OnInit {
   }
   private _selected = false;
 
+  getLabel() {
+    return this.elementRef.nativeElement.innerText;
+  }
+
   @Output()
   selectedChange = new EventEmitter<boolean>();
 
