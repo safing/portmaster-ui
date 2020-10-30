@@ -1,10 +1,20 @@
 :host {
   --slot-size: 2.25rem;
 
-  display       : flex;
-  flex-direction: column;
-  align-items   : center;
-  max-height    : calc(var(--slot-size) * 5);
+  position       : relative;
+  display        : flex;
+  justify-content: flex-start;
+  flex-direction : column;
+  align-items    : center;
+  overflow-x     : hidden;
+  overflow-y     : auto;
+  max-height     : calc(var(--slot-size) * 5);
+  min-height     : calc(var(--slot-size) * 3);
+
+  &>* {
+    /* do not allow to shrink  */
+    flex-shrink: 0;
+  }
 }
 
 .row,
@@ -23,7 +33,7 @@ div.placeholder {
   display       : flex;
   flex-direction: row;
   height        : var(--slot-size);
-  transition    : all .3s ease-in-out;
+  transition    : all .2s ease-in-out;
 
   &.fade-out {
     opacity: 0.5;
@@ -85,21 +95,24 @@ div.placeholder {
 .notification-body {
   @apply bg-cards-tertiary;
   flex-grow: 1;
-  @apply p-4;
-
+  @apply p-3;
+  @apply rounded-b;
   position: absolute;
   top     : var(--slot-size);
-  bottom  : var(--slot-size);
+  bottom  : 0;
 }
 
 div.placeholder {
   @apply font-medium;
   @apply text-tertiary;
   @apply p-2;
+  position       : relative;
+  top            : 1rem;
   display        : flex;
   flex-direction : column;
   justify-content: center;
   align-items    : center;
+  @apply mt-4;
 
   fa-icon {
     @apply mr-2;

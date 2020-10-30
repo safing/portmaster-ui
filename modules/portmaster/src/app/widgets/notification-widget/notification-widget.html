@@ -1,6 +1,6 @@
 <ng-container *ngFor="let notif of (notifsService.new$ | async); trackBy: notifsService.trackBy; let index=index">
-  <div class="row" (click)="toggelView(notif)" [style.--index]="index" [class.move-up]="notif === expandedNotification"
-    [class.fade-out]="!!expandedNotification">
+  <div class="row" (click)="toggelView(notif)" [@moveInOut] [style.--index]="index"
+    [class.move-up]="notif === expandedNotification" [class.fade-out]="!!expandedNotification">
     <div class="type">
       <span class="trust-level" [class.low]="notif.Type === types.Info"
         [class.medium]="notif.Type === types.Warning"></span>
@@ -19,7 +19,8 @@
   </div>
 </ng-container>
 
-<div class="notification-body" [@fadeIn] *ngIf="!!expandedNotification">
+<div class="notification-body" [style.--count]="(notifsService.new$ | async)?.length" [@fadeIn]
+  *ngIf="!!expandedNotification">
   <markdown class="message" emoji [data]="expandedNotification?.Message"></markdown>
 </div>
 
@@ -27,6 +28,6 @@
   Waiting for notifications
 </div>
 
-<div class="row">
+<div class="row" *ngIf="!expandedNotification && (notifsService.new$ | async)?.length <= 3">
   <app-loading></app-loading>
 </div>

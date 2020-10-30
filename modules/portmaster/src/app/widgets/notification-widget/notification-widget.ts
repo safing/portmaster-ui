@@ -1,7 +1,6 @@
 import { trigger, transition, style, animate } from '@angular/animations';
 import { Component, OnInit, Inject, HostBinding, ElementRef } from '@angular/core';
 import { NotificationsService, NotificationType, Notification } from 'src/app/services';
-import { fadeInAnimation, fadeOutAnimation } from 'src/app/shared/animations';
 import { WIDGET_CONFIG, WidgetConfig } from '../widget.types';
 
 export interface NotificationWidgetConfig {
@@ -22,10 +21,31 @@ export interface NotificationWidgetConfig {
           ':enter',
           [
             style({ opacity: 0 }),
-            animate('.3s .3s ease-in',
+            animate('.2s .2s ease-in',
               style({ opacity: 1 }))
           ]
         ),
+      ]
+    ),
+    trigger(
+      'moveInOut',
+      [
+        transition(
+          ':enter',
+          [
+            style({ opacity: 0, transform: 'translateX(100%)' }),
+            animate('.2s ease-in',
+              style({ opacity: 1, transform: 'translateX(0%)' }))
+          ]
+        ),
+        transition(
+          ':leave',
+          [
+            style({ opacity: 1 }),
+            animate('.2s ease-out',
+              style({ opacity: 0, transform: 'translateX(100%)' }))
+          ]
+        )
       ]
     )
   ]
@@ -33,9 +53,18 @@ export interface NotificationWidgetConfig {
 export class NotificationWidgetComponent implements OnInit {
   readonly types = NotificationType;
 
-  @HostBinding('style.minHeight')
-  height: string | number = 'auto';
+  @HostBinding('style.height')
+  height: null | string = null;
 
+  @HostBinding('style.overflow')
+  get overflow() {
+    if (this.height === null) {
+      return null;
+    }
+    return 'hidden';
+  }
+
+  private _prevScrollTop = 0;
   expandedNotification: Notification<any> | null = null;
 
   constructor(
@@ -51,7 +80,9 @@ export class NotificationWidgetComponent implements OnInit {
     event.preventDefault();
     event.stopPropagation();
 
-    this.expandedNotification = null;
+    if (this.expandedNotification === n) {
+      this.toggelView(n);
+    }
 
     this.notifsService.execute(n, actionId)
       .subscribe()
@@ -60,9 +91,14 @@ export class NotificationWidgetComponent implements OnInit {
   toggelView(notif: Notification<any>) {
     if (this.expandedNotification === notif) {
       this.expandedNotification = null;
-      this.height = 'auto';
+      this.elementRef.nativeElement.scrollTop = this._prevScrollTop;
+      this._prevScrollTop = 0;
+      this.height = null;
       return;
     }
+
+    this._prevScrollTop = this.elementRef.nativeElement.scrollTop;
+    this.elementRef.nativeElement.scrollTop = 0;
 
     this.height = this.elementRef.nativeElement.getBoundingClientRect().height + 'px';
     this.expandedNotification = notif;
