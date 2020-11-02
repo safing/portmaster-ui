@@ -7,45 +7,51 @@
   <h1>Apps</h1>
 </div>
 
-<div class="content" *ngIf="runningProfiles.length > 0">
+<div class="scrollable">
+
   <h4>Active</h4>
-  <ng-container *ngTemplateOutlet="profileList; context: {$implicit: runningProfiles}"></ng-container>
-</div>
-
-<div class="content" *ngIf="profiles.length > 0">
-  <h4>Apps</h4>
-  <ng-container *ngTemplateOutlet="profileList; context: {$implicit: profiles}"></ng-container>
-</div>
-
-<ng-template #profileList let-list>
-  <div class="grid-container">
-    <div *ngFor="let profile of list; trackBy: trackProfile" class="card-header"
-      [routerLink]="['..', profile.Source,  profile.ID]" [@fadeIn]>
-      <app-icon [profile]="profile"></app-icon>
-      <span class="card-title">
-        <span [innerHTML]="profile?.Name | safe:'html'"></span>
-        <span class="card-sub-title" *appExpertiseLevel="'expert'"
-          [innerHTML]="profile?.LinkedPath | safe:'html'"></span>
-      </span>
-    </div>
-
-    <ng-container *ngIf="loading">
-      <div class="card-header">
-        <fa-icon class="card-icon loading" icon="square"></fa-icon>
-        <app-text-placeholder mode="input" width="small" class="card-title"></app-text-placeholder>
-      </div>
-      <div class="card-header">
-        <fa-icon class="card-icon loading" icon="square"></fa-icon>
-        <app-text-placeholder mode="input" width="small" class="card-title"></app-text-placeholder>
-      </div>
-      <div class="card-header">
-        <fa-icon class="card-icon loading" icon="square"></fa-icon>
-        <app-text-placeholder mode="input" width="7rem" class="card-title"></app-text-placeholder>
-      </div>
-      <div class="card-header">
-        <fa-icon class="card-icon loading" icon="square"></fa-icon>
-        <app-text-placeholder mode="input" width="3rem" class="card-title"></app-text-placeholder>
-      </div>
-    </ng-container>
+  <div class="content" *ngIf="runningProfiles.length > 0">
+    <ng-container *ngTemplateOutlet="profileList; context: {$implicit: runningProfiles}"></ng-container>
   </div>
-</ng-template>
+
+  <h4>Apps</h4>
+  <div class="content" *ngIf="profiles.length > 0">
+    <ng-container *ngTemplateOutlet="profileList; context: {$implicit: profiles}"></ng-container>
+  </div>
+
+  <ng-template #profileList let-list>
+    <div class="grid-container">
+      <ng-container *ngFor="let profile of list; trackBy: trackProfile">
+        <div *appExpertiseLevel="profile.Internal ? 'developer' : 'user'" class="card-header"
+          [routerLink]="['..', profile.Source,  profile.ID]" [@fadeIn]>
+          <app-icon [profile]="profile"></app-icon>
+          <span class="card-title">
+            <span [innerHTML]="profile?.Name | safe:'html'"></span>
+            <span class="card-sub-title" *appExpertiseLevel="'expert'"
+              [innerHTML]="profile?.LinkedPath | safe:'html'"></span>
+          </span>
+        </div>
+      </ng-container>
+
+      <ng-container *ngIf="loading">
+        <div class="card-header">
+          <fa-icon class="card-icon loading" icon="square"></fa-icon>
+          <app-text-placeholder mode="input" width="small" class="card-title"></app-text-placeholder>
+        </div>
+        <div class="card-header">
+          <fa-icon class="card-icon loading" icon="square"></fa-icon>
+          <app-text-placeholder mode="input" width="small" class="card-title"></app-text-placeholder>
+        </div>
+        <div class="card-header">
+          <fa-icon class="card-icon loading" icon="square"></fa-icon>
+          <app-text-placeholder mode="input" width="7rem" class="card-title"></app-text-placeholder>
+        </div>
+        <div class="card-header">
+          <fa-icon class="card-icon loading" icon="square"></fa-icon>
+          <app-text-placeholder mode="input" width="3rem" class="card-title"></app-text-placeholder>
+        </div>
+      </ng-container>
+    </div>
+  </ng-template>
+
+</div>

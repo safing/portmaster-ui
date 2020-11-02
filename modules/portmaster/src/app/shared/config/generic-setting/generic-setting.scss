@@ -109,22 +109,23 @@ div.secondary-actions {
 }
 
 .quick-settings {
-  width: 100%;
-  display: flex;
+  width          : 100%;
+  display        : flex;
   justify-content: flex-start;
-  align-items: center;
+  align-items    : center;
   @apply py-2;
-  
+
   button {
     @apply ml-2;
   }
 }
 
-.description, .help-text {
+.description,
+.help-text {
   display: block;
   @apply mt-2;
   @apply mb-4;
-  @apply text-secondary; 
+  @apply text-secondary;
 }
 
 .help-text {
@@ -134,12 +135,13 @@ div.secondary-actions {
 
   .toggle {
     position: relative;
-    left: -0.25rem;
-    cursor: pointer;
+    left    : -0.25rem;
+    cursor  : pointer;
+
     fa-icon {
       @apply pr-1;
     }
-    
+
     &:hover {
       @apply text-primary;
     }

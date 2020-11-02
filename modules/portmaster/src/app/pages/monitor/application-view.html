@@ -22,15 +22,33 @@
       <span>Executable:</span>
       <span>{{profile?.profile?.LinkedPath || 'N/A'}}</span>
     </app-text-placeholder>
-  </div>
 
-  <div>
     <span *ngIf="(profile?.profile?.ApproxLastUsed || 0) > 0">
       <span>Last Used:</span>
       <span>{{profile!.profile!.ApproxLastUsed * 1000 | date:'medium'}}</span>
     </span>
   </div>
+
+  <div *appExpertiseLevel="'developer'">
+    <span>
+      <span>Profile:</span>
+      <span>{{profile?.ID}}</span>
+    </span>
+    <span>
+      <span>Revision:</span>
+      <span>{{profile?.currentProfileRevision}}</span>
+    </span>
+    <span>
+      <span>Layers:</span>
+      <span>
+        <ol class="layers">
+          <li *ngFor="let layer of profile?.layers" [routerLink]="['/', 'app'].concat(layer.split('/'))">{{layer}}</li>
+        </ol>
+      </span>
+    </span>
+  </div>
 </div>
+
 
 <app-connections-view [profile]="profile" [@fadeIn]>
 </app-connections-view>

@@ -315,9 +315,7 @@ export class MultiSwitchComponent<T> implements OnDestroy, AfterViewInit, Contro
     }
 
     if (!!newButton) {
-      this.selectButton(newButton, true);
-
-      this.repositionMarker(newButton);
+      this.keyManager!.setActiveItem(newButton);
     }
   }
 

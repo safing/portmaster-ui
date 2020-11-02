@@ -27,7 +27,21 @@ fa-icon[icon="cog"] {
   }
 }
 
+ol.layers {
+  cursor: pointer;
+  @apply text-secondary;
+  @apply pl-2;
+
+  li {
+    &:before {
+      content: "- ";
+    }
+  }
+}
+
 .card-content {
+  flex-direction: row;
+
   &>div {
     flex-grow: 0.9;
 

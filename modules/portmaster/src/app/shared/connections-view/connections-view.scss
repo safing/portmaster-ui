@@ -58,6 +58,14 @@ h4 {
   @apply my-2;
 }
 
+fa-icon[icon="cog"] {
+  cursor: pointer;
+
+  &:hover {
+    color: theme("colors.buttons.icon");
+  }
+}
+
 table {
   width: 100%;
 

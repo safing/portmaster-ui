@@ -37,13 +37,6 @@
               <span>{{ scopeTranslation[grp.scope] }}</span>
             </span>
 
-            <!--
-            <span *ngIf="!grp.profile[0]?.ProcessContext?.ProfileID">
-              <span>Profile:</span>
-              <span>{{grp.profile[0]!.ProcessContext!.ProfileID}}</span>
-            </span>
-          -->
-
             <span>
               <span>Most recent:</span>
               <span>
@@ -112,7 +105,9 @@
             <!-- Reason Column -->
             <ng-container cdkColumnDef="reason">
               <th cdk-header-cell *cdkHeaderCellDef> Reason </th>
-              <td cdk-cell *cdkCellDef="let conn"> {{conn.Reason}} </td>
+              <td cdk-cell *cdkCellDef="let conn">
+                {{conn.Reason.Msg}}
+              </td>
             </ng-container>
 
             <!-- Entity Column -->
@@ -136,6 +131,15 @@
               <th cdk-header-cell *cdkHeaderCellDef> Ended </th>
               <td cdk-cell *cdkCellDef="let conn">
                 <ng-container *ngIf="conn.Ended > 0">{{conn.Ended * 1000 | date:'shortTime'}}</ng-container>
+              </td>
+            </ng-container>
+
+            <!-- Actions Column -->
+            <ng-container cdkColumnDef="actions">
+              <th cdk-header-cell *cdkHeaderCellDef> </th>
+              <td cdk-cell *cdkCellDef="let conn">
+                <fa-icon icon="cog" (click)="redirectToSetting(conn.Reason.OptionKey)" *ngIf="!!conn.Reason.OptionKey">
+                </fa-icon>
               </td>
             </ng-container>
 

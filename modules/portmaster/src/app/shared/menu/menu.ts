@@ -1,4 +1,4 @@
-import { Component, ContentChildren, HostBinding, Input, QueryList, Renderer2, TemplateRef, ViewChild, ViewEncapsulation } from '@angular/core';
+import { Component, ContentChildren, HostBinding, HostListener, Input, QueryList, Renderer2, TemplateRef, ViewChild, ViewEncapsulation } from '@angular/core';
 import { CdkOverlayOrigin, ConnectedPosition, ScrollStrategy, ScrollStrategyOptions } from '@angular/cdk/overlay';
 import { fadeInAnimation, fadeOutAnimation } from '../animations';
 import { BehaviorSubject } from 'rxjs';
@@ -9,6 +9,9 @@ import { BehaviorSubject } from 'rxjs';
   styleUrls: ['./menu-trigger.scss']
 })
 export class MenuTriggerComponent {
+  @ViewChild(CdkOverlayOrigin, { static: true })
+  origin: CdkOverlayOrigin | null = null;
+
   @Input()
   menu: MenuComponent | null = null;
 
@@ -21,7 +24,8 @@ export class MenuTriggerComponent {
     return this.menu.isOpen;
   }
 
-  toggle(origin: CdkOverlayOrigin, event: MouseEvent) {
+  @HostListener('click', ['$event'])
+  toggle(event: MouseEvent) {
     event.preventDefault();
     event.stopPropagation();
 
@@ -34,7 +38,7 @@ export class MenuTriggerComponent {
       return;
     }
 
-    this.menu.show(origin);
+    this.menu.show(this.origin);
   }
 }
 

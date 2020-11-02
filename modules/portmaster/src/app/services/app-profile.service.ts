@@ -1,6 +1,6 @@
 import { Injectable, Inject } from '@angular/core';
 import { PortapiService } from './portapi.service';
-import { AppProfile, ConfigMap, FlatConfigObject, flattenProfileConfig } from './app-profile.types';
+import { AppProfile, ConfigMap, FlatConfigObject, flattenProfileConfig, LayeredProfile } from './app-profile.types';
 import { Observable } from 'rxjs';
 import { map, tap } from 'rxjs/operators';
 import { keyframes } from '@angular/animations';
@@ -11,7 +11,12 @@ import { keyframes } from '@angular/animations';
 export class AppProfileService {
   constructor(private portapi: PortapiService) { }
 
-  getKey(key: string): string;
+  /**
+   * Returns the database key of a profile.
+   *
+   * @param source The source of the profile.
+   * @param id The profile ID.
+   */
   getKey(source: string, id: string): string;
   getKey(p: AppProfile): string;
   getKey(idOrSourceOrProfile: string | AppProfile, id?: string): string {
@@ -30,7 +35,6 @@ export class AppProfileService {
 
   getAppProfile(id: string): Observable<AppProfile>;
   getAppProfile(source: string, id: string): Observable<AppProfile>;
-
   getAppProfile(idOrSource: string, id?: string): Observable<AppProfile> {
     let key = idOrSource;
 
@@ -50,7 +54,6 @@ export class AppProfileService {
 
   watchAppProfile(id: string): Observable<AppProfile>;
   watchAppProfile(source: string, id: string): Observable<AppProfile>;
-
   watchAppProfile(idOrSource: string, id?: string): Observable<AppProfile> {
     let key = idOrSource;
 
@@ -66,11 +69,25 @@ export class AppProfileService {
     return this.saveProfile(profile);
   }
 
+  /**
+   * Save an application profile.
+   *
+   * @param profile The profile to save
+   */
   saveProfile(profile: AppProfile): Observable<void> {
     return this.portapi.update(`core:profiles/${profile.Source}/${profile.ID}`, profile);
   }
 
+  /**
+   * Watch all application profiles
+   */
   watchProfiles(): Observable<AppProfile[]> {
     return this.portapi.watchAll<AppProfile>('core:profiles/')
+  }
+
+  getLayeredProfile(profile: AppProfile): Observable<LayeredProfile> {
+    const key = `runtime:layeredProfile/${profile.Source}/${profile.ID}`;
+    console.log(key);
+    return this.portapi.get<LayeredProfile>(key);
   }
 }

@@ -1,15 +1,20 @@
 :host {
-  display: inline;
+  display: flex;
   @apply rounded-t;
-  width    : fit-content;
-  flex-grow: 0;
-
+  width     : fit-content;
+  flex-grow : 0;
+  position  : relative;
+  top       : -0.25rem;
+  height    : 0.75rem;
+  overflow  : visible;
+  width     : 1rem;
   transition: all .1s ease-in-out;
 
-  fa-icon {
-    @apply px-3;
-    @apply py-1;
-  }
+  justify-content: center;
+  align-items    : center;
+
+  @apply py-1;
+  @apply px-3;
 
   &.active {
     @apply bg-buttons-light;

@@ -1,10 +1,10 @@
 import { Injectable } from '@angular/core';
 import { parse } from 'psl';
 import { BehaviorSubject, forkJoin, Observable, of, Subject, Subscription } from 'rxjs';
-import { catchError, filter, map, tap } from 'rxjs/operators';
+import { catchError, filter, map, switchMap, tap } from 'rxjs/operators';
 import { ExpertiseService } from '../shared/expertise/expertise.service';
 import { AppProfileService } from './app-profile.service';
-import { AppProfile } from './app-profile.types';
+import { AppProfile, LayeredProfile } from './app-profile.types';
 import { ExpertiseLevel } from './config.types';
 import { ConnectionStatistics } from './connection-tracker.types';
 import { RiskLevel } from './core.types';
@@ -356,6 +356,24 @@ export class InspectedProfile {
   /** Emits the underlying app profile whenever it changes or on first-time subscription */
   private _profileChanges = new BehaviorSubject<AppProfile | null>(null);
 
+  /** The currently layered profile used */
+  private _layeredProfile: LayeredProfile | null = null;
+
+  /** The current profile revision */
+  get currentProfileRevision() {
+    if (!this._layeredProfile) {
+      return -1;
+    }
+    return this._layeredProfile.RevisionCounter;
+  }
+
+  get layers() {
+    if (!this._layeredProfile) {
+      return [];
+    }
+    return this._layeredProfile.LayerIDs;
+  }
+
   get loading() { return this._loading }
   get stats() { return this._stats; }
   get scopeGroups() { return this._scopeUpdate.asObservable(); }
@@ -396,14 +414,32 @@ export class InspectedProfile {
     private readonly profileService: AppProfileService,
     private readonly expertiseService: ExpertiseService,
   ) {
+    // subscribe to all new connections published by the
+    // process group.
     this._profileSubscription = this.processGroup.updates
       .subscribe(
         upd => this.processUpdate(upd),
       );
 
+    // start watching the actual application profile
     const appSub = this.profileService.watchAppProfile(this.processGroup.id)
-      .subscribe(profile => {
-        this._profileChanges.next(profile);
+      .pipe(
+        switchMap(appProfile => {
+          return forkJoin([
+            of(appProfile),
+            this.profileService.getLayeredProfile(appProfile)
+              .pipe(
+                catchError(err => {
+                  console.error(`Error while loading layered profile: ${appProfile.ID}`, err);
+                  return of(null);
+                })
+              ),
+          ])
+        })
+      )
+      .subscribe(([appProfile, layers]) => {
+        this._profileChanges.next(appProfile);
+        this._layeredProfile = layers;
       });
 
     this._profileSubscription.add(appSub);

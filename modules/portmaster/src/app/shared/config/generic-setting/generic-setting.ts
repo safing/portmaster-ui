@@ -35,6 +35,7 @@ export class GenericSettingComponent<S extends BaseSetting<any, any>> implements
   readonly wellKnown = WellKnown;
 
   @Input()
+  @HostBinding('class.disabled')
   set disabled(v: any) {
     this._disabled = coerceBooleanProperty(v);
   }
@@ -68,6 +69,12 @@ export class GenericSettingComponent<S extends BaseSetting<any, any>> implements
   externalOptType(opt: S | null): ExternalOptionHint | null {
     return opt?.Annotations?.[WellKnown.DisplayHint] || null;
   }
+
+  @HostBinding('class.touched')
+  get touched() {
+    return this._touched;
+  }
+  private _touched = false;
 
   @HostBinding('class.locked')
   get isLocked() {
@@ -120,6 +127,7 @@ export class GenericSettingComponent<S extends BaseSetting<any, any>> implements
       return;
     }
 
+    this._touched = true;
     this.wasReset = false;
     let value = this.defaultValue;
 
@@ -225,6 +233,7 @@ export class GenericSettingComponent<S extends BaseSetting<any, any>> implements
     if (!this._setting) {
       return;
     }
+    this._touched = true;
 
     this._currentValue = this.defaultValue;
     this.wasReset = true;
@@ -238,9 +247,14 @@ export class GenericSettingComponent<S extends BaseSetting<any, any>> implements
    */
   abortChange() {
     this._currentValue = this._savedValue;
+    this._touched = true;
   }
 
   applyQuickSetting(qs: QuickSetting<SettingValueType<S>>) {
+    if (this.disabled || this.isLocked) {
+      return;
+    }
+
     const value = applyQuickSetting(this._currentValue, qs);
     if (value === null) {
       return;
@@ -275,6 +289,7 @@ export class GenericSettingComponent<S extends BaseSetting<any, any>> implements
    */
   updateValue(value: SettingValueType<S>, save = false) {
     this._currentValue = value;
+    this._touched = true;
 
     if (save) {
       this.save.next();

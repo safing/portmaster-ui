@@ -6,8 +6,9 @@ button {
   @apply capitalize;
   @apply rounded-sm;
   @apply font-medium;
+
   outline: none;
-  
+
   &:hover {
     @apply bg-buttons-light;
   }
