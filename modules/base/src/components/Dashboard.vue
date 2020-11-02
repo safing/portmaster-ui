@@ -108,6 +108,15 @@
       </div>
     </div>
 
+    <div v-if="$parent.versions && !$parent.versions.Core.Version.startsWith('0.5.')" class="ui raised center aligned green inverted padded segment">
+      <h3>A new version of the app is available! 🎉</h3>
+      <h4>Please close the app and reopen it.</h4>
+      <p>
+        This version of the UI is not compatible to the new Portmaster service.<br>
+        If you are still seeing this after restarting the app, please wait a while, the new UI might still be downloading.
+      </p>
+    </div>
+
     <h3>
       Modules
       <span v-if="$parent.activeExpertiseLevel > 1" class="ui small grey text"> Subsystems</span>
