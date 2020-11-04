@@ -44,6 +44,10 @@ fa-icon {
   }
 
   &.off {
+    color: theme("colors.info.gray");
+  }
+
+  &.high {
     color: theme("colors.info.red");
   }
 }

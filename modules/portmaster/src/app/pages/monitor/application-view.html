@@ -14,7 +14,7 @@
   </span>
   <fa-icon icon="cog" [routerLink]="['/', 'app', profile?.profile?.Source, profile?.profile?.ID]"></fa-icon>
 
-  <app-count-indicator [count]="profile?.hasOldConnections ? 0 : profile?.size || 0"></app-count-indicator>
+  <app-count-indicator [count]="profile?.size || 0" [loading]="profile?.hasOldConnections"></app-count-indicator>
 </div>
 
 <div class="card-content">
