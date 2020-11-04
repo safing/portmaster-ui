@@ -202,15 +202,30 @@ export class ScopeGroup {
    *  to the scope. */
   private _connections: Connection[] = [];
 
+  /** Connections is a list of connections that belong
+   *  to the scope but have been verdicted with a stale profile.
+   */
+  private _oldConnections: Connection[] = [];
+
   /** An behavior subject to emit the current set of connections
    *  that are attributed to this scope group. */
   private _connectionUpdate = new BehaviorSubject<Connection[]>([]);
+
+  /** An behavior subject to emit the current set of old-connections
+   *  that are attributed to this scope group. */
+  private _oldConnectionUpdate = new BehaviorSubject<Connection[]>([]);
 
   /** The current block status of the scope group. */
   private _blockStatus: RiskLevel = RiskLevel.Off;
 
   /** Subscription to changes in the expertise level */
   private _expertiseSubscription = Subscription.EMPTY;
+
+  /**
+   * Highest revision holds the highest profile revision used to verdict
+   * a connection.
+   */
+  highestRevision: number = 0;
 
   /** Holds the current block status of the scope group */
   get blockStatus() {
@@ -223,6 +238,18 @@ export class ScopeGroup {
     return this._connectionUpdate.asObservable();
   }
 
+  /**
+   * True if there are still old connections that have been verdicted
+   * using a stale profile.
+   */
+  hasOldConnections = false;
+
+  /** An observable that emits all old-connections that belong to the
+   *  scope group. */
+  get oldConnections() {
+    return this._oldConnectionUpdate.asObservable();
+  }
+
   /** Empty returns true if the scope group is empty */
   get empty() {
     return this.size === 0;
@@ -230,7 +257,7 @@ export class ScopeGroup {
 
   /** Size returns the number of (non-internal) connections */
   get size() {
-    return this._connections.length - this.stats.countInternal;
+    return this._connections.length + this._oldConnections.length - this.stats.countInternal;
   }
 
   constructor(
@@ -256,7 +283,17 @@ export class ScopeGroup {
 
   add(conn: Connection) {
     this.stats.update(conn);
-    this._connections.push(conn);
+
+    // check if the connection has a high revision counter than
+    // we know of.
+    this.checkRevisionCounter(conn.ProfileRevisionCounter, true);
+
+    if (conn.ProfileRevisionCounter === this.highestRevision) {
+      this._connections.push(conn);
+    } else {
+      this._oldConnections.push(conn);
+    }
+
     this.updateBlockStatus();
     this.publishConnections();
   }
@@ -264,8 +301,13 @@ export class ScopeGroup {
   remove(conn: Connection) {
     this.stats.remove(conn);
 
-    this._connections = this._connections
-      .filter(c => c.ID !== conn.ID);
+    if (conn.ProfileRevisionCounter === this.highestRevision) {
+      this._connections = this._connections
+        .filter(c => c.ID !== conn.ID);
+    } else {
+      this._oldConnections = this._oldConnections
+        .filter(c => c.ID !== conn.ID);
+    }
 
     this.updateBlockStatus();
     this.publishConnections();
@@ -275,11 +317,27 @@ export class ScopeGroup {
   dispose() {
     this._connectionUpdate.complete();
     this._connections = [];
+    this._expertiseSubscription.unsubscribe();
   }
 
-  private publishConnections() {
-    this._connectionUpdate.next(
-      this._connections
+  checkRevisionCounter(newRev: number, internal = false) {
+    if (newRev > this.highestRevision) {
+      // we have a new "highest" revision counter
+      // so merge all "current" connections with the old ones
+      // and start fresh.
+      this.highestRevision = newRev;
+      this._oldConnections = this._oldConnections.concat(this._connections);
+      this._connections = [];
+
+      if (!internal) {
+        this.publishConnections();
+      }
+    }
+  }
+
+  private sortAndPublish(conns: Connection[], subj: BehaviorSubject<Connection[]>) {
+    subj.next(
+      conns
         .filter(conn => {
           if (this.expertiseService.currentLevel === ExpertiseLevel.Developer) {
             return true;
@@ -306,6 +364,13 @@ export class ScopeGroup {
           return 0;
         })
     );
+  }
+
+  private publishConnections() {
+    this.hasOldConnections = this._oldConnections.length > 0 && this._oldConnections.some(conn => conn.Ended === 0);
+
+    this.sortAndPublish(this._connections, this._connectionUpdate);
+    this.sortAndPublish(this._oldConnections, this._oldConnectionUpdate);
   }
 
   /**
@@ -358,6 +423,12 @@ export class InspectedProfile {
 
   /** The currently layered profile used */
   private _layeredProfile: LayeredProfile | null = null;
+
+  /**
+   * True if the inspected profile has still old connections
+   * that have been verdicted using a stale profile.
+   */
+  hasOldConnections = false;
 
   /** The current profile revision */
   get currentProfileRevision() {
@@ -425,6 +496,8 @@ export class InspectedProfile {
     const appSub = this.profileService.watchAppProfile(this.processGroup.id)
       .pipe(
         switchMap(appProfile => {
+          // whenever the application profile changes we are going to reload
+          // the layered profile as well.
           return forkJoin([
             of(appProfile),
             this.profileService.getLayeredProfile(appProfile)
@@ -439,7 +512,21 @@ export class InspectedProfile {
       )
       .subscribe(([appProfile, layers]) => {
         this._profileChanges.next(appProfile);
+        const prevProfileRevision = this.currentProfileRevision;
         this._layeredProfile = layers;
+
+        // if it changed, update all scope-groups with the new revision counter
+        if (this.currentProfileRevision > prevProfileRevision) {
+          this.hasOldConnections = false;
+
+          this._scopeGroups.forEach(grp => {
+            grp.checkRevisionCounter(this.currentProfileRevision);
+
+            if (grp.hasOldConnections) {
+              this.hasOldConnections = true;
+            }
+          });
+        }
       });
 
     this._profileSubscription.add(appSub);

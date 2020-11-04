@@ -13,7 +13,7 @@
   @apply bg-buttons-dark;
   border-radius: 0.5rem;
 
-  span.counter {
+  .counter {
     flex-grow : 1;
     display   : inline-block;
     text-align: center;
@@ -32,4 +32,13 @@
       top: 0px;
     }
   }
+}
+
+app-loading {
+  --loading-height: -3px;
+  --dot-size      : 4px;
+  width           : 15px;
+  position        : relative;
+  top             : -3px;
+  left            : 3px;
 }

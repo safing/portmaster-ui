@@ -1,4 +1,8 @@
-<span class="counter">{{ count }}</span>
+<span class="counter" *ngIf="count > 0">{{ count }}</span>
+<span class="counter">
+  <app-loading *ngIf="count === 0"></app-loading>
+</span>
+
 <div class="state">
   <span class="trust-level {{risk}}"></span>
 </div>

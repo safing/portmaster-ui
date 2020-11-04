@@ -85,6 +85,8 @@ li.overview {
 
 app-loading {
   @apply mt-4;
+  margin-left : auto;
+  margin-right: auto;
 }
 
 $transition-duration : .3s;
