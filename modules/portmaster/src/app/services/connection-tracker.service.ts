@@ -244,6 +244,11 @@ export class ScopeGroup {
    */
   hasOldConnections = false;
 
+  /**
+   * True if there are new (non-internal) connections.
+   */
+  hasNewConnections = false;
+
   /** An observable that emits all old-connections that belong to the
    *  scope group. */
   get oldConnections() {
@@ -368,6 +373,7 @@ export class ScopeGroup {
 
   private publishConnections() {
     this.hasOldConnections = this._oldConnections.length > 0 && this._oldConnections.some(conn => conn.Ended === 0);
+    this.hasNewConnections = this._connections.length > 0 && this._connections.some(conn => !conn.Internal);
 
     this.sortAndPublish(this._connections, this._connectionUpdate);
     this.sortAndPublish(this._oldConnections, this._oldConnectionUpdate);

@@ -34,11 +34,16 @@
   }
 }
 
-app-loading {
-  --loading-height: -3px;
-  --dot-size      : 4px;
-  width           : 15px;
-  position        : relative;
-  top             : -3px;
-  left            : 3px;
+fa-icon {
+  &.low {
+    color: theme("colors.info.green");
+  }
+
+  &.medium {
+    color: theme("colors.info.yellow");
+  }
+
+  &.high {
+    color: theme("colors.info.red");
+  }
 }

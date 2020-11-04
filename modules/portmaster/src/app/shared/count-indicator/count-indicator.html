@@ -1,8 +1,11 @@
-<span class="counter" *ngIf="count > 0">{{ count }}</span>
-<span class="counter">
-  <app-loading *ngIf="count === 0"></app-loading>
+<!--
+<span class="counter" *ngIf="loading">
+  <app-loading></app-loading>
 </span>
+-->
 
+<span class="counter" *ngIf="count > 0">{{ count }}</span>
 <div class="state">
-  <span class="trust-level {{risk}}"></span>
+  <span *ngIf="!loading" class="trust-level {{risk}}"></span>
+  <fa-icon *ngIf="loading" [spin]="true" class="{{risk}}" icon="spinner"></fa-icon>
 </div>

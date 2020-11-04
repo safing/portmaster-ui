@@ -58,6 +58,10 @@ h4 {
   @apply my-2;
 }
 
+fa-icon[icon="spinner"] {
+  @apply mr-1;
+}
+
 fa-icon[icon="cog"] {
   cursor: pointer;
 
