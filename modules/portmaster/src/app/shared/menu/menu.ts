@@ -24,7 +24,6 @@ export class MenuTriggerComponent {
     return this.menu.isOpen;
   }
 
-  @HostListener('click', ['$event'])
   toggle(event: MouseEvent) {
     event.preventDefault();
     event.stopPropagation();

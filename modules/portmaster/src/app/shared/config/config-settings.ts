@@ -3,7 +3,7 @@ import { ScrollDispatcher } from '@angular/cdk/overlay';
 import { AfterViewInit, ChangeDetectorRef, Component, ElementRef, EventEmitter, Input, OnDestroy, OnInit, Output, QueryList, ViewChildren } from '@angular/core';
 import { BehaviorSubject, combineLatest, Subscription } from 'rxjs';
 import { debounceTime } from 'rxjs/operators';
-import { ConfigService, ExpertiseLevelNumber, Setting, StatusService, Subsystem } from 'src/app/services';
+import { ConfigService, ExpertiseLevelNumber, ReleaseLevel, releaseLevelFromName, Setting, StatusService, Subsystem } from 'src/app/services';
 import { fadeInAnimation } from 'src/app/shared/animations';
 import { FuzzySearchService } from 'src/app/shared/fuzzySearch'; import { SaveSettingEvent } from './generic-setting/generic-setting';
 
@@ -106,6 +106,13 @@ export class ConfigSettingsViewComponent implements OnInit, OnDestroy, AfterView
           this.subsystems = subsystems;
           this.others = [];
           this.settings = new Map();
+
+          const currentReleaseLevelSetting = settings.find(s => s.Key === 'core/releaseLevel');
+          const currentReleaseLevel = releaseLevelFromName(
+            currentReleaseLevelSetting?.Value || currentReleaseLevelSetting?.DefaultValue || 'stable' as any
+          );
+
+          settings = settings.filter(setting => setting.ReleaseLevel <= currentReleaseLevel);
 
           const filtered = this.searchService.searchList(settings, searchTerm, {
             ignoreLocation: true,

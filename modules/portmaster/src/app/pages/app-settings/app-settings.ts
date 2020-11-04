@@ -4,7 +4,7 @@ import { BehaviorSubject, combineLatest, of, Subscription } from 'rxjs';
 import { delayWhen, distinctUntilChanged, filter, switchMap, withLatestFrom } from 'rxjs/operators';
 import { AppProfile, ConfigService, FlatConfigObject, flattenProfileConfig, isDefaultValue, setAppSetting, Setting } from 'src/app/services';
 import { AppProfileService } from 'src/app/services/app-profile.service';
-import { ConnTracker } from 'src/app/services/connection-tracker.service';
+import { ConnTracker, InspectedProfile } from 'src/app/services/connection-tracker.service';
 import { fadeInAnimation, fadeOutAnimation } from 'src/app/shared/animations';
 import { SaveSettingEvent } from 'src/app/shared/config/generic-setting/generic-setting';
 
@@ -36,6 +36,14 @@ export class AppSettingsPageComponent implements OnInit, OnDestroy {
    */
   get isActive() {
     return this.connTrack.inspected !== null;
+  }
+
+  /**
+   * @private
+   * The inspected application profile, if any.
+   */
+  get inspected(): InspectedProfile | null {
+    return this.connTrack.inspected;
   }
 
   constructor(

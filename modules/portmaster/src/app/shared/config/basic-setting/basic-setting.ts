@@ -1,7 +1,7 @@
 import { coerceBooleanProperty } from '@angular/cdk/coercion';
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, forwardRef, Input, OnInit, Output, ViewChild } from '@angular/core';
 import { AbstractControl, ControlValueAccessor, NgModel, NG_VALIDATORS, NG_VALUE_ACCESSOR, ValidationErrors, Validator } from '@angular/forms';
-import { BaseSetting, ExternalOptionHint, parseSupportedValues, SettingValueType } from 'src/app/services';
+import { BaseSetting, ExternalOptionHint, parseSupportedValues, SettingValueType, WellKnown } from 'src/app/services';
 
 @Component({
   selector: 'app-basic-setting',
@@ -40,6 +40,14 @@ export class BasicSettingComponent<S extends BaseSetting<any, any>> implements C
 
   @Input()
   setting: S | null = null;
+
+
+  get unit() {
+    if (!this.setting) {
+      return '';
+    }
+    return this.setting.Annotations[WellKnown.Unit] || '';
+  }
 
   @Output()
   onBlur = new EventEmitter<void>();

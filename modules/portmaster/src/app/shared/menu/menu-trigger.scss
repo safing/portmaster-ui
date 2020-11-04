@@ -1,12 +1,7 @@
-:host {
+div {
   display: flex;
   @apply rounded-t;
-  width     : fit-content;
   flex-grow : 0;
-  position  : relative;
-  top       : -0.25rem;
-  height    : 0.75rem;
-  overflow  : visible;
   width     : 1rem;
   transition: all .1s ease-in-out;
 
@@ -15,8 +10,10 @@
 
   @apply py-1;
   @apply px-3;
+}
 
-  &.active {
+:host.active {
+  div {
     @apply bg-buttons-light;
   }
 }

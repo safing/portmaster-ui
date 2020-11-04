@@ -92,26 +92,25 @@
           </div>
         </div>
 
-        <div class="meta" *ngIf="grp.hasOldConnections || !grp.hasNewConnections">
-          <div>
-            <span>
+        <h4>Connections / DNS Requests History</h4>
+        <ng-container *ngTemplateOutlet="connectionTable; context: {$implicit: grp.connections}"></ng-container>
+
+        <table *ngIf="!grp.hasNewConnections" class="waiting-connections">
+          <tr>
+            <td>
               <span>
                 <fa-icon icon="spinner" [spin]="true"></fa-icon>
               </span>
-              <span *ngIf="grp.hasOldConnections">Applying changes, already active connections are still allowed.</span>
-              <span *ngIf="!grp.hasOldConnections && !grp.hasNewConnections">Waiting for new connections</span>
-            </span>
-          </div>
-        </div>
+              <span>Waiting for new connections</span>
+            </td>
+          </tr>
+        </table>
 
         <ng-container *ngIf="!!(grp.oldConnections | async)?.length">
-          <h4>Connections / DNS Requests History <i>with previous settings</i></h4>
+          <h4>
+            Connections / DNS Requests History <i>with previous settings</i>
+          </h4>
           <ng-container *ngTemplateOutlet="connectionTable; context: {$implicit: grp.oldConnections}"></ng-container>
-        </ng-container>
-
-        <ng-container *ngIf="!!(grp.connections | async)?.length">
-          <h4>Connections / DNS Requests History</h4>
-          <ng-container *ngTemplateOutlet="connectionTable; context: {$implicit: grp.connections}"></ng-container>
         </ng-container>
 
       </section>
@@ -120,11 +119,11 @@
 </app-accordion-group>
 
 <ng-template #connectionTable let-connections>
-  <div class="tableFixHead">
+  <div class="tableFixHead" [class.empty]="!!(connections | async)">
     <table cdk-table [dataSource]="connections">
       <!-- State Column -->
       <ng-container cdkColumnDef="state">
-        <th cdk-header-cell *cdkHeaderCellDef> State </th>
+        <th cdk-header-cell *cdkHeaderCellDef> Approval </th>
         <td cdk-cell *cdkCellDef="let conn">
           <span class="trust-level {{ conn.Verdict === verdict.Accept ? 'low' : 'high' }}"></span>
         </td>
@@ -159,7 +158,7 @@
         <th cdk-header-cell *cdkHeaderCellDef> Ended </th>
         <td cdk-cell *cdkCellDef="let conn">
           <ng-container *ngIf="conn.Ended > 0">{{conn.Ended * 1000 | date:'shortTime'}}</ng-container>
-          <ng-container *ngIf="!conn.Ended">N/A</ng-container>
+          <fa-icon *ngIf="!conn.Ended" icon="spinner" [spin]="true"></fa-icon>
         </td>
       </ng-container>
 

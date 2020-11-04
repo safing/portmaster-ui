@@ -88,6 +88,17 @@ export enum ReleaseLevel {
   Experimental = 2,
 }
 
+export function releaseLevelFromName(name: 'stable' | 'beta' | 'experimental'): ReleaseLevel {
+  switch (name) {
+    case 'stable':
+      return ReleaseLevel.Stable;
+    case 'beta':
+      return ReleaseLevel.Beta;
+    case 'experimental':
+      return ReleaseLevel.Experimental;
+  }
+}
+
 /**
  * releaseLevelName returns a string representation of the
  * release level.
@@ -213,7 +224,7 @@ export type BoolSetting = BaseSetting<boolean, OptionType.Bool>;
 
 /**
  * Apply a quick setting to a value.
- * 
+ *
  * @param current The current value of the setting.
  * @param qs The quick setting to apply.
  */

@@ -1,4 +1,7 @@
 .card-header {
+  @apply py-0;
+  height: 2rem;
+
   fa-icon.chevron {
     font-size: 0.6rem;
     position : relative;
@@ -26,6 +29,10 @@
   display        : flex;
   justify-content: space-between;
 
+  h4 {
+    @apply mt-4;
+  }
+
   &>div {
     flex-grow: 0.9;
 
@@ -50,7 +57,12 @@
 }
 
 div.tableFixHead {
-  @apply rounded;
+  @apply rounded-t;
+
+  &:not(.empty) {
+    @apply rounded;
+  }
+
   max-height: 16rem;
 }
 
@@ -105,7 +117,29 @@ table {
     --bg-opacity: 0.6;
   }
 
-  .cdk-column-state {
+  .cdk-column {
+    &-state {
+      width: 3rem;
+    }
+
+    &-entity {
+      width    : 20%;
+      min-width: 150px;
+    }
+
+    &-started,
+    &-ended {
+      width: 4rem
+    }
+
+    &-actions {
+      width: 1rem;
+    }
+  }
+
+  .cdk-column-state,
+  .cdk-column-ended,
+  .cdk-column-started {
     text-align: center;
   }
 
@@ -117,6 +151,26 @@ table {
     // the sticky header. Use a box-shadow to
     // simulate a border.
     box-shadow: 0 2px rgba(0, 0, 0, 0.3);
+  }
+}
+
+table.waiting-connections {
+  opacity: 0.5;
+
+  td {
+    text-align: center;
+  }
+}
+
+.tableFixHead {
+  @apply mb-4;
+
+  &~table {
+    margin-top: calc(-1rem + 2px);
+
+    td {
+      @apply rounded-b;
+    }
   }
 }
 
