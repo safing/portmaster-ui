@@ -3,14 +3,12 @@
   height: 2rem;
 
   fa-icon.chevron {
-    font-size: 0.6rem;
-    position : relative;
-    @apply text-secondary;
-    top      : -2px;
-    transform: rotate(-180deg);
-
+    font-size : 0.6rem;
+    position  : relative;
+    top       : -2px;
+    transform : rotate(-180deg);
     transition: all ease-in-out .3s;
-
+    @apply text-secondary;
   }
 
   &.active {
@@ -83,43 +81,14 @@ fa-icon[icon="cog"] {
 }
 
 table {
-  width: 100%;
-
-  th,
-  tr,
-  td {
-    @apply text-xs;
-  }
-
   tr.ended {
     opacity: 0.5;
   }
 
-  th {
-    text-align: left;
-    @apply text-secondary;
-    z-index: 1;
-  }
-
-  td,
-  th {
-    @apply p-2;
-    @apply font-medium;
-  }
-
-  tr:nth-child(even) {
-    @apply bg-cards-secondary;
-    --bg-opacity: 0.5;
-  }
-
-  tr:nth-child(odd) {
-    @apply bg-cards-tertiary;
-    --bg-opacity: 0.6;
-  }
-
   .cdk-column {
     &-state {
-      width: 3rem;
+      width     : 3rem;
+      text-align: center;
     }
 
     &-entity {
@@ -129,28 +98,13 @@ table {
 
     &-started,
     &-ended {
-      width: 5rem
+      width     : 5rem;
+      text-align: center;
     }
 
     &-actions {
       width: 1rem;
     }
-  }
-
-  .cdk-column-state,
-  .cdk-column-ended,
-  .cdk-column-started {
-    text-align: center;
-  }
-
-  tr.cdk-header-row th {
-    @apply bg-cards-tertiary;
-    --bg-opacity: 1;
-
-    // we cannot use borders directly due to
-    // the sticky header. Use a box-shadow to
-    // simulate a border.
-    box-shadow: 0 2px rgba(0, 0, 0, 0.3);
   }
 }
 
@@ -174,7 +128,7 @@ table.waiting-connections {
   }
 }
 
-span.port {
+.port {
   font-size: 0.95em;
   @apply text-secondary;
 }

@@ -3,7 +3,7 @@
     <div class="group-header">
       <app-icon [profile]="profile"></app-icon>
       <span class="app-name">{{ profile.Name }}</span>
-      <span class="prompt-count">{{ profile.prompts.length }}</span>
+      <span class="prompt-count info-circle">{{ profile.prompts.length }}</span>
       <app-menu-trigger [menu]="menu"></app-menu-trigger>
       <app-menu #menu>
         <app-menu-item (click)="allowAll(profile)">Allow All</app-menu-item>

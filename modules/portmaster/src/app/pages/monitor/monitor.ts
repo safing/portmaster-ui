@@ -7,7 +7,7 @@ import { fadeInAnimation, moveInOutListAnimation } from 'src/app/shared/animatio
 
 @Component({
   templateUrl: './monitor.html',
-  styleUrls: ['./monitor.scss'],
+  styleUrls: ['../page.scss', './monitor.scss'],
   providers: [],
   animations: [fadeInAnimation, moveInOutListAnimation],
 })

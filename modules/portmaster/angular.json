@@ -21,7 +21,7 @@
           "builder": "ngx-build-plus:browser",
           "options": {
             "extraWebpackConfig": "webpack.config.js",
-            "outputPath": "dist/portmaster",
+            "outputPath": "dist",
             "index": "src/index.html",
             "main": "src/main.ts",
             "polyfills": "src/polyfills.ts",
@@ -59,7 +59,7 @@
                 {
                   "type": "initial",
                   "maximumWarning": "500kb",
-                  "maximumError": "1.5mb"
+                  "maximumError": "2.5mb"
                 },
                 {
                   "type": "anyComponentStyle",

@@ -10,7 +10,7 @@ import { SaveSettingEvent } from 'src/app/shared/config/generic-setting/generic-
 
 @Component({
   templateUrl: './app-settings.html',
-  styleUrls: ['./app-settings.scss'],
+  styleUrls: ['../page.scss', './app-settings.scss'],
   animations: [
     fadeOutAnimation,
     fadeInAnimation,

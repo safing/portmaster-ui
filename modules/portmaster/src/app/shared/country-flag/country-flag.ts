@@ -12,9 +12,10 @@ export class CountryFlagDirective implements AfterViewInit {
   @Input('appCountryFlags')
   code: string = '';
 
-  constructor(private el: ElementRef, private renderer: Renderer2) {
-    // renderer.addClass(el.nativeElement, 'country-flags');
-  }
+  constructor(
+    private el: ElementRef,
+    private renderer: Renderer2
+  ) { }
 
   ngAfterViewInit() {
     const span = this.el.nativeElement as HTMLSpanElement;

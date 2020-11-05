@@ -18,3 +18,14 @@ button {
     opacity: 0.5;
   }
 }
+
+.info-circle {
+  width          : 18px;
+  height         : 18px;
+  display        : flex;
+  justify-content: center;
+  align-items    : center;
+  font-size      : 0.8em;
+  @apply rounded-full;
+  @apply bg-buttons-dark;
+}
