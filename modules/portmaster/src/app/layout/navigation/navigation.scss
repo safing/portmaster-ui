@@ -3,20 +3,20 @@
   top            : 0px;
   position       : sticky;
   display        : flex;
-  width          : 4.5rem;
+  width          : 4.2rem;
   flex-direction : column;
   justify-content: space-between;
   align-items    : center;
 
   div.logo {
     position: relative;
-    width   : 1.85rem;
-    @apply mt-4;
+    width   : 1.5rem;
+    @apply mt-6;
   }
 
   .spin {
     animation-name           : spin;
-    animation-duration       : 3500ms;
+    animation-duration       : 25500ms;
     animation-iteration-count: infinite;
     animation-timing-function: linear;
   }
@@ -47,31 +47,91 @@
     align-items    : center;
   }
 
+
+  div.nav-lower-list {
+    display        : flex;
+    flex-direction : column;
+    justify-content: flex-start;
+    align-items    : center;
+    padding-bottom : 1.5rem;
+  }
+
   div.link {
-    @apply rounded;
     @apply my-2;
 
-    font-size: 0.9rem;
-    width    : 2rem;
-    height   : 2rem;
+    width    : 2.1rem;
+    height   : 2.1rem;
+    border-radius: 10px;
 
     display        : flex;
     justify-content: space-around;
     align-items    : center;
 
     cursor: pointer;
+    
+    &{
+      outline: none;
+      svg{
+        opacity: .5;
+      }
+    }
 
-    &:hover,
+    &:target,
     &.active {
       @apply bg-buttons-light;
+      svg{
+        opacity: 1;
+        transform: scale(1.1);
+      }
     }
 
-    &,
-    &:active,
-    &:focus,
-    &:target {
-      outline: none;
+    &:hover{
+      svg{
+        opacity: 1 ;
+        transform: scale(1.1);
+        transition: all ease-in-out .25s;
+      }
     }
+
+    svg{
+      &.dash,
+      &.spn,
+      &.monitor,
+      &.app,
+      &.help,
+      &.settings{
+        position: relative;
+        transition: all ease-in-out .25s;
+        .inner {
+          stroke: white;
+        }
+      }
+
+      &.dash{
+        width   : 1.2rem;
+      }
+
+      &.spn{
+        width   : 1.2rem;
+      }
+
+      &.monitor{
+        width   : 1.2rem;
+      }
+
+      &.app{
+        width   : 1.2rem;
+      }
+
+      &.help{
+        width   : 1.2rem;
+      }
+
+      &.settings{
+        width   : 1.2rem;
+      }
+    }
+
   }
 }
 

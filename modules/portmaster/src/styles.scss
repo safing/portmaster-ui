@@ -17,6 +17,7 @@
 
 html {
   user-select: none;
+  @apply antialiased
 }
 
 *[routerlink] {
