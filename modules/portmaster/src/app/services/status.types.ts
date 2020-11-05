@@ -85,7 +85,7 @@ export interface Module {
   Status: ModuleStatus;
 }
 
-export interface Subsystem {
+export interface Subsystem extends Record {
   ConfigKeySpace: string;
   Description: string;
   ExpertiseLevel: string;

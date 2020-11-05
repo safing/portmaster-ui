@@ -102,7 +102,7 @@ export interface Notification<T = any> extends Record {
   // If EventData implements sync.Locker it will be locked and unlocked together with the
   // notification. Otherwise, EventData is expected to be immutable once the
   // notification has been saved and handed over to the notification or database package.
-  EventData: T;
+  EventData: T | null;
   // Expires holds the unix epoch timestamp at which the notification expires
   // and can be cleaned up.
   // Users can safely ignore expired notifications and should handle expiry the

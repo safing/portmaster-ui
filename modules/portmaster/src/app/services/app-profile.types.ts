@@ -13,7 +13,7 @@ export interface FlatConfigObject {
   [key: string]: OptionValueType;
 }
 
-export interface LayeredProfile {
+export interface LayeredProfile extends Record {
   // LayerIDs is a list of all profiles that are used
   // by this layered profile. Profiles are evaluated in
   // order.

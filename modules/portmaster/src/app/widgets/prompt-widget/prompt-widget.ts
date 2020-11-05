@@ -9,6 +9,7 @@ import { moveInOutAnimation, moveInOutListAnimation } from 'src/app/shared/anima
 interface ExtendedConnectionPrompt extends ConnectionPrompt {
   domain: string | null;
   subdomain: string | null;
+  EventData: ConnectionPromptData;
 }
 
 interface ProfilePrompts extends AppProfile {
@@ -59,7 +60,7 @@ export class PromptWidgetComponent implements OnInit, OnDestroy {
         switchMap(notifs => {
           var profileKeys = new Set<string>();
           notifs.forEach(n => profileKeys.add(
-            this.profileService.getKey(n.EventData.Profile.Source, n.EventData.Profile.ID)
+            this.profileService.getKey(n.EventData!.Profile.Source, n.EventData!.Profile.ID)
           ));
 
           return forkJoin(
@@ -76,6 +77,10 @@ export class PromptWidgetComponent implements OnInit, OnDestroy {
         let promptsByProfile = new Map<string, ExtendedConnectionPrompt[]>();
 
         prompts.forEach(prompt => {
+          if (!prompt.EventData) {
+            return;
+          }
+
           let entries = promptsByProfile.get(prompt.EventData.Profile.ID);
           if (!entries) {
             entries = [];
@@ -85,6 +90,7 @@ export class PromptWidgetComponent implements OnInit, OnDestroy {
           const parsed = parse(prompt.EventData.Entity.Domain);
           entries.push({
             ...prompt,
+            EventData: prompt.EventData,
             domain: (parsed as any).domain || null,
             subdomain: (parsed as any).subdomain || null,
           });
