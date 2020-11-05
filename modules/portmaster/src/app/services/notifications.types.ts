@@ -1,5 +1,6 @@
 import { getEnumKey } from './core.types';
 import { IntelEntity } from './network.types';
+import { Record } from './portapi.types';
 
 /**
  * Action defines a user selectable action and can
@@ -70,7 +71,7 @@ export enum NotificationState {
   Invalid = "invalid",
 }
 
-export interface Notification<T = any> {
+export interface Notification<T = any> extends Record {
   // EventID is used to identify a specific notification. It consists of
   // the module name and a per-module unique event id.
   // The following format is recommended:

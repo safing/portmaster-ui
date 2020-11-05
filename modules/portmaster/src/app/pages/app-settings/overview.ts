@@ -26,6 +26,9 @@ export class AppOverviewComponent implements OnInit, OnDestroy {
   /** All application profiles that are actually running */
   runningProfiles: AppProfile[] = [];
 
+  /** All application profiles that have been modified recently */
+  recentlyUsed: AppProfile[] = [];
+
   /** All non-running application profiles */
   profiles: AppProfile[] = [];
 
@@ -64,6 +67,9 @@ export class AppOverviewComponent implements OnInit, OnDestroy {
 
           this.profiles = [];
           this.runningProfiles = [];
+          this.recentlyUsed = [];
+
+          const recentlyUsedThreshold = new Date().valueOf() / 1000 - (60 * 60 * 24 * 7);
 
           filtered
             .map(item => item.item)
@@ -84,6 +90,8 @@ export class AppOverviewComponent implements OnInit, OnDestroy {
             .forEach(profile => {
               if (this.connTrack.has(profile.ID)) {
                 this.runningProfiles.push(profile);
+              } else if (!!profile._meta && profile._meta.Modified >= recentlyUsedThreshold) {
+                this.recentlyUsed.push(profile);
               } else {
                 this.profiles.push(profile);
               }

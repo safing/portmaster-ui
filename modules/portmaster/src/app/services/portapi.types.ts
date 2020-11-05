@@ -26,6 +26,30 @@ export type RequestType = 'get'
   | 'delete'
   | 'cancel';
 
+// RecordMeta describes the meta-data object that is part of
+// every API resource.
+export interface RecordMeta {
+  // Created hold a unix-epoch timestamp when the record has been
+  // created.
+  Created: number;
+  // Deleted hold a unix-epoch timestamp when the record has been
+  // deleted.
+  Deleted: number;
+  // Expires hold a unix-epoch timestamp when the record has been
+  // expires.
+  Expires: number;
+  // Modified hold a unix-epoch timestamp when the record has been
+  // modified last.
+  Modified: number;
+  // Key holds the database record key.
+  Key: string;
+}
+
+// Record describes the base record structure of all API resources.
+export interface Record {
+  _meta?: RecordMeta;
+}
+
 /**
 * All possible MessageType that are available in PortAPI.
 */
@@ -52,7 +76,7 @@ export interface DoneReply extends BaseMessage<'done'> { }
 * DataReply is either sent once as a result on a `get` request or
 * is sent multiple times in the course of a PortAPI stream.
 */
-export interface DataReply<T> extends BaseMessage<'ok' | 'upd' | 'new' | 'del'> {
+export interface DataReply<T extends Record> extends BaseMessage<'ok' | 'upd' | 'new' | 'del'> {
   // Key is the database key including the database prefix.
   key: string;
   // Data is the actual data of the entry.
@@ -144,7 +168,7 @@ export interface CancelRequest extends BaseMessage<'cancel'> { }
 /**
 * ReplyMessage is a union of all reply message types.
 */
-export type ReplyMessage<T = any> = DataReply<T>
+export type ReplyMessage<T extends Record = any> = DataReply<T>
   | DoneReply
   | SuccessReply
   | WarningReply

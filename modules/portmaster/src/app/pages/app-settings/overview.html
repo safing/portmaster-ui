@@ -9,12 +9,17 @@
 
 <div class="scrollable">
 
-  <h4>Active</h4>
+  <h4 *ngIf="!!runningProfiles">Active</h4>
   <div class="content">
     <ng-container *ngTemplateOutlet="profileList; context: {$implicit: runningProfiles}"></ng-container>
   </div>
 
-  <h4>Apps</h4>
+  <h4 *ngIf="!!recentlyUsed">Recently Used</h4>
+  <div class="content">
+    <ng-container *ngTemplateOutlet="profileList; context: {$implicit: recentlyUsed}"></ng-container>
+  </div>
+
+  <h4 *ngIf="!!profiles">Apps</h4>
   <div class="content">
     <ng-container *ngTemplateOutlet="profileList; context: {$implicit: profiles}"></ng-container>
   </div>

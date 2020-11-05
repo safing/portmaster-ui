@@ -1,6 +1,7 @@
 import { isDevMode } from '@angular/core';
 import { deepClone } from '../shared/utils';
 import { webSocket } from 'rxjs/webSocket';
+import { Record } from './portapi.types';
 
 /**
  * ExpertiseLevel defines all available expertise levels.
@@ -184,7 +185,7 @@ export interface ValueRequirement {
 /**
  * BaseSetting describes the general shape of a portbase config setting.
  */
-export interface BaseSetting<T extends OptionValueType, O extends OptionType> {
+export interface BaseSetting<T extends OptionValueType, O extends OptionType> extends Record {
   // Value is the value of a setting.
   Value?: T;
   // DefaultValue is the default value of a setting.

@@ -3,7 +3,7 @@ import { BehaviorSubject, Observable, defer, of } from 'rxjs';
 import { filter, map, takeWhile, tap, count, switchMap } from 'rxjs/operators';
 import { WebSocketSubject } from 'rxjs/webSocket';
 import { environment } from '../../environments/environment';
-import { DataReply, deserializeMessage, InspectedActiveRequest, isCancellable, isDataReply, ReplyMessage, Requestable, RequestType, RetryableOpts, retryPipeline, serializeMessage, WatchOpts } from './portapi.types';
+import { DataReply, deserializeMessage, InspectedActiveRequest, Record, isCancellable, isDataReply, ReplyMessage, Requestable, RequestType, RetryableOpts, retryPipeline, serializeMessage, WatchOpts } from './portapi.types';
 import { WebsocketService } from './websocket.service';
 import { trackById, Identifyable } from './core.types';
 
@@ -43,7 +43,7 @@ export class PortapiService {
    *
    * @param key The database key of the entry to load.
    */
-  get<T>(key: string): Observable<T> {
+  get<T extends Record>(key: string): Observable<T> {
     return this.request('get', { key })
       .pipe(
         map(res => res.data)
@@ -57,7 +57,7 @@ export class PortapiService {
    *
    * @param query The query used to search the database.
    */
-  query<T>(query: string): Observable<DataReply<T>> {
+  query<T extends Record>(query: string): Observable<DataReply<T>> {
     return this.request('query', { query });
   }
 
@@ -66,7 +66,7 @@ export class PortapiService {
    *
    * @param query The query use to subscribe.
    */
-  sub<T>(query: string, opts: RetryableOpts = {}): Observable<DataReply<T>> {
+  sub<T extends Record>(query: string, opts: RetryableOpts = {}): Observable<DataReply<T>> {
     return this.request('sub', { query })
       .pipe(retryPipeline(opts));
   }
@@ -78,7 +78,7 @@ export class PortapiService {
    * @param query The query use to subscribe.
    * @todo(ppacher): check what a ok/done message mean here.
    */
-  qsub<T>(query: string, opts: RetryableOpts = {}): Observable<DataReply<T>> {
+  qsub<T extends Record>(query: string, opts: RetryableOpts = {}): Observable<DataReply<T>> {
     return this.request('qsub', { query })
       .pipe(retryPipeline(opts))
   }
@@ -94,6 +94,7 @@ export class PortapiService {
    * @param data The actual data for the entry.
    */
   create(key: string, data: any): Observable<void> {
+    data = this.stripMeta(data);
     return this.request('create', { key, data })
       .pipe(map(() => { }));
   }
@@ -105,6 +106,7 @@ export class PortapiService {
    * @param data The actual, updated entry data.
    */
   update(key: string, data: any): Observable<void> {
+    data = this.stripMeta(data);
     return this.request('update', { key, data })
       .pipe(map(() => { }))
   }
@@ -117,6 +119,7 @@ export class PortapiService {
    * @todo(ppacher): check what's different to create().
    */
   insert(key: string, data: any): Observable<void> {
+    data = this.stripMeta(data);
     return this.request('insert', { key, data })
       .pipe(map(() => { }));
   }
@@ -147,7 +150,7 @@ export class PortapiService {
    * @param opts.ingoreNew Whether or not `new` notifications
    *        will be ignored. Defaults to false
    */
-  watch<T>(key: string, opts: WatchOpts = {}): Observable<T> {
+  watch<T extends Record>(key: string, opts: WatchOpts = {}): Observable<T> {
     return this.qsub<T>(key, opts)
       .pipe(
         filter(reply => reply.key === key),
@@ -159,7 +162,7 @@ export class PortapiService {
       );
   }
 
-  watchAll<T>(query: string, opts?: RetryableOpts): Observable<T[]> {
+  watchAll<T extends Record>(query: string, opts?: RetryableOpts): Observable<T[]> {
     return new Observable<T[]>(observer => {
       let values: T[] = [];
       let keys: string[] = [];
@@ -240,7 +243,7 @@ export class PortapiService {
     this.ws$ = null;
   }
 
-  request<M extends RequestType, R = any>(method: M, attrs: Partial<Requestable<M>>, { forwardDone }: { forwardDone?: boolean } = {}): Observable<DataReply<R>> {
+  request<M extends RequestType, R extends Record = any>(method: M, attrs: Partial<Requestable<M>>, { forwardDone }: { forwardDone?: boolean } = {}): Observable<DataReply<R>> {
     return new Observable(observer => {
       const id = `${++uniqueRequestId}`;
 
@@ -436,6 +439,14 @@ export class PortapiService {
 
     const newPayload = mergeDeep({}, req.lastData, data);
     this._injectData(id, newPayload, req.lastKey)
+  }
+
+  private stripMeta<T extends Record>(obj: T): T {
+    let copy = {
+      ...obj,
+      _meta: undefined,
+    };
+    return copy;
   }
 
   /**

@@ -1,5 +1,6 @@
 import { ReleaseLevel } from './config.types';
 import { getEnumKey, SecurityLevel } from "./core.types";
+import { Record } from './portapi.types';
 
 export interface CaptivePortal {
   URL: string;
@@ -51,7 +52,7 @@ export interface Threat<T = any> {
   Ended: number;
 }
 
-export interface CoreStatus {
+export interface CoreStatus extends Record {
   ActiveSecurityLevel: SecurityLevel;
   SelectedSecurityLevel: SecurityLevel;
   ThreatMitigationLevel: SecurityLevel;

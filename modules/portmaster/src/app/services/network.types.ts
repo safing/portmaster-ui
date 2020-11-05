@@ -1,3 +1,5 @@
+import { Record } from './portapi.types';
+
 export enum Verdict {
   Undecided = 0,
   Undeterminable = 1,
@@ -102,7 +104,7 @@ export interface Reason {
   Context: any;
 }
 
-export interface Connection {
+export interface Connection extends Record {
   // ID is a unique ID for the connection.
   ID: string;
   // Scope defines the scope of the connection. It's an somewhat

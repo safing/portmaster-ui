@@ -1,4 +1,5 @@
 import { SecurityLevel } from './core.types';
+import { Record } from './portapi.types';
 import { OptionValueType } from './config.types';
 import { ScopeIdentifier } from './network.types';
 
@@ -22,7 +23,7 @@ export interface LayeredProfile {
   RevisionCounter: number;
 }
 
-export interface AppProfile {
+export interface AppProfile extends Record {
   ID: string;
   LinkedPath: string;
   Created: number;
