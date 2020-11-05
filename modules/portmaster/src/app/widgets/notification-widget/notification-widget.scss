@@ -1,19 +1,21 @@
 :host {
   --slot-size: 2.25rem;
 
-  position       : relative;
-  display        : flex;
-  justify-content: flex-start;
-  flex-direction : column;
-  align-items    : center;
-  overflow-x     : hidden;
-  overflow-y     : auto;
-  max-height     : calc(var(--slot-size) * 5);
+  position      : relative;
+  display       : flex;
+  flex-direction: column;
+  align-items   : center;
+  overflow-x    : hidden;
+  overflow-y    : auto;
+  max-height    : calc(var(--slot-size) * 5);
+  min-height    : 3rem;
   @apply bg-background;
+  justify-content: center;
 
   &:not(.empty) {
     min-height: calc(var(--slot-size) * 3);
     @apply bg-cards-primary;
+    justify-content: flex-start;
   }
 
   &>* {
