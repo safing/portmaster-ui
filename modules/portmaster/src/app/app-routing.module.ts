@@ -9,7 +9,7 @@ const routes: Routes = [
   {
     path: '',
     pathMatch: 'full',
-    redirectTo: 'monitor/profile/overview'
+    redirectTo: 'monitor/profile/overview/overview'
   },
   {
     path: 'settings',
@@ -30,10 +30,10 @@ const routes: Routes = [
   },
   {
     path: 'monitor',
-    redirectTo: 'monitor/profile/overview',
+    redirectTo: 'monitor/profile/overview/overview',
   },
   {
-    path: 'monitor/profile/:profile',
+    path: 'monitor/profile/:source/:profile',
     component: MonitorPageComponent,
   },
   {

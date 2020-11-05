@@ -80,9 +80,11 @@ export const ScopeTranslation: { [key: string]: string } = {
 
 export interface ProcessContext {
   BinaryPath: string;
-  Name: string;
+  ProcessName: string;
+  ProfileName: string;
   PID: number;
-  ProfileID: string;
+  Profile: string;
+  Source: string
 }
 
 // Reason justifies the decision on a connection

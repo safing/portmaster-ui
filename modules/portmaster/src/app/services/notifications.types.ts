@@ -1,4 +1,5 @@
 import { getEnumKey } from './core.types';
+import { IntelEntity } from './network.types';
 
 /**
  * Action defines a user selectable action and can
@@ -27,6 +28,15 @@ export enum NotificationType {
   Warning = 1,
   // Prompt asks the user for a decision.
   Prompt = 2,
+}
+
+export interface ConnectionPromptData {
+  Profile: {
+    ID: string;
+    LinkedPath: string;
+    Source: 'local';
+  };
+  Entity: IntelEntity;
 }
 
 /**
@@ -60,7 +70,7 @@ export enum NotificationState {
   Invalid = "invalid",
 }
 
-export interface Notification<T> {
+export interface Notification<T = any> {
   // EventID is used to identify a specific notification. It consists of
   // the module name and a per-module unique event id.
   // The following format is recommended:
@@ -91,7 +101,7 @@ export interface Notification<T> {
   // If EventData implements sync.Locker it will be locked and unlocked together with the
   // notification. Otherwise, EventData is expected to be immutable once the
   // notification has been saved and handed over to the notification or database package.
-  EventData: any;
+  EventData: T;
   // Expires holds the unix epoch timestamp at which the notification expires
   // and can be cleaned up.
   // Users can safely ignore expired notifications and should handle expiry the
@@ -106,3 +116,5 @@ export interface Notification<T> {
   // based on the user selection.
   SelectedActionID: string;
 }
+
+export type ConnectionPrompt = Notification<ConnectionPromptData>;

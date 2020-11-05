@@ -3,7 +3,7 @@ import { BehaviorSubject, combineLatest, Subscription } from 'rxjs';
 import { debounceTime } from 'rxjs/operators';
 import { AppProfile, AppProfileService, trackById } from 'src/app/services';
 import { ConnTracker } from 'src/app/services/connection-tracker.service';
-import { fadeInAnimation } from 'src/app/shared/animations';
+import { fadeInAnimation, fadeInListAnimation, moveInOutListAnimation } from 'src/app/shared/animations';
 import { FuzzySearchService } from 'src/app/shared/fuzzySearch';
 
 @Component({
@@ -13,6 +13,8 @@ import { FuzzySearchService } from 'src/app/shared/fuzzySearch';
   //changeDetection: ChangeDetectionStrategy.OnPush,
   animations: [
     fadeInAnimation,
+    fadeInListAnimation,
+    moveInOutListAnimation
   ]
 })
 export class AppOverviewComponent implements OnInit, OnDestroy {
@@ -80,7 +82,7 @@ export class AppOverviewComponent implements OnInit, OnDestroy {
               return 0;
             })
             .forEach(profile => {
-              if (this.connTrack.has(this.profileService.getKey(profile))) {
+              if (this.connTrack.has(profile.ID)) {
                 this.runningProfiles.push(profile);
               } else {
                 this.profiles.push(profile);

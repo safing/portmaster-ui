@@ -1,6 +1,6 @@
 import { Injectable, isDevMode, NgZone, TrackByFunction } from '@angular/core';
-import { BehaviorSubject, Observable, defer } from 'rxjs';
-import { filter, map, takeWhile, tap, count } from 'rxjs/operators';
+import { BehaviorSubject, Observable, defer, of } from 'rxjs';
+import { filter, map, takeWhile, tap, count, switchMap } from 'rxjs/operators';
 import { WebSocketSubject } from 'rxjs/webSocket';
 import { environment } from '../../environments/environment';
 import { DataReply, deserializeMessage, InspectedActiveRequest, isCancellable, isDataReply, ReplyMessage, Requestable, RequestType, RetryableOpts, retryPipeline, serializeMessage, WatchOpts } from './portapi.types';
@@ -15,7 +15,7 @@ let uniqueRequestId = 0;
   providedIn: 'root'
 })
 export class PortapiService {
-  private ws$: WebSocketSubject<ReplyMessage> | null = null;
+  private ws$: WebSocketSubject<ReplyMessage> | null;
   private connectedSubject = new BehaviorSubject(false);
 
   get connected$() {
@@ -26,6 +26,7 @@ export class PortapiService {
 
   constructor(private websocketFactory: WebsocketService,
     private ngZone: NgZone) {
+
     this.ws$ = this.createWebsocket();
   }
 
@@ -367,11 +368,7 @@ export class PortapiService {
         },
         error: err => {
           console.error(err, attrs);
-          // TODO(ppacher): re-enable that once "cancel" support
-          // landed in portbase.
-
-          //observer.error(err);
-          observer.complete();
+          observer.error(err);
         },
         complete: () => {
           observer.complete();
@@ -448,6 +445,7 @@ export class PortapiService {
    * @private
    */
   private createWebsocket(): WebSocketSubject<ReplyMessage> {
+    let open = false;
     return this.websocketFactory.createConnection<ReplyMessage>({
       url: environment.portAPI,
       serializer: msg => {
@@ -476,12 +474,21 @@ export class PortapiService {
         next: () => {
           console.log('[portapi] connection to portmaster established');
           this.connectedSubject.next(true);
+          open = true;
         }
       },
       closeObserver: {
         next: () => {
           console.log('[portapi] connection to portmaster closed');
           this.connectedSubject.next(false);
+
+          // TODO(ppacher): this is a bit hard but the easiest solution
+          // we could come up with. Portmaster has a lot of runtime-only
+          // data that is likely lost upon restart so all our connections
+          // stats, ... are likley to be wrong.
+          if (open) {
+            //location.reload();
+          }
         },
       },
       closingObserver: {

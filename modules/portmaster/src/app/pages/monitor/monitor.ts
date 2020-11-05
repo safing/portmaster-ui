@@ -3,13 +3,13 @@ import { ActivatedRoute } from '@angular/router';
 import { BehaviorSubject, combineLatest, Subscription } from 'rxjs';
 import { delayWhen, take } from 'rxjs/operators';
 import { ConnTracker, ProcessGroup } from 'src/app/services/connection-tracker.service';
-import { fadeInAnimation } from 'src/app/shared/animations';
+import { fadeInAnimation, moveInOutListAnimation } from 'src/app/shared/animations';
 
 @Component({
   templateUrl: './monitor.html',
   styleUrls: ['./monitor.scss'],
   providers: [],
-  animations: [fadeInAnimation],
+  animations: [fadeInAnimation, moveInOutListAnimation],
 })
 export class MonitorPageComponent implements OnInit, OnDestroy {
   private subscription: Subscription = Subscription.EMPTY;
@@ -26,15 +26,16 @@ export class MonitorPageComponent implements OnInit, OnDestroy {
   constructor(
     private connTrack: ConnTracker,
     private route: ActivatedRoute
-  ) {
-  }
+  ) { }
 
   ngOnInit() {
     this.subscription = this.route.paramMap
       .pipe(delayWhen(() => this.connTrack.ready))
       .subscribe(params => {
+        let source = params.get("source");
         let id = params.get("profile");
-        if (id === 'overview') {
+        if (source === 'overview') {
+          source = null;
           id = null;
         }
 
@@ -53,7 +54,7 @@ export class MonitorPageComponent implements OnInit, OnDestroy {
       ])
         .subscribe(([p, search, _]) => {
           this.profiles = p.filter(profile => {
-            return search === '' || profile.name.toLocaleLowerCase().includes(search)
+            return search === '' || profile.Name.toLocaleLowerCase().includes(search)
           });
         })
     );
@@ -66,5 +67,9 @@ export class MonitorPageComponent implements OnInit, OnDestroy {
 
   search(s: string) {
     this.onSearch.next(s);
+  }
+
+  trackProfile(_: number, p: ProcessGroup) {
+    return p.ID;
   }
 }

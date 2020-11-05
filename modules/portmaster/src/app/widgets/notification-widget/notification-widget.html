@@ -1,6 +1,6 @@
 <ng-container *ngFor="let notif of notifications; trackBy: notifsService.trackBy; let index=index">
-  <div class="row" (click)="toggelView(notif)" [@moveInOut] [style.--index]="index"
-    [class.move-up]="notif === expandedNotification" [class.fade-out]="!!expandedNotification">
+  <div class="row" (click)="toggelView(notif)" [style.--index]="index" [class.move-up]="notif === expandedNotification"
+    [class.fade-out]="!!expandedNotification">
     <div class="type">
       <span class="trust-level" [class.low]="notif.Type === types.Info"
         [class.medium]="notif.Type === types.Warning"></span>
@@ -24,9 +24,5 @@
 </div>
 
 <div class="placeholder" *ngIf="!notifications.length">
-  Waiting for notifications
-</div>
-
-<div class="row" *ngIf="!expandedNotification && notifications.length <= 3">
-  <app-loading></app-loading>
+  No Notifications
 </div>

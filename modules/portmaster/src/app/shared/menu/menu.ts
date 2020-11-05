@@ -1,4 +1,4 @@
-import { Component, ContentChildren, HostBinding, HostListener, Input, QueryList, Renderer2, TemplateRef, ViewChild, ViewEncapsulation } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, ContentChildren, HostBinding, HostListener, Input, QueryList, Renderer2, TemplateRef, ViewChild, ViewEncapsulation } from '@angular/core';
 import { CdkOverlayOrigin, ConnectedPosition, ScrollStrategy, ScrollStrategyOptions } from '@angular/cdk/overlay';
 import { fadeInAnimation, fadeOutAnimation } from '../animations';
 import { BehaviorSubject } from 'rxjs';
@@ -6,7 +6,8 @@ import { BehaviorSubject } from 'rxjs';
 @Component({
   selector: 'app-menu-trigger',
   templateUrl: './menu-trigger.html',
-  styleUrls: ['./menu-trigger.scss']
+  styleUrls: ['./menu-trigger.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class MenuTriggerComponent {
   @ViewChild(CdkOverlayOrigin, { static: true })
@@ -24,6 +25,8 @@ export class MenuTriggerComponent {
     return this.menu.isOpen;
   }
 
+  constructor(public changeDetectorRef: ChangeDetectorRef) { }
+
   toggle(event: MouseEvent) {
     event.preventDefault();
     event.stopPropagation();
@@ -37,7 +40,7 @@ export class MenuTriggerComponent {
       return;
     }
 
-    this.menu.show(this.origin);
+    this.menu.show(this);
   }
 }
 
@@ -82,7 +85,7 @@ export class MenuComponent {
     },
   ]
 
-  trigger: CdkOverlayOrigin | null = null;
+  trigger: MenuTriggerComponent | null = null;
 
   isOpen = false;
 
@@ -92,7 +95,7 @@ export class MenuComponent {
 
   onOutsideClick(event: MouseEvent) {
     if (!!this.trigger) {
-      const triggerEl = this.trigger.elementRef.nativeElement;
+      const triggerEl = this.trigger.origin!.elementRef.nativeElement;
 
       let node = event.target;
       while (!!node) {
@@ -115,9 +118,12 @@ export class MenuComponent {
 
   close() {
     this.isOpen = false;
+    if (!!this.trigger) {
+      this.trigger.changeDetectorRef.markForCheck();
+    }
   }
 
-  show(t: CdkOverlayOrigin | null) {
+  show(t: MenuTriggerComponent | null) {
     if (this.isOpen) {
       return;
     }

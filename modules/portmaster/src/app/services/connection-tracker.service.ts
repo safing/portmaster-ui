@@ -10,7 +10,7 @@ import { ConnectionStatistics } from './connection-tracker.types';
 import { RiskLevel } from './core.types';
 import { Connection, ScopeIdentifier, ScopeTranslation, Verdict } from './network.types';
 import { PortapiService } from './portapi.service';
-import { DataReply } from './portapi.types';
+import { DataReply, retryPipeline } from './portapi.types';
 
 /**
  * ConnectionAddedEvent is emitted by a Profile when a
@@ -82,18 +82,10 @@ export class ProcessGroup {
     return this.unpermitted.size;
   }
 
-  get ID(): string {
-    return this.id;
-  }
-
-  get Name(): string {
-    return this.name;
-  }
-
   constructor(
-    public readonly id: string,
-    public readonly name: string,
-    // TODO(ppacher): add support for profile icons
+    public readonly ID: string,
+    public readonly Name: string,
+    public readonly Source: string,
   ) { }
 
   /** Dispose the profile and all resources associated with it */
@@ -477,12 +469,16 @@ export class InspectedProfile {
     return this._profileChanges.getValue();
   }
 
-  get name() {
-    return this.processGroup.name;
+  get Name() {
+    return this.processGroup.Name;
   }
 
   get ID() {
-    return this.processGroup.id;
+    return this.processGroup.ID;
+  }
+
+  get Source() {
+    return this.processGroup.Source;
   }
 
   constructor(
@@ -499,7 +495,7 @@ export class InspectedProfile {
       );
 
     // start watching the actual application profile
-    const appSub = this.profileService.watchAppProfile(this.processGroup.id)
+    const appSub = this.profileService.watchAppProfile(this.processGroup.Source, this.processGroup.ID)
       .pipe(
         switchMap(appProfile => {
           // whenever the application profile changes we are going to reload
@@ -765,7 +761,7 @@ export class ConnTracker {
       // that we built the initial collection of all
       // active profiles.
       { forwardDone: true }
-    );
+    ).pipe(retryPipeline());
 
     const connectionStream = stream.pipe(
       tap(
@@ -788,6 +784,18 @@ export class ConnTracker {
     this._streamSubscription = connectionStream.subscribe(
       msg => this.processUpdate(msg),
     );
+
+    const resetSub = this.portapi.connected$
+      .pipe(filter(connected => !connected))
+      .subscribe(() => {
+        this.inspect(null);
+        this._ready.next(null);
+        this._profiles.forEach(p => p.dispose());
+        this._profiles.clear();
+        this._connectionToProfile.clear();
+      })
+
+    this._streamSubscription.add(resetSub);
   }
 
   /**
@@ -815,7 +823,7 @@ export class ConnTracker {
 
     const id = typeof processGroupOrID === 'string'
       ? processGroupOrID
-      : processGroupOrID.id;
+      : processGroupOrID.ID;
 
     const profile = this._profiles.get(id);
     if (!profile) {
@@ -826,7 +834,7 @@ export class ConnTracker {
     }
 
     if (this._inspectedProfile !== null) {
-      if (this._inspectedProfile.processGroup.id === id) {
+      if (this._inspectedProfile.processGroup.ID === id) {
         // if we already inspect this profile abort now
         return;
       }
@@ -869,7 +877,7 @@ export class ConnTracker {
         profile.forget(msg.key);
 
         if (profile.empty) {
-          this._profiles.delete(profile.id);
+          this._profiles.delete(profile.ID);
           profile.dispose();
 
           this.publishProfiles();
@@ -891,10 +899,10 @@ export class ConnTracker {
    * @param conn The connection object
    */
   private getOrCreateProfile(conn: Connection): ProcessGroup {
-    const profileID = conn.ProcessContext.ProfileID;
+    const profileID = conn.ProcessContext.Profile;
     let profile = this._profiles.get(profileID);
     if (!profile) {
-      profile = new ProcessGroup(profileID, conn.ProcessContext.Name);
+      profile = new ProcessGroup(profileID, conn.ProcessContext.ProfileName, conn.ProcessContext.Source);
       this._profiles.set(profileID, profile);
 
       this.publishProfiles();

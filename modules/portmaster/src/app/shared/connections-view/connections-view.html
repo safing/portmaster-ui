@@ -134,6 +134,7 @@
         <th cdk-header-cell *cdkHeaderCellDef> Reason </th>
         <td cdk-cell *cdkCellDef="let conn">
           {{conn.Reason.Msg}}
+          <span class="port">by {{ !!conn.Reason.Profile ? "app" : "global" }}</span>
         </td>
       </ng-container>
 

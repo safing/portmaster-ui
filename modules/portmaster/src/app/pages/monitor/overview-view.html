@@ -28,9 +28,9 @@
 
   <ng-container *ngFor="let data of profiles; trackBy: trackProfile">
     <li class="card-header" *appExpertiseLevel="data.size === 0 ? 'developer' : 'user'"
-      [routerLink]="['/', 'monitor', 'profile', data.id]" [@fadeIn] [@fadeOut] routerLinkActive="active">
+      [routerLink]="['/', 'monitor', 'profile', data.Source, data.ID]" [@fadeIn] [@fadeOut] routerLinkActive="active">
       <app-icon [profile]="data"></app-icon>
-      <span class="card-title">{{ data.name }}</span>
+      <span class="card-title">{{ data.Name }}</span>
       <app-count-indicator [count]="data.size" [risk]="data.blockStatus">
       </app-count-indicator>
     </li>

@@ -52,6 +52,7 @@ import { MenuComponent, MenuTriggerComponent, MenuItemComponent } from './shared
 import { OrderedListComponent, OrderedListItemComponent } from './shared/config/ordererd-list';
 import { MultiSwitchComponent, SwitchItemComponent } from './shared/multi-switch';
 import { AutoFocusDirective } from './shared/focus';
+import { PromptWidgetComponent } from './widgets/prompt-widget';
 import { LoadingComponent } from './shared/loading';
 
 @NgModule({
@@ -109,6 +110,7 @@ import { LoadingComponent } from './shared/loading';
     MultiSwitchComponent,
     SwitchItemComponent,
     AutoFocusDirective,
+    PromptWidgetComponent,
     LoadingComponent,
   ],
   imports: [
@@ -165,6 +167,15 @@ import { LoadingComponent } from './shared/loading';
       },
       multi: true,
     },
+    {
+      provide: WIDGET_DEFINTIONS,
+      useValue: {
+        type: 'prompt-widget',
+        name: 'Prompts',
+        widgetComponent: PromptWidgetComponent,
+      },
+      multi: true,
+    }
   ],
   bootstrap: [AppComponent]
 })

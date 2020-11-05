@@ -198,6 +198,10 @@ export class ConfigSettingsViewComponent implements OnInit, OnDestroy, AfterView
             }
           })
 
+          if (this.others.length === 0) {
+            this.others = null;
+          }
+
           // Reduce the subsystem array to only contain subsystems that
           // actually have settings to show.
           // Also update the minimumExpertiseLevel for those subsystems

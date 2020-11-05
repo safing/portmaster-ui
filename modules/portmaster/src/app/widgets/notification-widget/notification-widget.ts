@@ -1,7 +1,10 @@
 import { trigger, transition, style, animate } from '@angular/animations';
+import { moveItemInArray } from '@angular/cdk/drag-drop';
 import { Component, OnInit, Inject, HostBinding, ElementRef, OnDestroy } from '@angular/core';
 import { Subscription } from 'rxjs';
+import { filter, map } from 'rxjs/operators';
 import { NotificationsService, NotificationType, Notification } from 'src/app/services';
+import { moveInOutAnimation, moveInOutListAnimation } from 'src/app/shared/animations';
 import { WIDGET_CONFIG, WidgetConfig } from '../widget.types';
 
 export interface NotificationWidgetConfig {
@@ -28,27 +31,8 @@ export interface NotificationWidgetConfig {
         ),
       ]
     ),
-    trigger(
-      'moveInOut',
-      [
-        transition(
-          ':enter',
-          [
-            style({ opacity: 0, transform: 'translateX(100%)' }),
-            animate('.2s ease-in',
-              style({ opacity: 1, transform: 'translateX(0%)' }))
-          ]
-        ),
-        transition(
-          ':leave',
-          [
-            style({ opacity: 1 }),
-            animate('.2s ease-out',
-              style({ opacity: 0, transform: 'translateX(100%)' }))
-          ]
-        )
-      ]
-    )
+    moveInOutAnimation,
+    moveInOutListAnimation
   ]
 })
 export class NotificationWidgetComponent implements OnInit, OnDestroy {
@@ -66,6 +50,14 @@ export class NotificationWidgetComponent implements OnInit, OnDestroy {
     }
     return 'hidden';
   }
+
+  @HostBinding('class.empty')
+  get isEmpty() {
+    return this.notifications.length === 0;
+  }
+
+  @HostBinding('@moveInOutList')
+  get length() { return this.notifications.length }
 
   /** Used to remember the current scroll-top when expanding a notification. */
   private _prevScrollTop = 0;
@@ -86,9 +78,16 @@ export class NotificationWidgetComponent implements OnInit, OnDestroy {
   ) { }
 
   ngOnInit(): void {
-    this.notifSub = this.notifsService.new$.subscribe(list => {
-      this.notifications = list;
-    });
+    this.notifSub = this.notifsService
+      .new$
+      .pipe(
+        // filter out any prompts as they are handled by a different widget.
+        map(notifs =>
+          notifs.filter(notif => !(notif.Type === NotificationType.Prompt && notif.EventID.startsWith("filter:prompt"))))
+      )
+      .subscribe(list => {
+        this.notifications = list;
+      });
   }
 
   ngOnDestroy() {

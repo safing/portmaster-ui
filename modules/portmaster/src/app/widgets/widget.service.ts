@@ -77,12 +77,19 @@ export class WidgetService {
           })
 
           enforceWidget(widgets, {
+            config: null,
+            key: 'prompt-widget',
+            type: 'prompt-widget',
+            order: -2,
+          })
+
+          enforceWidget(widgets, {
             config: {
               markdown: true,
             },
             key: 'notification-widget',
             type: 'notification-widget',
-            order: -2,
+            order: -3,
           })
 
           return widgets

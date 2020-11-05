@@ -10,20 +10,20 @@
 <div class="scrollable">
 
   <h4>Active</h4>
-  <div class="content" *ngIf="runningProfiles.length > 0">
+  <div class="content">
     <ng-container *ngTemplateOutlet="profileList; context: {$implicit: runningProfiles}"></ng-container>
   </div>
 
   <h4>Apps</h4>
-  <div class="content" *ngIf="profiles.length > 0">
+  <div class="content">
     <ng-container *ngTemplateOutlet="profileList; context: {$implicit: profiles}"></ng-container>
   </div>
 
   <ng-template #profileList let-list>
-    <div class="grid-container">
+    <div class="grid-container" [@fadeInList]="list.length">
       <ng-container *ngFor="let profile of list; trackBy: trackProfile">
         <div *appExpertiseLevel="profile.Internal ? 'developer' : 'user'" class="card-header"
-          [routerLink]="['..', profile.Source,  profile.ID]" [@fadeIn]>
+          [routerLink]="['..', profile.Source,  profile.ID]">
           <app-icon [profile]="profile"></app-icon>
           <span class="card-title">
             <span [innerHTML]="profile?.Name | safe:'html'"></span>

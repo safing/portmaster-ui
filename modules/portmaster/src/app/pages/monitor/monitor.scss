@@ -68,6 +68,10 @@ div.details-view {
   }
 }
 
+.card-title {
+  text-transform: capitalize;
+}
+
 .card-icon {
   font-size: 1.5em; // em!!
   color    : theme('colors.info.green');

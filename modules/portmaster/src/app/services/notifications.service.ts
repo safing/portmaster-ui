@@ -116,11 +116,6 @@ export class NotificationsService {
     if (typeof notifOrId === 'string') {
       payload.EventID = notifOrId;
     } else {
-      const actionExists = (notifOrId.AvailableActions || []).some(a => a.ID === actionId);
-      if (!actionExists) {
-        return throwError(`Action ${actionId} does not exist`);
-      }
-
       payload.EventID = notifOrId.EventID;
     }
 

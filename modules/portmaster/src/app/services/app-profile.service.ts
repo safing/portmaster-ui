@@ -33,15 +33,12 @@ export class AppProfileService {
     return key;
   }
 
-  getAppProfile(id: string): Observable<AppProfile>;
-  getAppProfile(source: string, id: string): Observable<AppProfile>;
-  getAppProfile(idOrSource: string, id?: string): Observable<AppProfile> {
-    let key = idOrSource;
+  getAppProfile(source: string, id: string): Observable<AppProfile> {
+    const key = `core:profiles/${source}/${id}`;
+    return this.getAppProfileFromKey(key);
+  }
 
-    if (!!id) {
-      key = `core:profiles/${idOrSource}/${id}`;
-    }
-
+  getAppProfileFromKey(key: string): Observable<AppProfile> {
     return this.portapi.get(key)
   }
 
@@ -52,15 +49,8 @@ export class AppProfileService {
       )
   }
 
-  watchAppProfile(id: string): Observable<AppProfile>;
-  watchAppProfile(source: string, id: string): Observable<AppProfile>;
-  watchAppProfile(idOrSource: string, id?: string): Observable<AppProfile> {
-    let key = idOrSource;
-
-    if (!!id) {
-      key = `core:profiles/${idOrSource}/${id}`;
-    }
-
+  watchAppProfile(source: string, id: string): Observable<AppProfile> {
+    const key = `core:profiles/${source}/${id}`;
     return this.portapi.watch(key)
   }
 

@@ -1,5 +1,12 @@
-<app-profile-stats [total]="profile?.size || 0" [stats]="stats" [@fadeIn] *ngIf="!loading"></app-profile-stats>
+<h1>
+  <app-icon [profile]="profile"></app-icon>
+  {{profile?.Name}}
+  <div [routerLink]="['/', 'app', profile?.Source , profile?.ID]" class="link">
+    <fa-icon icon="cog"></fa-icon>
+  </div>
+</h1>
 
+<app-profile-stats [total]="profile?.size || 0" [stats]="stats" [@fadeIn] *ngIf="!loading"></app-profile-stats>
 
 <fa-icon icon="spinner" [spin]="true" *ngIf="loading"></fa-icon>
 
@@ -12,7 +19,7 @@
       {{profile?.profile?.Name}}
     </app-text-placeholder>
   </span>
-  <fa-icon icon="cog" [routerLink]="['/', 'app', profile?.profile?.Source, profile?.profile?.ID]"></fa-icon>
+  <fa-icon icon="cog" [routerLink]="['/', 'app', profile?.Source, profile?.ID]"></fa-icon>
 
   <app-count-indicator [count]="profile?.size || 0" [loading]="profile?.hasOldConnections"></app-count-indicator>
 </div>

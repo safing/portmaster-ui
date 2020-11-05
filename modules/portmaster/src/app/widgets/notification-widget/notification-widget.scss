@@ -9,7 +9,12 @@
   overflow-x     : hidden;
   overflow-y     : auto;
   max-height     : calc(var(--slot-size) * 5);
-  min-height     : calc(var(--slot-size) * 3);
+  @apply bg-background;
+
+  &:not(.empty) {
+    min-height: calc(var(--slot-size) * 3);
+    @apply bg-cards-primary;
+  }
 
   &>* {
     /* do not allow to shrink  */
@@ -110,18 +115,11 @@ div.placeholder {
 div.placeholder {
   @apply font-medium;
   @apply text-tertiary;
-  @apply p-2;
   position       : relative;
-  top            : 1rem;
   display        : flex;
   flex-direction : column;
   justify-content: center;
   align-items    : center;
-  @apply mt-4;
-
-  fa-icon {
-    @apply mr-2;
-  }
 }
 
 app-loading {

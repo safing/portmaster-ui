@@ -39,6 +39,45 @@ ol.layers {
   }
 }
 
+h1 {
+  @apply my-6;
+  display       : flex;
+  align-items   : center;
+  text-transform: capitalize;
+
+  app-icon {
+    --app-icon-size: 35px;
+  }
+
+  .link {
+    display        : flex;
+    justify-content: center;
+    align-items    : center;
+    height         : 24px;
+    width          : 24px;
+    opacity        : .5;
+    @apply bg-buttons-dark;
+    @apply ml-4;
+    cursor       : pointer;
+    border-radius: 50%;
+    transition   : all .15s ease-in-out;
+
+    &:hover {
+      opacity: 1;
+      @apply bg-buttons-light;
+    }
+
+    fa-icon {
+      color          : theme('colors.buttons.icon');
+      display        : flex;
+      font-size      : 12px;
+      flex-direction : column;
+      align-items    : center;
+      justify-content: center;
+    }
+  }
+}
+
 .card-content {
   flex-direction: row;
 
