@@ -3,7 +3,7 @@
   flex-direction : column;
   align-items    : center;
   justify-content: flex-start;
-  @apply p-6;
+  padding: 1.5rem 1.2rem 1.5rem 2.2rem;
   overflow  : hidden;
   overflow-y: auto;
 }
@@ -36,32 +36,86 @@
 
   .buttons {
     position: absolute;
-    left    : -1rem;
-    top     : 0px;
+    left    : -1.6rem;
+    top     : 1.5px;
 
     display        : flex;
     flex-direction : column;
     justify-content: center;
     align-items    : center;
 
-    fa-icon {
-      cursor   : pointer;
-      font-size: 0.6rem;
-      @apply text-secondary;
-      transition: all cubic-bezier(0.175, 0.885, 0.32, 1.275) .2s;
+    .help{
+      padding-bottom: 0.2rem;
 
-      &[icon="grip-vertical"] {
-        font-size: 0.85rem;
-      }
-
-      &.edit-icon {
-        opacity: 0;
+      svg{
+        width: 1.05rem;
+        .inner{
+          stroke: var(--text-secondary);
+        }
       }
 
       &:hover,
       &:active {
-        opacity: 1;
-        @apply text-primary;
+        svg{
+          .inner{
+            stroke: var(--text-primary);
+          }
+        }
+      }
+    }
+
+    .dragable{
+      padding-bottom: 0.5rem;
+
+      svg{
+        opacity: .4;
+        .inner{
+          stroke: var(--text-secondary);
+        }
+      }
+
+      &:hover,
+      &:active {
+        svg{
+          opacity: 1;
+          .inner{
+            stroke: var(--text-primary);
+          }
+        }
+      }
+    }
+
+    .edit{
+      padding-bottom: 0.5rem;
+
+      svg{
+        width: 1.05rem;
+        opacity: .4;
+        .inner{
+          stroke: var(--text-secondary);
+        }
+      }
+
+      &:hover,
+      &:active {
+        svg{
+          opacity: 1;
+          .inner{
+            stroke: var(--text-primary);
+          }
+        }
+      }
+    }
+
+    svg{
+      cursor   : pointer;
+      fill: var(--text-secondary);
+      width: 0.58rem;
+      transition: all cubic-bezier(0.175, 0.885, 0.32, 1.275) .2s;
+
+      &:hover,
+      &:active {
+        fill: var(--text-primary);
       }
     }
   }
