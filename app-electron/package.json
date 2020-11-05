@@ -1,0 +1,18 @@
+{
+  "name": "app-electron",
+  "version": "0.0.1",
+  "scripts": {
+    "build": "tsc",
+    "watch": "tsc -w",
+    "lint": "eslint -c .eslintrc --ext .ts ./src",
+    "start": "npm run build && electron ./dist/main.js"
+  },
+  "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^3.4.0",
+    "@typescript-eslint/parser": "^3.4.0",
+    "eslint": "^7.3.1",
+    "electron": "^9.3.1",
+    "typescript": "^3.9.5"
+  },
+  "dependencies": {}
+}
