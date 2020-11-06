@@ -18,8 +18,7 @@
         <app-icon [profile]="appProfile"></app-icon>
         {{appProfile?.Name}}
 
-        <div *ngIf="isActive"
-          [routerLink]="['/', 'monitor', 'profile', 'core:profiles/' + appProfile?.Source + '/' + appProfile?.ID]"
+        <div *ngIf="isActive" [routerLink]="['/', 'monitor', 'profile', appProfile?.Source, appProfile?.ID]"
           class="link">
           <fa-icon icon="desktop"></fa-icon>
         </div>

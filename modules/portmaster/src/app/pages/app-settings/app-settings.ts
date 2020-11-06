@@ -123,8 +123,7 @@ export class AppSettingsPageComponent implements OnInit, OnDestroy {
           }
 
           if (!!profile) {
-            const key = `core:profiles/${profile.Source}/${profile.ID}`;
-            this.connTrack.inspect(key);
+            this.connTrack.inspect(profile.ID);
 
             this.settings = allSettings
               .map(setting => {
