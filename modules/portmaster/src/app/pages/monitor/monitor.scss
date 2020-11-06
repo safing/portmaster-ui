@@ -68,6 +68,10 @@ div.details-view {
   }
 }
 
+.card-title {
+  text-transform: capitalize;
+}
+
 .card-icon {
   font-size: 1.5em; // em!!
   color    : theme('colors.info.green');
@@ -85,6 +89,8 @@ li.overview {
 
 app-loading {
   @apply mt-4;
+  margin-left : auto;
+  margin-right: auto;
 }
 
 $transition-duration : .3s;

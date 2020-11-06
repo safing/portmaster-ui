@@ -1,3 +1,5 @@
+import { Record } from './portapi.types';
+
 export enum Verdict {
   Undecided = 0,
   Undeterminable = 1,
@@ -80,12 +82,29 @@ export const ScopeTranslation: { [key: string]: string } = {
 
 export interface ProcessContext {
   BinaryPath: string;
-  Name: string;
+  ProcessName: string;
+  ProfileName: string;
   PID: number;
-  ProfileID: string;
+  Profile: string;
+  Source: string
 }
 
-export interface Connection {
+// Reason justifies the decision on a connection
+// verdict.
+export interface Reason {
+  // Msg holds a human readable message of the reason.
+  Msg: string;
+  // OptionKey, if available, holds the key of the
+  // configuration option that caused the verdict.
+  OptionKey: string;
+  // Profile holds the profile the option setting has
+  // been configured in.
+  Profile: string;
+  // Context may holds additional data about the reason.
+  Context: any;
+}
+
+export interface Connection extends Record {
   // ID is a unique ID for the connection.
   ID: string;
   // Scope defines the scope of the connection. It's an somewhat
@@ -111,14 +130,8 @@ export interface Connection {
   Entity: IntelEntity;
   // Verdict defines the final verdict.
   Verdict: Verdict;
-  // Reason is a human-readable reason for the final verdict.
-  Reason: string;
-  // ReasonContext may hold reason-specific (see ReasonID) informaiton
-  // on how the verdict was choosen.
-  ReasonContext: ReasonContext;
-  // ReasonID is a unique identifier for the reason and may be used
-  // to type-assert the ReasonContext.
-  ReasonID: string;
+  // Reason is the reason justifying the verdict of the connection.
+  Reason: Reason;
   // Started holds the number of seconds in UNIX epoch time at which
   // the connection was initiated.
   Started: number;
@@ -142,6 +155,9 @@ export interface Connection {
   // ProcessContext holds additional information about the process
   // that initated the connection.
   ProcessContext: ProcessContext;
+  // ProfileRevisionCounter is used to track changes to the process
+  // profile.
+  ProfileRevisionCounter: number;
 }
 
 export interface ReasonContext {

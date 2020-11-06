@@ -1,6 +1,7 @@
 import { isDevMode } from '@angular/core';
 import { deepClone } from '../shared/utils';
 import { webSocket } from 'rxjs/webSocket';
+import { Record } from './portapi.types';
 
 /**
  * ExpertiseLevel defines all available expertise levels.
@@ -88,6 +89,17 @@ export enum ReleaseLevel {
   Experimental = 2,
 }
 
+export function releaseLevelFromName(name: 'stable' | 'beta' | 'experimental'): ReleaseLevel {
+  switch (name) {
+    case 'stable':
+      return ReleaseLevel.Stable;
+    case 'beta':
+      return ReleaseLevel.Beta;
+    case 'experimental':
+      return ReleaseLevel.Experimental;
+  }
+}
+
 /**
  * releaseLevelName returns a string representation of the
  * release level.
@@ -173,7 +185,7 @@ export interface ValueRequirement {
 /**
  * BaseSetting describes the general shape of a portbase config setting.
  */
-export interface BaseSetting<T extends OptionValueType, O extends OptionType> {
+export interface BaseSetting<T extends OptionValueType, O extends OptionType> extends Record {
   // Value is the value of a setting.
   Value?: T;
   // DefaultValue is the default value of a setting.
@@ -213,7 +225,7 @@ export type BoolSetting = BaseSetting<boolean, OptionType.Bool>;
 
 /**
  * Apply a quick setting to a value.
- * 
+ *
  * @param current The current value of the setting.
  * @param qs The quick setting to apply.
  */

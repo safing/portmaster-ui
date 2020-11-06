@@ -37,13 +37,11 @@
         <span class="trust-level off"></span>
         <span>Manual</span>
       </app-dropdown-item>
-      
     </app-dropdown>
 
   </div>
 
   <ng-container *ngFor="let opt of options">
-    
     <div class="level" [class.selected]="activeLevel == opt.level"
       [class.suggested]="suggestedLevel === opt.level && suggestedLevel > activeLevel" (click)="selectLevel(opt.level)">
       <div>

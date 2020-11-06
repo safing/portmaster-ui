@@ -1,16 +1,16 @@
 import { Injectable } from '@angular/core';
 import { parse } from 'psl';
 import { BehaviorSubject, forkJoin, Observable, of, Subject, Subscription } from 'rxjs';
-import { catchError, filter, map, tap } from 'rxjs/operators';
+import { catchError, filter, map, switchMap, tap } from 'rxjs/operators';
 import { ExpertiseService } from '../shared/expertise/expertise.service';
 import { AppProfileService } from './app-profile.service';
-import { AppProfile } from './app-profile.types';
+import { AppProfile, LayeredProfile } from './app-profile.types';
 import { ExpertiseLevel } from './config.types';
 import { ConnectionStatistics } from './connection-tracker.types';
 import { RiskLevel } from './core.types';
 import { Connection, ScopeIdentifier, ScopeTranslation, Verdict } from './network.types';
 import { PortapiService } from './portapi.service';
-import { DataReply } from './portapi.types';
+import { DataReply, retryPipeline } from './portapi.types';
 
 /**
  * ConnectionAddedEvent is emitted by a Profile when a
@@ -82,18 +82,10 @@ export class ProcessGroup {
     return this.unpermitted.size;
   }
 
-  get ID(): string {
-    return this.id;
-  }
-
-  get Name(): string {
-    return this.name;
-  }
-
   constructor(
-    public readonly id: string,
-    public readonly name: string,
-    // TODO(ppacher): add support for profile icons
+    public readonly ID: string,
+    public readonly Name: string,
+    public readonly Source: string,
   ) { }
 
   /** Dispose the profile and all resources associated with it */
@@ -202,15 +194,30 @@ export class ScopeGroup {
    *  to the scope. */
   private _connections: Connection[] = [];
 
+  /** Connections is a list of connections that belong
+   *  to the scope but have been verdicted with a stale profile.
+   */
+  private _oldConnections: Connection[] = [];
+
   /** An behavior subject to emit the current set of connections
    *  that are attributed to this scope group. */
   private _connectionUpdate = new BehaviorSubject<Connection[]>([]);
+
+  /** An behavior subject to emit the current set of old-connections
+   *  that are attributed to this scope group. */
+  private _oldConnectionUpdate = new BehaviorSubject<Connection[]>([]);
 
   /** The current block status of the scope group. */
   private _blockStatus: RiskLevel = RiskLevel.Off;
 
   /** Subscription to changes in the expertise level */
   private _expertiseSubscription = Subscription.EMPTY;
+
+  /**
+   * Highest revision holds the highest profile revision used to verdict
+   * a connection.
+   */
+  highestRevision: number = 0;
 
   /** Holds the current block status of the scope group */
   get blockStatus() {
@@ -223,6 +230,23 @@ export class ScopeGroup {
     return this._connectionUpdate.asObservable();
   }
 
+  /**
+   * True if there are still old connections that have been verdicted
+   * using a stale profile.
+   */
+  hasOldConnections = false;
+
+  /**
+   * True if there are new (non-internal) connections.
+   */
+  hasNewConnections = false;
+
+  /** An observable that emits all old-connections that belong to the
+   *  scope group. */
+  get oldConnections() {
+    return this._oldConnectionUpdate.asObservable();
+  }
+
   /** Empty returns true if the scope group is empty */
   get empty() {
     return this.size === 0;
@@ -230,7 +254,7 @@ export class ScopeGroup {
 
   /** Size returns the number of (non-internal) connections */
   get size() {
-    return this._connections.length - this.stats.countInternal;
+    return this._connections.length + this._oldConnections.length - this.stats.countInternal;
   }
 
   constructor(
@@ -256,7 +280,17 @@ export class ScopeGroup {
 
   add(conn: Connection) {
     this.stats.update(conn);
-    this._connections.push(conn);
+
+    // check if the connection has a high revision counter than
+    // we know of.
+    this.checkRevisionCounter(conn.ProfileRevisionCounter, true);
+
+    if (conn.ProfileRevisionCounter === this.highestRevision) {
+      this._connections.push(conn);
+    } else {
+      this._oldConnections.push(conn);
+    }
+
     this.updateBlockStatus();
     this.publishConnections();
   }
@@ -264,8 +298,13 @@ export class ScopeGroup {
   remove(conn: Connection) {
     this.stats.remove(conn);
 
-    this._connections = this._connections
-      .filter(c => c.ID !== conn.ID);
+    if (conn.ProfileRevisionCounter === this.highestRevision) {
+      this._connections = this._connections
+        .filter(c => c.ID !== conn.ID);
+    } else {
+      this._oldConnections = this._oldConnections
+        .filter(c => c.ID !== conn.ID);
+    }
 
     this.updateBlockStatus();
     this.publishConnections();
@@ -275,11 +314,27 @@ export class ScopeGroup {
   dispose() {
     this._connectionUpdate.complete();
     this._connections = [];
+    this._expertiseSubscription.unsubscribe();
   }
 
-  private publishConnections() {
-    this._connectionUpdate.next(
-      this._connections
+  checkRevisionCounter(newRev: number, internal = false) {
+    if (newRev > this.highestRevision) {
+      // we have a new "highest" revision counter
+      // so merge all "current" connections with the old ones
+      // and start fresh.
+      this.highestRevision = newRev;
+      this._oldConnections = this._oldConnections.concat(this._connections);
+      this._connections = [];
+
+      if (!internal) {
+        this.publishConnections();
+      }
+    }
+  }
+
+  private sortAndPublish(conns: Connection[], subj: BehaviorSubject<Connection[]>) {
+    subj.next(
+      conns
         .filter(conn => {
           if (this.expertiseService.currentLevel === ExpertiseLevel.Developer) {
             return true;
@@ -306,6 +361,14 @@ export class ScopeGroup {
           return 0;
         })
     );
+  }
+
+  private publishConnections() {
+    this.hasOldConnections = this._oldConnections.length > 0 && this._oldConnections.some(conn => conn.Ended === 0);
+    this.hasNewConnections = this._connections.length > 0 && this._connections.some(conn => !conn.Internal);
+
+    this.sortAndPublish(this._connections, this._connectionUpdate);
+    this.sortAndPublish(this._oldConnections, this._oldConnectionUpdate);
   }
 
   /**
@@ -356,6 +419,30 @@ export class InspectedProfile {
   /** Emits the underlying app profile whenever it changes or on first-time subscription */
   private _profileChanges = new BehaviorSubject<AppProfile | null>(null);
 
+  /** The currently layered profile used */
+  private _layeredProfile: LayeredProfile | null = null;
+
+  /**
+   * True if the inspected profile has still old connections
+   * that have been verdicted using a stale profile.
+   */
+  hasOldConnections = false;
+
+  /** The current profile revision */
+  get currentProfileRevision() {
+    if (!this._layeredProfile) {
+      return -1;
+    }
+    return this._layeredProfile.RevisionCounter;
+  }
+
+  get layers() {
+    if (!this._layeredProfile) {
+      return [];
+    }
+    return this._layeredProfile.LayerIDs;
+  }
+
   get loading() { return this._loading }
   get stats() { return this._stats; }
   get scopeGroups() { return this._scopeUpdate.asObservable(); }
@@ -382,12 +469,16 @@ export class InspectedProfile {
     return this._profileChanges.getValue();
   }
 
-  get name() {
-    return this.processGroup.name;
+  get Name() {
+    return this.processGroup.Name;
   }
 
   get ID() {
-    return this.processGroup.id;
+    return this.processGroup.ID;
+  }
+
+  get Source() {
+    return this.processGroup.Source;
   }
 
   constructor(
@@ -396,14 +487,48 @@ export class InspectedProfile {
     private readonly profileService: AppProfileService,
     private readonly expertiseService: ExpertiseService,
   ) {
+    // subscribe to all new connections published by the
+    // process group.
     this._profileSubscription = this.processGroup.updates
       .subscribe(
         upd => this.processUpdate(upd),
       );
 
-    const appSub = this.profileService.watchAppProfile(this.processGroup.id)
-      .subscribe(profile => {
-        this._profileChanges.next(profile);
+    // start watching the actual application profile
+    const appSub = this.profileService.watchAppProfile(this.processGroup.Source, this.processGroup.ID)
+      .pipe(
+        switchMap(appProfile => {
+          // whenever the application profile changes we are going to reload
+          // the layered profile as well.
+          return forkJoin([
+            of(appProfile),
+            this.profileService.getLayeredProfile(appProfile)
+              .pipe(
+                catchError(err => {
+                  console.error(`Error while loading layered profile: ${appProfile.ID}`, err);
+                  return of(null);
+                })
+              ),
+          ])
+        })
+      )
+      .subscribe(([appProfile, layers]) => {
+        this._profileChanges.next(appProfile);
+        const prevProfileRevision = this.currentProfileRevision;
+        this._layeredProfile = layers;
+
+        // if it changed, update all scope-groups with the new revision counter
+        if (this.currentProfileRevision > prevProfileRevision) {
+          this.hasOldConnections = false;
+
+          this._scopeGroups.forEach(grp => {
+            grp.checkRevisionCounter(this.currentProfileRevision);
+
+            if (grp.hasOldConnections) {
+              this.hasOldConnections = true;
+            }
+          });
+        }
       });
 
     this._profileSubscription.add(appSub);
@@ -636,7 +761,7 @@ export class ConnTracker {
       // that we built the initial collection of all
       // active profiles.
       { forwardDone: true }
-    );
+    ).pipe(retryPipeline());
 
     const connectionStream = stream.pipe(
       tap(
@@ -659,6 +784,18 @@ export class ConnTracker {
     this._streamSubscription = connectionStream.subscribe(
       msg => this.processUpdate(msg),
     );
+
+    const resetSub = this.portapi.connected$
+      .pipe(filter(connected => !connected))
+      .subscribe(() => {
+        this.inspect(null);
+        this._ready.next(null);
+        this._profiles.forEach(p => p.dispose());
+        this._profiles.clear();
+        this._connectionToProfile.clear();
+      })
+
+    this._streamSubscription.add(resetSub);
   }
 
   /**
@@ -686,7 +823,7 @@ export class ConnTracker {
 
     const id = typeof processGroupOrID === 'string'
       ? processGroupOrID
-      : processGroupOrID.id;
+      : processGroupOrID.ID;
 
     const profile = this._profiles.get(id);
     if (!profile) {
@@ -697,7 +834,7 @@ export class ConnTracker {
     }
 
     if (this._inspectedProfile !== null) {
-      if (this._inspectedProfile.processGroup.id === id) {
+      if (this._inspectedProfile.processGroup.ID === id) {
         // if we already inspect this profile abort now
         return;
       }
@@ -740,7 +877,7 @@ export class ConnTracker {
         profile.forget(msg.key);
 
         if (profile.empty) {
-          this._profiles.delete(profile.id);
+          this._profiles.delete(profile.ID);
           profile.dispose();
 
           this.publishProfiles();
@@ -762,10 +899,10 @@ export class ConnTracker {
    * @param conn The connection object
    */
   private getOrCreateProfile(conn: Connection): ProcessGroup {
-    const profileID = conn.ProcessContext.ProfileID;
+    const profileID = conn.ProcessContext.Profile;
     let profile = this._profiles.get(profileID);
     if (!profile) {
-      profile = new ProcessGroup(profileID, conn.ProcessContext.Name);
+      profile = new ProcessGroup(profileID, conn.ProcessContext.ProfileName, conn.ProcessContext.Source);
       this._profiles.set(profileID, profile);
 
       this.publishProfiles();

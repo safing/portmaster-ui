@@ -15,9 +15,8 @@ export class ConnectionsViewComponent implements OnDestroy {
   /** @private
    *  Contants made available for the template.
    */
-
   readonly scopeTranslation = ScopeTranslation;
-  readonly displayedColumns = ['state', 'reason', 'entity', 'started', 'ended'];
+  readonly displayedColumns = ['state', 'entity', 'reason', 'started', 'ended', 'actions'];
   readonly verdict = Verdict;
 
   /** Subscription to profile updates. */
@@ -64,6 +63,17 @@ export class ConnectionsViewComponent implements OnDestroy {
    * application profile/settings.
    */
   redirectToRules() {
+    this.redirectToSetting('filter/endpoints');
+  }
+
+  /**
+   * @private
+   * Redirect the user to a settings key in the application
+   * profile.
+   *
+   * @param key The settings key to redirect to
+   */
+  redirectToSetting(key: string) {
     if (!this.profile || !this.profile.profile) {
       return;
     }
@@ -71,7 +81,7 @@ export class ConnectionsViewComponent implements OnDestroy {
     this.router.navigate(
       ['/', 'app', this.profile.profile.Source, this.profile.profile.ID], {
       queryParams: {
-        setting: 'filter/endpoints'
+        setting: key
       }
     })
   }

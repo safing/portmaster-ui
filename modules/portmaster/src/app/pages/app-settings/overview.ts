@@ -3,7 +3,7 @@ import { BehaviorSubject, combineLatest, Subscription } from 'rxjs';
 import { debounceTime } from 'rxjs/operators';
 import { AppProfile, AppProfileService, trackById } from 'src/app/services';
 import { ConnTracker } from 'src/app/services/connection-tracker.service';
-import { fadeInAnimation } from 'src/app/shared/animations';
+import { fadeInAnimation, fadeInListAnimation, moveInOutListAnimation } from 'src/app/shared/animations';
 import { FuzzySearchService } from 'src/app/shared/fuzzySearch';
 
 @Component({
@@ -13,6 +13,8 @@ import { FuzzySearchService } from 'src/app/shared/fuzzySearch';
   //changeDetection: ChangeDetectionStrategy.OnPush,
   animations: [
     fadeInAnimation,
+    fadeInListAnimation,
+    moveInOutListAnimation
   ]
 })
 export class AppOverviewComponent implements OnInit, OnDestroy {
@@ -23,6 +25,9 @@ export class AppOverviewComponent implements OnInit, OnDestroy {
 
   /** All application profiles that are actually running */
   runningProfiles: AppProfile[] = [];
+
+  /** All application profiles that have been modified recently */
+  recentlyUsed: AppProfile[] = [];
 
   /** All non-running application profiles */
   profiles: AppProfile[] = [];
@@ -62,6 +67,9 @@ export class AppOverviewComponent implements OnInit, OnDestroy {
 
           this.profiles = [];
           this.runningProfiles = [];
+          this.recentlyUsed = [];
+
+          const recentlyUsedThreshold = new Date().valueOf() / 1000 - (60 * 60 * 24 * 7);
 
           filtered
             .map(item => item.item)
@@ -80,8 +88,10 @@ export class AppOverviewComponent implements OnInit, OnDestroy {
               return 0;
             })
             .forEach(profile => {
-              if (this.connTrack.has(this.profileService.getKey(profile))) {
+              if (this.connTrack.has(profile.ID)) {
                 this.runningProfiles.push(profile);
+              } else if (!!profile._meta && profile._meta.Modified >= recentlyUsedThreshold) {
+                this.recentlyUsed.push(profile);
               } else {
                 this.profiles.push(profile);
               }

@@ -23,7 +23,15 @@ export class AppIconComponent {
         idx += p.ID.charCodeAt(i);
       }
 
-      this.letter = p.Name[0].toLocaleUpperCase();
+      if (p.Name[0] === '<') {
+        // we might get the name with search-highlighting which
+        // will then include <em> tags. If the first character is a <
+        // make sure to strip all HTML tags before getting [0].
+        this.letter = p.Name.replace(/(&nbsp;|<([^>]+)>)/ig, "")[0].toLocaleUpperCase();
+      } else {
+        this.letter = p.Name[0];
+      }
+
       this.color = AppColors[idx % AppColors.length];
     } else {
       this.letter = '';

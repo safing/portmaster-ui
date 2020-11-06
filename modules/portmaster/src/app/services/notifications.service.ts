@@ -1,9 +1,10 @@
 import { Injectable, TrackByFunction } from '@angular/core';
-import { BehaviorSubject, Observable, throwError } from 'rxjs';
-import { delay, filter, map, repeatWhen, multicast, refCount, share, toArray, tap } from 'rxjs/operators';
+import { BehaviorSubject, combineLatest, Observable, throwError } from 'rxjs';
+import { delay, filter, map, repeatWhen, multicast, refCount, share, toArray, tap, concatMap, take } from 'rxjs/operators';
 import { Notification, NotificationState, NotificationType } from './notifications.types';
 import { PortapiService } from './portapi.service';
 import { RetryableOpts } from './portapi.types';
+import { VirtualNotification } from './virtual-notification';
 
 @Injectable({
   providedIn: 'root'
@@ -16,50 +17,78 @@ export class NotificationsService {
     return n.EventID;
   };
 
+  // For testing purposes only
+  VirtualNotification = VirtualNotification;
+
+  /** A map of virtual notifications */
+  private _virtualNotifications = new Map<string, VirtualNotification<any>>();
+
+  /* Emits all virtual notifications whenever they change */
+  private _virtualNotificationChange = new BehaviorSubject<VirtualNotification<any>[]>([]);
+
+  /* A copy of the static trackBy function. */
   trackBy = NotificationsService.trackBy;
 
+  /** The prefix that all notifications have */
   readonly notificationPrefix = "notifications:all/";
 
-  /**
-   * updates$ watches for updates on all notifications (including new ones).
-   * It's multicasted (using share()) to ensure we don't send new sub messages
-   * foreach new subscriber.
-   */
-  readonly updates$ = this.portapi.sub<Notification<any>>(this.notificationPrefix)
-    .pipe(
-      repeatWhen(obs => obs.pipe(delay(2000))),
-      share()
-    );
-
   /** new$ emits new (active) notifications as they arrive */
-  readonly new$ = this.watchAll().pipe(
-    map(msgs => {
-      return msgs.filter(msg => msg.State === NotificationState.Active || !msg.State)
-    }),
-    multicast(() => {
-      return new BehaviorSubject<Notification<any>[]>([]);
-    }),
-    refCount(),
-  );
+  readonly new$: Observable<Notification<any>[]>;
+
+  constructor(private portapi: PortapiService) {
+    this.new$ = this.watchAll().pipe(
+      src => this.injectVirtual(src),
+      map(msgs => {
+        return msgs.filter(msg => msg.State === NotificationState.Active || !msg.State)
+      }),
+      multicast(() => {
+        return new BehaviorSubject<Notification<any>[]>([]);
+      }),
+      refCount(),
+    );
+  }
 
   /**
-   * pending$ emits notifications that the user responded to but where the action execution
-   * is still pending.
+   * Inject a new virtual notification. If not configured otherwise,
+   * the notification is automatically removed when executed.
    */
-  readonly pending$ = this.updates$.pipe(
-    filter(msg => {
-      return msg.type !== 'del';
-    }),
-    filter(msg => {
-      return msg.data.State === NotificationState.Responded;
-    }),
-    map(msg => msg.data)
-  );
+  inject(notif: VirtualNotification<any>, { autoRemove } = { autoRemove: true }) {
+    this._virtualNotifications.set(notif.EventID, notif);
+    this._virtualNotificationChange.next(
+      Array.from(this._virtualNotifications.values())
+    )
 
-  constructor(private portapi: PortapiService) { }
+    if (autoRemove) {
+      notif.executed.pipe(take(1)).subscribe(() => this.deject(notif));
+    }
+  }
+
+  /** Deject (remove) a virtual notification. */
+  deject(notif: VirtualNotification<any>) {
+    this._virtualNotifications.delete(notif.EventID);
+    this._virtualNotificationChange.next(
+      Array.from(this._virtualNotifications.values())
+    )
+  }
+
+  /** A {@link MonoOperatorFunction} that injects all virtual observables into the source. */
+  private injectVirtual(obs: Observable<Notification<any>[]>): Observable<Notification[]> {
+    return combineLatest([
+      obs,
+      this._virtualNotificationChange,
+    ]).pipe(
+      map(([real, virtual]) => {
+        return [
+          ...real,
+          ...virtual,
+        ]
+      })
+    )
+  }
 
   /**
    * Watch all notifications that match a query.
+   *
    *
    * @param query The query to watch. Defaulta to all notifcations
    * @param opts Optional retry configuration options.
@@ -116,11 +145,6 @@ export class NotificationsService {
     if (typeof notifOrId === 'string') {
       payload.EventID = notifOrId;
     } else {
-      const actionExists = (notifOrId.AvailableActions || []).some(a => a.ID === actionId);
-      if (!actionExists) {
-        return throwError(`Action ${actionId} does not exist`);
-      }
-
       payload.EventID = notifOrId.EventID;
     }
 

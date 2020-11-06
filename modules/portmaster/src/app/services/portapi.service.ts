@@ -1,9 +1,9 @@
 import { Injectable, isDevMode, NgZone, TrackByFunction } from '@angular/core';
-import { BehaviorSubject, Observable, defer } from 'rxjs';
-import { filter, map, takeWhile, tap, count } from 'rxjs/operators';
+import { BehaviorSubject, Observable, defer, of } from 'rxjs';
+import { filter, map, takeWhile, tap, count, switchMap } from 'rxjs/operators';
 import { WebSocketSubject } from 'rxjs/webSocket';
 import { environment } from '../../environments/environment';
-import { DataReply, deserializeMessage, InspectedActiveRequest, isCancellable, isDataReply, ReplyMessage, Requestable, RequestType, RetryableOpts, retryPipeline, serializeMessage, WatchOpts } from './portapi.types';
+import { DataReply, deserializeMessage, InspectedActiveRequest, Record, isCancellable, isDataReply, ReplyMessage, Requestable, RequestType, RetryableOpts, retryPipeline, serializeMessage, WatchOpts } from './portapi.types';
 import { WebsocketService } from './websocket.service';
 import { trackById, Identifyable } from './core.types';
 
@@ -15,7 +15,7 @@ let uniqueRequestId = 0;
   providedIn: 'root'
 })
 export class PortapiService {
-  private ws$: WebSocketSubject<ReplyMessage> | null = null;
+  private ws$: WebSocketSubject<ReplyMessage> | null;
   private connectedSubject = new BehaviorSubject(false);
 
   get connected$() {
@@ -26,6 +26,7 @@ export class PortapiService {
 
   constructor(private websocketFactory: WebsocketService,
     private ngZone: NgZone) {
+
     this.ws$ = this.createWebsocket();
   }
 
@@ -42,7 +43,7 @@ export class PortapiService {
    *
    * @param key The database key of the entry to load.
    */
-  get<T>(key: string): Observable<T> {
+  get<T extends Record>(key: string): Observable<T> {
     return this.request('get', { key })
       .pipe(
         map(res => res.data)
@@ -56,7 +57,7 @@ export class PortapiService {
    *
    * @param query The query used to search the database.
    */
-  query<T>(query: string): Observable<DataReply<T>> {
+  query<T extends Record>(query: string): Observable<DataReply<T>> {
     return this.request('query', { query });
   }
 
@@ -65,7 +66,7 @@ export class PortapiService {
    *
    * @param query The query use to subscribe.
    */
-  sub<T>(query: string, opts: RetryableOpts = {}): Observable<DataReply<T>> {
+  sub<T extends Record>(query: string, opts: RetryableOpts = {}): Observable<DataReply<T>> {
     return this.request('sub', { query })
       .pipe(retryPipeline(opts));
   }
@@ -77,7 +78,7 @@ export class PortapiService {
    * @param query The query use to subscribe.
    * @todo(ppacher): check what a ok/done message mean here.
    */
-  qsub<T>(query: string, opts: RetryableOpts = {}): Observable<DataReply<T>> {
+  qsub<T extends Record>(query: string, opts: RetryableOpts = {}): Observable<DataReply<T>> {
     return this.request('qsub', { query })
       .pipe(retryPipeline(opts))
   }
@@ -93,6 +94,7 @@ export class PortapiService {
    * @param data The actual data for the entry.
    */
   create(key: string, data: any): Observable<void> {
+    data = this.stripMeta(data);
     return this.request('create', { key, data })
       .pipe(map(() => { }));
   }
@@ -104,6 +106,7 @@ export class PortapiService {
    * @param data The actual, updated entry data.
    */
   update(key: string, data: any): Observable<void> {
+    data = this.stripMeta(data);
     return this.request('update', { key, data })
       .pipe(map(() => { }))
   }
@@ -116,6 +119,7 @@ export class PortapiService {
    * @todo(ppacher): check what's different to create().
    */
   insert(key: string, data: any): Observable<void> {
+    data = this.stripMeta(data);
     return this.request('insert', { key, data })
       .pipe(map(() => { }));
   }
@@ -146,7 +150,7 @@ export class PortapiService {
    * @param opts.ingoreNew Whether or not `new` notifications
    *        will be ignored. Defaults to false
    */
-  watch<T>(key: string, opts: WatchOpts = {}): Observable<T> {
+  watch<T extends Record>(key: string, opts: WatchOpts = {}): Observable<T> {
     return this.qsub<T>(key, opts)
       .pipe(
         filter(reply => reply.key === key),
@@ -158,7 +162,7 @@ export class PortapiService {
       );
   }
 
-  watchAll<T>(query: string, opts?: RetryableOpts): Observable<T[]> {
+  watchAll<T extends Record>(query: string, opts?: RetryableOpts): Observable<T[]> {
     return new Observable<T[]>(observer => {
       let values: T[] = [];
       let keys: string[] = [];
@@ -239,7 +243,7 @@ export class PortapiService {
     this.ws$ = null;
   }
 
-  request<M extends RequestType, R = any>(method: M, attrs: Partial<Requestable<M>>, { forwardDone }: { forwardDone?: boolean } = {}): Observable<DataReply<R>> {
+  request<M extends RequestType, R extends Record = any>(method: M, attrs: Partial<Requestable<M>>, { forwardDone }: { forwardDone?: boolean } = {}): Observable<DataReply<R>> {
     return new Observable(observer => {
       const id = `${++uniqueRequestId}`;
 
@@ -367,11 +371,7 @@ export class PortapiService {
         },
         error: err => {
           console.error(err, attrs);
-          // TODO(ppacher): re-enable that once "cancel" support
-          // landed in portbase.
-
-          //observer.error(err);
-          observer.complete();
+          observer.error(err);
         },
         complete: () => {
           observer.complete();
@@ -441,6 +441,14 @@ export class PortapiService {
     this._injectData(id, newPayload, req.lastKey)
   }
 
+  private stripMeta<T extends Record>(obj: T): T {
+    let copy = {
+      ...obj,
+      _meta: undefined,
+    };
+    return copy;
+  }
+
   /**
    * Creates a new websocket subject and configures appropriate serializer
    * and deserializer functions for PortAPI.
@@ -448,6 +456,7 @@ export class PortapiService {
    * @private
    */
   private createWebsocket(): WebSocketSubject<ReplyMessage> {
+    let open = false;
     return this.websocketFactory.createConnection<ReplyMessage>({
       url: environment.portAPI,
       serializer: msg => {
@@ -476,12 +485,21 @@ export class PortapiService {
         next: () => {
           console.log('[portapi] connection to portmaster established');
           this.connectedSubject.next(true);
+          open = true;
         }
       },
       closeObserver: {
         next: () => {
           console.log('[portapi] connection to portmaster closed');
           this.connectedSubject.next(false);
+
+          // TODO(ppacher): this is a bit hard but the easiest solution
+          // we could come up with. Portmaster has a lot of runtime-only
+          // data that is likely lost upon restart so all our connections
+          // stats, ... are likley to be wrong.
+          if (open) {
+            //location.reload();
+          }
         },
       },
       closingObserver: {

@@ -21,7 +21,7 @@ export class NetworkOverviewComponent implements OnInit, OnDestroy {
 
   profiles: ProcessGroup[] = [];
 
-  trackProfile: TrackByFunction<ProcessGroup> = (_: number, p: ProcessGroup) => p.id;
+  trackProfile: TrackByFunction<ProcessGroup> = (_: number, p: ProcessGroup) => p.ID;
 
   private subscription = Subscription.EMPTY;
 

@@ -8,16 +8,10 @@ import { ChangeDetectionStrategy, ChangeDetectorRef, Component, HostBinding, OnI
 })
 export class LoadingComponent implements OnInit {
   @HostBinding('class.animate')
-  _animate = false;
+  _animate = true;
 
 
   ngOnInit() {
-    let timeout = Math.floor(Math.random() * 1000);
-    console.log(`timeout: `, timeout)
-    setTimeout(() => {
-      this._animate = true;
-      this.changeDetectorRef.detectChanges();
-    }, timeout);
   }
 
   constructor(private changeDetectorRef: ChangeDetectorRef) { }

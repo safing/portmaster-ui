@@ -13,7 +13,7 @@
   @apply bg-buttons-dark;
   border-radius: 0.5rem;
 
-  span.counter {
+  .counter {
     flex-grow : 1;
     display   : inline-block;
     text-align: center;
@@ -31,5 +31,23 @@
     .trust-level:before {
       top: 0px;
     }
+  }
+}
+
+fa-icon {
+  &.low {
+    color: theme("colors.info.green");
+  }
+
+  &.medium {
+    color: theme("colors.info.yellow");
+  }
+
+  &.off {
+    color: theme("colors.info.gray");
+  }
+
+  &.high {
+    color: theme("colors.info.red");
   }
 }

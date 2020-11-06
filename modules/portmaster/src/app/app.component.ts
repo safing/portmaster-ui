@@ -2,6 +2,7 @@ import { ChangeDetectorRef, Component, NgZone, OnInit } from '@angular/core';
 import { PortapiService } from './services/portapi.service';
 import { fadeInAnimation, fadeOutAnimation } from './shared/animations';
 import { debounceTime, startWith } from 'rxjs/operators';
+import { NotificationsService, NotificationType } from './services';
 
 
 @Component({
@@ -22,9 +23,34 @@ export class AppComponent implements OnInit {
 
   showDebugPanel = false;
 
-  constructor(public ngZone: NgZone,
+  constructor(
+    public ngZone: NgZone,
     public portapi: PortapiService,
-    public changeDetectorRef: ChangeDetectorRef) {
+    public changeDetectorRef: ChangeDetectorRef,
+    private notificationService: NotificationsService,
+  ) {
+
+    (window as any).fakeNotification = () => {
+      this.notificationService.create(
+        `random-id-${Math.random()}`,
+        'A **fake** message for testing notifications.<br> :rocket:',
+        NotificationType.Info,
+        {
+          Title: 'Fake Message',
+          Category: 'Testing',
+          AvailableActions: [
+            {
+              ID: 'a1',
+              Text: 'Got it',
+            },
+            {
+              ID: 'a2',
+              Text: 'Go away'
+            }
+          ]
+        }
+      ).subscribe();
+    }
 
     (window as any).portapi = portapi;
     (window as any).toggleDebug = () => {

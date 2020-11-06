@@ -8,8 +8,9 @@
 
       <span [innerHTML]="setting?.Name | safe:'html'"></span>
 
-      <span class="expertise" *ngIf="setting?.ExpertiseLevel === expertise.expert">Expert</span>
+      <span class="expertise" *ngIf="setting?.ExpertiseLevel === expertise.expert">Advanced</span>
       <span class="expertise" *ngIf="setting?.ExpertiseLevel === expertise.developer">Developer</span>
+
       <span class="expertise" *appExpertiseLevel="'developer'">{{setting?.Key}}</span>
     </h3>
   </div>

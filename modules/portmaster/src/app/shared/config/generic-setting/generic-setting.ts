@@ -34,7 +34,12 @@ export class GenericSettingComponent<S extends BaseSetting<any, any>> implements
   readonly releaseLevel = ReleaseLevel;
   readonly wellKnown = WellKnown;
 
+  /**
+   * Wether or not the component/setting is disabled and should
+   * be read-only.
+   */
   @Input()
+  @HostBinding('class.disabled')
   set disabled(v: any) {
     this._disabled = coerceBooleanProperty(v);
   }
@@ -44,6 +49,11 @@ export class GenericSettingComponent<S extends BaseSetting<any, any>> implements
   private _disabled: boolean = false;
 
 
+  /**
+   * Wether or not the component should be displayed as "locked"
+   * when the default value is used (that is, no 'Value' property
+   * in the setting)
+   */
   @Input()
   set lockDefaults(v: any) {
     this._lockDefaults = coerceBooleanProperty(v);
@@ -53,22 +63,58 @@ export class GenericSettingComponent<S extends BaseSetting<any, any>> implements
   }
   private _lockDefaults: boolean = false;
 
+  /** The label to display in the reset-value button */
   @Input()
   resetLabelText = 'Reset';
 
+  /** Emits an event whenever the setting should be saved. */
   @Output()
   onSave = new EventEmitter<SaveSettingEvent<S>>();
 
-  showHelp = false;
+  /**
+   * Wether or not the help text is currently shown
+   */
+  @Input()
+  set showHelp(v: any) {
+    this._showHelp = coerceBooleanProperty(v);
+  }
+  get showHelp() {
+    return this._showHelp;
+  }
+  private _showHelp = false;
 
+  /** Used internally to publish save events. */
   private save = new Subject();
+
+  /** Used internally for subscriptions to various changes */
   private subscription = Subscription.EMPTY;
+
+  /** Wether or not the value was reset. */
   private wasReset = false;
 
+  /**
+   * @private
+   * Returns the external option type hint from a setting.
+   *
+   * @param opt The setting for with to return the external option hint
+   */
   externalOptType(opt: S | null): ExternalOptionHint | null {
     return opt?.Annotations?.[WellKnown.DisplayHint] || null;
   }
 
+  /**
+   * Returns true if the setting has been touched (modified) by the user
+   * since the component has been rendered.
+   */
+  @HostBinding('class.touched')
+  get touched() {
+    return this._touched;
+  }
+  private _touched = false;
+
+  /**
+   * Returns true if the settings is currently locked.
+   */
   @HostBinding('class.locked')
   get isLocked() {
     return (this.wasReset || !this.userConfigured) && this.lockDefaults;
@@ -120,6 +166,7 @@ export class GenericSettingComponent<S extends BaseSetting<any, any>> implements
       return;
     }
 
+    this._touched = true;
     this.wasReset = false;
     let value = this.defaultValue;
 
@@ -135,10 +182,18 @@ export class GenericSettingComponent<S extends BaseSetting<any, any>> implements
     this.setting!.Value = value;
   }
 
+  /**
+   * @private
+   * Toggle wether or not the help text is displayed
+   */
   toggleHelp() {
     this.showHelp = !this.showHelp;
   }
 
+  /**
+   * @private
+   * Toggle wether or not the setting is currently locked.
+   */
   toggleLock() {
     if (this.isLocked) {
       this.unlock();
@@ -217,6 +272,7 @@ export class GenericSettingComponent<S extends BaseSetting<any, any>> implements
   }
 
   /**
+   * @private
    * Resets the value of setting by discarding any user
    * configured values and reverting back to the default
    * value.
@@ -225,6 +281,7 @@ export class GenericSettingComponent<S extends BaseSetting<any, any>> implements
     if (!this._setting) {
       return;
     }
+    this._touched = true;
 
     this._currentValue = this.defaultValue;
     this.wasReset = true;
@@ -233,14 +290,26 @@ export class GenericSettingComponent<S extends BaseSetting<any, any>> implements
   }
 
   /**
+   * @private
    * Aborts/reverts the current change to the value that's
    * already saved.
    */
   abortChange() {
     this._currentValue = this._savedValue;
+    this._touched = true;
   }
 
+  /**
+   * @private
+   * Update the current value by applying a quick-setting.
+   *
+   * @param qs The quick-settting to apply
+   */
   applyQuickSetting(qs: QuickSetting<SettingValueType<S>>) {
+    if (this.disabled || this.isLocked) {
+      return;
+    }
+
     const value = applyQuickSetting(this._currentValue, qs);
     if (value === null) {
       return;
@@ -249,9 +318,11 @@ export class GenericSettingComponent<S extends BaseSetting<any, any>> implements
     this.updateValue(value, true);
   }
 
+  /**
+   * Emits a save request to the parent component.
+   */
   private emitSaveRequest() {
-    const isDefault = isDefaultValue(this._currentValue, this.defaultValue) && (!this.lockDefaults || this.wasReset);
-
+    const isDefault = this.wasReset;
     if (isDefault) {
       delete (this._setting!['Value']);
     } else {
@@ -268,6 +339,7 @@ export class GenericSettingComponent<S extends BaseSetting<any, any>> implements
   }
 
   /**
+   * @private
    * Used in our view as a ngModelChange callback to
    * update the value.
    *
@@ -275,12 +347,18 @@ export class GenericSettingComponent<S extends BaseSetting<any, any>> implements
    */
   updateValue(value: SettingValueType<S>, save = false) {
     this._currentValue = value;
+    this._touched = true;
 
     if (save) {
       this.save.next();
     }
   }
 
+  /**
+   * @private
+   * A list of quick-settings available for the setting.
+   * The getter makes sure to always return an array.
+   */
   get quickSettings(): QuickSetting<SettingValueType<S>>[] {
     if (!this.setting || !this.setting.Annotations[WellKnown.QuickSetting]) {
       return [];
@@ -293,6 +371,11 @@ export class GenericSettingComponent<S extends BaseSetting<any, any>> implements
       : [quickSettings];
   }
 
+  /**
+   * Determine the current, actual value of the setting
+   * by taking the settings Value, default Value or global
+   * default into account.
+   */
   private updateActualValue() {
     if (!this.setting) {
       return

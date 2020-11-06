@@ -1,4 +1,5 @@
 import { SecurityLevel } from './core.types';
+import { Record } from './portapi.types';
 import { OptionValueType } from './config.types';
 import { ScopeIdentifier } from './network.types';
 
@@ -12,7 +13,17 @@ export interface FlatConfigObject {
   [key: string]: OptionValueType;
 }
 
-export interface AppProfile {
+export interface LayeredProfile extends Record {
+  // LayerIDs is a list of all profiles that are used
+  // by this layered profile. Profiles are evaluated in
+  // order.
+  LayerIDs: string[];
+
+  // The current revision counter of the layered profile.
+  RevisionCounter: number;
+}
+
+export interface AppProfile extends Record {
   ID: string;
   LinkedPath: string;
   Created: number;
@@ -22,6 +33,7 @@ export interface AppProfile {
   Homepage: string;
   Icon: string;
   Name: string;
+  Internal: boolean;
   SecurityLevel: SecurityLevel;
   Source: 'local';
 }

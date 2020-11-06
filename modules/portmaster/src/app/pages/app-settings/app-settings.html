@@ -16,10 +16,10 @@
     <div class="app-overview">
       <h1>
         <app-icon [profile]="appProfile"></app-icon>
-        {{appProfile.Name}}
+        {{appProfile?.Name}}
 
         <div *ngIf="isActive"
-          [routerLink]="['/', 'monitor', 'profile', 'core:profiles/' + appProfile.Source + '/' + appProfile.ID]"
+          [routerLink]="['/', 'monitor', 'profile', 'core:profiles/' + appProfile?.Source + '/' + appProfile?.ID]"
           class="link">
           <fa-icon icon="desktop"></fa-icon>
         </div>
@@ -41,6 +41,10 @@
 
         <div class="app-details" *appExpertiseLevel="'developer'">
           <p>
+            <label>Internal:</label>
+            <span>{{appProfile.Internal}}</span>
+          </p>
+          <p>
             <label>Source:</label>
             <span>{{appProfile.Source}}</span>
           </p>
@@ -48,6 +52,7 @@
             <label>ID:</label>
             <span>{{appProfile.ID}}</span>
           </p>
+
         </div>
 
         <div class="app-details">

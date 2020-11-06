@@ -3,7 +3,7 @@ import { WidgetService } from '../../widgets/widget.service';
 import { WidgetConfig, WidgetDefinition, WIDGET_DEFINTIONS, WIDGET_CONFIG, } from 'src/app/widgets/widget.types';
 import { ComponentPortal } from '@angular/cdk/portal';
 import { moveItemInArray, CdkDragDrop } from '@angular/cdk/drag-drop';
-import { combineLatest } from 'rxjs';
+import { combineLatest, forkJoin } from 'rxjs';
 import { filter } from 'rxjs/operators';
 import { ExpertiseService } from 'src/app/shared/expertise/expertise.service';
 
@@ -23,6 +23,7 @@ export class SideDashComponent implements OnInit {
 
   /** Number of updates to ingore. Required while saving a new widget order. */
   private ignoreCount = 0;
+  private ignoreUpdates = false;
 
   /** A lookup map for available widget definitions by widget-type key */
   widgetTemplates: {
@@ -54,12 +55,15 @@ export class SideDashComponent implements OnInit {
           // ignore exactly `ignoreCount` update
           // notifications. Required when we save a
           // new widget order.
-          if (this.ignoreCount === 0) {
+          if (this.ignoreCount === 0 && !this.ignoreUpdates) {
             return true;
           }
 
           this.ignoreCount--;
-          return false;
+
+          console.log(`ingoreCount=${this.ignoreCount} ingoreUpdates=${this.ignoreUpdates};`)
+
+          return !this.ignoreUpdates;
         })
       )
       .subscribe(widgets => {
@@ -113,7 +117,9 @@ export class SideDashComponent implements OnInit {
     // that we need to ignore (we already have the new order
     // saved).
     this.ignoreCount = this.widgets.length;
-    combineLatest(updates).subscribe({
+    this.ignoreUpdates = true;
+    forkJoin(updates).subscribe({
+      next: () => this.ignoreUpdates = false,
       error: console.error
     })
   }
