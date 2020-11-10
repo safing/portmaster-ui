@@ -1,6 +1,6 @@
 @font-face {
   font-family: 'Roboto';
-  font-weight: 400;
+  font-weight: 300;
   font-style: normal;
   src: url('/assets/vendor/fonts/Roboto-300/Roboto-300.eot');
   src: url('/assets/vendor/fonts/Roboto-300/Roboto-300.eot?#iefix') format('embedded-opentype'),
@@ -14,7 +14,7 @@
 
 @font-face {
   font-family: 'Roboto';
-  font-weight: 500;
+  font-weight: 400;
   font-style: normal;
   src: url('/assets/vendor/fonts/Roboto-regular/Roboto-regular.eot');
   src: url('/assets/vendor/fonts/Roboto-regular/Roboto-regular.eot?#iefix') format('embedded-opentype'),
@@ -28,7 +28,7 @@
 
 @font-face {
   font-family: 'Roboto';
-  font-weight: 700;
+  font-weight: 500;
   font-style: normal;
   src: url('/assets/vendor/fonts/Roboto-500/Roboto-500.eot');
   src: url('/assets/vendor/fonts/Roboto-500/Roboto-500.eot?#iefix') format('embedded-opentype'),
@@ -42,7 +42,7 @@
 
 @font-face {
   font-family: 'Roboto';
-  font-weight: 900;
+  font-weight: 700;
   font-style: normal;
   src: url('/assets/vendor/fonts/Roboto-700/Roboto-700.eot');
   src: url('/assets/vendor/fonts/Roboto-700/Roboto-700.eot?#iefix') format('embedded-opentype'),
@@ -56,7 +56,7 @@
 
 @font-face {
   font-family: 'Roboto';
-  font-weight: 400;
+  font-weight: 300;
   font-style: italic;
   src: url('/assets/vendor/fonts/Roboto-300italic/Roboto-300italic.eot');
   src: url('/assets/vendor/fonts/Roboto-300italic/Roboto-300italic.eot?#iefix') format('embedded-opentype'),
@@ -70,7 +70,7 @@
 
 @font-face {
   font-family: 'Roboto';
-  font-weight: 500;
+  font-weight: 400;
   font-style: italic;
   src: url('/assets/vendor/fonts/Roboto-italic/Roboto-italic.eot');
   src: url('/assets/vendor/fonts/Roboto-italic/Roboto-italic.eot?#iefix') format('embedded-opentype'),
@@ -84,7 +84,7 @@
 
 @font-face {
   font-family: 'Roboto';
-  font-weight: 700;
+  font-weight: 500;
   font-style: italic;
   src: url('/assets/vendor/fonts/Roboto-500italic/Roboto-500italic.eot');
   src: url('/assets/vendor/fonts/Roboto-500italic/Roboto-500italic.eot?#iefix') format('embedded-opentype'),
@@ -98,7 +98,7 @@
 
 @font-face {
   font-family: 'Roboto';
-  font-weight: 800;
+  font-weight: 700;
   font-style: italic;
   src: url('/assets/vendor/fonts/Roboto-700italic/Roboto-700italic.eot');
   src: url('/assets/vendor/fonts/Roboto-700italic/Roboto-700italic.eot?#iefix') format('embedded-opentype'),
