@@ -1,19 +1,11 @@
-import { ScrollDispatcher } from '@angular/cdk/overlay';
-import { AfterViewInit, ChangeDetectorRef, Component, ElementRef, OnDestroy, OnInit, QueryList, ViewChildren } from '@angular/core';
-import { BehaviorSubject, combineLatest, Observable, Subscription } from 'rxjs';
-import { debounceTime, map } from 'rxjs/operators';
-import { ConfigService, ExpertiseLevelNumber, Setting, StatusService, Subsystem, VersionStatus } from 'src/app/services';
+import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Observable, Subscription } from 'rxjs';
+import { map } from 'rxjs/operators';
+import { ConfigService, Setting, StatusService, VersionStatus } from 'src/app/services';
 import { PortapiService } from 'src/app/services/portapi.service';
 import { Record } from 'src/app/services/portapi.types';
 import { fadeInAnimation } from 'src/app/shared/animations';
 import { SaveSettingEvent } from 'src/app/shared/config/generic-setting/generic-setting';
-import { FuzzySearchService } from 'src/app/shared/fuzzySearch';
-
-interface Category {
-  name: string;
-  settings: Setting[];
-  minimumExpertise: ExpertiseLevelNumber;
-}
 
 @Component({
   templateUrl: './settings.html',
@@ -114,9 +106,8 @@ export class SettingsComponent implements OnInit, OnDestroy {
   }
 
   openDataDir(event: Event) {
-    let win = window as any;
-    if ('openExternal' in win && !!win.dataDir) {
-      win.openExternal(win.fileUrl(win.dataDir));
+    if (!!window.app) {
+      window.app.openExternal(window.app.installDir);
     }
   }
 }

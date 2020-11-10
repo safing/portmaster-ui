@@ -13,50 +13,39 @@
     transition: all ease-in-out .5s;
 
     &.low {
-      --lock-color: var(--protection-primary);
-
-      .outer-line {
-        color: var(--protection-tertiary);
-      }
-
-      .inner-line {
-        color: var(--protection-secondary);
-      }
+      --lock-color  : var(--protection-ok-primary);
+      --lock-color-2: var(--protection-ok-secondary);
+      --lock-color-3: var(--protection-ok-tertiary);
     }
 
     &.medium {
-      --lock-color: var(--info-yellow);
-
-      // TODO(luke): need protection lock colors for yellow
-      .outer-line {
-        color  : var(--info-yellow);
-        opacity: 0.2;
-      }
-
-      .inner-line {
-        color  : var(--info-yellow);
-        opacity: 0.4;
-      }
+      --lock-color  : var(--protection-warn-primary);
+      --lock-color-2: var(--protection-warn-secondary);
+      --lock-color-3: var(--protection-warn-tertiary);
     }
 
     &.high {
-      --lock-color: var(--info-red);
-
-      // TODO(luke): need proteciton lock colors for red
-      .outer-line {
-        color  : var(--info-red);
-        opacity: 0.2;
-      }
-
-      .inner-line {
-        color  : var(--info-red);
-        opacity: 0.4;
-      }
+      --lock-color  : var(--protection-fail-primary);
+      --lock-color-2: var(--protection-fail-secondary);
+      --lock-color-3: var(--protection-fail-tertiary);
     }
 
+    .outer-line {
+      fill     : var(--lock-color-3);
+      stroke   : var(--lock-color-3);
+      animation: pulse-fill 1.3s linear infinite alternate;
+    }
 
     .inner-line {
-      animation: pulse-fill 1s ease-in-out infinite alternate;
+      fill     : var(--lock-color-2);
+      stroke   : var(--lock-color-2);
+      animation: pulse-fill 1.3s linear infinite alternate;
+    }
+
+    .innest-line {
+      stroke   : var(--lock-color-2);
+      fill     : var(--lock-color);
+      animation: pulse-fill 1.3s linear infinite alternate;
     }
 
     path.locker {
@@ -179,12 +168,10 @@ span.help {
 
 @keyframes pulse-fill {
   100% {
-    fill   : var(--lock-color);
     opacity: 1;
   }
 
   0% {
-    fill   : var(--lock-color);
-    opacity: .7;
+    opacity: .2;
   }
 }

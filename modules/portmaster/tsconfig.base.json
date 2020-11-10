@@ -19,6 +19,9 @@
     "lib": [
       "es2018",
       "dom"
+    ],
+    "types": [
+      "./src/electron-app.d.ts",
     ]
   },
   "angularCompilerOptions": {
