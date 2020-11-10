@@ -13,15 +13,15 @@
     <span class="card-title meta">
       <div>
         <span></span>
-        <span>{{ versions?.Core.Name }} </span>
+        <span>{{ versions?.Core!.Name }} </span>
       </div>
       <div>
         <span>Version:</span>
-        <span>{{ versions?.Core.Version }} </span>
+        <span>{{ versions?.Core!.Version }} </span>
       </div>
       <div>
         <span>License:</span>
-        <span>{{ versions?.Core.License }} </span>
+        <span>{{ versions?.Core!.License }} </span>
       </div>
     </span>
     <span class="card-actions">
@@ -44,31 +44,31 @@
         <div class="col">
           <div>
             <span>Build Date:</span>
-            <span>{{ versions?.Core.BuildDate }}</span>
+            <span>{{ versions?.Core!.BuildDate || 'N/A' }}</span>
           </div>
           <div>
             <span>Build Host:</span>
-            <span>{{ versions?.Core.BuildHost }}</span>
+            <span>{{ versions?.Core!.BuildHost || 'N/A' }}</span>
           </div>
           <div>
             <span>Build Source:</span>
-            <span>{{ versions?.Core.BuildSource }}</span>
+            <span>{{ versions?.Core!.BuildSource || 'N/A' }}</span>
           </div>
         </div>
         <div class="col">
           <div>
             <span>Build User:</span>
-            <span>{{ versions?.Core.BuildUser }}</span>
+            <span>{{ versions?.Core!.BuildUser || 'N/A' }}</span>
           </div>
           <div>
             <span>Build Options:</span>
-            <span>{{ versions?.Core.BuildOptions }}</span>
+            <span>{{ versions?.Core!.BuildOptions || 'N/A' }}</span>
           </div>
         </div>
       </div>
 
       <div class="tableFixHead">
-        <table cdk-table [dataSource]="versions?.Resources | keyvalue">
+        <table cdk-table [dataSource]="(versions?.Resources || {}) | keyvalue">
           <ng-container cdkColumnDef="identifier">
             <th cdk-header-cell *cdkHeaderCellDef>Identifier</th>
             <td cdk-cell *cdkCellDef="let item">

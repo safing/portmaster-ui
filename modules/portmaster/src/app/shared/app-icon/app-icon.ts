@@ -32,6 +32,8 @@ export class AppIconComponent {
         this.letter = p.Name[0];
       }
 
+      this.letter = this.letter.toLocaleUpperCase();
+
       this.color = AppColors[idx % AppColors.length];
     } else {
       this.letter = '';
