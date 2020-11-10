@@ -17,6 +17,17 @@ button {
     @apply cursor-not-allowed;
     opacity: 0.5;
   }
+
+  &:active {
+    @apply shadow-inner-xs;
+    @apply bg-buttons-dark;
+  }
+
+  &:hover,
+  &:focus,
+  &:active {
+    outline: none;
+  }
 }
 
 .info-circle {
