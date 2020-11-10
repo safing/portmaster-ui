@@ -58,6 +58,7 @@ export interface CoreStatus extends Record {
   ThreatMitigationLevel: SecurityLevel;
   OnlineStatus: OnlineStatus;
   Threats: Threat[];
+  CaptivePortal: CaptivePortal;
 }
 
 export enum FailureStatus {

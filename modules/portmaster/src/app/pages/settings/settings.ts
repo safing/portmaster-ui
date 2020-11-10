@@ -112,4 +112,11 @@ export class SettingsComponent implements OnInit, OnDestroy {
 
     this.injectTrigger('core', 'restart').subscribe();
   }
+
+  openDataDir(event: Event) {
+    let win = window as any;
+    if ('openExternal' in win && !!win.dataDir) {
+      win.openExternal(win.fileUrl(win.dataDir));
+    }
+  }
 }

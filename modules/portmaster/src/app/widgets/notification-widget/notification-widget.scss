@@ -85,7 +85,8 @@ div.placeholder {
       white-space  : nowrap;
 
       .category {
-        font-size: 0.9em;
+        font-size     : 0.9em;
+        text-transform: capitalize;
         @apply text-tertiary;
       }
     }
@@ -105,7 +106,6 @@ div.placeholder {
 .notification-body {
   @apply bg-cards-tertiary;
   flex-grow: 1;
-  @apply p-3;
   @apply rounded-b;
   position: absolute;
   top     : var(--slot-size);

@@ -3,8 +3,12 @@ import { filter } from 'rxjs/operators';
 import { Action, Notification, NotificationState, NotificationType } from './notifications.types';
 import { RecordMeta } from './portapi.types';
 
+export interface ActionHandler<T> extends Action {
+  Run: (vn: VirtualNotification<T>) => void
+}
+
 export class VirtualNotification<T> implements Notification<T> {
-  readonly AvailableActions: Action[];
+  readonly AvailableActions: ActionHandler<T>[];
   readonly Category: string;
   readonly EventData: T | null;
   readonly GUID: string = ''; // TODO(ppacher): should we fake it?
@@ -41,6 +45,11 @@ export class VirtualNotification<T> implements Notification<T> {
   selectAction(aid: string) {
     this._selectedAction.next(aid);
     this._meta.Modified = new Date().valueOf() / 1000;
+
+    const action = this.AvailableActions.find(a => a.ID === aid);
+    if (!!action) {
+      action.Run(this);
+    }
   }
 
   constructor(
@@ -54,7 +63,7 @@ export class VirtualNotification<T> implements Notification<T> {
       Category,
       Expires,
     }: {
-      AvailableActions?: Action[];
+      AvailableActions?: ActionHandler<T>[];
       EventData?: T | null;
       Category?: string,
       Expires?: number,
@@ -72,5 +81,9 @@ export class VirtualNotification<T> implements Notification<T> {
       Modified: new Date().valueOf() / 1000,
       Key: `notifications:all/${EventID}`,
     }
+  }
+
+  dispose() {
+    this._selectedAction.complete();
   }
 }

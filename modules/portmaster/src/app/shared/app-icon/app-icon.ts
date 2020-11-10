@@ -1,10 +1,13 @@
-import { ChangeDetectionStrategy, Component, HostBinding, Input } from '@angular/core';
-import { AppProfile } from '../../services';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, HostBinding, Input } from '@angular/core';
+import { switchMap } from 'rxjs/operators';
+import { AppProfile, AppProfileService } from '../../services';
 
 export interface IDandName {
   ID: string;
   Name: string;
 }
+
+let appIconCache: Map<string, string>;
 
 @Component({
   selector: 'app-icon',
@@ -13,11 +16,38 @@ export interface IDandName {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AppIconComponent {
+  src: string = '';
+
   @Input()
   set profile(p: IDandName | null | undefined) {
     this._profile = p || null;
+    this.updateView();
+  }
 
+  get profile() { return this._profile; }
+  _profile: IDandName | null = null;
+
+  letter: string = '';
+
+  @HostBinding('style.background-color')
+  get color() {
+    if (!!this.src) {
+      return 'unset';
+    }
+    return this._color;
+  }
+  private _color: string = 'var(--text-tertiary)';
+
+  constructor(
+    private profileService: AppProfileService,
+    private changeDetectorRef: ChangeDetectorRef,
+  ) { }
+
+  private updateView() {
+    const p = this.profile;
     if (!!p) {
+      this.tryGetSystemIcon(p);
+
       let idx = 0;
       for (let i = 0; i < p.ID.length; i++) {
         idx += p.ID.charCodeAt(i);
@@ -34,19 +64,42 @@ export class AppIconComponent {
 
       this.letter = this.letter.toLocaleUpperCase();
 
-      this.color = AppColors[idx % AppColors.length];
+      this._color = AppColors[idx % AppColors.length];
     } else {
       this.letter = '';
-      this.color = 'var(--text-tertiary)';
+      this._color = 'var(--text-tertiary)';
     }
   }
-  get profile() { return this._profile; }
-  _profile: IDandName | null = null;
 
-  letter: string = '';
+  private tryGetSystemIcon(p: IDandName) {
+    if ((window as any).platform !== 'win32') {
+      return;
+    }
 
-  @HostBinding('style.background-color')
-  color: string = 'var(--text-tertiary)';
+    if ('getFileIcon' in (window as any)) {
+      if (!appIconCache) {
+        appIconCache = new Map();
+      }
+
+      if (appIconCache.has(p.ID)) {
+        this.src = appIconCache.get(p.ID)!;
+        this.changeDetectorRef.detectChanges();
+        return;
+      }
+
+      this.profileService.getAppProfile('local', p.ID)
+        .pipe(
+          switchMap(profile => (window as any).getFileIcon(profile.LinkedPath) as PromiseLike<string>)
+        )
+        .subscribe(
+          icon => {
+            appIconCache.set(p.ID, icon);
+            this.src = icon;
+            this.changeDetectorRef.detectChanges();
+          },
+          console.error);
+    }
+  }
 }
 
 export const AppColors: string[] = [

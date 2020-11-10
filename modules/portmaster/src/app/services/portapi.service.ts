@@ -190,15 +190,21 @@ export class PortapiService {
                   values.push(value.data);
                   keys.push(value.key);
                 } else {
-                  const existingCount = countTruthyDataFields(values[idx]);
-                  const newCount = countTruthyDataFields(value.data);
+                  /*
+                                    const existing = values[idx]._meta!;
+                                    const existingTs = existing.Modified || existing.Created;
+                                    const newTs = (value.data as Record)?._meta?.Modified || (value.data as Record)?._meta?.Created || 0;
 
-                  if (existingCount <= newCount) {
-                    console.log(`"new" value has ${newCount} instead of ${existingCount}, using that ...`, value.data, values[idx])
-                    values[idx] = value.data;
-                  } else {
-                    return;
-                  }
+                                    console.log(`Comparing ${newTs} against ${existingTs}`);
+
+                                    if (newTs > existingTs) {
+                                      console.log(`New record is ${newTs - existingTs} seconds newer`);
+                                      values[idx] = value.data;
+                                    } else {
+                                      return;
+                                    }
+                  */
+                  values[idx] = value.data;
                 }
                 break;
               case 'del':

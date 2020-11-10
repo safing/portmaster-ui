@@ -101,7 +101,7 @@ export class ConfigSettingsViewComponent implements OnInit, OnDestroy, AfterView
   ngOnInit(): void {
     this.subscription = combineLatest([
       this.onSettingsChange,
-      this.statusService.watchSubsystems(),
+      this.statusService.querySubsystem(),
       this.onSearch.pipe(debounceTime(250)),
     ])
       .pipe(debounceTime(10))
