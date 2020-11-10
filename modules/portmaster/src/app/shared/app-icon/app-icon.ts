@@ -85,6 +85,9 @@ export class AppIconComponent {
         )
         .subscribe(
           icon => {
+            if (iconsToIngore.some(i => i === icon)) {
+              icon = "";
+            }
             this.src = icon;
             this.changeDetectorRef.detectChanges();
           },
