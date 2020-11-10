@@ -29,7 +29,7 @@
   --info-yellow: #e9d31d;
   --info-yellow-rgb: 233,211,29;
 
-  --protection-primary  : rgba(29, 233, 102, 1); // #1de966
-  --protection-secondary: rgba(24, 130, 61, .4); // #18823d
-  --protection-tertiary : rgba(20, 61, 36, .2); // #143d24
+  --protection-primary  :rgb( 29, 233, 102 );
+  --protection-secondary:rgb( 29, 233, 102, .4 );
+  --protection-tertiary : rgb( 29, 233, 102, .2 );
 }

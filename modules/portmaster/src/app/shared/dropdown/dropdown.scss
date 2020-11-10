@@ -25,10 +25,8 @@ button {
 
   &.active {
     @apply bg-buttons-dark;
-    @apply shadow-inner;
 
     .arrow {
-      @apply shadow-inner-xs;
 
       fa-icon {
         transform: rotateZ(180deg);
@@ -46,7 +44,7 @@ button {
   .arrow {
     @apply p-2;
     @apply bg-buttons-dark;
-    @apply rounded-r-sm;
+    border-radius: 2.5px;
 
     width          : 2rem;
     display        : flex;

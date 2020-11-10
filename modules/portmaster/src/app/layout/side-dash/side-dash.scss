@@ -26,7 +26,7 @@
 .widget {
   position: relative;
   width   : 100%;
-  @apply pb-1;
+  padding-bottom: 1.5rem;
 
   &:hover {
     .buttons fa-icon {
