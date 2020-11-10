@@ -21,10 +21,6 @@ export class SideDashComponent implements OnInit {
   /** All created and rendered widgets */
   widgets: WidgetPortal<any>[] = [];
 
-  /** Number of updates to ingore. Required while saving a new widget order. */
-  private ignoreCount = 0;
-  private ignoreUpdates = false;
-
   /** A lookup map for available widget definitions by widget-type key */
   widgetTemplates: {
     [key: string]: WidgetDefinition<any>
@@ -50,22 +46,6 @@ export class SideDashComponent implements OnInit {
 
   ngOnInit(): void {
     this.widgetService.watchWidgets()
-      .pipe(
-        filter(() => {
-          // ignore exactly `ignoreCount` update
-          // notifications. Required when we save a
-          // new widget order.
-          if (this.ignoreCount === 0 && !this.ignoreUpdates) {
-            return true;
-          }
-
-          this.ignoreCount--;
-
-          console.log(`ingoreCount=${this.ignoreCount} ingoreUpdates=${this.ignoreUpdates};`)
-
-          return !this.ignoreUpdates;
-        })
-      )
       .subscribe(widgets => {
         // From each widget configuration we are going to create a new WidgetPortal.
         // The portal holds a widget-specific dependency injector that provides the
@@ -85,12 +65,6 @@ export class SideDashComponent implements OnInit {
               definition: this.widgetTemplates[w.type],
               portal: new ComponentPortal(this.widgetTemplates[w.type].widgetComponent, null, injector),
             }
-          })
-          .sort((a, b) => {
-            const aOrder = a.order !== undefined ? a.order : 1000;
-            const bOrder = b.order !== undefined ? b.order : 1000;
-
-            return aOrder - bOrder;
           });
 
         this.widgets = widgetsWithMeta;
@@ -102,26 +76,9 @@ export class SideDashComponent implements OnInit {
    *  widget is dropped at it's new position. */
   drop(event: CdkDragDrop<string[]>) {
     moveItemInArray(this.widgets, event.previousIndex, event.currentIndex);
+    const order = this.widgets.map(widget => widget.key!);
 
-    const updates = this.widgets.map((widget, idx) => {
-      widget.order = idx;
-
-      return this.widgetService.createWidget({
-        ...widget,
-        portal: undefined, // get rid of the component portal and the definition before saving it
-        definition: undefined,
-      } as any)
-    });
-
-    // we'll get an "upd" for each notitification
-    // that we need to ignore (we already have the new order
-    // saved).
-    this.ignoreCount = this.widgets.length;
-    this.ignoreUpdates = true;
-    forkJoin(updates).subscribe({
-      next: () => this.ignoreUpdates = false,
-      error: console.error
-    })
+    this.widgetService.saveOrder(order).subscribe();
   }
 
   /** Creates a new injector providing the widget configuration as WIDGET_CONFIG. */

@@ -2,7 +2,6 @@ import { Type, InjectionToken, EventEmitter } from '@angular/core';
 import { Record } from '../services/portapi.types';
 
 export interface WidgetConfig<T = any> extends Record {
-  order?: number;
   type: string;
   config: T;
   key?: string;
