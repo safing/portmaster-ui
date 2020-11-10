@@ -1,5 +1,5 @@
 import { CdkPortalOutletAttachedRef, ComponentPortal } from '@angular/cdk/portal';
-import { Component, Inject, OnDestroy, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, Inject, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { Observable, of, Subscription } from 'rxjs';
 import { WidgetService } from '../../widgets/widget.service';
@@ -28,6 +28,7 @@ export class WidgetSettingsOutletComponent<T = any> implements OnInit, OnDestroy
   constructor(
     private activeRoute: ActivatedRoute,
     private widgetService: WidgetService,
+    private changeDetectorRef: ChangeDetectorRef,
     @Inject(WIDGET_DEFINTIONS) public definitions: WidgetDefinition<any>[],
   ) {
     this.definitions = this.definitions.filter(def => !def.disableCustom);
@@ -83,6 +84,7 @@ export class WidgetSettingsOutletComponent<T = any> implements OnInit, OnDestroy
       this.config = config;
     });
     portal.changeDetectorRef.detectChanges();
+    this.changeDetectorRef.detectChanges();
   }
 
   saveWidget() {
