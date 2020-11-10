@@ -33,13 +33,13 @@ export class PilotWidgetComponent implements OnInit {
       level: SecurityLevel.Normal,
       displayText: 'Trusted',
       class: 'low',
-      subText: 'Home'
+      subText: 'Home Network'
     },
     {
       level: SecurityLevel.High,
       displayText: 'Untrusted',
       class: 'medium',
-      subText: 'Public Wifi'
+      subText: 'Public Network'
     },
     {
       level: SecurityLevel.Extreme,
