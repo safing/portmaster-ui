@@ -54,6 +54,7 @@ import { MultiSwitchComponent, SwitchItemComponent } from './shared/multi-switch
 import { AutoFocusDirective } from './shared/focus';
 import { PromptWidgetComponent } from './widgets/prompt-widget';
 import { LoadingComponent } from './shared/loading';
+import { ExternalLinkDirective } from './shared/external-link.directive';
 
 @NgModule({
   declarations: [
@@ -112,6 +113,7 @@ import { LoadingComponent } from './shared/loading';
     AutoFocusDirective,
     PromptWidgetComponent,
     LoadingComponent,
+    ExternalLinkDirective,
   ],
   imports: [
     BrowserModule,
