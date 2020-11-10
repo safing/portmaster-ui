@@ -2,7 +2,6 @@ h4.breadcrumbs {
   span {
     outline: none;
     @apply text-secondary;
-    text-transform: capitalize;
 
     &:hover {
       @apply text-primary;

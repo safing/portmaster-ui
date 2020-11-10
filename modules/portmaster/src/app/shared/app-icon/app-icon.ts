@@ -1,6 +1,7 @@
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, HostBinding, Input } from '@angular/core';
+import { of } from 'rxjs';
 import { switchMap } from 'rxjs/operators';
-import { AppProfile, AppProfileService } from '../../services';
+import { AppProfileService } from '../../services';
 
 export interface IDandName {
   ID: string;
@@ -8,6 +9,10 @@ export interface IDandName {
 }
 
 let appIconCache: Map<string, string>;
+
+const iconsToIngore = [
+  "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAABU0lEQVRYhe2WTUrEQBCF36i4ctm4FsdTKF5AEFxL0knuILgQXAy4ELxDfgTXguAFRG/hDXKCAbtcOB3aSVenMjPRTb5NvdCE97oq3QQYGflnJlbc3T/QXxrfXF9NAGBraKPTk2Nvtey4D1l8OUiIo8ODX/Xt/cMfQCk1SAAi8upWgLquWy8rpbB7+yk2m8+mYvNWAAB4fnlt9MX5WaP397ZhCPgygCFa1IUmwJifCgB5nrMBtdbhAK6pi9QcALIs8+5c1AEOqTmwZge4EUjNiQhpmjbarcvaG4AbgcTcUhSFfwFAHMfhABxScwBIkgRA9wnwBgiOQGBORCjLkl2PoigcgB2BwNzifmi97wEOqTkRoaoqdr2zA9wIJOYWrTW785VPQR+WO2B3vdYIpBBRc9Qkp2Cw/4GVR+BjPpt23u19tUXUgU2aBzuQPz5J8oyMjGyUb9+FOUOmulVPAAAAAElFTkSuQmCC",
+]
 
 @Component({
   selector: 'app-icon',
@@ -53,16 +58,20 @@ export class AppIconComponent {
         idx += p.ID.charCodeAt(i);
       }
 
-      if (p.Name[0] === '<') {
-        // we might get the name with search-highlighting which
-        // will then include <em> tags. If the first character is a <
-        // make sure to strip all HTML tags before getting [0].
-        this.letter = p.Name.replace(/(&nbsp;|<([^>]+)>)/ig, "")[0].toLocaleUpperCase();
-      } else {
-        this.letter = p.Name[0];
-      }
+      if (p.Name !== "") {
+        if (p.Name[0] === '<') {
+          // we might get the name with search-highlighting which
+          // will then include <em> tags. If the first character is a <
+          // make sure to strip all HTML tags before getting [0].
+          this.letter = p.Name.replace(/(&nbsp;|<([^>]+)>)/ig, "")[0].toLocaleUpperCase();
+        } else {
+          this.letter = p.Name[0];
+        }
 
-      this.letter = this.letter.toLocaleUpperCase();
+        this.letter = this.letter.toLocaleUpperCase();
+      } else {
+        this.letter = '?';
+      }
 
       this._color = AppColors[idx % AppColors.length];
     } else {
@@ -89,10 +98,28 @@ export class AppIconComponent {
 
       this.profileService.getAppProfile('local', p.ID)
         .pipe(
-          switchMap(profile => (window as any).getFileIcon(profile.LinkedPath) as PromiseLike<string>)
+          switchMap(profile => {
+            if (profile.LinkedPath === "") {
+              return of("");
+            }
+
+            return (window as any).getFileIcon(profile.LinkedPath) as PromiseLike<string>;
+          })
         )
         .subscribe(
           icon => {
+            if (!icon) {
+              return;
+            }
+
+            // check if we should ignore this icon. If yes,
+            // we mark it as ignored in the appIconCache
+            // by setting it to an empty string.
+            if (!!iconsToIngore.find(i => i === icon)) {
+              appIconCache.set(p.ID, "");
+              return;
+            }
+
             appIconCache.set(p.ID, icon);
             this.src = icon;
             this.changeDetectorRef.detectChanges();

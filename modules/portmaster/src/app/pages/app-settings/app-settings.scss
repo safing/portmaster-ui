@@ -4,9 +4,8 @@ app-settings-overview {
 
 h1 {
   @apply my-6;
-  display       : flex;
-  align-items   : center;
-  text-transform: capitalize;
+  display    : flex;
+  align-items: center;
 
   app-icon {
     --app-icon-size: 35px;
@@ -80,7 +79,6 @@ h2.app-settings {
 }
 
 .app-name {
-  text-transform: capitalize;
   @apply mx-2;
   opacity  : 0.7;
   font-size: 0.9em;

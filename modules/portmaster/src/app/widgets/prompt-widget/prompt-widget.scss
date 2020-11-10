@@ -26,9 +26,8 @@ app-icon {
   .group-header {
     @apply mb-2;
     @apply px-2;
-    text-transform: capitalize;
-    display       : flex;
-    align-items   : center;
+    display    : flex;
+    align-items: center;
 
     .app-name {
       flex-grow: 1;

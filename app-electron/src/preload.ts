@@ -21,7 +21,7 @@ window.addEventListener("DOMContentLoaded", () => {
 let win = window as any;
 win.openExternal = shell.openExternal;
 win.argv = remote.process.argv;
-win.platform = platform;
+win.platform = platform();
 win.dataDir = remote.app.commandLine.getSwitchValue("data");
 
 win.fileUrl = (str: string) => {
