@@ -44,6 +44,11 @@ function build {
 
       echo -e "\npackaging $module\n"
 
+      read ans
+      if [[ "$ans" == "s" ]]; then
+        continue
+      fi
+
       # go to module dir
       cd $module
       # prep env

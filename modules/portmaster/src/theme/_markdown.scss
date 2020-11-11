@@ -196,6 +196,14 @@ markdown {
     margin-bottom: 0;
   }
 
+  ol {
+    list-style-type: decimal;
+  }
+
+  ul {
+    list-style-type: circle;
+  }
+
   ol ol,
   ul ol {
     list-style-type: lower-roman;

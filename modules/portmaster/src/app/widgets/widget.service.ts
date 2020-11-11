@@ -1,8 +1,13 @@
 import { Injectable, TrackByFunction } from '@angular/core';
 import { PortapiService } from '../services/portapi.service';
-import { Observable, throwError } from 'rxjs';
+import { combineLatest, Observable, of, throwError } from 'rxjs';
 import { WidgetConfig } from './widget.types';
-import { map, tap } from 'rxjs/operators';
+import { catchError, map, startWith, tap } from 'rxjs/operators';
+import { Record } from '../services/portapi.types';
+
+export interface WidgetOrder extends Record {
+  order: string[];
+}
 
 @Injectable({
   providedIn: 'root'
@@ -11,27 +16,57 @@ export class WidgetService {
   /** The widget database key prefix */
   readonly widgetPrefix = 'core:ui/widgets';
 
+  /** The database key used to store the widget order. */
+  readonly widgetOrder = 'core:ui/widget-order';
+
   /** A {@link TrackByFunction} for widgets. */
   readonly trackBy: TrackByFunction<WidgetConfig> = (_: number, widget: WidgetConfig) => {
     return widget.key;
   };
 
-  constructor(private portapi: PortapiService) { }
+  constructor(private portapi: PortapiService) {
+    this.getOrder()
+      .pipe(
+        catchError(err => this.saveOrder([
+          'pilot-widget',
+          'prompt-widget',
+          'notification-widget',
+        ]))
+      ).subscribe();
+  }
+
+  /** Save the widget order */
+  saveOrder(order: string[]): Observable<void> {
+    return this.portapi.update(this.widgetOrder, { order })
+  }
+
+  /** Watch the order of widgets. */
+  watchOrder(): Observable<string[]> {
+    return this.portapi.watch<WidgetOrder>(this.widgetOrder)
+      .pipe(map(res => res.order));
+  }
+
+  getOrder(): Observable<string[]> {
+    return this.portapi.get<WidgetOrder>(this.widgetOrder)
+      .pipe(map(res => res.order));
+  }
 
   /**
    * Creates a new widget.
    *
    * @param widget The widget to create
    */
-  createWidget(widget: WidgetConfig): Observable<void> {
+  createWidget(widget: WidgetConfig): Observable<string> {
     if (!widget.key) {
       widget.key = `${new Date().getTime()}`;
       const key = `${this.widgetPrefix}/${widget.key}`;
-      return this.portapi.create(key, widget);
+      return this.portapi.create(key, widget)
+        .pipe(map(() => widget.key!));
     }
 
     const key = `${this.widgetPrefix}/${widget.key}`;
-    return this.portapi.update(key, widget);
+    return this.portapi.update(key, widget)
+      .pipe(map(() => widget.key!));
   }
 
   /**
@@ -66,21 +101,22 @@ export class WidgetService {
    * Watches all widgets and their configuration.
    */
   watchWidgets(): Observable<WidgetConfig[]> {
-    return this.portapi.watchAll<WidgetConfig>(this.widgetPrefix)
+    return combineLatest([
+      this.portapi.watchAll<WidgetConfig>(this.widgetPrefix),
+      this.watchOrder(),
+    ])
       .pipe(
-        map(widgets => {
+        map(([widgets, order]) => {
           enforceWidget(widgets, {
             config: null,
             key: 'pilot-widget',
             type: 'pilot-widget',
-            order: -1,
           })
 
           enforceWidget(widgets, {
             config: null,
             key: 'prompt-widget',
             type: 'prompt-widget',
-            order: -2,
           })
 
           enforceWidget(widgets, {
@@ -89,12 +125,23 @@ export class WidgetService {
             },
             key: 'notification-widget',
             type: 'notification-widget',
-            order: -3,
           })
 
-          return widgets
-        })
-      );
+          let byKey = new Map<string, WidgetConfig>();
+          widgets.forEach(widget => byKey.set(widget.key!, widget));
+
+          if (!order) {
+            order = [
+              'pilot-widget',
+              'prompt-widget',
+              'notification-widget',
+            ];
+          }
+
+          return order.map(key => byKey.get(key))
+            .filter(value => !!value)
+        }),
+      ) as Observable<WidgetConfig[]>;
   }
 
   loadWidget(id: string): Observable<WidgetConfig> {
@@ -108,7 +155,6 @@ function enforceWidget(list: WidgetConfig[], widget: WidgetConfig) {
 
   const newWidget: WidgetConfig<null> = {
     ...widget,
-    order: existingIndex >= 0 ? list[existingIndex].order : (widget.order || -1),
   }
 
   if (existingIndex >= 0) {

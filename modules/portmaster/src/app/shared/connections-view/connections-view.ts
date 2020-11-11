@@ -16,7 +16,7 @@ export class ConnectionsViewComponent implements OnDestroy {
    *  Contants made available for the template.
    */
   readonly scopeTranslation = ScopeTranslation;
-  readonly displayedColumns = ['state', 'entity', 'reason', 'started', 'ended', 'actions'];
+  readonly displayedColumns = ['state', 'entity', 'started', 'ended', 'reason', 'actions'];
   readonly verdict = Verdict;
 
   /** Subscription to profile updates. */

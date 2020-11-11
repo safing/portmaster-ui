@@ -23,11 +23,12 @@
 @keyframes shield-pulse {
   0% {
     transform: scale(.62);
-    opacity: 1;
+    opacity  : 1;
   }
+
   100% {
     transform: scale(1.1);
-    opacity: 0;
+    opacity  : 0;
   }
 }
 
@@ -87,51 +88,86 @@
     @apply stroke-current;
     transition: all ease-in-out .5s;
 
+  svg.shield {
+    margin-top: -3.5rem;
+    width     : 9rem;
+
+    path {
+      top             : 0px;
+      left            : 0px;
+      transform-origin: center center;
+    }
+
+    .shield-tick {
+      stroke   : var(--background);
+      fill     : none;
+      transform: scale(.5);
+    }
+
     &.low {
-      --lock-color: var(--protection-primary);
-
-      .outer-line {
-        color: var(--protection-tertiary);
+      .shield-one {
+        fill     : var(--protection-primary);
+        transform: scale(.62);
       }
 
-      .inner-line {
-        color: var(--protection-secondary);
+      .shield-three,
+      .shield-two {
+        animation: shield-pulse 3s linear infinite;
       }
+
+      .shield-two {
+        fill           : var(--protection-secondary);
+        animation-delay: 1.2s;
+      }
+
+      .shield-three {
+        fill           : var(--protection-tertiary);
+        animation-delay: 2.5s;
+      }
+    }
+
+  }
+
+  svg.lock {
+    position: relative;
+    width   : 10rem;
+    @apply stroke-current;
+    transition: all ease-in-out .5s;
+
+    &.low {
+      --lock-color  : var(--protection-ok-primary);
+      --lock-color-2: var(--protection-ok-secondary);
+      --lock-color-3: var(--protection-ok-tertiary);
     }
 
     &.medium {
-      --lock-color: var(--info-yellow);
-
-      // TODO(luke): need protection lock colors for yellow
-      .outer-line {
-        color  : var(--info-yellow);
-        opacity: 0.2;
-      }
-
-      .inner-line {
-        color  : var(--info-yellow);
-        opacity: 0.4;
-      }
+      --lock-color  : var(--protection-warn-primary);
+      --lock-color-2: var(--protection-warn-secondary);
+      --lock-color-3: var(--protection-warn-tertiary);
     }
 
     &.high {
-      --lock-color: var(--info-red);
-
-      // TODO(luke): need proteciton lock colors for red
-      .outer-line {
-        color  : var(--info-red);
-        opacity: 0.2;
-      }
-
-      .inner-line {
-        color  : var(--info-red);
-        opacity: 0.4;
-      }
+      --lock-color  : var(--protection-fail-primary);
+      --lock-color-2: var(--protection-fail-secondary);
+      --lock-color-3: var(--protection-fail-tertiary);
     }
 
+    .outer-line {
+      fill     : var(--lock-color-3);
+      stroke   : var(--lock-color-3);
+      animation: pulse-fill 1.3s linear infinite alternate;
+    }
 
     .inner-line {
-      animation: pulse-fill 1s ease-in-out infinite alternate;
+      fill     : var(--lock-color-2);
+      stroke   : var(--lock-color-2);
+      animation: pulse-fill 1.3s linear infinite alternate;
+    }
+
+    .innest-line {
+      stroke   : var(--lock-color-2);
+      fill     : var(--lock-color);
+      animation: pulse-fill 1.3s linear infinite alternate;
     }
 
     path.locker {
@@ -146,31 +182,31 @@
     justify-content: space-around;
     @apply mr-2;
     @apply p-1;
-    position: relative;
+    position  : relative;
     margin-top: 2.25rem;
 
     h2 {
-      padding: 0;
-      margin : 0;
+      padding   : 0;
+      margin    : 0;
       margin-top: -0.85rem;
-      font-size: 1.3rem;
+      font-size : 1.3rem;
     }
 
-    span{
+    span {
       padding-top: 0.15rem;
-      margin : 0;
-      opacity: .4;
-      font-size: 0.85rem;
+      margin     : 0;
+      opacity    : .4;
+      font-size  : 0.85rem;
       font-weight: 400;
     }
-    
+
   }
 
   .level-list {
     flex-grow: 1;
 
-    label{
-      font-size: 0.9rem;
+    label {
+      font-size  : 0.9rem;
       font-weight: 400;
     }
 
@@ -178,7 +214,7 @@
       display        : flex;
       justify-content: space-between;
       align-items    : center;
-      padding: 0 0 0.21rem 0;
+      padding        : 0 0 0.21rem 0;
     }
 
     &:not(.auto-pilot) {
@@ -192,16 +228,15 @@
           opacity   : 0 !important;
         }
       }
-
     }
 
     div.level {
-      position: relative;
-      padding : 2px;
+      position  : relative;
+      padding   : 2px;
       margin-top: 0.2rem;
-      cursor  : pointer;
-      overflow: hidden;
-      z-index : 1;
+      cursor    : pointer;
+      overflow  : hidden;
+      z-index   : 1;
 
       &:after {
         transition: all cubic-bezier(0.19, 1, 0.82, 1) .3s;
@@ -223,33 +258,35 @@
         @apply bg-cards-primary;
 
         border-radius: 2.5px;
-        padding : 12px 20px 12px 25px;
-        display: block;
+        padding      : 12px 20px 12px 25px;
+        display      : block;
 
-        span{
-          font-size: 0.8rem;
+        span {
+          font-size  : 0.8rem;
           font-weight: 500;
         }
 
-        .help{
+        .help {
           @apply text-tertiary;
           @apply ml-2;
 
-          font-size: 0.7rem;
+          font-size  : 0.7rem;
           font-weight: 500;
         }
-       
-        svg.help{
-          width: 1.05rem;
-          float: right;
+
+        svg.help {
+          width  : 1.05rem;
+          float  : right;
           padding: 0;
-          margin: 0;
-          .inner{
+          margin : 0;
+
+          .inner {
             stroke: var(--text-secondary);
           }
+
           &:hover,
           &:active {
-            .inner{
+            .inner {
               stroke: var(--text-primary);
             }
           }
@@ -293,4 +330,15 @@
   100% {
     opacity: 1;
   }
+}
+
+@keyframes pulse-fill {
+  100% {
+    opacity: 1;
+  }
+
+  0% {
+    opacity: .2;
+  }
+}
 }

@@ -1,10 +1,10 @@
 :host {
-  @apply py-2;
   overflow      : hidden;
   max-height    : 50vh;
   display       : flex;
   flex-direction: column;
 
+  @apply py-2;
   @apply bg-background;
 
   &:not(.empty) {
@@ -17,35 +17,23 @@ app-icon {
 }
 
 .scrollable {
-  width     : 100%;
-  overflow-x: hidden;
   @apply p-0;
 }
 
 .group {
-  width: 100%;
   @apply mb-3;
 
   .group-header {
     @apply mb-2;
     @apply px-2;
-    text-transform: capitalize;
-    display       : flex;
-    align-items   : center;
+    display    : flex;
+    align-items: center;
 
     .app-name {
       flex-grow: 1;
     }
 
     span.prompt-count {
-      @apply bg-buttons-dark;
-      display        : flex;
-      justify-content: center;
-      align-items    : center;
-      border-radius  : 50%;
-      width          : 20px;
-      height         : 20px;
-      font-size      : 0.8em;
       @apply mr-1;
     }
   }
@@ -69,7 +57,7 @@ app-menu-item.item-seperator {
   display: flex;
 
   .border {
-    margin-left: calc(0.5rem + 9px); // --app-icon-size / 2
+    margin-left: calc(0.5rem + 9px);
     width      : 0.5rem;
 
     @apply border-l-2;
@@ -78,20 +66,23 @@ app-menu-item.item-seperator {
     @apply border-buttons-light;
   }
 
-  .prompt-container {
-    flex-grow: 1;
+  .prompt-container,
+  .prompt,
+  .actions {
     @apply p-2;
-    display       : flex;
+    display: flex;
+  }
+
+  .prompt-container {
+    flex-grow     : 1;
     flex-direction: column;
 
     .prompt {
-      @apply py-2;
       @apply px-3;
       @apply mb-2;
       @apply bg-cards-tertiary;
       @apply rounded;
 
-      display    : flex;
       align-items: center;
 
       .entity {
@@ -110,7 +101,6 @@ app-menu-item.item-seperator {
 
       .actions {
         min-width: 5rem;
-        display  : flex;
         flex-wrap: wrap;
 
         button {

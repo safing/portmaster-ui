@@ -1,15 +1,16 @@
 {
   "name": "portmaster",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "scripts": {
     "ng": "ng",
     "start": "npm install && ng serve",
     "serve": "ng serve",
-    "build": "ng build",
+    "build:dev": "ng build",
     "test": "ng test",
     "lint": "ng lint",
     "e2e": "ng e2e",
-    "build:prod": "NODE_ENV=production ng build --prod"
+    "zip-dist": "node pack.js",
+    "build": "NODE_ENV=production ng build --prod"
   },
   "private": true,
   "dependencies": {
@@ -62,6 +63,7 @@
     "ts-node": "~8.3.0",
     "tslint": "~6.1.0",
     "typescript": "~3.9.5",
-    "webpack-bundle-analyzer": "^3.8.0"
+    "webpack-bundle-analyzer": "^3.8.0",
+    "zip-a-folder": "0.0.12"
   }
 }

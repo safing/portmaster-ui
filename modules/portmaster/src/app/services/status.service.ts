@@ -1,10 +1,10 @@
-import { Injectable, TrackByFunction } from '@angular/core';
+import { Injectable, TrackByFunction, Version } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
-import { delay, filter, map, multicast, refCount, repeatWhen, toArray } from 'rxjs/operators';
+import { delay, filter, map, multicast, refCount, repeatWhen, timestamp, toArray } from 'rxjs/operators';
 import { SecurityLevel, trackById } from './core.types';
 import { PortapiService } from './portapi.service';
 import { DataReply, RetryableOpts, WatchOpts } from './portapi.types';
-import { CoreStatus, Subsystem } from './status.types';
+import { CoreStatus, Subsystem, VersionStatus } from './status.types';
 
 @Injectable({
   providedIn: 'root'
@@ -36,6 +36,11 @@ export class StatusService {
     ) as Observable<CoreStatus>; // we filtered out the null values but we cannot make that typed with RxJS.
 
   constructor(private portapi: PortapiService) { }
+
+  /** Returns the currently available versions for all resources. */
+  getVersions(): Observable<VersionStatus> {
+    return this.portapi.get<VersionStatus>('core:status/versions')
+  }
 
   /**
    * Selectes a new security level. SecurityLevel.Off means that

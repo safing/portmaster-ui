@@ -1,10 +1,11 @@
 import { CdkPortalOutletAttachedRef, ComponentPortal } from '@angular/cdk/portal';
-import { Component, Inject, OnDestroy, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, Inject, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { Subscription } from 'rxjs';
+import { Observable, of, Subscription } from 'rxjs';
 import { WidgetService } from '../../widgets/widget.service';
 import { WidgetDefinition, WidgetFactory, WIDGET_DEFINTIONS } from '../../widgets/widget.types';
 import { deepClone } from '../../shared/utils';
+import { map, switchMap, switchMapTo, take } from 'rxjs/operators';
 
 @Component({
   selector: 'app-settings-outlet',
@@ -21,13 +22,13 @@ export class WidgetSettingsOutletComponent<T = any> implements OnInit, OnDestroy
   dirty = false;
   config: any | null = null;
   widgetKey: string | null = null;
-  private _order?: number;
 
   isEdit: boolean = false;
 
   constructor(
     private activeRoute: ActivatedRoute,
     private widgetService: WidgetService,
+    private changeDetectorRef: ChangeDetectorRef,
     @Inject(WIDGET_DEFINTIONS) public definitions: WidgetDefinition<any>[],
   ) {
     this.definitions = this.definitions.filter(def => !def.disableCustom);
@@ -48,7 +49,6 @@ export class WidgetSettingsOutletComponent<T = any> implements OnInit, OnDestroy
           .subscribe(
             widget => {
               this.config = widget.config;
-              this._order = widget.order;
               this.changeWidget(widget.type);
             },
             console.error,
@@ -84,6 +84,7 @@ export class WidgetSettingsOutletComponent<T = any> implements OnInit, OnDestroy
       this.config = config;
     });
     portal.changeDetectorRef.detectChanges();
+    this.changeDetectorRef.detectChanges();
   }
 
   saveWidget() {
@@ -94,11 +95,25 @@ export class WidgetSettingsOutletComponent<T = any> implements OnInit, OnDestroy
     this.widgetService.createWidget({
       config: this.config,
       type: this.selectedWidget!.type,
-      order: this._order,
       key: this.widgetKey || undefined,
-    }).subscribe(() => {
-      window.history.back();
     })
+      .subscribe((key) => {
+        if (key !== this.widgetKey) {
+          this.widgetService.watchOrder()
+            .pipe(
+              take(1),
+              switchMap(order => {
+                order.push(key);
+                return this.widgetService.saveOrder(order);
+              })
+            )
+            .subscribe(
+              () => window.history.back()
+            )
+        } else {
+          window.history.back();
+        }
+      })
   }
 
   deleteWidget() {

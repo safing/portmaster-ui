@@ -1,5 +1,5 @@
 import { Injectable, TrackByFunction } from '@angular/core';
-import { BehaviorSubject, combineLatest, Observable, throwError } from 'rxjs';
+import { BehaviorSubject, combineLatest, defer, Observable, throwError } from 'rxjs';
 import { delay, filter, map, repeatWhen, multicast, refCount, share, toArray, tap, concatMap, take } from 'rxjs/operators';
 import { Notification, NotificationState, NotificationType } from './notifications.types';
 import { PortapiService } from './portapi.service';
@@ -59,13 +59,14 @@ export class NotificationsService {
     )
 
     if (autoRemove) {
-      notif.executed.pipe(take(1)).subscribe(() => this.deject(notif));
+      notif.executed.subscribe({ complete: () => this.deject(notif) });
     }
   }
 
   /** Deject (remove) a virtual notification. */
   deject(notif: VirtualNotification<any>) {
     this._virtualNotifications.delete(notif.EventID);
+
     this._virtualNotificationChange.next(
       Array.from(this._virtualNotifications.values())
     )
@@ -146,6 +147,15 @@ export class NotificationsService {
       payload.EventID = notifOrId;
     } else {
       payload.EventID = notifOrId.EventID;
+    }
+
+    if (!!this._virtualNotifications.get(payload.EventID)) {
+      return defer(() => {
+        const notif = this._virtualNotifications.get(payload.EventID!);
+        if (!!notif) {
+          notif.selectAction(actionId);
+        }
+      })
     }
 
     payload.SelectedActionID = actionId;

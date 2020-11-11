@@ -58,6 +58,7 @@ export interface CoreStatus extends Record {
   ThreatMitigationLevel: SecurityLevel;
   OnlineStatus: OnlineStatus;
   Threats: Threat[];
+  CaptivePortal: CaptivePortal;
 }
 
 export enum FailureStatus {
@@ -95,4 +96,38 @@ export interface Subsystem extends Record {
   Name: string;
   ReleaseLevel: ReleaseLevel;
   ToggleOptionKey: string;
+}
+
+export interface CoreVersion {
+  BuildDate: string;
+  BuildHost: string;
+  BuildOptions: string;
+  BuildSource: string;
+  BuildUser: string;
+  Commit: string;
+  License: string;
+  Name: string;
+  Version: string;
+}
+
+export interface ResourceVersion {
+  Available: boolean;
+  BetaRelease: boolean;
+  Blacklisted: boolean;
+  StableRelease: boolean;
+  VersionNumber: string;
+}
+
+export interface Resource {
+  ActiveVersion: ResourceVersion | null;
+  Identifier: string;
+  SelectedVersion: ResourceVersion;
+  Versions: ResourceVersion[];
+}
+
+export interface VersionStatus extends Record {
+  Core: CoreVersion;
+  Resources: {
+    [key: string]: Resource
+  }
 }

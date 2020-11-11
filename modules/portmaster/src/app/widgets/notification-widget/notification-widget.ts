@@ -1,5 +1,6 @@
 import { trigger, transition, style, animate } from '@angular/animations';
 import { moveItemInArray } from '@angular/cdk/drag-drop';
+import { not } from '@angular/compiler/src/output/output_ast';
 import { Component, OnInit, Inject, HostBinding, ElementRef, OnDestroy } from '@angular/core';
 import { Subscription } from 'rxjs';
 import { filter, map } from 'rxjs/operators';
@@ -87,6 +88,10 @@ export class NotificationWidgetComponent implements OnInit, OnDestroy {
       )
       .subscribe(list => {
         this.notifications = list;
+
+        if (!!this.expandedNotification) {
+          this.expandedNotification = this.notifications.find(notif => notif.EventID === this.expandedNotification?.EventID) || null;
+        }
       });
   }
 

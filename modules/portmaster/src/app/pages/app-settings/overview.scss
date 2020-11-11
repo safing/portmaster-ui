@@ -1,9 +1,5 @@
 :host {
-  display        : flex;
-  width          : 100%;
-  flex-direction : column;
   justify-content: flex-start;
-  height         : 100%;
 }
 
 
@@ -30,10 +26,6 @@ h4 {
   @apply mb-6;
   @apply pr-0;
   flex-shrink: 0;
-}
-
-.card-title {
-  text-transform: capitalize;
 }
 
 .card-header {

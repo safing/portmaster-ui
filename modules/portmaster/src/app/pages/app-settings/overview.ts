@@ -9,7 +9,7 @@ import { FuzzySearchService } from 'src/app/shared/fuzzySearch';
 @Component({
   selector: 'app-settings-overview',
   templateUrl: './overview.html',
-  styleUrls: ['./overview.scss'],
+  styleUrls: ['../page.scss', './overview.scss'],
   //changeDetection: ChangeDetectionStrategy.OnPush,
   animations: [
     fadeInAnimation,

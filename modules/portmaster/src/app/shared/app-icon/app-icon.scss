@@ -11,7 +11,8 @@
   align-items    : center;
 }
 
-span {
+span,
+img {
   @apply text-primary;
   @apply font-medium;
   text-shadow: rgba(0, 0, 0, .8) 0px 0px 1px;

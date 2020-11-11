@@ -10,7 +10,7 @@ import { SaveSettingEvent } from 'src/app/shared/config/generic-setting/generic-
 
 @Component({
   templateUrl: './app-settings.html',
-  styleUrls: ['./app-settings.scss'],
+  styleUrls: ['../page.scss', './app-settings.scss'],
   animations: [
     fadeOutAnimation,
     fadeInAnimation,
@@ -123,8 +123,7 @@ export class AppSettingsPageComponent implements OnInit, OnDestroy {
           }
 
           if (!!profile) {
-            const key = `core:profiles/${profile.Source}/${profile.ID}`;
-            this.connTrack.inspect(key);
+            this.connTrack.inspect(profile.ID);
 
             this.settings = allSettings
               .map(setting => {

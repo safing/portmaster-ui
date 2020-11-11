@@ -1,8 +1,6 @@
 :host {
-  display : flex;
-  height  : 100%;
-  width   : 100%;
-  overflow: hidde;
+  overflow      : hidden;
+  flex-direction: row;
 }
 
 div.sidebar {
@@ -66,10 +64,6 @@ div.details-view {
     display  : block;
     flex-grow: 1;
   }
-}
-
-.card-title {
-  text-transform: capitalize;
 }
 
 .card-icon {
