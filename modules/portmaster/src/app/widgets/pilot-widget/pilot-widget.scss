@@ -44,52 +44,6 @@
 
   svg.shield {
     margin-top: -3.5rem;
-    width   : 9rem;
-    
-    path{
-      top: 0px;
-      left: 0px;
-      transform-origin: center center;
-    }
-
-    .shield-tick {
-      stroke: var(--background);
-      fill: none;
-      transform: scale(.5);
-    }
-
-    &.low {
-      .shield-one{
-        fill: var(--protection-primary);
-        transform: scale(.62);
-      }
-  
-      .shield-three,
-      .shield-two{
-        animation: shield-pulse 3s linear infinite;
-      }
-
-      .shield-two{
-        fill: var(--protection-secondary);
-        animation-delay: 1.2s;
-      }
-  
-      .shield-three{
-        fill: var(--protection-tertiary);
-        animation-delay: 2.5s;
-      }
-    }
-
-  }
-
-  svg.lock {
-    position: relative;
-    width   : 10rem;
-    @apply stroke-current;
-    transition: all ease-in-out .5s;
-
-  svg.shield {
-    margin-top: -3.5rem;
     width     : 9rem;
 
     path {
@@ -340,5 +294,4 @@
   0% {
     opacity: .2;
   }
-}
 }
