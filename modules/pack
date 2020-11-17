@@ -26,11 +26,17 @@ function check {
       # prep env
       prep
 
+      # Check if module is ignored.
+      ignoringExt=""
+      if [[ -f ".ignore" ]]; then
+        ignoringExt="(ignoring)"
+      fi
+
       # check if file exists
       if [[ -f $destPath ]]; then
-        echo "[modules] $module $version already built"
+        echo "[modules] $module $version already built $ignoringExt"
       else
-        echo -e "${COL_BOLD}[modules] $module $version${COL_OFF}"
+        echo -e "${COL_BOLD}[modules] $module $version${COL_OFF} $ignoringExt"
       fi
 
       cd "$baseDir"
@@ -41,13 +47,12 @@ function check {
 function build {
   for module in *; do
     if [[ -f "$module/package.json" ]]; then
-
-      echo -e "\npackaging $module\n"
-
-      read ans
-      if [[ "$ans" == "s" ]]; then
+      if [[ -f "$module/.ignore" ]]; then
+        echo "$module is being ignored, skipping..."
         continue
       fi
+
+      echo -e "\npackaging $module\n"
 
       # go to module dir
       cd $module
