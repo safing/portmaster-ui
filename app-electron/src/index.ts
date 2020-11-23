@@ -22,11 +22,11 @@ function createWindow() {
     width: mainWindowState.width,
     height: mainWindowState.height,
     resizable: true,
-    autoHideMenuBar: true,
     webPreferences: {
       preload: path.join(__dirname, "preload.js"),
     },
   });
+  mainWindow.setMenuBarVisibility(false);
 
   // Let us register listeners on the window, so we can update the state
   // automatically (the listeners will be removed when the window is closed)
@@ -36,8 +36,26 @@ function createWindow() {
   // Load UI from Portmaster.
   mainWindow.loadURL("http://127.0.0.1:817/");
 
-  // Open the DevTools.
-  // mainWindow.webContents.openDevTools();
+  // Register shortcuts.
+  mainWindow.webContents.on('before-input-event', (event, input) => {
+    switch (input.key) {
+      case "F5":
+        // Reload.
+        mainWindow.reload()
+        event.preventDefault();
+        break;
+      case "F10":
+        // Toggle Menu Bar.
+        mainWindow.setMenuBarVisibility(!mainWindow.isMenuBarVisible());
+        event.preventDefault();
+        break;
+      case "F12":
+        // Open DevTools.
+        mainWindow.webContents.openDevTools();
+        event.preventDefault();
+        break;
+    }
+  });
 }
 
 // This method will be called when Electron has finished
