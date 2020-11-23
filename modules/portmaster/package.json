@@ -10,7 +10,7 @@
     "lint": "ng lint",
     "e2e": "ng e2e",
     "zip-dist": "node pack.js",
-    "build": "NODE_ENV=production ng build --prod"
+    "build": "NODE_ENV=production ng build --prod --base-href /ui/modules/portmaster/ --deploy-url /ui/modules/portmaster/"
   },
   "private": true,
   "dependencies": {
