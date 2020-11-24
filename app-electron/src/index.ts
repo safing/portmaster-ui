@@ -2,7 +2,7 @@ import { app, BrowserWindow, nativeTheme } from "electron";
 import * as windowStateKeeper from "electron-window-state";
 import * as path from "path";
 import * as fs from "fs";
-import { DataDir } from "./datadir";
+import { GetDataDir } from "./datadir";
 
 // Set native theme to dark. This may do something, eventually.
 nativeTheme.themeSource = "dark";
@@ -82,8 +82,11 @@ app.on("window-all-closed", () => {
 });
 
 function getStateDir(): string {
+  // Get data directory from command line.
+  let dataDir = GetDataDir(app.commandLine);
+
   // Add "exec" dir to data dir.
-  let stateDir = path.join(DataDir, "exec");
+  let stateDir = path.join(dataDir, "exec");
 
   // Don't return a dir that does not exist.
   if (!fs.existsSync(stateDir)) {

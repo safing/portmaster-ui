@@ -1,16 +1,11 @@
-import { app } from 'electron';
-
-// DataDir holds the data/installation directory of the Portmaster.
-export var DataDir = getDataDir();
-
-function getDataDir(): string {
+export function GetDataDir(cmdLine: Electron.CommandLine): string {
   // Return if data argument is not given.
-  if (!app.commandLine.hasSwitch("data")) {
+  if (!cmdLine.hasSwitch("data")) {
       return "";
   }
 
   // Get data dir from command line.
-  let dataDir = app.commandLine.getSwitchValue("data");
+  let dataDir = cmdLine.getSwitchValue("data");
 
   // If dataDir is empty, the argument might have be supplied without `=`.
   if (dataDir === "") {
