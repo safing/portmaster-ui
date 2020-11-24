@@ -3,9 +3,11 @@
 baseDir="$( cd "$(dirname "$0")" && pwd )"
 cd "$baseDir"
 
-COL_OFF="\033[00m"
+COL_OFF="\033[0m"
 COL_BOLD="\033[01;01m"
 COL_RED="\033[31m"
+COL_GREEN="\033[32m"
+COL_YELLOW="\033[33m"
 
 destDir="../../dist/all/ui/modules"
 
@@ -34,9 +36,9 @@ function check {
 
       # check if file exists
       if [[ -f $destPath ]]; then
-        echo "[modules] $module $version already built $ignoringExt"
+        echo "[modules] $module v$version already built $ignoringExt"
       else
-        echo -e "${COL_BOLD}[modules] $module $version${COL_OFF} $ignoringExt"
+        echo -e "${COL_BOLD}[modules] $module v$version${COL_OFF} $ignoringExt"
       fi
 
       cd "$baseDir"
@@ -61,7 +63,7 @@ function build {
 
       # check if file exists
       if [[ -f $destPath ]]; then
-        echo "$module already built in version $version, skipping..."
+        echo "$module already built in v$version, skipping..."
         cd "$baseDir"
         continue
       fi
@@ -74,7 +76,7 @@ function build {
       # build
       npm run build
       if [[ $? -ne 0 ]]; then
-        echo -e "\n${COL_BOLD}[modules] $module: ${COL_RED}BUILD FAILED.${COL_OFF}"
+        echo -e "\n${COL_BOLD}[modules] $module v$version: ${COL_RED}BUILD FAILED.${COL_OFF}"
         exit 1
       fi
 
@@ -88,7 +90,7 @@ function build {
       mkdir -p ../$destDir
       zip -r ../$destPath *
 
-      echo -e "\n${COL_BOLD}[modules] $module: successfully built.${COL_OFF}"
+      echo -e "\n${COL_BOLD}[modules] $module v$version: ${COL_GREEN}successfully built.${COL_OFF}"
 
       # go back to base dir
       cd "$baseDir"
@@ -107,6 +109,7 @@ function reset {
       # delete if file exists
       if [[ -f $destPath ]]; then
         rm $destPath
+        echo -e "[modules] $module v$version deleted."
       fi
 
       cd "$baseDir"

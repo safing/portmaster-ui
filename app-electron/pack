@@ -3,9 +3,11 @@
 baseDir="$( cd "$(dirname "$0")" && pwd )"
 cd "$baseDir"
 
-COL_OFF="\033[00m"
+COL_OFF="\033[0m"
 COL_BOLD="\033[01;01m"
 COL_RED="\033[31m"
+COL_GREEN="\033[32m"
+COL_YELLOW="\033[33m"
 
 destDirPart1="../dist"
 destDirPart2="app"
@@ -26,9 +28,9 @@ function check {
 
   # check if file exists
   if [[ -f $destPath ]]; then
-    echo "[app-electron] $platform $version already built"
+    echo "[app-electron] $platform v$version already built"
   else
-    echo -e "${COL_BOLD}[app-electron] $platform $version${COL_OFF}"
+    echo -e "${COL_BOLD}[app-electron] $platform v$version${COL_OFF}"
   fi
 }
 
@@ -37,7 +39,7 @@ function build {
 
   # check if file exists
   if [[ -f $destPath ]]; then
-    echo "[app-electron] $platform already built in version $version, skipping..."
+    echo "[app-electron] $platform already built in v$version, skipping..."
     return
   fi
 
@@ -63,7 +65,7 @@ function build {
 
   # check if version is built (needs manual building)
   if [[ $(grep "$version" "${baseDir}/dist/latest-linux.yml") == "" ]]; then
-    echo -e "\n${COL_BOLD}[app-electron] $platform: ${COL_RED}Cannot find built version $version, please build manually.${COL_OFF}"
+    echo -e "\n${COL_BOLD}[app-electron] $platform v$version: ${COL_RED}Cannot find built version $version, please build manually.${COL_OFF}"
     exit 1
   fi
 
@@ -75,9 +77,9 @@ function build {
   echo "resetting $tmpfile ..."
   rm "$tmpfile"
   echo "zipping $(pwd) into $tmpfile ..."
-  zip -r -Z bzip2 -db "$tmpfile" .
+  zip -r -9 -db "$tmpfile" .
   if [[ $? -ne 0 ]]; then
-    echo -e "\n${COL_BOLD}[app-electron] $platform: ${COL_RED}BUILD FAILED.${COL_OFF}"
+    echo -e "\n${COL_BOLD}[app-electron] $platform v$version: ${COL_RED}BUILD FAILED.${COL_OFF}"
     exit 1
   fi
   
@@ -87,7 +89,17 @@ function build {
   # Copy finished asset to portmaster dist dir.
   mkdir -p $(dirname $destPath)
   cp "$tmpfile" "$destPath"
-  echo -e "\n${COL_BOLD}[app-electron] $platform: successfully built.${COL_OFF}"
+  echo -e "\n${COL_BOLD}[app-electron] $platform v$version: ${COL_GREEN}successfully built.${COL_OFF}"
+}
+
+function reset {
+  prep
+
+  # delete if file exists
+  if [[ -f $destPath ]]; then
+    rm $destPath
+    echo "[app-electron] $platform v$version deleted."
+  fi
 }
 
 function check_all {
@@ -100,12 +112,20 @@ function build_all {
   GOOS=windows GOARCH=amd64 build
 }
 
+function reset_all {
+  GOOS=linux GOARCH=amd64 reset
+  GOOS=windows GOARCH=amd64 reset
+}
+
 case $1 in
   "check" )
     check_all
     ;;
   "build" )
     build_all
+    ;;
+  "reset" )
+    reset_all
     ;;
   * )
     echo ""

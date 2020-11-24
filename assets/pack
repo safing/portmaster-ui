@@ -3,51 +3,63 @@
 baseDir="$( cd "$(dirname "$0")" && pwd )"
 cd "$baseDir"
 
-COL_OFF="\033[00m"
+COL_OFF="\033[0m"
 COL_BOLD="\033[01;01m"
+COL_RED="\033[31m"
+COL_GREEN="\033[32m"
 COL_YELLOW="\033[33m"
 
 destDir="../dist/all/ui/modules"
 
-function check {
+function prep {
   # get version
   version=$(cat version.txt | tr -d '[:space:]')
   # build versioned file name
   filename="assets_v${version//./-}.zip"
   # build destination path
   destPath=$destDir/$filename
+}
+
+function check {
+  prep
 
   # check if file exists
   if [[ -f $destPath ]]; then
-    echo "[assets] version $version already built"
+    echo "[assets] v$version already built"
   else
-    echo -e "${COL_BOLD}[assets] version $version${COL_OFF}"
+    echo -e "${COL_BOLD}[assets] v$version${COL_OFF}"
   fi
 }
 
 function build {
-  # get version
-  version=$(cat version.txt | tr -d '[:space:]')
-  # build versioned file name
-  filename="assets_v${version//./-}.zip"
-  # build destination path
-  destPath=$destDir/$filename
+  prep
 
   # check if file exists
   if [[ -f $destPath ]]; then
-    echo "assets are already built in version $version, skipping..."
+    echo "assets are already built in v$version, skipping..."
     exit 0
   fi
 
   # zip up!
   mkdir -p $destDir
-  zip -r $destPath * -x build README.md
+  zip -r -9 -db "$destPath" * -x build README.md
+
   if [[ $? -ne 0 ]]; then
-    echo -e "\n${COL_BOLD}assets: ${COL_RED}BUILD FAILED.${COL_OFF}"
+    echo -e "\n${COL_BOLD}[assets] v$version: ${COL_RED}BUILD FAILED.${COL_OFF}"
     exit 1
   fi
 
-  echo -e "\n${COL_BOLD}assets: successfully built.${COL_OFF}"
+  echo -e "\n${COL_BOLD}[assets] v$version: ${COL_GREEN}successfully built.${COL_OFF}"
+}
+
+function reset {
+  prep
+
+  # delete if file exists
+  if [[ -f $destPath ]]; then
+    rm $destPath
+    echo "[assets] v$version deleted."
+  fi
 }
 
 case $1 in
@@ -56,6 +68,9 @@ case $1 in
     ;;
   "build" )
     build
+    ;;
+  "reset" )
+    reset
     ;;
   * )
     echo ""
