@@ -1,0 +1,82 @@
+<div class="sidebar no-scroll">
+  <div class="sidebar-header">
+    <div class="row">
+      <h4>Network Monitor</h4>
+
+      <span class="buttons">
+        <div class="search-container" [class.active]="!!(onSearch | async)">
+          <div class="search-button">
+            <fa-icon icon="search"></fa-icon>
+          </div>
+          <input type="text" placeholder="Search" [ngModel]="(onSearch | async)" (ngModelChange)="search($event)">
+
+          <fa-icon icon="times" [class.visible]="!!(onSearch | async)" (click)="search('')"></fa-icon>
+        </div>
+      </span>
+    </div>
+    <div class="row">
+      <span class="note">Last 5 mins</span>
+    </div>
+  </div>
+
+  <div class="scrollable" [@moveInOutList]="profiles.length">
+    <li class="card-header overview" routerLink="/monitor/profile/overview" routerLinkActive="active">
+      Overview
+    </li>
+
+    <ng-container>
+      <ng-container *ngFor="let data of profiles; trackBy: trackProfile">
+        <li class="card-header" *appExpertiseLevel="data.size === 0 ? 'developer' : 'user'"
+          [routerLink]="['/', 'monitor', 'profile', data.Source, data.ID]" routerLinkActive="active">
+          <app-icon [profile]="data"></app-icon>
+          <span class="card-title">{{ data.Name }}</span>
+          <app-count-indicator [count]="data.size" [risk]="data.blockStatus">
+          </app-count-indicator>
+        </li>
+      </ng-container>
+
+    </ng-container>
+
+    <ng-container *ngIf="loading">
+      <li class="card-header">
+        <app-icon></app-icon>
+        <app-text-placeholder mode="input" width="small" class="card-title"></app-text-placeholder>
+        <app-count-indicator></app-count-indicator>
+      </li>
+      <li class="card-header">
+        <app-icon></app-icon>
+        <app-text-placeholder mode="input" width="7rem" class="card-title"></app-text-placeholder>
+        <app-count-indicator></app-count-indicator>
+      </li>
+      <li class="card-header">
+        <app-icon></app-icon>
+        <app-text-placeholder mode="input" width="3rem" class="card-title"></app-text-placeholder>
+        <app-count-indicator></app-count-indicator>
+      </li>
+    </ng-container>
+
+    <app-loading></app-loading>
+
+  </div>
+</div>
+
+<div class="details-view">
+  <div class="header">
+    <h4 class="breadcrumbs">
+      <span routerLink="/monitor">Network Monitor</span>
+      <ng-container *ngIf="!!selected">
+        <fa-icon icon="chevron-right"></fa-icon>
+        <span>{{ selected!.Name }}</span>
+      </ng-container>
+    </h4>
+    <app-expertise></app-expertise>
+  </div>
+
+  <div class="content">
+    <app-monitor-application *ngIf="!!selected" class="scrollable" [profile]="selected">
+    </app-monitor-application>
+
+    <app-network-overview *ngIf="!selected">
+    </app-network-overview>
+  </div>
+</div>

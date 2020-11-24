@@ -6,16 +6,23 @@ import (
 	"runtime"
 	"sync"
 
+	"github.com/safing/portmaster-ui/notifier/icons"
+
 	"github.com/getlantern/systray"
 	"github.com/safing/portbase/log"
 )
 
 var (
-	trayLock       sync.Mutex
-	displayedLevel uint8
+	trayLock sync.Mutex
 
-	menuLevelItems     [4]*systray.MenuItem
-	menuItemThreatInfo *systray.MenuItem
+	activeIconID    int = -1
+	activeStatusMsg     = ""
+
+	menuItemStatusMsg  *systray.MenuItem
+	menuItemAutoDetect *systray.MenuItem
+	menuItemTrusted    *systray.MenuItem
+	menuItemUntrusted  *systray.MenuItem
+	menuItemDanger     *systray.MenuItem
 )
 
 func init() {
@@ -36,9 +43,9 @@ func onReady() {
 	defer trayLock.Unlock()
 
 	// icon
-	systray.SetIcon(securityLevelIcons[SecurityLevelOffline])
+	systray.SetIcon(icons.ColoredIcons[icons.RedID])
 	// systray.SetTitle("Portmaster Notifier") // Don't set title, as it may be displayed in full in the menu/tray bar. (Ubuntu)
-	systray.SetTooltip("The Portmaster Notifier alerts you of important things and prompts you for decisions if necessary.")
+	systray.SetTooltip("The Notifier provides a minimal interface to the Portmaster and sends notifications to your desktop.")
 
 	// menu: open app
 	if dataDir != "" {
@@ -65,37 +72,40 @@ func onReady() {
 		systray.AddSeparator()
 	}
 
-	// menu: security levels
-	menuItemAutopilot := systray.AddMenuItem("Autopilot", "")
-	go clickListener(menuItemAutopilot, func() {
-		SelectSecurityLevel(0)
-	})
+	// menu: status
 
-	menuItemLevelNormal := systray.AddMenuItem("Level Dynamic", "")
-	go clickListener(menuItemLevelNormal, func() {
-		SelectSecurityLevel(SecurityLevelNormal)
-	})
-
-	menuItemLevelHigh := systray.AddMenuItem("Level Secure", "")
-	go clickListener(menuItemLevelHigh, func() {
-		SelectSecurityLevel(SecurityLevelHigh)
-	})
-
-	menuItemLevelExtreme := systray.AddMenuItem("Level Fortess", "")
-	go clickListener(menuItemLevelExtreme, func() {
-		SelectSecurityLevel(SecurityLevelExtreme)
-	})
-
-	menuLevelItems = [4]*systray.MenuItem{menuItemAutopilot, menuItemLevelNormal, menuItemLevelHigh, menuItemLevelExtreme}
-
-	// menu: threat info
+	menuItemStatusMsg = systray.AddMenuItem(activeStatusMsg, "")
+	menuItemStatusMsg.Disable()
 	systray.AddSeparator()
-	menuItemThreatInfo = systray.AddMenuItem("Loading threat information...", "")
-	menuItemThreatInfo.Disable()
+
+	// menu: network rating
+
+	menuItemRateNetwork := systray.AddMenuItem("Rate your network", "")
+	menuItemRateNetwork.Disable()
+
+	menuItemAutoDetect = systray.AddMenuItem("Auto Detect", "")
+	go clickListener(menuItemAutoDetect, func() {
+		SelectSecurityLevel(SecurityLevelAutoDetect)
+	})
+
+	menuItemTrusted = systray.AddMenuItem("Trusted", "Home")
+	go clickListener(menuItemTrusted, func() {
+		SelectSecurityLevel(SecurityLevelTrusted)
+	})
+
+	menuItemUntrusted = systray.AddMenuItem("Untrusted", "Public Wifi")
+	go clickListener(menuItemUntrusted, func() {
+		SelectSecurityLevel(SecurityLevelUntrusted)
+	})
+
+	menuItemDanger = systray.AddMenuItem("Danger", "Hacked Network")
+	go clickListener(menuItemDanger, func() {
+		SelectSecurityLevel(SecurityLevelDanger)
+	})
 
 	// menu: quit
 	systray.AddSeparator()
-	menuItemQuit := systray.AddMenuItem("Quit Notifier", "")
+	menuItemQuit := systray.AddMenuItem("Notifier Quit", "")
 	go clickListener(menuItemQuit, func() {
 		cancelMainCtx()
 	})
@@ -105,59 +115,92 @@ func onExit() {
 
 }
 
-func displaySelectedLevel(level uint8) {
-	trayLock.Lock()
-	defer trayLock.Unlock()
-
-	// adjust level number to array
-	if level == 4 {
-		level = 3
-	}
-
-	for index, menuItem := range menuLevelItems {
-		if menuItem == nil {
-			continue
-		}
-
-		if index == int(level) {
-			if !menuItem.Checked() {
-				log.Tracef("tray: check security level %s", fmtLevel(uint8(index), false))
-				menuItem.Check()
-			}
-		} else {
-			if menuItem.Checked() {
-				log.Tracef("tray: uncheck security level %s", fmtLevel(uint8(index), false))
-				menuItem.Uncheck()
-			}
-		}
-	}
-
-	log.Infof("tray: set selected security level to %s", fmtLevel(level, false))
+func triggerTrayUpdate() {
+	// TODO: Deduplicate triggers.
+	go updateTray()
 }
 
-func displayActiveLevel(level uint8) {
+// updateTray update the state of the tray depending on the currently available information.
+func updateTray() {
+	// Get current information.
+	systemStatus := GetStatus()
+	failureID, failureMsg := GetFailure()
+
 	trayLock.Lock()
 	defer trayLock.Unlock()
 
-	if level != displayedLevel {
-		displayedLevel = level
+	// Select icon and status message to show.
+	newIconID := icons.GreenID
+	newStatusMsg := "Secure."
+	switch {
+	case !connected.IsSet():
+		newIconID = icons.RedID
+		newStatusMsg = "Connection to Portmaster service lost."
+
+	case systemStatus.ActiveSecurityLevel < systemStatus.ThreatMitigationLevel &&
+		systemStatus.ThreatMitigationLevel == SecurityLevelDanger:
+		newIconID = icons.RedID
+		newStatusMsg = "Threat detected, please switch to Danger or Auto Detect for mitigation."
+
+	case failureID == FailureError:
+		newIconID = icons.RedID
+		newStatusMsg = failureMsg
+
+	case systemStatus.ActiveSecurityLevel < systemStatus.ThreatMitigationLevel &&
+		systemStatus.ThreatMitigationLevel == SecurityLevelUntrusted:
+		newIconID = icons.YellowID
+		newStatusMsg = "Threat detected, please switch to Untrusted or Auto Detect for mitigation."
+
+	case failureID == FailureWarning:
+		newIconID = icons.YellowID
+		newStatusMsg = failureMsg
 	}
 
-	// adjust level number to array
-	if level == 4 {
-		level = 3
+	// Set icon if changed.
+	if newIconID != activeIconID {
+		activeIconID = newIconID
+		systray.SetIcon(icons.ColoredIcons[activeIconID])
 	}
 
-	systray.SetIcon(securityLevelIcons[level])
+	// Set message if changed.
+	if newStatusMsg != activeStatusMsg {
+		activeStatusMsg = newStatusMsg
+		menuItemStatusMsg.SetTitle(activeStatusMsg)
+	}
 
-	log.Infof("tray: set active security level to %s", fmtLevel(level, true))
-}
+	// Set security levels on menu item.
+	if systemStatus.SelectedSecurityLevel == SecurityLevelAutoDetect {
+		menuItemAutoDetect.Check()
+	} else {
+		menuItemAutoDetect.Uncheck()
+	}
+	switch systemStatus.ActiveSecurityLevel {
+	case SecurityLevelAutoDetect:
+		// This will be the case when offline.
+		menuItemTrusted.Uncheck()
+		menuItemUntrusted.Uncheck()
+		menuItemDanger.Uncheck()
+	case SecurityLevelTrusted:
+		menuItemTrusted.Check()
+		menuItemUntrusted.Uncheck()
+		menuItemDanger.Uncheck()
+	case SecurityLevelUntrusted:
+		menuItemTrusted.Uncheck()
+		menuItemUntrusted.Check()
+		menuItemDanger.Uncheck()
+	case SecurityLevelDanger:
+		menuItemTrusted.Uncheck()
+		menuItemUntrusted.Uncheck()
+		menuItemDanger.Check()
+	}
 
-func displayThreatInfo(info string) {
-	trayLock.Lock()
-	defer trayLock.Unlock()
-	menuItemThreatInfo.SetTitle(info)
-	log.Infof("tray: set threat info to \"%s\"", info)
+	log.Infof(
+		"tray: set to selected=%s active=%s icon=%d msg=%q",
+		fmtSecurityLevel(systemStatus.SelectedSecurityLevel),
+		fmtSecurityLevel(systemStatus.ActiveSecurityLevel),
+		newIconID,
+		newStatusMsg,
+	)
 }
 
 func clickListener(item *systray.MenuItem, fn func()) {

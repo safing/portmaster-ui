@@ -1,0 +1,5 @@
+<span class="counter">{{ count }}</span>
+<div class="state info-circle">
+  <span *ngIf="!loading" class="trust-level {{risk}}"></span>
+  <fa-icon *ngIf="loading" [spin]="true" class="{{risk}}" icon="spinner"></fa-icon>
+</div>

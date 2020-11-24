@@ -1,0 +1,62 @@
+<div class="header">
+  <input type="text" placeholder="Search" [ngModel]="searchTerm" (ngModelChange)="searchApps($event)">
+  <app-expertise></app-expertise>
+</div>
+
+<div class="header">
+  <h1>Apps</h1>
+</div>
+
+<div class="scrollable">
+
+  <h4 *ngIf="!!runningProfiles">Active</h4>
+  <div class="content">
+    <ng-container *ngTemplateOutlet="profileList; context: {$implicit: runningProfiles}"></ng-container>
+  </div>
+
+  <h4 *ngIf="!!recentlyUsed">Recently Used</h4>
+  <div class="content">
+    <ng-container *ngTemplateOutlet="profileList; context: {$implicit: recentlyUsed}"></ng-container>
+  </div>
+
+  <h4 *ngIf="!!profiles">Apps</h4>
+  <div class="content">
+    <ng-container *ngTemplateOutlet="profileList; context: {$implicit: profiles}"></ng-container>
+  </div>
+
+  <ng-template #profileList let-list>
+    <div class="grid-container" [@fadeInList]="list.length">
+      <ng-container *ngFor="let profile of list; trackBy: trackProfile">
+        <div *appExpertiseLevel="profile.Internal ? 'developer' : 'user'" class="card-header"
+          [routerLink]="['..', profile.Source,  profile.ID]">
+          <app-icon [profile]="profile"></app-icon>
+          <span class="card-title">
+            <span [innerHTML]="profile?.Name | safe:'html'"></span>
+            <span class="card-sub-title" *appExpertiseLevel="'expert'"
+              [innerHTML]="profile?.LinkedPath | safe:'html'"></span>
+          </span>
+        </div>
+      </ng-container>
+
+      <ng-container *ngIf="loading">
+        <div class="card-header">
+          <fa-icon class="card-icon loading" icon="square"></fa-icon>
+          <app-text-placeholder mode="input" width="small" class="card-title"></app-text-placeholder>
+        </div>
+        <div class="card-header">
+          <fa-icon class="card-icon loading" icon="square"></fa-icon>
+          <app-text-placeholder mode="input" width="small" class="card-title"></app-text-placeholder>
+        </div>
+        <div class="card-header">
+          <fa-icon class="card-icon loading" icon="square"></fa-icon>
+          <app-text-placeholder mode="input" width="7rem" class="card-title"></app-text-placeholder>
+        </div>
+        <div class="card-header">
+          <fa-icon class="card-icon loading" icon="square"></fa-icon>
+          <app-text-placeholder mode="input" width="3rem" class="card-title"></app-text-placeholder>
+        </div>
+      </ng-container>
+    </div>
+  </ng-template>
+
+</div>

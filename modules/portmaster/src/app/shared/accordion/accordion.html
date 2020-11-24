@@ -1,0 +1,9 @@
+<div [class.active]="active" class="cursor-pointer" (click)="toggle($event)">
+  <ng-container *ngTemplateOutlet="headerTemplate; context: {$implicit: data, active: active}"></ng-container>
+</div>
+
+<div class="body" [class.active]="active">
+  <ng-container *ngIf="active">
+    <ng-content></ng-content>
+  </ng-container>
+</div>

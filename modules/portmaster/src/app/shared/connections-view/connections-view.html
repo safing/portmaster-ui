@@ -1,0 +1,207 @@
+<ng-template #accordionHeader let-data let-active="active">
+  <div class="card-header" [class.active]="active">
+    <fa-icon icon="chevron-down" class="chevron card-icon"></fa-icon>
+    <span class="card-title">
+      <ng-container *ngIf="!data.domain; else: domainView">
+        {{ scopeTranslation[data?.scope] || 'N/A' }}
+      </ng-container>
+      <ng-template #domainView>
+        <span *ngIf="!!data.subdomain" class="subdomain">{{data.subdomain}}.</span>{{data.domain}}
+      </ng-template>
+    </span>
+
+    <app-count-indicator [count]="data.size" [loading]="data.hasOldConnections || !data.hasNewConnections"
+      [risk]="data.blockStatus">
+    </app-count-indicator>
+    <app-menu-trigger *ngIf="data.domain" [menu]="menu"></app-menu-trigger>
+  </div>
+
+  <app-menu #menu>
+    <app-menu-item *ngIf="isScopeBlocked(data)" (click)="unblockAll(data)">Allow Domain</app-menu-item>
+    <app-menu-item *ngIf="!isScopeBlocked(data)" (click)="blockAll(data)">Block Domain</app-menu-item>
+    <app-menu-item (click)="redirectToRules()">Add Rule</app-menu-item>
+  </app-menu>
+</ng-template>
+
+<app-accordion-group [headerTemplate]="accordionHeader" singleMode="false">
+  <ng-container *ngFor="let grp of (profile?.scopeGroups | async); trackBy: trackByScope">
+    <app-accordion [data]="grp" *appExpertiseLevel="grp.size === 0 ? 'developer' : 'user'">
+      <section class="card-content">
+        <div class="meta">
+          <div>
+            <span *ngIf="grp.domain">
+              <span>Domain:</span>
+              <span>{{grp.scope}}</span>
+            </span>
+
+            <span *ngIf="!grp.domain">
+              <span>Scope:</span>
+              <span>{{ scopeTranslation[grp.scope] }}</span>
+            </span>
+
+            <span>
+              <span>Most recent:</span>
+              <span>
+                {{ (grp.stats.lastConn || grp.stats.firstConn) * 1000 | date:'medium'}}
+              </span>
+            </span>
+          </div>
+
+          <div>
+            <span>
+              <span>Connections:</span>
+              <span>{{grp.size}}</span>
+            </span>
+
+            <span>
+              <span>Encrypted:</span>
+              <span>{{100 / grp.size * grp.stats.countEncrypted | number:'1.0-2'}}%</span>
+            </span>
+
+            <span *ngIf="!!grp.stats.countDNS">
+              <span>DNS Requests: </span>
+              <span>{{100 / grp.size * grp.stats.countDNS | number:'1.0-2'}}%</span>
+            </span>
+
+            <span *ngIf="!!grp.stats.countTCP">
+              <span>TCP: </span>
+              <span>{{100 / grp.size * grp.stats.countTCP | number:'1.0-2'}}%</span>
+            </span>
+
+            <span *ngIf="!!grp.stats.countUDP">
+              <span>UDP: </span>
+              <span>{{100 / grp.size * grp.stats.countUDP | number:'1.0-2'}}%</span>
+            </span>
+          </div>
+
+          <div>
+            <span *ngIf="!!grp.stats.distinctIPs?.size">
+              <span>IPs:</span>
+              <span>{{grp.stats.distinctIPs?.size}}</span>
+            </span>
+
+            <span *ngIf="!!grp.stats.distinctCountries?.size">
+              <span>Countries:</span>
+              <span>{{grp.stats.distinctCountries?.size}}</span>
+            </span>
+
+            <span *ngIf="!!grp.stats.distinctASNs?.size">
+              <span>ASNs:</span>
+              <span>{{grp.stats.distinctASNs?.size}}</span>
+            </span>
+          </div>
+        </div>
+
+        <h4>Connections / DNS Requests History</h4>
+        <ng-container *ngTemplateOutlet="connectionTable; context: {$implicit: grp.connections}"></ng-container>
+
+        <table *ngIf="!grp.hasNewConnections" class="waiting-connections">
+          <tr>
+            <td>
+              <span>
+                <fa-icon icon="spinner" [spin]="true"></fa-icon>
+              </span>
+              <span>Waiting for new connections</span>
+            </td>
+          </tr>
+        </table>
+
+        <ng-container *ngIf="!!(grp.oldConnections | async)?.length">
+          <h4>
+            Connections / DNS Requests History <i>with previous settings</i>
+          </h4>
+          <ng-container *ngTemplateOutlet="connectionTable; context: {$implicit: grp.oldConnections}"></ng-container>
+        </ng-container>
+
+      </section>
+    </app-accordion>
+  </ng-container>
+</app-accordion-group>
+
+<ng-template #connectionTable let-connections>
+  <div class="tableFixHead" [class.empty]="!!(connections | async)">
+    <table cdk-table [dataSource]="connections">
+      <!-- State Column -->
+      <ng-container cdkColumnDef="state">
+        <th cdk-header-cell *cdkHeaderCellDef> Approval </th>
+        <td cdk-cell *cdkCellDef="let conn">
+          <span class="trust-level {{ conn.Verdict === verdict.Accept ? 'low' : 'high' }}"></span>
+        </td>
+      </ng-container>
+
+      <!-- Reason Column -->
+      <ng-container cdkColumnDef="reason">
+        <th cdk-header-cell *cdkHeaderCellDef> Reason </th>
+        <td cdk-cell *cdkCellDef="let conn">
+          {{conn.Reason.Msg}}
+          <span class="port">by {{ !!conn.Reason.Profile ? "app" : "global" }}</span>
+        </td>
+      </ng-container>
+
+      <!-- Entity Column -->
+      <ng-container cdkColumnDef="entity">
+        <th cdk-header-cell *cdkHeaderCellDef> Entity </th>
+        <td cdk-cell *cdkCellDef="let conn">
+          <span *ngIf="!!conn.Entity?.Country" [appCountryFlags]="conn.Entity!.Country"></span>
+          {{ conn.Entity?.IP || 'DNS Request'}}
+          <span *ngIf="conn.Entity?.Port" class="port">{{ ':'+conn.Entity.Port }}</span>
+        </td>
+      </ng-container>
+
+      <!-- Started Column -->
+      <ng-container cdkColumnDef="started">
+        <th cdk-header-cell *cdkHeaderCellDef> Started </th>
+        <td cdk-cell *cdkCellDef="let conn"> {{conn.Started * 1000 | date:'shortTime'}} </td>
+      </ng-container>
+
+      <!-- Ended Column -->
+      <ng-container cdkColumnDef="ended">
+        <th cdk-header-cell *cdkHeaderCellDef> Ended </th>
+        <td cdk-cell *cdkCellDef="let conn">
+          <ng-container *ngIf="conn.Ended > 0">{{conn.Ended * 1000 | date:'shortTime'}}</ng-container>
+          <fa-icon *ngIf="!conn.Ended" icon="spinner" [spin]="true"></fa-icon>
+        </td>
+      </ng-container>
+
+      <!-- Actions Column -->
+      <ng-container cdkColumnDef="actions">
+        <th cdk-header-cell *cdkHeaderCellDef> </th>
+        <td cdk-cell *cdkCellDef="let conn">
+          <fa-icon icon="cog" (click)="redirectToSetting(conn.Reason.OptionKey)" *ngIf="!!conn.Reason.OptionKey">
+          </fa-icon>
+        </td>
+      </ng-container>
+
+      <tr cdk-header-row *cdkHeaderRowDef="displayedColumns"></tr>
+      <tr cdk-row *cdkRowDef="let row; columns: displayedColumns;" [class.ended]="row.Ended > 0"></tr>
+    </table>
+  </div>
+</ng-template>
+
+<!-- loading -->
+<div class="card-header" *ngIf="!profile || profile?.loading">
+  <fa-icon icon="chevron-down" class="chevron card-icon"></fa-icon>
+  <span class="card-title">
+    <app-text-placeholder mode="input"></app-text-placeholder>
+  </span>
+  <app-count-indicator [count]="0"></app-count-indicator>
+  <app-menu-trigger></app-menu-trigger>
+</div>
+
+<div class="card-header" *ngIf="!profile || profile?.loading && ((profile?.scopeGroups | async)?.length || 0) < 2">
+  <fa-icon icon="chevron-down" class="chevron card-icon"></fa-icon>
+  <span class="card-title">
+    <app-text-placeholder mode="input" width="small"></app-text-placeholder>
+  </span>
+  <app-count-indicator [count]="0"></app-count-indicator>
+  <app-menu-trigger></app-menu-trigger>
+</div>
+
+<div class="card-header" *ngIf="!profile || profile?.loading && ((profile?.scopeGroups | async)?.length || 0) < 3">
+  <fa-icon icon="chevron-down" class="chevron card-icon"></fa-icon>
+  <span class="card-title">
+    <app-text-placeholder mode="input" width="large"></app-text-placeholder>
+  </span>
+  <app-count-indicator [count]="0"></app-count-indicator>
+  <app-menu-trigger></app-menu-trigger>
+</div>

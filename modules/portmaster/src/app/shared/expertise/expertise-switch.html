@@ -1,0 +1,16 @@
+<app-dropdown [ngModel]="(currentLevel | async)" (ngModelChange)="selectLevel($event)">
+
+  <app-dropdown-item *dropDownValue="expertiseLevels.User">
+    Simple
+  </app-dropdown-item>
+
+  <app-dropdown-item *dropDownValue="expertiseLevels.Expert">
+    Advanced
+  </app-dropdown-item>
+
+  <ng-container *ngIf="savedLevel === expertiseLevels.Developer">
+    <app-dropdown-item *dropDownValue="expertiseLevels.Developer">
+      Developer
+    </app-dropdown-item>
+  </ng-container>
+</app-dropdown>

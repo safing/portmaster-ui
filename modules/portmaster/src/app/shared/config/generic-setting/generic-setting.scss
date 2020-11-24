@@ -1,0 +1,149 @@
+:host {
+  display : block;
+  position: relative;
+  @apply px-6;
+  @apply pt-2;
+
+  &.ng-invalid {
+    @apply border-info-red;
+    --border-opacity: 0.5;
+  }
+
+  &.locked {
+    background-color: rgba(var(--cards-secondary-rgb), var(--bg-opacity, 1));
+
+    .settings-wrapper {
+      opacity: 0.4;
+    }
+  }
+
+  .settings-wrapper {
+    opacity   : 1;
+    transition: all .3s ease-in-out;
+  }
+}
+
+.unlock-button {
+  --unlock-button-size: 30px;
+
+  display        : flex;
+  width          : var(--unlock-button-size);
+  height         : var(--unlock-button-size);
+  border-radius  : 50%;
+  justify-content: center;
+  align-items    : center;
+  cursor         : pointer;
+  @apply bg-buttons-light;
+  transition: opacity .4s ease-in-out;
+
+  opacity: 0.6;
+
+  &.locked {
+    opacity: 1;
+  }
+
+  position: absolute;
+  right   : calc(-1 *var(--unlock-button-size)/2);
+  top     : calc(50% - var(--unlock-button-size)/2);
+
+  &:hover {
+    @apply bg-buttons-dark;
+  }
+}
+
+div.setting-meta {
+  display        : flex;
+  justify-content: space-between;
+}
+
+h3 {
+  display: block;
+  width  : 100%;
+
+  .expertise {
+    @apply ml-2;
+    @apply text-xs;
+    @apply text-tertiary;
+  }
+
+  .release-level {
+    @apply mr-1;
+
+    &.beta {
+      color: theme('colors.info.yellow');
+    }
+
+    &.experimental {
+      color: theme('colors.info.red');
+    }
+  }
+}
+
+div.secondary-actions {
+  @apply mt-1;
+  @apply mb-1;
+
+  span {
+    cursor    : pointer;
+    visibility: hidden;
+    @apply text-tertiary;
+
+    &:hover {
+      @apply text-primary;
+    }
+
+    &.visible {
+      visibility: visible;
+    }
+
+    &:active,
+    &:focus {
+      outline: none;
+      color  : theme('colors.info.yellow');
+    }
+
+    &:not(:first-of-type) {
+      @apply ml-3;
+    }
+  }
+}
+
+.quick-settings {
+  width          : 100%;
+  display        : flex;
+  justify-content: flex-start;
+  align-items    : center;
+  @apply py-2;
+
+  button {
+    @apply ml-2;
+  }
+}
+
+.description,
+.help-text {
+  display: block;
+  @apply mt-2;
+  @apply mb-4;
+  @apply text-secondary;
+}
+
+.help-text {
+  @apply p-4;
+  @apply bg-cards-secondary;
+  @apply rounded;
+
+  .toggle {
+    position: relative;
+    left    : -0.25rem;
+    cursor  : pointer;
+
+    fa-icon {
+      @apply pr-1;
+    }
+
+    &:hover {
+      @apply text-primary;
+    }
+  }
+}

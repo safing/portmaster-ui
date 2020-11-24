@@ -1,0 +1,10 @@
+:host {
+  @apply text-xs;
+}
+
+p {
+  @apply font-medium;
+  @apply text-primary;
+
+  @apply mb-2;
+}

@@ -13,24 +13,23 @@ if [ ! -f "$GOPATH/src/github.com/mattn/go-gtk/tools/make_inline_pixbuf/make_inl
   exit 1
 fi
 
-
-for entry in $(ls *.png); do
+for entry in $(ls ../../assets/icons/pm_light_*512.png); do
 
   name=${entry%.png}
-  name=${name#icon}
+  name=${name#**/pm_light}
   filename="${name}.go"
 
   # png byte array
-  echo "packging png$filename"
-  echo -e "//+build !windows\n" > png$filename
-  cat "$entry" | 2goarray ${name}PNG icons >> png$filename
-  if [ $? -ne 0 ]; then
-    echo "error processing PNG $entry"
-    exit
-  fi
+  # echo "packging png$filename"
+  # echo -e "//+build !windows\n" > png$filename
+  # cat "$entry" | 2goarray ${name}PNG icons >> png$filename
+  # if [ $? -ne 0 ]; then
+  #   echo "error processing PNG $entry"
+  #   exit
+  # fi
 
   # GTK pixbuf
-  if [[ $name == "Portmaster256" ]]; then
+  if [[ $name == "_512" ]]; then
     echo "packging pb$filename"
     echo -e "//+build linux\n" > pb$filename
     echo "package icons" >> pb$filename
@@ -41,15 +40,14 @@ for entry in $(ls *.png); do
     fi
   fi
 
-
-
 done
 
-for entry in $(ls ../../assets/icons/level_*.ico); do
+exit 0
+
+for entry in $(ls ../../assets/icons/pm_light_*512.ico); do
 
   name=${entry%.ico}
-  name=${name#*/level_}
-  name=${name^} # uppercase first character
+  name=${name#**/pm_light}
   filename="${name}.go"
 
   # ico byte array

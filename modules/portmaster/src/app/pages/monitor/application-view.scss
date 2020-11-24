@@ -1,0 +1,109 @@
+:host {
+  display: block;
+}
+
+fa-icon[icon="chevron-right"] {
+  font-size: 0.8em;
+  @apply mx-1;
+}
+
+fa-icon[icon="spinner"] {
+  @apply text-3xl;
+  display   : block;
+  width     : 100%;
+  text-align: center;
+  height    : 6rem;
+}
+
+fa-icon[icon="cog"] {
+  @apply mx-2;
+  @apply text-primary;
+  cursor       : pointer;
+  border-radius: 50%;
+  @apply p-1;
+
+  &:hover {
+    @apply text-secondary;
+  }
+}
+
+ol.layers {
+  cursor: pointer;
+  @apply text-secondary;
+  @apply pl-2;
+
+  li {
+    &:before {
+      content: "- ";
+    }
+  }
+}
+
+h1 {
+  @apply my-6;
+  display    : flex;
+  align-items: center;
+
+  app-icon {
+    --app-icon-size: 35px;
+  }
+
+  .link {
+    display        : flex;
+    justify-content: center;
+    align-items    : center;
+    height         : 24px;
+    width          : 24px;
+    opacity        : .5;
+    @apply bg-buttons-dark;
+    @apply ml-4;
+    cursor       : pointer;
+    border-radius: 50%;
+    transition   : all .15s ease-in-out;
+
+    &:hover {
+      opacity: 1;
+      @apply bg-buttons-light;
+    }
+
+    fa-icon {
+      color          : theme('colors.buttons.icon');
+      display        : flex;
+      font-size      : 12px;
+      flex-direction : column;
+      align-items    : center;
+      justify-content: center;
+    }
+  }
+}
+
+.card-content {
+  flex-direction: row;
+
+  &>div {
+    flex-grow: 0.9;
+
+    &>span,
+    app-text-placeholder {
+      @apply my-1;
+      display: block;
+      @apply font-medium;
+
+      span:first-of-type {
+        @apply font-normal;
+        @apply text-tertiary;
+        @apply mr-1;
+      }
+
+      span:last-of-type {
+        @apply text-primary;
+      }
+
+    }
+  }
+}
+
+app-connections-view {
+  display: block;
+  @apply pl-5;
+}

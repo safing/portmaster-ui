@@ -1,0 +1,15 @@
+h4.breadcrumbs {
+  span {
+    outline: none;
+    @apply text-secondary;
+
+    &:hover {
+      @apply text-primary;
+      text-decoration: underline;
+    }
+
+    &:last-of-type {
+      @apply text-primary;
+    }
+  }
+}

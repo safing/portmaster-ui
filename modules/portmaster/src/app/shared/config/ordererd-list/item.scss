@@ -1,0 +1,54 @@
+:host {
+    display: flex;
+    outline: none;
+  
+    &>* {
+      @apply rounded;
+      @apply bg-buttons-light;
+  
+      &:not(:last-child) {
+        @apply mr-1;
+      }
+    }
+  }
+
+
+div.value {
+    @apply p-2;
+    @apply px-2;
+  
+    &.edit {
+      @apply p-0;
+      @apply pr-2;
+  
+      input {
+        margin   : 0;
+        width    : auto;
+        flex-grow: 1;
+        border   : none;
+      }
+    }
+  
+    flex-grow      : 1;
+    display        : flex;
+    justify-content: space-between;
+    align-items    : center;
+  
+    .buttons {
+      flex-shrink: 0;
+      @apply ml-2;
+  
+      fa-icon {
+        cursor: pointer;
+        @apply text-primary;
+        @apply p-1;
+        opacity  : 0.7;
+        font-size: 0.6rem;
+  
+        &:hover {
+          opacity: 1;
+        }
+      }
+    }
+  }
+  

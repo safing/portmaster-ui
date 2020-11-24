@@ -1,0 +1,5 @@
+<app-multi-switch [ngModel]="value" (ngModelChange)="onValueChange($event)">
+  <app-switch-item [id]="false" group="0" borderColorActive="var(--info-red)" [selected]="!value">Off
+  </app-switch-item>
+  <app-switch-item [id]="true" group="1" [selected]="value">On</app-switch-item>
+</app-multi-switch>

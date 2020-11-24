@@ -1,0 +1,28 @@
+<ng-container *ngFor="let notif of notifications; trackBy: notifsService.trackBy; let index=index">
+  <div class="row" (click)="toggelView(notif)" [style.--index]="index" [class.move-up]="notif === expandedNotification"
+    [class.fade-out]="!!expandedNotification">
+    <div class="type">
+      <span class="trust-level" [class.low]="notif.Type === types.Info"
+        [class.medium]="notif.Type === types.Warning"></span>
+    </div>
+    <div class="preview">
+      <span>
+        {{notif.Title || notif.Message}}
+        <span *ngIf="!!notif.Category" class="category">{{notif.Category}}</span>
+      </span>
+      <div class="buttons">
+        <button *ngFor="let action of notif!.AvailableActions" (click)="execute(notif!, action.ID, $event)">
+          {{action.Text}}
+        </button>
+      </div>
+    </div>
+  </div>
+</ng-container>
+
+<div class="notification-body" [style.--count]="notifications.length" [@fadeIn] *ngIf="!!expandedNotification">
+  <markdown class="message" emoji [data]="expandedNotification?.Message"></markdown>
+</div>
+
+<div class="placeholder" *ngIf="!notifications.length">
+  No Notifications
+</div>

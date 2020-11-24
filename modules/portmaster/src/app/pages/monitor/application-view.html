@@ -1,0 +1,61 @@
+<h1>
+  <app-icon [profile]="profile"></app-icon>
+  {{profile?.Name}}
+  <div [routerLink]="['/', 'app', profile?.Source , profile?.ID]" class="link">
+    <fa-icon icon="cog"></fa-icon>
+  </div>
+</h1>
+
+<app-profile-stats [total]="profile?.size || 0" [stats]="stats" [@fadeIn] *ngIf="!loading"></app-profile-stats>
+
+<fa-icon icon="spinner" [spin]="true" *ngIf="loading"></fa-icon>
+
+<h3>App</h3>
+
+<div class="card-header open">
+  <app-icon [profile]="profile?.profile"></app-icon>
+  <span class="card-title">
+    <app-text-placeholder mode="input" [loading]="!profile?.profile">
+      {{profile?.profile?.Name}}
+    </app-text-placeholder>
+  </span>
+  <fa-icon icon="cog" [routerLink]="['/', 'app', profile?.Source, profile?.ID]"></fa-icon>
+
+  <app-count-indicator [count]="profile?.size || 0" [loading]="profile?.hasOldConnections"></app-count-indicator>
+</div>
+
+<div class="card-content">
+  <div>
+    <app-text-placeholder mode="input" [loading]="!profile?.profile" width="large">
+      <span>Executable:</span>
+      <span>{{profile?.profile?.LinkedPath || 'N/A'}}</span>
+    </app-text-placeholder>
+
+    <span *ngIf="(profile?.profile?.ApproxLastUsed || 0) > 0">
+      <span>Last Used:</span>
+      <span>{{profile!.profile!.ApproxLastUsed * 1000 | date:'medium'}}</span>
+    </span>
+  </div>
+
+  <div *appExpertiseLevel="'developer'">
+    <span>
+      <span>Profile:</span>
+      <span>{{profile?.ID}}</span>
+    </span>
+    <span>
+      <span>Revision:</span>
+      <span>{{profile?.currentProfileRevision}}</span>
+    </span>
+    <span>
+      <span>Layers:</span>
+      <span>
+        <ol class="layers">
+          <li *ngFor="let layer of profile?.layers" [routerLink]="['/', 'app'].concat(layer.split('/'))">{{layer}}</li>
+        </ol>
+      </span>
+    </span>
+  </div>
+</div>
+
+<app-connections-view [profile]="profile" [@fadeIn]>
+</app-connections-view>

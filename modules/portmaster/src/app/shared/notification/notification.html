@@ -1,0 +1,13 @@
+<label class="message" *ngIf="!allowMarkdown; else: markdownTemplate">{{ notification?.Message }} </label>
+
+<ng-template #markdownTemplate>
+  <markdown class="message" emoji [data]="notification?.Message"></markdown>
+</ng-template>
+
+<div *ngIf="!!(notification?.AvailableActions)">
+  <button *ngFor="let action of notification!.AvailableActions"
+    [class.selected]="action.ID === notification!.SelectedActionID" [disabled]="state === 'invalid'"
+    (click)="execute(notification!, action.ID)">
+    {{action.Text}}
+  </button>
+</div>

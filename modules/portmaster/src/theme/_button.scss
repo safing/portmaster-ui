@@ -1,0 +1,42 @@
+button {
+  @apply text-xs;
+  @apply bg-buttons-dark;
+  @apply p-1;
+  @apply px-4;
+  @apply capitalize;
+  @apply rounded-sm;
+  @apply font-medium;
+
+  outline: none;
+
+  &:hover {
+    @apply bg-buttons-light;
+  }
+
+  &:disabled {
+    @apply cursor-not-allowed;
+    opacity: 0.5;
+  }
+
+  &:active {
+    @apply shadow-inner-xs;
+    @apply bg-buttons-dark;
+  }
+
+  &:hover,
+  &:focus,
+  &:active {
+    outline: none;
+  }
+}
+
+.info-circle {
+  width          : 18px;
+  height         : 18px;
+  display        : flex;
+  justify-content: center;
+  align-items    : center;
+  font-size      : 0.8em;
+  @apply rounded-full;
+  @apply bg-buttons-dark;
+}

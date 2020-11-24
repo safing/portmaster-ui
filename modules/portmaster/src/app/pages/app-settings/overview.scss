@@ -1,0 +1,36 @@
+:host {
+  justify-content: flex-start;
+}
+
+
+.grid-container {
+  display              : grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap                  : 1rem;
+}
+
+.scrollable {
+  @apply mr-4;
+}
+
+h4 {
+  @apply pl-12;
+  @apply bg-background;
+  @apply pb-2;
+  width   : 100%;
+  position: sticky;
+  top     : 0px;
+}
+
+.content {
+  @apply mb-6;
+  @apply pr-0;
+  flex-shrink: 0;
+}
+
+.card-header {
+  // Card headers have top-margin by default.
+  // Since we're using a grid-gap anyway we need
+  // to clear the margin.
+  @apply mt-0;
+}

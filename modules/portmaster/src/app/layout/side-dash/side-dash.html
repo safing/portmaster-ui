@@ -1,0 +1,21 @@
+<div class="widget-list" cdkDropList cdkDragLockAxis="y" (cdkDropListDropped)="drop($event)">
+  <div class="widget" *ngFor="let widget of widgets; trackBy: widgetService.trackBy" cdkDrag>
+    <div class="buttons">
+      <fa-icon icon="grip-vertical" cdkDragHandle></fa-icon>
+      <fa-icon class="edit-icon" *ngIf="!!widget.definition.settingsComponent || expertise === 'developer'" icon="pen"
+        routerLink="/widget/edit/{{widget.key}}">
+      </fa-icon>
+    </div>
+
+    <ng-container [cdkPortalOutlet]="widget.portal"></ng-container>
+  </div>
+</div>
+
+<div class="new-widget widget no-wd" *appExpertiseLevel="'developer'" routerLink="/widget/new">
+  <fa-icon icon="plus-circle" [inverse]="false"></fa-icon>
+  <span class="secondary-text">Add widget</span>
+
+  <div class="buttons">
+    <fa-icon icon="question-circle"></fa-icon>
+  </div>
+</div>

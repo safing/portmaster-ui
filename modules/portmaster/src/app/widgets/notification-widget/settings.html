@@ -1,0 +1,11 @@
+<p>
+  This widget displays current notifications and threats.
+  It's recommended to keep this widget in your side dash.
+</p>
+
+<div class="form-field">
+  <label for="allowMarkdown">Render Markdown</label>
+  <span style="width: 1rem"></span>
+  <app-toggle-switch name="allowMarkdown" [(ngModel)]="config.markdown" (ngModelChange)="update();">
+  </app-toggle-switch>
+</div>

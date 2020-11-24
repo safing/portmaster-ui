@@ -1,0 +1,12 @@
+:host {
+  display: block;
+}
+
+div {
+  display        : flex;
+  flex-wrap      : nowrap;
+  text-align     : right;
+  justify-content: flex-end;
+  align-items    : center;
+  @apply mt-2;
+}

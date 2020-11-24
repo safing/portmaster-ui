@@ -1,0 +1,77 @@
+:host {
+  display: block;
+  width  : fit-content;
+
+  &:disabled {
+    button {
+      cursor: not-allowed;
+    }
+  }
+}
+
+button {
+  cursor        : pointer;
+  padding       : 0;
+  position      : relative;
+  min-width     : 6rem;
+  width         : fit-content;
+  white-space   : nowrap;
+  display       : flex;
+  align-items   : center;
+  outline       : none;
+  text-transform: none;
+  @apply bg-buttons-light;
+  transition: all cubic-bezier(0.175, 0.885, 0.32, 1) .2s;
+
+  &.active {
+    @apply bg-buttons-dark;
+    @apply shadow-inner;
+
+    .arrow {
+      @apply shadow-inner-xs;
+
+      fa-icon {
+        transform: rotateZ(180deg);
+      }
+    }
+  }
+
+  span {
+    @apply p-2;
+    @apply px-3;
+    flex-grow : 1;
+    text-align: center;
+  }
+
+  .arrow {
+    @apply p-2;
+    @apply bg-buttons-dark;
+    @apply rounded-r-sm;
+
+    width          : 2rem;
+    display        : flex;
+    align-items    : center;
+    justify-content: space-around;
+
+    fa-icon {
+      transition: all cubic-bezier(0.175, 0.885, 0.32, 1) .3s;
+    }
+  }
+}
+
+ul.item-list {
+  width  : 100%;
+  display: block;
+  @apply bg-buttons-light;
+  @apply shadow-xl;
+
+  li {
+    cursor: pointer;
+    @apply p-2;
+    @apply px-4;
+
+    &:hover {
+      @apply bg-buttons-dark;
+    }
+  }
+}

@@ -1,0 +1,133 @@
+:host {
+  overflow      : hidden;
+  max-height    : 50vh;
+  display       : flex;
+  flex-direction: column;
+
+  @apply py-2;
+  @apply bg-background;
+
+  &:not(.empty) {
+    @apply bg-cards-primary
+  }
+}
+
+app-icon {
+  --app-icon-size: 20px;
+}
+
+.scrollable {
+  @apply p-0;
+}
+
+.group {
+  @apply mb-3;
+
+  .group-header {
+    @apply mb-2;
+    @apply px-2;
+    display    : flex;
+    align-items: center;
+
+    .app-name {
+      flex-grow: 1;
+    }
+
+    span.prompt-count {
+      @apply mr-1;
+    }
+  }
+}
+
+app-menu-item.item-seperator {
+  @apply border-t;
+  @apply border-buttons-dark
+}
+
+.no-prompts {
+  @apply text-tertiary;
+  width          : 100%;
+  display        : flex;
+  justify-content: center;
+  align-items    : center;
+  flex-direction : column;
+}
+
+.prompts {
+  display: flex;
+
+  .border {
+    margin-left: calc(0.5rem + 9px);
+    width      : 0.5rem;
+
+    @apply border-l-2;
+    @apply border-b-2;
+
+    @apply border-buttons-light;
+  }
+
+  .prompt-container,
+  .prompt,
+  .actions {
+    @apply p-2;
+    display: flex;
+  }
+
+  .prompt-container {
+    flex-grow     : 1;
+    flex-direction: column;
+
+    .prompt {
+      @apply px-3;
+      @apply mb-2;
+      @apply bg-cards-tertiary;
+      @apply rounded;
+
+      align-items: center;
+
+      .entity {
+        flex-grow  : 1;
+        word-break : break-all;
+        white-space: normal;
+
+        .country-flag {
+          @apply mr-1;
+        }
+
+        .subdomain {
+          @apply text-secondary;
+        }
+      }
+
+      .actions {
+        min-width: 5rem;
+        flex-wrap: wrap;
+
+        button {
+          outline: none;
+          @apply bg-transparent;
+
+          &:last-of-type {
+            @apply bg-buttons-dark;
+          }
+
+          &:hover {
+            @apply bg-buttons-light;
+          }
+        }
+      }
+    }
+  }
+
+  .more-available {
+    @apply text-secondary;
+    position  : relative;
+    top       : 1rem;
+    margin-top: -1rem;
+    cursor    : pointer;
+
+    &:hover {
+      @apply text-primary;
+    }
+  }
+}

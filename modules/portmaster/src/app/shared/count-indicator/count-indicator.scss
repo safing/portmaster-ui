@@ -1,0 +1,47 @@
+:host {
+  display        : flex;
+  width          : 3rem;
+  height         : 18px;
+  align-items    : center;
+  justify-content: flex-end;
+
+  font-size  : 0.6rem;
+  line-height: 18px;
+
+  @apply pl-2;
+
+  @apply bg-buttons-dark;
+  border-radius: 0.5rem;
+
+  .counter {
+    flex-grow : 1;
+    display   : inline-block;
+    text-align: center;
+  }
+
+  div.state {
+    @apply bg-buttons-light;
+
+    .trust-level:before {
+      top: 0px;
+    }
+  }
+}
+
+fa-icon {
+  &.low {
+    color: theme("colors.info.green");
+  }
+
+  &.medium {
+    color: theme("colors.info.yellow");
+  }
+
+  &.off {
+    color: theme("colors.info.gray");
+  }
+
+  &.high {
+    color: theme("colors.info.red");
+  }
+}

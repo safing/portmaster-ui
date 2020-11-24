@@ -1,0 +1,153 @@
+:host {
+  overflow      : hidden;
+  flex-direction: row;
+}
+
+div.sidebar {
+  width   : calc(4.5rem * 4);
+  overflow: auto;
+  @apply border-r-2;
+  @apply border-cards-tertiary;
+}
+
+.sidebar-header {
+  @apply py-1;
+  @apply px-3;
+
+  .row {
+    display        : flex;
+    justify-content: space-between;
+    align-items    : center;
+    flex-wrap      : nowrap;
+
+    h4 {
+      @apply text-primary;
+      @apply py-3;
+      flex-shrink  : 1;
+      overflow     : hidden;
+      white-space  : nowrap;
+      text-overflow: ellipsis;
+    }
+
+    .note {
+      position: relative;
+      top     : -1.1rem;
+      @apply text-tertiary;
+    }
+
+    .buttons {
+      z-index        : 1; // need to be above span.note
+      display        : flex;
+      justify-content: space-evenly;
+      align-items    : center;
+      height         : 100%;
+
+      &>*:not(:last-child) {
+        @apply mr-2;
+      }
+    }
+  }
+}
+
+fa-icon[icon="chevron-right"] {
+  font-size: 0.8em;
+  @apply mx-1;
+}
+
+div.details-view {
+  flex-grow: 1;
+
+  display       : flex;
+  flex-direction: column;
+
+  .content {
+    display  : block;
+    flex-grow: 1;
+  }
+}
+
+.card-icon {
+  font-size: 1.5em; // em!!
+  color    : theme('colors.info.green');
+
+  &.loading {
+    @apply text-tertiary;
+  }
+}
+
+li.overview {
+  display   : block;
+  text-align: center;
+  @apply text-tertiary;
+}
+
+app-loading {
+  @apply mt-4;
+  margin-left : auto;
+  margin-right: auto;
+}
+
+$transition-duration : .3s;
+
+.search-container {
+  position       : relative;
+  width          : 1rem;
+  height         : 100%;
+  display        : flex;
+  justify-content: flex-start;
+  align-items    : center;
+  margin         : auto;
+  overflow       : hidden;
+  transition     : all, $transition-duration;
+
+  &:hover,
+  &.active {
+    width: calc(4.5 * 4rem - 2*0.75rem);
+  }
+
+  & input[type="text"] {
+    width      : 0px;
+    flex-shrink: 1;
+    float      : left;
+    transition : all, $transition-duration;
+    @apply rounded;
+
+    &::-webkit-input-placeholder {
+      @apply text-secondary;
+    }
+  }
+
+  &:hover,
+  &.active {
+    input[type="text"] {
+      flex-grow: 1;
+      width    : auto;
+    }
+
+    .search-button {
+      display: none;
+    }
+  }
+
+  .search-button {
+    width : 1rem;
+    height: 1rem;
+    @apply mr-2;
+  }
+
+  fa-icon[icon="times"] {
+    position  : absolute;
+    right     : 1rem;
+    cursor    : pointer;
+    opacity   : 0;
+    transition: all, $transition-duration;
+
+    &.visible {
+      opacity: 1;
+    }
+
+    &:hover {
+      @apply text-primary;
+    }
+  }
+}

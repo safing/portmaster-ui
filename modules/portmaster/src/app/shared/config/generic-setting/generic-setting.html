@@ -1,0 +1,73 @@
+<div class="settings-wrapper">
+
+  <div class="setting-meta">
+    <h3 for="setting">
+      <span class="release-level beta" *ngIf="setting?.ReleaseLevel === releaseLevel.Beta">Beta</span>
+      <span class="release-level experimental"
+        *ngIf="setting?.ReleaseLevel === releaseLevel.Experimental">Experimental</span>
+
+      <span [innerHTML]="setting?.Name | safe:'html'"></span>
+
+      <span class="expertise" *ngIf="setting?.ExpertiseLevel === expertise.expert">Advanced</span>
+      <span class="expertise" *ngIf="setting?.ExpertiseLevel === expertise.developer">Developer</span>
+
+      <span class="expertise" *appExpertiseLevel="'developer'">{{setting?.Key}}</span>
+    </h3>
+  </div>
+
+  <markdown class="description" emoji [data]="setting?.Description"></markdown>
+
+  <div class="help-text" *ngIf="!!setting?.Help">
+    <span class="toggle" (click)="toggleHelp()">
+      <fa-icon icon="question-circle"></fa-icon>
+      {{ !showHelp ? 'Show Help' : 'Hide Help'}}
+    </span>
+
+    <markdown *ngIf="showHelp" [@fadeIn] [@fadeOut] class="help-text" emoji [data]="setting?.Help"></markdown>
+  </div>
+
+  <!-- Quick Settings -->
+  <div *ngIf="quickSettings.length > 0" class="quick-settings">
+    <span>Quick Settings: </span>
+    <button *ngFor="let quick of quickSettings" (click)="applyQuickSetting(quick)">
+      {{quick.Name}}
+    </button>
+  </div>
+
+  <ng-container [ngSwitch]="externalOptType(setting)">
+    <app-security-setting *ngSwitchCase="optionHint.SecurityLevel" [disabled]="disabled || isLocked"
+      [autoFocus]="!isLocked" [setting]="_setting" [ngModel]="_currentValue"
+      (ngModelChange)="updateValue($event, true)">
+    </app-security-setting>
+
+    <app-filter-list *ngSwitchCase="optionHint.EndpointList" [readonly]="disabled || isLocked" [ngModel]="_currentValue"
+      [autoFocus]="!isLocked" (ngModelChange)="updateValue($event, true)"></app-filter-list>
+
+    <app-ordered-list *ngSwitchCase="optionHint.OrderedList" [ngModel]="_currentValue" [autoFocus]="!isLocked"
+      (ngModelChange)="updateValue($event, true)" [readonly]="disabled || isLocked"></app-ordered-list>
+
+    <ng-container *ngSwitchDefault>
+      <app-ordered-list *ngIf="setting?.OptType == optionType.StringArray; else: basicSetting" fixedOrder="true"
+        [autoFocus]="!isLocked" [ngModel]="_currentValue" (ngModelChange)="updateValue($event, true)"
+        [readonly]="disabled || isLocked">
+      </app-ordered-list>
+
+      <ng-template #basicSetting>
+        <app-basic-setting [setting]="_setting" [disabled]="disabled || isLocked" [ngModel]="_currentValue"
+          [autoFocus]="!isLocked" (ngModelChange)="updateValue($event)" (onBlur)="updateValue(_currentValue!, true)">
+        </app-basic-setting>
+      </ng-template>
+    </ng-container>
+
+  </ng-container>
+
+  <div class="secondary-actions">
+    <span [class.visible]="userConfigured" tabindex="0" (click)="resetValue()">
+      {{resetLabelText}}
+    </span>
+  </div>
+</div>
+
+<span class="unlock-button" [class.locked]="isLocked" *ngIf="lockDefaults" (click)="toggleLock()">
+  <fa-icon [icon]="isLocked ? 'pen' : 'times'"></fa-icon>
+</span>

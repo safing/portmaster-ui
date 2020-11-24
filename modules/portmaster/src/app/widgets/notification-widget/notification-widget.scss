@@ -1,0 +1,131 @@
+:host {
+  --slot-size: 2.25rem;
+
+  position       : relative;
+  display        : flex;
+  justify-content: flex-start;
+  flex-direction : column;
+  align-items    : center;
+  overflow-x     : hidden;
+  overflow-y     : auto;
+  max-height     : calc(var(--slot-size) * 5);
+  @apply bg-background;
+
+  &:not(.empty) {
+    min-height: calc(var(--slot-size) * 3);
+    @apply bg-cards-primary;
+  }
+
+  &>* {
+    /* do not allow to shrink  */
+    flex-shrink: 0;
+  }
+}
+
+.row,
+.notification-body,
+div.placeholder {
+  display       : flex;
+  flex-direction: column;
+  width         : 100%;
+  margin        : 0;
+  border        : none;
+}
+
+.row {
+  width         : 100%;
+  overflow      : hidden;
+  display       : flex;
+  flex-direction: row;
+  height        : var(--slot-size);
+  transition    : all .2s ease-in-out;
+
+  &.fade-out {
+    opacity: 0.5;
+  }
+
+  &.move-up {
+    transform: translateY(calc(-1 * var(--index) * (var(--slot-size) + 0.25rem)));
+    opacity  : 1;
+
+    .preview {
+      @apply bg-buttons-dark;
+    }
+  }
+
+  &:not(:first-of-type) {
+    @apply mt-1;
+  }
+
+  .type {
+    display        : flex;
+    justify-content: center;
+    align-items    : center;
+    width          : var(--slot-size);
+    flex-shrink    : 0;
+    flex-grow      : 0;
+  }
+
+  .preview {
+    @apply bg-cards-tertiary;
+    @apply px-4;
+    cursor         : pointer;
+    overflow       : hidden;
+    flex-grow      : 1;
+    display        : flex;
+    justify-content: space-between;
+    align-items    : center;
+    transition     : all .2s ease-in-out;
+
+    span {
+      flex-grow    : 1;
+      text-overflow: ellipsis;
+      overflow     : hidden;
+      word-wrap    : none;
+      white-space  : nowrap;
+
+      .category {
+        font-size     : 0.9em;
+        text-transform: capitalize;
+        @apply text-tertiary;
+      }
+    }
+
+    .buttons {
+      flex-grow  : 0;
+      flex-shrink: 0;
+
+      button:not(:first-of-type) {
+        background: transparent;
+        @apply ml-1;
+      }
+    }
+  }
+}
+
+.notification-body {
+  @apply bg-cards-tertiary;
+  flex-grow: 1;
+  @apply rounded-b;
+  position: absolute;
+  top     : var(--slot-size);
+  bottom  : 0;
+}
+
+div.placeholder {
+  @apply font-medium;
+  @apply text-tertiary;
+  position       : relative;
+  display        : flex;
+  flex-direction : column;
+  justify-content: center;
+  align-items    : center;
+}
+
+app-loading {
+  opacity     : .5;
+  margin-left : auto;
+  margin-right: auto;
+  position    : relative;
+  top         : 5px;
+}
