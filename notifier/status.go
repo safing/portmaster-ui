@@ -2,8 +2,6 @@ package main
 
 import (
 	"fmt"
-	"sort"
-	"strings"
 	"sync"
 
 	"github.com/safing/portbase/api/client"
@@ -13,103 +11,61 @@ import (
 
 // Security Level constants
 const (
-	SecurityLevelOffline uint8 = 0
-	SecurityLevelNormal  uint8 = 1
-	SecurityLevelHigh    uint8 = 2
-	SecurityLevelExtreme uint8 = 4
+	SecurityLevelAutoDetect uint8 = 0
+	SecurityLevelTrusted    uint8 = 1
+	SecurityLevelUntrusted  uint8 = 2
+	SecurityLevelDanger     uint8 = 4
 
-	systemStatusKey = "core:status/status"
+	systemStatusKey         = "runtime:system/status"
+	selectSecurityStatusKey = "runtime:system/security-level"
 )
 
 var (
-	activeStatus     *SystemStatus
-	activeStatusLock sync.Mutex
+	status     = new(SystemStatus)
+	statusLock sync.Mutex
 )
 
 // SystemStatus saves basic information about the Portmasters system status.
 type SystemStatus struct {
-	ActiveSecurityLevel   uint8
+	// ActiveSecurityLevel holds the currently
+	// active security level.
+	ActiveSecurityLevel uint8
+	// SelectedSecurityLevel holds the security level
+	// as selected by the user.
 	SelectedSecurityLevel uint8
-
-	// PortmasterStatus    uint8
-	// PortmasterStatusMsg string
-
-	// Gate17Status    uint8
-	// Gate17StatusMsg string
-
-	// ThreatMitigationLevel uint8
-	Threats map[string]*Threat
-
-	// UpdateStatus string
+	// ThreatMitigationLevel holds the security level
+	// as selected by the auto-pilot.
+	ThreatMitigationLevel uint8
 }
 
-// ThreatList is a slice of Threats
-type ThreatList []*Threat
+// GetStatus returns the system status.
+func GetStatus() *SystemStatus {
+	statusLock.Lock()
+	defer statusLock.Unlock()
 
-// Len is the number of elements in the collection.
-func (t ThreatList) Len() int {
-	return len(t)
+	return status
 }
 
-// Less reports whether the element with
-// index i should sort before the element with index j.
-func (t ThreatList) Less(i, j int) bool {
-	return t[i].ID < t[j].ID
+func updateStatus(s *SystemStatus) {
+	statusLock.Lock()
+	defer statusLock.Unlock()
+
+	status = s
 }
 
-// Swap swaps the elements with indexes i and j.
-func (t ThreatList) Swap(i, j int) {
-	t[i], t[j] = t[j], t[i]
-}
-
-// Threat describes a detected threat.
-type Threat struct {
-	ID string // A unique ID chosen by reporting module (eg. modulePrefix-incident) to periodically check threat existence
-	// Name            string      // Descriptive (human readable) name for detected threat
-	Description string // Simple description
-	// AdditionalData  interface{} // Additional data a module wants to make available for the user
-	// MitigationLevel uint8       // Recommended Security Level to switch to for mitigation
-	// Started         int64
-	// Ended           int64
-}
-
-// FmtThreats returns the current threats in a readable format.
-func (s *SystemStatus) FmtThreats() string {
-	if s == nil || len(s.Threats) == 0 {
-		return "No threats detected."
-	}
-
-	// transform to slice
-	threats := make(ThreatList, 0, len(s.Threats))
-	for _, item := range s.Threats {
-		threats = append(threats, item)
-	}
-
-	// sort
-	sort.Sort(threats)
-
-	var messages []string
-	for _, threat := range threats {
-		messages = append(messages, threat.Description)
-	}
-	return strings.Join(messages, "\n")
-}
-
-func fmtLevel(level uint8, active bool) string {
+func fmtSecurityLevel(level uint8) string {
 	switch level {
-	case SecurityLevelOffline:
-		if active {
-			return "Offline"
-		}
-		return "Autopilot"
-	case SecurityLevelNormal:
-		return "Normal"
-	case SecurityLevelHigh:
-		return "High"
-	case SecurityLevelExtreme:
-		return "Extreme"
+	case SecurityLevelAutoDetect:
+		return "AutoDetect"
+	case SecurityLevelTrusted:
+		return "Trusted"
+	case SecurityLevelUntrusted:
+		return "Untrusted"
+	case SecurityLevelDanger:
+		return "Danger"
+	default:
+		return "Unknown"
 	}
-	return "Unknown"
 }
 
 func statusClient() {
@@ -124,44 +80,25 @@ func handleSystemStatus(m *client.Message) {
 	case client.MsgSuccess:
 	case client.MsgOk, client.MsgUpdate, client.MsgNew:
 
-		activeStatusLock.Lock()
-		defer activeStatusLock.Unlock()
-
 		newStatus := &SystemStatus{}
 		_, err := dsd.Load(m.RawValue, newStatus)
 		if err != nil {
 			log.Warningf("status: failed to parse new status: %s", err)
 			return
 		}
-
-		updateActiveLevel := activeStatus == nil || newStatus.ActiveSecurityLevel != activeStatus.ActiveSecurityLevel
-		updateSelectedLevel := activeStatus == nil || newStatus.SelectedSecurityLevel != activeStatus.SelectedSecurityLevel
-		newThreatInfo := newStatus.FmtThreats()
-		updateThreatInfo := activeStatus == nil || newThreatInfo != activeStatus.FmtThreats()
-
-		go func() {
-			if updateActiveLevel {
-				displayActiveLevel(newStatus.ActiveSecurityLevel)
-			}
-			if updateSelectedLevel {
-				displaySelectedLevel(newStatus.SelectedSecurityLevel)
-			}
-			if updateThreatInfo {
-				displayThreatInfo(newThreatInfo)
-			}
-		}()
-
-		activeStatus = newStatus
+		updateStatus(newStatus)
+		triggerTrayUpdate()
 
 	case client.MsgDelete:
 	case client.MsgWarning:
 	case client.MsgOffline:
-		activeStatus = nil // reset status so that everything is refreshed on reconnect
-		go displayActiveLevel(SecurityLevelOffline)
+
+		updateStatus(new(SystemStatus))
+
 	}
 }
 
 // SelectSecurityLevel sets the selected security level
 func SelectSecurityLevel(level uint8) {
-	apiClient.Update(systemStatusKey, &SystemStatus{SelectedSecurityLevel: level}, nil)
+	apiClient.Update(selectSecurityStatusKey, &SystemStatus{SelectedSecurityLevel: level}, nil)
 }

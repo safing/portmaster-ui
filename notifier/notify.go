@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"strings"
 	"sync"
+	"time"
 
 	"github.com/safing/portbase/api/client"
 	"github.com/safing/portbase/formats/dsd"
@@ -91,4 +92,8 @@ func clearNotifications() {
 	for _, n := range notifications {
 		n.Cancel()
 	}
+
+	// Wait for goroutines that cancel notifications.
+	// TODO: Revamp to use a waitgroup.
+	time.Sleep(1 * time.Second)
 }
