@@ -88,7 +88,7 @@ function build {
 
       # zip up!
       mkdir -p ../$destDir
-      zip -r ../$destPath *
+      zip -r -9 -db "../$destPath" *
 
       echo -e "\n${COL_BOLD}[modules] $module v$version: ${COL_GREEN}successfully built.${COL_OFF}"
 
@@ -101,6 +101,10 @@ function build {
 function reset {
   for module in *; do
     if [[ -f "$module/package.json" ]]; then
+      if [[ -f "$module/.ignore" ]]; then
+        continue
+      fi
+
       # go to module dir
       cd $module
       # prep env
