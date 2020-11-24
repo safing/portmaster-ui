@@ -1,6 +1,7 @@
 import { remote, shell } from 'electron';
 import { platform } from 'os';
 import { resolve } from 'path';
+import { DataDir } from "./datadir";
 
 /**
  * AppAPI is exposed via the Window object and used by the portmaster application
@@ -11,7 +12,7 @@ export class AppAPI {
     readonly platform = platform();
 
     /** The installation directory of portmaster. */
-    readonly installDir = remote.app.commandLine.getSwitchValue("data");
+    readonly installDir = DataDir;
 
     /** Provides direct access to all commandline switches. */
     readonly commandLine = remote.app.commandLine;
