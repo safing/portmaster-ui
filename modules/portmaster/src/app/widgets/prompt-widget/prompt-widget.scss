@@ -69,8 +69,9 @@ app-menu-item.item-seperator {
   .prompt-container,
   .prompt,
   .actions {
-    @apply p-2;
     display: flex;
+    padding-top: 0.22rem;
+    padding-bottom: 0.22rem;
   }
 
   .prompt-container {
@@ -78,17 +79,20 @@ app-menu-item.item-seperator {
     flex-direction: column;
 
     .prompt {
-      @apply px-3;
       @apply mb-2;
       @apply bg-cards-tertiary;
-      @apply rounded;
 
+      padding-left: 1.25rem;
+      padding-right: 1rem;
+
+      border-radius: 2.5px;
       align-items: center;
 
       .entity {
         flex-grow  : 1;
         word-break : break-all;
         white-space: normal;
+        font-weight: 400;
 
         .country-flag {
           @apply mr-1;

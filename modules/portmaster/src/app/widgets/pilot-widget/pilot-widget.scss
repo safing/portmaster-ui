@@ -44,7 +44,7 @@
 
   svg.shield {
     margin-top: -3.5rem;
-    width     : 9rem;
+    width     : 7.25rem;
 
     path {
       top             : 0px;
@@ -60,7 +60,7 @@
 
     &.low {
       .shield-one {
-        fill     : var(--protection-primary);
+        fill: var(--protection-ok-primary);
         transform: scale(.62);
       }
 
@@ -70,12 +70,12 @@
       }
 
       .shield-two {
-        fill           : var(--protection-secondary);
+        fill: var(--protection-ok-secondary);
         animation-delay: 1.2s;
       }
 
       .shield-three {
-        fill           : var(--protection-tertiary);
+        fill: var(--protection-ok-tertiary);
         animation-delay: 2.5s;
       }
     }
@@ -135,22 +135,23 @@
     align-items    : center;
     justify-content: space-around;
     @apply mr-2;
-    @apply p-1;
     position  : relative;
     margin-top: 2.25rem;
+    padding: 0.25rem;
 
     h2 {
       padding   : 0;
       margin    : 0;
-      margin-top: -0.85rem;
-      font-size : 1.3rem;
+      margin-top: -0.45rem;
+      font-size : 1rem;
+      font-weight: 500;
     }
 
     span {
       padding-top: 0.15rem;
       margin     : 0;
       opacity    : .4;
-      font-size  : 0.85rem;
+      font-size  : 0.8rem;
       font-weight: 400;
     }
 
@@ -160,7 +161,7 @@
     flex-grow: 1;
 
     label {
-      font-size  : 0.9rem;
+      font-size  : 0.8rem;
       font-weight: 400;
     }
 
@@ -168,7 +169,7 @@
       display        : flex;
       justify-content: space-between;
       align-items    : center;
-      padding        : 0 0 0.21rem 0;
+      padding        : 0 0 0.5rem 0;
     }
 
     &:not(.auto-pilot) {
@@ -187,7 +188,7 @@
     div.level {
       position  : relative;
       padding   : 2px;
-      margin-top: 0.2rem;
+      margin-top: 0.1rem;
       cursor    : pointer;
       overflow  : hidden;
       z-index   : 1;
@@ -208,24 +209,23 @@
       }
 
       div {
-        @apply font-medium;
         @apply bg-cards-primary;
 
-        border-radius: 2.5px;
-        padding      : 12px 20px 12px 25px;
+        border-radius: 2.8px;
+        padding      : 10px 20px 10px 20px;
         display      : block;
 
         span {
           font-size  : 0.8rem;
-          font-weight: 500;
+          font-weight: 400;
         }
 
         .help {
           @apply text-tertiary;
           @apply ml-2;
 
-          font-size  : 0.7rem;
-          font-weight: 500;
+          font-size  : 0.725rem;
+          font-weight: 400;
         }
 
         svg.help {
@@ -233,6 +233,7 @@
           float  : right;
           padding: 0;
           margin : 0;
+          margin-top: 1.5px;
 
           .inner {
             stroke: var(--text-secondary);
