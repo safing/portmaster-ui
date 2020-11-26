@@ -1,5 +1,5 @@
 import { coerceBooleanProperty } from '@angular/cdk/coercion';
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, forwardRef, Input, OnInit, Output, ViewChild } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, forwardRef, Input, Output, ViewChild } from '@angular/core';
 import { AbstractControl, ControlValueAccessor, NgModel, NG_VALIDATORS, NG_VALUE_ACCESSOR, ValidationErrors, Validator } from '@angular/forms';
 import { BaseSetting, ExternalOptionHint, parseSupportedValues, SettingValueType, WellKnown } from 'src/app/services';
 
@@ -21,14 +21,19 @@ import { BaseSetting, ExternalOptionHint, parseSupportedValues, SettingValueType
   ],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class BasicSettingComponent<S extends BaseSetting<any, any>> implements ControlValueAccessor, OnInit, Validator {
+export class BasicSettingComponent<S extends BaseSetting<any, any>> implements ControlValueAccessor, Validator {
+  /** @private template-access to all external option hits */
   readonly optionHints = ExternalOptionHint;
+
+  /** @private template-access to parseSupportedValues */
   readonly parseSupportedValues = parseSupportedValues;
 
+  /** Returns the value of external-option hint annotation */
   externalOptType(opt: S): ExternalOptionHint | null {
     return opt.Annotations?.["safing/portbase:ui:display-hint"] || null;
   }
 
+  /** Wether or not the input should be currently disabled. */
   @Input()
   set disabled(v: any) {
     const disabled = coerceBooleanProperty(v);
@@ -38,22 +43,25 @@ export class BasicSettingComponent<S extends BaseSetting<any, any>> implements C
     return this._disabled;
   }
 
+  /** The setting to display */
   @Input()
   setting: S | null = null;
 
+  /** Emits when the user activates focus on this component */
+  @Output()
+  onBlur = new EventEmitter<void>();
 
+  /** @private The ngModel in our view used to display the value */
+  @ViewChild(NgModel)
+  model: NgModel | null = null;
+
+  /** The unit of the setting */
   get unit() {
     if (!this.setting) {
       return '';
     }
     return this.setting.Annotations[WellKnown.Unit] || '';
   }
-
-  @Output()
-  onBlur = new EventEmitter<void>();
-
-  @ViewChild(NgModel)
-  model: NgModel | null = null;
 
   /**
    * Holds the value as it is presented to the user.
@@ -81,17 +89,18 @@ export class BasicSettingComponent<S extends BaseSetting<any, any>> implements C
       && this._type !== 'boolean'
   }
 
-  /* _onChange is set using registerOnChange by @angular/forms
+  /*
+   * _onChange is set using registerOnChange by @angular/forms
    * and satisfies the ControlValueAccessor.
    */
-  _onChange: (_: SettingValueType<S>) => void = () => { };
+  private _onChange: (_: SettingValueType<S>) => void = () => { };
 
   /* _onTouch is set using registerOnTouched by @angular/forms
    * and satisfies the ControlValueAccessor.
    */
-  _onTouch: () => void = () => { };
+  private _onTouch: () => void = () => { };
 
-  _onValidatorChange: () => void = () => { };
+  private _onValidatorChange: () => void = () => { };
 
   /* Wether or not the input field is disabled. Set by setDisabledState
    * from @angular/forms
@@ -103,10 +112,6 @@ export class BasicSettingComponent<S extends BaseSetting<any, any>> implements C
   // update ourself when writeValue or setDisabledState is called.
   // Using the changeDetectorRef we can take care of that ourself.
   constructor(private _changeDetectorRef: ChangeDetectorRef) { }
-
-  ngOnInit() {
-
-  }
 
   /**
    * Sets the user-presented value and emits a change.
@@ -216,6 +221,10 @@ export class BasicSettingComponent<S extends BaseSetting<any, any>> implements C
     this._onChange = fn;
   }
 
+  /**
+   * @private
+   * Called when the input-component used for the setting is touched/focused.
+   */
   touched() {
     this._onTouch();
     this.onBlur.next();
@@ -242,6 +251,11 @@ export class BasicSettingComponent<S extends BaseSetting<any, any>> implements C
     this._changeDetectorRef.markForCheck();
   }
 
+  /**
+   * @private
+   * Returns the number of lines in value. If value is not
+   * a string 1 is returned.
+   */
   lineCount(value: string | number | boolean) {
     if (typeof value === 'string') {
       return value.split('\n').length

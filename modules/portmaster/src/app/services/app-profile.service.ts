@@ -1,9 +1,8 @@
-import { Injectable, Inject } from '@angular/core';
-import { PortapiService } from './portapi.service';
-import { AppProfile, ConfigMap, FlatConfigObject, flattenProfileConfig, LayeredProfile } from './app-profile.types';
+import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { map, tap } from 'rxjs/operators';
-import { keyframes } from '@angular/animations';
+import { map } from 'rxjs/operators';
+import { AppProfile, FlatConfigObject, flattenProfileConfig, LayeredProfile } from './app-profile.types';
+import { PortapiService } from './portapi.service';
 
 @Injectable({
   providedIn: 'root'
@@ -18,7 +17,14 @@ export class AppProfileService {
    * @param id The profile ID.
    */
   getKey(source: string, id: string): string;
+
+  /**
+   * Returns the database key of a profile
+   *
+   * @param p The app-profile itself..
+   */
   getKey(p: AppProfile): string;
+
   getKey(idOrSourceOrProfile: string | AppProfile, id?: string): string {
     if (typeof idOrSourceOrProfile === 'object') {
       return this.getKey(idOrSourceOrProfile.Source, idOrSourceOrProfile.ID);
@@ -33,15 +39,29 @@ export class AppProfileService {
     return key;
   }
 
+  /**
+   * Load an application profile.
+   *
+   * @param source The source of the profile
+   * @param id The ID of the profile
+   */
   getAppProfile(source: string, id: string): Observable<AppProfile> {
     const key = `core:profiles/${source}/${id}`;
     return this.getAppProfileFromKey(key);
   }
 
+  /**
+   * Loads an application profile by it's database key.
+   *
+   * @param key The key of the application profile.
+   */
   getAppProfileFromKey(key: string): Observable<AppProfile> {
     return this.portapi.get(key)
   }
 
+  /**
+   * Loads the global-configuration profile.
+   */
   globalConfig(): Observable<FlatConfigObject> {
     return this.getAppProfile('special', 'global-config')
       .pipe(
@@ -49,6 +69,12 @@ export class AppProfileService {
       )
   }
 
+  /**
+   * Watches an application profile for changes.
+   *
+   * @param source The source of the profile
+   * @param id The ID of the profile
+   */
   watchAppProfile(source: string, id: string): Observable<AppProfile> {
     const key = `core:profiles/${source}/${id}`;
     return this.portapi.watch(key)
@@ -75,6 +101,12 @@ export class AppProfileService {
     return this.portapi.watchAll<AppProfile>('core:profiles/')
   }
 
+  /**
+   * Loads the layered runtime profile for a given application
+   * profile.
+   *
+   * @param profile The app profile
+   */
   getLayeredProfile(profile: AppProfile): Observable<LayeredProfile> {
     const key = `runtime:layeredProfile/${profile.Source}/${profile.ID}`;
     console.log(key);

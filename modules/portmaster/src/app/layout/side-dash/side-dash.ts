@@ -1,14 +1,21 @@
-import { Component, OnInit, ChangeDetectionStrategy, Inject, Injector, INJECTOR, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy, Inject, Injector, INJECTOR, ChangeDetectorRef, OnDestroy } from '@angular/core';
 import { WidgetService } from '../../widgets/widget.service';
 import { WidgetConfig, WidgetDefinition, WIDGET_DEFINTIONS, WIDGET_CONFIG, } from 'src/app/widgets/widget.types';
 import { ComponentPortal } from '@angular/cdk/portal';
 import { moveItemInArray, CdkDragDrop } from '@angular/cdk/drag-drop';
-import { combineLatest, forkJoin } from 'rxjs';
+import { combineLatest, forkJoin, Subscription } from 'rxjs';
 import { filter } from 'rxjs/operators';
 import { ExpertiseService } from 'src/app/shared/expertise/expertise.service';
 
+/**
+ * WidgetPortal extends the normal widget configuration by adding
+ * the widget-definition and the component portal to create the
+ * widget.
+ */
 interface WidgetPortal<T> extends WidgetConfig<T> {
+  // Portal used to create a new instance of the widget.
   portal: ComponentPortal<any>;
+  // The definition of the widget.
   definition: WidgetDefinition<T>;
 }
 
@@ -17,7 +24,7 @@ interface WidgetPortal<T> extends WidgetConfig<T> {
   templateUrl: './side-dash.html',
   styleUrls: ['./side-dash.scss'],
 })
-export class SideDashComponent implements OnInit {
+export class SideDashComponent implements OnInit, OnDestroy {
   /** All created and rendered widgets */
   widgets: WidgetPortal<any>[] = [];
 
@@ -25,6 +32,9 @@ export class SideDashComponent implements OnInit {
   widgetTemplates: {
     [key: string]: WidgetDefinition<any>
   };
+
+  /** The subscription for widget updates */
+  private subscription = Subscription.EMPTY;
 
   /** Returns the current expertise level */
   get expertise() {
@@ -45,7 +55,7 @@ export class SideDashComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.widgetService.watchWidgets()
+    this.subscription = this.widgetService.watchWidgets()
       .subscribe(widgets => {
         // From each widget configuration we are going to create a new WidgetPortal.
         // The portal holds a widget-specific dependency injector that provides the
@@ -69,11 +79,17 @@ export class SideDashComponent implements OnInit {
 
         this.widgets = widgetsWithMeta;
       });
-
   }
 
-  /** @private Callback function from the template when a dragged
-   *  widget is dropped at it's new position. */
+  ngOnDestroy() {
+    this.subscription.unsubscribe();
+  }
+
+  /**
+   * @private
+   * Callback function from the template when a dragged
+   * widget is dropped at it's new position.
+   */
   drop(event: CdkDragDrop<string[]>) {
     moveItemInArray(this.widgets, event.previousIndex, event.currentIndex);
     const order = this.widgets.map(widget => widget.key!);
@@ -81,7 +97,11 @@ export class SideDashComponent implements OnInit {
     this.widgetService.saveOrder(order).subscribe();
   }
 
-  /** Creates a new injector providing the widget configuration as WIDGET_CONFIG. */
+  /**
+   * Creates a new injector providing the widget configuration as WIDGET_CONFIG.
+   *
+   * @param w The {@type WidgetConfig} that is provided via dependency injection.
+   */
   private createInjector(w: WidgetConfig): Injector {
     return Injector.create({
       providers: [{

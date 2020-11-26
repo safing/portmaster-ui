@@ -1,8 +1,7 @@
-import { Component, OnInit, ChangeDetectionStrategy, forwardRef, HostBinding, HostListener, ChangeDetectorRef, Input } from '@angular/core';
-import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
-import { moveItemInArray, CdkDragDrop } from '@angular/cdk/drag-drop';
 import { coerceBooleanProperty } from '@angular/cdk/coercion';
-import { fadeInAnimation, fadeOutAnimation } from '../../animations';
+import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, forwardRef, HostBinding, HostListener, Input } from '@angular/core';
+import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 
 @Component({
   selector: 'app-filter-list',
