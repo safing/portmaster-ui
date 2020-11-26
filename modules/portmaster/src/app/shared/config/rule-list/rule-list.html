@@ -2,9 +2,9 @@
   <div class="item" *ngFor="let entry of entries; let index=index; trackBy: trackBy" cdkDrag
     [cdkDragDisabled]="readonly">
     <fa-icon icon="grip-vertical" cdkDragHandle *ngIf="!readonly"></fa-icon>
-    <app-filter-list-item [readonly]="readonly" [value]="entry" (valueChange)="updateValue(index, $event)"
+    <app-rule-list-item [readonly]="readonly" [value]="entry" (valueChange)="updateValue(index, $event)"
       (delete)="deleteEntry(index)">
-    </app-filter-list-item>
+    </app-rule-list-item>
   </div>
 </div>
 

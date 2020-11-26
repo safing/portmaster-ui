@@ -1,3 +1,4 @@
+import { coerceBooleanProperty } from '@angular/cdk/coercion';
 import { Component, OnInit, Input, Output, EventEmitter, HostBinding, TemplateRef, Optional } from '@angular/core';
 import { AccordionGroupComponent } from './accordion-group';
 
@@ -6,34 +7,57 @@ import { AccordionGroupComponent } from './accordion-group';
   templateUrl: './accordion.html',
   styleUrls: ['./accordion.scss']
 })
-export class AccordionComponent implements OnInit {
+export class AccordionComponent<T = any> implements OnInit {
   /** @deprecated in favor of [data] */
   @Input()
   title: string = '';
 
+  /**
+   * The data the accordion component is used for. This is passed as an $implicit context
+   * to the header template.
+   */
   @Input()
-  data: any = undefined;
+  data: T | undefined = undefined;
 
+  /** Wether or not the accordion component starts active. */
   @Input()
-  active: boolean = false;
+  set active(v: any) {
+    this._active = coerceBooleanProperty(v);
+  }
+  get active() {
+    return this._active;
+  }
+  private _active: boolean = false;
 
+  /** Emits whenever the active value changes. Supports two-way bindings. */
   @Output()
   activeChange = new EventEmitter<boolean>();
 
-  @HostBinding('class')
-  get activeClass(): string {
-    return this.active ? 'active' : '';
-  }
-
+  /**
+   * The header-template to render for this component. If null, the default template from
+   * the parent accordion-group will be used.
+   */
   @Input()
   headerTemplate: TemplateRef<any> | null = null;
 
-  ngOnInit(): void {
-    this.group.register(this);
+  @HostBinding('class.active')
+  /** @private Wether or not the accordion should have the 'active' class */
+  get activeClass(): string {
+    return this.active;
   }
 
-  toggle(event: Event) {
-    event.preventDefault();
+  ngOnInit(): void {
+    // register at our parent group-component (if any).
+    this.group?.register(this);
+  }
+
+  /**
+   * Toggle the active-state of the accordion-component.
+   *
+   * @param event The mouse event.
+   */
+  toggle(event?: Event) {
+    event?.preventDefault();
     this.activeChange.emit(!this.active);
   }
 

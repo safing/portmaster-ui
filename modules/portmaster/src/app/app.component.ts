@@ -133,10 +133,10 @@ export class AppComponent implements OnInit {
     this.statusService.watchSubsystems()
       .pipe(debounceTime(100))
       .subscribe(subsystems => {
+
         subsystems.forEach(subsystem => {
           subsystem.Modules.forEach(module => {
             const key = `ui:subsystem-${subsystem.ID}-${module.Name}`;
-
             if (module.FailureStatus === FailureStatus.Operational) {
               const notif = this.subsystemWarnings.get(key);
               if (!!notif) {
@@ -145,7 +145,6 @@ export class AppComponent implements OnInit {
               }
             } else {
               let actions: ActionHandler<any>[] = [];
-
               switch (module.FailureID) {
                 case "missing-resolver":
                   actions.push({
@@ -186,6 +185,7 @@ export class AppComponent implements OnInit {
                   Category: module.Name,
                 }
               );
+              this.subsystemWarnings.set(key, notif);
 
               this.notificationService.inject(notif);
             }

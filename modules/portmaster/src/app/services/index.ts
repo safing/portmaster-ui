@@ -1,7 +1,6 @@
 export { ConfigService } from './config.service';
 export { StatusService } from './status.service';
 export { NotificationsService } from './notifications.service';
-export { NetworkService } from './network.service';
 export { AppProfileService } from './app-profile.service';
 export * from './config.types';
 export * from './notifications.types'

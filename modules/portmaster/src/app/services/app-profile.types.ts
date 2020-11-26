@@ -38,6 +38,8 @@ export interface AppProfile extends Record {
   Source: 'local';
 }
 
+// flattenProfileConfig returns a flat version of a nested ConfigMap where each property
+// can be used as the database key for the associated setting.
 export function flattenProfileConfig(p: ConfigMap, prefix = ''): FlatConfigObject {
   let result: FlatConfigObject = {};
 
@@ -60,6 +62,13 @@ export function flattenProfileConfig(p: ConfigMap, prefix = ''): FlatConfigObjec
   return result;
 }
 
+/**
+ * Returns the current value (or null) of a setting stored in a config
+ * map by path.
+ *
+ * @param obj The ConfigMap object
+ * @param path  The path of the setting separated by foward slashes.
+ */
 export function getAppSetting<T extends OptionValueType>(obj: ConfigMap, path: string): T | null {
   const parts = path.split('/');
 
@@ -86,6 +95,13 @@ export function getAppSetting<T extends OptionValueType>(obj: ConfigMap, path: s
   return null;
 }
 
+/**
+ * Sets the value of a settings inside the nested config object.
+ *
+ * @param obj THe config object
+ * @param path  The path of the setting
+ * @param value The new value to set.
+ */
 export function setAppSetting(obj: ConfigObject, path: string, value: any) {
   const parts = path.split('/');
   if (typeof obj !== 'object' || Array.isArray(obj)) {
@@ -113,10 +129,18 @@ export function setAppSetting(obj: ConfigObject, path: string, value: any) {
   }
 }
 
+/** Typeguard to ensure v is a ConfigMap */
 function isConfigMap(v: any): v is ConfigMap {
   return typeof v === 'object' && !Array.isArray(v);
 }
 
+/**
+ * Returns a new flat-config object that contains values from both
+ * parameters.
+ *
+ * @param a The first config object
+ * @param b The second config object
+ */
 function mergeObjects(a: FlatConfigObject, b: FlatConfigObject): FlatConfigObject {
   var res: FlatConfigObject = {};
   Object.keys(a).forEach(key => {
