@@ -6,7 +6,13 @@
   <title>Portmaster</title>
   <base href="/">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link href="/assets/vendor/fonts/roboto.css" rel="stylesheet">
+  <script>
+    if (navigator.platform.startsWith("Win")) {
+      document.writeln('<link href="/assets/vendor/fonts/roboto-slimfix.css" rel="stylesheet">');
+    } else {
+      document.writeln('<link href="/assets/vendor/fonts/roboto.css" rel="stylesheet">');
+    }
+  </script>
 
   <link rel="apple-touch-icon" sizes="57x57" href="/assets/favicons/apple-icon-57x57.png">
   <link rel="apple-touch-icon" sizes="60x60" href="/assets/favicons/apple-icon-60x60.png">
