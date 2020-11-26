@@ -82,7 +82,7 @@ export const moveInOutListAnimation = trigger(
         stagger(-50, [
           animate('200ms ease-out', style({ opacity: 0, transform: 'translateX(100%)' })),
         ]),
-      ])
+      ], { optional: true })
     ]),
   ]
 )
