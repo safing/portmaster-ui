@@ -43,6 +43,9 @@
     <app-rule-list *ngSwitchCase="optionHint.EndpointList" [readonly]="disabled || isLocked" [ngModel]="_currentValue"
       [autoFocus]="!isLocked" (ngModelChange)="updateValue($event, true)"></app-rule-list>
 
+    <app-filter-list *ngSwitchCase="optionHint.FilterList" [ngModel]="_currentValue" [autoFocus]="!isLocked"
+      (ngModelChange)="updateValue($event, true)"></app-filter-list>
+
     <app-ordered-list *ngSwitchCase="optionHint.OrderedList" [ngModel]="_currentValue" [autoFocus]="!isLocked"
       (ngModelChange)="updateValue($event, true)" [readonly]="disabled || isLocked"></app-ordered-list>
 

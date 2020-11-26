@@ -27,6 +27,7 @@ import { RuleListComponent } from './shared/config/rule-list/rule-list';
 import { RuleListItemComponent } from './shared/config/rule-list/list-item';
 import { GenericSettingComponent } from './shared/config/generic-setting/generic-setting';
 import { SecuritySettingComponent } from './shared/config/security-setting/security-setting';
+import { FilterListComponent } from './shared/config/filter-lists';
 import { ConnectionsViewComponent } from './shared/connections-view/connections-view';
 import { CountIndicatorComponent } from './shared/count-indicator/count-indicator';
 import { CountryFlagDirective } from './shared/country-flag/country-flag';
@@ -101,6 +102,7 @@ import { ExternalLinkDirective } from './shared/external-link.directive';
     AppOverviewComponent,
     PlaceholderComponent,
     ConfigSettingsViewComponent,
+    FilterListComponent,
     AppIconComponent,
     NetworkOverviewComponent,
     MenuComponent,
