@@ -23,8 +23,8 @@ import { SettingsComponent } from './pages/settings/settings';
 import { WidgetSettingsOutletComponent } from './pages/widget-settings-outlet/widget-settings-outlet';
 import { AccordionComponent, AccordionGroupComponent } from './shared/accordion';
 import { BasicSettingComponent } from './shared/config/basic-setting/basic-setting';
-import { FilterListComponent } from './shared/config/filter-list/filter-list';
-import { FilterListItemComponent } from './shared/config/filter-list/list-item';
+import { RuleListComponent } from './shared/config/rule-list/rule-list';
+import { RuleListItemComponent } from './shared/config/rule-list/list-item';
 import { GenericSettingComponent } from './shared/config/generic-setting/generic-setting';
 import { SecuritySettingComponent } from './shared/config/security-setting/security-setting';
 import { ConnectionsViewComponent } from './shared/connections-view/connections-view';
@@ -82,8 +82,8 @@ import { ExternalLinkDirective } from './shared/external-link.directive';
     StatusWidgetComponent,
     StatusWidgetSettingsComponent,
     ToggleSwitchComponent,
-    FilterListComponent,
-    FilterListItemComponent,
+    RuleListComponent,
+    RuleListItemComponent,
     PilotWidgetComponent,
     StatusWidgetComponent,
     StatusWidgetSettingsComponent,

@@ -3,7 +3,7 @@ import { coerceBooleanProperty } from '@angular/cdk/coercion';
 import { fadeInAnimation, fadeOutAnimation } from '../../animations';
 
 @Component({
-  selector: 'app-filter-list-item',
+  selector: 'app-rule-list-item',
   templateUrl: 'list-item.html',
   styleUrls: ['list-item.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -12,22 +12,37 @@ import { fadeInAnimation, fadeOutAnimation } from '../../animations';
     fadeOutAnimation
   ]
 })
-export class FilterListItemComponent implements OnInit {
+export class RuleListItemComponent implements OnInit {
+  /** The host element is going to fade in/out */
   @HostBinding('@fadeIn')
   @HostBinding('@fadeOut')
   readonly animation = true;
 
+  /**
+   * The current value (rule) displayed by this component.
+   * Supports two-way bindings.
+   */
   @Input()
   set value(v: string) {
     this.updateValue(v);
     this._savedValue = this._value;
   }
   private _value = '';
+
+  /** The last actually saved value of this rule. Required for resets */
   private _savedValue = '';
 
+  /**
+   * Emits whenever the rule value changes.
+   * Supports two-way-bindings on ([value])
+   */
   @Output()
   valueChange = new EventEmitter<string>();
 
+  /**
+   * Wether or not the component is in edit mode.
+   * Supports two-way-bindings on ([edit])
+   */
   @Input()
   set edit(v: any) {
     this._edit = coerceBooleanProperty(v);
@@ -35,11 +50,19 @@ export class FilterListItemComponent implements OnInit {
   get edit() {
     return this._edit;
   }
-  _edit: boolean = false;
+  private _edit: boolean = false;
 
+  /**
+   * Emits whenever the component switch to or away from edit
+   * mode.
+   * Supports two-way-bindings on ([edit])
+   */
   @Output()
   editChange = new EventEmitter<boolean>();
 
+  /**
+   * Wether or not the component should be in read-only mode.
+   */
   @Input()
   set readonly(v: any) {
     this._readonly = coerceBooleanProperty(v);
@@ -47,16 +70,25 @@ export class FilterListItemComponent implements OnInit {
   get readonly() {
     return this._readonly;
   }
-  _readonly: boolean = false;
+  private _readonly: boolean = false;
 
-
+  /**
+   * Emits when the user presses the delete button of
+   * this rule component.
+   */
   @Output()
   delete = new EventEmitter<void>();
 
+  /** @private wether or not this rule is a "Allow" rule */
   isAllow = false;
+
+  /** @private wether or not this rule is a "Deny" rule */
   isBlock = false;
+
+  /** @private the actually displayed rule value (without the verdict) */
   display = '';
 
+  /** @private the character representation of the current verdict */
   get currentAction() {
     if (this.isBlock) {
       return '-';
@@ -74,8 +106,15 @@ export class FilterListItemComponent implements OnInit {
     }
   }
 
+  /**
+   * @private
+   * Toggle between edit and view mode. When switching from
+   * edit to view mode, the current value is emitted to the
+   * parent element in case it has been changed.
+   */
   toggleEdit() {
     if (this._edit) {
+      // do nothing if the rule is obviously invalid (no verdict or value).
       if (this.display === '' || !(this.isAllow || this.isBlock)) {
         return;
       }
@@ -89,15 +128,34 @@ export class FilterListItemComponent implements OnInit {
     this.editChange.next(this._edit);
   }
 
+  /**
+   * @private
+   * Sets the new rule action. Used as a callback in the drop-down.
+   *
+   * @param action The new action
+   */
   setAction(action: '+' | '-') {
     this.updateValue(`${action} ${this.display}`);
   }
 
+  /**
+   * @private
+   * Update the actual value of the rule.
+   *
+   * @param entity The new rule value
+   */
   setEntity(entity: string) {
     const action = this.isAllow ? '+' : '-';
     this.updateValue(`${action} ${entity}`);
   }
 
+  /**
+   * @private
+   *
+   * Reset the value to it's previously saved value if it was changed.
+   * If the value is unchanged a reset counts as a delete and triggers
+   * on our delete output.
+   */
   reset() {
     if (this._edit) {
       // if the user did not change anything we can immediately
@@ -112,7 +170,12 @@ export class FilterListItemComponent implements OnInit {
     this.delete.next();
   }
 
-  updateValue(v: string) {
+  /**
+   * Updates our internal states to correctly display the rule.
+   *
+   * @param v The actual rule value
+   */
+  private updateValue(v: string) {
     this._value = v.trim();
     switch (this._value[0]) {
       case '+':

@@ -1,5 +1,5 @@
-<div class="action" [class.allow]="isAllow" [class.block]="isBlock" [class.edit]="_edit">
-  <ng-container *ngIf="!_edit; else: selectAction">
+<div class="action" [class.allow]="isAllow" [class.block]="isBlock" [class.edit]="edit">
+  <ng-container *ngIf="!edit; else: selectAction">
     <span *ngIf="isAllow">Allow</span>
     <span *ngIf="isBlock">Block</span>
   </ng-container>
@@ -11,8 +11,8 @@
     </app-dropdown>
   </ng-template>
 </div>
-<div class="value" [class.edit]="_edit">
-  <ng-container *ngIf="!_edit; else: editValue">
+<div class="value" [class.edit]="edit">
+  <ng-container *ngIf="!edit; else: editValue">
     {{ display }}
   </ng-container>
 
@@ -21,7 +21,7 @@
   </ng-template>
 
   <div class="buttons" *ngIf="!readonly">
-    <fa-icon [icon]="_edit ? 'check' : 'edit'" (click)="toggleEdit()"></fa-icon>
+    <fa-icon [icon]="edit ? 'check' : 'edit'" (click)="toggleEdit()"></fa-icon>
     <fa-icon icon="times" (click)="reset()"></fa-icon>
   </div>
 
