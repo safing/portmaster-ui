@@ -35,9 +35,11 @@ export class MonitorPageComponent implements OnInit, OnDestroy {
   ) { }
 
   ngOnInit() {
+    this.subscription = new Subscription();
+
     // watch the route parameters and update the currently
     // inspected (and selected) profile.
-    this.subscription = this.route.paramMap
+    const routeSubscription = this.route.paramMap
       .pipe(delayWhen(() => this.connTrack.ready))
       .subscribe(params => {
         this.loading = false;
@@ -65,8 +67,8 @@ export class MonitorPageComponent implements OnInit, OnDestroy {
           });
         })
 
-    // make sure we perform tear-down on the above subscription
-    // as well.
+    // make sure we perform tear-down on the above subscriptions.
+    this.subscription.add(routeSubscription);
     this.subscription.add(filteredProfileSubscription);
   }
 

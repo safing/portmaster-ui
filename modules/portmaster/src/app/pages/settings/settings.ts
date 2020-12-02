@@ -35,9 +35,11 @@ export class SettingsComponent implements OnInit, OnDestroy {
   ) { }
 
   ngOnInit(): void {
+    this.subscription = new Subscription();
+
     // Subscribe to all available configuration settings
     // and to changes on their values.
-    this.subscription = this.configService.query('')
+    const configSub = this.configService.query('')
       .subscribe(settings => this.settings = settings);
 
     // Request the current resource versions once. We add
@@ -47,6 +49,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
     const versionSub = this.statusService.getVersions()
       .subscribe(version => this.versions = version);
 
+    this.subscription.add(configSub);
     this.subscription.add(versionSub);
   }
 

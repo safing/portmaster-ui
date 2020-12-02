@@ -1,9 +1,9 @@
 import { Injectable, isDevMode, NgZone, TrackByFunction } from '@angular/core';
-import { BehaviorSubject, Observable, defer, of } from 'rxjs';
-import { filter, map, takeWhile, tap, count, switchMap } from 'rxjs/operators';
+import { BehaviorSubject, Observable, defer, of, Subject, Observer, iif, throwError } from 'rxjs';
+import { filter, map, takeWhile, tap, count, switchMap, concatMap, delay, retryWhen } from 'rxjs/operators';
 import { WebSocketSubject } from 'rxjs/webSocket';
 import { environment } from '../../environments/environment';
-import { DataReply, deserializeMessage, InspectedActiveRequest, Record, isCancellable, isDataReply, ReplyMessage, Requestable, RequestType, RetryableOpts, retryPipeline, serializeMessage, WatchOpts } from './portapi.types';
+import { DataReply, deserializeMessage, InspectedActiveRequest, Record, isCancellable, isDataReply, ReplyMessage, Requestable, RequestType, RetryableOpts, retryPipeline, serializeMessage, WatchOpts, RequestMessage } from './portapi.types';
 import { WebsocketService } from './websocket.service';
 import { trackById, Identifyable } from './core.types';
 
@@ -11,23 +11,100 @@ export const RECONNECT_INTERVAL = 2000;
 
 let uniqueRequestId = 0;
 
+interface PendingMethod {
+  observer: Observer<ReplyMessage>;
+  request: RequestMessage;
+}
+
 @Injectable({
   providedIn: 'root'
 })
 export class PortapiService {
-  private ws$: WebSocketSubject<ReplyMessage> | null;
+  /** The actual websocket connection, auto-(re)connects on subscription */
+  private ws$: WebSocketSubject<ReplyMessage | RequestMessage> | null;
+
+  /** used to emit changes to our "connection state" */
   private connectedSubject = new BehaviorSubject(false);
 
+  /** A map to multiplex websocket messages to the actual observer/initator */
+  private _streams$ = new Map<string, Observer<ReplyMessage<any>>>();
+
+  /** Map to keep track of "still-to-send" requests when we are currently disconnected */
+  private _pendingCalls$ = new Map<string, PendingMethod>();
+
+  /** Wether or not we are currently connected. */
   get connected$() {
     return this.connectedSubject.asObservable();
   }
 
+  /** @private DEBUGGING ONLY - keeps track of current requests and supports injecting messages  */
   readonly activeRequests = new BehaviorSubject<{ [key: string]: InspectedActiveRequest }>({});
 
   constructor(private websocketFactory: WebsocketService,
     private ngZone: NgZone) {
 
+    // create a new websocket connection that will auto-connect
+    // on the first subscription and will automatically reconnect
+    // with consecutive subscribers.
     this.ws$ = this.createWebsocket();
+
+    // no need to keep a reference to the subscription as we're not going
+    // to unsubscribe ...
+    this.ws$.pipe(
+      retryWhen(errors => errors.pipe(
+        // use concatMap to keep the errors in order and make sure
+        // they don't execute in parallel.
+        concatMap((e, i) => of(e).pipe(
+          // We need to forward the error to all streams here because
+          // due to the retry feature the subscriber below won't see
+          // any error at all.
+          tap(() => {
+            this._streams$.forEach(observer => observer.error(e));
+            this._streams$.clear();
+          }),
+          delay(1000)
+        ))
+      )))
+      .subscribe(
+        msg => {
+          const observer = this._streams$.get(msg.id);
+          if (!observer) {
+            console.warn(`Received message for unknown request id ${msg.id} (type=${msg.type})`, msg);
+            return;
+          }
+
+          // forward the message to the actual stream.
+          observer.next(msg as ReplyMessage);
+        },
+        console.error,
+        () => {
+          // This should actually never happen but if, make sure
+          // we handle it ...
+          this._streams$.forEach(observer => observer.complete());
+          this._streams$.clear();
+        });
+  }
+
+  /**
+   * Flushes all pending method calls that have been collected
+   * while we were not connected to the portmaster API.
+   */
+  private _flushPendingMethods() {
+    const count = this._pendingCalls$.size;
+    try {
+      this._pendingCalls$.forEach((req, key) => {
+        // It's fine if we throw an error here!
+        this.ws$!.next(req.request);
+        this._streams$.set(req.request.id, req.observer);
+        this._pendingCalls$.delete(key);
+      })
+    } catch (err) {
+      // we failed to send the pending calls because the
+      // websocket connection just broke.
+      console.error(`Failed to flush pending calls, ${this._pendingCalls$.size} left: `, err);
+    }
+
+    console.log(`Successfully flushed all (${count}) pending calles`);
   }
 
   /**
@@ -258,15 +335,16 @@ export class PortapiService {
         return
       }
 
-      let unsub: () => any = () => undefined;
+      let unsub: RequestMessage | null = null;
+
       // some methods are cancellable and we MUST send
       // a `cancel` message or the backend will not stop
       // streaming data for that request id.
       if (isCancellable(method)) {
-        unsub = () => ({
+        unsub = {
           id: id,
           type: 'cancel'
-        })
+        }
       }
 
       const request: any = {
@@ -291,12 +369,7 @@ export class PortapiService {
         })
       }
 
-      let stream$: Observable<ReplyMessage<any>> = this.ws$.multiplex(
-        () => request,
-        unsub,
-        reply => reply.id === id,
-      );
-
+      let stream$: Observable<ReplyMessage<any>> = this.multiplex(request, unsub);
       if (!environment.production || isDevMode()) {
         // in development mode we log all replys for the different
         // methods. This also includes updates to subscriptions.
@@ -400,6 +473,38 @@ export class PortapiService {
     });
   }
 
+  private multiplex(req: RequestMessage, cancel: RequestMessage | null): Observable<ReplyMessage> {
+    return new Observable(observer => {
+      if (this.connectedSubject.getValue()) {
+        // Try to directly send the request to the backend
+        this._streams$.set(req.id, observer);
+        this.ws$!.next(req);
+      } else {
+        // in case of an error we just add the request as
+        // "pending" and wait for the connection to be
+        // established.
+        console.warn(`Failed to send request ${req.id}:${req.type}, marking as pending ...`)
+        this._pendingCalls$.set(req.id, {
+          request: req,
+          observer: observer
+        });
+      }
+
+      return () => {
+        // Try to cancel the request but ingore
+        // any errors here.
+        try {
+          if (cancel !== null) {
+            this.ws$!.next(cancel);
+          }
+        } catch (err) { }
+
+        this._pendingCalls$.delete(req.id);
+        this._streams$.delete(req.id);
+      }
+    })
+  }
+
   /**
    * Inject a message into a PortAPI stream.
    *
@@ -461,9 +566,8 @@ export class PortapiService {
    *
    * @private
    */
-  private createWebsocket(): WebSocketSubject<ReplyMessage> {
-    let open = false;
-    return this.websocketFactory.createConnection<ReplyMessage>({
+  private createWebsocket(): WebSocketSubject<ReplyMessage | RequestMessage> {
+    return this.websocketFactory.createConnection<ReplyMessage | RequestMessage>({
       url: environment.portAPI,
       serializer: msg => {
         try {
@@ -491,21 +595,13 @@ export class PortapiService {
         next: () => {
           console.log('[portapi] connection to portmaster established');
           this.connectedSubject.next(true);
-          open = true;
+          this._flushPendingMethods();
         }
       },
       closeObserver: {
         next: () => {
           console.log('[portapi] connection to portmaster closed');
           this.connectedSubject.next(false);
-
-          // TODO(ppacher): this is a bit hard but the easiest solution
-          // we could come up with. Portmaster has a lot of runtime-only
-          // data that is likely lost upon restart so all our connections
-          // stats, ... are likley to be wrong.
-          if (open) {
-            //location.reload();
-          }
         },
       },
       closingObserver: {
