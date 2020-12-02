@@ -241,6 +241,8 @@ export class ConfigSettingsViewComponent implements OnInit, OnDestroy, AfterView
   }
 
   ngAfterViewInit() {
+    this.subscription = new Subscription();
+
     // Whenever our scroll-container is scrolled we might
     // need to update which setting is currently highlighted
     // in the settings-navigation.

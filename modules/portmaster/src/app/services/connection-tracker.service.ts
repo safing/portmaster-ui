@@ -513,9 +513,10 @@ export class InspectedProfile {
     private readonly profileService: AppProfileService,
     private readonly expertiseService: ExpertiseService,
   ) {
+    this._profileSubscription = new Subscription();
     // subscribe to all new connections published by the
     // process group.
-    this._profileSubscription = this.processGroup.updates
+    const updateSub = this.processGroup.updates
       .subscribe(
         upd => this.processUpdate(upd),
       );
@@ -557,6 +558,7 @@ export class InspectedProfile {
         }
       });
 
+    this._profileSubscription.add(updateSub);
     this._profileSubscription.add(appSub);
 
     const loadObservables = this.processGroup.getAll(true)
@@ -812,7 +814,8 @@ export class ConnTracker {
       filter(msg => !msg.data || !('CmdLine' in msg.data)),
     );
 
-    this._streamSubscription = connectionStream.subscribe(
+    this._streamSubscription = new Subscription();
+    const connectedSub = connectionStream.subscribe(
       msg => this.processUpdate(msg),
     );
 
@@ -826,6 +829,7 @@ export class ConnTracker {
         this._connectionToProfile.clear();
       })
 
+    this._streamSubscription.add(connectedSub);
     this._streamSubscription.add(resetSub);
   }
 
