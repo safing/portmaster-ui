@@ -1,0 +1,143 @@
+#!/bin/bash
+
+baseDir="$( cd "$(dirname "$0")" && pwd )"
+cd "$baseDir"
+
+COL_OFF="\033[0m"
+COL_BOLD="\033[01;01m"
+COL_RED="\033[31m"
+COL_GREEN="\033[32m"
+COL_YELLOW="\033[33m"
+
+destDirPart1="../dist"
+destDirPart2="app"
+
+function prep {
+  # get version
+  version=$(jq -r '.version' package-prod.json)
+  # build versioned file name
+  filename="portmaster-app_v${version//./-}.zip"
+  # platform
+  platform="${GOOS}_${GOARCH}"
+  # build destination path
+  destPath=${destDirPart1}/${platform}/${destDirPart2}/$filename
+}
+
+function check {
+  prep
+
+  # check if file exists
+  if [[ -f $destPath ]]; then
+    echo "[app-electron] $platform v$version already built"
+  else
+    echo -e "${COL_BOLD}[app-electron] $platform v$version${COL_OFF}"
+  fi
+}
+
+function build {
+  prep
+
+  # check if file exists
+  if [[ -f $destPath ]]; then
+    echo "[app-electron] $platform already built in v$version, skipping..."
+    return
+  fi
+
+  # Set output name and do some special post processing.
+  case $GOOS in
+  "linux" )
+    # Define output directory of building process.
+    outdir="linux-unpacked"
+    # Rename binary to conform to convention.
+    if [[ -f "dist/$outdir/portmaster-app" ]]; then
+      mv "dist/$outdir/portmaster-app" "dist/$outdir/portmaster-app_v${version//./-}"
+    fi
+    ;;
+  "windows" )
+    # Define output directory of building process.
+    outdir="win-unpacked"
+    # Rename binary to conform to convention.
+    if [[ -f "dist/$outdir/Portmaster.exe" ]]; then
+      mv "dist/$outdir/Portmaster.exe" "dist/$outdir/portmaster-app_v${version//./-}.exe"
+    fi
+    ;;
+  esac
+
+  # check if version is built (needs manual building)
+  if [[ $(grep "$version" "${baseDir}/dist/latest-linux.yml") == "" ]]; then
+    echo -e "\n${COL_BOLD}[app-electron] $platform v$version: ${COL_RED}Cannot find built version $version, please build manually.${COL_OFF}"
+    exit 1
+  fi
+
+  # Define tmp file for creating zip
+  tmpfile="${baseDir}/dist/${GOOS}_${GOARCH}_${filename}"
+
+  # Pack it up.
+  cd dist/$outdir
+  echo "resetting $tmpfile ..."
+  rm "$tmpfile"
+  echo "zipping $(pwd) into $tmpfile ..."
+  zip -r -9 -db "$tmpfile" .
+  if [[ $? -ne 0 ]]; then
+    echo -e "\n${COL_BOLD}[app-electron] $platform v$version: ${COL_RED}BUILD FAILED.${COL_OFF}"
+    exit 1
+  fi
+  
+  # Return to starting dir.
+  cd "$baseDir"
+
+  # Copy finished asset to portmaster dist dir.
+  mkdir -p $(dirname $destPath)
+  cp "$tmpfile" "$destPath"
+  echo -e "\n${COL_BOLD}[app-electron] $platform v$version: ${COL_GREEN}successfully built.${COL_OFF}"
+}
+
+function reset {
+  prep
+
+  # delete if file exists
+  if [[ -f $destPath ]]; then
+    rm $destPath
+    echo "[app-electron] $platform v$version deleted."
+  fi
+}
+
+function check_all {
+  GOOS=linux GOARCH=amd64 check
+  GOOS=windows GOARCH=amd64 check
+}
+
+function build_all {
+  GOOS=linux GOARCH=amd64 build
+  GOOS=windows GOARCH=amd64 build
+}
+
+function reset_all {
+  GOOS=linux GOARCH=amd64 reset
+  GOOS=windows GOARCH=amd64 reset
+}
+
+case $1 in
+  "check" )
+    check_all
+    ;;
+  "build" )
+    build_all
+    ;;
+  "reset" )
+    reset_all
+    ;;
+  * )
+    echo ""
+    echo "build list:"
+    echo ""
+    check_all
+    echo ""
+    read -p "press [Enter] to start building" x
+    echo ""
+    build_all
+    echo ""
+    echo "finished building."
+    echo ""
+    ;;
+esac

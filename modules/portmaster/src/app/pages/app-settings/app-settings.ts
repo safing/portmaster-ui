@@ -1,6 +1,6 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { BehaviorSubject, combineLatest, of, Subscription } from 'rxjs';
+import { BehaviorSubject, combineLatest, Observable, of, Subscription } from 'rxjs';
 import { delayWhen, distinctUntilChanged, filter, switchMap, withLatestFrom } from 'rxjs/operators';
 import { AppProfile, ConfigService, FlatConfigObject, flattenProfileConfig, isDefaultValue, setAppSetting, Setting } from 'src/app/services';
 import { AppProfileService } from 'src/app/services/app-profile.service';
@@ -17,17 +17,53 @@ import { SaveSettingEvent } from 'src/app/shared/config/generic-setting/generic-
   ]
 })
 export class AppSettingsPageComponent implements OnInit, OnDestroy {
+  /** subscription to our update-process observable */
   private subscription = Subscription.EMPTY;
 
-  viewSettingChange = new BehaviorSubject<'all' | 'active'>('active');
-
+  /**
+   * @private
+   * The current AppProfile we are showing.
+   */
   appProfile: AppProfile | null = null;
-  showOverview = false;
+
+  /**
+   * @private
+   * Whether or not the overview componet should be rendered.
+   */
+  get showOverview() { return this.appProfile == null }
+
+  /**
+   * @private
+   * The currently displayed list of settings
+   */
   settings: Setting[] = [];
+
+  /**
+   * @private
+   * The current search term displayed in the search-input.
+   */
   searchTerm = '';
+
+  /**
+   * @private
+   * The key of the setting to highligh, if any ...
+   */
   highlightSettingKey: string | null = null;
 
-  viewSetting: 'all' | 'active' = 'active';
+  /**
+   * @private
+   * Emits whenever the currently used settings "view" changes.
+   */
+  viewSettingChange = new BehaviorSubject<'all' | 'active'>('active');
+
+  /**
+   * @private
+   *
+   * Defines what "view" we are currently in
+   */
+  get viewSetting(): 'all' | 'active' {
+    return this.viewSettingChange.getValue();
+  };
 
   /**
    * @private
@@ -53,60 +89,76 @@ export class AppSettingsPageComponent implements OnInit, OnDestroy {
     private configService: ConfigService,
   ) { }
 
+  /**
+   * @private
+   * Used to save a change in the app settings. Emitted by the config-view
+   * component
+   *
+   * @param event The emitted save-settings-event.
+   */
   saveSetting(event: SaveSettingEvent) {
+    // Guard against invalid usage and abort if there's not appProfile
+    // to save.
     if (!this.appProfile) {
       return;
     }
 
+    // If the value has been "reset to global value" we need to
+    // set the value to "undefined".
     if (event.isDefault) {
       setAppSetting(this.appProfile!.Config, event.key, undefined);
     } else {
       setAppSetting(this.appProfile!.Config, event.key, event.value);
     }
 
+    // Actually safe the profile
     this.profileService.saveProfile(this.appProfile!)
       .subscribe({
-        next: () => { },
         error: console.error,
       })
   }
 
   ngOnInit() {
-    const param = this.route.paramMap
-      .pipe(
-        delayWhen(() => this.connTrack.ready),
-        switchMap(params => {
-          const source = params.get("source");
-          if (source === null) {
-            return of(null);
-          }
+    // watch the route parameters and start watching the referenced
+    // application profile.
+    const profileStream: Observable<AppProfile | null>
+      = this.route.paramMap
+        .pipe(
+          delayWhen(() => this.connTrack.ready),
+          switchMap(params => {
+            // Get the profile source and id. If one is unset (null)
+            // than return a"null" emit-once stream.
+            const source = params.get("source");
+            const id = params.get("id")
+            if (source === null || id === null) {
+              return of(null);
+            }
 
-          const id = params.get("id")
-          if (id === null) {
-            return of(null);
-          }
+            // Start watching the application profile.
+            // switchMap will unsubscribe automatically if
+            // we start watching a different profile.
+            return this.profileService.watchAppProfile(source, id);
+          })
+        );
 
-          return this.profileService.watchAppProfile(source, id);
-        })
-      );
 
     this.subscription =
       combineLatest([
-        param,
-        this.route.queryParamMap,
-        this.profileService.globalConfig(),
-        this.configService.query(""),
-        this.viewSettingChange.pipe(
+        profileStream,                        // emits the current app profile everytime it changes
+        this.route.queryParamMap,             // for changes to the settings= query parameter
+        this.profileService.globalConfig(),   // for changes to ghe global profile
+        this.configService.query(""),         // get ALL settings (once, only the defintion is of intereset)
+        this.viewSettingChange.pipe(          // watch the current "settings-view" setting, but only if it changes
           distinctUntilChanged(),
         ),
       ])
         .subscribe(([profile, queryMap, global, allSettings, viewSetting]) => {
           this.appProfile = profile;
-          this.showOverview = this.appProfile === null;
-          this.viewSetting = viewSetting;
           this.highlightSettingKey = queryMap.get('setting');
           let profileConfig: FlatConfigObject = {};
 
+          // if we have a profile flatten it's configuration map to something
+          // more useful.
           if (!!profile) {
             profileConfig = flattenProfileConfig(profile!.Config);
           }
@@ -117,14 +169,18 @@ export class AppSettingsPageComponent implements OnInit, OnDestroy {
           // highlight it.
           if (!!this.highlightSettingKey) {
             if (profileConfig[this.highlightSettingKey] === undefined) {
-              this.viewSetting = 'all';
               this.viewSettingChange.next('all');
             }
           }
 
           if (!!profile) {
+            // Tell the connection track to start watching the current profile.
             this.connTrack.inspect(profile.ID);
 
+            // filter the settings and remove all settings that are not
+            // profile specific (i.e. not part of the global config). Also
+            // update the current settings value (from the app profile) and
+            // the default value (from the global profile).
             this.settings = allSettings
               .map(setting => {
                 setting.Value = profileConfig[setting.Key];
@@ -143,6 +199,8 @@ export class AppSettingsPageComponent implements OnInit, OnDestroy {
               });
 
           } else {
+            // there's no profile to view so tell the connection-tracker
+            // to stop watching the previous one.
             this.connTrack.clearInspection();
           }
         });

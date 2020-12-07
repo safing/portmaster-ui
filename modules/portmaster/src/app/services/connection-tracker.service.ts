@@ -278,6 +278,13 @@ export class ScopeGroup {
     )
   }
 
+  /**
+   * Add a connection to the scope group and update
+   * the current statistics, block-status and revision
+   * tracker.
+   *
+   * @param conn The connection to add.
+   */
   add(conn: Connection) {
     this.stats.update(conn);
 
@@ -295,6 +302,12 @@ export class ScopeGroup {
     this.publishConnections();
   }
 
+  /**
+   * Remove a connection from the scope group by updating
+   * the statistics and block-status.
+   *
+   * @param conn The connection to remove
+   */
   remove(conn: Connection) {
     this.stats.remove(conn);
 
@@ -317,6 +330,14 @@ export class ScopeGroup {
     this._expertiseSubscription.unsubscribe();
   }
 
+  /**
+   * Check the highest known revision counter againts newRec
+   * and updates the internal revision and connections arrays
+   * accordingly.
+   *
+   * @param newRev The new revision counter
+   * @param internal True if called from the scope-group itself.
+   */
   checkRevisionCounter(newRev: number, internal = false) {
     if (newRev > this.highestRevision) {
       // we have a new "highest" revision counter
@@ -332,7 +353,8 @@ export class ScopeGroup {
     }
   }
 
-  private sortAndPublish(conns: Connection[], subj: BehaviorSubject<Connection[]>) {
+  /** Sort and publish a list of connection on a given subject */
+  private sortAndPublish(conns: Connection[], subj: Subject<Connection[]>) {
     subj.next(
       conns
         .filter(conn => {
@@ -363,6 +385,7 @@ export class ScopeGroup {
     );
   }
 
+  /** Publish all old-rev and current-rev connections */
   private publishConnections() {
     this.hasOldConnections = this._oldConnections.length > 0 && this._oldConnections.some(conn => conn.Ended === 0);
     this.hasNewConnections = this._connections.length > 0 && this._connections.some(conn => !conn.Internal);
@@ -469,14 +492,17 @@ export class InspectedProfile {
     return this._profileChanges.getValue();
   }
 
+  /** The name of the process group */
   get Name() {
     return this.processGroup.Name;
   }
 
+  /** The ID of the process group profile */
   get ID() {
     return this.processGroup.ID;
   }
 
+  /** The source of the process group profile */
   get Source() {
     return this.processGroup.Source;
   }
@@ -661,7 +687,12 @@ export class InspectedProfile {
     return grp;
   }
 
+  /**
+   * Publish and update to the scope-groups collected in this
+   * process group.
+   */
   private publishScopes() {
+    // sort them by lastConn, scope
     this._scopeUpdate.next(
       Array.from(this._scopeGroups.values())
         .sort((a, b) => {

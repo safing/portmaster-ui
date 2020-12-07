@@ -10,7 +10,6 @@ import { FuzzySearchService } from 'src/app/shared/fuzzySearch';
   selector: 'app-settings-overview',
   templateUrl: './overview.html',
   styleUrls: ['../page.scss', './overview.scss'],
-  //changeDetection: ChangeDetectionStrategy.OnPush,
   animations: [
     fadeInAnimation,
     fadeInListAnimation,
@@ -49,6 +48,8 @@ export class AppOverviewComponent implements OnInit, OnDestroy {
   ) { }
 
   ngOnInit() {
+    // watch all profiles and re-emit (debounced) when the user
+    // enters or chanages the search-text.
     this.subscription = combineLatest([
       this.profileService.watchProfiles(),
       this.onSearch.pipe(debounceTime(100)),
@@ -57,6 +58,8 @@ export class AppOverviewComponent implements OnInit, OnDestroy {
         ([profiles, searchTerm]) => {
           this.loading = false;
 
+          // find all profiles that match the search term. For searchTerm="" thsi
+          // will return all profiles.
           const filtered = this.searchService.searchList(profiles, searchTerm, {
             ignoreLocation: true,
             ignoreFieldNorm: true,
@@ -65,12 +68,16 @@ export class AppOverviewComponent implements OnInit, OnDestroy {
             keys: ['Name', 'LinkedPath']
           });
 
+          // Prepare new, empty lists for our groups
           this.profiles = [];
           this.runningProfiles = [];
           this.recentlyUsed = [];
 
+          // calcualte the threshold for "recently-used" (1 week).
           const recentlyUsedThreshold = new Date().valueOf() / 1000 - (60 * 60 * 24 * 7);
 
+          // flatten the filtered profiles, sort them by name and group them into
+          // our "app-groups" (active, recentlyUsed, others)
           filtered
             .map(item => item.item)
             .sort((a, b) => {
@@ -101,6 +108,13 @@ export class AppOverviewComponent implements OnInit, OnDestroy {
       )
   }
 
+  /**
+   * @private
+   *
+   * Used as an ngModelChange callback on the search-input.
+   *
+   * @param term The search term entered by the user
+   */
   searchApps(term: string) {
     this.searchTerm = term;
     this.onSearch.next(term);

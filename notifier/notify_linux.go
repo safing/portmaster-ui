@@ -107,17 +107,17 @@ func (n *Notification) Show() {
 	// Hints are a way to provide extra data to a notification server.
 	sysN.Hints = make(map[string]interface{})
 	nChannels := 3
-	if icons.Portmaster256PB.HasAlpha {
+	if icons.PB.HasAlpha {
 		nChannels = 4
 	}
 	notifIcon := NotificationIcon{
-		icons.Portmaster256PB.Width,
-		icons.Portmaster256PB.Height,
-		icons.Portmaster256PB.RowStride,
-		icons.Portmaster256PB.HasAlpha,
-		icons.Portmaster256PB.BitsPerSample,
+		icons.PB.Width,
+		icons.PB.Height,
+		icons.PB.RowStride,
+		icons.PB.HasAlpha,
+		icons.PB.BitsPerSample,
 		nChannels,
-		icons.Portmaster256PB.Data,
+		icons.PB.Data,
 	}
 	sysN.Hints["image-data"] = notifIcon
 

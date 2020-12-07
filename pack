@@ -3,54 +3,69 @@
 baseDir="$( cd "$(dirname "$0")" && pwd )"
 cd "$baseDir"
 
-# first check what will be built
+COL_OFF="\033[0m"
+COL_BOLD="\033[01;01m"
+COL_RED="\033[31m"
+COL_GREEN="\033[32m"
+COL_YELLOW="\033[33m"
 
-echo ""
-echo "pack list:"
-echo ""
+function safe_execute {
+  echo -e "\n[....] $*"
+  $*
+  if [[ $? -eq 0 ]]; then
+    echo -e "[${COL_GREEN} OK ${COL_OFF}] $*"
+  else
+    echo -e "[${COL_RED}FAIL${COL_OFF}] $*" >/dev/stderr
+    echo -e "[${COL_RED}CRIT${COL_OFF}] ABORTING..." >/dev/stderr
+    exit 1
+  fi
+}
 
-if [[ $1 == "" || $1 == "js" ]]; then
+function check {
+  # ./app/pack check
+  ./app-electron/pack check
+  ./notifier/pack check
   ./modules/pack check
   ./assets/pack check
-fi
+}
 
-if [[ $1 == "" || $1 == "go" ]]; then
-  ./app/pack check
-  ./notifier/pack check
-fi
+function build {
+  # safe_execute ./app/pack build
+  safe_execute ./app-electron/pack build
+  safe_execute ./notifier/pack build
+  safe_execute ./modules/pack build
+  safe_execute ./assets/pack build
+}
 
-# confirm
+function reset {
+  # ./app/pack reset
+  ./app-electron/pack reset
+  ./notifier/pack reset
+  ./modules/pack reset
+  ./assets/pack reset
+}
 
-echo ""
-read -p "press [Enter] to start packing" x
-echo ""
-
-# build
-
-if [[ $1 == "" || $1 == "js" ]]; then
-  ./modules/pack build
-  if [[ $? -ne 0 ]]; then
-    exit 1
-  fi
-
-  ./assets/pack build
-  if [[ $? -ne 0 ]]; then
-    exit 1
-  fi
-fi
-
-if [[ $1 == "" || $1 == "go" ]]; then
-  ./app/pack build
-  if [[ $? -ne 0 ]]; then
-    exit 1
-  fi
-
-  ./notifier/pack build
-  if [[ $? -ne 0 ]]; then
-    exit 1
-  fi
-fi
-
-echo ""
-echo "finished packing."
-echo ""
+case $1 in
+  "check" )
+    check
+    ;;
+  "build" )
+    build
+    ;;
+  "reset" )
+    reset
+    ;;
+  * )
+    echo ""
+    echo "build list:"
+    echo ""
+    check
+    echo ""
+    read -p "press [Enter] to start building" x
+    echo ""
+    build
+    echo ""
+    echo "finished building."
+    echo ""
+    ;;
+esac

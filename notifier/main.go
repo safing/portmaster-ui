@@ -14,11 +14,12 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/safing/portbase/modules"
+	"github.com/tevino/abool"
 
 	"github.com/safing/portbase/api/client"
 	"github.com/safing/portbase/info"
 	"github.com/safing/portbase/log"
+	"github.com/safing/portbase/modules"
 )
 
 var (
@@ -27,6 +28,7 @@ var (
 	showVersion      bool
 
 	apiClient = client.NewClient("127.0.0.1:817")
+	connected = abool.New()
 
 	mainCtx, cancelMainCtx = context.WithCancel(context.Background())
 	mainWg                 = &sync.WaitGroup{}
@@ -45,7 +47,7 @@ func main() {
 	flag.Parse()
 
 	// set meta info
-	info.Set("Portmaster Notifier", "0.1.9", "GPLv3", false)
+	info.Set("Portmaster Notifier", "0.2.0", "GPLv3", false)
 
 	// check if meta info is ok
 	err := info.CheckVersion()
@@ -91,10 +93,12 @@ func main() {
 
 	// connect to API
 	go apiClient.StayConnected()
+	go apiStatusMonitor()
 
 	// start subsystems
 	go tray()
 	go statusClient()
+	go subsystemsClient()
 	go notifClient()
 	go configClient()
 
@@ -143,6 +147,20 @@ func main() {
 	log.Shutdown()
 
 	os.Exit(0)
+}
+
+func apiStatusMonitor() {
+	for {
+		// Wait for connection.
+		<-apiClient.Online()
+		connected.Set()
+		triggerTrayUpdate()
+
+		// Wait for lost connection.
+		<-apiClient.Offline()
+		connected.UnSet()
+		triggerTrayUpdate()
+	}
 }
 
 func detectDataDir() string {

@@ -12,14 +12,17 @@ import { fadeInAnimation } from '../../shared/animations';
   ],
 })
 export class MonitorApplicationViewComponent {
-  get loading() {
-    return this.profile?.loading;
+  /** @private True if we are still loading the current profile. */
+  get loading(): boolean {
+    return this.profile?.loading || false;
   }
 
+  /** @private The current (or empty) profile connection stats */
   get stats() {
     return this.profile?.stats || new ConnectionStatistics();
   }
 
+  /** The inspected profile to display */
   @Input()
   profile: InspectedProfile | null = null;
 }

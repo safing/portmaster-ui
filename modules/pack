@@ -3,9 +3,11 @@
 baseDir="$( cd "$(dirname "$0")" && pwd )"
 cd "$baseDir"
 
-COL_OFF="\033[00m"
+COL_OFF="\033[0m"
 COL_BOLD="\033[01;01m"
 COL_RED="\033[31m"
+COL_GREEN="\033[32m"
+COL_YELLOW="\033[33m"
 
 destDir="../../dist/all/ui/modules"
 
@@ -26,11 +28,17 @@ function check {
       # prep env
       prep
 
+      # Check if module is ignored.
+      ignoringExt=""
+      if [[ -f ".ignore" ]]; then
+        ignoringExt="(ignoring)"
+      fi
+
       # check if file exists
       if [[ -f $destPath ]]; then
-        echo "[modules] $module $version already built"
+        echo "[modules] $module v$version already built $ignoringExt"
       else
-        echo -e "${COL_BOLD}[modules] $module $version${COL_OFF}"
+        echo -e "${COL_BOLD}[modules] $module v$version${COL_OFF} $ignoringExt"
       fi
 
       cd "$baseDir"
@@ -41,13 +49,12 @@ function check {
 function build {
   for module in *; do
     if [[ -f "$module/package.json" ]]; then
-
-      echo -e "\npackaging $module\n"
-
-      read ans
-      if [[ "$ans" == "s" ]]; then
+      if [[ -f "$module/.ignore" ]]; then
+        echo "$module is being ignored, skipping..."
         continue
       fi
+
+      echo -e "\npackaging $module\n"
 
       # go to module dir
       cd $module
@@ -56,7 +63,7 @@ function build {
 
       # check if file exists
       if [[ -f $destPath ]]; then
-        echo "$module already built in version $version, skipping..."
+        echo "$module already built in v$version, skipping..."
         cd "$baseDir"
         continue
       fi
@@ -69,7 +76,7 @@ function build {
       # build
       npm run build
       if [[ $? -ne 0 ]]; then
-        echo -e "\n${COL_BOLD}[modules] $module: ${COL_RED}BUILD FAILED.${COL_OFF}"
+        echo -e "\n${COL_BOLD}[modules] $module v$version: ${COL_RED}BUILD FAILED.${COL_OFF}"
         exit 1
       fi
 
@@ -81,9 +88,9 @@ function build {
 
       # zip up!
       mkdir -p ../$destDir
-      zip -r ../$destPath *
+      zip -r -9 -db "../$destPath" *
 
-      echo -e "\n${COL_BOLD}[modules] $module: successfully built.${COL_OFF}"
+      echo -e "\n${COL_BOLD}[modules] $module v$version: ${COL_GREEN}successfully built.${COL_OFF}"
 
       # go back to base dir
       cd "$baseDir"
@@ -94,6 +101,10 @@ function build {
 function reset {
   for module in *; do
     if [[ -f "$module/package.json" ]]; then
+      if [[ -f "$module/.ignore" ]]; then
+        continue
+      fi
+
       # go to module dir
       cd $module
       # prep env
@@ -102,6 +113,7 @@ function reset {
       # delete if file exists
       if [[ -f $destPath ]]; then
         rm $destPath
+        echo -e "[modules] $module v$version deleted."
       fi
 
       cd "$baseDir"

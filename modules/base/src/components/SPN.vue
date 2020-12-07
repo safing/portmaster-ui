@@ -87,7 +87,7 @@
             Am I totally safe from tracking with the SPN? What do service providers see when connecting through the SPN?
           </h4>
           <p>
-            No. This is just one piece of the puzzle. The SPN only protects your IP-address from exposure, but there are
+            No. This is just one piece of the puzzle. The SPN primarily protects your IP-address from exposure, but there are
             still many other ways services can track and identify you. These include fingerprinting (mostly in
             browsers), authentication (when logged in to a service), mouse movements (malicious javascripts), etc…
           </p>

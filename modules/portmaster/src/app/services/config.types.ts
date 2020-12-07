@@ -63,18 +63,22 @@ export function optionTypeName(opt: OptionType): string {
 /** The actual type an option value can be */
 export type OptionValueType = string | string[] | number | boolean;
 
+/** Type-guard for string option types */
 export function isStringType(opt: OptionType, vt: OptionValueType): vt is string {
   return opt === OptionType.String;
 }
 
+/** Type-guard for string-array option types */
 export function isStringArrayType(opt: OptionType, vt: OptionValueType): vt is string[] {
   return opt === OptionType.StringArray;
 }
 
+/** Type-guard for number option types */
 export function isNumberType(opt: OptionType, vt: OptionValueType): vt is number {
   return opt === OptionType.Int;
 }
 
+/** Type-guard for boolean option types */
 export function isBooleanType(opt: OptionType, vt: OptionValueType): vt is boolean {
   return opt === OptionType.Bool;
 }
@@ -130,6 +134,7 @@ export enum ExternalOptionHint {
   OrderedList = 'ordered'
 }
 
+/** A list of well-known option annotation keys. */
 export enum WellKnown {
   DisplayHint = "safing/portbase:ui:display-hint",
   Order = "safing/portbase:ui:order",
@@ -141,6 +146,10 @@ export enum WellKnown {
   Requires = "safing/portbase:config:requires"
 }
 
+/**
+ * Annotations describes the annoations object of a configuration
+ * setting. Well-known annotations are stricktly typed.
+ */
 export interface Annotations<T extends OptionValueType> {
   // Well known option annoations and their
   // types.
