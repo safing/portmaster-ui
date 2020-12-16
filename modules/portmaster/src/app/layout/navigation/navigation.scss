@@ -3,20 +3,20 @@
   top            : 0px;
   position       : sticky;
   display        : flex;
-  width          : 4.5rem;
+  width          : 4.2rem;
   flex-direction : column;
   justify-content: space-between;
   align-items    : center;
 
   div.logo {
     position: relative;
-    width   : 1.85rem;
-    @apply mt-4;
+    width   : 1.5rem;
+    @apply mt-6;
   }
 
   .spin {
     animation-name           : spin;
-    animation-duration       : 3500ms;
+    animation-duration       : 25500ms;
     animation-iteration-count: infinite;
     animation-timing-function: linear;
   }
@@ -33,7 +33,6 @@
 
     &:not(.connected) {
       animation-timing-function: cubic-bezier(0.445, 0.05, 0.55, 0.95);
-
       path.inner {
         fill: theme('colors.info.red');
       }
@@ -47,50 +46,86 @@
     align-items    : center;
   }
 
+  div.nav-lower-list {
+    display        : flex;
+    flex-direction : column;
+    justify-content: flex-start;
+    align-items    : center;
+    padding-bottom : 1.5rem;
+  }
+
   div.link {
-    @apply rounded;
     @apply my-2;
 
-    font-size: 0.9rem;
     width    : 2rem;
     height   : 2rem;
+    border-radius: 10px;
 
     display        : flex;
     justify-content: space-around;
     align-items    : center;
 
     cursor: pointer;
-
-    &:hover,
-    &.active {
-      @apply bg-buttons-light;
-    }
-
-    &,
-    &:active,
-    &:focus,
-    &:target {
+    
+    &{
       outline: none;
+      svg{
+        opacity: .5;
+      }
+    }
+
+    &:target,
+    &.active {
+      background-color: #2c2c2c;
+      svg{
+        opacity: 1;
+        transform: scale(1.05);
+      }
+    }
+
+    &:hover{
+      svg{
+        opacity: 1 ;
+        transform: scale(1.05);
+        transition: all ease-in-out .25s;
+      }
+    }
+
+    svg{
+      &.dash,
+      &.spn,
+      &.monitor,
+      &.app,
+      &.help,
+      &.settings{
+        width   : 1.1rem;
+        position: relative;
+        transition: all ease-in-out .25s;
+        .inner {
+          stroke: white;
+        }
+      }
     }
   }
-}
 
-@keyframes spin {
-  0% {
-    transform: rotate(0deg);
+  @keyframes spin {
+    0% {
+      transform: rotate(0deg);
+    }
+
+    100% {
+      transform: rotate(360deg);
+    }
   }
 
-  100% {
-    transform: rotate(360deg);
-  }
-}
+  @keyframes spin-reverse {
+    0% {
+      transform: rotate(360deg);
+    }
 
-@keyframes spin-reverse {
-  0% {
-    transform: rotate(360deg);
+    100% {
+      transform: rotate(0deg);
+    }
   }
 
-  100% {
-    transform: rotate(0deg);
-  }
 }
