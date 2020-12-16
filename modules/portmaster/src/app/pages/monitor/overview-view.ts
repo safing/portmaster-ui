@@ -14,7 +14,7 @@ import { ConnTracker, ProcessGroup } from '../../services/connection-tracker.ser
   ],
 })
 export class NetworkOverviewComponent implements OnInit, OnDestroy {
-  /** @private Wether or not we are still loading initial data. */
+  /** @private Whether or not we are still loading initial data. */
   loading = true;
 
   /** @private The total number of connections. */

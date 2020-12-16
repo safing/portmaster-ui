@@ -19,7 +19,7 @@ export class AccordionComponent<T = any> implements OnInit {
   @Input()
   data: T | undefined = undefined;
 
-  /** Wether or not the accordion component starts active. */
+  /** Whether or not the accordion component starts active. */
   @Input()
   set active(v: any) {
     this._active = coerceBooleanProperty(v);
@@ -41,7 +41,7 @@ export class AccordionComponent<T = any> implements OnInit {
   headerTemplate: TemplateRef<any> | null = null;
 
   @HostBinding('class.active')
-  /** @private Wether or not the accordion should have the 'active' class */
+  /** @private Whether or not the accordion should have the 'active' class */
   get activeClass(): string {
     return this.active;
   }

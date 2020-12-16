@@ -19,7 +19,7 @@ export class AccordionGroupComponent implements OnDestroy {
   @Input()
   headerTemplate: TemplateRef<any> | null = null;
 
-  /** Wether or not one or more components can be expanded. */
+  /** Whether or not one or more components can be expanded. */
   @Input()
   set singleMode(v: any) {
     this._singleMode = coerceBooleanProperty(v);

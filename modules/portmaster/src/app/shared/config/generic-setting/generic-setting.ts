@@ -35,7 +35,7 @@ export class GenericSettingComponent<S extends BaseSetting<any, any>> implements
   readonly wellKnown = WellKnown;
 
   /**
-   * Wether or not the component/setting is disabled and should
+   * Whether or not the component/setting is disabled and should
    * be read-only.
    */
   @Input()
@@ -50,7 +50,7 @@ export class GenericSettingComponent<S extends BaseSetting<any, any>> implements
 
 
   /**
-   * Wether or not the component should be displayed as "locked"
+   * Whether or not the component should be displayed as "locked"
    * when the default value is used (that is, no 'Value' property
    * in the setting)
    */
@@ -72,7 +72,7 @@ export class GenericSettingComponent<S extends BaseSetting<any, any>> implements
   onSave = new EventEmitter<SaveSettingEvent<S>>();
 
   /**
-   * Wether or not the help text is currently shown
+   * Whether or not the help text is currently shown
    */
   @Input()
   set showHelp(v: any) {
@@ -89,7 +89,7 @@ export class GenericSettingComponent<S extends BaseSetting<any, any>> implements
   /** Used internally for subscriptions to various changes */
   private subscription = Subscription.EMPTY;
 
-  /** Wether or not the value was reset. */
+  /** Whether or not the value was reset. */
   private wasReset = false;
 
   /**
@@ -184,7 +184,7 @@ export class GenericSettingComponent<S extends BaseSetting<any, any>> implements
 
   /**
    * @private
-   * Toggle wether or not the help text is displayed
+   * Toggle Whether or not the help text is displayed
    */
   toggleHelp() {
     this.showHelp = !this.showHelp;
@@ -192,7 +192,7 @@ export class GenericSettingComponent<S extends BaseSetting<any, any>> implements
 
   /**
    * @private
-   * Toggle wether or not the setting is currently locked.
+   * Toggle Whether or not the setting is currently locked.
    */
   toggleLock() {
     if (this.isLocked) {
@@ -244,7 +244,7 @@ export class GenericSettingComponent<S extends BaseSetting<any, any>> implements
   /* An optional default value overwrite */
   _defaultValue: SettingValueType<S> | null = null;
 
-  /* Wether or not the setting has been saved */
+  /* Whether or not the setting has been saved */
   saved = true;
 
   /* The settings value, updated by the setting() setter */

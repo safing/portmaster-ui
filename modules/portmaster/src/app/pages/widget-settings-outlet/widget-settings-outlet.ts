@@ -22,7 +22,7 @@ export class WidgetSettingsOutletComponent<T = any> implements OnInit, OnDestroy
   /** @private The component portal of the widget's factory component. */
   portal: ComponentPortal<WidgetFactory<T>> | null = null;
 
-  /** @private Wether or not the current settings are dirty (changed but not saved). */
+  /** @private Whether or not the current settings are dirty (changed but not saved). */
   dirty = false;
 
   /** @private The current widget configuration. */
@@ -38,7 +38,7 @@ export class WidgetSettingsOutletComponent<T = any> implements OnInit, OnDestroy
   /** Subscription to the route parameters. */
   private paramSubscription: Subscription = Subscription.EMPTY;
 
-  /** Wether or not we are in edit-mode rather than create-mode. */
+  /** Whether or not we are in edit-mode rather than create-mode. */
   get isEdit() { return this.widgetKey !== null; }
 
   constructor(
