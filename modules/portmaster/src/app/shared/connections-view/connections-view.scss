@@ -72,11 +72,16 @@ fa-icon[icon="spinner"] {
   @apply mr-1;
 }
 
-fa-icon[icon="cog"] {
+fa-icon[icon="cog"],
+fa-icon[icon="eye"] {
   cursor: pointer;
 
   &:hover {
     color: theme("colors.buttons.icon");
+  }
+
+  &:not(:first-of-type) {
+    @apply ml-1;
   }
 }
 
@@ -103,7 +108,7 @@ table {
     }
 
     &-actions {
-      width: 1rem;
+      width: 3rem;
     }
   }
 }
