@@ -74,15 +74,15 @@ export class AppComponent implements OnInit {
     // TODO(ppacher): move virtual notification handling to a dedicated service
 
     this.statusService.status$.subscribe(status => {
-      if (status.OnlineStatus === OnlineStatus.Online) {
-        this.onlineStatusNotification?.dispose()
+      if (!!this.onlineStatusNotification) {
+        this.notificationService.deject(this.onlineStatusNotification);
+        this.onlineStatusNotification!.dispose()
         this.onlineStatusNotification = null;
-      } else {
+      }
+      if (status.OnlineStatus !== OnlineStatus.Online) {
         let title = '';
         let msg = '';
         let actions: ActionHandler<any>[] = [];
-
-        this.onlineStatusNotification?.dispose();
 
         switch (status.OnlineStatus) {
           case OnlineStatus.Limited:
