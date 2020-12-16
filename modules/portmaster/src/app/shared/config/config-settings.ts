@@ -85,6 +85,7 @@ export class ConfigSettingsViewComponent implements OnInit, OnDestroy, AfterView
   constructor(
     public statusService: StatusService,
     public configService: ConfigService,
+    private elementRef: ElementRef,
     private changeDetectorRef: ChangeDetectorRef,
     private scrollDispatcher: ScrollDispatcher,
     private searchService: FuzzySearchService,
@@ -273,6 +274,29 @@ export class ConfigSettingsViewComponent implements OnInit, OnDestroy, AfterView
    * depending on the scroll position.
    */
   private intersectionCallback() {
+    // search our parents for the element that's scrollable
+    let elem: HTMLElement = this.elementRef.nativeElement;
+    while (!!elem) {
+      if (elem.scrollTop > 0) {
+        break;
+      }
+      elem = elem.parentElement!;
+    }
+
+    // if there's no scrolled/scrollable parent element
+    // our content itself is scrollable so use our own
+    // host element as the anchor for the calculation.
+    if (!elem) {
+      elem = this.elementRef.nativeElement;
+    }
+
+    // get the elements offset to page-top
+    var offsetTop = 0;
+    if (!!elem) {
+      const viewRect = elem.getBoundingClientRect();
+      offsetTop = viewRect.top;
+    }
+
     this.navLinks?.some(link => {
       const subsystem = link.nativeElement.getAttribute("subsystem");
       const category = link.nativeElement.getAttribute("category");
@@ -287,8 +311,9 @@ export class ConfigSettingsViewComponent implements OnInit, OnDestroy, AfterView
       const styleBox = getComputedStyle(lastChild);
 
       const offset = rect.top + rect.height - parseInt(styleBox.marginBottom) - parseInt(styleBox.paddingBottom);
+      console.log(offset, offsetTop);
 
-      if (offset > 70) {
+      if (offset >= offsetTop) {
         this.activeSection = subsystem;
         this.activeCategory = category;
         return true;
