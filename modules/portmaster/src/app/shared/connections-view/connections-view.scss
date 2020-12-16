@@ -33,6 +33,7 @@
 
   &>div {
     flex-grow: 0.9;
+    min-width: 30%;
 
     &>span {
       @apply my-1;

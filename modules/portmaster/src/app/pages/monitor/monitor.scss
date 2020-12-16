@@ -57,6 +57,9 @@ fa-icon[icon="chevron-right"] {
 div.details-view {
   flex-grow: 1;
 
+  width   : 100%;
+  overflow: hidden;
+
   display       : flex;
   flex-direction: column;
 
