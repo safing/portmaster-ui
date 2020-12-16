@@ -1,29 +1,27 @@
 <div class="logo" routerLink="monitor">
-  <svg [class.connected]="(connected$ | async)" data-name="Layer 1" xmlns="http://www.w3.org/2000/svg"
-    xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 128 128" class="spin reverse">
+  <svg [class.connected]="(connected$ | async)" data-name="Layer 1"
+    viewBox="0 0 128 128" class="spin reverse">
     <g data-name="Main" fill-rule="evenodd">
-      <path fill="#fff" class="inner"
+      <path shape-rendering="geometricPrecision" fill="#fff" class="inner"
         d="M176.11 36.73l-5-8.61a41.53 41.53 0 00-14.73 57.22l8.55-5.12a31.58 31.58 0 0111.19-43.49z"
         transform="translate(-127.99 .01)" style="isolation:isolate" opacity=".8"></path>
-      <path fill="#fff" class="inner"
+      <path shape-rendering="geometricPrecision" fill="#fff" class="inner"
         d="M222.36 72.63a31.55 31.55 0 01-45 19.35l-4.62 8.84a41.54 41.54 0 0059.17-25.46z"
         transform="translate(-127.99 .01)" style="isolation:isolate" opacity=".8"></path>
     </g>
   </svg>
-
-  <svg [class.connected]="(connected$ | async)" data-name="Layer 1" xmlns="http://www.w3.org/2000/svg"
-    xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 128 128" class="spin">
+  <svg [class.connected]="(connected$ | async)" data-name="Layer 1"
+    viewBox="0 0 128 128" class="spin">
     <g data-name="Main" fill-rule="evenodd">
-      <path fill="#fff" class="inner reverse"
+      <path shape-rendering="geometricPrecision" fill="#fff" class="inner reverse"
         d="M197 83a19.66 19.66 0 01-19.25-32.57l-4.5-4.27A25.87 25.87 0 00198.59 89z" transform="translate(-127.99 .01)"
         style="isolation:isolate" opacity=".6"></path>
     </g>
   </svg>
-
-  <svg [class.connected]="(connected$ | async)" data-name="Layer 1" xmlns="http://www.w3.org/2000/svg"
-    xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 128 128">
+  <svg [class.connected]="(connected$ | async)" data-name="Layer 1"
+    viewBox="0 0 128 128">
     <g data-name="Main" fill-rule="evenodd">
-      <path fill="#fff"
+      <path shape-rendering="geometricPrecision" fill="#fff"
         d="M192 112.64A48.64 48.64 0 11240.64 64 48.64 48.64 0 01192 112.64zM256 64a64 64 0 10-64 64 64 64 0 0064-64z"
         transform="translate(-127.99 .1)"></path>
     </g>
@@ -31,22 +29,67 @@
 </div>
 
 <div class="nav-list">
-  <div routerLinkActive="active" routerLink="monitor" class="link">
-    <fa-icon icon="desktop"></fa-icon>
+  
+  <!-- for future updates 
+   <div routerLinkActive="active" class="link">
+    <svg viewBox="0 0 24 24" class="dash">
+      <g fill="none" class="inner">
+        <path shape-rendering="geometricPrecision" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.7" d="M19 21H5c-1.105 0-2-.895-2-2V5c0-1.105.895-2 2-2h14c1.105 0 2 .895 2 2v14c0 1.105-.895 2-2 2z"/>
+        <path shape-rendering="geometricPrecision" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.7" d="M6 12h2l2-4 4 8 2.158-4H18"/>
+      </g>
+    </svg>
   </div>
 
+   <div routerLinkActive="active" class="link">
+    <svg viewBox="0 0 24 24" class="spn">
+      <g fill="none" class="inner">
+        <path shape-rendering="geometricPrecision" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.6" d="M9 10.5c.828 0 1.5.672 1.5 1.5s-.672 1.5-1.5 1.5-1.5-.672-1.5-1.5.672-1.5 1.5-1.5M16.19 8c0 .828-.672 1.5-1.5 1.5s-1.5-.672-1.5-1.5.672-1.5 1.5-1.5 1.5.672 1.5 1.5M21.569 16c0 .828-.672 1.5-1.5 1.5s-1.5-.672-1.5-1.5.672-1.5 1.5-1.5 1.5.672 1.5 1.5M21 12H10.5M7.5 12H3M18.57 16H3.93M13.19 8H3.93M20.07 8h-3.88"/>
+        <path shape-rendering="geometricPrecision" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.6" d="M14.881 9.489c.077.797.119 1.639.119 2.511 0 4.971-1.343 9-3 9-1.487 0-2.72-3.244-2.958-7.501M14.382 6.531C13.834 4.385 12.971 3 12 3c-1.486 0-2.72 3.244-2.958 7.5"/>
+        <path shape-rendering="geometricPrecision" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.6" d="M20.617 14.601c.248-.824.383-1.696.383-2.601 0-4.971-4.029-9-9-9s-9 4.029-9 9 4.029 9 9 9c2.997 0 5.65-1.466 7.285-3.718"/>
+      </g>
+    </svg>
+  </div> 
+  -->
+
+  <div routerLinkActive="active" routerLink="monitor" class="link">
+    <svg viewBox="0 0 24 24" class="monitor">
+      <g fill="none" class="inner">
+        <path shape-rendering="geometricPrecision" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.6" d="M8.464 8.464c-1.953 1.953-1.953 5.118 0 7.071 1.953 1.953 5.118 1.953 7.071 0 1.953-1.953 1.953-5.119 0-7.071C14.559 7.488 13.28 7 12 7"/>
+        <path shape-rendering="geometricPrecision" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.6" d="M5.636 5.636c-3.515 3.515-3.515 9.213 0 12.728 3.515 3.515 9.213 3.515 12.728 0 3.515-3.515 3.515-9.213 0-12.728-2.627-2.627-6.474-3.289-9.717-1.989M5.64 5.64L12 12"/>
+      </g>
+    </svg>
+  </div>
   <div routerLinkActive="active" routerLink="app" class="link">
-    <fa-icon icon="cogs"></fa-icon>
+    <svg viewBox="0 0 24 24" class="app">
+      <g fill="none" class="inner">
+        <path shape-rendering="geometricPrecision" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.6" d="M8 20.064V11c0-1.105.895-2 2-2h10.487M8 14h12.776"/>
+        <path shape-rendering="geometricPrecision" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.6" d="M11.005 11.49c-.003 0-.005.002-.005.005s.002.005.005.005.005-.002.005-.005-.002-.005-.005-.005M13.548 11.49c-.003 0-.005.002-.005.005s.002.005.005.005.005-.002.005-.005-.002-.005-.005-.005"/>
+        <path shape-rendering="geometricPrecision" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.6" d="M12 21v0c4.971 0 9-4.029 9-9v0c0-4.971-4.029-9-9-9v0c-4.971 0-9 4.029-9 9v0c0 4.971 4.029 9 9 9z"/>
+        <path shape-rendering="geometricPrecision" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.6" d="M16.088 11.49c-.003 0-.005.002-.005.005s.002.005.005.005.005-.002.005-.005-.003-.005-.005-.005"/>
+      </g>
+    </svg>
   </div>
 </div>
 
-<div class="nav-list">
-  <!--
+<div class="nav-lower-list">
+  
+  <!-- for future updates 
   <div routerLinkActive="active" routerLink="help" class="link">
-    <fa-icon [icon]="['far', 'question-circle']"></fa-icon>
-  </div>
+    <svg viewBox="0 0 24 24" class="help">
+      <g fill="none" class="inner">
+        <path shape-rendering="geometricPrecision" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.6" d="M12 21v0c-4.971 0-9-4.029-9-9v0c0-4.971 4.029-9 9-9v0c4.971 0 9 4.029 9 9v0c0 4.971-4.029 9-9 9z"/>
+        <path shape-rendering="geometricPrecision" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.6" d="M12 13.25V13c0-.817.505-1.26 1.011-1.6.494-.333.989-.767.989-1.567 0-1.105-.895-2-2-2s-2 .895-2 2M11.999 16c-.138 0-.25.112-.249.25 0 .138.112.25.25.25s.25-.112.25-.25-.112-.25-.251-.25"/>
+      </g>
+    </svg>
+  </div> 
   -->
+  
   <div routerLinkActive="active" routerLink="settings" class="link">
-    <fa-icon icon="cog"></fa-icon>
+    <svg viewBox="0 0 24 24" class="settings" >
+      <g fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.6" class="inner">
+        <path shape-rendering="geometricPrecision" d="M13.7678 10.2322c.976311.976311.976311 2.55922 0 3.53553-.976311.976311-2.55922.976311-3.53553 0-.976311-.976311-.976311-2.55922 0-3.53553.976311-.976311 2.55922-.976311 3.53553 0"/>
+        <path shape-rendering="geometricPrecision" d="M14.849 4.12l.583.194c.534.178.895.678.895 1.241v.837c0 .712.568 1.293 1.28 1.308l.838.018c.485.01.925.289 1.142.723l.275.55c.252.504.153 1.112-.245 1.51l-.592.592c-.503.503-.512 1.316-.02 1.83l.58.606c.336.351.45.858.296 1.319l-.194.583c-.178.534-.678.895-1.241.895h-.837c-.712 0-1.293.568-1.308 1.28l-.018.838c-.01.485-.289.925-.723 1.142l-.55.275c-.504.252-1.112.153-1.51-.245l-.592-.592c-.503-.503-1.316-.512-1.83-.02l-.606.58c-.351.336-.858.45-1.319.296l-.583-.194c-.534-.178-.895-.678-.895-1.241v-.837c0-.712-.568-1.293-1.28-1.308l-.838-.018c-.485-.01-.925-.289-1.142-.723l-.275-.55c-.252-.504-.153-1.112.245-1.51l.592-.592c.503-.503.512-1.316.02-1.83l-.58-.606c-.337-.352-.451-.86-.297-1.32l.194-.583c.178-.534.678-.895 1.241-.895h.837c.712 0 1.293-.568 1.308-1.28l.018-.838c.012-.485.29-.925.724-1.142l.55-.275c.504-.252 1.112-.153 1.51.245l.592.592c.503.503 1.316.512 1.83.02l.606-.58c.351-.335.859-.449 1.319-.295z"/>
+      </g>
+    </svg>
   </div>
 </div>
