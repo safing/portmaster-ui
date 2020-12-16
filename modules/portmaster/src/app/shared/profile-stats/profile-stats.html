@@ -25,14 +25,14 @@
   <div class="metric">
     <label>Allowed</label>
     <span>
-      <span class="value">{{ (100 / total) * stats.countAccepted  | number:'1.0-1' }}</span>%
+      <span class="value">{{ (100 / total) * stats.countAccepted  | number:'1.0-1' }}%</span>
     </span>
   </div>
 
   <div class="metric">
     <label>Blocked</label>
     <span>
-      <span class="value">{{ (100 / total) * (total - stats.countAccepted)  | number:'1.0-1' }}</span>%
+      <span class="value">{{ (100 / total) * (total - stats.countAccepted)  | number:'1.0-1' }}%</span>
     </span>
   </div>
 

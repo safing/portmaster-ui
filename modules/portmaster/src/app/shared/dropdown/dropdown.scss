@@ -13,55 +13,76 @@ button {
   cursor        : pointer;
   padding       : 0;
   position      : relative;
-  min-width     : 6rem;
+  min-width     : 5rem;
   width         : fit-content;
   white-space   : nowrap;
   display       : flex;
   align-items   : center;
   outline       : none;
   text-transform: none;
-  @apply bg-buttons-light;
+  @apply bg-cards-primary;
   transition: all cubic-bezier(0.175, 0.885, 0.32, 1) .2s;
 
-  &.active {
-    @apply bg-buttons-dark;
+  color: var(--text-secondary);
 
-    .arrow {
+  svg.arrow {
+    width: 1.25rem;
+    float  : right;
+    padding: 0;
+    margin : 0;
+    transform: rotateZ(90deg);
 
-      fa-icon {
-        transform: rotateZ(180deg);
-      }
+    .inner {
+      stroke: white;
     }
+   
+  }
+
+
+  &.active {
+    @apply bg-cards-primary;
+
+    svg.arrow {
+      transform: rotateZ(270deg);
+    }
+
   }
 
   span {
-    @apply p-2;
-    @apply px-3;
+    width: auto;
+    padding-top: 6px;
+    padding-bottom: 6px;
+    padding-left: 15px;
+    padding-right: 14px;
+    
     flex-grow : 1;
     text-align: center;
   }
 
   .arrow {
-    @apply p-2;
-    @apply bg-buttons-dark;
-   
+    padding-top: 6px;
+    padding-bottom: 6px;
+    //padding-left: 10px;
+    //padding-right: 10px;
 
-    width          : 2rem;
+    @apply bg-cards-secondary;
+    
+    border-top-right-radius: 2.8px;
+    border-bottom-right-radius: 2.8px;
+
+    width          : 1.6rem;
     display        : flex;
     align-items    : center;
     justify-content: space-around;
-
-    fa-icon {
-      transition: all cubic-bezier(0.175, 0.885, 0.32, 1) .3s;
-    }
   }
 }
 
 ul.item-list {
   width  : 100%;
   display: block;
-  @apply bg-buttons-light;
-  @apply shadow-xl;
+  @apply bg-cards-primary;
+
+  color: var(--text-secondary);
 
   li {
     cursor: pointer;
@@ -69,7 +90,9 @@ ul.item-list {
     @apply px-4;
 
     &:hover {
-      @apply bg-buttons-dark;
+      @apply bg-cards-secondary;
+
+      color: var(--text-primary);
     }
   }
 }

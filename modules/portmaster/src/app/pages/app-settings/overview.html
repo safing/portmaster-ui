@@ -4,22 +4,56 @@
 </div>
 
 <div class="header">
-  <h1>Apps</h1>
+  <div class="header-bar">
+    <div class="title">
+      <h1>Apps</h1>
+      <div class="help">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="help">
+          <g fill="none" class="inner">
+            <path shape-rendering="geometricPrecision" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.9"
+              d="M12 21v0c-4.971 0-9-4.029-9-9v0c0-4.971 4.029-9 9-9v0c4.971 0 9 4.029 9 9v0c0 4.971-4.029 9-9 9z" />
+            <path shape-rendering="geometricPrecision" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.9"
+              d="M12 17v-5h-1M11.749 8c-.138 0-.25.112-.249.25 0 .138.112.25.25.25s.25-.112.25-.25-.112-.25-.251-.25" />
+          </g>
+        </svg>
+      </div>
+    </div>
+    
+    <div class="layout-presets">
+      <div class="grid">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="grid">
+          <g fill="none" class="inner" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8">
+            <path d="M5 3h6c1.105 0 2 .895 2 2v4.738c0 1.105-.895 2-2 2H5c-1.105 0-2-.895-2-2V5c0-1.105.895-2 2-2zM21 11.738h-2.879c-1.105 0-2-.895-2-2V5c0-1.105.895-2 2-2H21M3 21v-4c0-1.105.895-2 2-2h6c1.105 0 2 .895 2 2v4M16 21v-4c0-1.105.895-2 2-2h3"/>
+          </g>
+        </svg>
+      </div>
+  
+      <div class="list">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="list">
+          <g fill="none" class="inner">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="0.7" d="M8.5 15h7M8.5 12h7M8.5 9h7"/>
+          </g>
+        </svg>
+      </div>
+    </div>
+  </div>
+
+
 </div>
 
 <div class="scrollable">
 
-  <h4 *ngIf="!!runningProfiles">Active</h4>
+  <h4 *ngIf="!!runningProfiles">Active <span>(4)</span> </h4>
   <div class="content">
     <ng-container *ngTemplateOutlet="profileList; context: {$implicit: runningProfiles}"></ng-container>
   </div>
 
-  <h4 *ngIf="!!recentlyUsed">Recently Used</h4>
+  <h4 *ngIf="!!recentlyUsed">Recently Used <span>(4)</span> </h4>
   <div class="content">
     <ng-container *ngTemplateOutlet="profileList; context: {$implicit: recentlyUsed}"></ng-container>
   </div>
 
-  <h4 *ngIf="!!profiles">Apps</h4>
+  <h4 *ngIf="!!profiles">Apps <span>(4)</span> </h4>
   <div class="content">
     <ng-container *ngTemplateOutlet="profileList; context: {$implicit: profiles}"></ng-container>
   </div>
@@ -34,8 +68,20 @@
           <span class="card-title">
             <span [innerHTML]="profile?.Name | safe:'html'"></span>
             <span class="card-sub-title" *appExpertiseLevel="'expert'"
-              [innerHTML]="profile?.LinkedPath | safe:'html'"></span>
+              [innerHTML]="profile?.LinkedPath | safe:'html'">
+            </span>
           </span>
+
+          <div class="menu">
+            <svg xmlns="http://www.w3.org/2000/svg" data-name="Layer 2" viewBox="0 0 11.86 19.86">
+              <circle cx="9.93" cy="1.93" r="1.93" />
+              <circle cx="9.93" cy="9.93" r="1.93" />
+              <circle cx="9.93" cy="17.93" r="1.93" />
+            </svg>
+          </div>
+
+
+
         </div>
       </ng-container>
 

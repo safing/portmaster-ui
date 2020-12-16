@@ -3,15 +3,43 @@
     <div class="row">
       <h4>Network Monitor</h4>
 
+      <div class="help">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="help">
+          <g fill="none" class="inner">
+            <path shape-rendering="geometricPrecision" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.9"
+              d="M12 21v0c-4.971 0-9-4.029-9-9v0c0-4.971 4.029-9 9-9v0c4.971 0 9 4.029 9 9v0c0 4.971-4.029 9-9 9z" />
+            <path shape-rendering="geometricPrecision" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.9"
+              d="M12 17v-5h-1M11.749 8c-.138 0-.25.112-.249.25 0 .138.112.25.25.25s.25-.112.25-.25-.112-.25-.251-.25" />
+          </g>
+        </svg>
+      </div>
+      
       <span class="buttons">
         <div class="search-container" [class.active]="!!(onSearch | async)">
           <div class="search-button">
-            <fa-icon icon="search"></fa-icon>
+
+            <div class="search">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="search">
+                <g fill="none" class="inner">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.7138 6.8382c2.45093 2.45093 2.45093 6.42467 0 8.8756-2.45093 2.45093-6.42467 2.45093-8.8756 0-2.45093-2.45093-2.45093-6.42467 0-8.8756 2.45093-2.45093 6.42467-2.45093 8.8756 0M19 19l-3.29-3.29"/>
+                </g>
+              </svg>
+            </div>
+
           </div>
           <input type="text" placeholder="Search" [ngModel]="(onSearch | async)" (ngModelChange)="search($event)">
 
           <fa-icon icon="times" [class.visible]="!!(onSearch | async)" (click)="search('')"></fa-icon>
         </div>
+
+        <div class="menu">
+          <svg xmlns="http://www.w3.org/2000/svg" data-name="Layer 2" viewBox="0 0 11.86 19.86">
+            <circle cx="9.93" cy="1.93" r="1.93" />
+            <circle cx="9.93" cy="9.93" r="1.93" />
+            <circle cx="9.93" cy="17.93" r="1.93" />
+          </svg>
+        </div>
+
       </span>
     </div>
     <div class="row">
@@ -65,8 +93,15 @@
     <h4 class="breadcrumbs">
       <span routerLink="/monitor">Network Monitor</span>
       <ng-container *ngIf="!!selected">
-        <fa-icon icon="chevron-right"></fa-icon>
+        <div class="arrow">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="arrow">
+            <g fill="none" class="inner">
+              <path  stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M10 16l4-4-4-4"/>
+            </g>
+          </svg>
+        </div>
         <span>{{ selected!.Name }}</span>
+        <div class="type">(App)</div>
       </ng-container>
     </h4>
     <app-expertise></app-expertise>

@@ -1,26 +1,39 @@
+
+// Search bar and maybe somthing else?
 input:not([type="checkbox"]),
 textarea,
 select {
   display: block;
   width  : 100%;
   outline: none;
-  @apply shadow-inner-xs;
-  @apply bg-buttons-dark;
 
-  @apply text-secondary;
+  font-size  : 0.8rem;
+  font-weight: 400;
 
-  @apply border-buttons-dark;
-  @apply border;
-  transition: border cubic-bezier(0.175, 0.885, 0.32, 1.275) .3s;
-  @apply p-2;
-  @apply px-4;
-  @apply rounded;
-  @apply text-xs;
+  border: none;
+  border-radius: 2.9px;
+  padding      : 7px 20px 7px 20px;
+
+  @apply bg-cards-primary;
+
+  font-size  : 0.8rem;
+  font-weight: 500;
+  @apply text-primary;
 
   &:active,
   &:focus {
-    @apply text-primary;
-    @apply bg-buttons-light;
+    @apply bg-cards-secondary;
+
+    &::placeholder {
+      opacity: 0.5;
+    }
+
+  }
+
+  &::placeholder {
+    font-size  : 0.8rem;
+    font-weight: 500;
+    @apply text-tertiary;
   }
 
 }

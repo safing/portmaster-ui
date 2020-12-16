@@ -1,27 +1,57 @@
 <h1>
   <app-icon [profile]="profile"></app-icon>
   {{profile?.Name}}
-  <div [routerLink]="['/', 'app', profile?.Source , profile?.ID]" class="link">
+  <!-- <div [routerLink]="['/', 'app', profile?.Source , profile?.ID]" class="link">
     <fa-icon icon="cog"></fa-icon>
-  </div>
+  </div> -->
 </h1>
 
 <app-profile-stats [total]="profile?.size || 0" [stats]="stats" [@fadeIn] *ngIf="!loading"></app-profile-stats>
 
 <fa-icon icon="spinner" [spin]="true" *ngIf="loading"></fa-icon>
 
-<h3>App</h3>
+<div class="section-title">
+  <h3>App</h3>
+  <div class="help">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="help">
+      <g fill="none" class="inner">
+        <path shape-rendering="geometricPrecision" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.9"
+          d="M12 21v0c-4.971 0-9-4.029-9-9v0c0-4.971 4.029-9 9-9v0c4.971 0 9 4.029 9 9v0c0 4.971-4.029 9-9 9z" />
+        <path shape-rendering="geometricPrecision" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.9"
+          d="M12 17v-5h-1M11.749 8c-.138 0-.25.112-.249.25 0 .138.112.25.25.25s.25-.112.25-.25-.112-.25-.251-.25" />
+      </g>
+    </svg>
+  </div>
+</div>
 
 <div class="card-header open">
+
+  <div class="arrow">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="arrow">
+      <g fill="none" class="inner">
+        <path  stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M10 16l4-4-4-4"/>
+      </g>
+    </svg>
+  </div>
+
   <app-icon [profile]="profile?.profile"></app-icon>
   <span class="card-title">
     <app-text-placeholder mode="input" [loading]="!profile?.profile">
-      {{profile?.profile?.Name}}
+      {{profile?.profile?.Name}} 
+      <span class="type">App</span>
     </app-text-placeholder>
   </span>
-  <fa-icon icon="cog" [routerLink]="['/', 'app', profile?.Source, profile?.ID]"></fa-icon>
 
   <app-count-indicator [count]="profile?.size || 0" [loading]="profile?.hasOldConnections"></app-count-indicator>
+
+  <div class="menu" [routerLink]="['/', 'app', profile?.Source, profile?.ID]">
+    <svg xmlns="http://www.w3.org/2000/svg" data-name="Layer 2" viewBox="0 0 11.86 19.86">
+      <circle cx="9.93" cy="1.93" r="1.93" />
+      <circle cx="9.93" cy="9.93" r="1.93" />
+      <circle cx="9.93" cy="17.93" r="1.93" />
+    </svg>
+  </div>
+
 </div>
 
 <div class="card-content">

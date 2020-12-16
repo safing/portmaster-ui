@@ -7,7 +7,11 @@
     <ng-container *ngTemplateOutlet="currentItem.templateRef"></ng-container>
   </span>
   <div class="arrow">
-    <fa-icon icon="chevron-down"></fa-icon>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="arrow">
+      <g fill="none" class="inner">
+        <path  stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M10 16l4-4-4-4"/>
+      </g>
+    </svg>
   </div>
 </button>
 

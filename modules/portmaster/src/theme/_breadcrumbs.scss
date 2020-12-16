@@ -1,15 +1,42 @@
 h4.breadcrumbs {
+  display: flex;
+  font-size: 0.7rem;
+  font-weight: 500;
+
   span {
     outline: none;
     @apply text-secondary;
+    opacity: 0.6;
+
 
     &:hover {
       @apply text-primary;
-      text-decoration: underline;
+      text-decoration: none;
     }
 
     &:last-of-type {
       @apply text-primary;
+      opacity: 1;
     }
+
+    
   }
+
+  .type{
+    @apply text-secondary;
+    opacity: 0.6;
+    padding-left: 5px;
+  }
+
+  svg.arrow {
+    width: 1.1rem;
+    margin-top: -0px;
+
+    .inner {
+      stroke: white;
+    }
+   
+  }
+
+
 }

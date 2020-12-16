@@ -18,7 +18,7 @@
 
 html {
   user-select: none;
-  @apply antialiased
+  -webkit-font-smoothing: antialiased;
 }
 
 *[routerlink] {
@@ -50,9 +50,12 @@ html {
 }
 
 .main {
+  padding-top: 8px;
+
+
   .content {
     flex-grow: 1;
-    @apply pl-12;
+    padding-left: 1rem;
     @apply pr-16;
     @apply mr-4;
     overflow: auto;
@@ -61,7 +64,7 @@ html {
   .header {
     display: flex;
     width  : 100%;
-    @apply pl-12;
+    padding-left: 1.5rem;
     @apply pr-5;
     @apply mb-2;
     align-items: center;

@@ -10,23 +10,25 @@
 
   @apply pl-2;
 
-  @apply bg-buttons-dark;
+  @apply bg-cards-primary;
   border-radius: 0.5rem;
 
   .counter {
     flex-grow : 1;
     display   : inline-block;
     text-align: center;
+    padding-left: 2px;
+    padding-right: 4px;
   }
 
   div.state {
-    @apply bg-buttons-light;
 
     .trust-level:before {
       top: 0px;
     }
   }
 }
+
 
 fa-icon {
   &.low {

@@ -5,7 +5,11 @@
     justify-content: space-between;
     align-items    : center;
     height         : 4rem;
+    margin-top: 1rem;
     margin-bottom  : 2rem;
+    padding-right: 3rem;
+    padding-left: 3rem;
+
   }
 }
 
@@ -15,10 +19,10 @@
   flex-direction: column;
   align-items   : center;
 
-  label,
-  span {
+  label{
     @apply text-tertiary;
-    margin-bottom: -0.3rem;
+    margin-bottom: 0.3rem;
+    opacity: 0.8;
   }
 
   label {
@@ -26,7 +30,8 @@
   }
 
   span.value {
-    @apply text-xl;
+    font-size: 1.4rem;
+    font-family: 500;
     @apply text-primary;
   }
 }

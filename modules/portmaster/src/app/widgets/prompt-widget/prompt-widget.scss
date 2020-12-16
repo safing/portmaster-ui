@@ -45,12 +45,15 @@ app-menu-item.item-seperator {
 }
 
 .no-prompts {
+  font-size: 0.7rem;
   @apply text-tertiary;
   width          : 100%;
   display        : flex;
   justify-content: center;
   align-items    : center;
   flex-direction : column;
+
+  margin-top: 8px;
 }
 
 .prompts {

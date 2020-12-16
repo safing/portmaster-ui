@@ -45,9 +45,10 @@
 
     .help{
       padding-bottom: 0.2rem;
+      margin-left: 0px;
 
       svg{
-        width: 1.05rem;
+        width: 0.95rem;
         .inner{
           stroke: var(--text-secondary);
         }
@@ -65,8 +66,9 @@
 
     .dragable{
       padding-bottom: 0.5rem;
-
+      margin-left: 1px;
       svg{
+        width: 0.5rem;
         opacity: .4;
         .inner{
           stroke: var(--text-secondary);
@@ -133,27 +135,32 @@
   position: relative;
   cursor  : pointer;
   width   : 100%;
-  height  : 4rem;
+  height  : 4.4rem;
   outline : none;
-  @apply rounded;
+  @apply rounded-md;
   @apply border-2;
   @apply border-dashed;
-  @apply border-buttons-dark;
+  @apply border-buttons-light;
   @apply text-tertiary;
 
-  span,
-  fa-icon {
-    margin: -2px;
+  opacity: 0.5;
+  .add{
+
+    svg{
+      width: 1.45rem;
+      .inner{
+        stroke: var(--text-secondary);
+      }
+    }
+
   }
 
-  fa-icon {
-    font-size: 1rem;
-  }
-
+.secondary-text{
+  font-size: 0.7rem;
+}
+  
   &:hover {
-    @apply text-secondary;
-    @apply bg-cards-secondary;
-    @apply border-buttons-light;
+    opacity: 1;
   }
 
   display        : flex;

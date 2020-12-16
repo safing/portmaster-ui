@@ -48,11 +48,11 @@
     <label>Rate your network</label>
     <app-dropdown *appExpertiseLevel="'developer'" [ngModel]="mode" (ngModelChange)="updateMode($event)">
       <app-dropdown-item *dropDownValue="'auto'">
-        <span class="trust-level low"></span>
+        <span class="auto-detect low"></span>
         <span>Auto Detect</span>
       </app-dropdown-item>
       <app-dropdown-item *dropDownValue="'manual'">
-        <span class="trust-level off"></span>
+        <span class="off"></span>
         <span>Manual</span>
       </app-dropdown-item>
     </app-dropdown>

@@ -9,14 +9,17 @@
       <span routerLink="/app"> Apps </span>
       <fa-icon icon="chevron-right"></fa-icon>
       <span> {{ appProfile.Name }} </span>
+
     </h4>
   </div>
 
   <div class="scroll-container" cdkScrollable>
     <div class="app-overview">
       <h1>
+
         <app-icon [profile]="appProfile"></app-icon>
         {{appProfile?.Name}}
+        
 
         <div *ngIf="isActive" [routerLink]="['/', 'monitor', 'profile', appProfile?.Source, appProfile?.ID]"
           class="link">

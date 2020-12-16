@@ -2,11 +2,105 @@
   justify-content: flex-start;
 }
 
+.header{
+  margin-top: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.header-bar{
+  width: 100%;
+  display: inline-block;
+
+  .title{
+    display: flex;
+    align-items: center;
+    float: left;
+  
+  
+    h1{
+      font-size: 1.35rem;
+      margin: 0;
+    }
+  
+    .help{
+      margin-top: 2px;
+      margin-left: 0.25rem;
+      cursor: pointer;
+  
+      svg{
+        width: 1.05rem;
+        .inner{
+          stroke: var(--text-secondary);
+        }
+      }
+  
+      &:hover,
+        &:active {
+          svg{
+            opacity: 1;
+            .inner{
+              stroke: var(--text-primary);
+            }
+          }
+        }
+    }
+  }
+
+  .layout-presets{
+    display: flex;
+    align-items: center;
+    float: right;
+
+    padding-right: 20px;
+  
+    .grid {
+      cursor: pointer;
+    
+      svg{
+        width: 1.1rem;
+        .inner{
+          stroke: var(--text-primary);
+        }
+      }
+    
+      
+    }
+  
+    .list {
+      cursor: pointer;
+    
+      svg{
+        width: 2.5rem;
+        .inner{
+          stroke: var(--text-secondary);
+        }
+      }
+    
+      &:hover,
+        &:active {
+          svg{
+            opacity: 1;
+            .inner{
+              stroke: var(--text-primary);
+            }
+          }
+        }
+    }
+  }
+
+}
+
+
+
+
+
+
+
 
 .grid-container {
   display              : grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap                  : 1rem;
+  grid-template-columns: repeat(auto-fit, 220px);
+  gap                  : 0.5rem;
 }
 
 .scrollable {
@@ -15,12 +109,23 @@
 }
 
 h4 {
-  @apply pl-12;
+  font-size: 0.8rem;
+  padding-left: 1rem;
   @apply bg-background;
-  @apply pb-2;
+  padding-bottom: 1.5rem;
   width   : 100%;
   position: sticky;
   top     : 0px;
+  color: white;
+  opacity: 0.6;
+  font-weight: 300;
+
+  span{
+    padding-left: 2px;
+    font-size: 0.65rem;
+    opacity: 0.5;
+  }
+
 }
 
 .content {
@@ -34,9 +139,35 @@ h4 {
   // Since we're using a grid-gap anyway we need
   // to clear the margin.
   @apply mt-0;
+  @apply bg-cards-secondary;
+
+  &:hover{
+    @apply bg-cards-primary;
+  }
+
+  app-icon{
+    transform: scale(0.8);
+    margin-right: 2px;
+  }
+
+  .card-title{
+    padding: 0px 20px 0px 10px;
+    font-size: 0.7rem;
+
+    .card-sub-title{
+      padding-top: 0.25rem;
+    }
+
+  }
+
+  .menu{
+    padding-right: 0.2rem;
+
+    svg{
+      width: 0.48rem;
+      fill: white;
+    }
+  }
 }
 
 
-.card-title{
-  padding: 0.6rem;
-}

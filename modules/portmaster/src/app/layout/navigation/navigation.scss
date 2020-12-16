@@ -59,8 +59,8 @@
   div.link {
     @apply my-2;
 
-    width    : 2.1rem;
-    height   : 2.1rem;
+    width    : 2rem;
+    height   : 2rem;
     border-radius: 10px;
 
     display        : flex;
@@ -81,14 +81,14 @@
       @apply bg-buttons-light;
       svg{
         opacity: 1;
-        transform: scale(1.1);
+        transform: scale(1.05);
       }
     }
 
     &:hover{
       svg{
         opacity: 1 ;
-        transform: scale(1.1);
+        transform: scale(1.05);
         transition: all ease-in-out .25s;
       }
     }
@@ -108,27 +108,27 @@
       }
 
       &.dash{
-        width   : 1.2rem;
+        width   : 1.1rem;
       }
 
       &.spn{
-        width   : 1.2rem;
+        width   : 1.1rem;
       }
 
       &.monitor{
-        width   : 1.2rem;
+        width   : 1.1rem;
       }
 
       &.app{
-        width   : 1.2rem;
+        width   : 1.1rem;
       }
 
       &.help{
-        width   : 1.2rem;
+        width   : 1.1rem;
       }
 
       &.settings{
-        width   : 1.2rem;
+        width   : 1.1rem;
       }
     }
 

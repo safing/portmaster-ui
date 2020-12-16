@@ -40,11 +40,11 @@
   justify-content: space-between;
   background     : none;
 
-  @apply pb-5;
-
+  @apply pb-4;
+  
   svg.shield {
     margin-top: -3.5rem;
-    width     : 7.25rem;
+    width     : 6.8rem;
 
     path {
       top             : 0px;
@@ -137,13 +137,15 @@
     @apply mr-2;
     position  : relative;
     margin-top: 2.25rem;
-    padding: 0.25rem;
+    
+    padding-right: 8px;
+    padding-left: 8px;
 
     h2 {
       padding   : 0;
       margin    : 0;
       margin-top: -0.45rem;
-      font-size : 1rem;
+      font-size : 1.05rem;
       font-weight: 500;
     }
 
@@ -151,7 +153,7 @@
       padding-top: 0.15rem;
       margin     : 0;
       opacity    : .4;
-      font-size  : 0.8rem;
+      font-size  : 0.7rem;
       font-weight: 400;
     }
 
@@ -161,7 +163,7 @@
     flex-grow: 1;
 
     label {
-      font-size  : 0.8rem;
+      font-size  : 0.75rem;
       font-weight: 400;
     }
 
@@ -170,12 +172,23 @@
       justify-content: space-between;
       align-items    : center;
       padding        : 0 0 0.5rem 0;
+
+      .auto-detect {
+        height: 5px;
+        width: 5px;
+        margin-right: 10px;
+        margin-bottom: 1px;
+        background-color:  #4995f3;
+        border-radius: 50%;
+        display: inline-block;
+      }
+      
     }
 
     &:not(.auto-pilot) {
       div.level.selected {
         div {
-          @apply bg-buttons-light
+          @apply bg-cards-primary;
         }
 
         &:after {
@@ -193,11 +206,12 @@
       overflow  : hidden;
       z-index   : 1;
 
+
       &:after {
         transition: all cubic-bezier(0.19, 1, 0.82, 1) .3s;
         @apply rounded;
         content         : "";
-        background-image: linear-gradient(90deg, #1d5fa0 19%, rgba(2, 0, 36, 0) 80%);
+        background-image: linear-gradient(90deg, #1d5fa0 5%, rgba(2, 0, 36, 0) 60%);
         transform       : translateX(100%);
         position        : absolute;
         top             : 0;
@@ -207,16 +221,18 @@
         z-index         : -1;
         opacity         : 0;
       }
-
+      
       div {
-        @apply bg-cards-primary;
+        @apply bg-cards-secondary;
 
         border-radius: 2.8px;
-        padding      : 10px 20px 10px 20px;
+        padding      : 9px 20px 9px 20px;
         display      : block;
 
+        opacity: 0.5;
+
         span {
-          font-size  : 0.8rem;
+          font-size  : 0.75rem;
           font-weight: 400;
         }
 
@@ -224,12 +240,12 @@
           @apply text-tertiary;
           @apply ml-2;
 
-          font-size  : 0.725rem;
-          font-weight: 400;
+          font-size  : 0.65rem;
+          font-weight: 500;
         }
 
         svg.help {
-          width  : 1.05rem;
+          width: 0.95rem;
           float  : right;
           padding: 0;
           margin : 0;
@@ -249,6 +265,14 @@
 
       }
 
+      &.selected{
+        div {
+          @apply bg-cards-primary;
+
+          opacity: 1;
+        }
+      }
+
       &.selected,
       &.suggested {
         &:after {
@@ -266,7 +290,9 @@
       &:hover,
       &:active {
         div {
-          @apply bg-cards-secondary;
+          @apply bg-cards-primary;
+
+          opacity: 1;
         }
       }
 
