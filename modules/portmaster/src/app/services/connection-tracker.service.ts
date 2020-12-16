@@ -74,19 +74,31 @@ export class ProcessGroup {
     return this.permitted.size + this.unpermitted.size;
   }
 
+  /** Returns the number of permitted connections. */
   get countAllowed() {
     return this.permitted.size;
   }
 
+  /** Returns the number of unpermitted connections. */
   get countUnpermitted() {
     return this.unpermitted.size;
   }
 
   constructor(
     public readonly ID: string,
-    public readonly Name: string,
+    public name: string,
     public readonly Source: string,
   ) { }
+
+  /** Name is the name of the profile */
+  get Name(): string {
+    return this.name;
+  }
+
+  /** Sets a new name for the process group. */
+  setName(name: string) {
+    this.name = name;
+  }
 
   /** Dispose the profile and all resources associated with it */
   dispose() {
@@ -544,6 +556,9 @@ export class InspectedProfile {
         const prevProfileRevision = this.currentProfileRevision;
         this._layeredProfile = layers;
 
+        // Make sure to copy the new name to our process group.
+        this.processGroup.setName(appProfile.Name);
+
         // if it changed, update all scope-groups with the new revision counter
         if (this.currentProfileRevision > prevProfileRevision) {
           this.hasOldConnections = false;
@@ -635,6 +650,13 @@ export class InspectedProfile {
       if (this._connections.has(key)) {
         return;
       }
+    }
+
+    // Portmaster always starts with revision counter 1
+    // if we get zero it's a new profile and the portmaster
+    // has not yet set the correct revision counter.
+    if (conn.ProfileRevisionCounter < 1) {
+      conn.ProfileRevisionCounter = 1;
     }
 
     this._connections.set(key, conn);
@@ -942,6 +964,12 @@ export class ConnTracker {
 
       this.publishProfiles();
     }
+
+    if (profile.Name !== conn.ProcessContext.ProfileName) {
+      console.log(`Updating profile name of profile ${profile.ID} from ${profile.Name} to ${conn.ProcessContext.ProfileName}`);
+      profile.setName(conn.ProcessContext.ProfileName);
+    }
+
     return profile;
   }
 
