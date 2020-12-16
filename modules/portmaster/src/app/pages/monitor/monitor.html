@@ -4,13 +4,13 @@
       <h4>Network Monitor</h4>
 
       <span class="buttons">
-        <div class="search-container" [class.active]="!!(onSearch | async)">
-          <div class="search-button">
+        <div class="search-container" [class.active]="!!(onSearch | async) || showSearch">
+          <div class="search-button" (click)="toggleSearch()">
             <fa-icon icon="search"></fa-icon>
           </div>
           <input type="text" placeholder="Search" [ngModel]="(onSearch | async)" (ngModelChange)="search($event)">
 
-          <fa-icon icon="times" [class.visible]="!!(onSearch | async)" (click)="search('')"></fa-icon>
+          <fa-icon icon="times" [class.visible]="showSearch" (click)="toggleSearch()"></fa-icon>
         </div>
       </span>
     </div>

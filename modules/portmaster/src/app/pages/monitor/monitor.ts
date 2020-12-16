@@ -24,6 +24,9 @@ export class MonitorPageComponent implements OnInit, OnDestroy {
   /** @private Wether or not we are still loading data. */
   loading = true;
 
+  /** @private Wether or not the search bar is shown */
+  showSearch = false;
+
   /** @private The currently inspected (and thus selected) profile. */
   get selected() {
     return this.connTrack.inspected;
@@ -75,6 +78,19 @@ export class MonitorPageComponent implements OnInit, OnDestroy {
   ngOnDestroy() {
     this.subscription.unsubscribe();
     this.connTrack.clearInspection();
+  }
+
+  /**
+   * @private
+   * Toggle wether or not the search bar is visible.
+   * If the search bar gets hidden make sure to clear the
+   * current search as well.
+   */
+  toggleSearch() {
+    this.showSearch = !this.showSearch;
+    if (!this.showSearch && this.onSearch.getValue() != '') {
+      this.search('')
+    }
   }
 
   /**
