@@ -57,6 +57,9 @@ fa-icon[icon="chevron-right"] {
 div.details-view {
   flex-grow: 1;
 
+  width   : 100%;
+  overflow: hidden;
+
   display       : flex;
   flex-direction: column;
 
@@ -100,11 +103,6 @@ $transition-duration : .3s;
   overflow       : hidden;
   transition     : all, $transition-duration;
 
-  &:hover,
-  &.active {
-    width: calc(4.5 * 4rem - 2*0.75rem);
-  }
-
   & input[type="text"] {
     width      : 0px;
     flex-shrink: 1;
@@ -117,8 +115,9 @@ $transition-duration : .3s;
     }
   }
 
-  &:hover,
   &.active {
+    width: calc(4.5 * 4rem - 2*0.75rem);
+
     input[type="text"] {
       flex-grow: 1;
       width    : auto;
@@ -135,19 +134,23 @@ $transition-duration : .3s;
     @apply mr-2;
   }
 
-  fa-icon[icon="times"] {
-    position  : absolute;
-    right     : 1rem;
+  fa-icon {
     cursor    : pointer;
-    opacity   : 0;
     transition: all, $transition-duration;
+
+    &:hover {
+      @apply text-primary;
+    }
+  }
+
+  fa-icon[icon="times"] {
+    position: absolute;
+    right   : 1rem;
+    opacity : 0;
 
     &.visible {
       opacity: 1;
     }
 
-    &:hover {
-      @apply text-primary;
-    }
   }
 }

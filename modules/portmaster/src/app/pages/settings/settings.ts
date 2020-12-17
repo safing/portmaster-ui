@@ -37,10 +37,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.subscription = new Subscription();
 
-    // Subscribe to all available configuration settings
-    // and to changes on their values.
-    const configSub = this.configService.query('')
-      .subscribe(settings => this.settings = settings);
+    this.loadSettings();
 
     // Request the current resource versions once. We add
     // it to the subscription to prevent a memory leak in
@@ -49,7 +46,6 @@ export class SettingsComponent implements OnInit, OnDestroy {
     const versionSub = this.statusService.getVersions()
       .subscribe(version => this.versions = version);
 
-    this.subscription.add(configSub);
     this.subscription.add(versionSub);
   }
 
@@ -57,6 +53,14 @@ export class SettingsComponent implements OnInit, OnDestroy {
     this.subscription.unsubscribe();
   }
 
+  /**
+   * Loads all settings from the portmaster.
+   */
+  private loadSettings() {
+    const configSub = this.configService.query('')
+      .subscribe(settings => this.settings = settings);
+    this.subscription.add(configSub);
+  }
 
   /**
    * @private
@@ -85,6 +89,13 @@ export class SettingsComponent implements OnInit, OnDestroy {
       .subscribe({
         next: () => {
           this.settings[idx] = setting;
+
+          // for the release level setting we need to
+          // to a page-reload since portmaster will now
+          // return more settings.
+          if (setting.Key === 'core/releaseLevel') {
+            this.loadSettings();
+          }
         },
         error: console.error
       })

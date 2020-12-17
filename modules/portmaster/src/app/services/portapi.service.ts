@@ -32,7 +32,7 @@ export class PortapiService {
   /** Map to keep track of "still-to-send" requests when we are currently disconnected */
   private _pendingCalls$ = new Map<string, PendingMethod>();
 
-  /** Wether or not we are currently connected. */
+  /** Whether or not we are currently connected. */
   get connected$() {
     return this.connectedSubject.asObservable();
   }

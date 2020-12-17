@@ -31,7 +31,7 @@ export class RuleListComponent implements ControlValueAccessor {
   }
 
   /**
-   * Wether or not the component should be displayed as read-only.
+   * Whether or not the component should be displayed as read-only.
    */
   @Input()
   set readonly(v: any) {
