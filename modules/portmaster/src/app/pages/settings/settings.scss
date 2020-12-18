@@ -23,6 +23,12 @@
   flex-grow: 1;
 }
 
+.unstable {
+  @apply text-xs;
+  @apply uppercase;
+  color: theme('colors.info.yellow');
+}
+
 app-accordion-group {
   @apply px-12;
   @apply my-4;

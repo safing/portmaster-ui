@@ -24,7 +24,10 @@
         <span>{{ versions?.Core?.License }} </span>
       </div>
     </span>
+    <span class="unstable" *ngIf="versions?.Staging">STAGING</span>
+    <span class="unstable" *ngIf="versions?.Beta">BETA</span>
     <span class="card-actions">
+
       <button (click)="restart($event)">Restart</button>
       <button (click)="downloadUpdates($event)">Download Updates</button>
       <app-menu-trigger [menu]="actions"></app-menu-trigger>
@@ -80,7 +83,8 @@
           <ng-container cdkColumnDef="channel">
             <th cdk-header-cell *cdkHeaderCellDef>Channel</th>
             <td cdk-cell *cdkCellDef="let item">
-              {{ !item.value.SelectedVersion ? 'N/A' : item.value.SelectedVersion.StableRelease ? 'Stable' : item.value.SelectedVersion.BetaRelease ? 'Beta' : 'N/A' }}
+              {{ !item.value.SelectedVersion ? 'N/A' : item.value.SelectedVersion.StableRelease ? 'Stable' :
+              item.value.SelectedVersion.BetaRelease ? 'Beta' : 'N/A' }}
             </td>
           </ng-container>
 
