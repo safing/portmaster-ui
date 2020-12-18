@@ -125,7 +125,7 @@
       <ng-container cdkColumnDef="state">
         <th cdk-header-cell *cdkHeaderCellDef> Approval </th>
         <td cdk-cell *cdkCellDef="let conn">
-          <span class="trust-level {{ conn.Verdict === verdict.Accept ? 'low' : 'high' }}"></span>
+          <span class="trust-level" [ngClass]="getVerdictClass(conn)"></span>
         </td>
       </ng-container>
 
