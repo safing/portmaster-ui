@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"os/exec"
 	"path/filepath"
 	"runtime"
@@ -137,19 +138,16 @@ func updateTray() {
 		newIconID = icons.RedID
 		newStatusMsg = "Connection to Portmaster service lost."
 
-	case systemStatus.ActiveSecurityLevel < systemStatus.ThreatMitigationLevel &&
-		systemStatus.ThreatMitigationLevel == SecurityLevelDanger:
+	case systemStatus.ActiveSecurityLevel < systemStatus.ThreatMitigationLevel:
 		newIconID = icons.RedID
-		newStatusMsg = "Threat detected, please switch to Danger or Auto Detect for mitigation."
+		newStatusMsg = fmt.Sprintf(
+			"Threat detected, please switch to %s or Auto Detect for mitigation.",
+			fmtSecurityLevel(systemStatus.ThreatMitigationLevel),
+		)
 
 	case failureID == FailureError:
 		newIconID = icons.RedID
 		newStatusMsg = failureMsg
-
-	case systemStatus.ActiveSecurityLevel < systemStatus.ThreatMitigationLevel &&
-		systemStatus.ThreatMitigationLevel == SecurityLevelUntrusted:
-		newIconID = icons.YellowID
-		newStatusMsg = "Threat detected, please switch to Untrusted or Auto Detect for mitigation."
 
 	case failureID == FailureWarning:
 		newIconID = icons.YellowID
