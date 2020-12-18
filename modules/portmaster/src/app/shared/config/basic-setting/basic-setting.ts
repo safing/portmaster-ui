@@ -33,7 +33,7 @@ export class BasicSettingComponent<S extends BaseSetting<any, any>> implements C
     return opt.Annotations?.["safing/portbase:ui:display-hint"] || null;
   }
 
-  /** Wether or not the input should be currently disabled. */
+  /** Whether or not the input should be currently disabled. */
   @Input()
   set disabled(v: any) {
     const disabled = coerceBooleanProperty(v);
@@ -102,7 +102,7 @@ export class BasicSettingComponent<S extends BaseSetting<any, any>> implements C
 
   private _onValidatorChange: () => void = () => { };
 
-  /* Wether or not the input field is disabled. Set by setDisabledState
+  /* Whether or not the input field is disabled. Set by setDisabledState
    * from @angular/forms
    */
   _disabled: boolean = false;

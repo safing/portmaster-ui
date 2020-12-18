@@ -5,6 +5,10 @@ body {
   @apply font-medium;
 }
 
+span {
+  word-break: break-all;
+}
+
 body,
 .primary-text,
 .secondary-text {
@@ -29,6 +33,7 @@ h1,
 h2,
 h3 {
   @apply text-primary;
+  word-break: break-all;
 }
 
 h1 {

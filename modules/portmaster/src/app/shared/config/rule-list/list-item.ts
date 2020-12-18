@@ -40,7 +40,7 @@ export class RuleListItemComponent implements OnInit {
   valueChange = new EventEmitter<string>();
 
   /**
-   * Wether or not the component is in edit mode.
+   * Whether or not the component is in edit mode.
    * Supports two-way-bindings on ([edit])
    */
   @Input()
@@ -61,7 +61,7 @@ export class RuleListItemComponent implements OnInit {
   editChange = new EventEmitter<boolean>();
 
   /**
-   * Wether or not the component should be in read-only mode.
+   * Whether or not the component should be in read-only mode.
    */
   @Input()
   set readonly(v: any) {
@@ -79,10 +79,10 @@ export class RuleListItemComponent implements OnInit {
   @Output()
   delete = new EventEmitter<void>();
 
-  /** @private wether or not this rule is a "Allow" rule */
+  /** @private Whether or not this rule is a "Allow" rule */
   isAllow = false;
 
-  /** @private wether or not this rule is a "Deny" rule */
+  /** @private Whether or not this rule is a "Deny" rule */
   isBlock = false;
 
   /** @private the actually displayed rule value (without the verdict) */

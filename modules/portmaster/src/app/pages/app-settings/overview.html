@@ -9,20 +9,26 @@
 
 <div class="scrollable">
 
-  <h4 *ngIf="!!runningProfiles">Active</h4>
-  <div class="content">
-    <ng-container *ngTemplateOutlet="profileList; context: {$implicit: runningProfiles}"></ng-container>
-  </div>
+  <ng-container *ngIf="runningProfiles.length > 0">
+    <h4>Active</h4>
+    <div class="content">
+      <ng-container *ngTemplateOutlet="profileList; context: {$implicit: runningProfiles}"></ng-container>
+    </div>
+  </ng-container>
 
-  <h4 *ngIf="!!recentlyUsed">Recently Used</h4>
-  <div class="content">
-    <ng-container *ngTemplateOutlet="profileList; context: {$implicit: recentlyUsed}"></ng-container>
-  </div>
+  <ng-container *ngIf="recentlyUsed.length > 0">
+    <h4>Recently Used</h4>
+    <div class="content">
+      <ng-container *ngTemplateOutlet="profileList; context: {$implicit: recentlyUsed}"></ng-container>
+    </div>
+  </ng-container>
 
-  <h4 *ngIf="!!profiles">Apps</h4>
-  <div class="content">
-    <ng-container *ngTemplateOutlet="profileList; context: {$implicit: profiles}"></ng-container>
-  </div>
+  <ng-container *ngIf="profiles.length > 0">
+    <h4>Apps</h4>
+    <div class="content">
+      <ng-container *ngTemplateOutlet="profileList; context: {$implicit: profiles}"></ng-container>
+    </div>
+  </ng-container>
 
   <ng-template #profileList let-list>
     <div class="grid-container" [@fadeInList]="list.length">

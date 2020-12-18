@@ -194,6 +194,9 @@ export class FilterListComponent implements OnInit, OnDestroy, ControlValueAcces
         license: source.license,
       }
 
+      // Add the source to the lookup-map
+      lm.set(source.id, tn);
+
       category.children.push(tn);
     });
 
@@ -223,6 +226,7 @@ export class FilterListComponent implements OnInit, OnDestroy, ControlValueAcces
   /** Returns all actually selected IDs. */
   private getIDs() {
     let ids: string[] = [];
+
     let collectIds = (n: TreeNode) => {
       if (n.selected) {
         // If the parent is selected we can ignore the

@@ -169,6 +169,8 @@
         <td cdk-cell *cdkCellDef="let conn">
           <fa-icon icon="cog" (click)="redirectToSetting(conn.Reason.OptionKey)" *ngIf="!!conn.Reason.OptionKey">
           </fa-icon>
+
+          <fa-icon *appExpertiseLevel="'developer'" icon="eye" (click)="dumpConnection(conn)"></fa-icon>
         </td>
       </ng-container>
 

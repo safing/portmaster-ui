@@ -1,6 +1,6 @@
 import { Component, Input, OnDestroy, TrackByFunction } from '@angular/core';
 import { Subscription } from 'rxjs';
-import { getAppSetting, ScopeTranslation, setAppSetting, Verdict } from 'src/app/services';
+import { getAppSetting, ScopeTranslation, setAppSetting, Verdict, Connection } from 'src/app/services';
 import { AppProfileService } from 'src/app/services/app-profile.service';
 import { InspectedProfile, ScopeGroup } from 'src/app/services/connection-tracker.service';
 import { deepClone } from '../utils';
@@ -191,6 +191,20 @@ export class ConnectionsViewComponent implements OnDestroy {
     }
 
     this.blockedDomains = Array.from(blockedDomains)
+  }
 
+  /**
+   * @private
+   * Dump a connection to the console
+   *
+   * @param conn The connection to dump
+   */
+  dumpConnection(conn: Connection) {
+    console.log(conn);
+
+    // Copy to clip-board if supported
+    if (!!navigator.clipboard) {
+      navigator.clipboard.writeText(JSON.stringify(conn, undefined, "    "))
+    }
   }
 }
