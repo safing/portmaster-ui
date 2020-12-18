@@ -74,20 +74,15 @@ export class PilotWidgetComponent implements OnInit {
         this.selectedOption = this.options.find(opt => opt.level === this.selectedLevel) || null;
         this.activeOption = this.options.find(opt => opt.level === this.activeLevel) || null;
 
+        // By default the lock is green and we are "Secure"
         this.lockLevel = {
           level: SecurityLevel.Normal,
           class: 'low',
           displayText: 'Secure',
         }
 
-        if (this.activeLevel < this.suggestedLevel) {
-          this.lockLevel = {
-            level: SecurityLevel.High,
-            class: 'medium',
-            displayText: 'Insecure'
-          }
-        }
-
+        // Find the highest failure-status reported by any module
+        // of any subsystem.
         const failureStatus = subsystems.reduce((value: FailureStatus, system: Subsystem) => {
           if (system.FailureStatus != 0) {
             console.log(system);
@@ -97,27 +92,33 @@ export class PilotWidgetComponent implements OnInit {
             : value;
         }, FailureStatus.Operational)
 
-        let failureLevel: SecurityOption | null = null;
-
+        // update the failure level depending on the  highest
+        // failure status.
         switch (failureStatus) {
           case FailureStatus.Warning:
-            failureLevel = {
+            this.lockLevel = {
               level: SecurityLevel.High,
               class: 'medium',
               displayText: 'Warning'
             }
             break;
           case FailureStatus.Error:
-            failureLevel = {
+            this.lockLevel = {
               level: SecurityLevel.Extreme,
               class: 'high',
-              displayText: 'Failure'
+              displayText: 'Insecure'
             }
             break;
         }
 
-        if (!!failureLevel && failureLevel.level > this.lockLevel.level) {
-          this.lockLevel = failureLevel;
+        // if the auto-pilot would suggest a higher (mitigation) level
+        // we are always Insecure
+        if (this.activeLevel < this.suggestedLevel) {
+          this.lockLevel = {
+            level: SecurityLevel.High,
+            class: 'high',
+            displayText: 'Insecure'
+          }
         }
 
         this.changeDetectorRef.markForCheck();
