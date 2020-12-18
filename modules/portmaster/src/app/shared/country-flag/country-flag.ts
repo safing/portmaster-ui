@@ -4,6 +4,7 @@ import { AfterViewInit, Directive, ElementRef, HostBinding, Input, Renderer2 } f
   selector: 'span[appCountryFlags]',
 })
 export class CountryFlagDirective implements AfterViewInit {
+  private readonly flagDir = "/assets/img/flags/";
   private readonly OFFSET = 127397;
 
   @HostBinding('style.text-shadow')
@@ -18,13 +19,18 @@ export class CountryFlagDirective implements AfterViewInit {
   ) { }
 
   ngAfterViewInit() {
-    const span = this.el.nativeElement as HTMLSpanElement;
-    const flag = this.toFlag(this.code);
-    this.renderer.setAttribute(span, 'data-before', flag);
-    span.innerHTML = `${flag}`;
+    this.update();
   }
 
-  private toFlag(code: string) {
+  private update() {
+    const span = this.el.nativeElement as HTMLSpanElement;
+    const flag = this.toUnicodeFlag(this.code);
+    this.renderer.setAttribute(span, 'data-before', flag);
+
+    span.innerHTML = `<img style="display: inline" src="${this.flagDir}/${this.code.toLocaleUpperCase()}.png">`;
+  }
+
+  private toUnicodeFlag(code: string) {
     const base = 127462 - 65;
     const cc = code.toUpperCase();
     const res = String.fromCodePoint(...cc.split('').map(c => base + c.charCodeAt(0)));

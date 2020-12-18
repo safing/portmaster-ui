@@ -126,6 +126,8 @@ export interface Resource {
 }
 
 export interface VersionStatus extends Record {
+  Beta: boolean;
+  Staging: boolean;
   Core: CoreVersion;
   Resources: {
     [key: string]: Resource

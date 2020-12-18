@@ -53,6 +53,25 @@ export class ConnectionsViewComponent implements OnDestroy {
     private router: Router,
   ) { }
 
+  /**
+   * @private
+   * Returns the class used to color the connection's
+   * verdict.
+   *
+   * @param conn The connection object
+   */
+  getVerdictClass(conn: Connection): string {
+    switch (conn.Verdict) {
+      case Verdict.Accept:
+        return 'low';
+      case Verdict.Block:
+      case Verdict.Drop:
+        return 'high';
+      default:
+        return 'medium';
+    }
+  }
+
   ngOnDestroy() {
     this._profileUpdatesSub.unsubscribe();
   }
