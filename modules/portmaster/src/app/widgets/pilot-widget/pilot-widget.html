@@ -1,29 +1,18 @@
 <div class="status">
-  <svg version="1.1" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
-    class="lock {{lockLevel?.class}}">
-
-    <g stroke-linecap="round" stroke-width="1" fill="none" stroke-linejoin="round">
-      <path stroke-with="3" class="outer-line" d="M4.569 3.529l6.464-2.355c.535-.195 1.122-.195 1.656 0l6.464 2.355c1.435.523 2.389 1.885
-        2.389 3.411v5.895c0 4.333-2.212 6.11-8.476 9.657-.747.422-1.661.422-2.408
-        0-6.264-3.547-8.476-5.324-8.476-9.657v-5.895c0-1.526.953-2.888 2.387-3.411Z"></path>
-
-      <path stroke-width="2.5" class="inner-line"
-        d="M6.0 4.979l5.171-1.884c.428-.156.897-.156 1.325 0l5.171 1.884c1.148.418 1.911 1.508 1.911 2.729v4.716c0 3.466-1.77 4.888-6.781 7.726-.597.338-1.329.338-1.926 0-5.011-2.837-6.781-4.259-6.781-7.726v-4.716c0-1.221.763-2.311 1.91-2.729Z">
-      </path>
-
-      <path stroke-width="0.5" class="innest-line"
-        d="M6.0 4.979l5.171-1.884c.428-.156.897-.156 1.325 0l5.171 1.884c1.148.418 1.911 1.508 1.911 2.729v4.716c0 3.466-1.77 4.888-6.781 7.726-.597.338-1.329.338-1.926 0-5.011-2.837-6.781-4.259-6.781-7.726v-4.716c0-1.221.763-2.311 1.91-2.729Z">
-      </path>
-
-      <path class="locker" stroke-width="0.5"
-        d="M10,10.447h4c0.55,0 1,0.45 1,1v3.053c0,0.552 -0.448,1 -1,1h-4c-0.552,0 -1,-0.448 -1,-1v-3.053c0,-0.552 0.448,-1 1,-1Z">
-      </path>
-
-      <path class="locker" stroke-width="0.5"
-        d="M10.316,10.447v-1.263c0,-0.93 0.754,-1.684 1.684,-1.684c0.93,0 1.684,0.754 1.684,1.684v1.261"></path>
-    </g>
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="shield {{lockLevel?.class}}">
+    <path class="shield-three" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.4"
+      d="M20 11.242c0 4.368-3.157 8.462-7.48 9.686-.338.096-.702.096-1.04 0C7.157 19.705 4 15.61 4 11.242V7.214c0-.812.491-1.544 1.243-1.851l4.864-1.99c1.214-.497 2.574-.497 3.787 0l4.864 1.99C19.509 5.67 20 6.402 20 7.214v4.028z" />
+    <path class="shield-two" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.4"
+      d="M20 11.242c0 4.368-3.157 8.462-7.48 9.686-.338.096-.702.096-1.04 0C7.157 19.705 4 15.61 4 11.242V7.214c0-.812.491-1.544 1.243-1.851l4.864-1.99c1.214-.497 2.574-.497 3.787 0l4.864 1.99C19.509 5.67 20 6.402 20 7.214v4.028z" />
+    <path class="shield-one" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.4"
+      d="M20 11.242c0 4.368-3.157 8.462-7.48 9.686-.338.096-.702.096-1.04 0C7.157 19.705 4 15.61 4 11.242V7.214c0-.812.491-1.544 1.243-1.851l4.864-1.99c1.214-.497 2.574-.497 3.787 0l4.864 1.99C19.509 5.67 20 6.402 20 7.214v4.028z" />
+    <path class="shield-ok" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"
+      d="M8.712 12.566l2.193 2.193 4.787-4.788" /> 
+    <path class="shield-warn" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" 
+      d="M12 11V7.75M12 14.63a.16.16 0 10.16.16.16.16 0 00-.16-.16" transform="translate(-11.09 -7)"/>
+    <path class="shield-fail" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.6" 
+    d="M14.83 9.17l-5.66 5.66M14.83 14.83L9.17 9.17"/>
   </svg>
-
   <h2>{{lockLevel?.displayText}}</h2>
 </div>
 
@@ -32,11 +21,11 @@
     <label>Rate your network</label>
     <app-dropdown *appExpertiseLevel="'developer'" [ngModel]="mode" (ngModelChange)="updateMode($event)">
       <app-dropdown-item *dropDownValue="'auto'">
-        <span class="trust-level low"></span>
+        <span class="auto-detect low"></span>
         <span>Auto Detect</span>
       </app-dropdown-item>
       <app-dropdown-item *dropDownValue="'manual'">
-        <span class="trust-level off"></span>
+        <span class="off"></span>
         <span>Manual</span>
       </app-dropdown-item>
     </app-dropdown>
@@ -49,7 +38,7 @@
         <span>
           {{opt.displayText}}
         </span>
-        <span class="help">
+        <span class="situation">
           {{opt.subText || ''}}
         </span>
       </div>
