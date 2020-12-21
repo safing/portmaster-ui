@@ -67,12 +67,12 @@
 
       .shield-two {
         fill: var(--protection-warn-secondary);
-        animation-delay: 1.2s;
+        animation-delay: -1.2s;
       }
 
       .shield-three {
         fill: var(--protection-warn-tertiary);
-        animation-delay: 2.5s;
+        animation-delay: -2.5s;
       }
 
       .shield-ok,
@@ -101,12 +101,12 @@
 
       .shield-two {
         fill: var(--protection-fail-secondary);
-        animation-delay: 1.2s;
+        animation-delay: -1.2s;
       }
 
       .shield-three {
         fill: var(--protection-fail-tertiary);
-        animation-delay: 2.5s;
+        animation-delay: -2.5s;
       }
 
       .shield-warn,
