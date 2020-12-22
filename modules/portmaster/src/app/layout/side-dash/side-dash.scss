@@ -8,7 +8,6 @@
   overflow-y: auto;
 }
 
-
 .widget-list {
   width: 100%;
 
@@ -16,7 +15,6 @@
     @apply mb-3;
   }
 }
-
 
 // TODO(ppacher) move to mixin or so
 .widget-list.cdk-drop-list-dragging .widget:not(.cdk-drag-placeholder) {
@@ -43,6 +41,24 @@
     flex-direction : column;
     justify-content: center;
     align-items    : center;
+
+    .dragable{
+      padding-bottom: 0.5rem;
+      margin-left: 1px;
+
+      svg{
+        fill: var(--text-secondary);
+        width: 0.46rem;
+        transition: all cubic-bezier(0.175, 0.885, 0.32, 1.275) .2s;
+    
+        &:hover,
+        &:active {
+          fill: var(--text-primary);
+        }
+      }
+    }
+
+    /* TODO(LukeSeers): Remove these(fa-icon) once all old icons are removed. */
 
     fa-icon {
       cursor   : pointer;

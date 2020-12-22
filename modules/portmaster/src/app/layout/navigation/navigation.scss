@@ -3,14 +3,14 @@
   top            : 0px;
   position       : sticky;
   display        : flex;
-  width          : 4.2rem;
+  width          : 4rem;
   flex-direction : column;
   justify-content: space-between;
   align-items    : center;
 
   div.logo {
     position: relative;
-    width   : 1.5rem;
+    width   : 1.34rem;
     @apply mt-6;
   }
 
