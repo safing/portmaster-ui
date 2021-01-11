@@ -12,6 +12,7 @@
   @apply bg-background;
 
   &:not(.empty) {
+    // TODO(ppacher): Remove min-height, always adjust height to notification content if one is open.
     min-height: calc(var(--slot-size) * 3);
     background-color: var(--cards-secondary);
   }
