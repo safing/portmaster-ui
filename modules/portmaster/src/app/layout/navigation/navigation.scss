@@ -3,14 +3,14 @@
   top            : 0px;
   position       : sticky;
   display        : flex;
-  width          : 4rem;
+  width          : 4.4rem;
   flex-direction : column;
   justify-content: space-between;
   align-items    : center;
 
   div.logo {
     position: relative;
-    width   : 1.34rem;
+    width   : 1.54rem;
     @apply mt-6;
   }
 
@@ -79,14 +79,14 @@
       background-color: #2c2c2c;
       svg{
         opacity: 1;
-        transform: scale(1.05);
+        transform: scale(1.08);
       }
     }
 
     &:hover{
       svg{
         opacity: 1 ;
-        transform: scale(1.05);
+        transform: scale(1.08);
         transition: all ease-in-out .25s;
       }
     }
