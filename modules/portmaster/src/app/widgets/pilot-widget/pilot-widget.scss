@@ -204,7 +204,7 @@
 
 
       &:after {
-        transition: all cubic-bezier(0.19, 1, 0.82, 1) .3s;
+        transition: all cubic-bezier(0.19, 1, 0.82, 1) .2s;
         @apply rounded;
         content         : "";
         background-image: linear-gradient(90deg, #1d5fa0 5%, rgba(2, 0, 36, 0) 60%);
@@ -219,13 +219,13 @@
       }
       
       div {
-        @apply bg-cards-secondary;
+        background-color: var(--cards-secondary);
 
         border-radius: 3px;
         padding      : 8px 17px 8px 18px;
         display      : block;
-        opacity: 0.5;
-        transition: all cubic-bezier(0.175, 0.885, 0.32, 1.275) .3s;
+        opacity: 0.7;
+        transition: all cubic-bezier(0.175, 0.885, 0.32, 1.275) .2s;
 
         span {
           font-size  : 0.68rem;
@@ -274,6 +274,11 @@
           transform: translateX(0%);
           opacity  : 1;
         }
+        div{
+          span {
+            opacity: 0.6;
+          }
+        }
       }
 
       &.suggested {
@@ -286,8 +291,10 @@
       &:active {
         div {
           @apply bg-cards-primary;
-
           opacity: 1;
+          span {
+            opacity: 1;
+          }
         }
       }
     }
