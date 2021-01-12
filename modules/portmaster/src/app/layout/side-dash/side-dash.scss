@@ -47,12 +47,14 @@
       margin-left: 1px;
 
       svg{
+        opacity: 0.7;
         fill: var(--text-secondary);
-        width: 0.46rem;
+        width: 0.51rem;
         transition: all cubic-bezier(0.175, 0.885, 0.32, 1.275) .2s;
     
         &:hover,
         &:active {
+          opacity: 1;
           fill: var(--text-primary);
         }
       }
