@@ -12,8 +12,9 @@
   @apply bg-background;
 
   &:not(.empty) {
+    // TODO(ppacher): Remove min-height, always adjust height to notification content if one is open.
     min-height: calc(var(--slot-size) * 3);
-    @apply bg-cards-primary;
+    background-color: var(--cards-secondary);
   }
 
   &>* {
@@ -38,7 +39,13 @@ div.placeholder {
   display       : flex;
   flex-direction: row;
   height        : var(--slot-size);
-  transition    : all .2s ease-in-out;
+  transition: all cubic-bezier(0.175, 0.885, 0.32, 1.275) .2s;
+
+  opacity: 0.8;
+
+  &:hover{
+    opacity: 1;
+  }
 
   &.fade-out {
     opacity: 0.5;
@@ -54,7 +61,7 @@ div.placeholder {
   }
 
   &:not(:first-of-type) {
-    @apply mt-1;
+    margin-top: 4px;
   }
 
   .type {
@@ -64,11 +71,15 @@ div.placeholder {
     width          : var(--slot-size);
     flex-shrink    : 0;
     flex-grow      : 0;
+    background-color: var(--cards-secondary);
+
+    .trust-level{
+      transform: scale(0.85);
+    }
   }
 
   .preview {
-    @apply bg-cards-tertiary;
-    @apply px-4;
+    background-color: var(--cards-primary);
     cursor         : pointer;
     overflow       : hidden;
     flex-grow      : 1;
@@ -76,6 +87,8 @@ div.placeholder {
     justify-content: space-between;
     align-items    : center;
     transition     : all .2s ease-in-out;
+    padding-left: 1rem;
+    padding-right: 0.5rem;
 
     span {
       flex-grow    : 1;
@@ -84,8 +97,13 @@ div.placeholder {
       word-wrap    : none;
       white-space  : nowrap;
 
+      font-size: 0.7rem;
+      font-weight: 400;
+
       .category {
+        padding-left: 8px;
         font-size     : 0.9em;
+        font-weight: 600;
         text-transform: capitalize;
         @apply text-tertiary;
       }
@@ -94,10 +112,37 @@ div.placeholder {
     .buttons {
       flex-grow  : 0;
       flex-shrink: 0;
+      
+
+      button{
+        font-size: 0.6rem;
+        background-color: #292929;
+        padding: 100%;
+        padding-left: 1rem;
+        padding-right: 1rem;
+        text-transform: capitalize;
+        border-radius: 0.145rem;
+        font-weight: 500;
+        outline: none;
+        color: hsla(0, 0%, 100%, 0.548);
+        transition: all cubic-bezier(0.175, 0.885, 0.32, 1.275) .2s;
+
+        &:hover{
+          background-color:  #363636;
+          color: #ffffff;
+        }
+
+      }
 
       button:not(:first-of-type) {
         background: transparent;
+        color: hsla(0, 0%, 100%, 0.562);
         @apply ml-1;
+        transition: all cubic-bezier(0.175, 0.885, 0.32, 1.275) .2s;
+
+        &:hover{
+          color: #ffffff;
+        }
       }
     }
   }
