@@ -8,12 +8,12 @@
   @apply bg-background;
 
   &:not(.empty) {
-    @apply bg-cards-primary
+    background-color: var(--cards-secondary);
   }
 }
 
 app-icon {
-  --app-icon-size: 20px;
+  --app-icon-size: 13px;
 }
 
 .scrollable {
@@ -28,9 +28,13 @@ app-icon {
     @apply px-2;
     display    : flex;
     align-items: center;
+    margin-left: 4px;
 
     .app-name {
       flex-grow: 1;
+      font-size: 0.7rem;
+      font-weight: 400;
+      opacity: 0.8;
     }
 
     span.prompt-count {
@@ -59,29 +63,29 @@ app-menu-item.item-seperator {
   .border {
     margin-left: calc(0.5rem + 9px);
     width      : 0.5rem;
-
-    @apply border-l-2;
-    @apply border-b-2;
-
-    @apply border-buttons-light;
+    border-left-width: 2px;
+    border-bottom-width: 2px;
+    @apply border-cards-primary;
   }
 
   .prompt-container,
   .prompt,
   .actions {
-    @apply p-2;
     display: flex;
   }
 
   .prompt-container {
     flex-grow     : 1;
     flex-direction: column;
+    padding-left: 0.6rem;
+    padding-top: 0.6rem;
+    padding-bottom: 1rem;
 
     .prompt {
       @apply px-3;
-      @apply mb-2;
-      @apply bg-cards-tertiary;
-      @apply rounded;
+      margin-bottom: 4px;
+      background-color: var(--cards-primary);
+      height: 2.25rem;
 
       align-items: center;
 
@@ -89,12 +93,19 @@ app-menu-item.item-seperator {
         flex-grow  : 1;
         word-break : break-all;
         white-space: normal;
+        
+        font-size: 0.7rem;
+        font-weight: 500;
+
+        padding-left: 8px;
 
         .country-flag {
           @apply mr-1;
         }
 
         .subdomain {
+          font-size     : 0.7rem;
+          font-weight: 500;
           @apply text-secondary;
         }
       }
@@ -102,27 +113,50 @@ app-menu-item.item-seperator {
       .actions {
         min-width: 5rem;
         flex-wrap: wrap;
+        height: 100%;
 
         button {
           outline: none;
           @apply bg-transparent;
 
-          &:last-of-type {
-            @apply bg-buttons-dark;
+          font-size: 0.6rem;
+          background-color: #292929;
+          
+          padding-left: 1.25rem;
+          padding-right: 1.25rem;
+          text-transform: capitalize;
+          border-radius: 0;
+          font-weight: 500;
+          outline: none;
+          color: hsla(0, 0%, 100%, 0.548);
+
+          &:hover{
+            background-color:  #363636;
+            color: #ffffff;
           }
 
-          &:hover {
-            @apply bg-buttons-light;
+          &:last-of-type {
+            background: transparent;
+            color: hsla(0, 0%, 100%, 0.562);
+            @apply ml-1;
+            transition: all cubic-bezier(0.175, 0.885, 0.32, 1.275) .2s;
+
+            &:hover{
+              color: #ffffff;
+            }
           }
+
         }
       }
+
+
     }
   }
 
   .more-available {
     @apply text-secondary;
     position  : relative;
-    top       : 1rem;
+    top       : 1.4rem;
     margin-top: -1rem;
     cursor    : pointer;
 
