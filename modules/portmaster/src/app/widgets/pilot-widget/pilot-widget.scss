@@ -5,8 +5,6 @@
   display        : flex;
   justify-content: space-between;
   background     : none;
-
-  @apply pb-4;
   
   svg.shield {
     margin-top: -5.5rem;
@@ -139,7 +137,6 @@
     @apply mr-2;
     position  : relative;
     margin-top: 2.25rem;
-    
 
     h2 {
       padding   : 0;
@@ -190,7 +187,7 @@
     &:not(.auto-pilot) {
       div.level.selected {
         div {
-          @apply bg-cards-primary;
+          background-color: #292929;
         }
 
         &:after {
@@ -209,7 +206,6 @@
       overflow  : hidden;
       z-index   : 1;
 
-
       &:after {
         transition: all cubic-bezier(0.19, 1, 0.82, 1) .2s;
         @apply rounded;
@@ -227,13 +223,12 @@
       }
       
       div {
-        background-color: var(--cards-secondary);
+        background-color:  #202020;
 
-        border-radius: 3px;
-        padding      : 10px 17px 10px 18px;
+        border-radius: 2px;
+        padding      : 9px 17px 10px 18px;
         display      : block;
-        opacity: 0.7;
-        transition: all cubic-bezier(0.175, 0.885, 0.32, 1.275) .2s;
+        opacity: 0.55;
 
         span {
           font-size  : 0.725rem;
@@ -271,7 +266,7 @@
 
       &.selected{
         div {
-          @apply bg-cards-primary;
+         background-color:  #292929;
           opacity: 1;
         }
       }
@@ -282,11 +277,7 @@
           transform: translateX(0%);
           opacity  : 1;
         }
-        div{
-          span {
-            opacity: 0.6;
-          }
-        }
+      
       }
 
       &.suggested {
@@ -298,7 +289,6 @@
       &:hover,
       &:active {
         div {
-          @apply bg-cards-primary;
           opacity: 1;
           span {
             opacity: 1;
@@ -329,5 +319,4 @@
       opacity: 1;
     }
   }
-
 }
