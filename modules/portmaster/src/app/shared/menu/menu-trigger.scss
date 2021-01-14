@@ -13,7 +13,7 @@ div {
   @apply px-3;
 }
 
-.dragable{
+.dropdown{
   margin-left: 1px;
   width: 2rem;
   height: 2rem;
@@ -33,9 +33,9 @@ div {
 
 :host.active {
 
-  .dragable{
+  .dropdown{
     cursor : pointer;
-    
+
     svg{
       opacity: 1;
       fill: var(--text-primary);
