@@ -7,7 +7,8 @@ button {
   @apply rounded-sm;
   @apply font-medium;
 
-  outline: none;
+  user-select: none;
+  outline    : none;
 
   &:hover {
     @apply bg-buttons-light;

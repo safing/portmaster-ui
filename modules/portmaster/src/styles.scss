@@ -16,10 +16,6 @@
 @import 'theme/_breadcrumbs.scss';
 @import 'theme/_table.scss';
 
-html {
-  user-select: none;
-}
-
 *[routerlink] {
   cursor: pointer;
 }

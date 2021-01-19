@@ -1,3 +1,7 @@
+:host {
+  user-select: none;
+}
+
 div {
   cursor : pointer;
   display: flex;
@@ -13,32 +17,32 @@ div {
   @apply px-3;
 }
 
-.dropdown{
+.dropdown {
   margin-left: 1px;
-  width: 2rem;
-  height: 2rem;
+  width      : 2rem;
+  height     : 2rem;
 
-  svg{
-    opacity: 0.7;
-    fill: var(--text-secondary);
-    width: 0.51rem;
+  svg {
+    opacity   : 0.7;
+    fill      : var(--text-secondary);
+    width     : 0.51rem;
     transition: all cubic-bezier(0.175, 0.885, 0.32, 1.275) .2s;
 
-    &:hover{
+    &:hover {
       opacity: 1;
-      fill: var(--text-primary);
+      fill   : var(--text-primary);
     }
   }
 }
 
 :host.active {
 
-  .dropdown{
-    cursor : pointer;
+  .dropdown {
+    cursor: pointer;
 
-    svg{
+    svg {
       opacity: 1;
-      fill: var(--text-primary);
+      fill   : var(--text-primary);
     }
   }
 }

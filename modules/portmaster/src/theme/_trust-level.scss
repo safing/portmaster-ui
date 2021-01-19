@@ -1,7 +1,8 @@
 span.trust-level {
-  display : inline-block;
-  position: relative;
-  width   : 6px;
+  display    : inline-block;
+  position   : relative;
+  width      : 6px;
+  user-select: none;
 
   &~* {
     @apply ml-2;
