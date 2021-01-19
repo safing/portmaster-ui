@@ -1,5 +1,5 @@
 :host {
-  --slot-size: 2.25rem;
+  --slot-size: 2rem;
 
   position       : relative;
   display        : flex;
@@ -14,12 +14,30 @@
   &:not(.empty) {
     // TODO(ppacher): Remove min-height, always adjust height to notification content if one is open.
     min-height: calc(var(--slot-size) * 3);
-    background-color: var(--cards-secondary);
+    background-color: #202020;
   }
 
   &>* {
     /* do not allow to shrink  */
     flex-shrink: 0;
+  }
+
+  .row:first-child {
+    .preview{
+      border-top-left-radius: 0;
+      border-top-right-radius: 0;
+      border-bottom-left-radius: 2px;
+      border-bottom-right-radius: 2px;
+    }
+  }
+
+  .row:last-child {
+    .preview{
+      border-top-left-radius: 2px;
+      border-top-right-radius: 2px;
+      border-bottom-left-radius: 0;
+      border-bottom-right-radius: 0;
+    }
   }
 }
 
@@ -39,13 +57,6 @@ div.placeholder {
   display       : flex;
   flex-direction: row;
   height        : var(--slot-size);
-  transition: all cubic-bezier(0.175, 0.885, 0.32, 1.275) .2s;
-
-  opacity: 0.8;
-
-  &:hover{
-    opacity: 1;
-  }
 
   &.fade-out {
     opacity: 0.5;
@@ -68,10 +79,10 @@ div.placeholder {
     display        : flex;
     justify-content: center;
     align-items    : center;
-    width          : var(--slot-size);
+    width          : 2.2rem;
     flex-shrink    : 0;
     flex-grow      : 0;
-    background-color: var(--cards-secondary);
+    background-color: #202020;
 
     .trust-level{
       transform: scale(0.85);
@@ -79,16 +90,16 @@ div.placeholder {
   }
 
   .preview {
-    background-color: var(--cards-primary);
+    background-color: #292929;
     cursor         : pointer;
     overflow       : hidden;
     flex-grow      : 1;
     display        : flex;
     justify-content: space-between;
     align-items    : center;
-    transition     : all .2s ease-in-out;
     padding-left: 1rem;
-    padding-right: 0.5rem;
+    border-top-left-radius: 2px;
+    border-bottom-left-radius: 2px;
 
     span {
       flex-grow    : 1;
@@ -98,50 +109,64 @@ div.placeholder {
       white-space  : nowrap;
 
       font-size: 0.7rem;
-      font-weight: 400;
+      font-weight: 500;
+
+      color: #cacaca;
 
       .category {
         padding-left: 8px;
-        font-size     : 0.9em;
-        font-weight: 600;
+        font-size: 0.65rem;
+        font-weight: 700;
         text-transform: capitalize;
-        @apply text-tertiary;
+        color: #999999c9;
+      }
+    }
+
+    &:hover{
+      background-color: #303030;
+
+      .buttons{
+        animation: .07s slidein-left ease-in-out;
+        opacity: 1;
+        transition: all .05s ease-in-out;
       }
     }
 
     .buttons {
       flex-grow  : 0;
       flex-shrink: 0;
-      
+      opacity: 0;
+      transition: all .05s ease-in-out;
+      height: 100%;
 
       button{
+        outline: none;
+        @apply bg-transparent;
         font-size: 0.6rem;
-        background-color: #292929;
-        padding: 100%;
-        padding-left: 1rem;
-        padding-right: 1rem;
+        background-color: #3a3a3a;
+        padding-left: 1.25rem;
+        padding-right: 1.25rem;
         text-transform: capitalize;
-        border-radius: 0.145rem;
+        border-radius: 0;
         font-weight: 500;
         outline: none;
         color: hsla(0, 0%, 100%, 0.548);
-        transition: all cubic-bezier(0.175, 0.885, 0.32, 1.275) .2s;
+        height: 100%;
 
         &:hover{
           background-color:  #363636;
           color: #ffffff;
         }
 
-      }
+        &:last-of-type {
+          background: transparent;
+          color: hsla(0, 0%, 100%, 0.562);
+          @apply ml-1;
+          transition: all cubic-bezier(0.175, 0.885, 0.32, 1.275) .2s;
 
-      button:not(:first-of-type) {
-        background: transparent;
-        color: hsla(0, 0%, 100%, 0.562);
-        @apply ml-1;
-        transition: all cubic-bezier(0.175, 0.885, 0.32, 1.275) .2s;
-
-        &:hover{
-          color: #ffffff;
+          &:hover{
+            color: #ffffff;
+          }
         }
       }
     }
@@ -173,4 +198,13 @@ app-loading {
   margin-right: auto;
   position    : relative;
   top         : 5px;
+}
+
+@keyframes slidein-left {
+  0% {
+      transform: translateX(100%);
+  }
+  100% {
+      transform: translateX(0);
+  }
 }

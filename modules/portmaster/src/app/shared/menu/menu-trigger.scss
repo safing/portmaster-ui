@@ -13,8 +13,32 @@ div {
   @apply px-3;
 }
 
+.dropdown{
+  margin-left: 1px;
+  width: 2rem;
+  height: 2rem;
+
+  svg{
+    opacity: 0.7;
+    fill: var(--text-secondary);
+    width: 0.51rem;
+    transition: all cubic-bezier(0.175, 0.885, 0.32, 1.275) .2s;
+
+    &:hover{
+      opacity: 1;
+      fill: var(--text-primary);
+    }
+  }
+}
+
 :host.active {
-  div {
-    @apply bg-buttons-light;
+
+  .dropdown{
+    cursor : pointer;
+
+    svg{
+      opacity: 1;
+      fill: var(--text-primary);
+    }
   }
 }
