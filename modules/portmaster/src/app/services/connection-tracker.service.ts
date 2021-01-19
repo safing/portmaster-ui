@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { parse } from 'psl';
 import { BehaviorSubject, forkJoin, Observable, of, Subject, Subscription } from 'rxjs';
-import { catchError, filter, map, switchMap, tap } from 'rxjs/operators';
+import { catchError, filter, last, map, switchMap, tap } from 'rxjs/operators';
 import { ExpertiseService } from '../shared/expertise/expertise.service';
 import { AppProfileService } from './app-profile.service';
 import { AppProfile, LayeredProfile } from './app-profile.types';
@@ -276,11 +276,31 @@ export class ScopeGroup {
     this.domain = null;
     this.subdomain = null;
 
+    // check if it's a scope by looking up the value in
+    // our scope translation list.
     if (ScopeTranslation[this.scope] === undefined) {
-      const parsed = parse(this.scope);
+      // If it's not a scope it must be a domain.
+      // Due to https://github.com/lupomontero/psl/issues/185
+      // parse will throw an error for service-discovery lookups
+      // so make sure we split them apart.
+      const domainParts = this.scope.split(".")
+      const lastUnderscorePart = domainParts.length - [...domainParts].reverse().findIndex(dom => dom.startsWith("_"))
+
+      let cleanedDomain = this.scope;
+      let removedPrefix = '';
+      if (lastUnderscorePart <= domainParts.length) {
+        removedPrefix = domainParts.slice(0, lastUnderscorePart).join('.')
+        if (removedPrefix != '') {
+          removedPrefix += '.';
+        }
+        cleanedDomain = domainParts.slice(lastUnderscorePart).join('.')
+      }
+
+
+      const parsed = parse(cleanedDomain);
       if ('listed' in parsed) {
         this.domain = parsed.domain || this.scope;
-        this.subdomain = parsed.subdomain;
+        this.subdomain = removedPrefix + parsed.subdomain;
       }
     }
 
