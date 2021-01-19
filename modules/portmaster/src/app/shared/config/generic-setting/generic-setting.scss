@@ -23,6 +23,11 @@
   }
 }
 
+.stacked-values {
+  margin-top: 0.5rem;
+  opacity   : 0.35;
+}
+
 .unlock-button {
   --unlock-button-size: 30px;
 
@@ -126,6 +131,18 @@ div.secondary-actions {
   @apply mt-2;
   @apply mb-4;
   @apply text-secondary;
+}
+
+.notice {
+  display      : block;
+  padding-left : 0.5rem;
+  padding-right: 0.5rem;
+  @apply mb-4;
+  @apply text-secondary;
+
+  fa-icon {
+    @apply mr-2;
+  }
 }
 
 .help-text {

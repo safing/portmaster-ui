@@ -17,6 +17,11 @@
 
   <markdown class="description" emoji [data]="setting?.Description"></markdown>
 
+  <span class="notice" *ngIf="!!setting?.RequiresRestart">
+    <fa-icon icon="exclamation-triangle"></fa-icon>
+    Changes to this setting require a restart of Portmaster to take effect.
+  </span>
+
   <div class="help-text" *ngIf="!!setting?.Help">
     <span class="toggle" (click)="toggleHelp()">
       <fa-icon icon="question-circle"></fa-icon>
@@ -40,20 +45,43 @@
       (ngModelChange)="updateValue($event, true)">
     </app-security-setting>
 
-    <app-rule-list *ngSwitchCase="optionHint.EndpointList" [readonly]="disabled || isLocked" [ngModel]="_currentValue"
-      [autoFocus]="!isLocked" (ngModelChange)="updateValue($event, true)"></app-rule-list>
+    <ng-container *ngSwitchCase="optionHint.EndpointList">
+      <app-rule-list [readonly]="disabled || isLocked" [ngModel]="_currentValue" [autoFocus]="!isLocked"
+        (ngModelChange)="updateValue($event, true)"></app-rule-list>
 
-    <app-filter-list *ngSwitchCase="optionHint.FilterList" [ngModel]="_currentValue" [autoFocus]="!isLocked"
-      (ngModelChange)="updateValue($event, true)"></app-filter-list>
+      <div class="stacked-values" *ngIf="showStackable">
+        <h4>This setting stacks on top of the following global values:</h4>
+        <app-rule-list [readonly]="true" [ngModel]="defaultValue"></app-rule-list>
+      </div>
+    </ng-container>
 
-    <app-ordered-list *ngSwitchCase="optionHint.OrderedList" [ngModel]="_currentValue" [autoFocus]="!isLocked"
-      (ngModelChange)="updateValue($event, true)" [readonly]="disabled || isLocked"></app-ordered-list>
+    <ng-container *ngSwitchCase="optionHint.FilterList">
+      <app-filter-list [ngModel]="_currentValue" [autoFocus]="!isLocked" (ngModelChange)="updateValue($event, true)">
+      </app-filter-list>
+    </ng-container>
+
+    <ng-container *ngSwitchCase="optionHint.OrderedList">
+      <app-ordered-list [ngModel]="_currentValue" [autoFocus]="!isLocked" (ngModelChange)="updateValue($event, true)"
+        [readonly]="disabled || isLocked"></app-ordered-list>
+
+      <div class="stacked-values" *ngIf="showStackable">
+        <h4>This setting stacks on top of the following global values:</h4>
+        <app-ordered-list [ngModel]="defaultValue" [readonly]="true"></app-ordered-list>
+      </div>
+    </ng-container>
 
     <ng-container *ngSwitchDefault>
-      <app-ordered-list *ngIf="setting?.OptType == optionType.StringArray; else: basicSetting" fixedOrder="true"
-        [autoFocus]="!isLocked" [ngModel]="_currentValue" (ngModelChange)="updateValue($event, true)"
-        [readonly]="disabled || isLocked">
-      </app-ordered-list>
+      <ng-container *ngIf="setting?.OptType == optionType.StringArray; else: basicSetting">
+        <app-ordered-list fixedOrder="true" [autoFocus]="!isLocked" [ngModel]="_currentValue"
+          (ngModelChange)="updateValue($event, true)" [readonly]="disabled || isLocked">
+        </app-ordered-list>
+
+        <div class="stacked-values" *ngIf="showStackable">
+          <h4>This setting stacks on top of the following global values:</h4>
+          <app-ordered-list fixedOrder="true" [ngModel]="defaultValue" [readonly]="true">
+          </app-ordered-list>
+        </div>
+      </ng-container>
 
       <ng-template #basicSetting>
         <app-basic-setting [setting]="_setting" [disabled]="disabled || isLocked" [ngModel]="_currentValue"
@@ -61,7 +89,6 @@
         </app-basic-setting>
       </ng-template>
     </ng-container>
-
   </ng-container>
 
   <div class="secondary-actions">

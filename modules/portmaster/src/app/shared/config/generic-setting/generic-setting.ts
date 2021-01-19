@@ -71,6 +71,16 @@ export class GenericSettingComponent<S extends BaseSetting<any, any>> implements
   @Output()
   onSave = new EventEmitter<SaveSettingEvent<S>>();
 
+  /** Wether or not stackable values should be displayed. */
+  @Input()
+  set displayStackable(v: any) {
+    this._displayStackable = coerceBooleanProperty(v);
+  }
+  get displayStackable() {
+    return this._displayStackable;
+  }
+  private _displayStackable = false;
+
   /**
    * Whether or not the help text is currently shown
    */
@@ -170,7 +180,7 @@ export class GenericSettingComponent<S extends BaseSetting<any, any>> implements
     this.wasReset = false;
     let value = this.defaultValue;
 
-    if (this.setting.Annotations[WellKnown.Stackable]) {
+    if (this.stackable) {
       // TODO(ppacher): fix this one once string[] options can be
       // stackable
       value = [] as SettingValueType<S>;
@@ -180,6 +190,16 @@ export class GenericSettingComponent<S extends BaseSetting<any, any>> implements
     // update the settings value now so the UI
     // responds immediately.
     this.setting!.Value = value;
+  }
+
+  /** True if the current setting is stackable */
+  get stackable() {
+    return !!this.setting?.Annotations[WellKnown.Stackable];
+  }
+
+  /** Wether or not stackable values should be shown right now */
+  get showStackable() {
+    return this.stackable && !this.isLocked && this.displayStackable;
   }
 
   /**
