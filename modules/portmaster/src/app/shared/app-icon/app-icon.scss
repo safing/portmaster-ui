@@ -1,5 +1,6 @@
 :host {
   border-radius: 50%;
+  user-select  : none;
 
   height     : var(--app-icon-size, 25px);
   width      : var(--app-icon-size, 25px);

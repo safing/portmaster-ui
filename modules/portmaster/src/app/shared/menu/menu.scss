@@ -4,6 +4,7 @@
   flex-direction: column;
   @apply bg-buttons-light;
   @apply shadow-xl;
+  user-select: none;
 
   app-menu-item {
     display: block;

@@ -81,7 +81,7 @@
 
     <ng-container *ngIf="settings.length > 0; else: noSettingsTemplate">
       <app-settings-view [searchTerm]="searchTerm" [availableSettings]="settings" [highlightKey]="highlightSettingKey"
-        (onSave)="saveSetting($event)" resetLabelText="Use global setting" lockDefaults="true">
+        (onSave)="saveSetting($event)" resetLabelText="Use global setting" lockDefaults="true" displayStackable="true">
       </app-settings-view>
     </ng-container>
 
@@ -94,7 +94,8 @@
             <app-icon [profile]="appProfile"></app-icon>
             {{ appProfile.Name }}
           </span>
-          now</p>
+          now
+        </p>
         <button (click)="viewSettingChange.next('all')">🚀 Edit Settings</button>
       </div>
     </ng-template>

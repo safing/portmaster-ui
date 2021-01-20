@@ -19,10 +19,11 @@
 }
 
 :host {
-  flex-grow: 0;
-  width    : fit-content;
-  display  : block;
-  outline  : none;
+  flex-grow  : 0;
+  width      : fit-content;
+  display    : block;
+  outline    : none;
+  user-select: none;
 
   &.disabled {
     .marker {

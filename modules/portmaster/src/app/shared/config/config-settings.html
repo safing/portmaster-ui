@@ -43,7 +43,7 @@
             <ng-container *ngFor="let setting of cat.settings; trackBy: configService.trackBy">
               <div *appExpertiseLevel="setting.ExpertiseLevel" [class.highlighted]="highlightKey === setting.Key">
                 <app-generic-setting [setting]="setting" [attr.id]="setting.Key" [resetLabelText]="resetLabelText"
-                  (onSave)="saveSetting($event)" [lockDefaults]="lockDefaults">
+                  (onSave)="saveSetting($event)" [lockDefaults]="lockDefaults" [displayStackable]="displayStackable">
                 </app-generic-setting>
               </div>
             </ng-container>
@@ -59,7 +59,8 @@
       <div class="category">
         <ng-container *ngFor="let setting of others; trackBy: configService.trackBy">
           <app-generic-setting *appExpertiseLevel="setting.ExpertiseLevel" [setting]="setting"
-            [resetLabelText]="resetLabelText" (onSave)="saveSetting($event)" [lockDefaults]="lockDefaults">
+            [resetLabelText]="resetLabelText" (onSave)="saveSetting($event)" [lockDefaults]="lockDefaults"
+            [displayStackable]="displayStackable">
           </app-generic-setting>
         </ng-container>
       </div>

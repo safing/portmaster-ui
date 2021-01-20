@@ -55,6 +55,9 @@ export class ConfigSettingsViewComponent implements OnInit, OnDestroy, AfterView
   }
 
   @Input()
+  displayStackable: string | boolean = false;
+
+  @Input()
   set highlightKey(key: string | null) {
     this._highlightKey = key || null;
     this._scrolledToHighlighted = false;
