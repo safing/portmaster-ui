@@ -50,6 +50,9 @@ div.tableFixHead {
 }
 
 .card-actions {
+  display    : flex;
+  align-items: center;
+
   * {
     @apply ml-2;
   }

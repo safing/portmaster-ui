@@ -29,9 +29,12 @@
     <span class="card-actions">
 
       <button (click)="restart($event)">Restart</button>
-      <button (click)="downloadUpdates($event)">Download Updates</button>
+      <button (click)="copyDebugInfo($event)" [disabled]="debugInfoCopied">
+        {{ debugInfoCopied ? 'Copied to clipboard' : 'Copy Debug Information'}}
+      </button>
       <app-menu-trigger [menu]="actions"></app-menu-trigger>
       <app-menu #actions>
+        <app-menu-item (click)="downloadUpdates($event)">Download Updates</app-menu-item>
         <app-menu-item (click)="shutdown($event)">Stop Portmaster</app-menu-item>
         <app-menu-item (click)="reloadUI($event)">Reload UI</app-menu-item>
         <app-menu-item (click)="clearDNSCache($event)">Clear DNS Cache</app-menu-item>

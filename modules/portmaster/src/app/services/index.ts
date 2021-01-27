@@ -8,3 +8,5 @@ export * from './core.types';
 export * from './status.types';
 export * from './network.types';
 export * from './app-profile.types';
+export * from './debug-api.service';
+export * from './meta-api.service';

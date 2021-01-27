@@ -56,6 +56,7 @@ import { AutoFocusDirective } from './shared/focus';
 import { PromptWidgetComponent } from './widgets/prompt-widget';
 import { LoadingComponent } from './shared/loading';
 import { ExternalLinkDirective } from './shared/external-link.directive';
+import { HttpClientModule } from '@angular/common/http';
 
 @NgModule({
   declarations: [
@@ -128,6 +129,7 @@ import { ExternalLinkDirective } from './shared/external-link.directive';
     PortalModule,
     CdkTableModule,
     DragDropModule,
+    HttpClientModule,
     MarkdownModule.forRoot(),
   ],
   providers: [
