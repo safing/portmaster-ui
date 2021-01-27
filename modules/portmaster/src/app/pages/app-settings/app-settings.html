@@ -22,6 +22,12 @@
           class="link">
           <fa-icon icon="desktop"></fa-icon>
         </div>
+
+        <div *ngIf="!!appProfile" class="delete-profile-container">
+          <button [class.confirm]="pendingDeleteConfirmation" (click)="deleteProfile()">
+            {{ pendingDeleteConfirmation ? 'Confirm Deletion?' : 'Delete Profile' }}
+          </button>
+        </div>
       </h1>
 
       <app-profile-stats mode="inspected"></app-profile-stats>

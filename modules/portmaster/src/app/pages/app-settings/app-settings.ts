@@ -1,5 +1,5 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { BehaviorSubject, combineLatest, Observable, of, Subscription } from 'rxjs';
 import { delayWhen, distinctUntilChanged, filter, switchMap, withLatestFrom } from 'rxjs/operators';
 import { AppProfile, ConfigService, FlatConfigObject, flattenProfileConfig, isDefaultValue, setAppSetting, Setting } from 'src/app/services';
@@ -58,6 +58,12 @@ export class AppSettingsPageComponent implements OnInit, OnDestroy {
 
   /**
    * @private
+   * Wether or not we are waiting for a confirmation to delete the profile.
+   */
+  pendingDeleteConfirmation = false;
+
+  /**
+   * @private
    *
    * Defines what "view" we are currently in
    */
@@ -87,6 +93,7 @@ export class AppSettingsPageComponent implements OnInit, OnDestroy {
     private route: ActivatedRoute,
     private connTrack: ConnTracker,
     private configService: ConfigService,
+    private router: Router,
   ) { }
 
   /**
@@ -198,6 +205,8 @@ export class AppSettingsPageComponent implements OnInit, OnDestroy {
                 return setting.Value !== undefined;
               });
 
+            // make sure the user needs to confirm delete again
+            this.pendingDeleteConfirmation = false;
           } else {
             // there's no profile to view so tell the connection-tracker
             // to stop watching the previous one.
@@ -209,5 +218,27 @@ export class AppSettingsPageComponent implements OnInit, OnDestroy {
   ngOnDestroy() {
     this.subscription.unsubscribe();
     this.connTrack.clearInspection();
+  }
+
+  /**
+   * @private
+   * Delete the current profile. Requires a two-step confirmation.
+   */
+  deleteProfile() {
+    if (!this.appProfile) {
+      return;
+    }
+
+    // set pending-confirmation so the user needs to click again.
+    if (!this.pendingDeleteConfirmation) {
+      this.pendingDeleteConfirmation = true;
+      return;
+    }
+
+    this.profileService.deleteProfile(this.appProfile)
+      .subscribe(() => {
+        this.pendingDeleteConfirmation = false;
+        this.router.navigate(['/app/overview'])
+      })
   }
 }

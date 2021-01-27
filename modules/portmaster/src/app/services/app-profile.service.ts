@@ -112,4 +112,13 @@ export class AppProfileService {
     console.log(key);
     return this.portapi.get<LayeredProfile>(key);
   }
+
+  /**
+   * Delete an application profile.
+   *
+   * @param profile The profile to delete
+   */
+  deleteProfile(profile: AppProfile): Observable<void> {
+    return this.portapi.delete(`core:profiles/${profile.Source}/${profile.ID}`);
+  }
 }

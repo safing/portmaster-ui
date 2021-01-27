@@ -38,6 +38,31 @@ h1 {
       justify-content: center;
     }
   }
+
+  .delete-profile-container {
+    flex-grow      : 1;
+    display        : flex;
+    justify-content: flex-end;
+    align-items    : center;
+
+    button {
+      transition: all .2s ease-in-out;
+      @apply border-info-red;
+      color: theme('colors.info.red');
+      @apply bg-transparent;
+      @apply border;
+      opacity: 0.8;
+
+      &:hover {
+        opacity: 1;
+      }
+
+      &.confirm {
+        @apply bg-info-red;
+        color: white;
+      }
+    }
+  }
 }
 
 app-settings-view {
