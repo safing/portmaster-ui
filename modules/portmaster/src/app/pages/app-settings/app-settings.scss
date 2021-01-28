@@ -47,10 +47,8 @@ h1 {
 
     button {
       transition: all .2s ease-in-out;
-      @apply border-info-red;
-      color: theme('colors.info.red');
+      color: theme('colors.text.tertiary');
       @apply bg-transparent;
-      @apply border;
       opacity: 0.8;
 
       &:hover {
