@@ -48,13 +48,13 @@ export class MetaAPI {
     let login: Observable<void>;
 
     if (!!password) {
-      login = this.http.get<void>(`${env.httpAPI}/api/auth/basic`, {
+      login = this.http.get<void>(`${env.httpAPI}/v1/auth/basic`, {
         headers: {
           'Authorization': `Basic ${btoa(usernameOrBearer + ":" + password)}`
         }
       })
     } else {
-      login = this.http.get<void>(`${env.httpAPI}/api/auth/bearer`, {
+      login = this.http.get<void>(`${env.httpAPI}/v1/auth/bearer`, {
         headers: {
           'Authorization': `Bearer ${usernameOrBearer}`
         }
@@ -76,6 +76,6 @@ export class MetaAPI {
   }
 
   logout(): Observable<void> {
-    return this.http.get<void>(`${env.httpAPI}/api/auth/reset`);
+    return this.http.get<void>(`${env.httpAPI}/v1/auth/reset`);
   }
 }
