@@ -49,7 +49,7 @@ if (document.addEventListener) {
   let linkTag = document.createElement("link");
   linkTag.rel = "stylesheet";
   linkTag.href = "/assets/vendor/fonts/roboto.css";
-  if (navigator.platform.startsWith("WIn")) {
+  if (navigator.platform.startsWith("Win")) {
     linkTag.href = "/assets/vendor/fonts/roboto-slimfix.css"
   }
 
