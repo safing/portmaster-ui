@@ -1,7 +1,7 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Observable, Subscription } from 'rxjs';
 import { map } from 'rxjs/operators';
-import { ConfigService, Setting, StatusService, VersionStatus } from 'src/app/services';
+import { ConfigService, DebugAPI, Setting, StatusService, VersionStatus } from 'src/app/services';
 import { PortapiService } from 'src/app/services/portapi.service';
 import { Record } from 'src/app/services/portapi.types';
 import { fadeInAnimation } from 'src/app/shared/animations';
@@ -25,13 +25,17 @@ export class SettingsComponent implements OnInit, OnDestroy {
   /** @private The available and selected resource versions. */
   versions: VersionStatus | null = null;
 
+  /** @private Which copy-debug info text to show */
+  debugInfoCopied = false;
+
   /** Subscription to watch all available settings. */
   private subscription = Subscription.EMPTY;
 
   constructor(
     public configService: ConfigService,
     public statusService: StatusService,
-    private portapi: PortapiService
+    private portapi: PortapiService,
+    private debugAPI: DebugAPI,
   ) { }
 
   ngOnInit(): void {
@@ -141,11 +145,6 @@ export class SettingsComponent implements OnInit, OnDestroy {
    * @param event - The mouse event
    */
   downloadUpdates(event: Event) {
-    // prevent default and stop-propagation to avoid
-    // expanding the accordion body.
-    event.preventDefault();
-    event.stopPropagation();
-
     this.injectTrigger('updates', 'trigger update').subscribe()
   }
 
@@ -182,5 +181,31 @@ export class SettingsComponent implements OnInit, OnDestroy {
     if (!!window.app) {
       window.app.openExternal(window.app.installDir);
     }
+  }
+
+  copyDebugInfo(event: Event) {
+    // prevent default and stop-propagation to avoid
+    // expanding the accordion body.
+    event.preventDefault();
+    event.stopPropagation();
+    this.debugInfoCopied = false;
+
+    this.debugAPI.getDebugInfo()
+      .subscribe(
+        info => {
+          console.log(info);
+          // Copy to clip-board if supported
+          if (!!navigator.clipboard) {
+            navigator.clipboard.writeText(info);
+            this.debugInfoCopied = true;
+
+            setTimeout(() => {
+              this.debugInfoCopied = false;
+            }, 2500)
+          }
+
+        },
+        console.error,
+      )
   }
 }

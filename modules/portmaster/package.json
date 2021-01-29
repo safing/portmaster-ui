@@ -3,8 +3,8 @@
   "version": "0.1.3",
   "scripts": {
     "ng": "ng",
-    "start": "npm install && ng serve",
-    "serve": "ng serve",
+    "start": "npm install && ng serve --proxy-config ./proxy.json",
+    "serve": "ng serve --proxy-config ./proxy.json",
     "build:dev": "ng build",
     "test": "ng test",
     "lint": "ng lint",

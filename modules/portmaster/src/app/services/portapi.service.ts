@@ -6,6 +6,7 @@ import { environment } from '../../environments/environment';
 import { DataReply, deserializeMessage, InspectedActiveRequest, Record, isCancellable, isDataReply, ReplyMessage, Requestable, RequestType, RetryableOpts, retryPipeline, serializeMessage, WatchOpts, RequestMessage } from './portapi.types';
 import { WebsocketService } from './websocket.service';
 import { trackById, Identifyable } from './core.types';
+import { HttpClient } from '@angular/common/http';
 
 export const RECONNECT_INTERVAL = 2000;
 
@@ -40,8 +41,10 @@ export class PortapiService {
   /** @private DEBUGGING ONLY - keeps track of current requests and supports injecting messages  */
   readonly activeRequests = new BehaviorSubject<{ [key: string]: InspectedActiveRequest }>({});
 
-  constructor(private websocketFactory: WebsocketService,
-    private ngZone: NgZone) {
+  constructor(
+    private websocketFactory: WebsocketService,
+    private ngZone: NgZone,
+  ) {
 
     // create a new websocket connection that will auto-connect
     // on the first subscription and will automatically reconnect

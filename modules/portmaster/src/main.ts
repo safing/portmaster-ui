@@ -40,6 +40,23 @@ if (document.addEventListener) {
   document.addEventListener("click", handleExternalResources);
 }
 
+// load the font file but make sure to use the slimfix version
+// windows.
+{
+  // we cannot use document.writeXX here as it's not allowed to
+  // write to Document from an async loaded script.
+
+  let linkTag = document.createElement("link");
+  linkTag.rel = "stylesheet";
+  linkTag.href = "/assets/vendor/fonts/roboto.css";
+  if (navigator.platform.startsWith("Win")) {
+    linkTag.href = "/assets/vendor/fonts/roboto-slimfix.css"
+  }
+
+  document.head.appendChild(linkTag);
+}
+
+
 platformBrowserDynamic().bootstrapModule(AppModule)
   .catch(err => console.error(err));
 
