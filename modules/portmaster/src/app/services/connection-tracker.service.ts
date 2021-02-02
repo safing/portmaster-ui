@@ -290,17 +290,19 @@ export class ScopeGroup {
       let removedPrefix = '';
       if (lastUnderscorePart <= domainParts.length) {
         removedPrefix = domainParts.slice(0, lastUnderscorePart).join('.')
-        if (removedPrefix != '') {
-          removedPrefix += '.';
-        }
         cleanedDomain = domainParts.slice(lastUnderscorePart).join('.')
       }
-
 
       const parsed = parse(cleanedDomain);
       if ('listed' in parsed) {
         this.domain = parsed.domain || this.scope;
-        this.subdomain = removedPrefix + parsed.subdomain;
+        this.subdomain = removedPrefix;
+        if (!!parsed.subdomain) {
+          if (removedPrefix != '') {
+            this.subdomain += '.';
+          }
+          this.subdomain += parsed.subdomain;
+        }
       }
     }
 
