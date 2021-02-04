@@ -2,7 +2,12 @@
   <app-icon [profile]="profile"></app-icon>
   {{profile?.Name}}
   <div [routerLink]="['/', 'app', profile?.Source , profile?.ID]" class="link">
-    <fa-icon icon="cog"></fa-icon>
+    <svg class="cog" viewBox="0 0 24 24">
+      <g fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.3">
+        <path d="M13.7678 10.2322c.976311.976311.976311 2.55922 0 3.53553-.976311.976311-2.55922.976311-3.53553 0-.976311-.976311-.976311-2.55922 0-3.53553.976311-.976311 2.55922-.976311 3.53553 0"/>
+        <path d="M14.849 4.12l.583.194c.534.178.895.678.895 1.241v.837c0 .712.568 1.293 1.28 1.308l.838.018c.485.01.925.289 1.142.723l.275.55c.252.504.153 1.112-.245 1.51l-.592.592c-.503.503-.512 1.316-.02 1.83l.58.606c.336.351.45.858.296 1.319l-.194.583c-.178.534-.678.895-1.241.895h-.837c-.712 0-1.293.568-1.308 1.28l-.018.838c-.01.485-.289.925-.723 1.142l-.55.275c-.504.252-1.112.153-1.51-.245l-.592-.592c-.503-.503-1.316-.512-1.83-.02l-.606.58c-.351.336-.858.45-1.319.296l-.583-.194c-.534-.178-.895-.678-.895-1.241v-.837c0-.712-.568-1.293-1.28-1.308l-.838-.018c-.485-.01-.925-.289-1.142-.723l-.275-.55c-.252-.504-.153-1.112.245-1.51l.592-.592c.503-.503.512-1.316.02-1.83l-.58-.606c-.337-.352-.451-.86-.297-1.32l.194-.583c.178-.534.678-.895 1.241-.895h.837c.712 0 1.293-.568 1.308-1.28l.018-.838c.012-.485.29-.925.724-1.142l.55-.275c.504-.252 1.112-.153 1.51.245l.592.592c.503.503 1.316.512 1.83.02l.606-.58c.351-.335.859-.449 1.319-.295z"/>
+      </g>
+    </svg>
   </div>
 </h1>
 
@@ -10,49 +15,65 @@
 
 <fa-icon icon="spinner" [spin]="true" *ngIf="loading"></fa-icon>
 
-<h3>App</h3>
+<h3>Apps</h3>
 
 <div class="card-header open">
   <app-icon [profile]="profile?.profile"></app-icon>
   <span class="card-title">
     <app-text-placeholder mode="input" [loading]="!profile?.profile">
-      {{profile?.profile?.Name}}
+      <span>{{profile?.profile?.Name}}</span>
+      <span>App</span>
     </app-text-placeholder>
   </span>
-  <fa-icon icon="cog" [routerLink]="['/', 'app', profile?.Source, profile?.ID]"></fa-icon>
-
-  <app-count-indicator [count]="profile?.size || 0" [loading]="profile?.hasOldConnections"></app-count-indicator>
+  <app-count-indicator [count]="profile?.size || 0" [loading]="profile?.hasOldConnections">
+  </app-count-indicator>
+  <app-menu-trigger [menu]="menu"></app-menu-trigger>
+  <app-menu #menu>
+    <app-menu-item class="item-seperator" [routerLink]="['/', 'app', profile?.Source, profile?.ID]">
+      App Settings
+    </app-menu-item>
+  </app-menu>
 </div>
 
 <div class="card-content">
   <div>
     <app-text-placeholder mode="input" [loading]="!profile?.profile" width="large">
-      <span>Executable:</span>
-      <span>{{profile?.profile?.LinkedPath || 'N/A'}}</span>
+      <span>ExecName:</span>
+      <span>{{profile?.profile?.Name || 'N/A'}}.exe</span>
     </app-text-placeholder>
-
+    <div> <!-- TODO(ppacher) can you make a "copy to clipboard" component please -->
+      <app-text-placeholder class="path" mode="input" [loading]="!profile?.profile" width="large">
+        <span>Path:</span>
+        <span>{{profile?.profile?.LinkedPath || 'N/A'}}</span>
+      </app-text-placeholder>
+      <svg class="copy" viewBox="0 0 24 24">
+        <g fill="none">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M7 15H5c-1.105 0-2-.895-2-2V5c0-1.105.895-2 2-2h8c1.105 0 2 .895 2 2v2"/>
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M13 19H9c-1.105 0-2-.895-2-2V9c0-1.105.895-2 2-2h8c1.105 0 2 .895 2 2v4M19 17v4M17 19h4"/>
+        </g>
+      </svg>
+    </div>
     <span *ngIf="(profile?.profile?.ApproxLastUsed || 0) > 0">
-      <span>Last Used:</span>
+      <span>Activity:</span>
       <span>{{profile!.profile!.ApproxLastUsed * 1000 | date:'medium'}}</span>
     </span>
   </div>
-
   <div *appExpertiseLevel="'developer'">
-    <span>
-      <span>Profile:</span>
-      <span>{{profile?.ID}}</span>
-    </span>
-    <span>
-      <span>Revision:</span>
-      <span>{{profile?.currentProfileRevision}}</span>
-    </span>
-    <span>
+    <span class="layer">
       <span>Layers:</span>
       <span>
         <ol class="layers">
           <li *ngFor="let layer of profile?.layers" [routerLink]="['/', 'app'].concat(layer.split('/'))">{{layer}}</li>
         </ol>
       </span>
+    </span>
+    <span>
+      <span>Revision:</span>
+      <span>{{profile?.currentProfileRevision}}</span>
+    </span>
+    <span class="profile-id">
+      <span>Profile:</span>
+      <span>{{profile?.ID}}</span>
     </span>
   </div>
 </div>

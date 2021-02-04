@@ -6,7 +6,6 @@ button {
   @apply capitalize;
   @apply rounded-sm;
   @apply font-medium;
-
   user-select: none;
   outline    : none;
 
@@ -20,7 +19,6 @@ button {
   }
 
   &:active {
-    @apply shadow-inner-xs;
     @apply bg-buttons-dark;
   }
 

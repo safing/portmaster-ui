@@ -1,22 +1,27 @@
 :host {
+  transform: scale(0.95);
   display        : flex;
-  width          : 3rem;
+  width          : auto;
   height         : 18px;
   align-items    : center;
   justify-content: flex-end;
-
   font-size  : 0.6rem;
   line-height: 18px;
-
   @apply pl-2;
-
   @apply bg-buttons-dark;
   border-radius: 0.5rem;
+  margin-right: -5px;
 
   .counter {
     flex-grow : 1;
     display   : inline-block;
     text-align: center;
+    padding-right: 4px;
+    padding-left: 2px;
+    color: #999999ee;
+    font-size: 0.65rem;
+    font-weight: 800;
+    width: max-content;
   }
 
   div.state {
@@ -24,8 +29,11 @@
 
     .trust-level:before {
       top: 0px;
+      transform: scale(0.79);
     }
   }
+
+
 }
 
 fa-icon {

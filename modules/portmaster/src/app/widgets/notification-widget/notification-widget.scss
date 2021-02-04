@@ -190,6 +190,7 @@ div.placeholder {
   flex-direction : column;
   justify-content: center;
   align-items    : center;
+  user-select: none;
 }
 
 app-loading {

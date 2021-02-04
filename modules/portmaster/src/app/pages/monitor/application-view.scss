@@ -15,18 +15,6 @@ fa-icon[icon="spinner"] {
   height    : 6rem;
 }
 
-fa-icon[icon="cog"] {
-  @apply mx-2;
-  @apply text-primary;
-  cursor       : pointer;
-  border-radius: 50%;
-  @apply p-1;
-
-  &:hover {
-    @apply text-secondary;
-  }
-}
-
 ol.layers {
   cursor: pointer;
   @apply text-secondary;
@@ -40,29 +28,34 @@ ol.layers {
 }
 
 h1 {
-  @apply my-6;
+  margin-top: 1.7rem;
+  margin-bottom: 1.5rem;
   display    : flex;
   align-items: center;
+  font-size: 1.23rem;
+  font-weight: 400;
+  color: #cacaca;
 
   app-icon {
     --app-icon-size: 35px;
+    margin-right: 13px;
   }
 
   .link {
     display        : flex;
     justify-content: center;
     align-items    : center;
-    height         : 24px;
-    width          : 24px;
-    opacity        : .5;
+    height         : 22px;
+    width          : 22px;
+    opacity        : .28;
     @apply bg-buttons-dark;
-    @apply ml-4;
+    margin-left: 10px;
     cursor       : pointer;
     border-radius: 50%;
     transition   : all .15s ease-in-out;
 
     &:hover {
-      opacity: 1;
+      opacity: .55;
       @apply bg-buttons-light;
     }
 
@@ -74,37 +67,133 @@ h1 {
       align-items    : center;
       justify-content: center;
     }
+
+    svg.cog {
+      width: 14px;
+      padding: 0;
+      margin : 0;
+      display        : flex;
+      align-items    : center;
+      justify-content: center;
+
+      g{
+        stroke: white;
+      }
+    }
+  }
+}
+
+h3{
+  font-size: 0.785rem;
+  font-weight: 500;
+  margin-bottom: 20px;
+  color: #cacaca;
+  user-select: none;
+}
+
+.open{
+  background-color: #292929b0;
+  padding-left: 1rem;
+  padding-right: 0;
+  cursor: unset;
+
+  app-text-placeholder {
+    @apply my-1;
+    display: block;
+    font-size: 0.7rem;
+    font-weight: 500;
+    user-select: none;
+
+    span:first-of-type {
+      color: #cacaca;
+    }
+
+    span:last-of-type {
+      opacity: 0.35;
+      font-size: 0.685rem;
+      margin-left: 8px;
+    }
   }
 }
 
 .card-content {
-  flex-direction: row;
+  flex-direction: column;
 
   &>div {
-    flex-grow: 0.9;
-    min-width: 30%;
+    width: 90%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-left: auto;
+    margin-right: auto;
+
+    &>div
+    {
+      display: flex;
+
+      &:hover{
+        svg.copy {
+          opacity: .55;
+        }
+      }
+
+      svg.copy {
+        width: 14px;
+        padding: 0;
+        margin : 0 0 0 3px;
+        display        : inline-flex;
+        align-items    : center;
+        justify-content: center;
+        cursor: pointer;
+        transition   : all .15s ease-in-out;
+        opacity: 0;
+      
+        g{
+          stroke: white;
+        }
+      
+        &:hover{
+          opacity: 1;
+        }
+      }
+    }
 
     &>span,
     app-text-placeholder {
       @apply my-1;
       display: block;
-      @apply font-medium;
+      font-size: 0.7rem;
+      font-weight: 500;
+      user-select: none;
 
       span:first-of-type {
-        @apply font-normal;
-        @apply text-tertiary;
-        @apply mr-1;
+        opacity: 0.25;
+        margin-right: 8px;
       }
 
       span:last-of-type {
-        @apply text-primary;
+        color: #cacaca;
       }
-
     }
+  }
+  
+  .path,
+  .profile-id{
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+
+  .path{
+    max-width: 179px;
+  }
+
+  .profile-id{
+    max-width: 125px;
   }
 }
 
 app-connections-view {
   display: block;
-  @apply pl-5;
+  padding-left: 0.9rem;
 }

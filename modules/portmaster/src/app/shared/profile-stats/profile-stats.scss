@@ -1,14 +1,17 @@
 :host {
+  user-select: none;
+  
   &>div {
-    width          : 100%;
+    width          : 90%;
     display        : flex;
     justify-content: space-between;
     align-items    : center;
     height         : 4rem;
-    margin-bottom  : 2rem;
+    margin-bottom  : 1rem;
+    margin-left: auto;
+    margin-right: auto;
   }
 }
-
 
 .metric {
   display       : flex;
@@ -22,7 +25,10 @@
   }
 
   label {
-    font-size: 0.9em;
+    font-size: 0.718rem;
+    font-weight: 600;
+    opacity: .65;
+    margin-bottom: 2px
   }
 
   span.value {
