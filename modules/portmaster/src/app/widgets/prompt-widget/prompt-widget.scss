@@ -4,7 +4,7 @@
   display       : flex;
   flex-direction: column;
 
-  padding-top: 1px;
+  padding-top   : 1px;
   padding-bottom: 3px;
   @apply bg-background;
 
@@ -31,18 +31,18 @@ app-icon {
     margin-left: 4px;
 
     .app-name {
-      flex-grow: 1;
-      font-size: 0.7rem;
+      flex-grow  : 1;
+      font-size  : 0.7rem;
       font-weight: 500;
-      color: #cacaca;
+      color      : #cacaca;
     }
 
     span.prompt-count {
       @apply mr-1;
-      font-size: 0.6rem;
+      font-size  : 0.6rem;
       font-weight: 600;
-      color: #cacaca;
-      transform: scale(0.95);
+      color      : #cacaca;
+      transform  : scale(0.95);
     }
   }
 }
@@ -65,11 +65,11 @@ app-menu-item.item-seperator {
   display: flex;
 
   .border {
-    margin-left: calc(0.5rem + 9px);
-    width      : 0.5rem;
-    border-left-width: 2px;
+    margin-left        : calc(0.5rem + 9px);
+    width              : 0.5rem;
+    border-left-width  : 2px;
     border-bottom-width: 2px;
-    border-color: #292929;
+    border-color       : #292929;
   }
 
   .prompt-container,
@@ -81,85 +81,81 @@ app-menu-item.item-seperator {
   .prompt-container {
     flex-grow     : 1;
     flex-direction: column;
-    padding-left: 0.6rem;
-    padding-right: 0.5rem;
-    padding-top: 0.4rem;
+    padding-left  : 0.6rem;
+    padding-right : 0.5rem;
+    padding-top   : 0.4rem;
     padding-bottom: 1rem;
 
     .prompt {
-      padding-left: 0.75rem;
-      margin-bottom: 4px;
+      padding-left    : 0.75rem;
+      margin-bottom   : 4px;
       background-color: #292929;
-      height: 2.1rem;
-      border-radius: 2px;
-      align-items: center;
-      overflow: hidden;
+      height          : 2.1rem;
+      border-radius   : 2px;
+      align-items     : center;
+      overflow        : hidden;
 
-      &:hover{
+      &:hover {
         background-color: #303030;
 
-        .actions{
-          animation: .07s slidein-left ease-in-out;
-          opacity: 1;
+        .actions {
+          animation : .07s slidein-left ease-in-out;
+          opacity   : 1;
           transition: all .05s ease-in-out;
         }
       }
 
       .entity {
-        flex-grow  : 1;
-        word-break : break-all;
-        white-space: normal;
-        font-size: 0.7rem;
-        font-weight: 500;
+        flex-grow   : 1;
+        word-break  : break-all;
+        white-space : normal;
+        font-size   : 0.7rem;
+        font-weight : 500;
         padding-left: 2px;
-        color: #cacaca;
-
-        .country-flag {
-          @apply mr-1;
-        }
+        color       : #cacaca;
 
         .subdomain {
-          font-size     : 0.7rem;
+          font-size  : 0.7rem;
           font-weight: 500;
-          color: #999999;
+          color      : #999999;
         }
       }
 
       .actions {
         min-width: 5rem;
         flex-wrap: wrap;
-        height: 100%;
-        
-        opacity: 0;
+        height   : 100%;
+
+        opacity   : 0;
         transition: all .05s ease-in-out;
 
         button {
           outline: none;
           @apply bg-transparent;
 
-          font-size: 0.6rem;
+          font-size       : 0.6rem;
           background-color: #3a3a3a;
-          
-          padding-left: 1.25rem;
-          padding-right: 1.25rem;
-          text-transform: capitalize;
-          border-radius: 0;
-          font-weight: 500;
-          outline: none;
-          color: hsla(0, 0%, 100%, 0.548);
 
-          &:hover{
-            background-color:  #363636;
-            color: #ffffff;
+          padding-left  : 1.25rem;
+          padding-right : 1.25rem;
+          text-transform: capitalize;
+          border-radius : 0;
+          font-weight   : 500;
+          outline       : none;
+          color         : hsla(0, 0%, 100%, 0.548);
+
+          &:hover {
+            background-color: #363636;
+            color           : #ffffff;
           }
 
           &:last-of-type {
             background: transparent;
-            color: hsla(0, 0%, 100%, 0.562);
+            color     : hsla(0, 0%, 100%, 0.562);
             @apply ml-1;
             transition: all cubic-bezier(0.175, 0.885, 0.32, 1.275) .2s;
 
-            &:hover{
+            &:hover {
               color: #ffffff;
             }
           }
@@ -169,13 +165,13 @@ app-menu-item.item-seperator {
   }
 
   .more-available {
-    position  : relative;
-    top       : 1.4rem;
-    margin-top: -1rem;
-    cursor    : pointer;
-    font-size: 0.7rem;
+    position   : relative;
+    top        : 1.4rem;
+    margin-top : -1rem;
+    cursor     : pointer;
+    font-size  : 0.7rem;
     font-weight: 500;
-    color: #999999;
+    color      : #999999;
 
     &:hover {
       color: #cacaca;
@@ -185,9 +181,10 @@ app-menu-item.item-seperator {
 
 @keyframes slidein-left {
   0% {
-      transform: translateX(100%);
+    transform: translateX(100%);
   }
+
   100% {
-      transform: translateX(0);
+    transform: translateX(0);
   }
 }
