@@ -75,7 +75,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
    */
   saveSetting(event: SaveSettingEvent) {
     let idx = this.settings.findIndex(setting => setting.Key === event.key);
-    if (!idx) {
+    if (idx < 0) {
       return;
     }
 
