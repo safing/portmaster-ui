@@ -1,6 +1,10 @@
 <ng-container *ngIf="!!setting">
   <ng-container [ngSwitch]="_type">
     <ng-container *ngSwitchCase="'string'">
+      <!--
+        Dropdowns for a limited set of allowed values. Either using PossibleValues (the new way)
+        or by parsing the settings validation regex (deprecated)
+      -->
       <app-dropdown *ngIf="externalOptType(setting) === optionHints.OneOf; else: simpleTextInput" [ngModel]="_value"
         (ngModelChange)="setInternalValue($event); touched()" [disabled]="_disabled">
 
@@ -17,21 +21,46 @@
         </ng-template>
       </app-dropdown>
 
+      <!--
+        A simple text input
+      -->
       <ng-template #simpleTextInput>
-        <input type="text" [ngModel]="_value" (ngModelChange)="setInternalValue($event)" [disabled]="_disabled"
-          (blur)="touched()">
+        <div class="input-container">
+          <input type="text" [ngModel]="_value" (ngModelChange)="setInternalValue($event)" [disabled]="_disabled"
+            (blur)="touched()">
+          <span *ngIf="!!unit" class="suffix" #suffixElement>
+            {{ unit }}
+          </span>
+        </div>
       </ng-template>
     </ng-container>
 
-    <input *ngSwitchCase="'number'" type="number" [ngModel]="_value" (ngModelChange)="setInternalValue($event)"
-      [disabled]="_disabled" (blur)="touched()">
+    <!--
+      A number input
+    -->
+    <div class="input-container" *ngSwitchCase="'number'">
+      <input type="number" [ngModel]="_value" (ngModelChange)="setInternalValue($event)" [disabled]="_disabled"
+        (blur)="touched()">
+      <span *ngIf="!!unit" class="suffix" #suffixElement>
+        {{ unit }}
+      </span>
+    </div>
 
+    <!--
+      Toggle switch (On/Off)
+    -->
     <ng-container *ngSwitchCase="'boolean'">
       <app-toggle-switch id="check-{{setting.Key}}" name="check" [ngModel]="_value"
         (ngModelChange)="setInternalValue($event); touched()" [disabled]="_disabled">
       </app-toggle-switch>
     </ng-container>
 
+    <!--
+      Multi-line text input
+      Mainly used as a fallback if we don't support the given input type
+      yet.
+      This allows direct manipulatoin of the JSON encoded value
+    -->
     <textarea *ngSwitchDefault [attr.rows]="lineCount(_value)" [ngModel]="_value"
       (ngModelChange)="setInternalValue($event)" [disabled]="_disabled" (blur)="touched()">
     </textarea>
