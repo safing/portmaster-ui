@@ -66,7 +66,7 @@ export class MonitorPageComponent implements OnInit, OnDestroy {
       ])
         .subscribe(([p, search, _]) => {
           this.profiles = p.filter(profile => {
-            return search === '' || profile.Name.toLocaleLowerCase().includes(search)
+            return search === '' || profile.Name.toLocaleLowerCase().includes(search.toLocaleLowerCase())
           });
         })
 
