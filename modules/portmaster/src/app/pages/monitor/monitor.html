@@ -8,7 +8,8 @@
           <div class="search-button" (click)="toggleSearch()">
             <fa-icon icon="search"></fa-icon>
           </div>
-          <input type="text" placeholder="Search" [ngModel]="(onSearch | async)" (ngModelChange)="search($event)">
+          <input type="text" placeholder="Search" [ngModel]="(onSearch | async)" (ngModelChange)="search($event)"
+            (keydown)="onSearchKeyDown($event)">
 
           <fa-icon icon="times" [class.visible]="showSearch" (click)="toggleSearch()"></fa-icon>
         </div>
