@@ -1,6 +1,8 @@
 import { coerceBooleanProperty } from '@angular/cdk/coercion';
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, forwardRef, Input, Output, ViewChild } from '@angular/core';
+import { DOCUMENT } from '@angular/common';
+import { AfterViewChecked, AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, EventEmitter, forwardRef, Inject, Input, OnInit, Output, ViewChild } from '@angular/core';
 import { AbstractControl, ControlValueAccessor, NgModel, NG_VALIDATORS, NG_VALUE_ACCESSOR, ValidationErrors, Validator } from '@angular/forms';
+import { defaultThrottleConfig } from 'rxjs/internal/operators/throttle';
 import { BaseSetting, ExternalOptionHint, parseSupportedValues, SettingValueType, WellKnown } from 'src/app/services';
 
 @Component({
@@ -21,12 +23,18 @@ import { BaseSetting, ExternalOptionHint, parseSupportedValues, SettingValueType
   ],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class BasicSettingComponent<S extends BaseSetting<any, any>> implements ControlValueAccessor, Validator {
+export class BasicSettingComponent<S extends BaseSetting<any, any>> implements ControlValueAccessor, Validator, AfterViewChecked {
   /** @private template-access to all external option hits */
   readonly optionHints = ExternalOptionHint;
 
   /** @private template-access to parseSupportedValues */
   readonly parseSupportedValues = parseSupportedValues;
+
+  @ViewChild('suffixElement', { static: false, read: ElementRef })
+  suffixElement?: ElementRef<HTMLSpanElement>;
+
+  /** Cached canvas element used by getTextWidth */
+  private cachedCanvas?: HTMLCanvasElement;
 
   /** Returns the value of external-option hint annotation */
   externalOptType(opt: S): ExternalOptionHint | null {
@@ -111,7 +119,16 @@ export class BasicSettingComponent<S extends BaseSetting<any, any>> implements C
   // We are using ChangeDetectionStrategy.OnPush so angular does not
   // update ourself when writeValue or setDisabledState is called.
   // Using the changeDetectorRef we can take care of that ourself.
-  constructor(private _changeDetectorRef: ChangeDetectorRef) { }
+  constructor(
+    @Inject(DOCUMENT) private document: Document,
+    private _changeDetectorRef: ChangeDetectorRef
+  ) { }
+
+  ngAfterViewChecked() {
+    // update the suffix position everytime angular has
+    // checked our view for changes.
+    this.updateUnitSuffixPosition();
+  }
 
   /**
    * Sets the user-presented value and emits a change.
@@ -138,6 +155,24 @@ export class BasicSettingComponent<S extends BaseSetting<any, any>> implements C
     this._valid = true;
     this._value = value;
     this._onChange(toEmit);
+    this.updateUnitSuffixPosition();
+  }
+
+  /**
+   * Updates the position of the value's unit suffix element
+   */
+  private updateUnitSuffixPosition() {
+    if (!!this.unit && !!this.suffixElement) {
+      const input = this.suffixElement.nativeElement.previousSibling! as HTMLInputElement;
+      const style = window.getComputedStyle(input);
+      let paddingleft = parseInt(style.paddingLeft.slice(0, -2))
+      // we need to use `input.value` instead of `value` as we need to
+      // get preceding zeros of the number input as well, while still
+      // using the value as a fallback.
+      let value = input.value || (this._value as string);
+      const width = this.getTextWidth(value, style.font) + paddingleft;
+      this.suffixElement.nativeElement.style.left = `${width}px`;
+    }
   }
 
   /**
@@ -204,6 +239,7 @@ export class BasicSettingComponent<S extends BaseSetting<any, any>> implements C
       this._value = v;
     }
 
+    this.updateUnitSuffixPosition();
     this._changeDetectorRef.markForCheck();
   }
 
@@ -261,5 +297,22 @@ export class BasicSettingComponent<S extends BaseSetting<any, any>> implements C
       return value.split('\n').length
     }
     return 1
+  }
+
+  /**
+   * Calculates the amount of pixel a text requires when being rendered.
+   * It uses canvas.measureText on a dummy (no attached) element
+   *
+   * @param text The text that would be rendered
+   * @param font The CSS font descriptor that would be used for the text
+   */
+  private getTextWidth(text: string, font: string): number {
+    let canvas = this.cachedCanvas || this.document.createElement('canvas');
+    this.cachedCanvas = canvas;
+
+    let context = canvas.getContext("2d")!;
+    context.font = font;
+    let metrics = context.measureText(text);
+    return metrics.width;
   }
 }

@@ -23,8 +23,6 @@
         <div class="prompt"
           *ngFor="let prompt of (profile.showAll ? profile.prompts : profile.promptsLimited); trackBy: notifService.trackBy">
           <span class="entity">
-            <span *ngIf="!!prompt.EventData.Entity.Country" class="country-flag"
-              [appCountryFlags]="prompt.EventData.Entity.Country"></span>
             <ng-container *ngIf="!prompt.domain; else: domainView">
               {{ prompt.EventData.Entity.IP }}
             </ng-container>

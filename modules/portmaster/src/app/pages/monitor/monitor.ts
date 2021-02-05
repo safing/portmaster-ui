@@ -34,7 +34,7 @@ export class MonitorPageComponent implements OnInit, OnDestroy {
 
   constructor(
     private connTrack: ConnTracker,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
   ) { }
 
   ngOnInit() {
@@ -66,7 +66,7 @@ export class MonitorPageComponent implements OnInit, OnDestroy {
       ])
         .subscribe(([p, search, _]) => {
           this.profiles = p.filter(profile => {
-            return search === '' || profile.Name.toLocaleLowerCase().includes(search)
+            return search === '' || profile.Name.toLocaleLowerCase().includes(search.toLocaleLowerCase())
           });
         })
 
@@ -102,6 +102,20 @@ export class MonitorPageComponent implements OnInit, OnDestroy {
    */
   search(s: string) {
     this.onSearch.next(s);
+  }
+
+  /**
+   * @private
+   * Callback for the (keydown) binding on the document.
+   * Used to handle ESC key presses correctly
+   *
+   * @param event The key-up event
+   */
+  onSearchKeyDown(event: KeyboardEvent) {
+    console.log(event.key);
+    if (event.key === 'Escape' && this.showSearch) {
+      this.toggleSearch();
+    }
   }
 
   /**
