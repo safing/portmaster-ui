@@ -12,6 +12,8 @@ import { fadeInAnimation } from '../../shared/animations';
   ],
 })
 export class MonitorApplicationViewComponent {
+  readonly nameRegex = /(.+)[\/\\](.+)$/gm;
+
   /** @private True if we are still loading the current profile. */
   get loading(): boolean {
     return this.profile?.loading || false;

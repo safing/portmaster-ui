@@ -28,17 +28,17 @@ ol.layers {
 }
 
 h1 {
-  margin-top: 1.7rem;
+  margin-top   : 1.7rem;
   margin-bottom: 1.5rem;
-  display    : flex;
-  align-items: center;
-  font-size: 1.23rem;
-  font-weight: 400;
-  color: #cacaca;
+  display      : flex;
+  align-items  : center;
+  font-size    : 1.23rem;
+  font-weight  : 400;
+  color        : #cacaca;
 
   app-icon {
     --app-icon-size: 35px;
-    margin-right: 13px;
+    margin-right   : 13px;
   }
 
   .link {
@@ -49,7 +49,7 @@ h1 {
     width          : 22px;
     opacity        : .28;
     @apply bg-buttons-dark;
-    margin-left: 10px;
+    margin-left  : 10px;
     cursor       : pointer;
     border-radius: 50%;
     transition   : all .15s ease-in-out;
@@ -69,38 +69,38 @@ h1 {
     }
 
     svg.cog {
-      width: 14px;
-      padding: 0;
-      margin : 0;
+      width          : 14px;
+      padding        : 0;
+      margin         : 0;
       display        : flex;
       align-items    : center;
       justify-content: center;
 
-      g{
+      g {
         stroke: white;
       }
     }
   }
 }
 
-h3{
-  font-size: 0.785rem;
-  font-weight: 500;
+h3 {
+  font-size    : 0.785rem;
+  font-weight  : 500;
   margin-bottom: 20px;
-  color: #cacaca;
-  user-select: none;
+  color        : #cacaca;
+  user-select  : none;
 }
 
-.open{
+.open {
   background-color: #292929b0;
-  padding-left: 1rem;
-  padding-right: 0;
-  cursor: unset;
+  padding-left    : 1rem;
+  padding-right   : 0;
+  cursor          : unset;
 
   app-text-placeholder {
     @apply my-1;
-    display: block;
-    font-size: 0.7rem;
+    display    : block;
+    font-size  : 0.7rem;
     font-weight: 500;
     user-select: none;
 
@@ -109,8 +109,8 @@ h3{
     }
 
     span:last-of-type {
-      opacity: 0.35;
-      font-size: 0.685rem;
+      opacity    : 0.35;
+      font-size  : 0.685rem;
       margin-left: 8px;
     }
   }
@@ -120,39 +120,38 @@ h3{
   flex-direction: column;
 
   &>div {
-    width: 90%;
-    display: flex;
+    width          : 90%;
+    display        : flex;
     justify-content: space-between;
-    align-items: center;
-    margin-left: auto;
-    margin-right: auto;
+    align-items    : center;
+    margin-left    : auto;
+    margin-right   : auto;
 
-    &>div
-    {
+    &>div {
       display: flex;
 
-      &:hover{
+      &:hover {
         svg.copy {
           opacity: .55;
         }
       }
 
       svg.copy {
-        width: 14px;
-        padding: 0;
-        margin : 0 0 0 3px;
+        width          : 14px;
+        padding        : 0;
+        margin         : 0 0 0 3px;
         display        : inline-flex;
         align-items    : center;
         justify-content: center;
-        cursor: pointer;
-        transition   : all .15s ease-in-out;
-        opacity: 0;
-      
-        g{
+        cursor         : pointer;
+        transition     : all .15s ease-in-out;
+        opacity        : 0;
+
+        g {
           stroke: white;
         }
-      
-        &:hover{
+
+        &:hover {
           opacity: 1;
         }
       }
@@ -161,13 +160,13 @@ h3{
     &>span,
     app-text-placeholder {
       @apply my-1;
-      display: block;
-      font-size: 0.7rem;
+      display    : block;
+      font-size  : 0.7rem;
       font-weight: 500;
       user-select: none;
 
       span:first-of-type {
-        opacity: 0.25;
+        opacity     : 0.25;
         margin-right: 8px;
       }
 
@@ -176,24 +175,24 @@ h3{
       }
     }
   }
-  
+
   .path,
-  .profile-id{
-    overflow: hidden;
-    white-space: nowrap;
+  .profile-id {
+    overflow     : hidden;
+    white-space  : nowrap;
     text-overflow: ellipsis;
   }
 
-  .path{
+  .path {
     max-width: 179px;
   }
 
-  .profile-id{
+  .profile-id {
     max-width: 125px;
   }
 }
 
 app-connections-view {
-  display: block;
+  display     : block;
   padding-left: 0.9rem;
 }
