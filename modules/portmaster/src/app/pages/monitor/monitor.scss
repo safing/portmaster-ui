@@ -4,14 +4,16 @@
 }
 
 div.sidebar {
-  width   : calc(4.5rem * 4);
+  width   : calc(4.56rem * 4);
   overflow: auto;
-  @apply border-r-2;
+  @apply border-r;
   @apply border-cards-tertiary;
+  user-select: none;
 }
 
 .sidebar-header {
-  @apply py-1;
+  padding-top: 0.63rem;
+  padding-bottom: 0.2rem;
   @apply px-3;
 
   .row {
@@ -21,12 +23,15 @@ div.sidebar {
     flex-wrap      : nowrap;
 
     h4 {
-      @apply text-primary;
       @apply py-3;
       flex-shrink  : 1;
       overflow     : hidden;
       white-space  : nowrap;
       text-overflow: ellipsis;
+
+      font-size: 0.775rem;
+      font-weight: 500;
+      color: #cacaca;
     }
 
     .note {
@@ -56,12 +61,50 @@ fa-icon[icon="chevron-right"] {
 
 div.details-view {
   flex-grow: 1;
-
   width   : 100%;
   overflow: hidden;
-
   display       : flex;
   flex-direction: column;
+  padding-left: 1.7rem;
+  padding-right: 0.8rem;
+
+  .header,
+  .content{
+    padding: 0;
+    margin: 0;
+  }
+  
+  .header{
+    padding-top: 0.9rem;
+
+    .breadcrumbs{
+      font-size: 0.715rem;
+      font-weight: 500;
+      color: #cacaca;
+      user-select: none;
+      display: flex;
+
+      span:first-child{
+        opacity: .55;
+        font-weight: 400;
+        margin-right: 4px;
+
+        &:hover{
+          opacity: 1;
+        }
+      }
+
+      svg.arrow {
+        width: 1rem;
+        padding: 0;
+        margin : 0;
+    
+        .inner {
+          stroke: white;
+        }
+      }
+    }
+  }
 
   .content {
     display  : block;
@@ -81,7 +124,25 @@ div.details-view {
 li.overview {
   display   : block;
   text-align: center;
-  @apply text-tertiary;
+  font-size: 0.7rem;
+  font-weight: 500;
+  color: #cacaca;
+  background-color: #202020;
+  opacity: 0.5;
+  padding-top: 0.525rem;
+  padding-bottom: 0.525rem;
+  padding-left: none;
+  padding-right: none;
+
+  &:hover {
+    background-color: #292929;
+    opacity: 0.55;
+  }
+
+  &.active{
+    background-color: #303030;
+    opacity: 1;
+  }
 }
 
 app-loading {
@@ -90,7 +151,7 @@ app-loading {
   margin-right: auto;
 }
 
-$transition-duration : .3s;
+$transition-duration : .0s;
 
 .search-container {
   position       : relative;
@@ -108,23 +169,28 @@ $transition-duration : .3s;
     flex-shrink: 1;
     float      : left;
     transition : all, $transition-duration;
-    @apply rounded;
+    @apply bg-background;
+    border-color: var(--background);
+    font-size: 0.735rem;
+    font-weight: 500;
+    opacity: 0;
+    color: #cacaca;
+    padding: 0;
 
     &::-webkit-input-placeholder {
-      @apply text-secondary;
+      opacity: 0.5;
+      color: #cacaca;
+      font-size: 0.725rem;
     }
   }
 
   &.active {
-    width: calc(4.5 * 4rem - 2*0.75rem);
+    width: calc(4.6 * 4rem - 2*0.75rem);
 
     input[type="text"] {
       flex-grow: 1;
       width    : auto;
-    }
-
-    .search-button {
-      display: none;
+      opacity: 1;
     }
   }
 
@@ -134,23 +200,46 @@ $transition-duration : .3s;
     @apply mr-2;
   }
 
-  fa-icon {
-    cursor    : pointer;
-    transition: all, $transition-duration;
+  div[icon="search"]{
+    svg {
+      opacity   : 0.7;
+      stroke    : var(--text-secondary);
+      width     : 1rem;
+      transition: all cubic-bezier(0.175, 0.885, 0.32, 1.275) .2s;
+      cursor: pointer;
+      margin-top: 0;
 
-    &:hover {
-      @apply text-primary;
+      &:hover {
+        opacity: 1;
+        fill   : #ffff;
+        transform: scale(1.2);
+      }
     }
   }
 
-  fa-icon[icon="times"] {
+  div[icon="times"] {
     position: absolute;
-    right   : 1rem;
+    right: 0;
     opacity : 0;
+    margin-right: -1px;
+    z-index: -1;
 
     &.visible {
       opacity: 1;
+      z-index: 1;
     }
 
+    svg {
+      opacity   : 0.7;
+      stroke   : #ffff;
+      width     : 1.5rem;
+      transition: all cubic-bezier(0.175, 0.885, 0.32, 1.275) .2s;
+      cursor: pointer;
+      &:hover {
+        opacity: 1;
+        stroke    : var(--text-secondary);
+        transform: scale(1.2);
+      }
+    }
   }
 }

@@ -13,48 +13,54 @@ button {
   cursor        : pointer;
   padding       : 0;
   position      : relative;
-  min-width     : 6rem;
   width         : fit-content;
   white-space   : nowrap;
   display       : flex;
   align-items   : center;
   outline       : none;
   text-transform: none;
-  @apply bg-buttons-light;
   transition: all cubic-bezier(0.175, 0.885, 0.32, 1) .2s;
+  background-color: #292929;
+  align-self: center;
 
   &.active {
     @apply bg-buttons-dark;
-    @apply shadow-inner;
-
-    .arrow {
-      @apply shadow-inner-xs;
-
-      fa-icon {
-        transform: rotateZ(180deg);
-      }
+    
+    .arrow .arrow-icon {
+      transform : rotate(-90deg);
     }
   }
 
   span {
-    @apply p-2;
-    @apply px-3;
     flex-grow : 1;
     text-align: center;
+    padding-left: 0.8rem;
+    padding-right: 0.8rem;
   }
 
   .arrow {
-    @apply p-2;
-    @apply bg-buttons-dark;
+    padding-top: 0.415rem;
+    padding-bottom: 0.425rem;
+    padding-left: 0.2rem;
+    padding-right: 0.1rem;
+    background-color: #202020;
     @apply rounded-r-sm;
-
-    width          : 2rem;
     display        : flex;
     align-items    : center;
     justify-content: space-around;
 
-    fa-icon {
-      transition: all cubic-bezier(0.175, 0.885, 0.32, 1) .3s;
+    .arrow-icon {
+      width: 1.1rem;
+      float  : right;
+      padding: 0;
+      margin : 0;
+      transform: rotateZ(90deg);
+      transition: all ease-in-out .1s;
+  
+      .inner {
+        stroke: white;
+      }
+     
     }
   }
 }

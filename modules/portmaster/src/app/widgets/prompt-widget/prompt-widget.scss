@@ -29,6 +29,7 @@ app-icon {
     display    : flex;
     align-items: center;
     margin-left: 4px;
+    height     : 2rem;
 
     .app-name {
       flex-grow  : 1;
@@ -43,6 +44,7 @@ app-icon {
       font-weight: 600;
       color      : #cacaca;
       transform  : scale(0.95);
+      user-select: none;
     }
   }
 }
@@ -59,6 +61,7 @@ app-menu-item.item-seperator {
   justify-content: center;
   align-items    : center;
   flex-direction : column;
+  user-select    : none;
 }
 
 .prompts {
@@ -122,19 +125,24 @@ app-menu-item.item-seperator {
       }
 
       .actions {
-        min-width: 5rem;
-        flex-wrap: wrap;
-        height   : 100%;
-
+        min-width : 5rem;
+        flex-wrap : wrap;
+        height    : 100%;
         opacity   : 0;
         transition: all .05s ease-in-out;
 
         button {
           outline: none;
           @apply bg-transparent;
-
           font-size       : 0.6rem;
           background-color: #3a3a3a;
+          padding-left    : 1.25rem;
+          padding-right   : 1.25rem;
+          text-transform  : capitalize;
+          border-radius   : 0;
+          font-weight     : 500;
+          outline         : none;
+          color           : hsla(0, 0%, 100%, 0.548);
 
           padding-left  : 1.25rem;
           padding-right : 1.25rem;
@@ -172,6 +180,7 @@ app-menu-item.item-seperator {
     font-size  : 0.7rem;
     font-weight: 500;
     color      : #999999;
+    user-select: none;
 
     &:hover {
       color: #cacaca;

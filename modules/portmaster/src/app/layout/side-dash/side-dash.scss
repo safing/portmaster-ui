@@ -12,13 +12,17 @@
   width: 100%;
 
   &>* {
-    margin-bottom: 1.7rem;;
+    margin-bottom: 0.95rem;
   }
 }
 
 // TODO(ppacher) move to mixin or so
 .widget-list.cdk-drop-list-dragging .widget:not(.cdk-drag-placeholder) {
   transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
+}
+
+.no-wd{
+  user-select: none;
 }
 
 .widget {

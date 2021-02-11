@@ -1,26 +1,58 @@
 .card-header {
   @apply py-0;
   height: 2rem;
+  padding-right: 0;
 
-  fa-icon.chevron {
-    font-size : 0.6rem;
-    position  : relative;
-    top       : -2px;
-    transform : rotate(-180deg);
+  svg.arrow {
+    width: 1rem;
+    padding: 0;
+    margin : 0;
+    transform : rotate(90deg);
     transition: all ease-in-out .3s;
-    @apply text-secondary;
+
+    .inner {
+      stroke: white;
+    }
   }
 
   &.active {
-    fa-icon.chevron {
-      transform: rotate(0deg);
-      top      : 0px;
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+
+    svg.arrow {
+      transform : rotate(-90deg);
+    }
+  }
+
+  .card-title{
+    padding-left: 1rem;
+    .subdomain{
+      opacity: .58;
     }
   }
 
   .card-title .subdomain {
     @apply text-secondary;
   }
+
+  .spacer{
+    margin-right: 1rem;
+  }
+}
+
+h3{
+  font-size: 0.7rem;
+  font-weight: 500;
+  margin-top: 13px;
+  margin-bottom: 9px;
+  color: #cacaca;
+  user-select: none;
+  opacity: 0.45;
+}
+
+.card-content{
+  padding-top: 1rem;
+  padding-left: 1.35rem;
 }
 
 .meta {
@@ -38,31 +70,33 @@
     &>span {
       @apply my-1;
       display: block;
-      @apply text-xs;
-      @apply font-medium;
+      font-size: 0.7rem;
+      font-weight: 500;
+
+      .subdomain{
+        opacity: .58;
+      }
 
       span:first-of-type {
-        @apply text-tertiary;
-        @apply font-normal;
-        @apply mr-1;
+        opacity: 0.25;
+        margin-right: 8px;
+        user-select: none;
       }
 
       span:last-of-type {
-        @apply text-primary;
+        color: #cacaca;
       }
-
     }
   }
 }
 
 div.tableFixHead {
   @apply rounded-t;
+  max-height: 16rem;
 
   &:not(.empty) {
     @apply rounded;
   }
-
-  max-height: 16rem;
 }
 
 h4 {
@@ -73,16 +107,39 @@ fa-icon[icon="spinner"] {
   @apply mr-1;
 }
 
-fa-icon[icon="cog"],
-fa-icon[icon="eye"] {
+svg.cog,
+svg.copy {
+  width: 14px;
+  padding: 0;
+  margin : 0;
+  display        : inline-flex;
+  align-items    : center;
+  justify-content: center;
   cursor: pointer;
+  transition   : all .15s ease-in-out;
 
-  &:hover {
-    color: theme("colors.buttons.icon");
+  g{
+    stroke: white;
   }
 
   &:not(:first-of-type) {
     @apply ml-1;
+  }
+}
+
+svg.cog{
+  opacity: 1;
+
+  &:hover {
+    opacity: .55;
+  }
+}
+
+svg.copy{
+  opacity: .55;
+
+  &:hover {
+    opacity: 1;
   }
 }
 

@@ -4,28 +4,24 @@ select {
   display: block;
   width  : 100%;
   outline: none;
-  @apply shadow-inner-xs;
   @apply bg-buttons-dark;
-
   @apply text-secondary;
-
   @apply border-buttons-dark;
   @apply border;
   transition: border cubic-bezier(0.175, 0.885, 0.32, 1.275) .3s;
-  @apply p-2;
-  @apply px-4;
-  @apply rounded;
+  border-radius: 2px;
   @apply text-xs;
+  padding-top: 0.4rem;
+  padding-bottom: 0.4rem;
+  padding-left: 0.4rem;
+  padding-right: 0.4rem;
 
   &:active,
   &:focus {
     @apply text-primary;
     @apply bg-buttons-light;
   }
-
 }
-
-
 
 .ng-invalid {
 

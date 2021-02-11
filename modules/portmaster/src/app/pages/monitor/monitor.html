@@ -2,21 +2,30 @@
   <div class="sidebar-header">
     <div class="row">
       <h4>Network Monitor</h4>
-
       <span class="buttons">
         <div class="search-container" [class.active]="!!(onSearch | async) || showSearch">
           <div class="search-button" (click)="toggleSearch()">
-            <fa-icon icon="search"></fa-icon>
+            <div icon="search">
+              <svg viewBox="0 0 24 24">
+                <g fill="none">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
+                    d="M15.7138 6.8382c2.45093 2.45093 2.45093 6.42467 0 8.8756-2.45093 2.45093-6.42467 2.45093-8.8756 0-2.45093-2.45093-2.45093-6.42467 0-8.8756 2.45093-2.45093 6.42467-2.45093 8.8756 0M19 19l-3.29-3.29" />
+                </g>
+              </svg>
+            </div>
           </div>
-          <input type="text" placeholder="Search" [ngModel]="(onSearch | async)" (ngModelChange)="search($event)"
-            (keydown)="onSearchKeyDown($event)">
-
-          <fa-icon icon="times" [class.visible]="showSearch" (click)="toggleSearch()"></fa-icon>
+          <input spellcheck="false" type="text" placeholder="Search Monitor" [ngModel]="(onSearch | async)"
+            (ngModelChange)="search($event)" (keydown)="onSearchKeyDown($event)">
+          <div icon="times" [class.visible]="showSearch" (click)="toggleSearch()">
+            <svg viewBox="0 0 24 24">
+              <g fill="none">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.7"
+                  d="M14.83 9.17l-5.66 5.66M14.83 14.83L9.17 9.17" />
+              </g>
+            </svg>
+          </div>
         </div>
       </span>
-    </div>
-    <div class="row">
-      <span class="note">Last 5 mins</span>
     </div>
   </div>
 
@@ -24,7 +33,6 @@
     <li class="card-header overview" routerLink="/monitor/profile/overview/overview" routerLinkActive="active">
       Overview
     </li>
-
     <ng-container>
       <ng-container *ngFor="let data of profiles; trackBy: trackProfile">
         <li class="card-header" *appExpertiseLevel="data.size === 0 ? 'developer' : 'user'"
@@ -35,9 +43,7 @@
           </app-count-indicator>
         </li>
       </ng-container>
-
     </ng-container>
-
     <ng-container *ngIf="loading">
       <li class="card-header">
         <app-icon></app-icon>
@@ -55,28 +61,28 @@
         <app-count-indicator></app-count-indicator>
       </li>
     </ng-container>
-
-    <app-loading></app-loading>
-
   </div>
+
 </div>
 
 <div class="details-view">
   <div class="header">
-    <h4 class="breadcrumbs">
+    <div class="breadcrumbs">
       <span routerLink="/monitor">Network Monitor</span>
       <ng-container *ngIf="!!selected">
-        <fa-icon icon="chevron-right"></fa-icon>
+        <svg viewBox="0 0 24 24" class="arrow">
+          <g fill="none" class="inner">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M10 16l4-4-4-4" />
+          </g>
+        </svg>
         <span>{{ selected!.Name }}</span>
       </ng-container>
-    </h4>
+    </div>
     <app-expertise></app-expertise>
   </div>
-
   <div class="content">
     <app-monitor-application *ngIf="!!selected" [profile]="selected">
     </app-monitor-application>
-
     <app-network-overview *ngIf="!selected">
     </app-network-overview>
   </div>

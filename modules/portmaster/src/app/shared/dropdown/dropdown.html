@@ -1,23 +1,27 @@
-<!-- This button triggers the overlay and is it's origin -->
-<button (click)="toggle()" [class.active]="isOpen" type="button" cdkOverlayOrigin #trigger="cdkOverlayOrigin">
-  <span *ngIf="currentItem === null">
-    Select
-  </span>
-  <span *ngIf="currentItem !== null">
-    <ng-container *ngTemplateOutlet="currentItem.templateRef"></ng-container>
-  </span>
-  <div class="arrow">
-    <fa-icon icon="chevron-down"></fa-icon>
-  </div>
-</button>
-
-<!-- This template displays the overlay content and is connected to the button -->
-<ng-template cdkConnectedOverlay [cdkConnectedOverlayMinWidth]="element.nativeElement.offsetWidth"
-  [cdkConnectedOverlayOrigin]="trigger" [cdkConnectedOverlayOpen]="isOpen" (detach)="onOverlayClosed()"
-  [cdkConnectedOverlayScrollStrategy]="scrollStrategy" (overlayOutsideClick)="onOutsideClick($event)">
-  <ul class="item-list">
-    <li *ngFor="let item of items" (click)="selectItem(item)">
-      <ng-container *ngTemplateOutlet="item.templateRef"></ng-container>
-    </li>
-  </ul>
-</ng-template>
+  <!-- This button triggers the overlay and is it's origin -->
+  <button (click)="toggle()" [class.active]="isOpen" type="button" cdkOverlayOrigin #trigger="cdkOverlayOrigin">
+    <span *ngIf="currentItem === null">
+      Select
+    </span>
+    <span *ngIf="currentItem !== null">
+      <ng-container *ngTemplateOutlet="currentItem.templateRef"></ng-container>
+    </span>
+    <div class="arrow">
+      <svg viewBox="0 0 24 24" class="arrow-icon">
+        <g fill="none" class="inner">
+          <path  stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M10 16l4-4-4-4"/>
+        </g>
+      </svg>
+    </div>
+  </button>
+  
+  <!-- This template displays the overlay content and is connected to the button -->
+  <ng-template cdkConnectedOverlay [cdkConnectedOverlayMinWidth]="element.nativeElement.offsetWidth"
+    [cdkConnectedOverlayOrigin]="trigger" [cdkConnectedOverlayOpen]="isOpen" (detach)="onOverlayClosed()"
+    [cdkConnectedOverlayScrollStrategy]="scrollStrategy" (overlayOutsideClick)="onOutsideClick($event)">
+    <ul class="item-list">
+      <li *ngFor="let item of items" (click)="selectItem(item)">
+        <ng-container *ngTemplateOutlet="item.templateRef"></ng-container>
+      </li>
+    </ul>
+  </ng-template>
