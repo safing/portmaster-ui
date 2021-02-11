@@ -29,7 +29,7 @@ app-icon {
     display    : flex;
     align-items: center;
     margin-left: 4px;
-    height: 2rem;
+    height     : 2rem;
 
     .app-name {
       flex-grow  : 1;
@@ -42,14 +42,9 @@ app-icon {
       @apply mr-1;
       font-size  : 0.6rem;
       font-weight: 600;
-<<<<<<< HEAD
       color      : #cacaca;
       transform  : scale(0.95);
-=======
-      color: #cacaca;
-      transform: scale(0.95);
       user-select: none;
->>>>>>> 4d1f2fd (Update network monitor styling)
     }
   }
 }
@@ -66,7 +61,7 @@ app-menu-item.item-seperator {
   justify-content: center;
   align-items    : center;
   flex-direction : column;
-  user-select: none;
+  user-select    : none;
 }
 
 .prompts {
@@ -130,36 +125,24 @@ app-menu-item.item-seperator {
       }
 
       .actions {
-        min-width: 5rem;
-        flex-wrap: wrap;
-<<<<<<< HEAD
-        height   : 100%;
-
+        min-width : 5rem;
+        flex-wrap : wrap;
+        height    : 100%;
         opacity   : 0;
-=======
-        height: 100%;
-        opacity: 0;
->>>>>>> 4d1f2fd (Update network monitor styling)
         transition: all .05s ease-in-out;
 
         button {
           outline: none;
           @apply bg-transparent;
-<<<<<<< HEAD
-
           font-size       : 0.6rem;
           background-color: #3a3a3a;
-=======
-          font-size: 0.6rem;
-          background-color: #3a3a3a;
-          padding-left: 1.25rem;
-          padding-right: 1.25rem;
-          text-transform: capitalize;
-          border-radius: 0;
-          font-weight: 500;
-          outline: none;
-          color: hsla(0, 0%, 100%, 0.548);
->>>>>>> 4d1f2fd (Update network monitor styling)
+          padding-left    : 1.25rem;
+          padding-right   : 1.25rem;
+          text-transform  : capitalize;
+          border-radius   : 0;
+          font-weight     : 500;
+          outline         : none;
+          color           : hsla(0, 0%, 100%, 0.548);
 
           padding-left  : 1.25rem;
           padding-right : 1.25rem;
@@ -196,12 +179,8 @@ app-menu-item.item-seperator {
     cursor     : pointer;
     font-size  : 0.7rem;
     font-weight: 500;
-<<<<<<< HEAD
     color      : #999999;
-=======
-    color: #999999;
     user-select: none;
->>>>>>> 4d1f2fd (Update network monitor styling)
 
     &:hover {
       color: #cacaca;
