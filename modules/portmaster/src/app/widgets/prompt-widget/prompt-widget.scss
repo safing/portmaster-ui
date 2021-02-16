@@ -93,10 +93,11 @@ app-menu-item.item-seperator {
       padding-left    : 0.75rem;
       margin-bottom   : 4px;
       background-color: #292929;
-      height          : 2.1rem;
+      height          : auto;
       border-radius   : 2px;
       align-items     : center;
       overflow        : hidden;
+      position        : relative;
 
       &:hover {
         background-color: #303030;
@@ -109,13 +110,16 @@ app-menu-item.item-seperator {
       }
 
       .entity {
-        flex-grow   : 1;
-        word-break  : break-all;
-        white-space : normal;
-        font-size   : 0.7rem;
-        font-weight : 500;
-        padding-left: 2px;
-        color       : #cacaca;
+        flex-grow     : 1;
+        word-break    : break-all;
+        white-space   : normal;
+        font-size     : 0.7rem;
+        font-weight   : 500;
+        padding-top   : 0.6rem;
+        padding-bottom: 0.6rem;
+        padding-left  : 2px;
+        padding-right : 9px;
+        color         : #cacaca;
 
         .subdomain {
           font-size  : 0.7rem;
@@ -125,11 +129,14 @@ app-menu-item.item-seperator {
       }
 
       .actions {
-        min-width : 5rem;
-        flex-wrap : wrap;
-        height    : 100%;
-        opacity   : 0;
-        transition: all .05s ease-in-out;
+        min-width       : 5rem;
+        flex-wrap       : wrap;
+        height          : 100%;
+        opacity         : 0;
+        transition      : all .05s ease-in-out;
+        position        : absolute;
+        right           : 0;
+        background-color: #292929;
 
         button {
           outline: none;
