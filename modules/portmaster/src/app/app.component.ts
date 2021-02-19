@@ -58,12 +58,41 @@ export class AppComponent implements OnInit {
         }
       ).subscribe();
 
-      (window as any).createNotification = (notif: Partial<Notification>) => {
-        notif.EventID = notif.EventID || `random-id-${Math.random()}`;
-        notif.Type = notif.Type || NotificationType.Info;
+    }
 
-        this.notificationService.create(notif).subscribe();
-      }
+    (window as any).createNotification = (notif: Partial<Notification>) => {
+      notif.EventID = notif.EventID || `random-id-${Math.random()}`;
+      notif.Type = notif.Type || NotificationType.Info;
+
+      this.notificationService.create(notif).subscribe();
+    }
+
+    (window as any).fakePrompt = (what: string, profileId: string = '_unidentified') => {
+      this.notificationService.create(`filter:prompt-${Math.random()}`,
+        what,
+        NotificationType.Prompt,
+        {
+          Title: what,
+          EventData: {
+            Profile: {
+              Source: "local",
+              ID: profileId,
+            },
+            Entity: {
+              Domain: what,
+            }
+          },
+          AvailableActions: [
+            {
+              ID: 'allow-domain-all',
+              Text: 'Allow',
+            },
+            {
+              ID: 'block-domain-all',
+              Text: 'Block'
+            }
+          ]
+        }).subscribe()
     }
 
     (window as any).portapi = portapi;
