@@ -351,7 +351,7 @@ export function deserializeMessage(event: MessageEvent): RequestMessage | ReplyM
   let data: string;
 
   if (typeof event.data !== 'string') {
-    data = String.fromCharCode.apply(null, (new Uint8Array(event.data) as any));
+    data = new TextDecoder("utf-8").decode(event.data)
   } else {
     data = event.data;
   }
