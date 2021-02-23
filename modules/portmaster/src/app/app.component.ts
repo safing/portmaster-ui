@@ -1,12 +1,12 @@
 import { ChangeDetectorRef, Component, NgZone, OnInit } from '@angular/core';
-import { PortapiService } from './services/portapi.service';
-import { fadeInAnimation, fadeOutAnimation } from './shared/animations';
-import { debounce, debounceTime, map, startWith, take } from 'rxjs/operators';
-import { Action, FailureStatus, getOnlineStatusString, ModuleStatus, NotificationsService, NotificationType, OnlineStatus, StatusService, Subsystem } from './services';
-import { ActionHandler, VirtualNotification } from './services/virtual-notification';
 import { Router } from '@angular/router';
 import { Observable } from 'rxjs';
+import { debounceTime, map, startWith } from 'rxjs/operators';
+import { FailureStatus, Notification, NotificationsService, NotificationType, OnlineStatus, StatusService, Subsystem } from './services';
+import { PortapiService } from './services/portapi.service';
 import { Record } from './services/portapi.types';
+import { ActionHandler, VirtualNotification } from './services/virtual-notification';
+import { fadeInAnimation, fadeOutAnimation } from './shared/animations';
 
 @Component({
   selector: 'app-root',
@@ -57,6 +57,42 @@ export class AppComponent implements OnInit {
           ]
         }
       ).subscribe();
+
+    }
+
+    (window as any).createNotification = (notif: Partial<Notification>) => {
+      notif.EventID = notif.EventID || `random-id-${Math.random()}`;
+      notif.Type = notif.Type || NotificationType.Info;
+
+      this.notificationService.create(notif).subscribe();
+    }
+
+    (window as any).fakePrompt = (what: string, profileId: string = '_unidentified') => {
+      this.notificationService.create(`filter:prompt-${Math.random()}`,
+        what,
+        NotificationType.Prompt,
+        {
+          Title: what,
+          EventData: {
+            Profile: {
+              Source: "local",
+              ID: profileId,
+            },
+            Entity: {
+              Domain: what,
+            }
+          },
+          AvailableActions: [
+            {
+              ID: 'allow-domain-all',
+              Text: 'Allow',
+            },
+            {
+              ID: 'block-domain-all',
+              Text: 'Block'
+            }
+          ]
+        }).subscribe()
     }
 
     (window as any).portapi = portapi;

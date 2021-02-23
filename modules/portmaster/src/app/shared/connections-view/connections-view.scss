@@ -1,12 +1,12 @@
 .card-header {
   @apply py-0;
-  height: 2rem;
+  height       : 2rem;
   padding-right: 0;
 
   svg.arrow {
-    width: 1rem;
-    padding: 0;
-    margin : 0;
+    width     : 1rem;
+    padding   : 0;
+    margin    : 0;
     transform : rotate(90deg);
     transition: all ease-in-out .3s;
 
@@ -16,17 +16,18 @@
   }
 
   &.active {
-    border-bottom-left-radius: 0;
+    border-bottom-left-radius : 0;
     border-bottom-right-radius: 0;
 
     svg.arrow {
-      transform : rotate(-90deg);
+      transform: rotate(-90deg);
     }
   }
 
-  .card-title{
+  .card-title {
     padding-left: 1rem;
-    .subdomain{
+
+    .subdomain {
       opacity: .58;
     }
   }
@@ -35,23 +36,23 @@
     @apply text-secondary;
   }
 
-  .spacer{
+  .spacer {
     margin-right: 1rem;
   }
 }
 
-h3{
-  font-size: 0.7rem;
-  font-weight: 500;
-  margin-top: 13px;
+h3 {
+  font-size    : 0.7rem;
+  font-weight  : 500;
+  margin-top   : 13px;
   margin-bottom: 9px;
-  color: #cacaca;
-  user-select: none;
-  opacity: 0.45;
+  color        : #cacaca;
+  user-select  : none;
+  opacity      : 0.45;
 }
 
-.card-content{
-  padding-top: 1rem;
+.card-content {
+  padding-top : 1rem;
   padding-left: 1.35rem;
 }
 
@@ -69,18 +70,18 @@ h3{
 
     &>span {
       @apply my-1;
-      display: block;
-      font-size: 0.7rem;
+      display    : block;
+      font-size  : 0.7rem;
       font-weight: 500;
 
-      .subdomain{
+      .subdomain {
         opacity: .58;
       }
 
       span:first-of-type {
-        opacity: 0.25;
+        opacity     : 0.25;
         margin-right: 8px;
-        user-select: none;
+        user-select : none;
       }
 
       span:last-of-type {
@@ -109,16 +110,16 @@ fa-icon[icon="spinner"] {
 
 svg.cog,
 svg.copy {
-  width: 14px;
-  padding: 0;
-  margin : 0;
+  width          : 14px;
+  padding        : 0;
+  margin         : 0;
   display        : inline-flex;
   align-items    : center;
   justify-content: center;
-  cursor: pointer;
-  transition   : all .15s ease-in-out;
+  cursor         : pointer;
+  transition     : all .15s ease-in-out;
 
-  g{
+  g {
     stroke: white;
   }
 
@@ -127,7 +128,7 @@ svg.copy {
   }
 }
 
-svg.cog{
+svg.cog {
   opacity: 1;
 
   &:hover {
@@ -135,7 +136,7 @@ svg.cog{
   }
 }
 
-svg.copy{
+svg.copy {
   opacity: .55;
 
   &:hover {
@@ -155,8 +156,9 @@ table {
     }
 
     &-entity {
-      width    : 20%;
-      min-width: 150px;
+      width      : 20%;
+      min-width  : 150px;
+      white-space: nowrap;
     }
 
     &-started,
