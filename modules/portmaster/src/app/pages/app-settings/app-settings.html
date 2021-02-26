@@ -8,7 +8,7 @@
     <h4 class="breadcrumbs">
       <span routerLink="/app"> Apps </span>
       <fa-icon icon="chevron-right"></fa-icon>
-      <span> {{ appProfile.Name }} </span>
+      <span> {{ appProfile!.Name }} </span>
     </h4>
   </div>
 
@@ -16,9 +16,9 @@
     <div class="app-overview">
       <h1>
         <app-icon [profile]="appProfile"></app-icon>
-        {{appProfile?.Name}}
+        {{appProfile!.Name}}
 
-        <div *ngIf="isActive" [routerLink]="['/', 'monitor', 'profile', appProfile?.Source, appProfile?.ID]"
+        <div *ngIf="isActive" [routerLink]="['/', 'monitor', 'profile', appProfile!.Source, appProfile!.ID]"
           class="link">
           <fa-icon icon="desktop"></fa-icon>
         </div>
@@ -36,26 +36,26 @@
         <div class="app-details">
           <p>
             <label>Name:</label>
-            <span>{{appProfile.Name}}</span>
+            <span>{{appProfile!.Name}}</span>
           </p>
           <p>
             <label>Path:</label>
-            <span>{{appProfile.LinkedPath}}</span>
+            <span>{{appProfile!.LinkedPath}}</span>
           </p>
         </div>
 
         <div class="app-details" *appExpertiseLevel="'developer'">
           <p>
             <label>Internal:</label>
-            <span>{{appProfile.Internal}}</span>
+            <span>{{!!appProfile!.Internal ? 'yes' : 'no'}}</span>
           </p>
           <p>
             <label>Source:</label>
-            <span>{{appProfile.Source}}</span>
+            <span>{{appProfile!.Source}}</span>
           </p>
           <p>
             <label>ID:</label>
-            <span>{{appProfile.ID}}</span>
+            <span>{{appProfile!.ID}}</span>
           </p>
 
         </div>
@@ -98,7 +98,7 @@
         <p>Start customizing
           <span class="app-name">
             <app-icon [profile]="appProfile"></app-icon>
-            {{ appProfile.Name }}
+            {{ appProfile!.Name }}
           </span>
           now
         </p>
