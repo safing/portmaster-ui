@@ -1,23 +1,25 @@
-import { ChangeDetectionStrategy, Component, OnInit, OnDestroy, ChangeDetectorRef, HostBinding, TrackByFunction } from '@angular/core';
-import { combineLatest, forkJoin, Observable, Subscription } from 'rxjs';
-import { map, switchAll, switchMap, switchMapTo } from 'rxjs/operators';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, HostBinding, OnDestroy, OnInit } from '@angular/core';
 import { parse } from 'psl';
-import { AppProfile, AppProfileService, ConfigService, Connection, ConnectionPrompt, ConnectionPromptData, Notification, NotificationsService, NotificationType, setAppSetting } from 'src/app/services';
-import { animation } from '@angular/animations';
+import { combineLatest, forkJoin, Observable, Subscription } from 'rxjs';
+import { map, switchMap } from 'rxjs/operators';
+import { AppProfile, AppProfileService, ConnectionPrompt, NotificationsService, NotificationType } from 'src/app/services';
 import { moveInOutAnimation, moveInOutListAnimation } from 'src/app/shared/animations';
+import { ParsedDomain, parseDomain } from 'src/app/shared/utils';
 
-interface ExtendedConnectionPrompt extends ConnectionPrompt {
-  domain: string | null;
-  subdomain: string | null;
-  EventData: ConnectionPromptData;
-}
+// ExtendedConnectionPrompt extends the normal connection prompt
+// with parsed domain information.
+interface ExtendedConnectionPrompt extends ConnectionPrompt, ParsedDomain { }
 
+// ProfilePrompts extends an application profile with prompt
+// information mainly used for paginagtion.
 interface ProfilePrompts extends AppProfile {
   promptsLimited: ExtendedConnectionPrompt[];
   prompts: ExtendedConnectionPrompt[];
   showAll: boolean;
 }
 
+// Number of prompts to display per application profile
+// before we start to paginate the list of prompts.
 const PromptLimit = 3;
 
 @Component({
@@ -35,11 +37,16 @@ const PromptLimit = 3;
 export class PromptWidgetComponent implements OnInit, OnDestroy {
   profiles: ProfilePrompts[] = [];
 
+  /**
+   * @private
+   * Sets "empty" class on the host element if no prompts are displayed
+   */
   @HostBinding('class.empty')
   get isEmpty() {
     return this.profiles.length === 0;
   }
 
+  // Subscription to new prompts and profile updates.
   private subscription = Subscription.EMPTY;
 
   constructor(
@@ -49,53 +56,76 @@ export class PromptWidgetComponent implements OnInit, OnDestroy {
   ) { }
 
   ngOnInit() {
+    // filter the stream of all notifications to only emit
+    // prompts that are used by the privacy filter (filter:prompt prefix).
     const prompts$: Observable<ConnectionPrompt[]> = this.notifService
       .new$
       .pipe(
-        map(notifs => notifs.filter(notif => notif.Type === NotificationType.Prompt && notif.EventID.startsWith("filter:prompt"))),
+        map(notifs => notifs.filter(notif => {
+          return notif.Type === NotificationType.Prompt &&
+            notif.EventID.startsWith("filter:prompt");
+        })),
       );
 
+    // each time the notification list is emitted make sure we have an
+    // up-to-date copy of the linked application profile as well.
     const profiles$ = prompts$
       .pipe(
         switchMap(notifs => {
+          // collect all profile keys in a distict set so we don't load
+          // them more that once.
           var profileKeys = new Set<string>();
           notifs.forEach(n => profileKeys.add(
             this.profileService.getKey(n.EventData!.Profile.Source, n.EventData!.Profile.ID)
           ));
-
+          // load all of them in parallel
           return forkJoin(
             Array.from(profileKeys).map(key => this.profileService.getAppProfileFromKey(key))
           )
         })
       );
 
+    // subscribe to updates on the prompt list and the related profiles.
     this.subscription =
       combineLatest([
         prompts$,
         profiles$,
       ]).subscribe(([prompts, profiles]) => {
+
         let promptsByProfile = new Map<string, ExtendedConnectionPrompt[]>();
 
+        // for each prompt, make an "extended" connection prompt by parsing the
+        // domain and index them by profile key
         prompts.forEach(prompt => {
+          // prompts must have the connection data attached. If not, ignore it
+          // here.
           if (!prompt.EventData) {
             return;
           }
 
+          // get the list of prompts indexed by the profile ID. if this is
+          // the first prompt for that profile create a new array and place
+          // it at the index.
           let entries = promptsByProfile.get(prompt.EventData.Profile.ID);
           if (!entries) {
             entries = [];
             promptsByProfile.set(prompt.EventData.Profile.ID, entries);
           }
 
-          const parsed = parse(prompt.EventData.Entity.Domain);
-          entries.push({
+          // Create an "extended" version of the prompt by parsing
+          // and assigning the domain and subdomain values.
+          let copy: ExtendedConnectionPrompt = {
             ...prompt,
-            EventData: prompt.EventData,
-            domain: (parsed as any).domain || null,
-            subdomain: (parsed as any).subdomain || null,
-          });
+            domain: null,
+            subdomain: null,
+          }
+          Object.assign(copy, parseDomain(prompt.EventData.Entity.Domain))
+          entries.push(copy)
         });
 
+        // Convert the list of application profiles into a set of ProfilePrompts
+        // objects that we can use to actually display the prompts with pagination
+        // applied.
         this.profiles = profiles
           .filter(profile => !!promptsByProfile.get(profile.ID))
           .map(profile => {
@@ -153,18 +183,6 @@ export class PromptWidgetComponent implements OnInit, OnDestroy {
     }
   }
 
-  private updateDefault(profile: AppProfile, value: 'permit' | 'block' | 'ask') {
-    setAppSetting(profile.Config, 'filter/defaultAction', value);
-    this.profileService.saveProfile(profile)
-      .subscribe(() => {
-        this.profiles.forEach(profile => {
-          profile.prompts.forEach(prompt => {
-            this.execute(prompt, 'cancel');
-          });
-        })
-      })
-  }
-
   allowAll(profile: ProfilePrompts) {
     profile.prompts.forEach(prompt => this.allow(prompt));
   }
@@ -184,6 +202,7 @@ export class PromptWidgetComponent implements OnInit, OnDestroy {
     this.subscription.unsubscribe();
   }
 
+  /** @private - {@link TrackByFunction} for profile prompts */
   trackProfile(_: number, p: ProfilePrompts) {
     return p.ID;
   }

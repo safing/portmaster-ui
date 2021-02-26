@@ -3,6 +3,7 @@ import { parse } from 'psl';
 import { BehaviorSubject, forkJoin, Observable, of, Subject, Subscription } from 'rxjs';
 import { catchError, filter, last, map, switchMap, tap } from 'rxjs/operators';
 import { ExpertiseService } from '../shared/expertise/expertise.service';
+import { parseDomain } from '../shared/utils';
 import { AppProfileService } from './app-profile.service';
 import { AppProfile, LayeredProfile } from './app-profile.types';
 import { ExpertiseLevel } from './config.types';
@@ -280,30 +281,7 @@ export class ScopeGroup {
     // our scope translation list.
     if (ScopeTranslation[this.scope] === undefined) {
       // If it's not a scope it must be a domain.
-      // Due to https://github.com/lupomontero/psl/issues/185
-      // parse will throw an error for service-discovery lookups
-      // so make sure we split them apart.
-      const domainParts = this.scope.split(".")
-      const lastUnderscorePart = domainParts.length - [...domainParts].reverse().findIndex(dom => dom.startsWith("_"))
-
-      let cleanedDomain = this.scope;
-      let removedPrefix = '';
-      if (lastUnderscorePart <= domainParts.length) {
-        removedPrefix = domainParts.slice(0, lastUnderscorePart).join('.')
-        cleanedDomain = domainParts.slice(lastUnderscorePart).join('.')
-      }
-
-      const parsed = parse(cleanedDomain);
-      if ('listed' in parsed) {
-        this.domain = parsed.domain || this.scope;
-        this.subdomain = removedPrefix;
-        if (!!parsed.subdomain) {
-          if (removedPrefix != '') {
-            this.subdomain += '.';
-          }
-          this.subdomain += parsed.subdomain;
-        }
-      }
+      Object.assign(this, parseDomain(this.scope));
     }
 
     // We republish the connections whenever the expertise changes.
