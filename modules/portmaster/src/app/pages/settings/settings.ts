@@ -190,7 +190,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
     event.stopPropagation();
     this.debugInfoCopied = false;
 
-    this.debugAPI.getDebugInfo()
+    this.debugAPI.getCoreDebugInfo()
       .subscribe(
         info => {
           console.log(info);

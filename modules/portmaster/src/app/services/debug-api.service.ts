@@ -29,4 +29,23 @@ export class DebugAPI {
       responseType: 'text',
     })
   }
+
+  getCoreDebugInfo(style = 'github'): Observable<string> {
+    return this.http.get(`${env.httpAPI}/v1/debug/core`, {
+      params: {
+        style,
+      },
+      responseType: 'text',
+    })
+  }
+
+  getProfileDebugInfo(source: string, id: string, style = 'github'): Observable<string> {
+    return this.http.get(`${env.httpAPI}/v1/debug/network`, {
+      params: {
+        profile: `${source}/${id}`,
+        style,
+      },
+      responseType: 'text',
+    })
+  }
 }
