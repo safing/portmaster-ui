@@ -24,7 +24,7 @@
           *ngFor="let prompt of (profile.showAll ? profile.prompts : profile.promptsLimited); trackBy: notifService.trackBy">
           <span class="entity">
             <ng-container *ngIf="!prompt.domain; else: domainView">
-              {{ prompt.EventData.Entity.IP }}
+              {{ prompt.EventData.Entity?.IP || 'N/A' }}
             </ng-container>
             <ng-template #domainView>
               <span *ngIf="!!prompt.subdomain" class="subdomain">{{prompt.subdomain}}.</span>{{prompt.domain}}
