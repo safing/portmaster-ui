@@ -3,7 +3,7 @@ import { parse } from 'psl';
 import { BehaviorSubject, forkJoin, Observable, of, Subject, Subscription } from 'rxjs';
 import { catchError, filter, last, map, switchMap, tap } from 'rxjs/operators';
 import { ExpertiseService } from '../shared/expertise/expertise.service';
-import { parseDomain } from '../shared/utils';
+import { binaryInsert, parseDomain } from '../shared/utils';
 import { AppProfileService } from './app-profile.service';
 import { AppProfile, LayeredProfile } from './app-profile.types';
 import { ExpertiseLevel } from './config.types';
@@ -226,6 +226,27 @@ export class ScopeGroup {
   /** Subscription to changes in the expertise level */
   private _expertiseSubscription = Subscription.EMPTY;
 
+  /** Sort function for connections that sorts then by most recent. */
+  public static readonly SortByMostRecent = (a: Connection, b: Connection) => {
+    let diff = a.Started - b.Started;
+    if (diff !== 0) {
+      return diff;
+    }
+
+    diff = (a.Ended || 0) - (b.Ended || 0);
+    if (diff !== 0) {
+      return diff;
+    }
+
+    if (a.Scope > b.Scope) {
+      return 1;
+    }
+    if (a.Scope < b.Scope) {
+      return -1;
+    }
+    return 0;
+  }
+
   /**
    * Highest revision holds the highest profile revision used to verdict
    * a connection.
@@ -305,9 +326,11 @@ export class ScopeGroup {
     this.checkRevisionCounter(conn.ProfileRevisionCounter, true);
 
     if (conn.ProfileRevisionCounter === this.highestRevision) {
-      this._connections.push(conn);
+      //this._connections.push(conn);
+      binaryInsert(this._connections, conn, ScopeGroup.SortByMostRecent)
     } else {
-      this._oldConnections.push(conn);
+      //this._oldConnections.push(conn);
+      binaryInsert(this._oldConnections, conn, ScopeGroup.SortByMostRecent)
     }
 
     this.updateBlockStatus();
@@ -365,8 +388,8 @@ export class ScopeGroup {
     }
   }
 
-  /** Sort and publish a list of connection on a given subject */
-  private sortAndPublish(conns: Connection[], subj: Subject<Connection[]>) {
+  /** Filter and publish a list of connection on a given subject */
+  private filterAndPublish(conns: Connection[], subj: Subject<Connection[]>) {
     subj.next(
       conns
         .filter(conn => {
@@ -374,25 +397,6 @@ export class ScopeGroup {
             return true;
           }
           return !conn.Internal;
-        })
-        .sort((a, b) => {
-          let diff = a.Started - b.Started;
-          if (diff !== 0) {
-            return diff;
-          }
-
-          diff = (a.Ended || 0) - (b.Ended || 0);
-          if (diff !== 0) {
-            return diff;
-          }
-
-          if (a.Scope > b.Scope) {
-            return 1;
-          }
-          if (a.Scope < b.Scope) {
-            return -1;
-          }
-          return 0;
         })
     );
   }
@@ -402,8 +406,8 @@ export class ScopeGroup {
     this.hasOldConnections = this._oldConnections.length > 0 && this._oldConnections.some(conn => conn.Ended === 0);
     this.hasNewConnections = this._connections.length > 0 && this._connections.some(conn => !conn.Internal);
 
-    this.sortAndPublish(this._connections, this._connectionUpdate);
-    this.sortAndPublish(this._oldConnections, this._oldConnectionUpdate);
+    this.filterAndPublish(this._connections, this._connectionUpdate);
+    this.filterAndPublish(this._oldConnections, this._oldConnectionUpdate);
   }
 
   /**
@@ -527,6 +531,29 @@ export class InspectedProfile {
   /** The source of the process group profile */
   get Source() {
     return this.processGroup.Source;
+  }
+
+  /**
+   * Returns an array of all connections associated with this
+   * profile sorted in a requested order.
+   */
+  getSortedConnections(sortBy = 'most-recent'): Connection[] {
+    let iterator = this._connections.values();
+
+    // there might be hundrets or even thousands of connections
+    // for this profile so we do an inserationSort instead of iterating
+    // the set multiple times with Array.from(iterator).sort()
+    var result: Connection[] = [];
+    for (let c of iterator) {
+      switch (sortBy) {
+        case 'most-recent':
+          binaryInsert(result, c, ScopeGroup.SortByMostRecent);
+          break;
+        default:
+          throw new Error(`unsupported sort method`)
+      }
+    }
+    return result;
   }
 
   constructor(
