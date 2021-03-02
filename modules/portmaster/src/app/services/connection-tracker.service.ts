@@ -471,6 +471,7 @@ export class InspectedProfile {
     return this._layeredProfile.RevisionCounter;
   }
 
+  /** The list of layer IDs this profile is composed of */
   get layers() {
     if (!this._layeredProfile) {
       return [];
@@ -478,12 +479,21 @@ export class InspectedProfile {
     return this._layeredProfile.LayerIDs;
   }
 
+  /** Whether or not we are currently loading all connections */
   get loading() { return this._loading }
+
+  /** The connection statistics for all existing connections. */
   get stats() { return this._stats; }
+
+  /** All connections of this profile grouped by scope.  */
   get scopeGroups() { return this._scopeUpdate.asObservable(); }
+
+  /** The total number of not-internal connections associated with this profile. */
   get size() {
     return this._connections.size - this.stats.countInternal;
   }
+
+  /** Emits when the initial loading of existing connections completes. */
   get onDone() { return this._onLoadingDone.asObservable() }
 
   /**
