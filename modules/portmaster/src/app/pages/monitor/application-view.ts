@@ -1,4 +1,5 @@
 import { Component, Input } from '@angular/core';
+import { AppProfileService, DebugAPI } from 'src/app/services';
 import { InspectedProfile } from 'src/app/services/connection-tracker.service';
 import { ConnectionStatistics } from 'src/app/services/connection-tracker.types';
 import { fadeInAnimation } from '../../shared/animations';
@@ -27,4 +28,29 @@ export class MonitorApplicationViewComponent {
   /** The inspected profile to display */
   @Input()
   profile: InspectedProfile | null = null;
+
+  constructor(
+    private debugAPI: DebugAPI,
+    private profileSerivce: AppProfileService,
+  ) { }
+
+  /**
+   * @private
+   * Retrieves debug information from the current
+   * profile and copies it to the clipboard
+   */
+  copyDebugInfo() {
+    if (!this.profile || !this.profile.profile) {
+      return;
+    }
+
+    this.debugAPI.getProfileDebugInfo(this.profile.Source, this.profile.ID)
+      .subscribe(data => {
+        console.log(data);
+        // Copy to clip-board if supported
+        if (!!navigator.clipboard) {
+          navigator.clipboard.writeText(data);
+        }
+      })
+  }
 }
