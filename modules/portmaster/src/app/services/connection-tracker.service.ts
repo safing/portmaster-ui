@@ -537,14 +537,20 @@ export class InspectedProfile {
    * Returns an array of all connections associated with this
    * profile sorted in a requested order.
    */
-  getSortedConnections(sortBy = 'most-recent'): Connection[] {
+  getSortedConnections(sortBy = 'most-recent', filter?: (c: Connection) => boolean): Connection[] {
     let iterator = this._connections.values();
+
+    filter = filter || (() => true);
 
     // there might be hundrets or even thousands of connections
     // for this profile so we do an inserationSort instead of iterating
     // the set multiple times with Array.from(iterator).sort()
     var result: Connection[] = [];
     for (let c of iterator) {
+      if (!filter(c)) {
+        continue
+      }
+
       switch (sortBy) {
         case 'most-recent':
           binaryInsert(result, c, ScopeGroup.SortByMostRecent);

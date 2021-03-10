@@ -56,6 +56,7 @@ import { AutoFocusDirective } from './shared/focus';
 import { PromptWidgetComponent } from './widgets/prompt-widget';
 import { LoadingComponent } from './shared/loading';
 import { ExternalLinkDirective } from './shared/external-link.directive';
+import { ScopeLabelComponent } from './shared/scope-label';
 import { HttpClientModule } from '@angular/common/http';
 
 @NgModule({
@@ -117,6 +118,7 @@ import { HttpClientModule } from '@angular/common/http';
     PromptWidgetComponent,
     LoadingComponent,
     ExternalLinkDirective,
+    ScopeLabelComponent,
   ],
   imports: [
     BrowserModule,

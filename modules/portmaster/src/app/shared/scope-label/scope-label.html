@@ -1,0 +1,6 @@
+<ng-container *ngIf="!!domain; else: scopeTranslationTemplate">
+  <span *ngIf="!!subdomain" class="subdomain">{{subdomain}}.</span>{{domain}}
+</ng-container>
+<ng-template #scopeTranslationTemplate>
+  {{ scopeTranslation[scope || ''] || 'N/A' }}
+</ng-template>

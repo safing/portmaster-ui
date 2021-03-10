@@ -41,6 +41,101 @@
   }
 }
 
+.toolbar {
+  display        : flex;
+  width          : 100%;
+  justify-content: space-between;
+  align-items    : center;
+
+  .actions {
+    display        : flex;
+    justify-content: space-between;
+    align-items    : center;
+    margin-right   : 1rem;
+
+    app-menu-trigger {
+      @apply mr-2;
+      opacity: .8;
+    }
+
+    fa-icon,
+    svg {
+      cursor: pointer;
+    }
+  }
+}
+
+
+fa-icon.direction {
+  color    : theme('colors.info.green');
+  transform: rotate(-45deg);
+  display  : inline-block;
+  @apply mr-1;
+
+  &.inbound {
+    color: theme('colors.info.gray');
+  }
+}
+
+.ungrouped-view {
+  .connection-details {
+    flex-grow      : 1;
+    display        : flex;
+    justify-content: space-between;
+    align-items    : center;
+    align-self     : stretch;
+    font-size      : 0.7rem;
+  }
+
+  .scope {
+    width        : 20%;
+    display      : inline-block;
+    display      : inline-flex;
+    align-self   : stretch;
+    align-items  : center;
+    white-space  : nowrap;
+    overflow     : hidden;
+    text-overflow: ellipsis;
+
+    span,
+    app-scope-label {
+      text-overflow: ellipsis;
+      overflow     : hidden;
+      direction    : rtl;
+    }
+
+    @apply px-3;
+    @apply mx-3;
+    @apply bg-cards-tertiary;
+
+    .trust-level {
+      @apply mr-1;
+    }
+  }
+
+  .peer {
+    white-space: nowrap;
+
+    span {
+      text-overflow: ellipsis;
+      overflow     : hidden;
+    }
+
+    width: 20%;
+  }
+
+  .reason {
+    flex-grow    : 1;
+    text-overflow: ellipsis;
+    overflow     : hidden;
+
+    label {
+      @apply text-secondary;
+      opacity: .57;
+    }
+  }
+}
+
 h3 {
   font-size    : 0.7rem;
   font-weight  : 500;

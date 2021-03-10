@@ -1,202 +1,400 @@
-<ng-template #accordionHeader let-data let-active="active">
-  <div class="card-header" [class.active]="active">
-    <svg viewBox="0 0 24 24" class="arrow">
-      <g fill="none" class="inner">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M10 16l4-4-4-4" />
-      </g>
-    </svg>
-    <span class="card-title">
-      <ng-container *ngIf="!data.domain; else: domainView">
-        {{ scopeTranslation[data?.scope] || 'N/A' }}
-      </ng-container>
-      <ng-template #domainView>
-        <span *ngIf="!!data.subdomain" class="subdomain">{{data.subdomain}}.</span>{{data.domain}}
-      </ng-template>
-    </span>
-
-    <app-count-indicator [count]="data.size" [loading]="data.hasOldConnections || !data.hasNewConnections"
-      [risk]="data.blockStatus" [ngClass]="{spacer: !data.domain}">
-    </app-count-indicator>
-    <app-menu-trigger *ngIf="data.domain" [menu]="menu"></app-menu-trigger>
-    <app-menu #menu>
-      <app-menu-item *ngIf="isScopeBlocked(data)" (click)="unblockAll(data)">Allow Domain</app-menu-item>
-      <app-menu-item *ngIf="!isScopeBlocked(data)" (click)="blockAll(data)">Block Domain</app-menu-item>
-      <app-menu-item (click)="redirectToRules()">Add Rule</app-menu-item>
+<div class="toolbar">
+  <h3>Connections</h3>
+  <div class="actions">
+    <app-menu-trigger *ngIf="displayMode !== 'grouped'" [menu]="filterMenu" useContent="true">
+      <fa-icon icon="filter"></fa-icon>
+    </app-menu-trigger>
+    <app-menu #filterMenu>
+      <app-menu-item (click)="setUngroupedFilter(filter.showAll)">All</app-menu-item>
+      <app-menu-item (click)="setUngroupedFilter(filter.showBlocked)">Recently blocked</app-menu-item>
     </app-menu>
+    <fa-icon (click)="cycleDisplayMode()" [icon]="displayMode === 'grouped' ? 'object-ungroup' : 'object-group'">
+    </fa-icon>
   </div>
-</ng-template>
+</div>
 
-<h3>Connections</h3>
+<!--
+  -- Grouped Connection View
+-->
+<ng-container *ngIf="displayMode === 'grouped'">
+  <!-- template for the accordion header, receives the connection as variable `data`.
+  `active` is true if the accordion is expanded.-->
+  <ng-template #accordionHeader let-data let-active="active">
+    <div class="card-header" [class.active]="active">
+      <svg viewBox="0 0 24 24" class="arrow">
+        <g fill="none" class="inner">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M10 16l4-4-4-4" />
+        </g>
+      </svg>
+      <span class="card-title">
+        <ng-container *ngIf="!data.domain; else: domainView">
+          {{ scopeTranslation[data?.scope] || 'N/A' }}
+        </ng-container>
+        <ng-template #domainView>
+          <span *ngIf="!!data.subdomain" class="subdomain">{{data.subdomain}}.</span>{{data.domain}}
+        </ng-template>
+      </span>
 
-<app-accordion-group [headerTemplate]="accordionHeader" singleMode="false">
-  <ng-container *ngFor="let grp of (profile?.scopeGroups | async); trackBy: trackByScope">
-    <app-accordion [data]="grp" *appExpertiseLevel="grp.size === 0 ? 'developer' : 'user'">
-      <section class="card-content">
-        <div class="meta">
-          <div>
-            <span *ngIf="grp.domain">
-              <span>Domain:</span>
-              <span class="subdomain">{{grp.subdomain}}.</span>{{grp.domain}}
-            </span>
+      <app-count-indicator [count]="data.size" [loading]="data.hasOldConnections || !data.hasNewConnections"
+        [risk]="data.blockStatus" [ngClass]="{spacer: !data.domain}">
+      </app-count-indicator>
+      <app-menu-trigger *ngIf="data.domain" [menu]="menu"></app-menu-trigger>
+      <app-menu #menu>
+        <app-menu-item *ngIf="isScopeBlocked(data)" (click)="unblockAll(data)">Allow Domain</app-menu-item>
+        <app-menu-item *ngIf="!isScopeBlocked(data)" (click)="blockAll(data)">Block Domain</app-menu-item>
+        <app-menu-item (click)="redirectToRules()">Add Rule</app-menu-item>
+      </app-menu>
+    </div>
+  </ng-template>
 
-            <span *ngIf="!grp.domain">
-              <span>Scope:</span>
-              <span>{{ scopeTranslation[grp.scope] }}</span>
-            </span>
-
-            <span>
-              <span>Most recent:</span>
-              <span>
-                {{ (grp.stats.lastConn || grp.stats.firstConn) * 1000 | date:'medium'}}
+  <!-- the actual accordion group, uses the header template above -->
+  <app-accordion-group [headerTemplate]="accordionHeader" singleMode="false">
+    <ng-container *ngFor="let grp of (profile?.scopeGroups | async); trackBy: trackByScope">
+      <app-accordion [data]="grp" *appExpertiseLevel="grp.size === 0 ? 'developer' : 'user'">
+        <section class="card-content">
+          <div class="meta">
+            <div>
+              <span *ngIf="grp.domain">
+                <span>Domain:</span>
+                <span class="subdomain">{{grp.subdomain}}.</span>{{grp.domain}}
               </span>
-            </span>
-          </div>
 
-          <div>
-            <span>
-              <span>Connections:</span>
-              <span>{{grp.size}}</span>
-            </span>
-
-            <span>
-              <span>Encrypted:</span>
-              <span>{{100 / grp.size * grp.stats.countEncrypted | number:'1.0-2'}}%</span>
-            </span>
-
-            <span *ngIf="!!grp.stats.countDNS">
-              <span>DNS Requests: </span>
-              <span>{{100 / grp.size * grp.stats.countDNS | number:'1.0-2'}}%</span>
-            </span>
-
-            <span *ngIf="!!grp.stats.countTCP">
-              <span>TCP: </span>
-              <span>{{100 / grp.size * grp.stats.countTCP | number:'1.0-2'}}%</span>
-            </span>
-
-            <span *ngIf="!!grp.stats.countUDP">
-              <span>UDP: </span>
-              <span>{{100 / grp.size * grp.stats.countUDP | number:'1.0-2'}}%</span>
-            </span>
-          </div>
-
-          <div>
-            <span *ngIf="!!grp.stats.distinctIPs?.size">
-              <span>IPs:</span>
-              <span>{{grp.stats.distinctIPs?.size}}</span>
-            </span>
-
-            <span *ngIf="!!grp.stats.distinctCountries?.size">
-              <span>Countries:</span>
-              <span>{{grp.stats.distinctCountries?.size}}</span>
-            </span>
-
-            <span *ngIf="!!grp.stats.distinctASNs?.size">
-              <span>ASNs:</span>
-              <span>{{grp.stats.distinctASNs?.size}}</span>
-            </span>
-          </div>
-        </div>
-
-        <h4>Connections / DNS Requests History</h4>
-        <ng-container *ngTemplateOutlet="connectionTable; context: {$implicit: grp.connections}"></ng-container>
-
-        <table *ngIf="!grp.hasNewConnections" class="waiting-connections">
-          <tr>
-            <td>
-              <span>
-                <fa-icon icon="spinner" [spin]="true"></fa-icon>
+              <span *ngIf="!grp.domain">
+                <span>Scope:</span>
+                <span>{{ scopeTranslation[grp.scope] }}</span>
               </span>
-              <span>Waiting for new connections</span>
-            </td>
-          </tr>
-        </table>
 
-        <ng-container *ngIf="!!(grp.oldConnections | async)?.length">
-          <h4>
-            Connections / DNS Requests History <i>with previous settings</i>
-          </h4>
-          <ng-container *ngTemplateOutlet="connectionTable; context: {$implicit: grp.oldConnections}"></ng-container>
+              <span>
+                <span>Most recent:</span>
+                <span>
+                  {{ (grp.stats.lastConn || grp.stats.firstConn) * 1000 | date:'medium'}}
+                </span>
+              </span>
+            </div>
+
+            <div>
+              <span>
+                <span>Connections:</span>
+                <span>{{grp.size}}</span>
+              </span>
+
+              <span>
+                <span>Encrypted:</span>
+                <span>{{100 / grp.size * grp.stats.countEncrypted | number:'1.0-2'}}%</span>
+              </span>
+
+              <span *ngIf="!!grp.stats.countDNS">
+                <span>DNS Requests: </span>
+                <span>{{100 / grp.size * grp.stats.countDNS | number:'1.0-2'}}%</span>
+              </span>
+
+              <span *ngIf="!!grp.stats.countTCP">
+                <span>TCP: </span>
+                <span>{{100 / grp.size * grp.stats.countTCP | number:'1.0-2'}}%</span>
+              </span>
+
+              <span *ngIf="!!grp.stats.countUDP">
+                <span>UDP: </span>
+                <span>{{100 / grp.size * grp.stats.countUDP | number:'1.0-2'}}%</span>
+              </span>
+            </div>
+
+            <div>
+              <span *ngIf="!!grp.stats.distinctIPs?.size">
+                <span>IPs:</span>
+                <span>{{grp.stats.distinctIPs?.size}}</span>
+              </span>
+
+              <span *ngIf="!!grp.stats.distinctCountries?.size">
+                <span>Countries:</span>
+                <span>{{grp.stats.distinctCountries?.size}}</span>
+              </span>
+
+              <span *ngIf="!!grp.stats.distinctASNs?.size">
+                <span>ASNs:</span>
+                <span>{{grp.stats.distinctASNs?.size}}</span>
+              </span>
+            </div>
+          </div>
+
+          <h4>Connections / DNS Requests History</h4>
+          <ng-container *ngTemplateOutlet="connectionTable; context: {$implicit: grp.connections}"></ng-container>
+
+          <table *ngIf="!grp.hasNewConnections" class="waiting-connections">
+            <tr>
+              <td>
+                <span>
+                  <fa-icon icon="spinner" [spin]="true"></fa-icon>
+                </span>
+                <span>Waiting for new connections</span>
+              </td>
+            </tr>
+          </table>
+
+          <ng-container *ngIf="!!(grp.oldConnections | async)?.length">
+            <h4>
+              Connections / DNS Requests History <i>with previous settings</i>
+            </h4>
+            <ng-container *ngTemplateOutlet="connectionTable; context: {$implicit: grp.oldConnections}"></ng-container>
+          </ng-container>
+
+        </section>
+      </app-accordion>
+    </ng-container>
+  </app-accordion-group>
+
+  <ng-template #connectionTable let-connections>
+    <div class="tableFixHead" [class.empty]="!!(connections | async)">
+      <table cdk-table [dataSource]="connections">
+        <!-- State Column -->
+        <ng-container cdkColumnDef="state">
+          <th cdk-header-cell *cdkHeaderCellDef> Approval </th>
+          <td cdk-cell *cdkCellDef="let conn">
+            <span class="trust-level" [ngClass]="getVerdictClass(conn)"></span>
+          </td>
         </ng-container>
 
-      </section>
-    </app-accordion>
-  </ng-container>
-</app-accordion-group>
+        <!-- Reason Column -->
+        <ng-container cdkColumnDef="reason">
+          <th cdk-header-cell *cdkHeaderCellDef> Reason </th>
+          <td cdk-cell *cdkCellDef="let conn">
+            {{conn.Reason.Msg}}
+            <span class="port">by {{ !!conn.Reason.Profile ? "app" : "global" }}</span>
+          </td>
+        </ng-container>
 
-<ng-template #connectionTable let-connections>
-  <div class="tableFixHead" [class.empty]="!!(connections | async)">
-    <table cdk-table [dataSource]="connections">
-      <!-- State Column -->
-      <ng-container cdkColumnDef="state">
-        <th cdk-header-cell *cdkHeaderCellDef> Approval </th>
-        <td cdk-cell *cdkCellDef="let conn">
+        <!-- Entity Column -->
+        <ng-container cdkColumnDef="entity">
+          <th cdk-header-cell *cdkHeaderCellDef> Entity </th>
+          <td cdk-cell *cdkCellDef="let conn">
+            <span *ngIf="!!conn.Entity?.Country" [appCountryFlags]="conn.Entity!.Country"></span>
+            {{ conn.Entity?.IP || 'DNS Request'}}
+            <span *ngIf="conn.Entity?.Port" class="port">{{ ':'+conn.Entity.Port }}</span>
+          </td>
+        </ng-container>
+
+        <!-- Started Column -->
+        <ng-container cdkColumnDef="started">
+          <th cdk-header-cell *cdkHeaderCellDef> Started </th>
+          <td cdk-cell *cdkCellDef="let conn"> {{conn.Started * 1000 | date:'shortTime'}} </td>
+        </ng-container>
+
+        <!-- Ended Column -->
+        <ng-container cdkColumnDef="ended">
+          <th cdk-header-cell *cdkHeaderCellDef> Ended </th>
+          <td cdk-cell *cdkCellDef="let conn">
+            <ng-container *ngIf="conn.Ended > 0">{{conn.Ended * 1000 | date:'shortTime'}}</ng-container>
+            <fa-icon *ngIf="!conn.Ended" icon="spinner" [spin]="true"></fa-icon>
+          </td>
+        </ng-container>
+
+        <!-- Actions Column -->
+        <ng-container cdkColumnDef="actions">
+          <th cdk-header-cell *cdkHeaderCellDef> </th>
+          <td cdk-cell *cdkCellDef="let conn">
+            <svg (click)="redirectToSetting(conn.Reason.OptionKey)" *ngIf="!!conn.Reason.OptionKey" class="cog"
+              viewBox="0 0 24 24">
+              <g fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.3">
+                <path
+                  d="M13.7678 10.2322c.976311.976311.976311 2.55922 0 3.53553-.976311.976311-2.55922.976311-3.53553 0-.976311-.976311-.976311-2.55922 0-3.53553.976311-.976311 2.55922-.976311 3.53553 0" />
+                <path
+                  d="M14.849 4.12l.583.194c.534.178.895.678.895 1.241v.837c0 .712.568 1.293 1.28 1.308l.838.018c.485.01.925.289 1.142.723l.275.55c.252.504.153 1.112-.245 1.51l-.592.592c-.503.503-.512 1.316-.02 1.83l.58.606c.336.351.45.858.296 1.319l-.194.583c-.178.534-.678.895-1.241.895h-.837c-.712 0-1.293.568-1.308 1.28l-.018.838c-.01.485-.289.925-.723 1.142l-.55.275c-.504.252-1.112.153-1.51-.245l-.592-.592c-.503-.503-1.316-.512-1.83-.02l-.606.58c-.351.336-.858.45-1.319.296l-.583-.194c-.534-.178-.895-.678-.895-1.241v-.837c0-.712-.568-1.293-1.28-1.308l-.838-.018c-.485-.01-.925-.289-1.142-.723l-.275-.55c-.252-.504-.153-1.112.245-1.51l.592-.592c.503-.503.512-1.316.02-1.83l-.58-.606c-.337-.352-.451-.86-.297-1.32l.194-.583c.178-.534.678-.895 1.241-.895h.837c.712 0 1.293-.568 1.308-1.28l.018-.838c.012-.485.29-.925.724-1.142l.55-.275c.504-.252 1.112-.153 1.51.245l.592.592c.503.503 1.316.512 1.83.02l.606-.58c.351-.335.859-.449 1.319-.295z" />
+              </g>
+            </svg>
+            <svg *appExpertiseLevel="'developer'" icon="eye" (click)="dumpConnection(conn)" class="copy"
+              viewBox="0 0 24 24">
+              <g fill="none">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"
+                  d="M7 15H5c-1.105 0-2-.895-2-2V5c0-1.105.895-2 2-2h8c1.105 0 2 .895 2 2v2" />
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"
+                  d="M13 19H9c-1.105 0-2-.895-2-2V9c0-1.105.895-2 2-2h8c1.105 0 2 .895 2 2v4M19 17v4M17 19h4" />
+              </g>
+            </svg>
+          </td>
+        </ng-container>
+        <tr cdk-header-row *cdkHeaderRowDef="displayedColumns"></tr>
+        <tr cdk-row *cdkRowDef="let row; columns: displayedColumns;" [class.ended]="row.Ended > 0"></tr>
+      </table>
+    </div>
+  </ng-template>
+</ng-container>
+
+<!--
+  Ungrouped Connection view
+-->
+<ng-container *ngIf="displayMode === 'ungrouped'">
+  <ng-template #ungroupedAccordionHeader let-conn let-active="active">
+    <div class="card-header ungrouped-view" [class.active]="active">
+      <svg viewBox="0 0 24 24" class="arrow">
+        <g fill="none" class="inner">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M10 16l4-4-4-4" />
+        </g>
+      </svg>
+      <div class="connection-details">
+        <div class="scope">
           <span class="trust-level" [ngClass]="getVerdictClass(conn)"></span>
-        </td>
-      </ng-container>
-
-      <!-- Reason Column -->
-      <ng-container cdkColumnDef="reason">
-        <th cdk-header-cell *cdkHeaderCellDef> Reason </th>
-        <td cdk-cell *cdkCellDef="let conn">
+          <app-scope-label *ngIf="!!conn.Entity?.Domain" [scope]="conn?.Entity?.Domain"></app-scope-label>
+          <span *ngIf="!conn.Entity?.Domain"> {{ scopeTranslation[conn.Scope] }} </span>
+        </div>
+        <div class="peer">
+          <fa-icon class="direction" [icon]="conn.Inbound ? 'arrow-down' : 'arrow-up'" [class.inbound]="conn.Inbound">
+          </fa-icon>
+          <span *ngIf="!!conn.Entity?.IP">
+            {{ conn.Entity.IP }} <span class="port" *ngIf="conn.Entity.Port">:{{ conn.Entity.Port }}</span>
+          </span>
+        </div>
+        <div class="reason">
+          <label>Reason: </label>
           {{conn.Reason.Msg}}
           <span class="port">by {{ !!conn.Reason.Profile ? "app" : "global" }}</span>
-        </td>
-      </ng-container>
+        </div>
 
-      <!-- Entity Column -->
-      <ng-container cdkColumnDef="entity">
-        <th cdk-header-cell *cdkHeaderCellDef> Entity </th>
-        <td cdk-cell *cdkCellDef="let conn">
-          <span *ngIf="!!conn.Entity?.Country" [appCountryFlags]="conn.Entity!.Country"></span>
-          {{ conn.Entity?.IP || 'DNS Request'}}
-          <span *ngIf="conn.Entity?.Port" class="port">{{ ':'+conn.Entity.Port }}</span>
-        </td>
-      </ng-container>
+        <div>
+          <app-menu-trigger [menu]="ungroupedConnectionMenu"></app-menu-trigger>
+          <app-menu #ungroupedConnectionMenu>
+            <app-menu-item (click)="redirectToSetting(conn.Reason.OptionKey)" *ngIf="!!conn.Reason.OptionKey">
+              Show Setting
+            </app-menu-item>
+            <app-menu-item *ngIf="isDomainBlocked(conn.Entity.Domain)" (click)="unblockAll(conn.Entity.Domain)">
+              Allow Domain
+            </app-menu-item>
+            <app-menu-item *ngIf="!isDomainBlocked(conn.Entity.Domain)" (click)="blockAll(conn.Entity.Domain)">
+              Block Domain
+            </app-menu-item>
+            <app-menu-item (click)="redirectToRules()">Add Rule</app-menu-item>
+            <app-menu-item (click)="dumpConnection(conn)">Copy debug data</app-menu-item>
+          </app-menu>
+        </div>
+      </div>
+    </div>
+  </ng-template>
 
-      <!-- Started Column -->
-      <ng-container cdkColumnDef="started">
-        <th cdk-header-cell *cdkHeaderCellDef> Started </th>
-        <td cdk-cell *cdkCellDef="let conn"> {{conn.Started * 1000 | date:'shortTime'}} </td>
-      </ng-container>
+  <div>
+    <app-accordion-group [headerTemplate]="ungroupedAccordionHeader" singleMode="false">
+      <ng-container *ngFor="let conn of (filteredUngroupedConnections | async); trackBy: trackByConnection">
+        <app-accordion [data]="conn" *appExpertiseLevel="conn.Internal ? 'developer' : 'user'">
+          <section class="card-content">
+            <div class="meta">
+              <div>
+                <span *ngIf="conn.Entity.Domain">
+                  <span>Domain:</span>
+                  <app-scope-label [scope]="conn.Entity.Domain"></app-scope-label>
+                </span>
 
-      <!-- Ended Column -->
-      <ng-container cdkColumnDef="ended">
-        <th cdk-header-cell *cdkHeaderCellDef> Ended </th>
-        <td cdk-cell *cdkCellDef="let conn">
-          <ng-container *ngIf="conn.Ended > 0">{{conn.Ended * 1000 | date:'shortTime'}}</ng-container>
-          <fa-icon *ngIf="!conn.Ended" icon="spinner" [spin]="true"></fa-icon>
-        </td>
-      </ng-container>
+                <span *ngIf="!conn.Entity.Domain">
+                  <span>Scope:</span>
+                  <span>{{ scopeTranslation[conn.Scope] }}</span>
+                </span>
 
-      <!-- Actions Column -->
-      <ng-container cdkColumnDef="actions">
-        <th cdk-header-cell *cdkHeaderCellDef> </th>
-        <td cdk-cell *cdkCellDef="let conn">
-          <svg (click)="redirectToSetting(conn.Reason.OptionKey)" *ngIf="!!conn.Reason.OptionKey" class="cog"
-            viewBox="0 0 24 24">
-            <g fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.3">
-              <path
-                d="M13.7678 10.2322c.976311.976311.976311 2.55922 0 3.53553-.976311.976311-2.55922.976311-3.53553 0-.976311-.976311-.976311-2.55922 0-3.53553.976311-.976311 2.55922-.976311 3.53553 0" />
-              <path
-                d="M14.849 4.12l.583.194c.534.178.895.678.895 1.241v.837c0 .712.568 1.293 1.28 1.308l.838.018c.485.01.925.289 1.142.723l.275.55c.252.504.153 1.112-.245 1.51l-.592.592c-.503.503-.512 1.316-.02 1.83l.58.606c.336.351.45.858.296 1.319l-.194.583c-.178.534-.678.895-1.241.895h-.837c-.712 0-1.293.568-1.308 1.28l-.018.838c-.01.485-.289.925-.723 1.142l-.55.275c-.504.252-1.112.153-1.51-.245l-.592-.592c-.503-.503-1.316-.512-1.83-.02l-.606.58c-.351.336-.858.45-1.319.296l-.583-.194c-.534-.178-.895-.678-.895-1.241v-.837c0-.712-.568-1.293-1.28-1.308l-.838-.018c-.485-.01-.925-.289-1.142-.723l-.275-.55c-.252-.504-.153-1.112.245-1.51l.592-.592c.503-.503.512-1.316.02-1.83l-.58-.606c-.337-.352-.451-.86-.297-1.32l.194-.583c.178-.534.678-.895 1.241-.895h.837c.712 0 1.293-.568 1.308-1.28l.018-.838c.012-.485.29-.925.724-1.142l.55-.275c.504-.252 1.112-.153 1.51.245l.592.592c.503.503 1.316.512 1.83.02l.606-.58c.351-.335.859-.449 1.319-.295z" />
-            </g>
-          </svg>
-          <svg *appExpertiseLevel="'developer'" icon="eye" (click)="dumpConnection(conn)" class="copy"
-            viewBox="0 0 24 24">
-            <g fill="none">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"
-                d="M7 15H5c-1.105 0-2-.895-2-2V5c0-1.105.895-2 2-2h8c1.105 0 2 .895 2 2v2" />
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"
-                d="M13 19H9c-1.105 0-2-.895-2-2V9c0-1.105.895-2 2-2h8c1.105 0 2 .895 2 2v4M19 17v4M17 19h4" />
-            </g>
-          </svg>
-        </td>
+                <span>
+                  <span>Verdict:</span>
+                  <span>
+                    {{ verdict[conn.Verdict] }}
+                  </span>
+                </span>
+
+                <span>
+                  <span>Started:</span>
+                  <span>
+                    {{ conn.Started * 1000 | date:'medium'}}
+                  </span>
+                </span>
+
+                <span>
+                  <span>Ended:</span>
+                  <span *ngIf="conn.Ended">
+                    {{ conn.Ended * 1000 | date:'medium'}}
+                  </span>
+                  <span *ngIf="!conn.Ended">
+                    <fa-icon icon="spinner" [spin]="true"></fa-icon>
+                  </span>
+                </span>
+              </div>
+              <div>
+                <span>
+                  <span>Direction:</span>
+                  <span>
+                    <fa-icon class="direction" [icon]="conn.Inbound ? 'arrow-down' : 'arrow-up'"
+                      [class.inbound]="conn.Inbound"></fa-icon>
+                    {{ conn.Inbound ? 'Inbound' : 'Outbound' }}
+                  </span>
+                </span>
+                <span>
+                  <span>Peer:</span>
+                  <span>
+                    <span *ngIf="!!conn.Entity?.Country" [appCountryFlags]="conn.Entity!.Country"></span>
+                    {{ conn.Entity?.IP || 'DNS Request'}}
+                    <span *ngIf="conn.Entity?.Port" class="port">{{ ':'+conn.Entity.Port }}</span>
+                  </span>
+                </span>
+                <span *appExpertiseLevel="'expert'">
+                  <span>Local Address:</span>
+                  <span>
+                    {{ conn.LocalIP }}
+                    <span *ngIf="conn.LocalPort" class="port">{{ ':'+conn.LocalPort }}</span>
+                  </span>
+                </span>
+                <span>
+                  <span>Protocol</span>
+                  <span>{{ Protocols[conn.Entity.Protocol] || 'N/A' }}</span>
+                </span>
+                <span *appExpertiseLevel="'expert'">
+                  <span>Process ID:</span>
+                  <span>{{ conn.ProcessContext.PID || 'N/A' }}</span>
+                </span>
+                <span *appExpertiseLevel="'expert'">
+                  <span>Process Path:</span>
+                  <span>{{ conn.ProcessContext.BinaryPath || 'N/A' }}</span>
+                </span>
+              </div>
+
+              <div>
+                <span>
+                  <span>Encrytped:</span>
+                  <span>{{ conn.Encrypted ? 'yes' : 'no' }}</span>
+                </span>
+                <span>
+                  <span>Tunneled:</span>
+                  <span>{{ conn.Tunneled ? 'yes' : 'no' }}</span>
+                </span>
+                <span>
+                  <span>Country:</span>
+                  <span>{{ conn.Entity.Country || 'N/A'}}</span>
+                </span>
+                <span>
+                  <span>ASN:</span>
+                  <span>{{ conn.Entity.ASN || 'N/A' }}</span>
+                </span>
+              </div>
+            </div>
+            <div class="meta">
+              <div>
+                <span>
+                  <span>Reason</span>
+                  <span>
+                    {{conn.Reason.Msg}}
+                    <span class="port">by {{ !!conn.Reason.Profile ? "app" : "global" }}</span>
+
+                    <svg (click)="redirectToSetting(conn.Reason.OptionKey)" *ngIf="!!conn.Reason.OptionKey"
+                      class="cog port" viewBox="0 0 24 24">
+                      <g fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.3">
+                        <path
+                          d="M13.7678 10.2322c.976311.976311.976311 2.55922 0 3.53553-.976311.976311-2.55922.976311-3.53553 0-.976311-.976311-.976311-2.55922 0-3.53553.976311-.976311 2.55922-.976311 3.53553 0" />
+                        <path
+                          d="M14.849 4.12l.583.194c.534.178.895.678.895 1.241v.837c0 .712.568 1.293 1.28 1.308l.838.018c.485.01.925.289 1.142.723l.275.55c.252.504.153 1.112-.245 1.51l-.592.592c-.503.503-.512 1.316-.02 1.83l.58.606c.336.351.45.858.296 1.319l-.194.583c-.178.534-.678.895-1.241.895h-.837c-.712 0-1.293.568-1.308 1.28l-.018.838c-.01.485-.289.925-.723 1.142l-.55.275c-.504.252-1.112.153-1.51-.245l-.592-.592c-.503-.503-1.316-.512-1.83-.02l-.606.58c-.351.336-.858.45-1.319.296l-.583-.194c-.534-.178-.895-.678-.895-1.241v-.837c0-.712-.568-1.293-1.28-1.308l-.838-.018c-.485-.01-.925-.289-1.142-.723l-.275-.55c-.252-.504-.153-1.112.245-1.51l.592-.592c.503-.503.512-1.316.02-1.83l-.58-.606c-.337-.352-.451-.86-.297-1.32l.194-.583c.178-.534.678-.895 1.241-.895h.837c.712 0 1.293-.568 1.308-1.28l.018-.838c.012-.485.29-.925.724-1.142l.55-.275c.504-.252 1.112-.153 1.51.245l.592.592c.503.503 1.316.512 1.83.02l.606-.58c.351-.335.859-.449 1.319-.295z" />
+                      </g>
+                    </svg>
+                  </span>
+                </span>
+              </div>
+            </div>
+          </section>
+        </app-accordion>
       </ng-container>
-      <tr cdk-header-row *cdkHeaderRowDef="displayedColumns"></tr>
-      <tr cdk-row *cdkRowDef="let row; columns: displayedColumns;" [class.ended]="row.Ended > 0"></tr>
-    </table>
+    </app-accordion-group>
   </div>
-</ng-template>
+</ng-container>
+
 
 <!-- loading -->
 <div class="card-header" *ngIf="!profile || profile?.loading">
