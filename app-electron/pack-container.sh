@@ -4,4 +4,4 @@ docker run --rm -ti \
   -v ${PWD}:/project \
   -v ${PWD}/build-cache/electron:/root/.cache/electron \
   -v ${PWD}/build-cache/electron-builder:/root/.cache/electron-builder \
-  electronuserland/builder:wine
+  electronuserland/builder:wine "$@"
