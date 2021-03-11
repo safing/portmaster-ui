@@ -6,6 +6,15 @@ import { GetDataDir } from "./datadir";
 
 // Define mainWindow.
 let mainWindow:BrowserWindow = null;
+
+// Save system theme.
+let systemDarkMode = nativeTheme.shouldUseDarkColors;
+
+// Override the system theme to dark, as we currently only support dark mode.
+// This will change: (source: https://www.electronjs.org/docs/api/native-theme)
+// 1) nativeTheme.shouldUseDarkColors will be true when accessed
+// 2) Any UI Electron renders on Linux and Windows including context menus, devtools, etc. will use the dark UI.
+// 4) The prefers-color-scheme CSS query will match dark mode.
 nativeTheme.themeSource = "dark";
 
 function createWindow() {
@@ -18,7 +27,7 @@ function createWindow() {
   });
 
   // Create the browser window.
-  const mainWindow = new BrowserWindow({
+  mainWindow = new BrowserWindow({
     x: mainWindowState.x,
     y: mainWindowState.y,
     width: mainWindowState.width,
@@ -31,6 +40,11 @@ function createWindow() {
     },
   });
   mainWindow.setMenuBarVisibility(false);
+
+  // Switch to dark icon in light theme.
+  // if (!systemDarkMode) {
+  //   mainWindow.setIcon(path.join(__dirname, "icon_dark.ico"));
+  // }
 
   // Let us register listeners on the window, so we can update the state
   // automatically (the listeners will be removed when the window is closed)
