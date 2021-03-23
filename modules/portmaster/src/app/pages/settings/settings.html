@@ -4,7 +4,7 @@
 </div>
 
 <div class="header">
-  <h1>Settings</h1>
+  <h1>Global Settings</h1>
 </div>
 
 <ng-template #accordionHeader let-active="active">
@@ -118,6 +118,7 @@
 
   </app-accordion>
 </app-accordion-group>
+
 
 <app-settings-view [searchTerm]="searchTerm" [availableSettings]="settings" (onSave)="saveSetting($event)">
 </app-settings-view>
