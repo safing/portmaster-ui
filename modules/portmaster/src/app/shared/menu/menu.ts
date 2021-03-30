@@ -55,11 +55,16 @@ export class MenuTriggerComponent {
 @Component({
   selector: 'app-menu-item',
   template: '<ng-content></ng-content>',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class MenuItemComponent {
-  @ViewChild(TemplateRef, { static: true })
-  templateRef: TemplateRef<any> | null = null;
-}
+export class MenuItemComponent { }
+
+@Component({
+  selector: 'app-menu-group',
+  template: '<ng-content></ng-content>',
+  changeDetection: ChangeDetectionStrategy.OnPush,
+})
+export class MenuGroupComponent { }
 
 @Component({
   selector: 'app-menu',

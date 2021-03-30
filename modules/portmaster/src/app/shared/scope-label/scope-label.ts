@@ -1,6 +1,7 @@
 import { ChangeDetectionStrategy, Component, Input, OnChanges, SimpleChanges } from '@angular/core';
 import { parseDomain } from '../utils';
 import { ScopeTranslation } from 'src/app/services';
+import { coerceBooleanProperty } from '@angular/cdk/coercion';
 
 @Component({
   selector: 'app-scope-label',
@@ -9,12 +10,20 @@ import { ScopeTranslation } from 'src/app/services';
     './scope-label.scss'
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  preserveWhitespaces: false,
 })
 export class ScopeLabelComponent implements OnChanges {
   readonly scopeTranslation = ScopeTranslation;
 
   @Input()
   scope?: string = ''
+
+  @Input()
+  set leftRightFix(v: any) {
+    this._leftRightFix = coerceBooleanProperty(v);
+  }
+  get leftRightFix() { return this._leftRightFix; }
+  private _leftRightFix = false;
 
   domain: string = '';
   subdomain: string = '';

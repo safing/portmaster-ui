@@ -29,6 +29,10 @@ import { GenericSettingComponent } from './shared/config/generic-setting/generic
 import { SecuritySettingComponent } from './shared/config/security-setting/security-setting';
 import { FilterListComponent } from './shared/config/filter-lists';
 import { ConnectionsViewComponent } from './shared/connections-view/connections-view';
+import { ScopeGroupContentComponent } from './shared/connections-view/scope-group-content';
+import { UngroupedConnectionContentComponent } from './shared/connections-view/ungrouped-connection-content';
+import { UngroupedConnectionRowComponent } from './shared/connections-view/ungrouped-connection-row';
+import { ConnectionExpertisePipe } from './shared/connections-view/connection-expertise.pipe';
 import { CountIndicatorComponent } from './shared/count-indicator/count-indicator';
 import { CountryFlagDirective } from './shared/country-flag/country-flag';
 import { DropdownComponent } from './shared/dropdown/dropdown';
@@ -49,7 +53,7 @@ import { AppSettingsPageComponent, AppOverviewComponent } from './pages/app-sett
 import { ProfileStatisticsComponent } from './shared/profile-stats';
 import { ConfigSettingsViewComponent } from './shared/config/config-settings';
 import { AppIconComponent } from './shared/app-icon';
-import { MenuComponent, MenuTriggerComponent, MenuItemComponent } from './shared/menu';
+import { MenuComponent, MenuTriggerComponent, MenuItemComponent, MenuGroupComponent } from './shared/menu';
 import { OrderedListComponent, OrderedListItemComponent } from './shared/config/ordererd-list';
 import { MultiSwitchComponent, SwitchItemComponent } from './shared/multi-switch';
 import { AutoFocusDirective } from './shared/focus';
@@ -57,7 +61,10 @@ import { PromptWidgetComponent } from './widgets/prompt-widget';
 import { LoadingComponent } from './shared/loading';
 import { ExternalLinkDirective } from './shared/external-link.directive';
 import { ScopeLabelComponent } from './shared/scope-label';
+import { TimeAgoPipe } from './shared/time-ago.pipe';
 import { HttpClientModule } from '@angular/common/http';
+import { ScrollingModule } from '@angular/cdk/scrolling';
+import { ScrollingModule as ExperimentalScrollingModule } from '@angular/cdk-experimental/scrolling';
 
 @NgModule({
   declarations: [
@@ -97,6 +104,7 @@ import { HttpClientModule } from '@angular/common/http';
     NotificationWidgetComponent,
     FuzzySearchPipe,
     SafePipe,
+    TimeAgoPipe,
     MonitorApplicationViewComponent,
     CountIndicatorComponent,
     AppSettingsPageComponent,
@@ -110,6 +118,7 @@ import { HttpClientModule } from '@angular/common/http';
     MenuComponent,
     MenuTriggerComponent,
     MenuItemComponent,
+    MenuGroupComponent,
     OrderedListComponent,
     OrderedListItemComponent,
     MultiSwitchComponent,
@@ -119,6 +128,10 @@ import { HttpClientModule } from '@angular/common/http';
     LoadingComponent,
     ExternalLinkDirective,
     ScopeLabelComponent,
+    ScopeGroupContentComponent,
+    UngroupedConnectionContentComponent,
+    UngroupedConnectionRowComponent,
+    ConnectionExpertisePipe,
   ],
   imports: [
     BrowserModule,
@@ -133,6 +146,8 @@ import { HttpClientModule } from '@angular/common/http';
     DragDropModule,
     HttpClientModule,
     MarkdownModule.forRoot(),
+    ScrollingModule,
+    ExperimentalScrollingModule,
   ],
   providers: [
     {

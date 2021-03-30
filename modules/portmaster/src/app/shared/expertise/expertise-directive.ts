@@ -1,10 +1,10 @@
-import { Directive, Input, TemplateRef, ViewContainerRef, OnInit, AfterViewInit, ChangeDetectorRef, isDevMode, OnDestroy, EmbeddedViewRef } from '@angular/core';
+import { Directive, EmbeddedViewRef, Input, isDevMode, OnDestroy, OnInit, TemplateRef, ViewContainerRef } from '@angular/core';
 import { Subscription } from 'rxjs';
-import { ExpertiseLevel, ExpertiseLevelNumber } from 'src/app/services';
+import { ExpertiseLevelNumber } from 'src/app/services';
 import { ExpertiseService } from './expertise.service';
 
 @Directive({
-  selector: '[appExpertiseLevel]'
+  selector: '[appExpertiseLevel]',
 })
 export class ExpertiseDirective implements OnInit, OnDestroy {
   private allowedValue: ExpertiseLevelNumber = ExpertiseLevelNumber.user;
@@ -24,8 +24,10 @@ export class ExpertiseDirective implements OnInit, OnDestroy {
       return;
     }
 
-    this.allowedValue = lvl as ExpertiseLevelNumber;
-    this.update();
+    if (lvl !== this.allowedValue) {
+      this.allowedValue = lvl as ExpertiseLevelNumber;
+      this.update();
+    }
   }
 
   private update() {

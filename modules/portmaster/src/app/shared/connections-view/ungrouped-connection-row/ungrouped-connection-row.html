@@ -1,0 +1,109 @@
+<ng-container *ngIf="!!conn">
+  <svg viewBox="0 0 24 24" class="arrow">
+    <g fill="none" class="inner">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M10 16l4-4-4-4" />
+    </g>
+  </svg>
+  <div class="connection-details">
+    <div class="scope">
+      <span class="trust-level centered" [ngClass]="helper.getVerdictClass(conn)"></span>
+
+      <ng-container *ngIf="conn.Entity?.Domain as domain; then scopeLabel; else scopeTranslation"></ng-container>
+      <ng-template #scopeLabel let-domain>
+        <app-scope-label leftRightFix="true" [scope]="domain">
+        </app-scope-label>
+      </ng-template>
+      <ng-template #scopeTranslation>
+        <span> {{ helper.scopeTranslation[conn.Scope] }} </span>
+      </ng-template>
+
+    </div>
+    <span class="country" [class.de-emphasize]="!conn.Entity.Country">
+      {{ !!conn.Entity?.IP ? conn.Entity.Country || 'Local' : 'N/A' }}
+    </span>
+    <div class="peer">
+      <fa-icon class="direction" [class.ended]="!!conn.Ended" [icon]="conn.Inbound ? 'arrow-down' : 'arrow-up'"
+        [class.inbound]="conn.Inbound">
+      </fa-icon>
+
+      <span *ngIf="conn.Entity?.IP as ip; else dnsRequest">
+        {{ ip }} <span class="de-emphasize" *ngIf="conn!.Entity!.Port">:{{ conn!.Entity!.Port }}</span>
+      </span>
+      <ng-template #dnsRequest>
+        <span class="de-emphasize">
+          DNS Request
+        </span>
+      </ng-template>
+    </div>
+    <span class="country" style="width: 120px">
+      <ng-container *ngIf="!!conn.Ended">
+        <span class="de-emphasize">ended&nbsp;&nbsp;</span>
+        {{ conn.Ended | timeAgo:timeAgoTicker }}
+      </ng-container>
+
+      <ng-container *ngIf="!conn.Ended">
+        <span class="de-emphasize">started&nbsp;&nbsp;</span>
+        {{ conn.Started | timeAgo:timeAgoTicker }}
+      </ng-container>
+    </span>
+    <div class="reason">
+      <ng-container>
+        <fa-icon [icon]="['far', 'clock']" class="old-revision"
+          *ngIf="conn.ProfileRevisionCounter !== helper.profile?.currentProfileRevision"></fa-icon>
+      </ng-container>
+      <ng-container *ngIf="conn.Reason.OptionKey as option">
+        <span class="de-emphasize">applied</span>
+
+        <span>{{ helper.settings[option] || '' }}&nbsp;</span>
+
+        <svg (click)="helper.redirectToSetting(option)" class="cog port" viewBox="0 0 24 24">
+          <g fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.3">
+            <path
+              d="M13.7678 10.2322c.976311.976311.976311 2.55922 0 3.53553-.976311.976311-2.55922.976311-3.53553 0-.976311-.976311-.976311-2.55922 0-3.53553.976311-.976311 2.55922-.976311 3.53553 0" />
+            <path
+              d="M14.849 4.12l.583.194c.534.178.895.678.895 1.241v.837c0 .712.568 1.293 1.28 1.308l.838.018c.485.01.925.289 1.142.723l.275.55c.252.504.153 1.112-.245 1.51l-.592.592c-.503.503-.512 1.316-.02 1.83l.58.606c.336.351.45.858.296 1.319l-.194.583c-.178.534-.678.895-1.241.895h-.837c-.712 0-1.293.568-1.308 1.28l-.018.838c-.01.485-.289.925-.723 1.142l-.55.275c-.504.252-1.112.153-1.51-.245l-.592-.592c-.503-.503-1.316-.512-1.83-.02l-.606.58c-.351.336-.858.45-1.319.296l-.583-.194c-.534-.178-.895-.678-.895-1.241v-.837c0-.712-.568-1.293-1.28-1.308l-.838-.018c-.485-.01-.925-.289-1.142-.723l-.275-.55c-.252-.504-.153-1.112.245-1.51l.592-.592c.503-.503.512-1.316.02-1.83l-.58-.606c-.337-.352-.451-.86-.297-1.32l.194-.583c.178-.534.678-.895 1.241-.895h.837c.712 0 1.293-.568 1.308-1.28l.018-.838c.012-.485.29-.925.724-1.142l.55-.275c.504-.252 1.112-.153 1.51.245l.592.592c.503.503 1.316.512 1.83.02l.606-.58c.351-.335.859-.449 1.319-.295z" />
+          </g>
+        </svg>
+
+        <span class="de-emphasize" style="width: 80px; display: inline-block; text-align: left">&nbsp;{{
+          !!conn.Reason.Profile ? "App" :
+          "Global" }} Settings</span>
+        <!--<span class="de-emphasize">{{conn.Reason.Msg}}</span>-->
+      </ng-container>
+    </div>
+
+    <div>
+      <app-menu-trigger [menu]="ungroupedConnectionMenu"></app-menu-trigger>
+      <app-menu #ungroupedConnectionMenu>
+        <app-menu-item (click)="helper.redirectToSetting(conn.Reason.OptionKey)" *ngIf="!!conn.Reason.OptionKey">
+          Show setting
+        </app-menu-item>
+
+        <ng-container *ngIf="conn.Entity.Domain as domain; else ipActions">
+          <app-menu-item *ngIf="helper.isDomainBlocked(domain); else blockDomain" (click)="helper.unblockAll(domain)">
+            Allow domain
+          </app-menu-item>
+          <ng-template #blockDomain>
+            <app-menu-item (click)="helper.blockAll(domain)">
+              Block domain
+            </app-menu-item>
+          </ng-template>
+        </ng-container>
+        <ng-template #ipActions>
+          <app-menu-item *ngIf="helper.isDomainBlocked(conn.Entity.IP); else blockIP"
+            (click)="helper.unblockAll(conn.Entity.IP)">
+            Allow IP
+          </app-menu-item>
+          <ng-template #blockIP>
+            <app-menu-item (click)="helper.blockAll(conn.Entity.IP)">
+              Block IP
+            </app-menu-item>
+          </ng-template>
+        </ng-template>
+
+        <app-menu-item (click)="helper.redirectToRules()">Add Custom Rule</app-menu-item>
+        <app-menu-item *appExpertiseLevel="'expert'" (click)="helper.dumpConnection(conn)">Copy JSON</app-menu-item>
+      </app-menu>
+    </div>
+  </div>
+</ng-container>

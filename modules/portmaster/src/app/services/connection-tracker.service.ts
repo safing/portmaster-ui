@@ -1,7 +1,6 @@
 import { Injectable } from '@angular/core';
-import { parse } from 'psl';
 import { BehaviorSubject, forkJoin, Observable, of, Subject, Subscription } from 'rxjs';
-import { catchError, filter, last, map, switchMap, tap } from 'rxjs/operators';
+import { bufferTime, catchError, filter, map, startWith, switchMap, tap } from 'rxjs/operators';
 import { ExpertiseService } from '../shared/expertise/expertise.service';
 import { binaryInsert, parseDomain } from '../shared/utils';
 import { AppProfileService } from './app-profile.service';
@@ -30,6 +29,7 @@ export interface ConnectionAddedEvent {
 export interface ConnectionDeletedEvent {
   type: 'deleted';
   key: string;
+  conn?: Connection; // only set on InspectedProfile.connectionUpdates
 }
 
 /**
@@ -233,15 +233,10 @@ export class ScopeGroup {
       return diff;
     }
 
-    diff = (a.Ended || 0) - (b.Ended || 0);
-    if (diff !== 0) {
-      return diff;
-    }
-
-    if (a.Scope > b.Scope) {
+    if (a.ID > b.ID) {
       return 1;
     }
-    if (a.Scope < b.Scope) {
+    if (a.ID < b.ID) {
       return -1;
     }
     return 0;
@@ -432,6 +427,11 @@ export class ScopeGroup {
   }
 }
 
+export interface ScopeGroupUpdate {
+  groups: ScopeGroup[];
+  type: 'added' | 'deleted' | 'init';
+}
+
 export class InspectedProfile {
   /** Subscription to the profiles notifier */
   private _profileSubscription = Subscription.EMPTY;
@@ -446,7 +446,7 @@ export class InspectedProfile {
   private _scopeGroups = new Map<string, ScopeGroup>();
 
   /** An observable used to push a list of scope groups on update */
-  private _scopeUpdate = new BehaviorSubject<ScopeGroup[]>([]);
+  private _scopeUpdate = new BehaviorSubject<ScopeGroupUpdate>({ groups: [], type: 'init' });
 
   /** Completes when loading the inspected profile is finished */
   private _onLoadingDone = new Subject();
@@ -460,6 +460,9 @@ export class InspectedProfile {
 
   /** The currently layered profile used */
   private _layeredProfile: LayeredProfile | null = null;
+
+  /** Emits whenever that is an update to a profile connection */
+  private _connUpdate = new Subject<ConnectionUpdateEvent>();
 
   /**
    * True if the inspected profile has still old connections
@@ -497,6 +500,9 @@ export class InspectedProfile {
     return this._connections.size - this.stats.countInternal;
   }
 
+  /** Emits whenever there is an update to the profile's connections */
+  get connectionUpdates() { return this._connUpdate.asObservable() }
+
   /** Emits when the initial loading of existing connections completes. */
   get onDone() { return this._onLoadingDone.asObservable() }
 
@@ -533,33 +539,47 @@ export class InspectedProfile {
     return this.processGroup.Source;
   }
 
+  get connections() {
+    return this._connections.values();
+  }
+
   /**
    * Returns an array of all connections associated with this
    * profile sorted in a requested order.
    */
-  getSortedConnections(sortBy = 'most-recent', filter?: (c: Connection) => boolean): Connection[] {
-    let iterator = this._connections.values();
+  sortedAndFiltered(filterFunc?: (c: Connection) => boolean): Observable<Connection[]> {
+    return new Observable(observer => {
+      let updateSubscription = this.connectionUpdates
+        .pipe(
+          bufferTime(1000),
+          filter(updates => updates.length > 0),
+          startWith(-1),
+        )
+        .subscribe(() => {
+          let result: Connection[] = [];
+          let iterator = this._connections.values();
 
-    filter = filter || (() => true);
+          filterFunc = filterFunc || (() => true);
 
-    // there might be hundrets or even thousands of connections
-    // for this profile so we do an inserationSort instead of iterating
-    // the set multiple times with Array.from(iterator).sort()
-    var result: Connection[] = [];
-    for (let c of iterator) {
-      if (!filter(c)) {
-        continue
-      }
+          // there might be hundrets or even thousands of connections
+          // for this profile so we do an inserationSort instead of iterating
+          // the set multiple times with Array.from(iterator).sort()
+          for (let c of iterator) {
+            if (!filterFunc(c)) {
+              continue
+            }
+            binaryInsert(result, c, ScopeGroup.SortByMostRecent);
+          }
 
-      switch (sortBy) {
-        case 'most-recent':
-          binaryInsert(result, c, ScopeGroup.SortByMostRecent);
-          break;
-        default:
-          throw new Error(`unsupported sort method`)
-      }
-    }
-    return result;
+          observer.next(result);
+        })
+
+
+      return () => {
+        console.log("Unsubscribed")
+        updateSubscription.unsubscribe();
+      };
+    });
   }
 
   constructor(
@@ -587,7 +607,7 @@ export class InspectedProfile {
             this.profileService.getLayeredProfile(appProfile)
               .pipe(
                 catchError(err => {
-                  console.error(`Error while loading layered profile: ${appProfile.ID}`, err);
+                  console.error(`Error while loading layered profile: ${appProfile.ID} `, err);
                   return of(null);
                 })
               ),
@@ -608,10 +628,6 @@ export class InspectedProfile {
 
           this._scopeGroups.forEach(grp => {
             grp.checkRevisionCounter(this.currentProfileRevision);
-
-            if (grp.hasOldConnections) {
-              this.hasOldConnections = true;
-            }
           });
         }
       });
@@ -646,6 +662,7 @@ export class InspectedProfile {
           this.addConnection(c.key, c.conn, false);
         });
         this._loading = false;
+        this._onLoadingDone.next();
         this._onLoadingDone.complete();
       });
 
@@ -662,6 +679,7 @@ export class InspectedProfile {
     this._profileSubscription.unsubscribe();
 
     this._connections.clear();
+    this._connUpdate.complete();
 
     this._scopeGroups.forEach(grp => grp.dispose());
     this._scopeGroups.clear();
@@ -686,7 +704,7 @@ export class InspectedProfile {
    */
   private addConnection(key: string, conn: Connection, update: boolean) {
     if (update) {
-      this.deleteConnection(key);
+      this.deleteConnection(key, true);
     } else {
       // we already processed this connection, skip it now
       // to keep the stats correct.
@@ -707,13 +725,19 @@ export class InspectedProfile {
 
     const grp = this.getOrCreateScopeGroup(conn);
     grp.add(conn);
+
+    this._connUpdate.next({
+      type: update ? 'update' : 'added',
+      conn: conn,
+      key: key,
+    });
   }
 
   /**
    * deleteConnection deletes a previously seen connection
    * and updates the overall profile statistics
    */
-  private deleteConnection(key: string) {
+  private deleteConnection(key: string, update = false) {
     const conn = this._connections.get(key);
     if (!conn) {
       // This can happen if the user switches to fast
@@ -728,16 +752,23 @@ export class InspectedProfile {
     if (!!grp) {
       grp.remove(conn);
 
-      // if the group is now empty (and we're not loading)
-      // we can delete it.
-      if (grp.empty && !this.loading) {
+      // if the group is now empty, we're not loading and
+      // we are not currenlty processing a connection update
+      // then we can delete it.
+      if (grp.empty && !this.loading && !update) {
         this._scopeGroups.delete(conn.Scope);
         grp.dispose();
-        this.publishScopes();
+        this.publishScopes('deleted');
       }
     }
 
     this._stats.remove(conn);
+
+    this._connUpdate.next({
+      key: key,
+      type: 'deleted',
+      conn: conn,
+    });
   }
 
   /**
@@ -748,7 +779,8 @@ export class InspectedProfile {
     if (!grp) {
       grp = new ScopeGroup(conn.Scope, this.expertiseService);
       this._scopeGroups.set(conn.Scope, grp);
-      this.publishScopes();
+
+      this.publishScopes('added');
     }
 
     return grp;
@@ -758,25 +790,46 @@ export class InspectedProfile {
    * Publish and update to the scope-groups collected in this
    * process group.
    */
-  private publishScopes() {
+  private publishScopes(type: 'added' | 'deleted') {
     // sort them by lastConn, scope
-    this._scopeUpdate.next(
-      Array.from(this._scopeGroups.values())
-        .sort((a, b) => {
-          let diff = a.stats.lastConn - b.stats.lastConn;
-          if (diff !== 0) {
-            return diff;
-          }
+    const grps = Array.from(this._scopeGroups.values())
+      .sort((a, b) => {
+        if (a.domain === null && b.domain !== null) {
+          return -1;
+        }
 
-          if (a.scope > b.scope) {
-            return 1;
-          }
-          if (a.scope < b.scope) {
-            return -1;
-          }
-          return 0;
-        })
-    );
+        if (b.domain === null && a.domain !== null) {
+          return 1;
+        }
+
+        if (a.domain === null && b.domain === null) {
+          let scopeOrder = [
+            ScopeIdentifier.PeerInternet,
+            ScopeIdentifier.IncomingInternet,
+            ScopeIdentifier.PeerLAN,
+            ScopeIdentifier.IncomingLAN,
+            ScopeIdentifier.PeerHost,
+            ScopeIdentifier.IncomingHost,
+            ScopeIdentifier.PeerInvalid,
+            ScopeIdentifier.IncomingInvalid,
+          ]
+
+          return scopeOrder.indexOf(a.scope as ScopeIdentifier) - scopeOrder.indexOf(b.scope as ScopeIdentifier);
+        }
+
+        if (a.domain! > b.domain!) {
+          return 1;
+        }
+        if (b.domain! > a.domain!) {
+          return -1;
+        }
+        return 0;
+      });
+
+    this._scopeUpdate.next({
+      groups: grps,
+      type: type
+    });
   }
 }
 
@@ -877,11 +930,16 @@ export class ConnTracker {
       // don't forward process entires, checking for the existence
       // of keys is faster than splitting and parsing the key.
       filter(msg => !msg.data || !('CmdLine' in msg.data)),
+      // we might have a very very noise websocket connection because
+      // some processes are freaking out. Make sure we don't trigger
+      // angular change detection too often by buffering updates
+      bufferTime(1000, null, 100),
+      filter(msgs => !!msgs.length)
     );
 
     this._streamSubscription = new Subscription();
     const connectedSub = connectionStream.subscribe(
-      msg => this.processUpdate(msg),
+      msgs => msgs.forEach(msg => this.processUpdate(msg)),
     );
 
     const resetSub = this.portapi.connected$
@@ -1009,7 +1067,7 @@ export class ConnTracker {
     }
 
     if (profile.Name !== conn.ProcessContext.ProfileName) {
-      console.log(`Updating profile name of profile ${profile.ID} from ${profile.Name} to ${conn.ProcessContext.ProfileName}`);
+      console.log(`Updating profile name of profile ${profile.ID} from ${profile.Name} to ${conn.ProcessContext.ProfileName} `);
       profile.setName(conn.ProcessContext.ProfileName);
     }
 
@@ -1022,3 +1080,7 @@ export class ConnTracker {
     );
   }
 }
+function concact(connectionUpdates: Observable<ConnectionUpdateEvent>) {
+  throw new Error('Function not implemented.');
+}
+

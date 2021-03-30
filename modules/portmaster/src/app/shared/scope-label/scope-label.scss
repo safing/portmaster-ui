@@ -5,4 +5,8 @@
 .subdomain {
   opacity: .58;
   @apply text-secondary;
+
+  // uglyiest hack ever to work around ltr/rtl and left text-ellipsis issues.
+  // This "removes" the whitespace between the sub-domain and domain part
+  margin-right: -0.35rem;
 }

@@ -6,15 +6,32 @@
   @apply shadow-xl;
   user-select: none;
 
-  app-menu-item {
+  app-menu-item,
+  app-menu-group {
     display: block;
     width  : 100%;
-    cursor : pointer;
+  }
+
+  app-menu-item {
+    cursor: pointer;
     @apply p-2;
     @apply px-4;
+    font-size  : 0.7rem;
+    color      : #cacaca;
+    font-weight: 500;
 
     &:hover {
       @apply bg-buttons-dark;
     }
+  }
+
+  app-menu-group {
+    @apply p-1;
+    @apply px-4;
+    display       : block;
+    text-transform: uppercase;
+    @apply text-secondary;
+    font-size: 0.7rem;
+    opacity  : .7;
   }
 }

@@ -1,4 +1,5 @@
 import { parse } from 'psl';
+import { first } from 'rxjs/operators';
 
 export function deepClone<T = any>(o: T | null): T {
   if (o === null) {
@@ -50,14 +51,14 @@ export function parseDomain(scope: string): ParsedDomain {
   return result
 }
 
-export function binarySearch<T>(array: T[], what: T, compareFunc: (a: T, b: T) => number): number {
+export function binarySearch<T>(array: T[], what: T, sortFunc: (a: T, b: T) => number): number {
   let l = 0;
   let h = array.length - 1;
   let currentIndex: number = 0;
 
   while (l <= h) {
     currentIndex = (l + h) >>> 1;
-    const result = compareFunc(array[currentIndex], what);
+    const result = sortFunc(what, array[currentIndex]);
     if (result < 0) {
       l = currentIndex + 1;
     } else if (result > 0) {
@@ -69,8 +70,8 @@ export function binarySearch<T>(array: T[], what: T, compareFunc: (a: T, b: T) =
   return ~currentIndex;
 }
 
-export function binaryInsert<T>(array: T[], what: T, compareFunc: (a: T, b: T) => number, duplicate = false): number {
-  let idx = binarySearch<T>(array, what, compareFunc);
+export function binaryInsert<T>(array: T[], what: T, sortFunc: (a: T, b: T) => number, duplicate = false): number {
+  let idx = binarySearch<T>(array, what, sortFunc);
   if (idx >= 0) {
     if (!duplicate) {
       return idx;
@@ -82,4 +83,13 @@ export function binaryInsert<T>(array: T[], what: T, compareFunc: (a: T, b: T) =
   }
   array.splice(idx, 0, what)
   return idx;
+}
+
+export function pagination(current: number, countPages: number): number[] {
+  let delta = 2;
+  let leftRange = current - delta;
+  let rightRange = current + delta + 1;
+
+  return Array.from({ length: countPages }, (v, k) => k + 1)
+    .filter(i => i === 1 || i === countPages || (i >= leftRange && i < rightRange));
 }
