@@ -1088,7 +1088,3 @@ export class ConnTracker {
     );
   }
 }
-function concact(connectionUpdates: Observable<ConnectionUpdateEvent>) {
-  throw new Error('Function not implemented.');
-}
-
