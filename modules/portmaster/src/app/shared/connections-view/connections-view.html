@@ -27,11 +27,13 @@
       </app-menu-item>
       <app-menu-group>Filter</app-menu-group>
 
-      <app-menu-item *ngFor="let item of connectionFilters" (click)="setUngroupedFilter(item.name)"
-        class="selectable-menu-item">
-        <fa-icon icon="check" [class.hidden]="ungroupedFilter !== item.name"></fa-icon>
-        {{ item.name }}
-      </app-menu-item>
+      <ng-container *ngFor="let item of connectionFilters">
+        <app-menu-item *appExpertiseLevel="item.expertiseLevel || 'user'" (click)="setUngroupedFilter(item.name)"
+          class="selectable-menu-item">
+          <fa-icon icon="check" [class.hidden]="ungroupedFilter !== item.name"></fa-icon>
+          {{ item.name }}
+        </app-menu-item>
+      </ng-container>
       <app-menu-group>Settings</app-menu-group>
       <app-menu-item class="selectable-menu-item" (click)="toggleLiveMode()">
         <fa-icon icon="check" [class.hidden]="!liveMode"></fa-icon>
