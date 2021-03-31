@@ -118,7 +118,7 @@
           <button class="page" *ngFor="let page of pageNumbers" [class.active-page]="page === currentPageIdx + 1"
             (click)="selectPage(page-1)">{{ page }}</button>
         </span>
-        <button [disabled]="currentPageIdx >= totalPages" (click)="selectPage(this.currentPageIdx + 1)">
+        <button [disabled]="currentPageIdx+1 >= totalPages" (click)="selectPage(this.currentPageIdx + 1)">
           Next
           <fa-icon icon="chevron-right"></fa-icon>
         </button>

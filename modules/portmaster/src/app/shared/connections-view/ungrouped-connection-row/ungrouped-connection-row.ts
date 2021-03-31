@@ -13,7 +13,6 @@ import { ConnectionHelperService } from "../connection-helper.service";
 export class UngroupedConnectionRowComponent implements OnInit, OnDestroy {
   @Input()
   set conn(c: Connection | null) {
-    console.log('connection set')
     this._conn = c;
   }
   get conn() { return this._conn; }

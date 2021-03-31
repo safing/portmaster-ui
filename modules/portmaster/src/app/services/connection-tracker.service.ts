@@ -1045,6 +1045,10 @@ export class ConnTracker {
     }
 
     const profile = this.getOrCreateProfile(msg.data);
+    if (profile === null) {
+      return;
+    }
+
     this._connectionToProfile.set(msg.key, profile);
 
     profile.track(msg.key, msg.data, msg.type === 'upd');
@@ -1056,8 +1060,12 @@ export class ConnTracker {
    *
    * @param conn The connection object
    */
-  private getOrCreateProfile(conn: Connection): ProcessGroup {
-    const profileID = conn.ProcessContext.Profile;
+  private getOrCreateProfile(conn: Connection): ProcessGroup | null {
+    const profileID = conn?.ProcessContext?.Profile;
+    if (profileID === undefined) {
+      return null;
+    }
+
     let profile = this._profiles.get(profileID);
     if (!profile) {
       profile = new ProcessGroup(profileID, conn.ProcessContext.ProfileName, conn.ProcessContext.Source);

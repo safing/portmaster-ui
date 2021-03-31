@@ -33,6 +33,8 @@ export class ConnectionsViewComponent implements OnInit, OnDestroy {
     { name: "Blocked", fn: c => c.Verdict === Verdict.Block || c.Verdict === Verdict.Drop, expertiseLevel: ExpertiseLevel.User },
     { name: "Active", fn: c => !c.Ended, expertiseLevel: ExpertiseLevel.Expert },
     { name: "Ended", fn: c => !!c.Ended, expertiseLevel: ExpertiseLevel.Expert },
+    { name: "Inbound", fn: c => c.Inbound, expertiseLevel: ExpertiseLevel.Developer },
+    { name: "Outbound", fn: c => !c.Inbound, expertiseLevel: ExpertiseLevel.Developer },
   ]
 
   /** Subscription to profile updates. */
@@ -262,6 +264,8 @@ export class ConnectionsViewComponent implements OnInit, OnDestroy {
     }
     const profile = this.profile;
     let result: Connection[] = [];
+    this.filteredUngroupedConnections = [];
+    this.currentPage = [];
 
     // get the currently assigned filter
     const filterFunc = this.connectionFilters.find(filter => filter.name === this.ungroupedFilter);

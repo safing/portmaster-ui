@@ -21,13 +21,15 @@
       }
 
       &>span:first-of-type {
+        display     : inline-block;
         opacity     : 0.25;
         margin-right: 8px;
         user-select : none;
       }
 
       &>span:last-of-type {
-        color: #cacaca;
+        display: inline-block;
+        color  : #cacaca;
       }
     }
   }
