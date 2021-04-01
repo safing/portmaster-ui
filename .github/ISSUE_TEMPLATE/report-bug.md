@@ -1,6 +1,6 @@
 ---
 name: "🐞 Report a User Interface Bug"
-about: Report a bug encountered while using the Portmaster User Interface
+about: Report a bug encountered while using the User Interface
 labels: bug
 ---
 
@@ -11,8 +11,6 @@ Please disclose security related issues privately to support@safing.io.
 **Pre-Submit Checklist**:
 
 - Check applicable sources for existing issues:
-  - [Windows Known Issues](https://docs.safing.io/portmaster/install/windows#known-issues)
-  - [Linux Known Issues](https://docs.safing.io/portmaster/install/linux#compatibility)
   - [Github Issues](https://github.com/safing/portmaster-ui/issues?q=is%3Aissue+label%3Abug)
 
 **What happened**:
