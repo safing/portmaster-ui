@@ -128,9 +128,11 @@ div.secondary-actions {
 .description,
 .help-text {
   display: block;
-  @apply mt-2;
-  @apply mb-4;
   @apply text-secondary;
+}
+
+.help-text {
+  @apply mb-2;
 }
 
 .notice {
