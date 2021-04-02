@@ -3,7 +3,7 @@
   <ul>
     <ng-container *ngFor="let subsys of subsystems; trackBy: statusService.trackSubsystem">
       <ng-template [appExpertiseLevel]="subsys.minimumExpertise">
-        <li [class.active]="activeSection === subsys.ConfigKeySpace">
+        <li [class.active]="activeSection === subsys.ConfigKeySpace" [class.separated]="subsys.ID === 'core'">
           <span (click)="scrollTo(subsys.ConfigKeySpace)">{{subsys.Name}}</span>
           <ul class="settings">
             <ng-container *ngFor="let cat of settings.get(subsys.ConfigKeySpace); trackBy: trackCategory">

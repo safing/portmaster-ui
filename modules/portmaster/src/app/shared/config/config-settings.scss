@@ -82,7 +82,7 @@ div.settings-nav {
     li {
       @apply font-medium;
 
-      &:last-child {
+      &.separated {
         margin-top: 1.25rem;
       }
 
