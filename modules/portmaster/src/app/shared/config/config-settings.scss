@@ -34,12 +34,16 @@
 
     app-generic-setting {
       width: 100%;
-      @apply pt-6;
+      padding-top: 2.5rem;
 
+      /*
+      FIXME:
+      This broke the spacing between the the single settings as an additional ng-container was added around every setting.
+      This made every setting to be the :first-of-type and removed spacing from all settings.
       &:first-of-type {
         @apply pt-4;
       }
-
+      */
     }
 
     .border {
