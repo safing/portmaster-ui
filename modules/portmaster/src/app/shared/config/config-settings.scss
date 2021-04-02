@@ -75,17 +75,11 @@ div.settings-nav {
   transition: height cubic-bezier(0.25, 0.46, 0.45, 0.94) .5s;
   @apply text-xs;
 
-
   ul {
     position: fixed;
 
     li {
       @apply font-medium;
-
-      &:last-child {
-        margin-top: 1.25rem;
-      }
-
     }
 
     &>li {
@@ -119,8 +113,7 @@ div.settings-nav {
         display: none;
 
         li {
-          cursor    : pointer;
-          margin-top: 0;
+          cursor: pointer;
         }
       }
     }
