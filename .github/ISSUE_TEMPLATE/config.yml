@@ -3,9 +3,9 @@
 blank_issues_enabled: true  # default: true
 contact_links:
 
- - name: "🛠 Create Issue for Portmaster"
-   url: https://github.com/safing/portmaster/issues/new/choose
-   about: "Create issue related to the main application"
+- name: "🛠 Create Issue for Portmaster"
+  url: https://github.com/safing/portmaster/issues/new/choose
+  about: "Create issue related to the main application"
 
 # - name: "🎨 Create Issue for User Interface"
 #   url: https://github.com/safing/portmaster-ui/issues/new/choose
