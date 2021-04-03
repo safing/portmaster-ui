@@ -34,12 +34,16 @@
 
     app-generic-setting {
       width: 100%;
-      @apply pt-6;
+      padding-top: 2.5rem;
 
+      /*
+      FIXME:
+      This broke the spacing between the the single settings as an additional ng-container was added around every setting.
+      This made every setting to be the :first-of-type and removed spacing from all settings.
       &:first-of-type {
         @apply pt-4;
       }
-
+      */
     }
 
     .border {
@@ -75,11 +79,17 @@ div.settings-nav {
   transition: height cubic-bezier(0.25, 0.46, 0.45, 0.94) .5s;
   @apply text-xs;
 
+
   ul {
     position: fixed;
 
     li {
       @apply font-medium;
+
+      &.separated {
+        margin-top: 1.25rem;
+      }
+
     }
 
     &>li {
@@ -113,7 +123,8 @@ div.settings-nav {
         display: none;
 
         li {
-          cursor: pointer;
+          cursor    : pointer;
+          margin-top: 0;
         }
       }
     }

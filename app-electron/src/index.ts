@@ -4,7 +4,17 @@ import * as path from "path";
 import * as fs from "fs";
 import { GetDataDir } from "./datadir";
 
-// Set native theme to dark. This may do something, eventually.
+// Define mainWindow.
+let mainWindow:BrowserWindow = null;
+
+// Save system theme.
+let systemDarkMode = nativeTheme.shouldUseDarkColors;
+
+// Override the system theme to dark, as we currently only support dark mode.
+// This will change: (source: https://www.electronjs.org/docs/api/native-theme)
+// 1) nativeTheme.shouldUseDarkColors will be true when accessed
+// 2) Any UI Electron renders on Linux and Windows including context menus, devtools, etc. will use the dark UI.
+// 4) The prefers-color-scheme CSS query will match dark mode.
 nativeTheme.themeSource = "dark";
 
 function createWindow() {
@@ -17,17 +27,24 @@ function createWindow() {
   });
 
   // Create the browser window.
-  const mainWindow = new BrowserWindow({
+  mainWindow = new BrowserWindow({
     x: mainWindowState.x,
     y: mainWindowState.y,
     width: mainWindowState.width,
     height: mainWindowState.height,
+    // minWidth: 1100,
+    // minHeight: 600,
     resizable: true,
     webPreferences: {
       preload: path.join(__dirname, "preload.js"),
     },
   });
   mainWindow.setMenuBarVisibility(false);
+
+  // Switch to dark icon in light theme.
+  // if (!systemDarkMode) {
+  //   mainWindow.setIcon(path.join(__dirname, "icon_dark.ico"));
+  // }
 
   // Let us register listeners on the window, so we can update the state
   // automatically (the listeners will be removed when the window is closed)
@@ -59,28 +76,6 @@ function createWindow() {
   });
 }
 
-// This method will be called when Electron has finished
-// initialization and is ready to create browser windows.
-// Some APIs can only be used after this event occurs.
-app.on("ready", () => {
-  createWindow();
-
-  app.on("activate", function () {
-    // On macOS it's common to re-create a window in the app when the
-    // dock icon is clicked and there are no other windows open.
-    if (BrowserWindow.getAllWindows().length === 0) createWindow();
-  });
-});
-
-// Quit when all windows are closed, except on macOS. There, it's common
-// for applications and their menu bar to stay active until the user quits
-// explicitly with Cmd + Q.
-app.on("window-all-closed", () => {
-  if (process.platform !== "darwin") {
-    app.quit();
-  }
-});
-
 function getStateDir(): string {
   // Get data directory from command line.
   let dataDir = GetDataDir(app.commandLine);
@@ -90,8 +85,55 @@ function getStateDir(): string {
 
   // Don't return a dir that does not exist.
   if (!fs.existsSync(stateDir)) {
-    return ""
+    return "";
   }
 
-  return stateDir
+  return stateDir;
 }
+
+function main() {
+  // Acquire single instance lock and immediately quit if not acquired.
+  if (!app.requestSingleInstanceLock()) {
+    app.quit();
+    return;
+  }
+  
+  // Focus main window if another instance wanted to start.
+  app.on('second-instance', (event, commandLine, workingDirectory) => {
+    if (!mainWindow) {
+      return;
+    }
+
+    // Restore window if minimized.
+    if (mainWindow.isMinimized()) {
+      mainWindow.restore();
+    }
+
+    // Focus window.
+    mainWindow.focus();
+  })
+
+  // This method will be called when Electron has finished
+  // initialization and is ready to create browser windows.
+  // Some APIs can only be used after this event occurs.
+  app.on("ready", () => {
+    createWindow();
+
+    app.on("activate", function () {
+      // On macOS it's common to re-create a window in the app when the
+      // dock icon is clicked and there are no other windows open.
+      if (BrowserWindow.getAllWindows().length === 0) createWindow();
+    });
+  });
+
+  // Quit when all windows are closed, except on macOS. There, it's common
+  // for applications and their menu bar to stay active until the user quits
+  // explicitly with Cmd + Q.
+  app.on("window-all-closed", () => {
+    if (process.platform !== "darwin") {
+      app.quit();
+    }
+  });
+}
+
+main();

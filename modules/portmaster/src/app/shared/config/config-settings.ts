@@ -225,6 +225,11 @@ export class ConfigSettingsViewComponent implements OnInit, OnDestroy, AfterView
               return subsys;
             })
 
+          // Force the core subsystem to the end.
+          if (this.subsystems.length >= 2 && this.subsystems[0].ID === "core") {
+            this.subsystems.push(this.subsystems.shift() as SubsystemWithExpertise);
+          }
+
           // Notify the user interface that we're done loading
           // the settings.
           this.loading = false;

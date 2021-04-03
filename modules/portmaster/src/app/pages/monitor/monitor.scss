@@ -28,10 +28,14 @@ div.sidebar {
       overflow     : hidden;
       white-space  : nowrap;
       text-overflow: ellipsis;
+      font-size    : 0.775rem;
+      font-weight  : 500;
+      color        : #cacaca;
 
-      font-size  : 0.775rem;
-      font-weight: 500;
-      color      : #cacaca;
+      span {
+        font-size: 0.6rem;
+        opacity  : 0.55;
+      }
     }
 
     .note {
