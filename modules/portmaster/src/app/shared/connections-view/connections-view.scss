@@ -1,102 +1,23 @@
-.card-header {
-  @apply py-0;
-  height       : 2rem;
-  padding-right: 0;
-
-  svg.arrow {
-    width     : 1rem;
-    padding   : 0;
-    margin    : 0;
-    transform : rotate(90deg);
-    transition: all ease-in-out .3s;
-
-    .inner {
-      stroke: white;
-    }
-  }
-
-  &.active {
-    border-bottom-left-radius : 0;
-    border-bottom-right-radius: 0;
-
-    svg.arrow {
-      transform: rotate(-90deg);
-    }
-  }
-
-  .card-title {
-    padding-left: 1rem;
-
-    .subdomain {
-      opacity: .58;
-    }
-  }
-
-  .card-title .subdomain {
-    @apply text-secondary;
-  }
-
-  .spacer {
-    margin-right: 1rem;
-  }
-}
-
-h3 {
-  font-size    : 0.7rem;
-  font-weight  : 500;
-  margin-top   : 13px;
-  margin-bottom: 9px;
-  color        : #cacaca;
-  user-select  : none;
-  opacity      : 0.45;
-}
-
-.card-content {
-  padding-top : 1rem;
-  padding-left: 1.35rem;
-}
-
-.meta {
+.toolbar {
   display        : flex;
+  width          : 100%;
   justify-content: space-between;
+  align-items    : center;
 
-  h4 {
-    @apply mt-4;
-  }
+  .actions {
+    display        : flex;
+    justify-content: space-between;
+    align-items    : center;
 
-  &>div {
-    flex-grow: 0.9;
-    min-width: 30%;
-
-    &>span {
-      @apply my-1;
-      display    : block;
-      font-size  : 0.7rem;
-      font-weight: 500;
-
-      .subdomain {
-        opacity: .58;
-      }
-
-      span:first-of-type {
-        opacity     : 0.25;
-        margin-right: 8px;
-        user-select : none;
-      }
-
-      span:last-of-type {
-        color: #cacaca;
-      }
+    app-menu-trigger {
+      @apply mr-2;
+      opacity: .8;
     }
-  }
-}
 
-div.tableFixHead {
-  @apply rounded-t;
-  max-height: 16rem;
-
-  &:not(.empty) {
-    @apply rounded;
+    fa-icon,
+    svg {
+      cursor: pointer;
+    }
   }
 }
 
@@ -108,92 +29,87 @@ fa-icon[icon="spinner"] {
   @apply mr-1;
 }
 
-svg.cog,
-svg.copy {
-  width          : 14px;
-  padding        : 0;
-  margin         : 0;
-  display        : inline-flex;
-  align-items    : center;
-  justify-content: center;
-  cursor         : pointer;
-  transition     : all .15s ease-in-out;
-
-  g {
-    stroke: white;
-  }
-
-  &:not(:first-of-type) {
-    @apply ml-1;
+app-menu-item.selectable-menu-item {
+  fa-icon {
+    margin-right: 6px;
+    font-size   : 0.8em;
+    @apply text-secondary;
   }
 }
 
-svg.cog {
-  opacity: 1;
-
-  &:hover {
-    opacity: .55;
+.reload-notice {
+  fa-icon {
+    margin-left: 6px;
+    font-size  : 0.8em;
   }
-}
-
-svg.copy {
-  opacity: .55;
 
   &:hover {
+    ::ng-deep svg {
+      animation-name           : spin;
+      animation-duration       : 2000ms;
+      animation-iteration-count: infinite;
+      animation-timing-function: linear;
+    }
+
     opacity: 1;
   }
+
+  opacity         : .7;
+  transition      : all 150ms ease-in-out;
+  font-size       : 0.7rem;
+  padding-left    : .4rem;
+  padding-right   : .4rem;
+  padding-top     : .2rem;
+  padding-bottom  : .2rem;
+  color           : rgba(255, 238, 0, 0.8);
+  border          : 1px solid rgba(255, 238, 0, 0.5);
+  background-color: rgba(255, 238, 0, 0.2);
+  border-radius   : 4px;
+  cursor          : pointer;
+  margin-right    : 1rem;
 }
 
-table {
-  tr.ended {
-    opacity: 0.5;
-  }
+.pagination {
+  display        : flex;
+  width          : 100%;
+  justify-content: space-between;
+  @apply my-2;
 
-  .cdk-column {
-    &-state {
-      width     : 3rem;
-      text-align: center;
+  button {
+    padding-left : 0.5rem;
+    padding-right: 0.5rem;
+    font-size    : 0.7rem;
+
+    fa-icon {
+      position: relative;
+      top     : 1px;
     }
 
-    &-entity {
-      width      : 20%;
-      min-width  : 150px;
-      white-space: nowrap;
+    fa-icon:last-child {
+      margin-left: 0.2rem;
     }
 
-    &-started,
-    &-ended {
-      width     : 5rem;
-      text-align: center;
+    fa-icon:first-child {
+      margin-right: 0.2rem;
     }
 
-    &-actions {
-      width: 3rem;
+    &.page {
+      @apply mx-1;
     }
-  }
-}
 
-table.waiting-connections {
-  opacity: 0.5;
-
-  td {
-    text-align: center;
-  }
-}
-
-.tableFixHead {
-  @apply mb-4;
-
-  &~table {
-    margin-top: calc(-1rem + 2px);
-
-    td {
-      @apply rounded-b;
+    &.active-page {
+      border : 1px solid theme("colors.info.blue");
+      opacity: .5;
     }
   }
 }
 
-.port {
-  font-size: 0.95em;
-  @apply text-secondary;
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
 }

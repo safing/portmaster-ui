@@ -1,0 +1,77 @@
+:host {
+  &>* {
+    display: table-cell;
+  }
+}
+
+.connection-details {
+  flex-grow      : 1;
+  display        : flex;
+  justify-content: space-between;
+  align-items    : center;
+  align-self     : stretch;
+  font-size      : 0.7rem;
+}
+
+.scope {
+  width        : 25%;
+  flex-shrink  : 0;
+  display      : inline-block;
+  display      : inline-flex;
+  align-self   : stretch;
+  align-items  : center;
+  white-space  : nowrap;
+  overflow     : hidden;
+  text-overflow: ellipsis;
+
+  span,
+  app-scope-label {
+    text-overflow: ellipsis;
+    overflow     : hidden;
+    direction    : rtl;
+  }
+
+  @apply px-3;
+  @apply mx-3;
+  @apply bg-cards-tertiary;
+
+  .trust-level {
+    @apply mr-1;
+  }
+}
+
+.peer {
+  white-space: nowrap;
+  display    : flex;
+
+  span {
+    text-overflow: ellipsis;
+    overflow     : hidden;
+  }
+
+  width: 20%;
+}
+
+.country {
+  display        : flex;
+  width          : 50px;
+  align-items    : center;
+  justify-content: center;
+}
+
+.reason {
+  flex-grow    : 1;
+  text-overflow: ellipsis;
+  overflow     : hidden;
+  text-align   : right;
+
+  label {
+    @apply text-secondary;
+    opacity: .57;
+  }
+
+  .port {
+    margin-right: 6px;
+    margin-left : 6px;
+  }
+}

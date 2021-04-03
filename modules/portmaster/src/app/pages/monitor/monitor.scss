@@ -111,8 +111,9 @@ div.details-view {
   }
 
   .content {
-    display  : block;
-    flex-grow: 1;
+    display      : block;
+    flex-grow    : 1;
+    padding-right: 10px;
   }
 }
 

@@ -46,6 +46,8 @@ export interface IntelEntity {
   // ASN holds the number of the autonoumous system that operates
   // the IP.
   ASN: number;
+  // ASOrg holds the AS owner name.
+  ASOrg: string;
   // BlockedByLists holds a list of filter list IDs that
   // would have blocked the entity.
   BlockedByLists: string[] | null;

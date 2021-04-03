@@ -3,6 +3,7 @@ span.trust-level {
   position   : relative;
   width      : 6px;
   user-select: none;
+  overflow   : visible;
 
   &~* {
     @apply ml-2;
@@ -17,6 +18,10 @@ span.trust-level {
     top          : -1px;
     left         : 0px;
     border-radius: 50%;
+  }
+
+  &.centered:before {
+    top: 0px;
   }
 
   &:before {

@@ -1,0 +1,250 @@
+import { Injectable } from '@angular/core';
+import { Router } from '@angular/router';
+import { Subject, Subscription } from 'rxjs';
+import { ScopeTranslation, Connection, Verdict, ProcessContext, AppProfile, getAppSetting, setAppSetting, AppProfileService, ConfigService } from 'src/app/services';
+import { InspectedProfile, ScopeGroup } from 'src/app/services/connection-tracker.service';
+import { deepClone } from '../utils';
+
+@Injectable()
+export class ConnectionHelperService {
+  readonly scopeTranslation = ScopeTranslation;
+
+  set profile(p: InspectedProfile | null) {
+    this._profile = p;
+    this.blockedDomains = [];
+
+    this._profileSubscriptions.unsubscribe();
+    this._profileSubscriptions = new Subscription();
+
+    if (!!p) {
+      let profileUpdateSubscription = p.profileUpdates
+        .subscribe(() => {
+          this.blockedDomains = null;
+          this.collectBlockedDomains();
+          this.refresh.next();
+        });
+      this._profileSubscriptions.add(profileUpdateSubscription);
+    }
+  }
+  get profile() { return this._profile; }
+  private _profile: InspectedProfile | null = null;
+
+  private _profileSubscriptions = Subscription.EMPTY;
+
+  private blockedDomains: string[] | null = null;
+
+  readonly settings: { [key: string]: string } = {};
+
+  refresh = new Subject<void>();
+
+  constructor(
+    private router: Router,
+    private profileService: AppProfileService,
+    private configService: ConfigService,
+  ) {
+    this.configService.query('')
+      .subscribe(settings => {
+        settings.forEach(setting => {
+          this.settings[setting.Key] = setting.Name;
+        });
+        this.refresh.next();
+      })
+  }
+
+  /**
+   * @private
+   * Returns the class used to color the connection's
+   * verdict.
+   *
+   * @param conn The connection object
+   */
+  getVerdictClass(conn: Connection): string {
+    switch (conn.Verdict) {
+      case Verdict.Accept:
+        return 'low';
+      case Verdict.Block:
+      case Verdict.Drop:
+        return 'high';
+      default:
+        return 'medium';
+    }
+  }
+
+  /**
+   * @private
+   * Redirect the user to a settings key in the application
+   * profile.
+   *
+   * @param key The settings key to redirect to
+   */
+  redirectToSetting(optionKey: string) {
+    if (!optionKey || !this.profile) {
+      return;
+    }
+
+    this.router.navigate(
+      ['/', 'app', this.profile.Source, this.profile.ID], {
+      queryParams: {
+        setting: optionKey
+      }
+    })
+  }
+
+  /**
+   * @private
+   * Redirect the user to "outgoing rules" setting in the
+   * application profile/settings.
+   */
+  redirectToRules() {
+    this.redirectToSetting('filter/endpoints');
+  }
+
+  /**
+   * @private
+   * Dump a connection to the console
+   *
+   * @param conn The connection to dump
+   */
+  dumpConnection(conn: Connection) {
+    // Copy to clip-board if supported
+    if (!!navigator.clipboard) {
+      navigator.clipboard.writeText(JSON.stringify(conn, undefined, "    "))
+    }
+  }
+
+  /**
+   * @private
+   * Creates a new "block domain" outgoing rules
+   */
+  blockAll(grp: ScopeGroup | string) {
+    let domain: string;
+    if (typeof grp === 'string') {
+      domain = grp;
+    } else {
+      if (!grp.domain) {
+        // scope blocking not yet supported
+        return
+      }
+      domain = grp.scope;
+    }
+
+    if (this.isDomainBlocked(domain)) {
+      return;
+    }
+
+    domain = domain.replace(/\.+$/, '');
+    const newRule = `- ${domain}`;
+
+    this.updateRules(newRule, true);
+  }
+
+  /**
+   * @private
+   * Removes a "block domain" rule from the outgoing rules
+   */
+  unblockAll(grp: ScopeGroup | string) {
+    let domain: string;
+    if (typeof grp === 'string') {
+      domain = grp;
+    } else {
+      if (!grp.domain) {
+        // scope blocking not yet supported
+        return
+      }
+      domain = grp.scope;
+    }
+
+    if (!this.isDomainBlocked(domain)) {
+      return;
+    }
+
+    domain = domain.replace(/\.+$/, '');
+
+    const newRule = `- ${domain}`;
+
+    this.updateRules(newRule, false);
+  }
+
+  /**
+   * @private
+   * Returns true if the scope (domain) is blocked.
+   * Non-domain scopes are not yet supported.
+   *
+   * @param grp The scope group which should be blocked from now on.
+   */
+  isScopeBlocked(grp: ScopeGroup): boolean {
+    // check if `grp.domain` is set. If, then grp.scope holdes
+    // the complete domain of the connection.
+    if (!!grp.domain) {
+      return this.isDomainBlocked(grp.scope);
+    } else {
+      // TODO(ppacher): correctly handle all other scopes here.
+    }
+
+    return false;
+  }
+
+  /**
+   * @private
+   * Checks if `domain` is blocked.
+   */
+  isDomainBlocked(domain: string): boolean {
+    if (this.blockedDomains === null) {
+      return false;
+    }
+
+    if (domain.endsWith(".")) {
+      domain = domain.slice(0, -1);
+    }
+    return this.blockedDomains.some(rule => domain === rule || (rule.startsWith(".") && domain.endsWith(rule)));
+  }
+
+
+  /**
+   * Updates the outgoing rule set and either creates or deletes
+   * a rule. If a rule should be created but already exists
+   * it is moved to the top.
+   *
+   * @param newRule The new rule to create or delete.
+   * @param add  Whether or not to create or delete the rule.
+   */
+  private updateRules(newRule: string, add: boolean) {
+    if (!this.profile) {
+      return
+    }
+
+    let rules = getAppSetting<string[]>(this.profile!.profile!.Config, 'filter/endpoints') || [];
+    rules = rules.filter(rule => rule !== newRule);
+
+    if (add) {
+      rules.splice(0, 0, newRule)
+    }
+
+    const profile = deepClone(this.profile!.profile);
+    setAppSetting(profile.Config, 'filter/endpoints', rules);
+
+    this.profileService.saveLocalProfile(profile)
+      .subscribe();
+  }
+
+  /**
+   * Iterates of all outgoing rules and collects which domains are blocked.
+   * It stops collecting domains as soon as the first "allow something" rule
+   * is hit.
+   */
+  private collectBlockedDomains() {
+    let blockedDomains = new Set<string>();
+
+    const rules = getAppSetting<string[]>(this.profile!.profile!.Config, 'filter/endpoints') || [];
+    for (let i = 0; i < rules.length; i++) {
+      const rule = rules[i];
+      if (rule.startsWith('+ ')) {
+        break;
+      }
+
+      blockedDomains.add(rule.substr(2))
+    }
+
+    this.blockedDomains = Array.from(blockedDomains)
+  }
+}

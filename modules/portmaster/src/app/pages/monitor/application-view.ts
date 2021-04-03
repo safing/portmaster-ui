@@ -1,5 +1,5 @@
 import { Component, Input } from '@angular/core';
-import { AppProfileService, DebugAPI } from 'src/app/services';
+import { AppProfileService, DebugAPI, SessionDataService } from 'src/app/services';
 import { InspectedProfile } from 'src/app/services/connection-tracker.service';
 import { ConnectionStatistics } from 'src/app/services/connection-tracker.types';
 import { fadeInAnimation } from '../../shared/animations';
@@ -32,6 +32,7 @@ export class MonitorApplicationViewComponent {
   constructor(
     private debugAPI: DebugAPI,
     private profileSerivce: AppProfileService,
+    public sessionDataService: SessionDataService,
   ) { }
 
   /**

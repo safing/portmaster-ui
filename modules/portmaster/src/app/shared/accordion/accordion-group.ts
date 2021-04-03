@@ -1,12 +1,13 @@
 import { coerceBooleanProperty } from '@angular/cdk/coercion';
-import { Component, Input, OnDestroy, TemplateRef } from '@angular/core';
+import { ChangeDetectionStrategy, Component, Input, OnDestroy, TemplateRef } from '@angular/core';
 import { Subscription } from 'rxjs';
 import { AccordionComponent } from './accordion';
 
 @Component({
   selector: 'app-accordion-group',
   templateUrl: './accordion-group.html',
-  styleUrls: ['./accordion-group.scss']
+  styleUrls: ['./accordion-group.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AccordionGroupComponent implements OnDestroy {
   /** @private Currently registered accordion components */

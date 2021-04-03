@@ -123,12 +123,16 @@ h3 {
     width          : 90%;
     display        : flex;
     justify-content: space-between;
-    align-items    : center;
     margin-left    : auto;
     margin-right   : auto;
 
     &>div {
-      display: flex;
+      display        : flex;
+      flex-direction : column;
+      flex-grow      : 1;
+      flex-shrink    : 0;
+      justify-content: flex-start;
+      align-items    : flex-start;
 
       &:hover {
         svg.copy {
@@ -155,23 +159,23 @@ h3 {
           opacity: 1;
         }
       }
-    }
 
-    &>span,
-    app-text-placeholder {
-      @apply my-1;
-      display    : block;
-      font-size  : 0.7rem;
-      font-weight: 500;
-      user-select: none;
+      &>span,
+      app-text-placeholder {
+        @apply my-1;
+        display    : block;
+        font-size  : 0.7rem;
+        font-weight: 500;
+        user-select: none;
 
-      span:first-of-type {
-        opacity     : 0.25;
-        margin-right: 8px;
-      }
+        span:first-of-type {
+          opacity     : 0.25;
+          margin-right: 8px;
+        }
 
-      span:last-of-type {
-        color: #cacaca;
+        span:last-of-type {
+          color: #cacaca;
+        }
       }
     }
   }
@@ -181,14 +185,6 @@ h3 {
     overflow     : hidden;
     white-space  : nowrap;
     text-overflow: ellipsis;
-  }
-
-  .path {
-    max-width: 179px;
-  }
-
-  .profile-id {
-    max-width: 125px;
   }
 }
 

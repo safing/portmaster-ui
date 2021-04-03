@@ -13,7 +13,8 @@
   </div>
 </h1>
 
-<app-profile-stats [total]="profile?.size || 0" [stats]="stats" [@fadeIn] *ngIf="!loading"></app-profile-stats>
+<app-profile-stats [total]="profile?.size || 0" [stats]="stats" [@fadeIn] *ngIf="!loading">
+</app-profile-stats>
 
 <fa-icon icon="spinner" [spin]="true" *ngIf="loading"></fa-icon>
 
@@ -40,51 +41,52 @@
 
 <div class="card-content">
   <div>
-    <app-text-placeholder mode="input" [loading]="!profile?.profile" width="large">
-      <span>Binary Name:</span>
-      <span>{{profile?.profile?.LinkedPath?.replace(nameRegex, "$2")}}</span>
-    </app-text-placeholder>
     <div>
-      <!-- TODO(ppacher) can you make a "copy to clipboard" component please -->
+      <app-text-placeholder mode="input" [loading]="!profile?.profile" width="large">
+        <span>Binary Name:</span>
+        <span>{{profile?.profile?.LinkedPath?.replace(nameRegex, "$2")}}</span>
+      </app-text-placeholder>
+
+      <span *appExpertiseLevel="'developer'">
+        <span>Layers:</span>
+        <span>
+          <ol class="layers">
+            <li *ngFor="let layer of profile?.layers" [routerLink]="['/', 'app'].concat(layer.split('/'))">{{layer}}
+            </li>
+          </ol>
+        </span>
+      </span>
+    </div>
+
+    <div>
       <app-text-placeholder class="path" mode="input" [loading]="!profile?.profile" width="large">
         <span>Path:</span>
         <span>{{profile?.profile?.LinkedPath || 'N/A'}}</span>
       </app-text-placeholder>
-      <!-- Hidden until we have copy support
-      <svg class="copy" viewBox="0 0 24 24">
-        <g fill="none">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"
-            d="M7 15H5c-1.105 0-2-.895-2-2V5c0-1.105.895-2 2-2h8c1.105 0 2 .895 2 2v2" />
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"
-            d="M13 19H9c-1.105 0-2-.895-2-2V9c0-1.105.895-2 2-2h8c1.105 0 2 .895 2 2v4M19 17v4M17 19h4" />
-        </g>
-      </svg>
-    -->
-    </div>
-    <span *ngIf="(profile?.profile?.ApproxLastUsed || 0) > 0">
-      <span>Activity:</span>
-      <span>{{profile!.profile!.ApproxLastUsed * 1000 | date:'medium'}}</span>
-    </span>
-  </div>
-  <div *appExpertiseLevel="'developer'">
-    <span class="layer">
-      <span>Layers:</span>
-      <span>
-        <ol class="layers">
-          <li *ngFor="let layer of profile?.layers" [routerLink]="['/', 'app'].concat(layer.split('/'))">{{layer}}</li>
-        </ol>
+      <span *appExpertiseLevel="'developer'">
+        <span>Revision:</span>
+        <span>{{profile?.currentProfileRevision}}</span>
       </span>
-    </span>
-    <span>
-      <span>Revision:</span>
-      <span>{{profile?.currentProfileRevision}}</span>
-    </span>
-    <span class="profile-id">
-      <span>Profile:</span>
-      <span>{{profile?.ID}}</span>
-    </span>
+    </div>
+
+    <div>
+      <span *ngIf="(profile?.profile?.ApproxLastUsed || 0) > 0">
+        <span>Activity:</span>
+        <span>{{profile!.profile!.ApproxLastUsed * 1000 | date:'medium'}}</span>
+      </span>
+
+      <span class="profile-id" *appExpertiseLevel="'developer'">
+        <span>Profile:</span>
+        <span>{{profile?.ID}}</span>
+      </span>
+
+    </div>
   </div>
 </div>
 
-<app-connections-view [profile]="profile" [@fadeIn]>
+<app-connections-view [profile]="profile" [@fadeIn]
+  [displayMode]="sessionDataService.get('monitor:displayMode', 'ungrouped')"
+  (displayModeChange)="sessionDataService.set('monitor:displayMode', $event)"
+  [liveMode]="sessionDataService.get('monitor:liveMode', false)"
+  (liveModeChange)="sessionDataService.set('monitor:liveMode', $event)">
 </app-connections-view>

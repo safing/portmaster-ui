@@ -1,1 +1,1 @@
-export { MenuComponent, MenuTriggerComponent, MenuItemComponent } from './menu';
+export { MenuComponent, MenuTriggerComponent, MenuItemComponent, MenuGroupComponent } from './menu';

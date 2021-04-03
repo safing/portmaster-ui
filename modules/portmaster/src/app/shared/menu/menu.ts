@@ -2,6 +2,7 @@ import { ChangeDetectionStrategy, ChangeDetectorRef, Component, ContentChildren,
 import { CdkOverlayOrigin, ConnectedPosition, ScrollStrategy, ScrollStrategyOptions } from '@angular/cdk/overlay';
 import { fadeInAnimation, fadeOutAnimation } from '../animations';
 import { BehaviorSubject } from 'rxjs';
+import { coerceBooleanProperty } from '@angular/cdk/coercion';
 
 @Component({
   selector: 'app-menu-trigger',
@@ -15,6 +16,13 @@ export class MenuTriggerComponent {
 
   @Input()
   menu: MenuComponent | null = null;
+
+  @Input()
+  set useContent(v: any) {
+    this._useContent = coerceBooleanProperty(v);
+  }
+  get useContent() { return this._useContent; }
+  private _useContent: boolean = false;
 
   @HostBinding('class.active')
   get isOpen() {
@@ -47,11 +55,16 @@ export class MenuTriggerComponent {
 @Component({
   selector: 'app-menu-item',
   template: '<ng-content></ng-content>',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class MenuItemComponent {
-  @ViewChild(TemplateRef, { static: true })
-  templateRef: TemplateRef<any> | null = null;
-}
+export class MenuItemComponent { }
+
+@Component({
+  selector: 'app-menu-group',
+  template: '<ng-content></ng-content>',
+  changeDetection: ChangeDetectionStrategy.OnPush,
+})
+export class MenuGroupComponent { }
 
 @Component({
   selector: 'app-menu',

@@ -1,46 +1,114 @@
-import { Component, Input, OnDestroy, TrackByFunction } from '@angular/core';
-import { Subscription } from 'rxjs';
-import { getAppSetting, ScopeTranslation, setAppSetting, Verdict, Connection } from 'src/app/services';
-import { AppProfileService } from 'src/app/services/app-profile.service';
-import { InspectedProfile, ScopeGroup } from 'src/app/services/connection-tracker.service';
-import { deepClone } from '../utils';
-import { Router } from '@angular/router';
+import { coerceBooleanProperty } from '@angular/cdk/coercion';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, Input, OnDestroy, OnInit, Output, TrackByFunction } from '@angular/core';
+import { Subject, Subscription } from 'rxjs';
+import { bufferTime, debounceTime, filter, startWith, take } from 'rxjs/operators';
+import { Connection, ExpertiseLevel, ScopeTranslation, Verdict } from 'src/app/services';
+import { ConnectionAddedEvent, InspectedProfile, ScopeGroup } from 'src/app/services/connection-tracker.service';
+import { binarySearch, pagination } from '../utils';
+import { ConnectionHelperService } from './connection-helper.service';
+
+export type ConnectionDisplayMode = 'grouped' | 'ungrouped';
+
+interface ConnectionFilter {
+  name: string;
+  fn: (c: Connection) => boolean;
+  expertiseLevel: ExpertiseLevel,
+}
 
 @Component({
   selector: 'app-connections-view',
   templateUrl: './connections-view.html',
-  styleUrls: ['./connections-view.scss'],
+  styleUrls: ['./content.scss', './connections-view.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  providers: [ConnectionHelperService],
 })
-export class ConnectionsViewComponent implements OnDestroy {
+export class ConnectionsViewComponent implements OnInit, OnDestroy {
   /** @private
    *  Contants made available for the template.
    */
   readonly scopeTranslation = ScopeTranslation;
-  readonly displayedColumns = ['state', 'entity', 'started', 'ended', 'reason', 'actions'];
-  readonly verdict = Verdict;
+  readonly connectionFilters: ConnectionFilter[] = [
+    { name: "All", fn: () => true, expertiseLevel: ExpertiseLevel.User },
+    { name: "Allowed", fn: c => c.Verdict !== Verdict.Block && c.Verdict !== Verdict.Drop, expertiseLevel: ExpertiseLevel.Expert },
+    { name: "Blocked", fn: c => c.Verdict === Verdict.Block || c.Verdict === Verdict.Drop, expertiseLevel: ExpertiseLevel.User },
+    { name: "Active", fn: c => !c.Ended, expertiseLevel: ExpertiseLevel.Expert },
+    { name: "Ended", fn: c => !!c.Ended, expertiseLevel: ExpertiseLevel.Expert },
+    { name: "Inbound", fn: c => c.Inbound, expertiseLevel: ExpertiseLevel.Developer },
+    { name: "Outbound", fn: c => !c.Inbound, expertiseLevel: ExpertiseLevel.Developer },
+  ]
 
   /** Subscription to profile updates. */
   private _profileUpdatesSub = Subscription.EMPTY;
 
+  /** Subscription for the "ungrouped" and filtered connection view */
+  private _filterSubscription = Subscription.EMPTY;
+
+  /** TrackByFunction for scope-groups */
   trackByScope: TrackByFunction<ScopeGroup> = (_: number, g: ScopeGroup) => g.scope;
 
-  /* A list of all blocked domains.
-   * Required to show the correct menu-items for domain-scopes */
-  private blockedDomains: string[] | null = null;
+  /** TrackByFunction for connection */
+  trackByConnection: TrackByFunction<Connection | null> = (_: number, c: Connection | null) => c?.ID;
+
+  /** Holds the filtered, ungrouped list of connections */
+  filteredUngroupedConnections: Connection[] = [];
+
+  /** Pagination */
+  currentPageIdx = 0;
+  currentPage: Connection[] = [];
+  pageNumbers: number[] = [];
+  readonly itemsPerPage = 100;
+
+  get totalPages() {
+    return Math.ceil(this.filteredUngroupedConnections.length / this.itemsPerPage);
+  }
+
+  get loading() {
+    return !this.profile || this.profile.loading || (this.displayMode === 'ungrouped' && this.filteredUngroupedConnections.length === 0)
+  }
+
+  ungroupedFilter = 'All';
+
+  /** The current display type */
+  @Input()
+  displayMode: ConnectionDisplayMode = 'ungrouped';
+
+  /** Output that emits whenever the users changes the display mode */
+  @Output()
+  displayModeChange = new EventEmitter<ConnectionDisplayMode>();
 
   @Input()
   set profile(p: InspectedProfile | null) {
     this._profile = p;
+    this.helper.profile = p;
 
-    this.blockedDomains = null;
     if (!!this._profile) {
       this._profileUpdatesSub.unsubscribe();
 
-      this._profileUpdatesSub = this._profile.profileUpdates
-        .subscribe(() => {
-          this.blockedDomains = null;
-          this.collectBlockedDomains();
-        });
+      this._profileUpdatesSub = new Subscription();
+
+      // Reset the previous ScopeGroup list.
+      this.scopeGroups = [];
+
+      // Reset the previous list of ungrouped-connections so
+      // we don't display stale data for a second when switching
+      // views.
+      this.filteredUngroupedConnections = [];
+
+      // handles updates for new scope-groups
+      const scopeUpdateSub =
+        this._profile.scopeGroups
+          .pipe(debounceTime(500))
+          .subscribe(upd => {
+            const isFirstLoad = this.scopeGroups.length === 0 || this.loading;
+            if (this._liveMode || isFirstLoad) {
+              this.handleScopeGroupUpdate(upd.groups);
+            } else if (upd.type === 'added') {
+              this.countNewScopes++;
+            }
+          });
+      this._profileUpdatesSub.add(scopeUpdateSub);
+
+      this.loadFilteredConnections()
     }
   }
   get profile() {
@@ -48,182 +116,246 @@ export class ConnectionsViewComponent implements OnDestroy {
   }
   private _profile: InspectedProfile | null = null;
 
+  /** Whether or not we display connections in "real" time */
+  @Input()
+  set liveMode(v: any) {
+    this._liveMode = coerceBooleanProperty(v);
+  }
+  get liveMode() {
+    return this._liveMode;
+  }
+  private _liveMode: boolean = false;
+
+  /** Emits whenever the user enables or disables live-mode */
+  @Output()
+  liveModeChange = new EventEmitter<boolean>();
+
+  /** Used to trigger a reload if live-mode is off */
+  reload = new Subject<void>();
+
+  /** @private - Counts the number of new connections if live-mode is off */
+  countNewConn = 0;
+
+  /** @private - Counts the number of new scope-groups if live-mode is off */
+  countNewScopes = 0;
+
+  /** @private - The currenlty displayed scope-groups */
+  scopeGroups: ScopeGroup[] = [];
+
   constructor(
-    private profileService: AppProfileService,
-    private router: Router,
+    private changeDetector: ChangeDetectorRef,
+    public helper: ConnectionHelperService,
   ) { }
 
-  /**
-   * @private
-   * Returns the class used to color the connection's
-   * verdict.
-   *
-   * @param conn The connection object
-   */
-  getVerdictClass(conn: Connection): string {
-    switch (conn.Verdict) {
-      case Verdict.Accept:
-        return 'low';
-      case Verdict.Block:
-      case Verdict.Drop:
-        return 'high';
-      default:
-        return 'medium';
-    }
-  }
-
-  ngOnDestroy() {
-    this._profileUpdatesSub.unsubscribe();
-  }
-
-  /**
-   * @private
-   * Redirect the user to "outgoing rules" setting in the
-   * application profile/settings.
-   */
-  redirectToRules() {
-    this.redirectToSetting('filter/endpoints');
-  }
-
-  /**
-   * @private
-   * Redirect the user to a settings key in the application
-   * profile.
-   *
-   * @param key The settings key to redirect to
-   */
-  redirectToSetting(key: string) {
-    if (!this.profile || !this.profile.profile) {
-      return;
-    }
-
-    this.router.navigate(
-      ['/', 'app', this.profile.profile.Source, this.profile.profile.ID], {
-      queryParams: {
-        setting: key
+  ngOnInit() {
+    this.reload.subscribe(() => {
+      if (!this._profile) {
+        return;
       }
+      // reload now
+      this._profile.scopeGroups.pipe(take(1))
+        .subscribe(grps => this.handleScopeGroupUpdate(grps.groups))
     })
   }
 
-  /**
-   * @private
-   * Creates a new "block domain" outgoing rules
-   */
-  blockAll(grp: ScopeGroup) {
-    if (!grp.domain) {
-      // scope blocking not yet supported
-      return
-    }
-
-    if (this.isScopeBlocked(grp)) {
-      return;
-    }
-
-    const newRule = `- ${grp.scope}`;
-
-    this.updateRules(newRule, true);
+  ngOnDestroy() {
+    this.reload.complete();
+    this._profileUpdatesSub.unsubscribe();
   }
 
+
   /**
-   * @private
-   * Removes a "block domain" rule from the outgoing rules
-   */
-  unblockAll(grp: ScopeGroup) {
-    if (!grp.domain) {
-      // scope blocking not yet supported
-      return
-    }
-
-    if (!this.isScopeBlocked(grp)) {
-      return;
-    }
-
-    const newRule = `- ${grp.scope}`;
-
-    this.updateRules(newRule, false);
-  }
-
-  /** @private
-   * Returns true if the scope (domain) is blocked.
-   * Non-domain scopes are not yet supported.
+   * Toggles live mode and forces a reload of the current connections.
    *
-   * @param grp The scope group which should be blocked from now on.
+   * @private
    */
-  isScopeBlocked(grp: ScopeGroup) {
-    // blocked domains are not yet loaded
-    if (this.blockedDomains === null) {
-      return false;
-    }
+  toggleLiveMode() {
+    this._liveMode = !this._liveMode;
+    this.liveModeChange.next(this._liveMode);
+    this.reload.next();
+    this.countNewConn = 0;
+    this.countNewScopes = 0;
+  }
 
-    if (!!grp.domain) {
-      return this.blockedDomains.some(rule => grp.scope === rule);
+  /**
+   * Switches the current display mode
+   *
+   * @private
+   */
+  selectDisplayMode(mode: ConnectionDisplayMode) {
+    this.displayMode = mode;
+    this.displayModeChange.next(mode);
+
+    if (this.displayMode !== 'ungrouped') {
+      this.ungroupedFilter = 'All';
+      this.reload.next();
     } else {
-      // TODO(ppacher): correctly handle all other scopes here.
+      this.selectPage(0);
     }
-
-    return false;
   }
 
   /**
-   * Updates the outgoing rule set and either creates or deletes
-   * a rule. If a rule should be created but already exists
-   * it is moved to the top.
+   * Changes the filter to use in ungrouped display mode.
    *
-   * @param newRule The new rule to create or delete.
-   * @param add  Whether or not to create or delete the rule.
+   * @private
    */
-  private updateRules(newRule: string, add: boolean) {
+  setUngroupedFilter(filter: string) {
+    const hasChanged = this.ungroupedFilter !== filter;
+    this.ungroupedFilter = filter;
+    this.selectDisplayMode('ungrouped');
+
+    if (hasChanged) {
+      this.loadFilteredConnections();
+    }
+  }
+
+  /**
+   * Toggles between the supported display modes
+   *
+   * @private
+   */
+  cycleDisplayMode() {
+    if (this.displayMode === 'grouped') {
+      this.selectDisplayMode('ungrouped')
+      return;
+    }
+
+    this.selectDisplayMode('grouped');
+  }
+
+  /**
+   * Selects the page to display in ungrouped-connections view.
+   * @param idx The new page index (zero-based).
+   *
+   * @private
+   */
+  selectPage(idx: number) {
+    if (idx > this.totalPages) {
+      idx = this.totalPages - 1;
+    }
+    if (idx < 0) {
+      idx = 0;
+    }
+
+    this.currentPageIdx = idx;
+    this.currentPage = this.filteredUngroupedConnections.slice(idx * this.itemsPerPage, (idx + 1) * this.itemsPerPage)
+    this.pageNumbers = pagination(this.currentPageIdx, this.totalPages)
+    this.countNewConn = 0;
+    this.changeDetector.markForCheck();
+  }
+
+  /**
+   * Updates the currently displayed scope groups
+   *
+   * @private
+   */
+  private handleScopeGroupUpdate(grps: ScopeGroup[]) {
+    this.countNewConn = 0;
+    this.countNewScopes = 0;
+    this.scopeGroups = grps;
+    this.changeDetector.markForCheck();
+  }
+
+  /** Gets filtered and sorted connections. */
+  private loadFilteredConnections() {
+    this._filterSubscription.unsubscribe();
     if (!this.profile) {
       return
     }
+    const profile = this.profile;
+    let result: Connection[] = [];
+    this.filteredUngroupedConnections = [];
+    this.currentPage = [];
 
-    let rules = getAppSetting<string[]>(this.profile!.profile!.Config, 'filter/endpoints') || [];
-    rules = rules.filter(rule => rule !== newRule);
+    // get the currently assigned filter
+    const filterFunc = this.connectionFilters.find(filter => filter.name === this.ungroupedFilter);
+    let lastAnimationFrame: any;
 
-    if (add) {
-      rules.splice(0, 0, newRule)
-    }
+    this._filterSubscription = profile.connectionUpdates
+      .pipe(
+        bufferTime(1000),
+        filter(changes => changes.length > 0),
+        debounceTime(500),
+        startWith(
+          Array.from(profile.connections).map(conn => ({
+            type: 'added',
+            conn: conn,
+            key: conn._meta?.Key!,
+          } as ConnectionAddedEvent))
+        ),
+      )
+      .subscribe(updates => {
+        let added = 0;
 
-    const profile = deepClone(this.profile!.profile);
-    setAppSetting(profile.Config, 'filter/endpoints', rules);
+        updates.forEach(upd => {
+          const filtered = !!filterFunc && !filterFunc.fn(upd.conn!);
 
-    this.profileService.saveLocalProfile(profile)
-      .subscribe();
+          // if this is an update and the "updated" connection would be filtered
+          // we need to convert the update to a "delete"
+          if (upd.type === 'update' && filtered) {
+            upd = {
+              ...upd,
+              type: 'deleted',
+            }
+          }
+
+          let idx = binarySearch(result, upd.conn!, ScopeGroup.SortByMostRecent);
+          if (upd.type === 'deleted') {
+            if (idx < 0) {
+              console.log(`connection not found`)
+              return;
+            }
+
+            result.splice(idx, 1);
+            return;
+          }
+
+          if (filtered) {
+            return;
+          }
+
+          if (upd.type === 'update' && idx >= 0) {
+            result[idx] = upd.conn;
+            return;
+          }
+
+          const newIdx = ~idx;
+          added++;
+          result.splice(newIdx, 0, upd.conn)
+        })
+
+        if (!!lastAnimationFrame) {
+          cancelAnimationFrame(lastAnimationFrame);
+        }
+
+        // If we currently show the ungrouped connection list wait for the
+        // next animation frame to get painting smooth.
+        if (this.displayMode === 'ungrouped') {
+          lastAnimationFrame = requestAnimationFrame(() => {
+            this.updatePagination(result, added);
+            this.changeDetector.markForCheck();
+          });
+        } else {
+          // if not, we can assigned the result immediately as nobody will care.
+          this.updatePagination(result, added);
+        }
+      })
   }
 
-  /**
-   * Iterates of all outgoing rules and collects which domains are blocked.
-   * It stops collecting domains as soon as the first "allow something" rule
-   * is hit.
-   */
-  private collectBlockedDomains() {
-    let blockedDomains = new Set<string>();
+  private updatePagination(connections: Connection[], connectionsAdded: number) {
+    const firstLoad = this.filteredUngroupedConnections.length === 0 || this.loading;
 
-    const rules = getAppSetting<string[]>(this.profile!.profile!.Config, 'filter/endpoints') || [];
-    for (let i = 0; i < rules.length; i++) {
-      const rule = rules[i];
-      if (rule.startsWith('+ ')) {
-        break;
-      }
+    this.filteredUngroupedConnections = [...connections];
 
-      blockedDomains.add(rule.substr(2))
-    }
+    this.countNewConn += connectionsAdded;
 
-    this.blockedDomains = Array.from(blockedDomains)
-  }
-
-  /**
-   * @private
-   * Dump a connection to the console
-   *
-   * @param conn The connection to dump
-   */
-  dumpConnection(conn: Connection) {
-    console.log(conn);
-
-    // Copy to clip-board if supported
-    if (!!navigator.clipboard) {
-      navigator.clipboard.writeText(JSON.stringify(conn, undefined, "    "))
+    // update the current index if the page we are on does not
+    // exist any more
+    if (firstLoad || this.currentPageIdx >= this.totalPages || (this.currentPageIdx === 0 && this.liveMode)) {
+      // reselect the current page in life mode or if it does not
+      // exist any more. In this case, selectPage will clip the index to the last page
+      this.selectPage(this.currentPageIdx);
     }
   }
+
 }
