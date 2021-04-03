@@ -10,9 +10,6 @@ export class ConnectionExpertisePipe implements PipeTransform {
         if (conn.Internal) {
             return ExpertiseLevel.Developer;
         }
-        if (conn.Entity.IP) {
-            return ExpertiseLevel.User;
-        }
-        return ExpertiseLevel.Expert;
+        return ExpertiseLevel.User;
     }
 }
