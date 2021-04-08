@@ -40,14 +40,42 @@
 </div>
 
 <div class="card-content">
-  <div>
-    <div>
+  <div class="row">
+    <div class="col">
       <app-text-placeholder mode="input" [loading]="!profile?.profile" width="large">
         <span>Binary Name:</span>
         <span>{{profile?.profile?.LinkedPath?.replace(nameRegex, "$2")}}</span>
       </app-text-placeholder>
+    </div>
+    <div class="col">
+      <app-text-placeholder class="path" mode="input" [loading]="!profile?.profile" width="large">
+        <span>Path:</span>
+        <span>{{profile?.profile?.LinkedPath || 'N/A'}}</span>
+      </app-text-placeholder>
+    </div>
+    <div class="col">
+      <span *ngIf="(profile?.profile?.ApproxLastUsed || 0) > 0">
+        <span>Activity:</span>
+        <span>{{profile!.profile!.ApproxLastUsed * 1000 | date:'medium'}}</span>
+      </span>
+    </div>
+  </div>
 
-      <span *appExpertiseLevel="'developer'">
+  <div class="row" *appExpertiseLevel="'developer'">
+    <div class="col">
+      <span class="profile-id" *appExpertiseLevel="'developer'">
+        <span>Profile:</span>
+        <span>{{profile?.ID}}</span>
+      </span>
+    </div>
+    <div class="col">
+      <span>
+        <span>Revision:</span>
+        <span>{{profile?.currentProfileRevision}}</span>
+      </span>
+    </div>
+    <div class="col">
+      <span>
         <span>Layers:</span>
         <span>
           <ol class="layers">
@@ -56,30 +84,6 @@
           </ol>
         </span>
       </span>
-    </div>
-
-    <div>
-      <app-text-placeholder class="path" mode="input" [loading]="!profile?.profile" width="large">
-        <span>Path:</span>
-        <span>{{profile?.profile?.LinkedPath || 'N/A'}}</span>
-      </app-text-placeholder>
-      <span *appExpertiseLevel="'developer'">
-        <span>Revision:</span>
-        <span>{{profile?.currentProfileRevision}}</span>
-      </span>
-    </div>
-
-    <div>
-      <span *ngIf="(profile?.profile?.ApproxLastUsed || 0) > 0">
-        <span>Activity:</span>
-        <span>{{profile!.profile!.ApproxLastUsed * 1000 | date:'medium'}}</span>
-      </span>
-
-      <span class="profile-id" *appExpertiseLevel="'developer'">
-        <span>Profile:</span>
-        <span>{{profile?.ID}}</span>
-      </span>
-
     </div>
   </div>
 </div>

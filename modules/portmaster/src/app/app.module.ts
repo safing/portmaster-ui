@@ -33,6 +33,7 @@ import { ScopeGroupContentComponent } from './shared/connections-view/scope-grou
 import { UngroupedConnectionContentComponent } from './shared/connections-view/ungrouped-connection-content';
 import { UngroupedConnectionRowComponent } from './shared/connections-view/ungrouped-connection-row';
 import { ConnectionExpertisePipe } from './shared/connections-view/connection-expertise.pipe';
+import { ConnectionLocationPipe } from './shared/connections-view/connection-country.pipe';
 import { CountIndicatorComponent } from './shared/count-indicator/count-indicator';
 import { CountryFlagDirective } from './shared/country-flag/country-flag';
 import { DropdownComponent } from './shared/dropdown/dropdown';
@@ -132,6 +133,7 @@ import { ScrollingModule as ExperimentalScrollingModule } from '@angular/cdk-exp
     UngroupedConnectionContentComponent,
     UngroupedConnectionRowComponent,
     ConnectionExpertisePipe,
+    ConnectionLocationPipe,
   ],
   imports: [
     BrowserModule,

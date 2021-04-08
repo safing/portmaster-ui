@@ -117,48 +117,18 @@ h3 {
 }
 
 .card-content {
+  display       : flex;
   flex-direction: column;
 
-  &>div {
-    width          : 90%;
-    display        : flex;
-    justify-content: space-between;
-    margin-left    : auto;
-    margin-right   : auto;
+  div.row {
+    width         : 100%;
+    display       : flex;
+    flex-direction: row;
 
-    &>div {
-      display        : flex;
-      flex-direction : column;
-      flex-grow      : 1;
-      flex-shrink    : 0;
-      justify-content: flex-start;
-      align-items    : flex-start;
-
-      &:hover {
-        svg.copy {
-          opacity: .55;
-        }
-      }
-
-      svg.copy {
-        width          : 14px;
-        padding        : 0;
-        margin         : 0 0 0 3px;
-        display        : inline-flex;
-        align-items    : center;
-        justify-content: center;
-        cursor         : pointer;
-        transition     : all .15s ease-in-out;
-        opacity        : 0;
-
-        g {
-          stroke: white;
-        }
-
-        &:hover {
-          opacity: 1;
-        }
-      }
+    div.col {
+      flex      : 1 0;
+      flex-basis: 0;
+      overflow  : hidden;
 
       &>span,
       app-text-placeholder {
@@ -167,6 +137,14 @@ h3 {
         font-size  : 0.7rem;
         font-weight: 500;
         user-select: none;
+
+        &,
+        li,
+        span {
+          white-space  : nowrap;
+          text-overflow: ellipsis;
+          overflow     : hidden;
+        }
 
         span:first-of-type {
           opacity     : 0.25;
@@ -179,12 +157,17 @@ h3 {
       }
     }
   }
+}
 
-  .path,
-  .profile-id {
-    overflow     : hidden;
-    white-space  : nowrap;
-    text-overflow: ellipsis;
+@media (max-width: 1480px) {
+  .card-content {
+    div.row {
+      flex-direction: column;
+
+      div.col {
+        flex-basis: auto;
+      }
+    }
   }
 }
 

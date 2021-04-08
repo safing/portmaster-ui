@@ -26,6 +26,37 @@ export enum IPVersion {
   V6 = 6,
 }
 
+export enum IPScope {
+  Invalid = -1,
+  Undefined = 0,
+  HostLocal = 1,
+  LinkLocal = 2,
+  SiteLocal = 3,
+  Global = 4,
+  LocalMulticast = 5,
+  GlobalMulitcast = 6
+}
+
+let globalScopes = new Set([IPScope.GlobalMulitcast, IPScope.Global])
+let localScopes = new Set([IPScope.SiteLocal, IPScope.LinkLocal, IPScope.LocalMulticast])
+
+// IsGlobalScope returns true if scope represents a globally
+// routed destination.
+export function IsGlobalScope(scope: IPScope): scope is IPScope.GlobalMulitcast | IPScope.Global {
+  return globalScopes.has(scope);
+}
+
+// IsLocalScope returns true if scope represents a locally
+// routed destination.
+export function IsLANScope(scope: IPScope): scope is IPScope.SiteLocal | IPScope.LinkLocal | IPScope.LocalMulticast {
+  return localScopes.has(scope);
+}
+
+// IsLocalhost returns true if scope represents localhost.
+export function IsLocalhost(scope: IPScope): scope is IPScope.HostLocal {
+  return scope === IPScope.HostLocal;
+}
+
 export interface IntelEntity {
   // Protocol is the IP protocol used to connect/communicate
   // the the described entity.
@@ -41,6 +72,8 @@ export interface IntelEntity {
   CNAME: string[] | null;
   // IP is the IP address of the entity.
   IP: string;
+  // IPScope holds the classification of the IP address.
+  IPScope: IPScope;
   // Country holds the country of residence of the IP address.
   Country: string;
   // ASN holds the number of the autonoumous system that operates
@@ -72,12 +105,12 @@ export enum ScopeIdentifier {
 }
 
 export const ScopeTranslation: { [key: string]: string } = {
-  [ScopeIdentifier.IncomingHost]: "Localhost Incoming",
-  [ScopeIdentifier.IncomingLAN]: "Incoming local network connections",
-  [ScopeIdentifier.IncomingInternet]: "Incoming global connections",
-  [ScopeIdentifier.PeerHost]: "Localhost Outgoing",
-  [ScopeIdentifier.PeerLAN]: "Local Peer-to-Peer",
-  [ScopeIdentifier.PeerInternet]: "Global Peer-to-Peer",
+  [ScopeIdentifier.IncomingHost]: "Device-Local Incoming",
+  [ScopeIdentifier.IncomingLAN]: "LAN Incoming",
+  [ScopeIdentifier.IncomingInternet]: "Internet Incoming",
+  [ScopeIdentifier.PeerHost]: "Device-Local Outgoing",
+  [ScopeIdentifier.PeerLAN]: "LAN Peer-to-Peer",
+  [ScopeIdentifier.PeerInternet]: "Internet Peer-to-Peer",
   [ScopeIdentifier.IncomingInvalid]: "N/A",
   [ScopeIdentifier.PeerInvalid]: "N/A",
 }
@@ -106,9 +139,17 @@ export interface Reason {
   Context: any;
 }
 
+export enum ConnectionType {
+  Undefined = 0,
+  IPConnection = 1,
+  DNSRequest = 2
+}
+
 export interface Connection extends Record {
   // ID is a unique ID for the connection.
   ID: string;
+  // Type defines the connection type.
+  Type: ConnectionType;
   // Scope defines the scope of the connection. It's an somewhat
   // weired field that may contain a ScopeIdentifier or a string.
   // In case of a string it may eventually be interpreted as a
@@ -124,6 +165,9 @@ export interface Connection extends Record {
   // LocalIP is the local IP address that is involved into
   // the connection.
   LocalIP: string;
+  // LocalIPScope holds the classification of the local IP
+  // address;
+  LocalIPScope: IPScope;
   // LocalPort is the local port that is involved into the
   // connection.
   LocalPort: number;
