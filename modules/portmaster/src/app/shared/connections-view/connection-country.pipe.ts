@@ -17,7 +17,7 @@ export class ConnectionLocationPipe implements PipeTransform {
     const scope = conn.Entity.IPScope;
 
     if (IsGlobalScope(scope)) {
-      return 'Global'
+      return 'Internet'
     }
 
     if (IsLANScope(scope)) {
@@ -25,7 +25,7 @@ export class ConnectionLocationPipe implements PipeTransform {
     }
 
     if (IsLocalhost(scope)) {
-      return 'Local'
+      return 'Device'
     }
 
     return '';

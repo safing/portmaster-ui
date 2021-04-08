@@ -105,12 +105,12 @@ export enum ScopeIdentifier {
 }
 
 export const ScopeTranslation: { [key: string]: string } = {
-  [ScopeIdentifier.IncomingHost]: "Localhost Incoming",
-  [ScopeIdentifier.IncomingLAN]: "Incoming local network connections",
-  [ScopeIdentifier.IncomingInternet]: "Incoming global connections",
-  [ScopeIdentifier.PeerHost]: "Localhost Outgoing",
-  [ScopeIdentifier.PeerLAN]: "Local Peer-to-Peer",
-  [ScopeIdentifier.PeerInternet]: "Global Peer-to-Peer",
+  [ScopeIdentifier.IncomingHost]: "Device-Local Incoming",
+  [ScopeIdentifier.IncomingLAN]: "LAN Incoming",
+  [ScopeIdentifier.IncomingInternet]: "Internet Incoming",
+  [ScopeIdentifier.PeerHost]: "Device-Local Outgoing",
+  [ScopeIdentifier.PeerLAN]: "LAN Peer-to-Peer",
+  [ScopeIdentifier.PeerInternet]: "Internet Peer-to-Peer",
   [ScopeIdentifier.IncomingInvalid]: "N/A",
   [ScopeIdentifier.PeerInvalid]: "N/A",
 }
