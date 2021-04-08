@@ -137,11 +137,13 @@ svg.copy {
   padding-right: 0;
 
   ::ng-deep svg.arrow {
-    width     : 1rem;
-    padding   : 0;
-    margin    : 0;
-    transform : rotate(90deg);
-    transition: all ease-in-out .3s;
+    width      : 1rem;
+    padding    : 0;
+    margin     : 0;
+    transform  : rotate(90deg);
+    transition : all ease-in-out .3s;
+    flex-shrink: 0;
+    flex-grow  : 0;
 
     .inner {
       stroke: white;
@@ -171,5 +173,14 @@ svg.copy {
 
   .spacer {
     margin-right: 1rem;
+  }
+}
+
+
+table.waiting-connections {
+  opacity: 0.5;
+
+  td {
+    text-align: center;
   }
 }

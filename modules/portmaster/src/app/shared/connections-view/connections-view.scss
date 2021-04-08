@@ -37,6 +37,10 @@ app-menu-item.selectable-menu-item {
   }
 }
 
+fa-icon.filter-active {
+  color: theme("colors.info.green");
+}
+
 .reload-notice {
   fa-icon {
     margin-left: 6px;

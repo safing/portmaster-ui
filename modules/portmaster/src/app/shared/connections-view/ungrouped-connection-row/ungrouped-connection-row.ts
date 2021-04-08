@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, Input, OnDestroy, OnInit } from "@angular/core";
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, HostListener, Input, OnDestroy, OnInit } from "@angular/core";
 import { interval, Subscription } from "rxjs";
 import { startWith, share } from "rxjs/operators";
 import { Connection } from "src/app/services";

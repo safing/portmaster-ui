@@ -1,10 +1,10 @@
 import { coerceBooleanProperty } from '@angular/cdk/coercion';
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, Input, OnDestroy, OnInit, Output, TrackByFunction } from '@angular/core';
 import { Subject, Subscription } from 'rxjs';
-import { bufferTime, debounceTime, filter, startWith, take } from 'rxjs/operators';
-import { Connection, ExpertiseLevel, ScopeTranslation, Verdict } from 'src/app/services';
+import { bufferTime, debounceTime, startWith, take } from 'rxjs/operators';
+import { Connection, ExpertiseLevel, IsGlobalScope, IsLocalhost, IsLANScope, ScopeTranslation, Verdict } from 'src/app/services';
 import { ConnectionAddedEvent, InspectedProfile, ScopeGroup } from 'src/app/services/connection-tracker.service';
-import { binarySearch, pagination } from '../utils';
+import { binaryInsert, binarySearch, pagination } from '../utils';
 import { ConnectionHelperService } from './connection-helper.service';
 
 export type ConnectionDisplayMode = 'grouped' | 'ungrouped';
@@ -35,13 +35,16 @@ export class ConnectionsViewComponent implements OnInit, OnDestroy {
     { name: "Ended", fn: c => !!c.Ended, expertiseLevel: ExpertiseLevel.Expert },
     { name: "Inbound", fn: c => c.Inbound, expertiseLevel: ExpertiseLevel.Developer },
     { name: "Outbound", fn: c => !c.Inbound, expertiseLevel: ExpertiseLevel.Developer },
+    { name: "Local", fn: c => IsLocalhost(c.Entity.IPScope), expertiseLevel: ExpertiseLevel.Developer },
+    { name: "LAN", fn: c => IsLANScope(c.Entity.IPScope), expertiseLevel: ExpertiseLevel.Developer },
+    { name: "Global", fn: c => IsGlobalScope(c.Entity.IPScope), expertiseLevel: ExpertiseLevel.Developer },
   ]
 
   /** Subscription to profile updates. */
   private _profileUpdatesSub = Subscription.EMPTY;
 
   /** Subscription for the "ungrouped" and filtered connection view */
-  private _filterSubscription = Subscription.EMPTY;
+  private filterSub = Subscription.EMPTY;
 
   /** TrackByFunction for scope-groups */
   trackByScope: TrackByFunction<ScopeGroup> = (_: number, g: ScopeGroup) => g.scope;
@@ -55,7 +58,7 @@ export class ConnectionsViewComponent implements OnInit, OnDestroy {
   /** Pagination */
   currentPageIdx = 0;
   currentPage: Connection[] = [];
-  pageNumbers: number[] = [];
+  pageNumbers: number[] = [1];
   readonly itemsPerPage = 100;
 
   get totalPages() {
@@ -63,8 +66,22 @@ export class ConnectionsViewComponent implements OnInit, OnDestroy {
   }
 
   get loading() {
-    return !this.profile || this.profile.loading || (this.displayMode === 'ungrouped' && this.filteredUngroupedConnections.length === 0)
+    return !this.profile || this.profile.loading || this.ungroupedLoading
   }
+
+  get ungroupedLoading() {
+    if (this.displayMode === 'grouped') {
+      return false;
+    }
+
+    if (this._ungroupedModeLoaded) {
+      return false;
+    }
+
+    const processGroupSize = this.profile?.processGroup.size || 0;
+    return processGroupSize > 0 && this.filteredUngroupedConnections.length == 0;
+  }
+  private _ungroupedModeLoaded = false;
 
   ungroupedFilter = 'All';
 
@@ -80,19 +97,14 @@ export class ConnectionsViewComponent implements OnInit, OnDestroy {
   set profile(p: InspectedProfile | null) {
     this._profile = p;
     this.helper.profile = p;
+    this._profileUpdatesSub.unsubscribe();
+    this.filterSub?.unsubscribe();
 
     if (!!this._profile) {
-      this._profileUpdatesSub.unsubscribe();
-
       this._profileUpdatesSub = new Subscription();
 
       // Reset the previous ScopeGroup list.
       this.scopeGroups = [];
-
-      // Reset the previous list of ungrouped-connections so
-      // we don't display stale data for a second when switching
-      // views.
-      this.filteredUngroupedConnections = [];
 
       // handles updates for new scope-groups
       const scopeUpdateSub =
@@ -202,7 +214,10 @@ export class ConnectionsViewComponent implements OnInit, OnDestroy {
   setUngroupedFilter(filter: string) {
     const hasChanged = this.ungroupedFilter !== filter;
     this.ungroupedFilter = filter;
-    this.selectDisplayMode('ungrouped');
+
+    if (this.displayMode === 'grouped') {
+      this.selectDisplayMode('ungrouped');
+    }
 
     if (hasChanged) {
       this.loadFilteredConnections();
@@ -244,6 +259,14 @@ export class ConnectionsViewComponent implements OnInit, OnDestroy {
     this.changeDetector.markForCheck();
   }
 
+  private resetUngroupedView() {
+    this.filteredUngroupedConnections = [];
+    this.currentPage = [];
+    this.pageNumbers = [1];
+    this._ungroupedModeLoaded = false;
+    this.changeDetector.markForCheck();
+  }
+
   /**
    * Updates the currently displayed scope groups
    *
@@ -258,24 +281,20 @@ export class ConnectionsViewComponent implements OnInit, OnDestroy {
 
   /** Gets filtered and sorted connections. */
   private loadFilteredConnections() {
-    this._filterSubscription.unsubscribe();
+    this.filterSub.unsubscribe();
+
     if (!this.profile) {
       return
     }
+
     const profile = this.profile;
     let result: Connection[] = [];
-    this.filteredUngroupedConnections = [];
-    this.currentPage = [];
 
     // get the currently assigned filter
     const filterFunc = this.connectionFilters.find(filter => filter.name === this.ungroupedFilter);
-    let lastAnimationFrame: any;
-
-    this._filterSubscription = profile.connectionUpdates
+    this.filterSub = profile.connectionUpdates
       .pipe(
-        bufferTime(1000),
-        filter(changes => changes.length > 0),
-        debounceTime(500),
+        bufferTime(1000, null, profile.processGroup.size),
         startWith(
           Array.from(profile.connections).map(conn => ({
             type: 'added',
@@ -284,66 +303,73 @@ export class ConnectionsViewComponent implements OnInit, OnDestroy {
           } as ConnectionAddedEvent))
         ),
       )
-      .subscribe(updates => {
-        let added = 0;
-
-        updates.forEach(upd => {
-          const filtered = !!filterFunc && !filterFunc.fn(upd.conn!);
-
-          // if this is an update and the "updated" connection would be filtered
-          // we need to convert the update to a "delete"
-          if (upd.type === 'update' && filtered) {
-            upd = {
-              ...upd,
-              type: 'deleted',
-            }
+      .subscribe(
+        updates => {
+          let added = 0;
+          let inlineUpdates = false;
+          if (updates.length === 0) {
+            return;
           }
 
-          let idx = binarySearch(result, upd.conn!, ScopeGroup.SortByMostRecent);
-          if (upd.type === 'deleted') {
-            if (idx < 0) {
-              console.log(`connection not found`)
+          updates.forEach(upd => {
+            const filtered = !!filterFunc && !filterFunc.fn(upd.conn!);
+
+            if (upd.type === 'update') {
+              let idx = binarySearch(this.currentPage, upd.conn, ScopeGroup.SortByMostRecent);
+              if (idx >= 0 && this.currentPage[idx]?.ID === upd.conn.ID) {
+                this.currentPage[idx] = upd.conn;
+              }
+              inlineUpdates = true;
+            }
+
+            // if this is an update and the "updated" connection would be filtered
+            // we need to convert the update to a "delete"
+            if (upd.type === 'update' && filtered) {
+              upd = {
+                ...upd,
+                type: 'deleted',
+              }
+            }
+
+            let idx = binarySearch(result, upd.conn!, ScopeGroup.SortByMostRecent);
+            if (upd.type === 'deleted') {
+              if (idx < 0) {
+                console.log(`connection not found`)
+                return;
+              }
+
+              result.splice(idx, 1);
               return;
             }
 
-            result.splice(idx, 1);
-            return;
-          }
+            if (filtered) {
+              return;
+            }
 
-          if (filtered) {
-            return;
-          }
+            if (upd.type === 'update' && idx >= 0) {
+              result[idx] = upd.conn;
 
-          if (upd.type === 'update' && idx >= 0) {
-            result[idx] = upd.conn;
-            return;
-          }
+              return;
+            }
 
-          const newIdx = ~idx;
-          added++;
-          result.splice(newIdx, 0, upd.conn)
-        })
+            const newIdx = ~idx;
+            added++;
+            result.splice(newIdx, 0, upd.conn)
+          })
 
-        if (!!lastAnimationFrame) {
-          cancelAnimationFrame(lastAnimationFrame);
-        }
-
-        // If we currently show the ungrouped connection list wait for the
-        // next animation frame to get painting smooth.
-        if (this.displayMode === 'ungrouped') {
-          lastAnimationFrame = requestAnimationFrame(() => {
-            this.updatePagination(result, added);
+          if (inlineUpdates) {
+            this.currentPage = [...this.currentPage];
             this.changeDetector.markForCheck();
-          });
-        } else {
-          // if not, we can assigned the result immediately as nobody will care.
+          }
+
           this.updatePagination(result, added);
-        }
-      })
+        });
+
+    this.filterSub.add(() => this.resetUngroupedView())
   }
 
   private updatePagination(connections: Connection[], connectionsAdded: number) {
-    const firstLoad = this.filteredUngroupedConnections.length === 0 || this.loading;
+    const firstLoad = this.filteredUngroupedConnections.length === 0 || this.ungroupedLoading;
 
     this.filteredUngroupedConnections = [...connections];
 
@@ -355,6 +381,7 @@ export class ConnectionsViewComponent implements OnInit, OnDestroy {
       // reselect the current page in life mode or if it does not
       // exist any more. In this case, selectPage will clip the index to the last page
       this.selectPage(this.currentPageIdx);
+      this._ungroupedModeLoaded = true;
     }
   }
 

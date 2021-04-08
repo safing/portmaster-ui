@@ -36,14 +36,6 @@ table {
   }
 }
 
-table.waiting-connections {
-  opacity: 0.5;
-
-  td {
-    text-align: center;
-  }
-}
-
 .tableFixHead {
   @apply mb-4;
 

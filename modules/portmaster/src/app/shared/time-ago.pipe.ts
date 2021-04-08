@@ -16,7 +16,7 @@ export class TimeAgoPipe implements PipeTransform {
       { ceiling: Infinity, text: "year" }
     ];
 
-    const diffInSeconds = Math.floor(((new Date()).valueOf() - (value * 1000)) / 1000);
+    let diffInSeconds = Math.floor(((new Date()).valueOf() - (value * 1000)) / 1000);
     for (let i = formats.length - 1; i >= 0; i--) {
       const f = formats[i];
       let n = Math.floor(diffInSeconds / f.ceiling);
@@ -32,6 +32,6 @@ export class TimeAgoPipe implements PipeTransform {
       }
     }
 
-    return 'N/A';
+    return "< 1 min ago" // actually just now (diffInSeconds == 0)
   }
 }

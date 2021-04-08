@@ -1,10 +1,4 @@
 :host {
-  &>* {
-    display: table-cell;
-  }
-}
-
-.connection-details {
   flex-grow      : 1;
   display        : flex;
   justify-content: space-between;
@@ -13,16 +7,13 @@
   font-size      : 0.7rem;
 }
 
+.connection-details {}
+
 .scope {
-  width        : 25%;
-  flex-shrink  : 0;
-  display      : inline-block;
-  display      : inline-flex;
-  align-self   : stretch;
-  align-items  : center;
-  white-space  : nowrap;
-  overflow     : hidden;
-  text-overflow: ellipsis;
+  display    : inline-block;
+  display    : inline-flex;
+  align-self : stretch;
+  align-items: center;
 
   span,
   app-scope-label {
@@ -41,29 +32,23 @@
 }
 
 .peer {
-  white-space: nowrap;
-  display    : flex;
+  display: flex;
 
   span {
     text-overflow: ellipsis;
     overflow     : hidden;
   }
-
-  width: 20%;
 }
 
-.country {
+.country,
+.time {
   display        : flex;
-  width          : 50px;
   align-items    : center;
   justify-content: center;
 }
 
 .reason {
-  flex-grow    : 1;
-  text-overflow: ellipsis;
-  overflow     : hidden;
-  text-align   : right;
+  text-align: right;
 
   label {
     @apply text-secondary;
@@ -73,5 +58,103 @@
   .port {
     margin-right: 6px;
     margin-left : 6px;
+  }
+}
+
+// table size
+.arrow,
+.scope,
+.country,
+.peer,
+.reason {
+  white-space  : nowrap;
+  text-overflow: ellipsis;
+  overflow     : hidden;
+  flex-shrink  : 0;
+}
+
+.arrow {
+  width: 1rem;
+}
+
+.scope {
+  width: 150px;
+}
+
+.time {
+  width  : 120px;
+  display: none;
+
+  .de-emphasize {
+    display: none;
+  }
+}
+
+.country {
+  width  : 50px;
+  display: none;
+}
+
+.peer {
+  width: 130px;
+}
+
+.reason {
+  flex-grow: 1;
+
+  .applied {
+    display: none;
+  }
+
+  .reason-source {
+    display   : none;
+    text-align: left;
+    width     : 80px;
+  }
+}
+
+@media (min-width: 1400px) {
+  .time {
+    display: inline-block;
+  }
+}
+
+@media (min-width: 1470px) {
+  .reason {
+    .reason-source {
+      display: inline-block;
+    }
+  }
+}
+
+@media (min-width: 1510px) {
+  .time {
+    .de-emphasize {
+      display: inline-block;
+    }
+  }
+}
+
+@media (min-width: 1550px) {
+  .reason {
+    .applied {
+      display: inline-block;
+    }
+  }
+}
+
+@media (min-width: 1620px) {
+  .country {
+    display: flex;
+  }
+}
+
+@media (min-width: 1700px) {
+  .peer {
+    width: 180px;
+  }
+
+  .scope {
+    width: 200px;
   }
 }

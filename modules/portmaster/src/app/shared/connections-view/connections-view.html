@@ -13,7 +13,7 @@
     </div>
 
     <app-menu-trigger [menu]="viewMenu" useContent="true">
-      <fa-icon icon="sort-amount-down"></fa-icon>
+      <fa-icon icon="sort-amount-down" [class.filter-active]="ungroupedFilter !== 'All'"></fa-icon>
     </app-menu-trigger>
     <app-menu #viewMenu>
       <app-menu-group style="min-width: 150px;">Show</app-menu-group>
@@ -139,6 +139,15 @@
         </app-accordion>
       </ng-container>
     </app-accordion-group>
+
+    <table *ngIf="!filteredUngroupedConnections.length && !ungroupedLoading" class="waiting-connections">
+      <tr>
+        <td>
+          <fa-icon icon="spinner" [spin]="true"></fa-icon>
+          Waiting for connections
+        </td>
+      </tr>
+    </table>
 
     <ng-container *ngTemplateOutlet="pagination"></ng-container>
   </div>
