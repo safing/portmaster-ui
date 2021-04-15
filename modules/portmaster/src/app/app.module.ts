@@ -65,7 +65,6 @@ import { ScopeLabelComponent } from './shared/scope-label';
 import { TimeAgoPipe } from './shared/time-ago.pipe';
 import { HttpClientModule } from '@angular/common/http';
 import { ScrollingModule } from '@angular/cdk/scrolling';
-import { ScrollingModule as ExperimentalScrollingModule } from '@angular/cdk-experimental/scrolling';
 
 @NgModule({
   declarations: [
@@ -149,7 +148,6 @@ import { ScrollingModule as ExperimentalScrollingModule } from '@angular/cdk-exp
     HttpClientModule,
     MarkdownModule.forRoot(),
     ScrollingModule,
-    ExperimentalScrollingModule,
   ],
   providers: [
     {
