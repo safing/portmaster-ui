@@ -214,7 +214,12 @@ export class AppComponent implements OnInit {
 
               const notif = new VirtualNotification<any>(
                 key,
-                module.FailureStatus === FailureStatus.Hint ? NotificationType.Info : NotificationType.Warning,
+                {
+                  [FailureStatus.Operational]: NotificationType.Info, // cannot happen but make Typescript happy
+                  [FailureStatus.Hint]: NotificationType.Info,
+                  [FailureStatus.Warning]: NotificationType.Warning,
+                  [FailureStatus.Error]: NotificationType.Error,
+                }[subsystem.FailureStatus],
                 subsystem.Name,
                 module.FailureMsg,
                 {

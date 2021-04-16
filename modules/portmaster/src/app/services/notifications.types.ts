@@ -29,6 +29,8 @@ export enum NotificationType {
   Warning = 1,
   // Prompt asks the user for a decision.
   Prompt = 2,
+  // Error is UI only
+  Error = 255,
 }
 
 export interface ConnectionPromptData {
