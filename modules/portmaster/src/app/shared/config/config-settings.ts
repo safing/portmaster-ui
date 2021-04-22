@@ -80,6 +80,9 @@ export class ConfigSettingsViewComponent implements OnInit, OnDestroy, AfterView
       // this setting is shown anyway.
       return false;
     }
+    if (s.Key === this.highlightKey) {
+      return true;
+    }
     if (s.Value === undefined) {
       // no value set
       return false;
