@@ -2,12 +2,14 @@
 <div class="settings-nav" *ngIf="!loading" [@fadeIn]>
   <ul>
     <ng-container *ngFor="let subsys of subsystems; trackBy: statusService.trackSubsystem">
-      <ng-template [appExpertiseLevel]="subsys.minimumExpertise">
+      <ng-template [appExpertiseLevel]="subsys.minimumExpertise" [appExpertiseLevelData]="subsys"
+        [appExpertiseLevelOverwrite]="mustShowSubsystem">
         <li [class.active]="activeSection === subsys.ConfigKeySpace" [class.separated]="subsys.ID === 'core'">
           <span (click)="scrollTo(subsys.ConfigKeySpace)">{{subsys.Name}}</span>
           <ul class="settings">
             <ng-container *ngFor="let cat of settings.get(subsys.ConfigKeySpace); trackBy: trackCategory">
-              <li [class.active]="activeCategory === cat.name" *appExpertiseLevel="cat.minimumExpertise"
+              <li [class.active]="activeCategory === cat.name"
+                *appExpertiseLevel="cat.minimumExpertise; data: cat; overwrite: mustShowCategory"
                 (click)="scrollTo(subsys.ConfigKeySpace + ':' + cat.name)">
                 {{cat.name}}
               </li>
@@ -28,20 +30,23 @@
   <div class="settings" *ngIf="!loading" [@fadeIn]>
     <!-- actual settings -->
     <ng-container *ngFor="let subsys of subsystems; trackBy: statusService.trackSubsystem">
-      <ng-template [appExpertiseLevel]="subsys.minimumExpertise">
+      <ng-template [appExpertiseLevel]="subsys.minimumExpertise" [appExpertiseLevelData]="subsys"
+        [appExpertiseLevelOverwrite]="mustShowSubsystem">
         <h2 [attr.id]="subsys.ConfigKeySpace">
           {{subsys.Name}}
         </h2>
 
         <ng-container *ngFor="let cat of settings.get(subsys.ConfigKeySpace); trackBy: trackCategory; let index=index">
           <div class="category" #navLink anchor="top" [attr.subsystem]="subsys.ConfigKeySpace"
-            [attr.category]="cat.name" *appExpertiseLevel="cat.minimumExpertise">
+            [attr.category]="cat.name"
+            *appExpertiseLevel="cat.minimumExpertise; data: cat; overwrite: mustShowCategory">
 
             <div class="border"></div>
 
             <h4 [attr.id]="subsys.ConfigKeySpace +':' + cat.name">{{cat.name}}</h4>
             <ng-container *ngFor="let setting of cat.settings; trackBy: configService.trackBy">
-              <div *appExpertiseLevel="setting.ExpertiseLevel" [class.highlighted]="highlightKey === setting.Key">
+              <div *appExpertiseLevel="setting.ExpertiseLevel; data: setting; overwrite: mustShowSetting"
+                [class.highlighted]="highlightKey === setting.Key">
                 <app-generic-setting [setting]="setting" [attr.id]="setting.Key" [resetLabelText]="resetLabelText"
                   (onSave)="saveSetting($event)" [lockDefaults]="lockDefaults" [displayStackable]="displayStackable">
                 </app-generic-setting>
@@ -58,9 +63,9 @@
       </h2>
       <div class="category">
         <ng-container *ngFor="let setting of others; trackBy: configService.trackBy">
-          <app-generic-setting *appExpertiseLevel="setting.ExpertiseLevel" [setting]="setting"
-            [resetLabelText]="resetLabelText" (onSave)="saveSetting($event)" [lockDefaults]="lockDefaults"
-            [displayStackable]="displayStackable">
+          <app-generic-setting *appExpertiseLevel="setting.ExpertiseLevel; data: setting; overwrite: mustShowSetting"
+            [setting]="setting" [resetLabelText]="resetLabelText" (onSave)="saveSetting($event)"
+            [lockDefaults]="lockDefaults" [displayStackable]="displayStackable">
           </app-generic-setting>
         </ng-container>
       </div>
