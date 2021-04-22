@@ -28,8 +28,11 @@
       }
 
       &>span:last-of-type {
-        display: inline-block;
-        color  : #cacaca;
+        display    : inline-block;
+        color      : #cacaca;
+        // immediately select the whole value if the user
+        // clicks it.
+        user-select: all;
       }
     }
   }
