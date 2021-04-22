@@ -2,8 +2,8 @@
   <h3>Connection History</h3>
   <div class="actions">
 
-    <div *ngIf="countNewConn > 0 && displayMode == 'ungrouped'" (click)="selectPage(0)" class="reload-notice">
-      {{ countNewConn }} new connections: Reload
+    <div *ngIf="countNewConn !== 0 && displayMode == 'ungrouped'" (click)="selectPage(0)" class="reload-notice">
+      {{ countNewConn > 0 ? countNewConn : '1' }} new connections: Reload
       <fa-icon icon="redo"></fa-icon>
     </div>
 
