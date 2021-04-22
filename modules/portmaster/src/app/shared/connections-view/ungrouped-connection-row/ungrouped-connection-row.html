@@ -74,31 +74,22 @@
   <div>
     <app-menu-trigger [menu]="ungroupedConnectionMenu"></app-menu-trigger>
     <app-menu #ungroupedConnectionMenu>
-      <app-menu-item (click)="helper.redirectToSetting(conn.Reason.OptionKey)" *ngIf="!!conn.Reason.OptionKey">
+      <app-menu-item (onActivate)="helper.redirectToSetting(conn.Reason.OptionKey)" *ngIf="!!conn.Reason.OptionKey">
         Show setting
       </app-menu-item>
 
-      <ng-container *ngIf="conn.Entity.Domain as domain; else ipActions">
-        <app-menu-item *ngIf="helper.isDomainBlocked(domain); else blockDomain" (click)="helper.unblockAll(domain)">
-          Allow domain
+      <app-menu-item *ngIf="(conn | isBlocked); else blockAction"
+        (onActivate)="helper.unblockAll(conn.Entity.Domain || conn.Entity.IP)" [disabled]="!(conn | canUseRules)">
+        Allow {{ conn.Entity.Domain ? 'Domain' : 'IP'}}
+      </app-menu-item>
+
+      <ng-template #blockAction>
+        <app-menu-item (onActivate)="helper.blockAll(conn.Entity.Domain || conn.Entity.IP)"
+          [disabled]="!(conn | canUseRules)">
+          Block {{ conn.Entity.Domain ? 'Domain' : 'IP '}}
         </app-menu-item>
-        <ng-template #blockDomain>
-          <app-menu-item (click)="helper.blockAll(domain)">
-            Block domain
-          </app-menu-item>
-        </ng-template>
-      </ng-container>
-      <ng-template #ipActions>
-        <app-menu-item *ngIf="helper.isDomainBlocked(conn.Entity.IP); else blockIP"
-          (click)="helper.unblockAll(conn.Entity.IP)">
-          Allow IP
-        </app-menu-item>
-        <ng-template #blockIP>
-          <app-menu-item (click)="helper.blockAll(conn.Entity.IP)">
-            Block IP
-          </app-menu-item>
-        </ng-template>
       </ng-template>
+
 
       <app-menu-item *appExpertiseLevel="'expert'" (click)="helper.dumpConnection(conn)">Copy JSON</app-menu-item>
     </app-menu>

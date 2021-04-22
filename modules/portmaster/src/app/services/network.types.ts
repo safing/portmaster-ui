@@ -57,6 +57,16 @@ export function IsLocalhost(scope: IPScope): scope is IPScope.HostLocal {
   return scope === IPScope.HostLocal;
 }
 
+const deniedVerdicts = new Set([
+  Verdict.Drop,
+  Verdict.Block,
+])
+// IsDenied returns true if the verdict v represents a
+// deny or block decision.
+export function IsDenied(v: Verdict): boolean {
+  return deniedVerdicts.has(v);
+}
+
 export interface IntelEntity {
   // Protocol is the IP protocol used to connect/communicate
   // the the described entity.

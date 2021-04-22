@@ -28,12 +28,6 @@ import { RuleListItemComponent } from './shared/config/rule-list/list-item';
 import { GenericSettingComponent } from './shared/config/generic-setting/generic-setting';
 import { SecuritySettingComponent } from './shared/config/security-setting/security-setting';
 import { FilterListComponent } from './shared/config/filter-lists';
-import { ConnectionsViewComponent } from './shared/connections-view/connections-view';
-import { ScopeGroupContentComponent } from './shared/connections-view/scope-group-content';
-import { UngroupedConnectionContentComponent } from './shared/connections-view/ungrouped-connection-content';
-import { UngroupedConnectionRowComponent } from './shared/connections-view/ungrouped-connection-row';
-import { ConnectionExpertisePipe } from './shared/connections-view/connection-expertise.pipe';
-import { ConnectionLocationPipe } from './shared/connections-view/connection-country.pipe';
 import { CountIndicatorComponent } from './shared/count-indicator/count-indicator';
 import { CountryFlagDirective } from './shared/country-flag/country-flag';
 import { DropdownComponent } from './shared/dropdown/dropdown';
@@ -65,6 +59,7 @@ import { ScopeLabelComponent } from './shared/scope-label';
 import { TimeAgoPipe } from './shared/time-ago.pipe';
 import { HttpClientModule } from '@angular/common/http';
 import { ScrollingModule } from '@angular/cdk/scrolling';
+import { ConnectionsViewComponent, ScopeGroupContentComponent, UngroupedConnectionContentComponent, UngroupedConnectionRowComponent, ConnectionExpertisePipe, ConnectionLocationPipe, CanUseRulesPipe, IsBlockedConnectionPipe } from './shared/connections-view';
 
 @NgModule({
   declarations: [
@@ -133,6 +128,8 @@ import { ScrollingModule } from '@angular/cdk/scrolling';
     UngroupedConnectionRowComponent,
     ConnectionExpertisePipe,
     ConnectionLocationPipe,
+    CanUseRulesPipe,
+    IsBlockedConnectionPipe,
   ],
   imports: [
     BrowserModule,
