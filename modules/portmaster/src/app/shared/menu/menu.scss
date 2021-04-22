@@ -23,6 +23,11 @@
     &:hover {
       @apply bg-buttons-dark;
     }
+
+    &.disabled {
+      cursor : not-allowed;
+      opacity: 0.5;
+    }
   }
 
   app-menu-group {

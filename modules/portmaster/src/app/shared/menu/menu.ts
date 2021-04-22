@@ -1,8 +1,7 @@
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, ContentChildren, HostBinding, HostListener, Input, QueryList, Renderer2, TemplateRef, ViewChild, ViewEncapsulation } from '@angular/core';
-import { CdkOverlayOrigin, ConnectedPosition, ScrollStrategy, ScrollStrategyOptions } from '@angular/cdk/overlay';
-import { fadeInAnimation, fadeOutAnimation } from '../animations';
-import { BehaviorSubject } from 'rxjs';
 import { coerceBooleanProperty } from '@angular/cdk/coercion';
+import { CdkOverlayOrigin, ConnectedPosition, ScrollStrategy, ScrollStrategyOptions } from '@angular/cdk/overlay';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, ContentChildren, EventEmitter, HostBinding, HostListener, Input, Output, QueryList, Renderer2, ViewChild, ViewEncapsulation } from '@angular/core';
+import { fadeInAnimation, fadeOutAnimation } from '../animations';
 
 @Component({
   selector: 'app-menu-trigger',
@@ -57,7 +56,34 @@ export class MenuTriggerComponent {
   template: '<ng-content></ng-content>',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class MenuItemComponent { }
+export class MenuItemComponent {
+  @Input()
+  @HostBinding('class.disabled')
+  set disabled(v: any) {
+    this._disabled = coerceBooleanProperty(v);
+  }
+  get disabled() { return this._disabled; }
+  private _disabled: boolean = false;
+
+  @HostListener('click', ['$event'])
+  closeMenu(event: MouseEvent) {
+    if (this.disabled) {
+      return;
+    }
+    this.onActivate.next(event);
+    this.menu.close();
+  }
+
+  /**
+   * onActivate fires when the menu item is clicked.
+   * Use onActivate rather than (click)="" if you want
+   * [disabled] to be considered.
+   */
+  @Output()
+  onActivate = new EventEmitter<MouseEvent>();
+
+  constructor(private menu: MenuComponent) { }
+}
 
 @Component({
   selector: 'app-menu-group',
