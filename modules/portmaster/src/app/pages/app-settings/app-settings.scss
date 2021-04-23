@@ -63,17 +63,13 @@ h1 {
   }
 }
 
-app-settings-view {
-  margin-right: calc(200px - 4rem);
-}
-
 h2.app-settings {
   display        : flex;
   justify-content: space-between;
   align-items    : center;
 
   app-dropdown {
-    margin-right: 200px;
+    margin-right: 0.5em;
   }
 }
 
@@ -115,7 +111,6 @@ h2.app-settings {
 .app-overview {
   margin-left  : calc(200px + 1rem); // TODO(ppacher): copied from app-settings-view
   margin-right : 1rem;
-  padding-right: calc(200px - 1rem);
 }
 
 .meta {
