@@ -1,7 +1,8 @@
 import { coerceBooleanProperty } from '@angular/cdk/coercion';
+import { ThrowStmt } from '@angular/compiler';
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, Input, OnDestroy, OnInit, Output, TrackByFunction } from '@angular/core';
 import { Subject, Subscription } from 'rxjs';
-import { bufferTime, debounceTime, startWith, take } from 'rxjs/operators';
+import { bufferTime, debounceTime, startWith, take, tap } from 'rxjs/operators';
 import { Connection, ExpertiseLevel, IsGlobalScope, IsLocalhost, IsLANScope, ScopeTranslation, Verdict } from 'src/app/services';
 import { ConnectionAddedEvent, InspectedProfile, ScopeGroup } from 'src/app/services/connection-tracker.service';
 import { binaryInsert, binarySearch, pagination } from '../utils';
@@ -294,6 +295,12 @@ export class ConnectionsViewComponent implements OnInit, OnDestroy {
     const filterFunc = this.connectionFilters.find(filter => filter.name === this.ungroupedFilter);
     this.filterSub = profile.connectionUpdates
       .pipe(
+        tap((upd) => {
+          if (this.countNewConn === 0 && upd.type === 'added') {
+            this.countNewConn = -1;
+            this.changeDetector.markForCheck();
+          }
+        }),
         bufferTime(1000, null, profile.processGroup.size),
         startWith(
           Array.from(profile.connections).map(conn => ({
@@ -363,6 +370,7 @@ export class ConnectionsViewComponent implements OnInit, OnDestroy {
           }
 
           this.updatePagination(result, added);
+          this.changeDetector.markForCheck();
         });
 
     this.filterSub.add(() => this.resetUngroupedView())
@@ -372,6 +380,11 @@ export class ConnectionsViewComponent implements OnInit, OnDestroy {
     const firstLoad = this.filteredUngroupedConnections.length === 0 || this.ungroupedLoading;
 
     this.filteredUngroupedConnections = [...connections];
+
+    // -1 is used as a marker in tap() above
+    if (this.countNewConn === -1) {
+      this.countNewConn = 0;
+    }
 
     this.countNewConn += connectionsAdded;
 

@@ -102,7 +102,6 @@ h3 {
     display    : block;
     font-size  : 0.7rem;
     font-weight: 500;
-    user-select: none;
 
     span:first-of-type {
       color: #cacaca;
@@ -136,7 +135,6 @@ h3 {
         display    : block;
         font-size  : 0.7rem;
         font-weight: 500;
-        user-select: none;
 
         &,
         li,
@@ -152,7 +150,9 @@ h3 {
         }
 
         span:last-of-type {
-          color: #cacaca;
+          color      : #cacaca;
+          // immediately select the whole text if the users clicks it.
+          user-select: all;
         }
       }
     }

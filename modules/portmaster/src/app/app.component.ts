@@ -1,7 +1,7 @@
 import { ChangeDetectorRef, Component, NgZone, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { Observable } from 'rxjs';
-import { debounceTime, map, startWith } from 'rxjs/operators';
+import { debounceTime, filter, map, skip, startWith } from 'rxjs/operators';
 import { FailureStatus, Notification, NotificationsService, NotificationType, OnlineStatus, StatusService, Subsystem } from './services';
 import { PortapiService } from './services/portapi.service';
 import { Record } from './services/portapi.types';
@@ -107,8 +107,21 @@ export class AppComponent implements OnInit {
   }
 
   ngOnInit() {
-    // TODO(ppacher): move virtual notification handling to a dedicated service
+    // force a reload of the current route if we reconnected to
+    // portmaster. This ensures we'll refresh any data that's currently
+    // displayed.
+    this.connected
+      .pipe(
+        filter(connected => !!connected),
+        skip(1),
+      )
+      .subscribe(async () => {
+        const current = this.router.url;
+        await this.router.navigateByUrl('/', { skipLocationChange: true })
+        this.router.navigate([current]);
+      })
 
+    // TODO(ppacher): move virtual notification handling to a dedicated service
     this.statusService.status$.subscribe(status => {
       if (!!this.onlineStatusNotification) {
         this.notificationService.deject(this.onlineStatusNotification);

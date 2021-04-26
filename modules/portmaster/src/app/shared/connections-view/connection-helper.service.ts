@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
 import { Subject, Subscription } from 'rxjs';
-import { ScopeTranslation, Connection, Verdict, ProcessContext, AppProfile, getAppSetting, setAppSetting, AppProfileService, ConfigService } from 'src/app/services';
+import { AppProfileService, ConfigService, Connection, getAppSetting, IsDenied, ScopeTranslation, setAppSetting, Verdict } from 'src/app/services';
 import { InspectedProfile, ScopeGroup } from 'src/app/services/connection-tracker.service';
 import { deepClone } from '../utils';
 
@@ -172,11 +172,11 @@ export class ConnectionHelperService {
    *
    * @param grp The scope group which should be blocked from now on.
    */
-  isScopeBlocked(grp: ScopeGroup): boolean {
+  isScopeBlocked(grp: ScopeGroup, def: boolean = false): boolean {
     // check if `grp.domain` is set. If, then grp.scope holdes
     // the complete domain of the connection.
     if (!!grp.domain) {
-      return this.isDomainBlocked(grp.scope);
+      return this.isDomainBlocked(grp.scope, def);
     } else {
       // TODO(ppacher): correctly handle all other scopes here.
     }
@@ -188,17 +188,32 @@ export class ConnectionHelperService {
    * @private
    * Checks if `domain` is blocked.
    */
-  isDomainBlocked(domain: string): boolean {
+  isDomainBlocked(domain: string, def: boolean = false): boolean {
     if (this.blockedDomains === null) {
-      return false;
+      return def;
     }
 
     if (domain.endsWith(".")) {
       domain = domain.slice(0, -1);
     }
-    return this.blockedDomains.some(rule => domain === rule || (rule.startsWith(".") && domain.endsWith(rule)));
+    if (this.blockedDomains.some(rule => domain === rule || (rule.startsWith(".") && domain.endsWith(rule)))) {
+      return true;
+    }
+    return def;
   }
 
+  /**
+   *
+   * Checks if a connection has been blocked by rules.
+   * If the connection is not blocked/allowed by rules
+   * it defaults to the the current connection verdict.
+   */
+  isConnectionBlocked(conn: Connection): boolean {
+    if (this.isDomainBlocked(conn.Entity.Domain)) {
+      return true;
+    }
+    return IsDenied(conn.Verdict);
+  }
 
   /**
    * Updates the outgoing rule set and either creates or deletes

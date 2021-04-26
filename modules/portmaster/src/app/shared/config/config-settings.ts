@@ -5,7 +5,8 @@ import { BehaviorSubject, combineLatest, Subscription } from 'rxjs';
 import { debounceTime } from 'rxjs/operators';
 import { ConfigService, ExpertiseLevelNumber, ReleaseLevel, releaseLevelFromName, Setting, StatusService, Subsystem } from 'src/app/services';
 import { fadeInAnimation } from 'src/app/shared/animations';
-import { FuzzySearchService } from 'src/app/shared/fuzzySearch'; import { SaveSettingEvent } from './generic-setting/generic-setting';
+import { FuzzySearchService } from 'src/app/shared/fuzzySearch'; import { ExpertiseLevelOverwrite } from '../expertise/expertise-directive';
+import { SaveSettingEvent } from './generic-setting/generic-setting';
 
 interface Category {
   name: string;
@@ -73,6 +74,29 @@ export class ConfigSettingsViewComponent implements OnInit, OnDestroy, AfterView
   }
   private _highlightKey: string | null = null;
   private _scrolledToHighlighted = false;
+
+  mustShowSetting: ExpertiseLevelOverwrite<Setting> = (lvl: ExpertiseLevelNumber, s: Setting) => {
+    if (lvl >= s.ExpertiseLevel) {
+      // this setting is shown anyway.
+      return false;
+    }
+    if (s.Key === this.highlightKey) {
+      return true;
+    }
+    if (s.Value === undefined) {
+      // no value set
+      return false;
+    }
+    return true;
+  }
+
+  mustShowCategory: ExpertiseLevelOverwrite<Category> = (lvl: ExpertiseLevelNumber, cat: Category) => {
+    return cat.settings.some(setting => this.mustShowSetting(lvl, setting));
+  }
+
+  mustShowSubsystem: ExpertiseLevelOverwrite<SubsystemWithExpertise> = (lvl: ExpertiseLevelNumber, subsys: SubsystemWithExpertise) => {
+    return !!this.settings.get(subsys.ConfigKeySpace)?.some(cat => this.mustShowCategory(lvl, cat))
+  }
 
   @Output()
   onSave = new EventEmitter<SaveSettingEvent>();
@@ -319,7 +343,6 @@ export class ConfigSettingsViewComponent implements OnInit, OnDestroy, AfterView
       const styleBox = getComputedStyle(lastChild);
 
       const offset = rect.top + rect.height - parseInt(styleBox.marginBottom) - parseInt(styleBox.paddingBottom);
-      console.log(offset, offsetTop);
 
       if (offset >= offsetTop) {
         this.activeSection = subsystem;

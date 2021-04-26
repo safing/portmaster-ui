@@ -7,6 +7,7 @@
   display    : flex;
   white-space: normal;
   @apply pl-0;
+  @apply pr-0;
 }
 
 .settings {
@@ -34,7 +35,8 @@
 
     app-generic-setting {
       width: 100%;
-      padding-top: 2.5rem;
+      padding-top: 1.5rem;
+      margin-top: 1rem;
 
       /*
       FIXME:
