@@ -5,8 +5,15 @@
   @apply pt-2;
 
   &.ng-invalid {
+    border: 1px solid transparent;
     @apply border-info-red;
     --border-opacity: 0.5;
+  }
+
+  &.rejected {
+    .release-level.rejected {
+      opacity: 1;
+    }
   }
 
   &.locked {
@@ -45,7 +52,8 @@
 
   &.locked {
     opacity: 1;
-  }
+  
+}
 
   position: absolute;
   right   : calc(-1 *var(--unlock-button-size)/2);
@@ -80,6 +88,13 @@ h3 {
 
     &.experimental {
       color: theme('colors.info.red');
+    }
+
+    &.rejected {
+      margin-left: -1rem;
+      margin-right: 1rem;
+      color: theme("colors.info.yellow");
+      opacity: 0;
     }
   }
 }

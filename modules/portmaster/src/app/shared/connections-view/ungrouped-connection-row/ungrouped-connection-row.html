@@ -79,12 +79,14 @@
       </app-menu-item>
 
       <app-menu-item *ngIf="(conn | isBlocked); else blockAction"
-        (onActivate)="helper.unblockAll(conn.Entity.Domain || conn.Entity.IP)" [disabled]="!(conn | canUseRules)">
+        (onActivate)="helper.unblockAll(conn.Entity.Domain || conn.Entity.IP, conn.Entity.Domain ? 'Domain' : 'IP')"
+        [disabled]="!(conn | canUseRules)">
         Allow {{ conn.Entity.Domain ? 'Domain' : 'IP'}}
       </app-menu-item>
 
       <ng-template #blockAction>
-        <app-menu-item (onActivate)="helper.blockAll(conn.Entity.Domain || conn.Entity.IP)"
+        <app-menu-item
+          (onActivate)="helper.blockAll(conn.Entity.Domain || conn.Entity.IP, conn.Entity.Domain ? 'Domain' : 'IP')"
           [disabled]="!(conn | canUseRules)">
           Block {{ conn.Entity.Domain ? 'Domain' : 'IP '}}
         </app-menu-item>

@@ -2,6 +2,7 @@ import { Component, Input } from '@angular/core';
 import { AppProfileService, DebugAPI, SessionDataService } from 'src/app/services';
 import { InspectedProfile } from 'src/app/services/connection-tracker.service';
 import { ConnectionStatistics } from 'src/app/services/connection-tracker.types';
+import { ActionIndicatorService } from 'src/app/shared/action-indicator';
 import { fadeInAnimation } from '../../shared/animations';
 
 @Component({
@@ -33,6 +34,7 @@ export class MonitorApplicationViewComponent {
     private debugAPI: DebugAPI,
     private profileSerivce: AppProfileService,
     public sessionDataService: SessionDataService,
+    private actionIndicator: ActionIndicatorService,
   ) { }
 
   /**
@@ -51,6 +53,7 @@ export class MonitorApplicationViewComponent {
         // Copy to clip-board if supported
         if (!!navigator.clipboard) {
           navigator.clipboard.writeText(data);
+          this.actionIndicator.success('Copied to Clipboard')
         }
       })
   }

@@ -28,6 +28,7 @@
       <span>App</span>
     </app-text-placeholder>
   </span>
+  <button (click)="copyDebugInfo()">Copy Debug Information</button>
   <app-count-indicator [count]="profile?.size || 0" [loading]="profile?.hasOldConnections">
   </app-count-indicator>
   <app-menu-trigger [menu]="menu"></app-menu-trigger>
