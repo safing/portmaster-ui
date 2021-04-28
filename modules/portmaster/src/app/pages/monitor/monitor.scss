@@ -4,11 +4,23 @@
 }
 
 div.sidebar {
-  width   : calc(4.56rem * 4);
-  overflow: auto;
+  width    : calc(100vw / 24 * 4);
+  max-width: calc(4.28rem * 4);
+  min-width: 200px;
+  overflow : auto;
   @apply border-r;
   @apply border-cards-tertiary;
   user-select: none;
+
+  .card-header app-icon {
+    --app-icon-size: 15px;
+  }
+}
+
+@media screen and (min-width: 1280px) {
+  div.sidebar .card-header app-icon {
+    --app-icon-size: 22px;
+  }
 }
 
 .sidebar-header {

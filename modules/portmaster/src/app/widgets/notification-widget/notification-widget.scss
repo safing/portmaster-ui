@@ -109,6 +109,7 @@ div.placeholder {
     padding-left             : 1rem;
     border-top-left-radius   : 2px;
     border-bottom-left-radius: 2px;
+    position: relative;
 
     span {
       flex-grow    : 1;
@@ -135,18 +136,21 @@ div.placeholder {
       background-color: #303030;
 
       .buttons {
-        animation : .07s slidein-left ease-in-out;
         opacity   : 1;
         transition: all .05s ease-in-out;
+        transform: translateX(-100%);
       }
     }
 
     .buttons {
-      flex-grow  : 0;
-      flex-shrink: 0;
       opacity    : 0;
       transition : all .05s ease-in-out;
       height     : 100%;
+      position: absolute;
+      left: 100%;
+      display: flex;
+      white-space: nowrap;
+      background-color: #303030;
 
       button {
         outline: none;
@@ -165,6 +169,10 @@ div.placeholder {
         &:hover {
           background-color: #363636;
           color           : #ffffff;
+        }
+
+        &:first-of-type {
+          margin-left: .5rem;
         }
 
         &:last-of-type {
@@ -208,14 +216,4 @@ app-loading {
   margin-right: auto;
   position    : relative;
   top         : 5px;
-}
-
-@keyframes slidein-left {
-  0% {
-    transform: translateX(100%);
-  }
-
-  100% {
-    transform: translateX(0);
-  }
 }

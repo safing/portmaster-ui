@@ -5,6 +5,7 @@ import { delayWhen, distinctUntilChanged, filter, switchMap, withLatestFrom } fr
 import { AppProfile, ConfigService, FlatConfigObject, flattenProfileConfig, isDefaultValue, setAppSetting, Setting } from 'src/app/services';
 import { AppProfileService } from 'src/app/services/app-profile.service';
 import { ConnTracker, InspectedProfile } from 'src/app/services/connection-tracker.service';
+import { ActionIndicatorService } from 'src/app/shared/action-indicator';
 import { fadeInAnimation, fadeOutAnimation } from 'src/app/shared/animations';
 import { SaveSettingEvent } from 'src/app/shared/config/generic-setting/generic-setting';
 
@@ -94,6 +95,7 @@ export class AppSettingsPageComponent implements OnInit, OnDestroy {
     private connTrack: ConnTracker,
     private configService: ConfigService,
     private router: Router,
+    private actionIndicator: ActionIndicatorService
   ) { }
 
   /**
@@ -121,7 +123,15 @@ export class AppSettingsPageComponent implements OnInit, OnDestroy {
     // Actually safe the profile
     this.profileService.saveProfile(this.appProfile!)
       .subscribe({
-        error: console.error,
+        error: err => {
+          // if there's a callback function for errors call it.
+          if (!!event.rejected) {
+            event.rejected(err);
+          }
+
+          console.error(err);
+          this.actionIndicator.error('Failed to save setting', err);
+        },
       })
   }
 
@@ -239,6 +249,8 @@ export class AppSettingsPageComponent implements OnInit, OnDestroy {
       .subscribe(() => {
         this.pendingDeleteConfirmation = false;
         this.router.navigate(['/app/overview'])
+        this.actionIndicator.success('Profile Deleted', 'Successfully deleted profile '
+          + this.appProfile?.Name);
       })
   }
 }

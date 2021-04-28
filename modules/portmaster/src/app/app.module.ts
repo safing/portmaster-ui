@@ -60,6 +60,7 @@ import { TimeAgoPipe } from './shared/time-ago.pipe';
 import { HttpClientModule } from '@angular/common/http';
 import { ScrollingModule } from '@angular/cdk/scrolling';
 import { ConnectionsViewComponent, ScopeGroupContentComponent, UngroupedConnectionContentComponent, UngroupedConnectionRowComponent, ConnectionExpertisePipe, ConnectionLocationPipe, CanUseRulesPipe, IsBlockedConnectionPipe } from './shared/connections-view';
+import { IndicatorComponent } from './shared/action-indicator';
 
 @NgModule({
   declarations: [
@@ -130,6 +131,7 @@ import { ConnectionsViewComponent, ScopeGroupContentComponent, UngroupedConnecti
     ConnectionLocationPipe,
     CanUseRulesPipe,
     IsBlockedConnectionPipe,
+    IndicatorComponent,
   ],
   imports: [
     BrowserModule,

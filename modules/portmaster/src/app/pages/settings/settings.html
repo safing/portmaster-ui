@@ -29,8 +29,8 @@
     <span class="card-actions">
 
       <button (click)="restart($event)">Restart</button>
-      <button (click)="copyDebugInfo($event)" [disabled]="debugInfoCopied">
-        {{ debugInfoCopied ? 'Copied to clipboard' : 'Copy Debug Information'}}
+      <button (click)="copyDebugInfo($event)">
+        Copy Debug Information
       </button>
       <app-menu-trigger [menu]="actions"></app-menu-trigger>
       <app-menu #actions>

@@ -4,6 +4,7 @@ import { map } from 'rxjs/operators';
 import { ConfigService, DebugAPI, Setting, StatusService, VersionStatus } from 'src/app/services';
 import { PortapiService } from 'src/app/services/portapi.service';
 import { Record } from 'src/app/services/portapi.types';
+import { ActionIndicatorService } from 'src/app/shared/action-indicator';
 import { fadeInAnimation } from 'src/app/shared/animations';
 import { SaveSettingEvent } from 'src/app/shared/config/generic-setting/generic-setting';
 
@@ -25,9 +26,6 @@ export class SettingsComponent implements OnInit, OnDestroy {
   /** @private The available and selected resource versions. */
   versions: VersionStatus | null = null;
 
-  /** @private Which copy-debug info text to show */
-  debugInfoCopied = false;
-
   /** Subscription to watch all available settings. */
   private subscription = Subscription.EMPTY;
 
@@ -36,6 +34,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
     public statusService: StatusService,
     private portapi: PortapiService,
     private debugAPI: DebugAPI,
+    private actionIndicator: ActionIndicatorService,
   ) { }
 
   ngOnInit(): void {
@@ -101,7 +100,10 @@ export class SettingsComponent implements OnInit, OnDestroy {
             this.loadSettings();
           }
         },
-        error: console.error
+        error: err => {
+          this.actionIndicator.error('Failed to save setting', err);
+          console.error(err);
+        }
       })
   }
 
@@ -135,7 +137,10 @@ export class SettingsComponent implements OnInit, OnDestroy {
    * Clear the DNS name cache.
    */
   clearDNSCache(_: Event) {
-    this.injectTrigger('resolver', 'clear name cache').subscribe();
+    this.injectTrigger('resolver', 'clear name cache').subscribe(
+      () => this.actionIndicator.success('DNS Cache cleared'),
+      err => this.actionIndicator.error('Failed to cleare DNS cache', err)
+    );
   }
 
   /**
@@ -145,7 +150,10 @@ export class SettingsComponent implements OnInit, OnDestroy {
    * @param event - The mouse event
    */
   downloadUpdates(event: Event) {
-    this.injectTrigger('updates', 'trigger update').subscribe()
+    this.injectTrigger('updates', 'trigger update').subscribe(
+      () => this.actionIndicator.info('Checking for updates ...'),
+      err => this.actionIndicator.error('Failed to check for updates', err)
+    )
   }
 
   /**
@@ -153,7 +161,10 @@ export class SettingsComponent implements OnInit, OnDestroy {
    * Trigger a shutdown of the portmaster-core service
    */
   shutdown(_: Event) {
-    this.injectTrigger('core', 'shutdown').subscribe();
+    this.injectTrigger('core', 'shutdown').subscribe(
+      () => this.actionIndicator.info('Shutting down ...'),
+      err => this.actionIndicator.error('Failed to shutdown', err)
+    );
   }
 
   /**
@@ -169,7 +180,10 @@ export class SettingsComponent implements OnInit, OnDestroy {
     event.preventDefault();
     event.stopPropagation();
 
-    this.injectTrigger('core', 'restart').subscribe();
+    this.injectTrigger('core', 'restart').subscribe(
+      () => this.actionIndicator.info('Restarting ...'),
+      err => this.actionIndicator.error('Failed to restart Portmaster', err)
+    );
   }
 
   /**
@@ -188,24 +202,22 @@ export class SettingsComponent implements OnInit, OnDestroy {
     // expanding the accordion body.
     event.preventDefault();
     event.stopPropagation();
-    this.debugInfoCopied = false;
 
     this.debugAPI.getCoreDebugInfo()
       .subscribe(
-        info => {
+        async info => {
           console.log(info);
           // Copy to clip-board if supported
           if (!!navigator.clipboard) {
-            navigator.clipboard.writeText(info);
-            this.debugInfoCopied = true;
-
-            setTimeout(() => {
-              this.debugInfoCopied = false;
-            }, 2500)
+            await navigator.clipboard.writeText(info);
+            this.actionIndicator.success("Copied to Clipboard")
           }
 
         },
-        console.error,
+        err => {
+          console.error(err);
+          this.actionIndicator.error('Failed loading debug data', err);
+        }
       )
   }
 }

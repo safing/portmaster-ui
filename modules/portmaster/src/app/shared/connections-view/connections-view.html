@@ -112,7 +112,7 @@
     <!-- Pagination template -->
     <ng-template #pagination>
       <div class="pagination">
-        <button [disabled]="currentPageIdx == 0" (click)="selectPage(this.currentPageIdx - 1)">
+        <button class="outline" [disabled]="currentPageIdx == 0" (click)="selectPage(this.currentPageIdx - 1)">
           <fa-icon icon="chevron-left"></fa-icon>
           Previous
         </button>
@@ -120,7 +120,8 @@
           <button class="page" *ngFor="let page of pageNumbers" [class.active-page]="page === currentPageIdx + 1"
             (click)="selectPage(page-1)">{{ page }}</button>
         </span>
-        <button [disabled]="currentPageIdx+1 >= totalPages" (click)="selectPage(this.currentPageIdx + 1)">
+        <button class="outline" [disabled]="currentPageIdx+1 >= totalPages"
+          (click)="selectPage(this.currentPageIdx + 1)">
           Next
           <fa-icon icon="chevron-right"></fa-icon>
         </button>

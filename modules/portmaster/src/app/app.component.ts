@@ -6,6 +6,7 @@ import { FailureStatus, Notification, NotificationsService, NotificationType, On
 import { PortapiService } from './services/portapi.service';
 import { Record } from './services/portapi.types';
 import { ActionHandler, VirtualNotification } from './services/virtual-notification';
+import { ActionIndicator, ActionIndicatorService } from './shared/action-indicator';
 import { fadeInAnimation, fadeOutAnimation } from './shared/animations';
 
 @Component({
@@ -36,6 +37,7 @@ export class AppComponent implements OnInit {
     private router: Router,
     private statusService: StatusService,
     private notificationService: NotificationsService,
+    private actionIndicatorService: ActionIndicatorService,
   ) {
     (window as any).fakeNotification = () => {
       this.notificationService.create(
@@ -103,6 +105,10 @@ export class AppComponent implements OnInit {
         this.showDebugPanel = !this.showDebugPanel;
         this.changeDetectorRef.detectChanges();
       })
+    }
+
+    (window as any).fakeActionIndicator = (msg: ActionIndicator) => {
+      this.actionIndicatorService.create(msg);
     }
   }
 

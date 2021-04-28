@@ -10,6 +10,7 @@ export interface SaveSettingEvent<S extends BaseSetting<any, any> = any> {
   key: string;
   value: SettingValueType<S>;
   isDefault: boolean;
+  rejected?: (err: any) => void
 }
 
 @Component({
@@ -101,6 +102,13 @@ export class GenericSettingComponent<S extends BaseSetting<any, any>> implements
 
   /** Whether or not the value was reset. */
   private wasReset = false;
+
+  /** Whether or not a save request was rejected */
+  @HostBinding('class.rejected')
+  get rejected() {
+    return this._rejected;
+  }
+  private _rejected = false;
 
   /**
    * @private
@@ -343,6 +351,8 @@ export class GenericSettingComponent<S extends BaseSetting<any, any>> implements
    */
   private emitSaveRequest() {
     const isDefault = this.wasReset;
+    let value = this._setting!['Value'];
+
     if (isDefault) {
       delete (this._setting!['Value']);
     } else {
@@ -350,11 +360,17 @@ export class GenericSettingComponent<S extends BaseSetting<any, any>> implements
     }
 
     this.wasReset = false;
+    this._rejected = false;
 
     this.onSave.next({
       key: this.setting!.Key,
       isDefault: isDefault,
       value: this._setting!.Value,
+      rejected: (err: any) => {
+        this._setting!['Value'] = value;
+        this.changeDetectorRef.markForCheck();
+        this._rejected = true;
+      }
     })
   }
 

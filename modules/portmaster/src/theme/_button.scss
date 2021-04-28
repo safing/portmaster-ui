@@ -8,16 +8,27 @@ button {
   @apply font-medium;
   user-select: none;
   outline    : none;
+  cursor     : pointer;
+  font-size  : 0.7rem;
+
+  &.outline {
+    background: transparent;
+    opacity   : 0.6;
+  }
 
   &:hover {
-    @apply bg-buttons-light;
+    &:not(.outline) {
+      @apply bg-buttons-light;
+    }
+
+    opacity: 1;
   }
 
   &:disabled {
     @apply cursor-default;
     opacity: 0.3;
 
-    &:hover {
+    &:not(.outline):hover {
       @apply bg-buttons-dark;
     }
   }

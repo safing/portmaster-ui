@@ -14,11 +14,19 @@ app-side-dash {
   @apply bg-background;
 }
 
+app-navigation {
+  width    : calc(100vw / 24);
+  max-width: 4.28rem;
+  min-width: 50px;
+}
+
 app-side-dash {
-  width: calc(4.28rem * 6);
-  padding: 0;
-  padding-top: 1.5rem;
-  padding-left: 1.7rem;
+  width        : calc(100vw / 24 * 5);
+  min-width    : 350px;
+  max-width    : calc(4.28rem * 6);
+  padding      : 0;
+  padding-top  : 1.5rem;
+  padding-left : 1.7rem;
   padding-right: 0.85rem;
 }
 

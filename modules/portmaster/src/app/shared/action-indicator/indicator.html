@@ -1,0 +1,19 @@
+<ng-container [ngSwitch]="ref.status">
+  <div class="icon" *ngSwitchCase="'success'">
+    <fa-icon icon="check"></fa-icon>
+  </div>
+  <div class="icon error" *ngSwitchCase="'error'">
+    <fa-icon icon="exclamation"></fa-icon>
+  </div>
+</ng-container>
+<div class="indicator-content">
+  <h1 *ngIf="!!ref.title">{{ ref.title }}</h1>
+
+  <fa-icon class="close-icon" icon="times"></fa-icon>
+
+  <div class="message" *ngIf="ref.message">
+    <span>
+      {{ ref.message }}
+    </span>
+  </div>
+</div>

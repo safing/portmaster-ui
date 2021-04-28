@@ -99,7 +99,6 @@ export class RuleListComponent implements ControlValueAccessor {
 
     this.entries = [...this.entries];
     this.entries.push('');
-    this.onChange(this.entries);
   }
 
   /**

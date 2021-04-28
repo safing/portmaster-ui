@@ -3,6 +3,7 @@ import { Router } from '@angular/router';
 import { Subject, Subscription } from 'rxjs';
 import { AppProfileService, ConfigService, Connection, getAppSetting, IsDenied, ScopeTranslation, setAppSetting, Verdict } from 'src/app/services';
 import { InspectedProfile, ScopeGroup } from 'src/app/services/connection-tracker.service';
+import { ActionIndicatorService } from '../action-indicator';
 import { deepClone } from '../utils';
 
 @Injectable()
@@ -41,6 +42,7 @@ export class ConnectionHelperService {
     private router: Router,
     private profileService: AppProfileService,
     private configService: ConfigService,
+    private actionIndicator: ActionIndicatorService
   ) {
     this.configService.query('')
       .subscribe(settings => {
@@ -105,10 +107,15 @@ export class ConnectionHelperService {
    *
    * @param conn The connection to dump
    */
-  dumpConnection(conn: Connection) {
+  async dumpConnection(conn: Connection) {
     // Copy to clip-board if supported
-    if (!!navigator.clipboard) {
-      navigator.clipboard.writeText(JSON.stringify(conn, undefined, "    "))
+    try {
+      if (!!navigator.clipboard) {
+        await navigator.clipboard.writeText(JSON.stringify(conn, undefined, "    "))
+        this.actionIndicator.info("Copied to Clipboard")
+      }
+    } catch (err) {
+      this.actionIndicator.error("Copy to Clipboard Failed", err.message || JSON.stringify(err))
     }
   }
 
@@ -129,6 +136,7 @@ export class ConnectionHelperService {
     }
 
     if (this.isDomainBlocked(domain)) {
+      this.actionIndicator.info(domain + ' already blocked')
       return;
     }
 
@@ -155,6 +163,7 @@ export class ConnectionHelperService {
     }
 
     if (!this.isDomainBlocked(domain)) {
+      this.actionIndicator.info(domain + ' already allowed')
       return;
     }
 
@@ -239,7 +248,18 @@ export class ConnectionHelperService {
     setAppSetting(profile.Config, 'filter/endpoints', rules);
 
     this.profileService.saveLocalProfile(profile)
-      .subscribe();
+      .subscribe({
+        next: () => {
+          if (add) {
+            this.actionIndicator.success('Rules Updated', 'Successfully created a new rule.')
+          } else {
+            this.actionIndicator.success('Rules Updated', 'Successfully removed matching rule.')
+          }
+        },
+        error: err => {
+          this.actionIndicator.error('Failed to update rules', JSON.stringify(err))
+        }
+      });
   }
 
   /**
