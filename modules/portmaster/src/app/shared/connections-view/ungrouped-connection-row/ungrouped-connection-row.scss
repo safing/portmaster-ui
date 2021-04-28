@@ -1,6 +1,13 @@
 :host {
-  flex-grow      : 1;
-  display        : flex;
+  flex-grow  : 1;
+  display    : flex;
+  white-space: nowrap;
+
+  &>* {
+    flex-grow  : 0;
+    flex-shrink: 0;
+  }
+
   justify-content: space-between;
   align-items    : center;
   align-self     : stretch;
@@ -10,7 +17,6 @@
 .connection-details {}
 
 .scope {
-  display    : inline-block;
   display    : inline-flex;
   align-self : stretch;
   align-items: center;
@@ -20,6 +26,7 @@
     text-overflow: ellipsis;
     overflow     : hidden;
     direction    : rtl;
+    white-space  : nowrap;
   }
 
   @apply px-3;
@@ -42,12 +49,20 @@
 
 .country,
 .time {
+  overflow       : hidden;
   display        : flex;
   align-items    : center;
   justify-content: center;
+  white-space    : nowrap;
+  text-overflow  : ellipsis;
 }
 
 .reason {
+  text-align   : right;
+  overflow     : hidden;
+  white-space  : nowrap;
+  text-overflow: ellipsis;
+
   label {
     @apply text-secondary;
     opacity: .57;
@@ -63,150 +78,93 @@
   margin-left: 0.2rem;
 }
 
-// table size
-.arrow,
-.scope,
-.country,
-.peer,
-.time,
-.reason {
-
-  &,
-  * {
-    white-space  : nowrap;
-    text-overflow: ellipsis;
-  }
-
-  overflow    : hidden;
-  flex-shrink : 0;
-}
-
-.arrow {
-  width: 1rem;
-}
-
+// Flexlayouting
 .scope {
-  width: 150px;
+  max-width: 260px;
+  flex-grow: 1;
+  width    : 100px;
+}
+
+.country {
+  display  : none;
+  max-width: 70px;
+  min-width: 40px;
+}
+
+.peer {
+  max-width: 260px;
+  width    : 100px;
+  flex-grow: 1;
 }
 
 .time {
-  width  : 120px;
-  display: none;
+  display  : none;
+  width    : 50px;
+  min-width: 100px;
+  max-width: 120px;
 
   .de-emphasize {
     display: none;
   }
 }
 
-.country {
-  width  : 50px;
-  display: none;
-}
-
-.peer {
-  width: 130px;
-}
-
 .reason {
-  flex-grow      : 1;
-  display        : flex;
-  flex-direction : row;
-  justify-content: flex-end;
+  flex-grow  : 1;
+  flex-shrink: 1;
+  display    : none;
 
-  .applied {
+  .applied,
+  .reason-source {
     display: none;
   }
-
-  .setting {
-    text-overflow: ellipsis;
-    overflow     : hidden;
-    display      : inline-block;
-    max-width    : 120px;
-  }
-
-  .reason-source {
-    display   : none;
-    text-align: left;
-    width     : 80px;
-  }
 }
 
-@media (min-width: 1400px) {
-  .time {
-    display: inline-block;
-  }
-}
+@media screen and (min-width: 1280px) {
 
-@media (min-width: 1520px) {
-  .time {
-    .de-emphasize {
-      display: inline-block;
-    }
+  .scope,
+  .peer {
+    flex-grow: 0;
+
+    width: 200px;
   }
 
   .reason {
-    .reason-source {
-      display: inline-block;
-    }
+    display: block;
   }
 }
 
-@media (min-width: 1560px) {
-  .reason {
-    .applied {
-      display: inline-block;
-    }
+@media screen and (min-width: 1360px) {
+  .time {
+    display: flex;
   }
 }
 
-@media (min-width: 1620px) {
+@media screen and (min-width: 1477px) {
   .country {
     display: flex;
   }
 }
 
-@media (min-width: 1700px) {
-  .peer {
-    width: 180px;
-  }
 
-  .scope {
-    width: 200px;
-  }
-
-  .reason .setting {
-    max-width: 100px;
+@media screen and (min-width: 1500px) {
+  .time .de-emphasize {
+    display: inline;
   }
 }
 
-@media (min-width: 1760px) {
-  .reason .setting {
-    max-width: 140px;
+@media screen and (min-width: 1600px) {
+  .reason {
+    .reason-source {
+      display: inline;
+    }
   }
 }
 
-@media (min-width: 1820px) {
-  .reason .setting {
-    max-width: 200px;
-  }
-}
 
-@media (min-width: 1900px) {
-  .peer {
-    width: 220px;
-  }
-
-  .scope {
-    width: 250px;
-  }
-
-  .reason .setting {
-    max-width: 180px;
-  }
-}
-
-@media (min-width: 2000px) {
-  .reason .setting {
-    max-width: 300px;
+@media screen and (min-width: 1800px) {
+  .reason {
+    .applied {
+      display: inline;
+    }
   }
 }
