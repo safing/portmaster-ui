@@ -6,9 +6,9 @@ export const fadeInAnimation = trigger(
     transition(
       ':enter',
       [
-        style({ opacity: 0 }),
-        animate('.3s ease-in',
-          style({ opacity: 1 }))
+        style({ opacity: 0, transform: 'translateY(-5px)' }),
+        animate('120ms cubic-bezier(0, 0, 0.2, 1)',
+          style({ opacity: 1, transform: 'translateY(0px)' }))
       ]
     ),
   ]
@@ -20,9 +20,9 @@ export const fadeOutAnimation = trigger(
     transition(
       ':leave',
       [
-        style({ opacity: 1 }),
-        animate('.1s ease-out',
-          style({ opacity: 0 }))
+        style({ opacity: 1, transform: 'translateY(0px)' }),
+        animate('120ms cubic-bezier(0, 0, 0.2, 1)',
+          style({ opacity: 0, transform: 'translateY(-5px)' }))
       ]
     ),
   ]

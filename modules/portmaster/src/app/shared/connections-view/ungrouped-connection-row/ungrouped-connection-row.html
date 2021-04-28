@@ -53,7 +53,7 @@
     <ng-container *ngIf="conn.Reason.OptionKey as option">
       <span class="de-emphasize applied">applied</span>
 
-      <span>{{ helper.settings[option] || '' }}&nbsp;</span>
+      <span class="setting">{{ helper.settings[option] || '' }}&nbsp;</span>
 
       <svg (click)="helper.redirectToSetting(option)" class="cog port" viewBox="0 0 24 24">
         <g fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.3">
@@ -79,14 +79,12 @@
       </app-menu-item>
 
       <app-menu-item *ngIf="(conn | isBlocked); else blockAction"
-        (onActivate)="helper.unblockAll(conn.Entity.Domain || conn.Entity.IP, conn.Entity.Domain ? 'Domain' : 'IP')"
-        [disabled]="!(conn | canUseRules)">
+        (onActivate)="helper.unblockAll(conn.Entity.Domain || conn.Entity.IP)" [disabled]="!(conn | canUseRules)">
         Allow {{ conn.Entity.Domain ? 'Domain' : 'IP'}}
       </app-menu-item>
 
       <ng-template #blockAction>
-        <app-menu-item
-          (onActivate)="helper.blockAll(conn.Entity.Domain || conn.Entity.IP, conn.Entity.Domain ? 'Domain' : 'IP')"
+        <app-menu-item (onActivate)="helper.blockAll(conn.Entity.Domain || conn.Entity.IP)"
           [disabled]="!(conn | canUseRules)">
           Block {{ conn.Entity.Domain ? 'Domain' : 'IP '}}
         </app-menu-item>

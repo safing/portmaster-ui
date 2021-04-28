@@ -11,7 +11,12 @@
 
     app-menu-trigger {
       @apply mr-2;
-      opacity: .8;
+      opacity: .55;
+
+      &:hover,
+      &.active {
+        opacity: 1;
+      }
     }
 
     fa-icon,
@@ -99,11 +104,18 @@ fa-icon.filter-active {
 
     &.page {
       @apply mx-1;
+      @apply bg-cards-secondary;
+      opacity: .55;
+
+      &:hover {
+        opacity: 1;
+      }
     }
 
     &.active-page {
-      border : 1px solid theme("colors.info.blue");
-      opacity: .5;
+      color      : theme("colors.info.blue");
+      font-weight: 500;
+      opacity    : 1;
     }
   }
 }

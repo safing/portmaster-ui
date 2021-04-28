@@ -71,12 +71,11 @@
         </app-count-indicator>
         <app-menu-trigger *ngIf="data.domain" [menu]="menu"></app-menu-trigger>
         <app-menu #menu>
-          <app-menu-item *ngIf="helper.isScopeBlocked(data); else unblockAll"
-            (click)="helper.unblockAll(data, 'Domain')">Allow
+          <app-menu-item *ngIf="helper.isScopeBlocked(data); else unblockAll" (click)="helper.unblockAll(data)">Allow
             Domain
           </app-menu-item>
           <ng-template #unblockAll>
-            <app-menu-item (click)="helper.blockAll(data, 'Domain')">Block Domain
+            <app-menu-item (click)="helper.blockAll(data)">Block Domain
             </app-menu-item>
           </ng-template>
           <app-menu-item (click)="helper.redirectToRules()">Add Rule</app-menu-item>
@@ -113,7 +112,7 @@
     <!-- Pagination template -->
     <ng-template #pagination>
       <div class="pagination">
-        <button [disabled]="currentPageIdx == 0" (click)="selectPage(this.currentPageIdx - 1)">
+        <button class="outline" [disabled]="currentPageIdx == 0" (click)="selectPage(this.currentPageIdx - 1)">
           <fa-icon icon="chevron-left"></fa-icon>
           Previous
         </button>
@@ -121,7 +120,8 @@
           <button class="page" *ngFor="let page of pageNumbers" [class.active-page]="page === currentPageIdx + 1"
             (click)="selectPage(page-1)">{{ page }}</button>
         </span>
-        <button [disabled]="currentPageIdx+1 >= totalPages" (click)="selectPage(this.currentPageIdx + 1)">
+        <button class="outline" [disabled]="currentPageIdx+1 >= totalPages"
+          (click)="selectPage(this.currentPageIdx + 1)">
           Next
           <fa-icon icon="chevron-right"></fa-icon>
         </button>

@@ -48,8 +48,6 @@
 }
 
 .reason {
-  text-align: right;
-
   label {
     @apply text-secondary;
     opacity: .57;
@@ -70,11 +68,17 @@
 .scope,
 .country,
 .peer,
+.time,
 .reason {
-  white-space  : nowrap;
-  text-overflow: ellipsis;
-  overflow     : hidden;
-  flex-shrink  : 0;
+
+  &,
+  * {
+    white-space  : nowrap;
+    text-overflow: ellipsis;
+  }
+
+  overflow    : hidden;
+  flex-shrink : 0;
 }
 
 .arrow {
@@ -104,10 +108,20 @@
 }
 
 .reason {
-  flex-grow: 1;
+  flex-grow      : 1;
+  display        : flex;
+  flex-direction : row;
+  justify-content: flex-end;
 
   .applied {
     display: none;
+  }
+
+  .setting {
+    text-overflow: ellipsis;
+    overflow     : hidden;
+    display      : inline-block;
+    max-width    : 120px;
   }
 
   .reason-source {
@@ -123,7 +137,13 @@
   }
 }
 
-@media (min-width: 1470px) {
+@media (min-width: 1520px) {
+  .time {
+    .de-emphasize {
+      display: inline-block;
+    }
+  }
+
   .reason {
     .reason-source {
       display: inline-block;
@@ -131,15 +151,7 @@
   }
 }
 
-@media (min-width: 1510px) {
-  .time {
-    .de-emphasize {
-      display: inline-block;
-    }
-  }
-}
-
-@media (min-width: 1550px) {
+@media (min-width: 1560px) {
   .reason {
     .applied {
       display: inline-block;
@@ -160,5 +172,41 @@
 
   .scope {
     width: 200px;
+  }
+
+  .reason .setting {
+    max-width: 100px;
+  }
+}
+
+@media (min-width: 1760px) {
+  .reason .setting {
+    max-width: 140px;
+  }
+}
+
+@media (min-width: 1820px) {
+  .reason .setting {
+    max-width: 200px;
+  }
+}
+
+@media (min-width: 1900px) {
+  .peer {
+    width: 220px;
+  }
+
+  .scope {
+    width: 250px;
+  }
+
+  .reason .setting {
+    max-width: 180px;
+  }
+}
+
+@media (min-width: 2000px) {
+  .reason .setting {
+    max-width: 300px;
   }
 }

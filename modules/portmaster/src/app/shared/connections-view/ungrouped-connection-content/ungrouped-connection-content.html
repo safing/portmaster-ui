@@ -144,4 +144,20 @@
       </span>
     </div>
   </div>
+  <div class="actions">
+    <button class="outline" *appExpertiseLevel="'expert'" (click)="helper.dumpConnection(conn)">Copy JSON</button>
+    <button class="outline" *ngIf="(conn | isBlocked); else blockAction"
+      (click)="helper.unblockAll(conn.Entity.Domain || conn.Entity.IP)" [disabled]="!(conn | canUseRules)">
+      Allow {{ conn.Entity.Domain ? 'Domain' : 'IP'}}
+    </button>
+    <ng-template #blockAction>
+      <button class="outline" (click)="helper.blockAll(conn.Entity.Domain || conn.Entity.IP)"
+        [disabled]="!(conn | canUseRules)">
+        Block {{ conn.Entity.Domain ? 'Domain' : 'IP '}}
+      </button>
+    </ng-template>
+    <button class="outline" (click)="helper.redirectToSetting(conn.Reason.OptionKey)" *ngIf="!!conn.Reason.OptionKey">
+      Show setting
+    </button>
+  </div>
 </section>

@@ -123,7 +123,7 @@ export class ConnectionHelperService {
    * @private
    * Creates a new "block domain" outgoing rules
    */
-  blockAll(grp: ScopeGroup | string, kind: string) {
+  blockAll(grp: ScopeGroup | string) {
     let domain: string;
     if (typeof grp === 'string') {
       domain = grp;
@@ -136,7 +136,7 @@ export class ConnectionHelperService {
     }
 
     if (this.isDomainBlocked(domain)) {
-      this.actionIndicator.info(kind + ' already blocked')
+      this.actionIndicator.info(domain + ' already blocked')
       return;
     }
 
@@ -150,7 +150,7 @@ export class ConnectionHelperService {
    * @private
    * Removes a "block domain" rule from the outgoing rules
    */
-  unblockAll(grp: ScopeGroup | string, kind: string) {
+  unblockAll(grp: ScopeGroup | string) {
     let domain: string;
     if (typeof grp === 'string') {
       domain = grp;
@@ -163,7 +163,7 @@ export class ConnectionHelperService {
     }
 
     if (!this.isDomainBlocked(domain)) {
-      this.actionIndicator.info(kind + ' already permitted')
+      this.actionIndicator.info(domain + ' already allowed')
       return;
     }
 
@@ -251,9 +251,9 @@ export class ConnectionHelperService {
       .subscribe({
         next: () => {
           if (add) {
-            this.actionIndicator.success('Rules Updated', 'Successfully created a new rule')
+            this.actionIndicator.success('Rules Updated', 'Successfully created a new rule.')
           } else {
-            this.actionIndicator.success('Rules Updated', 'Successfully removed matching rule')
+            this.actionIndicator.success('Rules Updated', 'Successfully removed matching rule.')
           }
         },
         error: err => {
