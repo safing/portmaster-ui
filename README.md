@@ -1,3 +1,5 @@
+> **Check out the main project repository [safing/portmaster](https://github.com/safing/portmaster)**
+
 # Portmaster UI
 
 This repo holds all the UI related components for the [portmaster](https://github.com/safing/portmaster).  
