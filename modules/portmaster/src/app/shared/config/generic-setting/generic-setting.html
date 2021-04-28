@@ -6,6 +6,8 @@
         <fa-icon icon="exclamation"></fa-icon>
       </span>
       <span class="release-level beta" *ngIf="setting?.ReleaseLevel === releaseLevel.Beta">Beta</span>
+      <span class="release-level experimental"
+        *ngIf="setting?.ReleaseLevel === releaseLevel.Experimental">Experimental</span>
 
       <span [innerHTML]="setting?.Name | safe:'html'"></span>
       <span class="expertise" *ngIf="setting?.ExpertiseLevel === expertise.expert">Advanced</span>
