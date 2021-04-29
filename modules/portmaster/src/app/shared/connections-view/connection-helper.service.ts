@@ -135,14 +135,15 @@ export class ConnectionHelperService {
       domain = grp.scope;
     }
 
+    /* Deactivate until exact behavior is specified.
     if (this.isDomainBlocked(domain)) {
       this.actionIndicator.info(domain + ' already blocked')
       return;
     }
+    */
 
     domain = domain.replace(/\.+$/, '');
     const newRule = `- ${domain}`;
-
     this.updateRules(newRule, true);
   }
 
@@ -162,16 +163,16 @@ export class ConnectionHelperService {
       domain = grp.scope;
     }
 
+    /* Deactivate until exact behavior is specified.
     if (!this.isDomainBlocked(domain)) {
       this.actionIndicator.info(domain + ' already allowed')
       return;
     }
+    */
 
     domain = domain.replace(/\.+$/, '');
-
-    const newRule = `- ${domain}`;
-
-    this.updateRules(newRule, false);
+    const newRule = `+ ${domain}`;
+    this.updateRules(newRule, true);
   }
 
   /**
