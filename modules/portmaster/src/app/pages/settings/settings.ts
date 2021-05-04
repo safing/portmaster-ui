@@ -191,9 +191,10 @@ export class SettingsComponent implements OnInit, OnDestroy {
    * Opens the data-directory of the portmaster installation.
    * Requires the application to run inside electron.
    */
-  openDataDir(event: Event) {
+  async openDataDir(event: Event) {
     if (!!window.app) {
-      window.app.openExternal(window.app.installDir);
+      const dir = await window.app.getInstallDir()
+      await window.app.openExternal(dir);
     }
   }
 

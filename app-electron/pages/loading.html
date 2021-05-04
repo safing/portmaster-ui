@@ -1,0 +1,231 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>Portmaster</title>
+    <base href="/">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <style>
+        html,
+        body {
+            background: #121213;
+            font-size: 14px;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+        }
+
+        .container {
+            padding: 20px;
+            display: flex;
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 6px;
+            box-shadow: 0px 0px 5px 0px rgb(242 0 0 / 42%);
+        }
+
+        .actions {
+            flex-grow: 1;
+            margin-left: 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: flex-start;
+        }
+
+        h1 {
+            font-size: 18px;
+        }
+
+        h2 {
+            font-size: 14px;
+            opacity: 0.8;
+        }
+
+        svg {
+            width: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+
+        div.logo {
+            opacity: 0.8;
+            position: relative;
+            width: 10vh;
+            height: 10vh;
+            @apply mt-4;
+        }
+
+        .spin {
+            animation-name: spin;
+            animation-duration: 3500ms;
+            animation-iteration-count: infinite;
+            animation-timing-function: linear;
+        }
+
+        button {
+            border: none;
+            outline: none;
+            align-self: flex-end;
+            background-color: rgba(255, 255, 255, 0.3);
+            color: white;
+            font-weight: 400;
+            padding-top: 6px;
+            padding-bottom: 6px;
+            padding-left: 12px;
+            padding-right: 12px;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: all .3s cubic-bezier(0.165, 0.84, 0.44, 1);
+        }
+
+        button:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+
+        button:active {
+            background-color: rgba(255, 255, 255, 0.35);
+            box-shadow: inset 0px 1px 3px -1px rgba(0, 0, 0, 0.75);
+        }
+
+        button.hidden {
+            display: none;
+        }
+
+        #errorbox {
+            margin-top: 20px;
+            border: 1px solid red;
+            padding: 12px;
+            border-radius: 6px;
+            background-color: rgba(255, 0, 0, 0.3);
+            color: white;
+            transition: all .3s cubic-bezier(0.165, 0.84, 0.44, 1);
+        }
+
+        .hidden {
+            opacity: 0;
+        }
+
+        .reverse {
+            animation-name: spin-reverse;
+        }
+
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        @keyframes spin-reverse {
+            0% {
+                transform: rotate(360deg);
+            }
+
+            100% {
+                transform: rotate(0deg);
+            }
+        }
+    </style>
+
+    <script>
+        function handleStatusUpdate(status) {
+            let showStartButton = false;
+            let text = 'Connecting to Portmaster ...';
+
+            if (status.serviceManager === 'unsupported') {
+                text = 'Your service manager is not supported. <br />Please start the Portmaster Core Service manually.';
+            } else if (!status.service.installed) {
+                text = 'Unable to find Portmaster Core Service. Please re-install the Portmaster.';
+            } else if (!status.service.running) {
+                text = '';
+                showStartButton = true;
+            }
+
+            if (showStartButton) {
+                document.getElementById('start').classList.remove('hidden');
+            } else {
+                document.getElementById('start').classList.add('hidden');
+            }
+
+            document.getElementById('status-report').innerHTML = text;
+        }
+
+        function handleError(err) {
+            const errorBox = document.getElementById('errorbox');
+            const message = err?.message || err?.stderr || '';
+            if (message === '') {
+                errorBox.classList.add('hidden');
+            } else {
+                errorBox.innerText = msg.message;
+                errorBox.classList.remove('hidden');
+            }
+        }
+
+        function bootstrap() {
+            document.getElementById('start').addEventListener('click', function () {
+                // hide the error box
+                handleError({ message: '' });
+                // and send the startService command
+                window.app.startService()
+                    .catch(err => handleError(err))
+                    .then(() => window.app.getStatus())
+                    .then(status => handleStatusUpdate(status))
+            })
+        }
+    </script>
+</head>
+
+<body onload="javascript: bootstrap()">
+    <div class="container">
+        <div class="logo" routerLink="monitor">
+            <svg data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
+                viewBox="0 0 128 128" class="spin reverse">
+                <g data-name="Main" fill-rule="evenodd">
+                    <path fill="#fff" class="inner"
+                        d="M176.11 36.73l-5-8.61a41.53 41.53 0 00-14.73 57.22l8.55-5.12a31.58 31.58 0 0111.19-43.49z"
+                        transform="translate(-127.99 .01)" style="isolation:isolate" opacity=".8"></path>
+                    <path fill="#fff" class="inner"
+                        d="M222.36 72.63a31.55 31.55 0 01-45 19.35l-4.62 8.84a41.54 41.54 0 0059.17-25.46z"
+                        transform="translate(-127.99 .01)" style="isolation:isolate" opacity=".8"></path>
+                </g>
+            </svg>
+
+            <svg data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
+                viewBox="0 0 128 128" class="spin">
+                <g data-name="Main" fill-rule="evenodd">
+                    <path fill="#fff" class="inner reverse"
+                        d="M197 83a19.66 19.66 0 01-19.25-32.57l-4.5-4.27A25.87 25.87 0 00198.59 89z"
+                        transform="translate(-127.99 .01)" style="isolation:isolate" opacity=".6"></path>
+                </g>
+            </svg>
+
+            <svg data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
+                viewBox="0 0 128 128">
+                <g data-name="Main" fill-rule="evenodd">
+                    <path fill="#fff"
+                        d="M192 112.64A48.64 48.64 0 11240.64 64 48.64 48.64 0 01192 112.64zM256 64a64 64 0 10-64 64 64 64 0 0064-64z"
+                        transform="translate(-127.99 .1)"></path>
+                </g>
+            </svg>
+        </div>
+
+        <div class="actions">
+            <h1>The Portmaster Core Service is not running</h1>
+            <h2 id="status-report"></h2>
+            <button type="button" id="start">Start Core Service</button>
+        </div>
+    </div>
+    <div id="errorbox" class="hidden"></div>
+</body>
+
+</html>

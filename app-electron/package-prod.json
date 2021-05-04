@@ -10,6 +10,9 @@
   "repository": "https://github.com/safing/portmaster-ui",
   "license": "GPL-3.0-or-later",
   "dependencies": {
+    "axios": "^0.21.1",
+    "hasbin": "^1.2.3",
+    "sudo-prompt": "^9.2.1",
     "electron-window-state": "^5.0.3"
   }
 }

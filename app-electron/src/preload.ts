@@ -1,21 +1,7 @@
-import { AppAPI } from "./api";
+import { contextBridge } from 'electron';
+import { AppAPI } from './api';
+import { buildClient } from './ipc';
+import { WebUILoader } from './loader';
 
-// All of the Node.js APIs are available in the preload process.
-window.addEventListener("DOMContentLoaded", () => {
-
-});
-
-let api: AppAPI | null = null;
-
-// Lazily inject the our app API into the window object.
-Object.defineProperty(window, 'app', {
-  configurable: false,
-  get: () => {
-    if (!!api) {
-      return api;
-    }
-
-    api = new AppAPI();
-    return api;
-  }
-});
+const client = buildClient(AppAPI, WebUILoader);
+contextBridge.exposeInMainWorld('app', client)

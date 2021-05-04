@@ -5,14 +5,10 @@ declare global {
 }
 
 export class AppAPI {
-  /** The current platform the app is running on. */
-  readonly platform: string;
+  getPlatform(): Promise<string>;
 
   /** The installation directory of portmaster. */
-  readonly installDir: string;
-
-  /** Provides direct access to all commandline switches. */
-  readonly commandLine: any;
+  getInstallDir(): Promise<string>;
 
   /**
    * Open an URL or path using an external application.
@@ -27,7 +23,7 @@ export class AppAPI {
    *
    * @param path The path for the file URL.
    */
-  createFileURL(path: string): string;
+  createFileURL(path: string): Promise<string>;
 
   /**
    * Returns a dataURL for the icon that is used to represent

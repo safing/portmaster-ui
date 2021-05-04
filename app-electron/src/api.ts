@@ -1,41 +1,55 @@
-import { remote, shell } from 'electron';
+import { Remote } from './ipc';
+import { shell, app, CommandLine, BrowserWindow, Rectangle } from 'electron';
 import { platform } from 'os';
 import { resolve } from 'path';
-// import { GetDataDir } from "./datadir";
+
 
 /**
  * AppAPI is exposed via the Window object and used by the portmaster application
  * to interact with the local filesystem and OS.
  */
 export class AppAPI {
-    /** The current platform the app is running on. */
-    readonly platform = platform();
-
-    /** The installation directory of portmaster. */
-    // TODO: GetDataDir(remote.app.commandLine) makes the Portmaster open
-    // another instance of itself. For now, just use "..", as the working
-    // directory is installDir/exec.
-    // readonly installDir = GetDataDir(remote.app.commandLine);
-    readonly installDir = "..";
-
-    /** Provides direct access to all commandline switches. */
-    readonly commandLine = remote.app.commandLine;
-
     /** Cache for dataURLs from already loaded path-icons. */
     private readonly iconCache = new Map<string, string>();
+
+    constructor(private win: BrowserWindow) { }
+
+    @Remote('getPlatform')
+    getPlatform(): Promise<string> {
+        return Promise.resolve(platform())
+    }
+
+    /** The installation directory of portmaster. */
+    @Remote('getInstallDir')
+    getInstallDir(): Promise<string> {
+        return Promise.resolve(resolve('..'));
+    }
+
+    @Remote('focus')
+    async focus() {
+        this.win.focus();
+    }
+
+    @Remote('setBounds')
+    async setBounds(rect: Rectangle, animate: boolean = false) {
+        this.win.setBounds(rect, animate)
+    }
 
     /**
      * Open an URL or path using an external application.
      * 
      * @param pathOrUrl The path or URL to open.
      */
+    @Remote('openExternal')
     async openExternal(pathOrUrl: string) {
         try {
             // URL constructor throws if pathOrUrl is not an URL
             new URL(pathOrUrl);
         } catch (e) {
-            pathOrUrl = this.createFileURL(pathOrUrl);
+            console.error(e);
+            pathOrUrl = await this.createFileURL(pathOrUrl);
         }
+        console.log("opening external: ", pathOrUrl)
 
         await shell.openExternal(pathOrUrl);
     }
@@ -46,7 +60,8 @@ export class AppAPI {
      * 
      * @param path The path for the file URL.
      */
-    createFileURL(path: string): string {
+    @Remote('createFileURL')
+    async createFileURL(path: string): Promise<string> {
         if (typeof path !== 'string') {
             throw new Error('Expected a string');
         }
@@ -69,12 +84,13 @@ export class AppAPI {
      *  
      * @param path The path the the binary
      */
+    @Remote('getFileIcon')
     async getFileIcon(path: string): Promise<string> {
         if (path === "") {
             return "";
         }
 
-        if (this.platform !== "win32") {
+        if (platform() !== "win32") {
             return "";
         }
 
@@ -82,7 +98,7 @@ export class AppAPI {
             return this.iconCache.get(path);
         }
 
-        const icon = await remote.app.getFileIcon(path);
+        const icon = await app.getFileIcon(path);
         const dataURL = icon.toDataURL();
         this.iconCache.set(path, dataURL);
 
