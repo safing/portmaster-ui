@@ -9,6 +9,8 @@ import { ExitScreenComponent, OVERLAYREF } from './exit-screen';
 
 @Injectable({ providedIn: 'root' })
 export class ExitService {
+  private hasOverlay = false;
+
   constructor(
     private overlay: Overlay,
     private injector: Injector,
@@ -24,6 +26,11 @@ export class ExitService {
               window.app.exitApp();
             }
 
+            if (this.hasOverlay) {
+              return;
+            }
+
+            this.hasOverlay = true;
             const overlayref = this.overlay.create({
               positionStrategy: this.overlay.position()
                 .global()
@@ -31,7 +38,11 @@ export class ExitService {
                 .centerVertically(),
               hasBackdrop: true,
               backdropClass: 'exit-screen-backdrop',
-            })
+            });
+
+            // prevent multiple exit-dialogs to be displayed
+            overlayref.detachments().pipe(take(1))
+              .subscribe(() => this.hasOverlay = false);
 
             // we only detach() the overlayref on outside pointer events
             // or Escape keydown events because the ExitScreenComponent will
