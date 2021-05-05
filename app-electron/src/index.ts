@@ -55,11 +55,10 @@ function createWindow() {
   // and restore the maximized or full screen state.
   mainWindowState.manage(mainWindow);
 
-  serveIPC(new AppAPI(mainWindow))
+  let loader = new WebUILoader(mainWindow);
+  let appAPI = new AppAPI(mainWindow, loader)
 
-  // Load UI from Portmaster.
-  let loader = new WebUILoader(mainWindow, "http://localhost:4200");
-  serveIPC(loader);
+  serveIPC(loader, appAPI);
 
   loader.loadUI();
 

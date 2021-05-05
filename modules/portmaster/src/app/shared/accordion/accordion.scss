@@ -1,11 +1,4 @@
 .body {
-  opacity   : 0;
-  overflow  : hidden;
-  height    : 0;
-  transition: all ease-in-out .15s;
-}
-
-.body.active {
   display : block;
   opacity : 1;
   overflow: visible;

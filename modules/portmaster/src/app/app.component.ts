@@ -1,4 +1,4 @@
-import { Type, ChangeDetectorRef, Component, NgZone, OnInit } from '@angular/core';
+import { Type, ChangeDetectorRef, Component, NgZone, OnInit, HostListener } from '@angular/core';
 import { Router } from '@angular/router';
 import { Observable } from 'rxjs';
 import { debounceTime, filter, map, skip, startWith } from 'rxjs/operators';
@@ -8,6 +8,7 @@ import { Record } from './services/portapi.types';
 import { ActionHandler, VirtualNotification } from './services/virtual-notification';
 import { ActionIndicator, ActionIndicatorService } from './shared/action-indicator';
 import { fadeInAnimation, fadeOutAnimation } from './shared/animations';
+import { ExitService } from './shared/exit-screen';
 
 @Component({
   selector: 'app-root',
@@ -28,6 +29,7 @@ export class AppComponent implements OnInit {
   showDebugPanel = false;
 
   private onlineStatusNotification: VirtualNotification<any> | null = null;
+
   private subsystemWarnings = new Map<string, VirtualNotification<Subsystem>>();
 
   constructor(
@@ -38,77 +40,78 @@ export class AppComponent implements OnInit {
     private statusService: StatusService,
     private notificationService: NotificationsService,
     private actionIndicatorService: ActionIndicatorService,
+    private exitService: ExitService,
   ) {
     (window as any).fakeNotification = () => {
-      this.notificationService.create(
-        `random-id-${Math.random()}`,
-        'A **fake** message for testing notifications.<br> :rocket:',
-        NotificationType.Info,
-        {
-          Title: 'Fake Message',
-          Category: 'Testing',
-          AvailableActions: [
-            {
-              ID: 'a1',
-              Text: 'Got it',
-            },
-            {
-              ID: 'a2',
-              Text: 'Go away'
-            }
-          ]
-        }
-      ).subscribe();
-
-    }
-
-    (window as any).createNotification = (notif: Partial<Notification>) => {
-      notif.EventID = notif.EventID || `random-id-${Math.random()}`;
-      notif.Type = notif.Type || NotificationType.Info;
-
-      this.notificationService.create(notif).subscribe();
-    }
-
-    (window as any).fakePrompt = (what: string, profileId: string = '_unidentified') => {
-      this.notificationService.create(`filter:prompt-${Math.random()}`,
-        what,
-        NotificationType.Prompt,
-        {
-          Title: what,
-          EventData: {
-            Profile: {
-              Source: "local",
-              ID: profileId,
-            },
-            Entity: {
-              Domain: what,
-            }
-          },
-          AvailableActions: [
-            {
-              ID: 'allow-domain-all',
-              Text: 'Allow',
-            },
-            {
-              ID: 'block-domain-all',
-              Text: 'Block'
-            }
-          ]
-        }).subscribe()
-    }
-
-    (window as any).portapi = portapi;
-    (window as any).toggleDebug = () => {
-      // this may be called from outside of angulars execution zone.
-      // make sure to call toggle and call inside angular.
-      this.ngZone.runGuarded(() => {
-        this.showDebugPanel = !this.showDebugPanel;
-        this.changeDetectorRef.detectChanges();
+      this.ngZone.run(() => {
+        this.notificationService.create(
+          `random-id-${Math.random()}`,
+          'A **fake** message for testing notifications.<br> :rocket:',
+          NotificationType.Info,
+          {
+            Title: 'Fake Message',
+            Category: 'Testing',
+            AvailableActions: [
+              {
+                ID: 'a1',
+                Text: 'Got it',
+              },
+              {
+                ID: 'a2',
+                Text: 'Go away'
+              }
+            ]
+          }
+        ).subscribe();
       })
     }
 
+    (window as any).createNotification = (notif: Partial<Notification>) => {
+      this.ngZone.run(() => {
+        notif.EventID = notif.EventID || `random-id-${Math.random()}`;
+        notif.Type = notif.Type || NotificationType.Info;
+
+        this.notificationService.create(notif).subscribe();
+      })
+    }
+
+    (window as any).fakePrompt = (what: string, profileId: string = '_unidentified') => {
+      this.ngZone.run(() => {
+
+        this.notificationService.create(`filter:prompt-${Math.random()}`,
+          what,
+          NotificationType.Prompt,
+          {
+            Title: what,
+            EventData: {
+              Profile: {
+                Source: "local",
+                ID: profileId,
+              },
+              Entity: {
+                Domain: what,
+              }
+            },
+            AvailableActions: [
+              {
+                ID: 'allow-domain-all',
+                Text: 'Allow',
+              },
+              {
+                ID: 'block-domain-all',
+                Text: 'Block'
+              }
+            ]
+          }).subscribe()
+      })
+    }
+
+    (window as any).portapi = portapi;
+
     (window as any).fakeActionIndicator = (msg: ActionIndicator) => {
-      this.actionIndicatorService.create(msg);
+      this.ngZone.run(() => {
+        this.actionIndicatorService.create(msg);
+      })
     }
   }
 
@@ -128,6 +131,8 @@ export class AppComponent implements OnInit {
       })
 
     // TODO(ppacher): move virtual notification handling to a dedicated service
+    //
+    // FIXME: remove everything below
     this.statusService.status$.subscribe(status => {
       if (!!this.onlineStatusNotification) {
         this.notificationService.deject(this.onlineStatusNotification);

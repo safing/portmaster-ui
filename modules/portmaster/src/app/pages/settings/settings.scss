@@ -30,7 +30,8 @@
 }
 
 app-accordion-group {
-  @apply px-12;
+  @apply pl-12;
+  @apply pr-4; // align with the scroll bar on the right side
   @apply my-4;
 }
 

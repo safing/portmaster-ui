@@ -86,13 +86,15 @@ export const Remote: (key: string) => MethodDecorator = key => {
 // Use buildClient() below to get a client object for all methods
 // or directly use ipcRenderer.invoke('api.<methodName>', arg1, arg2)
 // to call them from the renderer process.
-export const serveIPC = (target: object) => {
-    const __exposed: (string | symbol)[] = Reflect.get(target, '__exposedMethods') || [];
-    __exposed.forEach(key => {
-        const methodName: string = typeof key === 'string' ? key : key.toString();
-        ipcMain.handle(`api.${methodName}`, (event, ...args) => {
-            const method = (target as any)[key];
-            return method.apply(target, args)
+export const serveIPC = (...targets: object[]) => {
+    targets.forEach(target => {
+        const __exposed: (string | symbol)[] = Reflect.get(target, '__exposedMethods') || [];
+        __exposed.forEach(key => {
+            const methodName: string = typeof key === 'string' ? key : key.toString();
+            ipcMain.handle(`api.${methodName}`, (event, ...args) => {
+                const method = (target as any)[key];
+                return method.apply(target, args)
+            })
         })
     })
 }

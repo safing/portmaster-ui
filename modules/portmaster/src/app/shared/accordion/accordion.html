@@ -2,8 +2,8 @@
   <ng-container *ngTemplateOutlet="headerTemplate; context: {$implicit: data, active: active}"></ng-container>
 </div>
 
-<div class="body" [class.active]="active">
-  <ng-container *ngIf="active">
+<div class="body" *ngIf="active" [@fadeIn] [@fadeOut]>
+  <ng-container>
     <ng-content></ng-content>
   </ng-container>
 </div>

@@ -2,6 +2,7 @@ import { Remote } from './ipc';
 import { shell, app, CommandLine, BrowserWindow, Rectangle } from 'electron';
 import { platform } from 'os';
 import { resolve } from 'path';
+import { WebUILoader } from './loader';
 
 
 /**
@@ -12,7 +13,33 @@ export class AppAPI {
     /** Cache for dataURLs from already loaded path-icons. */
     private readonly iconCache = new Map<string, string>();
 
-    constructor(private win: BrowserWindow) { }
+    /**
+     * Whether we are currently exitting the application.
+     * Required to avoid an endless loop win on('close')
+     * below.
+     */
+    private exitting = false;
+
+    constructor(
+        private win: BrowserWindow,
+        private loader: WebUILoader,
+    ) {
+        win.on('close', event => {
+            if (this.exitting) {
+                return;
+            }
+
+            // prevent the application from being closed.
+            // but only if we actually loaded the User Interface
+            // from the portmaster.
+            if (this.loader.loaded) {
+                event.preventDefault();
+                // emit a 'on-app-close' event inside the
+                // web-ui so it can bring up the exit screen
+                win.webContents.send('on-app-close');
+            }
+        })
+    }
 
     @Remote('getPlatform')
     getPlatform(): Promise<string> {
@@ -33,6 +60,12 @@ export class AppAPI {
     @Remote('setBounds')
     async setBounds(rect: Rectangle, animate: boolean = false) {
         this.win.setBounds(rect, animate)
+    }
+
+    @Remote('exitApp')
+    async exitApp() {
+        this.exitting = true;
+        this.win.close();
     }
 
     /**

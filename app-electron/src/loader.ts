@@ -18,7 +18,11 @@ interface Status {
 }
 
 export class WebUILoader {
+    /** The service manager used to start the portmaster core service */
     private sm: ServiceManager;
+
+    /** Whether or not we successfully loaded the portmaster UI */
+    loaded = false;
 
     constructor(
         private win: BrowserWindow,
@@ -72,6 +76,7 @@ export class WebUILoader {
     }
 
     async loadUI() {
+        this.loaded = false;
         await this.win.loadFile('loading.html').catch(err => console.error(err));
 
         let tries = 0;
@@ -82,6 +87,7 @@ export class WebUILoader {
                 // content.
                 const response = await axios.get(this.pollUrl);
                 await this.win.loadURL(this.url)
+                this.loaded = true;
                 return
             } catch (err) {
                 console.error(err.toString());
@@ -94,7 +100,6 @@ export class WebUILoader {
 
             await this.sleep(1500);
         }
-
     }
 
     /**

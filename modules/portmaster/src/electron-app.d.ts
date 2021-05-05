@@ -5,6 +5,7 @@ declare global {
 }
 
 export class AppAPI {
+  /** Returns the current platform */
   getPlatform(): Promise<string>;
 
   /** The installation directory of portmaster. */
@@ -34,4 +35,7 @@ export class AppAPI {
    * @param path The path the the binary
    */
   getFileIcon(path: string): Promise<string>;
+
+  /** Exit the electron appliction. */
+  exitApp(): Promise<void>;
 }
