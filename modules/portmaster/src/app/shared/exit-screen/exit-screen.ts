@@ -55,6 +55,9 @@ export class ExitScreenComponent {
           this.shouldExit = true;
           this._overlayRef.detach();
         });
+    } else {
+      this.shouldExit = true;
+      this._overlayRef.detach();
     }
   }
 
