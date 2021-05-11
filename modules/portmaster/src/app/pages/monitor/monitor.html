@@ -81,7 +81,7 @@
     </div>
     <app-expertise></app-expertise>
   </div>
-  <div class="content">
+  <div class="content" cdkScrollable>
     <app-monitor-application *ngIf="!!selected" [profile]="selected">
     </app-monitor-application>
     <app-network-overview *ngIf="!selected">

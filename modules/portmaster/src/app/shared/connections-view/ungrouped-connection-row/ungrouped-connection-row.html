@@ -73,7 +73,7 @@
         Global Setting
       </app-menu-item>
 
-      <app-menu-group></app-menu-group>
+      <app-menu-group class="separator"></app-menu-group>
 
       <app-menu-item *ngIf="(conn | isBlocked); else blockAction"
         (onActivate)="helper.unblockAll(conn.Entity.Domain || conn.Entity.IP)" [disabled]="!(conn | canUseRules)">

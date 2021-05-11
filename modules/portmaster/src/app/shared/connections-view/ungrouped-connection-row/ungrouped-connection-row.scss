@@ -16,6 +16,12 @@
 
 .connection-details {}
 
+.separator {
+  border-top: 1px solid white;
+  opacity   : .2;
+  padding   : 0;
+}
+
 .scope {
   display    : inline-flex;
   align-self : stretch;
