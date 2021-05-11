@@ -50,23 +50,23 @@ export class ActionIndicatorService {
    * Returns an observer that parses the HTTP API response
    * and shows a success/error action indicator.
    */
-  httpObserver(successTitle: string, errorTitle: string): PartialObserver<HttpResponse<ArrayBuffer>> {
+  httpObserver(successTitle?: string, errorTitle?: string): PartialObserver<HttpResponse<ArrayBuffer>> {
     return {
       next: resp => {
         let msg = this.parseResponse(resp)
-        if (successTitle === '') {
+        if (!successTitle) {
           successTitle = msg;
           msg = '';
         }
-        this.success(successTitle, msg)
+        this.success(successTitle || '', msg)
       },
       error: err => {
         let msg = this.parseResponse(err);
-        if (errorTitle === '') {
+        if (!errorTitle) {
           errorTitle = msg;
           msg = '';
         }
-        this.error(errorTitle, err);
+        this.error(errorTitle || '', err);
       }
     }
   }
@@ -222,7 +222,12 @@ export class ActionIndicatorService {
     let body: string | null = null;
 
     if (resp instanceof HttpErrorResponse) {
-      body = this.stringifyBody(resp.error);
+      // A client-side or network error occured.
+      if (resp.error instanceof Error) {
+        body = resp.error.message;
+      } else {
+        body = this.stringifyBody(resp.error);
+      }
     } else {
       body = this.stringifyBody(resp.body);
     }

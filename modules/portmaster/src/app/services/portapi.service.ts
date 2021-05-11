@@ -93,7 +93,7 @@ export class PortapiService {
 
   /** Triggers a restart of the portmaster service */
   restartPortmaster(): void {
-    this.http.get(`${environment.httpAPI}/v1/core/restart`, { observe: 'response', responseType: 'arraybuffer' })
+    this.http.post(`${environment.httpAPI}/v1/core/restart`, undefined, { observe: 'response', responseType: 'arraybuffer' })
       .subscribe(this.uai.httpObserver(
         'Restarting ...',
         'Failed to restart',
@@ -102,7 +102,7 @@ export class PortapiService {
 
   /** Triggers a shutdown of the portmaster service */
   shutdownPortmaster(): void {
-    this.http.get(`${environment.httpAPI}/v1/core/shutdown`, { observe: 'response', responseType: 'arraybuffer' })
+    this.http.post(`${environment.httpAPI}/v1/core/shutdown`, undefined, { observe: 'response', responseType: 'arraybuffer' })
       .subscribe(this.uai.httpObserver(
         'Shutting down ...',
         'Failed to Shut Down',
@@ -111,7 +111,7 @@ export class PortapiService {
 
   /** Force the portmaster to check for updates */
   checkForUpdates(): void {
-    this.http.get(`${environment.httpAPI}/v1/updates/check`, { observe: 'response', responseType: 'arraybuffer' })
+    this.http.post(`${environment.httpAPI}/v1/updates/check`, undefined, { observe: 'response', responseType: 'arraybuffer', reportProgress: false })
       .subscribe(this.uai.httpObserver(
         'Downloading Updates ...',
         'Failed to check for updates',
@@ -120,7 +120,7 @@ export class PortapiService {
 
   /** Force a reload of the UI assets */
   reloadUI(): void {
-    this.http.get(`${environment.httpAPI}/v1/ui/reload`, { observe: 'response', responseType: 'arraybuffer' })
+    this.http.post(`${environment.httpAPI}/v1/ui/reload`, undefined, { observe: 'response', responseType: 'arraybuffer' })
       .pipe(
         tap(() => {
           setTimeout(() => window.location.reload(), 1000)
@@ -134,7 +134,7 @@ export class PortapiService {
 
   /** Clear DNS cache */
   clearDNSCache(): void {
-    this.http.get(`${environment.httpAPI}/v1/dns/clear`, { observe: 'response', responseType: 'arraybuffer' })
+    this.http.post(`${environment.httpAPI}/v1/dns/clear`, undefined, { observe: 'response', responseType: 'arraybuffer' })
       .subscribe(this.uai.httpObserver(
         'DNS Cache Cleared',
         'Failed to clear DNS cache.',

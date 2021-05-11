@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, ChangeDetectorRef, Component, HostBinding, OnD
 import { parse } from 'psl';
 import { combineLatest, forkJoin, Observable, Subscription } from 'rxjs';
 import { map, switchMap } from 'rxjs/operators';
-import { AppProfile, AppProfileService, ConnectionPrompt, NotificationsService, NotificationType } from 'src/app/services';
+import { Action, AppProfile, AppProfileService, ConnectionPrompt, NotificationsService, NotificationType } from 'src/app/services';
 import { moveInOutAnimation, moveInOutListAnimation } from 'src/app/shared/animations';
 import { ParsedDomain, parseDomain } from 'src/app/shared/utils';
 
@@ -161,7 +161,7 @@ export class PromptWidgetComponent implements OnInit, OnDestroy {
     for (let i = 0; i < allowActions.length; i++) {
       const action = prompt.AvailableActions.find(a => a.ID === allowActions[i])
       if (!!action) {
-        this.execute(prompt, action.ID);
+        this.execute(prompt, action);
         return;
       }
     }
@@ -177,7 +177,7 @@ export class PromptWidgetComponent implements OnInit, OnDestroy {
     for (let i = 0; i < permitActions.length; i++) {
       const action = prompt.AvailableActions.find(a => a.ID === permitActions[i])
       if (!!action) {
-        this.execute(prompt, action.ID);
+        this.execute(prompt, action);
         return;
       }
     }
@@ -191,8 +191,8 @@ export class PromptWidgetComponent implements OnInit, OnDestroy {
     profile.prompts.forEach(prompt => this.block(prompt));
   }
 
-  execute(prompt: ConnectionPrompt, aid: string) {
-    this.notifService.execute(prompt, aid)
+  execute(prompt: ConnectionPrompt, action: Action) {
+    this.notifService.execute(prompt, action)
       .subscribe({
         error: console.error,
       });

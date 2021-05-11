@@ -1,11 +1,8 @@
-import { Type, ChangeDetectorRef, Component, NgZone, OnInit, HostListener } from '@angular/core';
+import { ChangeDetectorRef, Component, NgZone, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-import { Observable } from 'rxjs';
-import { debounceTime, filter, map, skip, startWith } from 'rxjs/operators';
-import { FailureStatus, Notification, NotificationsService, NotificationType, OnlineStatus, StatusService, Subsystem } from './services';
+import { debounceTime, filter, skip, startWith } from 'rxjs/operators';
+import { Notification, NotificationsService, NotificationType } from './services';
 import { PortapiService } from './services/portapi.service';
-import { Record } from './services/portapi.types';
-import { ActionHandler, VirtualNotification } from './services/virtual-notification';
 import { ActionIndicator, ActionIndicatorService } from './shared/action-indicator';
 import { fadeInAnimation, fadeOutAnimation } from './shared/animations';
 import { ExitService } from './shared/exit-screen';
@@ -48,10 +45,12 @@ export class AppComponent implements OnInit {
               {
                 ID: 'a1',
                 Text: 'Got it',
+                Type: '',
               },
               {
                 ID: 'a2',
-                Text: 'Go away'
+                Text: 'Go away',
+                Type: '',
               }
             ]
           }
@@ -89,10 +88,12 @@ export class AppComponent implements OnInit {
               {
                 ID: 'allow-domain-all',
                 Text: 'Allow',
+                Type: ''
               },
               {
                 ID: 'block-domain-all',
-                Text: 'Block'
+                Text: 'Block',
+                Type: ''
               }
             ]
           }).subscribe()

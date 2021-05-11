@@ -1,7 +1,10 @@
+import { HttpClient } from '@angular/common/http';
 import { Injectable, TrackByFunction } from '@angular/core';
+import { Router } from '@angular/router';
 import { BehaviorSubject, combineLatest, defer, Observable, throwError } from 'rxjs';
-import { delay, filter, map, repeatWhen, multicast, refCount, share, toArray, tap, concatMap, take } from 'rxjs/operators';
-import { Notification, NotificationState, NotificationType } from './notifications.types';
+import { map, multicast, refCount, toArray } from 'rxjs/operators';
+import { ActionIndicatorService } from '../shared/action-indicator';
+import { Action, ActionHandler, Notification, NotificationState, NotificationType, OpenPageAction, OpenProfileAction, OpenSettingAction, OpenURLAction, WebhookAction } from './notifications.types';
 import { PortapiService } from './portapi.service';
 import { RetryableOpts } from './portapi.types';
 import { VirtualNotification } from './virtual-notification';
@@ -16,6 +19,80 @@ export class NotificationsService {
   static trackBy: TrackByFunction<Notification<any>> = function (_: number, n: Notification<any>) {
     return n.EventID;
   };
+
+  /**
+   * This object contains handler methods for all
+   * notification action types we currently support.
+   */
+  private actionHandler: {
+    [key in Action['Type']]: (a: any) => Promise<any>;
+  } = {
+      '': async () => { },
+      'open-url': async (a: OpenURLAction) => {
+        if (!!window.app) {
+          await window.app.openExternal(a.Payload);
+        } else {
+          window.open(a.Payload, '_blank')
+        }
+      },
+      'open-profile': (a: OpenProfileAction) => this.router.navigate([
+        '/app', ...a.Payload.split('/')
+      ]),
+      'open-setting': (a: OpenSettingAction) => {
+        if (a.Payload.Profile) {
+          return this.router.navigate(['/app', ...a.Payload.Profile.split('/')], {
+            queryParams: {
+              setting: a.Payload.Key
+            }
+          })
+        }
+        return this.router.navigate(['/settings'], {
+          queryParams: {
+            setting: a.Payload.Key
+          }
+        })
+      },
+      "open-page": (a: OpenPageAction) => {
+        return Promise.reject('not yet supported');
+      },
+      "ui": (a: ActionHandler<any>) => {
+        return a.Run(a);
+      },
+      "call-webhook": (a: WebhookAction) => {
+        let method = a.Payload.Method
+          || !!a.Payload.Payload
+          ? 'PUT'
+          : 'POST';
+        let req = this.http.request(
+          a.Payload.Method,
+          a.Payload.URL,
+          {
+            body: a.Payload.Payload,
+            observe: 'response',
+            responseType: 'arraybuffer',
+          }
+        )
+        return new Promise((resolve, reject) => {
+          const observer = this.actionIndicator.httpObserver();
+          req.subscribe({
+            next: res => {
+              if (a.Payload.ResultAction === 'display') {
+                if (!!observer?.next) {
+                  observer.next(res)
+                }
+              }
+              resolve(res);
+            },
+            error: err => {
+              if (!!observer?.error) {
+                observer.error(err);
+              }
+              reject(err);
+            },
+          })
+        })
+      }
+    };
 
   // For testing purposes only
   VirtualNotification = VirtualNotification;
@@ -35,7 +112,12 @@ export class NotificationsService {
   /** new$ emits new (active) notifications as they arrive */
   readonly new$: Observable<Notification<any>[]>;
 
-  constructor(private portapi: PortapiService) {
+  constructor(
+    private portapi: PortapiService,
+    private router: Router,
+    private http: HttpClient,
+    private actionIndicator: ActionIndicatorService,
+  ) {
     this.new$ = this.watchAll().pipe(
       src => this.injectVirtual(src),
       map(msgs => {
@@ -130,7 +212,7 @@ export class NotificationsService {
    * @param n The notification object.
    * @param actionId The ID of the action to execute.
    */
-  execute(n: Notification<any>, actionId: string): Observable<void>;
+  execute(n: Notification<any>, action: Action): Observable<void>;
 
   /**
    * Execute an action attached to a notification.
@@ -138,10 +220,10 @@ export class NotificationsService {
    * @param notificationId The ID of the notification.
    * @param actionId The ID of the action to execute.
    */
-  execute(notificationId: string, actionId: string): Observable<void>;
+  execute(notificationId: string, action: Action): Observable<void>;
 
   // overloaded implementation of execute
-  execute(notifOrId: Notification<any> | string, actionId: string): Observable<void> {
+  execute(notifOrId: Notification<any> | string, action: Action): Observable<void> {
     const payload: Partial<Notification<any>> = {};
     if (typeof notifOrId === 'string') {
       payload.EventID = notifOrId;
@@ -149,19 +231,41 @@ export class NotificationsService {
       payload.EventID = notifOrId.EventID;
     }
 
+    // if it's a virtual notification we should let it handle the action
+    // on it's own.
     if (!!this._virtualNotifications.get(payload.EventID)) {
       return defer(() => {
         const notif = this._virtualNotifications.get(payload.EventID!);
         if (!!notif) {
-          notif.selectAction(actionId);
+          notif.selectAction(action.ID);
         }
       })
     }
 
-    payload.SelectedActionID = actionId;
+    return defer(async () => {
+      try {
+        // if there's an action type defined execute the handler.
+        if (action.Type !== '') {
+          const handler = this.actionHandler[action.Type] as (a: Action) => Promise<any>;
+          if (!!handler) {
+            console.log(action);
+            await handler(action);
+          } else {
+            this.actionIndicator.error('Internal Error', 'Cannot handle action type ' + action.Type)
+          }
+        }
 
-    const key = this.notificationPrefix + payload.EventID;
-    return this.portapi.update(key, payload);
+        // finally, if there's an action ID, mark the notification as resolved.
+        if (!!action.ID) {
+          payload.SelectedActionID = action.ID;
+          const key = this.notificationPrefix + payload.EventID;
+          await this.portapi.update(key, payload).toPromise();
+        }
+      } catch (err) {
+        this.actionIndicator.error('Internal Error', err)
+      }
+    })
+
   }
 
   /**

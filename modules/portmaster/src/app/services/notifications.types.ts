@@ -1,21 +1,79 @@
 import { getEnumKey } from './core.types';
 import { IntelEntity } from './network.types';
 import { Record } from './portapi.types';
+import { VirtualNotification } from './virtual-notification';
 
 /**
- * Action defines a user selectable action and can
+ * BaseAction defines a user selectable action and can
  * be attached to a notification. Once selected,
  * the action's ID is set as the SelectedActionID
  * of the notification.
  */
-export interface Action {
+export interface BaseAction {
   // ID uniquely identifies the action. It's safe to
   // use ID to select a localizable template to use
-  // instead of the Text property.
+  // instead of the Text property. If Type is set
+  // to None the ID may be empty, signifying that this
+  // action is merely to dismiss the notification.
   ID: string;
   // Text is the (default) text for the action label.
   Text: string;
 }
+
+export interface GenericAction extends BaseAction {
+  Type: '';
+}
+
+export interface OpenURLAction extends BaseAction {
+  Type: 'open-url';
+  Payload: string;
+}
+
+export interface OpenPageAction extends BaseAction {
+  Type: 'open-page';
+  Payload: string;
+}
+
+export interface OpenSettingAction extends BaseAction {
+  Type: 'open-setting';
+  Payload: {
+    Key: string;
+    Profile?: string;
+  }
+}
+
+export interface OpenProfileAction extends BaseAction {
+  Type: 'open-profile';
+  Payload: string;
+}
+
+export interface WebhookAction extends BaseAction {
+  Type: 'call-webhook';
+  Payload: {
+    Method: string;
+    URL: string;
+    Payload: any;
+    ResultAction: 'ignore' | 'display';
+  }
+}
+export interface OpenURLAction {
+  ID: string;
+  Text: string;
+}
+
+export interface ActionHandler<T> extends BaseAction {
+  Type: 'ui'
+  Run: (vn: T) => Promise<void>;
+  Payload: T;
+}
+
+export type Action = GenericAction
+  | OpenURLAction
+  | OpenPageAction
+  | OpenSettingAction
+  | OpenProfileAction
+  | WebhookAction
+  | ActionHandler<any>;
 
 /**
  * Available types of notifications. Notification
@@ -29,8 +87,9 @@ export enum NotificationType {
   Warning = 1,
   // Prompt asks the user for a decision.
   Prompt = 2,
-  // Error is UI only
-  Error = 255,
+  // Error is for error notifications and module
+  // failure status.
+  Error = 3,
 }
 
 export interface ConnectionPromptData {

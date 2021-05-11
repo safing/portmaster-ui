@@ -1,6 +1,6 @@
 import { coerceBooleanProperty } from '@angular/cdk/coercion';
 import { Component, OnInit, OnDestroy, Input, ChangeDetectionStrategy, Output, EventEmitter, HostBinding } from '@angular/core';
-import { Notification, NotificationState, getNotificationTypeString, NotificationsService } from '../../services';
+import { Notification, NotificationState, getNotificationTypeString, NotificationsService, Action } from '../../services';
 
 @Component({
   selector: 'app-notification',
@@ -49,7 +49,7 @@ export class NotificationComponent implements OnInit {
   private _markdown: boolean = false;
 
   @Output()
-  actionExecuted: EventEmitter<string> = new EventEmitter();
+  actionExecuted: EventEmitter<Action> = new EventEmitter();
 
   constructor(private notifService: NotificationsService) { }
 
@@ -57,10 +57,10 @@ export class NotificationComponent implements OnInit {
 
   }
 
-  execute(n: Notification<any>, actionId: string) {
-    this.notifService.execute(n, actionId)
+  execute(n: Notification<any>, action: Action) {
+    this.notifService.execute(n, action)
       .subscribe(
-        () => this.actionExecuted.next(actionId),
+        () => this.actionExecuted.next(action),
         err => console.error(err),
       )
   }
