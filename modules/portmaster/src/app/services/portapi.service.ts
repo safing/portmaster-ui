@@ -150,8 +150,10 @@ export class PortapiService {
    * @param module The name of the module to inject
    * @param kind The event kind to inject
    */
-  injectTrigger(module: string, kind: string): Observable<void> {
-    return this.get<Record>(`control:module/${module}/trigger/${kind}`)
+  bridgeAPI(call: string, method: string): Observable<void> {
+    return this.create(`api:${call}`, {
+      Method: method,
+    })
       .pipe(map(() => { }))
   }
 

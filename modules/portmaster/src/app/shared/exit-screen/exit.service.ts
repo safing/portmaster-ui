@@ -21,7 +21,7 @@ export class ExitService {
     window.addEventListener('beforeunload', () => {
       // best effort. may not work all the time depending on
       // the current websocket buffer state
-      this.portapi.injectTrigger('ui', 'reload').subscribe();
+      this.portapi.bridgeAPI('ui/reload', 'POST').subscribe();
     })
 
     window.addEventListener('message', event => {
