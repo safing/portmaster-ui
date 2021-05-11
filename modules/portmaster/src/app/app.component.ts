@@ -260,6 +260,6 @@ export class AppComponent implements OnInit {
   }
 
   downloadUpdates() {
-    this.portapi.injectTrigger('updates', 'trigger update').subscribe()
+    this.portapi.checkForUpdates();
   }
 }

@@ -1,7 +1,8 @@
 import { Overlay, OverlayConfig, OverlayRef } from '@angular/cdk/overlay';
 import { ComponentPortal } from '@angular/cdk/portal';
+import { HttpErrorResponse, HttpResponse } from '@angular/common/http';
 import { Injectable, InjectionToken, Injector } from '@angular/core';
-import { BehaviorSubject, interval, Subject } from 'rxjs';
+import { BehaviorSubject, interval, Observer, PartialObserver, Subject } from 'rxjs';
 import { take, takeUntil } from 'rxjs/operators';
 import { IndicatorComponent } from './indicator';
 
@@ -45,6 +46,31 @@ export class ActionIndicatorService {
     private overlay: Overlay,
   ) { }
 
+  /**
+   * Returns an observer that parses the HTTP API response
+   * and shows a success/error action indicator.
+   */
+  httpObserver(successTitle: string, errorTitle: string): PartialObserver<HttpResponse<ArrayBuffer>> {
+    return {
+      next: resp => {
+        let msg = this.parseResponse(resp)
+        if (successTitle === '') {
+          successTitle = msg;
+          msg = '';
+        }
+        this.success(successTitle, msg)
+      },
+      error: err => {
+        let msg = this.parseResponse(err);
+        if (errorTitle === '') {
+          errorTitle = msg;
+          msg = '';
+        }
+        this.error(errorTitle, err);
+      }
+    }
+  }
+
   info(title: string, message?: string, timeout?: number) {
     this.create({
       title,
@@ -54,7 +80,7 @@ export class ActionIndicatorService {
     })
   }
 
-  error(title: string, message?: string, timeout?: number) {
+  error(title: string, message?: string | any, timeout?: number) {
     this.create({
       title,
       message: this.ensureMessage(message),
@@ -136,9 +162,16 @@ export class ActionIndicatorService {
     })
   }
 
+  /**
+   * Tries to extract a meaningful error message from msg.
+   */
   private ensureMessage(msg: string | any): string | undefined {
     if (msg === undefined || msg === null) {
       return undefined;
+    }
+
+    if (msg instanceof HttpErrorResponse) {
+      return msg.message;
     }
 
     if (typeof msg === 'string') {
@@ -158,5 +191,52 @@ export class ActionIndicatorService {
     }
 
     return JSON.stringify(msg);
+  }
+
+  /**
+   * Coverts an untyped body received by the HTTP API to a string.
+   */
+  private stringifyBody(body: any): string {
+    if (typeof body === 'string') {
+      return body;
+    }
+
+    if (body instanceof ArrayBuffer) {
+      return new TextDecoder('utf-8').decode(body);
+    }
+
+    if (typeof body === 'object') {
+      return this.ensureMessage(body) || '';
+    }
+    console.error('unsupported body', body);
+
+    return '';
+  }
+
+  /**
+   * Parses a HTTP or HTTP Error response and returns a
+   * message that can be displayed to the user.
+   */
+  private parseResponse(resp: HttpResponse<ArrayBuffer> | HttpErrorResponse): string {
+    let msg = '';
+    let body: string | null = null;
+
+    if (resp instanceof HttpErrorResponse) {
+      body = this.stringifyBody(resp.error);
+    } else {
+      body = this.stringifyBody(resp.body);
+    }
+
+    const ct = resp.headers.get('content-type') || '';
+    if (/application\/json/.test(ct)) {
+      console.log(msg);
+    } else if (/text\/plain/.test(ct)) {
+      msg = body;
+    }
+    // Make the first letter uppercase
+    if (!!msg) {
+      msg = msg[0].toLocaleUpperCase() + msg.slice(1)
+    }
+    return msg;
   }
 }
