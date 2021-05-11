@@ -59,6 +59,10 @@ caption {
 
     button {
       @apply bg-info-blue;
+
+      &.danger {
+        @apply bg-info-red;
+      }
     }
 
     &>span {

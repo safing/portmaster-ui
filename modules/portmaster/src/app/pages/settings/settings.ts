@@ -8,6 +8,7 @@ import { Record } from 'src/app/services/portapi.types';
 import { ActionIndicatorService } from 'src/app/shared/action-indicator';
 import { fadeInAnimation } from 'src/app/shared/animations';
 import { SaveSettingEvent } from 'src/app/shared/config/generic-setting/generic-setting';
+import { ExitService } from 'src/app/shared/exit-screen';
 
 @Component({
   templateUrl: './settings.html',
@@ -43,6 +44,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
     private debugAPI: DebugAPI,
     private actionIndicator: ActionIndicatorService,
     private route: ActivatedRoute,
+    private exitService: ExitService,
   ) { }
 
   ngOnInit(): void {
@@ -156,7 +158,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
    * Trigger a shutdown of the portmaster-core service
    */
   shutdown(_: Event) {
-    this.portapi.shutdownPortmaster();
+    this.exitService.shutdownPortmaster();
   }
 
   /**

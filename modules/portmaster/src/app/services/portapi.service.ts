@@ -1,13 +1,12 @@
-import { Injectable, isDevMode, NgZone, TrackByFunction } from '@angular/core';
-import { BehaviorSubject, Observable, defer, of, Subject, Observer, iif, throwError } from 'rxjs';
-import { filter, map, takeWhile, tap, count, switchMap, concatMap, delay, retryWhen } from 'rxjs/operators';
+import { HttpClient } from '@angular/common/http';
+import { Injectable, isDevMode, NgZone } from '@angular/core';
+import { BehaviorSubject, Observable, Observer, of } from 'rxjs';
+import { concatMap, delay, filter, map, retryWhen, takeWhile, tap } from 'rxjs/operators';
 import { WebSocketSubject } from 'rxjs/webSocket';
 import { environment } from '../../environments/environment';
-import { DataReply, deserializeMessage, InspectedActiveRequest, Record, isCancellable, isDataReply, ReplyMessage, Requestable, RequestType, RetryableOpts, retryPipeline, serializeMessage, WatchOpts, RequestMessage } from './portapi.types';
-import { WebsocketService } from './websocket.service';
-import { trackById, Identifyable } from './core.types';
-import { HttpClient } from '@angular/common/http';
 import { ActionIndicatorService } from '../shared/action-indicator';
+import { DataReply, deserializeMessage, InspectedActiveRequest, isCancellable, isDataReply, Record, ReplyMessage, Requestable, RequestMessage, RequestType, RetryableOpts, retryPipeline, serializeMessage, WatchOpts } from './portapi.types';
+import { WebsocketService } from './websocket.service';
 
 export const RECONNECT_INTERVAL = 2000;
 
