@@ -79,8 +79,18 @@ export class ConnectionHelperService {
    *
    * @param key The settings key to redirect to
    */
-  redirectToSetting(optionKey: string) {
+  redirectToSetting(optionKey: string, globalSettings = false) {
     if (!optionKey || !this.profile) {
+      return;
+    }
+
+    if (globalSettings) {
+      this.router.navigate(
+        ['/', 'settings'], {
+        queryParams: {
+          setting: optionKey
+        }
+      })
       return;
     }
 

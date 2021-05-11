@@ -1,4 +1,5 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
 import { Observable, Subscription } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { ConfigService, DebugAPI, Setting, StatusService, VersionStatus } from 'src/app/services';
@@ -26,6 +27,12 @@ export class SettingsComponent implements OnInit, OnDestroy {
   /** @private The available and selected resource versions. */
   versions: VersionStatus | null = null;
 
+  /**
+   * @private
+   * The key of the setting to highligh, if any ...
+   */
+  highlightSettingKey: string | null = null;
+
   /** Subscription to watch all available settings. */
   private subscription = Subscription.EMPTY;
 
@@ -35,6 +42,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
     private portapi: PortapiService,
     private debugAPI: DebugAPI,
     private actionIndicator: ActionIndicatorService,
+    private route: ActivatedRoute,
   ) { }
 
   ngOnInit(): void {
@@ -50,6 +58,14 @@ export class SettingsComponent implements OnInit, OnDestroy {
       .subscribe(version => this.versions = version);
 
     this.subscription.add(versionSub);
+
+    const querySub = this.route.queryParamMap
+      .subscribe(
+        params => {
+          this.highlightSettingKey = params.get('setting');
+        }
+      )
+    this.subscription.add(querySub);
   }
 
   ngOnDestroy() {

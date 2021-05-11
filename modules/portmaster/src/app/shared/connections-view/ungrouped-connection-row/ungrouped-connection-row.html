@@ -52,18 +52,8 @@
     </ng-container>
     <ng-container *ngIf="conn.Reason.OptionKey as option">
       <span class="de-emphasize applied">applied</span>
-
       <span class="setting">{{ helper.settings[option] || '' }}&nbsp;</span>
-
-      <svg (click)="helper.redirectToSetting(option)" class="cog port" viewBox="0 0 24 24">
-        <g fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.3">
-          <path
-            d="M13.7678 10.2322c.976311.976311.976311 2.55922 0 3.53553-.976311.976311-2.55922.976311-3.53553 0-.976311-.976311-.976311-2.55922 0-3.53553.976311-.976311 2.55922-.976311 3.53553 0" />
-          <path
-            d="M14.849 4.12l.583.194c.534.178.895.678.895 1.241v.837c0 .712.568 1.293 1.28 1.308l.838.018c.485.01.925.289 1.142.723l.275.55c.252.504.153 1.112-.245 1.51l-.592.592c-.503.503-.512 1.316-.02 1.83l.58.606c.336.351.45.858.296 1.319l-.194.583c-.178.534-.678.895-1.241.895h-.837c-.712 0-1.293.568-1.308 1.28l-.018.838c-.01.485-.289.925-.723 1.142l-.55.275c-.504.252-1.112.153-1.51-.245l-.592-.592c-.503-.503-1.316-.512-1.83-.02l-.606.58c-.351.336-.858.45-1.319.296l-.583-.194c-.534-.178-.895-.678-.895-1.241v-.837c0-.712-.568-1.293-1.28-1.308l-.838-.018c-.485-.01-.925-.289-1.142-.723l-.275-.55c-.252-.504-.153-1.112.245-1.51l.592-.592c.503-.503.512-1.316.02-1.83l-.58-.606c-.337-.352-.451-.86-.297-1.32l.194-.583c.178-.534.678-.895 1.241-.895h.837c.712 0 1.293-.568 1.308-1.28l.018-.838c.012-.485.29-.925.724-1.142l.55-.275c.504-.252 1.112-.153 1.51.245l.592.592c.503.503 1.316.512 1.83.02l.606-.58c.351-.335.859-.449 1.319-.295z" />
-        </g>
-      </svg>
-
+      <span class="de-emphasize from">from</span>
       <span class="de-emphasize reason-source">&nbsp;{{
         !!conn.Reason.Profile ? "App" :
         "Global" }} Settings</span>
@@ -75,8 +65,15 @@
     <app-menu-trigger [menu]="ungroupedConnectionMenu"></app-menu-trigger>
     <app-menu #ungroupedConnectionMenu>
       <app-menu-item (onActivate)="helper.redirectToSetting(conn.Reason.OptionKey)" *ngIf="!!conn.Reason.OptionKey">
-        Show setting
+        App Setting
       </app-menu-item>
+
+      <app-menu-item (onActivate)="helper.redirectToSetting(conn.Reason.OptionKey, true)"
+        *ngIf="!!conn.Reason.OptionKey">
+        Global Setting
+      </app-menu-item>
+
+      <app-menu-group></app-menu-group>
 
       <app-menu-item *ngIf="(conn | isBlocked); else blockAction"
         (onActivate)="helper.unblockAll(conn.Entity.Domain || conn.Entity.IP)" [disabled]="!(conn | canUseRules)">

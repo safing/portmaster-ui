@@ -120,5 +120,6 @@
 </app-accordion-group>
 
 
-<app-settings-view [searchTerm]="searchTerm" [availableSettings]="settings" (onSave)="saveSetting($event)">
+<app-settings-view [searchTerm]="searchTerm" [highlightKey]="highlightSettingKey" [availableSettings]="settings"
+  (onSave)="saveSetting($event)">
 </app-settings-view>

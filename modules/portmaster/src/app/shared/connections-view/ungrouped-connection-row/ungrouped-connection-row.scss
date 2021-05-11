@@ -114,6 +114,7 @@
   display    : none;
 
   .applied,
+  .from,
   .reason-source {
     display: none;
   }
@@ -163,6 +164,8 @@
 
 @media screen and (min-width: 1800px) {
   .reason {
+
+    .from,
     .applied {
       display: inline;
     }
