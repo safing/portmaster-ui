@@ -259,12 +259,7 @@ export class AppComponent implements OnInit {
       });
   }
 
-  injectTrigger(module: string, kind: string): Observable<void> {
-    return this.portapi.get<Record>(`control:module/${module}/trigger/${kind}`)
-      .pipe(map(() => { }))
-  }
-
   downloadUpdates() {
-    this.injectTrigger('updates', 'trigger update').subscribe()
+    this.portapi.injectTrigger('updates', 'trigger update').subscribe()
   }
 }

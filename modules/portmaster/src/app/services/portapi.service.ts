@@ -89,6 +89,18 @@ export class PortapiService {
   }
 
   /**
+   * Injects an event into a module to trigger certain backend
+   * behavior.
+   *
+   * @param module The name of the module to inject
+   * @param kind The event kind to inject
+   */
+  injectTrigger(module: string, kind: string): Observable<void> {
+    return this.get<Record>(`control:module/${module}/trigger/${kind}`)
+      .pipe(map(() => { }))
+  }
+
+  /**
    * Flushes all pending method calls that have been collected
    * while we were not connected to the portmaster API.
    */

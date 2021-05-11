@@ -108,25 +108,13 @@ export class SettingsComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Injects an event into a module to trigger certain backend
-   * behavior.
-   *
-   * @param module The name of the module to inject
-   * @param kind The event kind to inject
-   */
-  private injectTrigger(module: string, kind: string): Observable<void> {
-    return this.portapi.get<Record>(`control:module/${module}/trigger/${kind}`)
-      .pipe(map(() => { }))
-  }
-
-  /**
    * @private
    * Injects a ui/reload event and performs a complete
    * reload of the window once the portmaster re-opened the
    * UI bundle.
    */
   reloadUI(_: Event) {
-    this.injectTrigger('ui', 'reload')
+    this.portapi.injectTrigger('ui', 'reload')
       .subscribe(() => {
         window.location.reload();
       })
@@ -137,7 +125,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
    * Clear the DNS name cache.
    */
   clearDNSCache(_: Event) {
-    this.injectTrigger('resolver', 'clear name cache').subscribe(
+    this.portapi.injectTrigger('resolver', 'clear name cache').subscribe(
       () => this.actionIndicator.success('DNS Cache cleared'),
       err => this.actionIndicator.error('Failed to cleare DNS cache', err)
     );
@@ -150,7 +138,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
    * @param event - The mouse event
    */
   downloadUpdates(event: Event) {
-    this.injectTrigger('updates', 'trigger update').subscribe(
+    this.portapi.injectTrigger('updates', 'trigger update').subscribe(
       () => this.actionIndicator.info('Checking for updates ...'),
       err => this.actionIndicator.error('Failed to check for updates', err)
     )
@@ -161,7 +149,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
    * Trigger a shutdown of the portmaster-core service
    */
   shutdown(_: Event) {
-    this.injectTrigger('core', 'shutdown').subscribe(
+    this.portapi.injectTrigger('core', 'shutdown').subscribe(
       () => this.actionIndicator.info('Shutting down ...'),
       err => this.actionIndicator.error('Failed to shutdown', err)
     );
@@ -180,7 +168,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
     event.preventDefault();
     event.stopPropagation();
 
-    this.injectTrigger('core', 'restart').subscribe(
+    this.portapi.injectTrigger('core', 'restart').subscribe(
       () => this.actionIndicator.info('Restarting ...'),
       err => this.actionIndicator.error('Failed to restart Portmaster', err)
     );

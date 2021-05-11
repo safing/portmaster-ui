@@ -4,6 +4,7 @@ import { Inject, Injectable, Injector, NgZone } from '@angular/core';
 import { of } from 'rxjs';
 import { catchError, take, timeout } from 'rxjs/operators';
 import { UIStateService } from 'src/app/services';
+import { PortapiService } from 'src/app/services/portapi.service';
 import { ActionIndicatorService } from '../action-indicator';
 import { ExitScreenComponent, OVERLAYREF } from './exit-screen';
 
@@ -15,7 +16,14 @@ export class ExitService {
     private overlay: Overlay,
     private injector: Injector,
     private stateService: UIStateService,
+    private portapi: PortapiService,
   ) {
+    window.addEventListener('beforeunload', () => {
+      // best effort. may not work all the time depending on
+      // the current websocket buffer state
+      this.portapi.injectTrigger('ui', 'reload').subscribe();
+    })
+
     window.addEventListener('message', event => {
       if (event.data === 'on-app-close') {
         this.stateService.uiState()
