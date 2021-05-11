@@ -26,21 +26,14 @@ export class AppComponent implements OnInit {
   );
   title = 'portmaster';
 
-  showDebugPanel = false;
-
-  private onlineStatusNotification: VirtualNotification<any> | null = null;
-
-  private subsystemWarnings = new Map<string, VirtualNotification<Subsystem>>();
-
   constructor(
     public ngZone: NgZone,
     public portapi: PortapiService,
     public changeDetectorRef: ChangeDetectorRef,
     private router: Router,
-    private statusService: StatusService,
     private notificationService: NotificationsService,
     private actionIndicatorService: ActionIndicatorService,
-    private exitService: ExitService,
+    private exitService: ExitService, // NOT USED BUT MUST BE INJECTED
   ) {
     (window as any).fakeNotification = () => {
       this.ngZone.run(() => {
@@ -129,137 +122,5 @@ export class AppComponent implements OnInit {
         await this.router.navigateByUrl('/', { skipLocationChange: true })
         this.router.navigate([current]);
       })
-
-    // TODO(ppacher): move virtual notification handling to a dedicated service
-    //
-    // FIXME: remove everything below
-    this.statusService.status$.subscribe(status => {
-      if (!!this.onlineStatusNotification) {
-        this.notificationService.deject(this.onlineStatusNotification);
-        this.onlineStatusNotification!.dispose()
-        this.onlineStatusNotification = null;
-      }
-      if (status.OnlineStatus !== OnlineStatus.Online) {
-        let title = '';
-        let msg = '';
-        let actions: ActionHandler<any>[] = [];
-
-        switch (status.OnlineStatus) {
-          case OnlineStatus.Limited:
-          case OnlineStatus.SemiOnline:
-            title = 'Limited Network Access';
-            msg = 'Portmaster detected limited network access.'
-            break;
-
-          case OnlineStatus.Offline:
-            title = 'No Network Access'
-            msg = 'Portmaster failed to connect to the internet.'
-            break;
-
-          case OnlineStatus.Portal:
-            title = 'Captive Portal Detected'
-            msg = `Portmaster detected a captive portal in your network.`
-            actions = [
-              {
-                ID: 'open-portal',
-                Text: 'Open',
-                Run: (n: VirtualNotification<any>) => {
-                  if ('openExternal' in (window as any)) {
-                    (window as any).openExternal(status.CaptivePortal.URL);
-                  }
-                }
-              }
-            ]
-            break;
-        }
-
-        if (title != '') {
-          this.onlineStatusNotification = new VirtualNotification(
-            'ui:online-status',
-            NotificationType.Info,
-            title,
-            msg,
-            {
-              Category: 'Online-Status',
-              AvailableActions: actions,
-            },
-          );
-
-          this.notificationService.inject(this.onlineStatusNotification, { autoRemove: false });
-        }
-      }
-    });
-
-    this.statusService.watchSubsystems()
-      .pipe(debounceTime(100))
-      .subscribe(subsystems => {
-
-        subsystems.forEach(subsystem => {
-          subsystem.Modules.forEach(module => {
-            const key = `ui:subsystem-${subsystem.ID}-${module.Name}`;
-            if (module.FailureStatus === FailureStatus.Operational) {
-              const notif = this.subsystemWarnings.get(key);
-              if (!!notif) {
-                this.subsystemWarnings.delete(key);
-                notif.dispose();
-              }
-            } else {
-              let actions: ActionHandler<any>[] = [];
-              switch (module.FailureID) {
-                case "missing-resolver":
-                  actions.push({
-                    ID: 'ui:redirect-resolver',
-                    Text: 'Open',
-                    Run: () => {
-                      this.router.navigate(['/', 'settings'], { queryParams: { setting: 'dns/nameservers' } });
-                    }
-                  })
-                  break;
-                case "update-failed":
-                  actions.push({
-                    ID: 'ui:force-update',
-                    Text: 'Retry',
-                    Run: () => {
-                      this.downloadUpdates();
-                    }
-                  })
-                  break;
-                case "no-access-code":
-                case "invalid-access-code":
-                  actions.push({
-                    ID: 'ui:redirect-resolver',
-                    Text: 'Open',
-                    Run: () => {
-                      this.router.navigate(['/', 'settings'], { queryParams: { setting: 'spn/specialAccessCode' } });
-                    }
-                  })
-                  break;
-              }
-
-              const notif = new VirtualNotification<any>(
-                key,
-                {
-                  [FailureStatus.Operational]: NotificationType.Info, // cannot happen but make Typescript happy
-                  [FailureStatus.Hint]: NotificationType.Info,
-                  [FailureStatus.Warning]: NotificationType.Warning,
-                  [FailureStatus.Error]: NotificationType.Error,
-                }[subsystem.FailureStatus],
-                subsystem.Name,
-                module.FailureMsg,
-                {
-                  Category: module.Name,
-                }
-              );
-              this.subsystemWarnings.set(key, notif);
-
-              this.notificationService.inject(notif);
-            }
-          });
-        });
-      });
-  }
-
-  downloadUpdates() {
-    this.portapi.checkForUpdates();
   }
 }
