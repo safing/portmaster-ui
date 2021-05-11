@@ -66,6 +66,11 @@
             <span>{{appProfile!.Created * 1000 | date:'medium'}}</span>
           </p>
           <p>
+            <label>Last Edited:</label>
+            <span *ngIf="!!appProfile.LastEdited">{{appProfile!.LastEdited * 1000 | date:'medium'}}</span>
+            <span *ngIf="!appProfile.LastEdited">N/A</span>
+          </p>
+          <p>
             <label>Last Used:</label>
             <span>{{appProfile!.ApproxLastUsed * 1000 | date:'medium'}}</span>
           </p>

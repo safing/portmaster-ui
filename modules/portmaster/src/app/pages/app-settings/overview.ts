@@ -25,14 +25,20 @@ export class AppOverviewComponent implements OnInit, OnDestroy {
   /** All application profiles that are actually running */
   runningProfiles: AppProfile[] = [];
 
-  /** All application profiles that have been modified recently */
+  /** All application profiles that have been used recently */
   recentlyUsed: AppProfile[] = [];
+
+  /** All application profiles that have been edited recently */
+  recentlyEdited: AppProfile[] = [];
 
   /** All non-running application profiles */
   profiles: AppProfile[] = [];
 
   /** The current search term */
   searchTerm: string = '';
+
+  /** total number of profiles */
+  total: number = 0;
 
   /** Observable emitting the search term */
   private onSearch = new BehaviorSubject('');
@@ -72,12 +78,14 @@ export class AppOverviewComponent implements OnInit, OnDestroy {
           this.profiles = [];
           this.runningProfiles = [];
           this.recentlyUsed = [];
+          this.recentlyEdited = [];
 
           // calcualte the threshold for "recently-used" (1 week).
           const recentlyUsedThreshold = new Date().valueOf() / 1000 - (60 * 60 * 24 * 7);
 
           // flatten the filtered profiles, sort them by name and group them into
           // our "app-groups" (active, recentlyUsed, others)
+          this.total = filtered.length;
           filtered
             .map(item => item.item)
             .sort((a, b) => {
@@ -97,12 +105,15 @@ export class AppOverviewComponent implements OnInit, OnDestroy {
             .forEach(profile => {
               if (this.connTrack.has(profile.ID)) {
                 this.runningProfiles.push(profile);
-              } else if (!!profile._meta && profile._meta.Modified >= recentlyUsedThreshold) {
+              } else if (profile.ApproxLastUsed >= recentlyUsedThreshold) {
                 this.recentlyUsed.push(profile);
+              } else if (profile.LastEdited >= recentlyUsedThreshold) {
+                this.recentlyEdited.push(profile);
               } else {
                 this.profiles.push(profile);
               }
             });
+
           this.changeDetector.markForCheck();
         }
       )
