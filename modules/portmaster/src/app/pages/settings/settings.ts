@@ -1,4 +1,5 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
 import { Observable, Subscription } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { ConfigService, DebugAPI, Setting, StatusService, VersionStatus } from 'src/app/services';
@@ -7,6 +8,7 @@ import { Record } from 'src/app/services/portapi.types';
 import { ActionIndicatorService } from 'src/app/shared/action-indicator';
 import { fadeInAnimation } from 'src/app/shared/animations';
 import { SaveSettingEvent } from 'src/app/shared/config/generic-setting/generic-setting';
+import { ExitService } from 'src/app/shared/exit-screen';
 
 @Component({
   templateUrl: './settings.html',
@@ -26,6 +28,12 @@ export class SettingsComponent implements OnInit, OnDestroy {
   /** @private The available and selected resource versions. */
   versions: VersionStatus | null = null;
 
+  /**
+   * @private
+   * The key of the setting to highligh, if any ...
+   */
+  highlightSettingKey: string | null = null;
+
   /** Subscription to watch all available settings. */
   private subscription = Subscription.EMPTY;
 
@@ -35,6 +43,8 @@ export class SettingsComponent implements OnInit, OnDestroy {
     private portapi: PortapiService,
     private debugAPI: DebugAPI,
     private actionIndicator: ActionIndicatorService,
+    private route: ActivatedRoute,
+    private exitService: ExitService,
   ) { }
 
   ngOnInit(): void {
@@ -50,6 +60,14 @@ export class SettingsComponent implements OnInit, OnDestroy {
       .subscribe(version => this.versions = version);
 
     this.subscription.add(versionSub);
+
+    const querySub = this.route.queryParamMap
+      .subscribe(
+        params => {
+          this.highlightSettingKey = params.get('setting');
+        }
+      )
+    this.subscription.add(querySub);
   }
 
   ngOnDestroy() {
@@ -108,28 +126,13 @@ export class SettingsComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Injects an event into a module to trigger certain backend
-   * behavior.
-   *
-   * @param module The name of the module to inject
-   * @param kind The event kind to inject
-   */
-  private injectTrigger(module: string, kind: string): Observable<void> {
-    return this.portapi.get<Record>(`control:module/${module}/trigger/${kind}`)
-      .pipe(map(() => { }))
-  }
-
-  /**
    * @private
    * Injects a ui/reload event and performs a complete
    * reload of the window once the portmaster re-opened the
    * UI bundle.
    */
   reloadUI(_: Event) {
-    this.injectTrigger('ui', 'reload')
-      .subscribe(() => {
-        window.location.reload();
-      })
+    this.portapi.reloadUI();
   }
 
   /**
@@ -137,10 +140,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
    * Clear the DNS name cache.
    */
   clearDNSCache(_: Event) {
-    this.injectTrigger('resolver', 'clear name cache').subscribe(
-      () => this.actionIndicator.success('DNS Cache cleared'),
-      err => this.actionIndicator.error('Failed to cleare DNS cache', err)
-    );
+    this.portapi.clearDNSCache();
   }
 
   /**
@@ -150,10 +150,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
    * @param event - The mouse event
    */
   downloadUpdates(event: Event) {
-    this.injectTrigger('updates', 'trigger update').subscribe(
-      () => this.actionIndicator.info('Checking for updates ...'),
-      err => this.actionIndicator.error('Failed to check for updates', err)
-    )
+    this.portapi.checkForUpdates();
   }
 
   /**
@@ -161,10 +158,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
    * Trigger a shutdown of the portmaster-core service
    */
   shutdown(_: Event) {
-    this.injectTrigger('core', 'shutdown').subscribe(
-      () => this.actionIndicator.info('Shutting down ...'),
-      err => this.actionIndicator.error('Failed to shutdown', err)
-    );
+    this.exitService.shutdownPortmaster();
   }
 
   /**
@@ -180,10 +174,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
     event.preventDefault();
     event.stopPropagation();
 
-    this.injectTrigger('core', 'restart').subscribe(
-      () => this.actionIndicator.info('Restarting ...'),
-      err => this.actionIndicator.error('Failed to restart Portmaster', err)
-    );
+    this.portapi.restartPortmaster();
   }
 
   /**
@@ -191,9 +182,10 @@ export class SettingsComponent implements OnInit, OnDestroy {
    * Opens the data-directory of the portmaster installation.
    * Requires the application to run inside electron.
    */
-  openDataDir(event: Event) {
+  async openDataDir(event: Event) {
     if (!!window.app) {
-      window.app.openExternal(window.app.installDir);
+      const dir = await window.app.getInstallDir()
+      await window.app.openExternal(dir);
     }
   }
 

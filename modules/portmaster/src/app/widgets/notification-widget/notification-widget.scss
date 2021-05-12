@@ -8,12 +8,12 @@
   align-items    : center;
   overflow-x     : hidden;
   overflow-y     : auto;
-  max-height     : calc(var(--slot-size) * 5);
+  max-height     : calc(var(--slot-size) * 7);
   @apply bg-background;
 
   &:not(.empty) {
     // TODO(ppacher): Remove min-height, always adjust height to notification content if one is open.
-    min-height      : calc(var(--slot-size) * 3);
+    min-height      : calc(var(--slot-size) * 5);
     background-color: #202020;
   }
 
@@ -109,7 +109,7 @@ div.placeholder {
     padding-left             : 1rem;
     border-top-left-radius   : 2px;
     border-bottom-left-radius: 2px;
-    position: relative;
+    position                 : relative;
 
     span {
       flex-grow    : 1;
@@ -138,18 +138,18 @@ div.placeholder {
       .buttons {
         opacity   : 1;
         transition: all .05s ease-in-out;
-        transform: translateX(-100%);
+        transform : translateX(-100%);
       }
     }
 
     .buttons {
-      opacity    : 0;
-      transition : all .05s ease-in-out;
-      height     : 100%;
-      position: absolute;
-      left: 100%;
-      display: flex;
-      white-space: nowrap;
+      opacity         : 0;
+      transition      : all .05s ease-in-out;
+      height          : 100%;
+      position        : absolute;
+      left            : 100%;
+      display         : flex;
+      white-space     : nowrap;
       background-color: #303030;
 
       button {

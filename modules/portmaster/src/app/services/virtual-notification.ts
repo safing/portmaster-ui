@@ -1,11 +1,7 @@
 import { BehaviorSubject } from 'rxjs';
 import { filter } from 'rxjs/operators';
-import { Action, Notification, NotificationState, NotificationType } from './notifications.types';
+import { ActionHandler, Notification, NotificationState, NotificationType } from './notifications.types';
 import { RecordMeta } from './portapi.types';
-
-export interface ActionHandler<T> extends Action {
-  Run: (vn: VirtualNotification<T>) => void
-}
 
 export class VirtualNotification<T> implements Notification<T> {
   readonly AvailableActions: ActionHandler<T>[];
@@ -48,7 +44,7 @@ export class VirtualNotification<T> implements Notification<T> {
 
     const action = this.AvailableActions.find(a => a.ID === aid);
     if (!!action) {
-      action.Run(this);
+      action.Run(action.Payload);
     }
   }
 

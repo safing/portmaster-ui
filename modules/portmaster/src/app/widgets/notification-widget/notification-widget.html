@@ -9,7 +9,7 @@
         {{notif.Title || notif.Message}}
       </span>
       <div class="buttons">
-        <button *ngFor="let action of notif!.AvailableActions" (click)="execute(notif!, action.ID, $event)">
+        <button *ngFor="let action of notif!.AvailableActions" (click)="execute(notif!, action, $event)">
           {{action.Text}}
         </button>
       </div>

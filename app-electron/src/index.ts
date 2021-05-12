@@ -2,10 +2,14 @@ import { app, BrowserWindow, nativeTheme } from "electron";
 import * as windowStateKeeper from "electron-window-state";
 import * as path from "path";
 import * as fs from "fs";
-import { GetDataDir } from "./datadir";
+import { dataDirectory } from "./datadir";
+import { WebUILoader } from "./loader";
+import { startNotifier } from "./notifier";
+import { AppAPI } from "./api";
+import { serveIPC } from "./ipc";
 
 // Define mainWindow.
-let mainWindow:BrowserWindow = null;
+let mainWindow: BrowserWindow = null;
 
 // Save system theme.
 let systemDarkMode = nativeTheme.shouldUseDarkColors;
@@ -51,15 +55,18 @@ function createWindow() {
   // and restore the maximized or full screen state.
   mainWindowState.manage(mainWindow);
 
-  // Load UI from Portmaster.
-  mainWindow.loadURL("http://127.0.0.1:817/");
+  let loader = new WebUILoader(mainWindow);
+  let appAPI = new AppAPI(mainWindow, loader)
+
+  serveIPC(loader, appAPI);
+
+  loader.loadUI();
 
   // Register shortcuts.
   mainWindow.webContents.on('before-input-event', (event, input) => {
     switch (input.key) {
       case "F5":
-        // Reload.
-        mainWindow.reload()
+        loader.loadUI();
         event.preventDefault();
         break;
       case "F10":
@@ -77,11 +84,8 @@ function createWindow() {
 }
 
 function getStateDir(): string {
-  // Get data directory from command line.
-  let dataDir = GetDataDir(app.commandLine);
-
   // Add "exec" dir to data dir.
-  let stateDir = path.join(dataDir, "exec");
+  let stateDir = path.join(dataDirectory, "exec");
 
   // Don't return a dir that does not exist.
   if (!fs.existsSync(stateDir)) {
@@ -91,13 +95,27 @@ function getStateDir(): string {
   return stateDir;
 }
 
-function main() {
+async function main() {
+  console.log(`Portmaster data directory: ${dataDirectory}`);
+
+  // we ensure the notifier is running even though we might quit
+  // immediately because another instance of the app is already
+  // running. This ensures the user can restart the notifier 
+  // after it has been stopped by just trying to start the UI.
+  // The notifier has a pid-lock file in the exec directory
+  // so we don't need to care about multiple instances here.
+  try {
+    await startNotifier()
+  } catch (err) {
+    console.error(err);
+  }
+
   // Acquire single instance lock and immediately quit if not acquired.
   if (!app.requestSingleInstanceLock()) {
     app.quit();
     return;
   }
-  
+
   // Focus main window if another instance wanted to start.
   app.on('second-instance', (event, commandLine, workingDirectory) => {
     if (!mainWindow) {
@@ -136,4 +154,8 @@ function main() {
   });
 }
 
-main();
+main()
+  .catch(err => {
+    console.error(err);
+    process.exit(1);
+  });

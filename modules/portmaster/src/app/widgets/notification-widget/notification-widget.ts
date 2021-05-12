@@ -4,7 +4,7 @@ import { not } from '@angular/compiler/src/output/output_ast';
 import { Component, OnInit, Inject, HostBinding, ElementRef, OnDestroy } from '@angular/core';
 import { Subscription } from 'rxjs';
 import { filter, map } from 'rxjs/operators';
-import { NotificationsService, NotificationType, Notification } from 'src/app/services';
+import { NotificationsService, NotificationType, Notification, Action } from 'src/app/services';
 import { moveInOutAnimation, moveInOutListAnimation } from 'src/app/shared/animations';
 import { WIDGET_CONFIG, WidgetConfig } from '../widget.types';
 
@@ -109,7 +109,7 @@ export class NotificationWidgetComponent implements OnInit, OnDestroy {
    * @param actionId  The ID of the action to execute.
    * @param event The mouse click event.
    */
-  execute(n: Notification<any>, actionId: string, event: MouseEvent) {
+  execute(n: Notification<any>, action: Action, event: MouseEvent) {
     event.preventDefault();
     event.stopPropagation();
 
@@ -117,7 +117,7 @@ export class NotificationWidgetComponent implements OnInit, OnDestroy {
       this.toggelView(n);
     }
 
-    this.notifsService.execute(n, actionId)
+    this.notifsService.execute(n, action)
       .subscribe()
   }
 

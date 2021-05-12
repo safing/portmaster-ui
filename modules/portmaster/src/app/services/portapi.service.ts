@@ -1,12 +1,12 @@
-import { Injectable, isDevMode, NgZone, TrackByFunction } from '@angular/core';
-import { BehaviorSubject, Observable, defer, of, Subject, Observer, iif, throwError } from 'rxjs';
-import { filter, map, takeWhile, tap, count, switchMap, concatMap, delay, retryWhen } from 'rxjs/operators';
+import { HttpClient } from '@angular/common/http';
+import { Injectable, isDevMode, NgZone } from '@angular/core';
+import { BehaviorSubject, Observable, Observer, of } from 'rxjs';
+import { concatMap, delay, filter, map, retryWhen, takeWhile, tap } from 'rxjs/operators';
 import { WebSocketSubject } from 'rxjs/webSocket';
 import { environment } from '../../environments/environment';
-import { DataReply, deserializeMessage, InspectedActiveRequest, Record, isCancellable, isDataReply, ReplyMessage, Requestable, RequestType, RetryableOpts, retryPipeline, serializeMessage, WatchOpts, RequestMessage } from './portapi.types';
+import { ActionIndicatorService } from '../shared/action-indicator';
+import { DataReply, deserializeMessage, InspectedActiveRequest, isCancellable, isDataReply, Record, ReplyMessage, Requestable, RequestMessage, RequestType, RetryableOpts, retryPipeline, serializeMessage, WatchOpts } from './portapi.types';
 import { WebsocketService } from './websocket.service';
-import { trackById, Identifyable } from './core.types';
-import { HttpClient } from '@angular/common/http';
 
 export const RECONNECT_INTERVAL = 2000;
 
@@ -44,6 +44,8 @@ export class PortapiService {
   constructor(
     private websocketFactory: WebsocketService,
     private ngZone: NgZone,
+    private http: HttpClient,
+    private uai: ActionIndicatorService,
   ) {
 
     // create a new websocket connection that will auto-connect
@@ -86,6 +88,72 @@ export class PortapiService {
           this._streams$.forEach(observer => observer.complete());
           this._streams$.clear();
         });
+  }
+
+  /** Triggers a restart of the portmaster service */
+  restartPortmaster(): void {
+    this.http.post(`${environment.httpAPI}/v1/core/restart`, undefined, { observe: 'response', responseType: 'arraybuffer' })
+      .subscribe(this.uai.httpObserver(
+        'Restarting ...',
+        'Failed to restart',
+      ))
+  }
+
+  /** Triggers a shutdown of the portmaster service */
+  shutdownPortmaster(): void {
+    this.http.post(`${environment.httpAPI}/v1/core/shutdown`, undefined, { observe: 'response', responseType: 'arraybuffer' })
+      .subscribe(this.uai.httpObserver(
+        'Shutting down ...',
+        'Failed to Shut Down',
+      ))
+  }
+
+  /** Force the portmaster to check for updates */
+  checkForUpdates(): void {
+    this.http.post(`${environment.httpAPI}/v1/updates/check`, undefined, { observe: 'response', responseType: 'arraybuffer', reportProgress: false })
+      .subscribe(this.uai.httpObserver(
+        'Downloading Updates ...',
+        'Failed to check for updates',
+      ))
+  }
+
+  /** Force a reload of the UI assets */
+  reloadUI(): void {
+    this.http.post(`${environment.httpAPI}/v1/ui/reload`, undefined, { observe: 'response', responseType: 'arraybuffer' })
+      .pipe(
+        tap(() => {
+          setTimeout(() => window.location.reload(), 1000)
+        })
+      )
+      .subscribe(this.uai.httpObserver(
+        'Reloading UI ...',
+        'Failed to reload UI',
+      ))
+  }
+
+  /** Clear DNS cache */
+  clearDNSCache(): void {
+    this.http.post(`${environment.httpAPI}/v1/dns/clear`, undefined, { observe: 'response', responseType: 'arraybuffer' })
+      .subscribe(this.uai.httpObserver(
+        'DNS Cache Cleared',
+        'Failed to clear DNS cache.',
+      ))
+  }
+
+  /**
+   * Injects an event into a module to trigger certain backend
+   * behavior.
+   *
+   * @deprecated - Use the HTTP API instead.
+   *
+   * @param module The name of the module to inject
+   * @param kind The event kind to inject
+   */
+  bridgeAPI(call: string, method: string): Observable<void> {
+    return this.create(`api:${call}`, {
+      Method: method,
+    })
+      .pipe(map(() => { }))
   }
 
   /**

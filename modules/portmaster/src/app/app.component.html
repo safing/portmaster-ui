@@ -6,10 +6,6 @@
   <router-outlet></router-outlet>
 </div>
 
-<div *ngIf="showDebugPanel">
-  <app-debug></app-debug>
-</div>
-
 <div class="loading" *ngIf="!(connected | async)" [@fadeIn] [@fadeOut]>
   <div class="message">
     <div class="logo" routerLink="monitor">

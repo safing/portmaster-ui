@@ -3,30 +3,25 @@
 }
 
 
-.grid-container {
+.scrollable {
+  width: auto;
+  @apply mr-4;
+  @apply ml-10;
+
+  flex-grow            : 0;
   display              : grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   gap                  : 1rem;
 }
 
-.scrollable {
-  width: auto;
-  @apply mr-4;
-}
-
 h4 {
-  @apply pl-12;
   @apply bg-background;
   @apply pb-2;
   width   : 100%;
   position: sticky;
   top     : 0px;
-}
 
-.content {
-  @apply mb-6;
-  @apply pr-0;
-  flex-shrink: 0;
+  grid-column: 1 / -1;
 }
 
 .card-header {

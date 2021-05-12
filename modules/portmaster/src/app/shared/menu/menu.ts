@@ -152,7 +152,7 @@ export class MenuComponent {
     scrollOptions: ScrollStrategyOptions,
     private renderer: Renderer2,
   ) {
-    this.scrollStrategy = scrollOptions.close();
+    this.scrollStrategy = scrollOptions.reposition();
   }
 
   close() {

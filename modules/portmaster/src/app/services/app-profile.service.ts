@@ -91,6 +91,7 @@ export class AppProfileService {
    * @param profile The profile to save
    */
   saveProfile(profile: AppProfile): Observable<void> {
+    profile.LastEdited = Math.floor((new Date()).getTime() / 1000);
     return this.portapi.update(`core:profiles/${profile.Source}/${profile.ID}`, profile);
   }
 

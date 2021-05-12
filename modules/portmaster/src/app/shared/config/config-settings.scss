@@ -15,6 +15,7 @@
   align-items   : flex-start;
   flex-direction: column;
   flex-grow     : 1;
+  max-width     : 950px; // it looks odd if it's wider than that.
   @apply pr-4;
 
   .category {
@@ -34,9 +35,9 @@
     }
 
     app-generic-setting {
-      width: 100%;
+      width      : 100%;
       padding-top: 1.5rem;
-      margin-top: 1rem;
+      margin-top : 1rem;
 
       /*
       FIXME:

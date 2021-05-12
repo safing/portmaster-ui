@@ -16,6 +16,12 @@
 
 .connection-details {}
 
+.separator {
+  border-top: 1px solid white;
+  opacity   : .2;
+  padding   : 0;
+}
+
 .scope {
   display    : inline-flex;
   align-self : stretch;
@@ -114,6 +120,7 @@
   display    : none;
 
   .applied,
+  .from,
   .reason-source {
     display: none;
   }
@@ -163,6 +170,8 @@
 
 @media screen and (min-width: 1800px) {
   .reason {
+
+    .from,
     .applied {
       display: inline;
     }
