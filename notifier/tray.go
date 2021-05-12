@@ -84,10 +84,11 @@ func onReady() {
 	menuItemRateNetwork := systray.AddMenuItem("Rate your network", "")
 	menuItemRateNetwork.Disable()
 
-	menuItemAutoDetect = systray.AddMenuItem("Auto Detect", "")
-	go clickListener(menuItemAutoDetect, func() {
-		SelectSecurityLevel(SecurityLevelAutoDetect)
-	})
+	// TODO: Enable when auto detection is available.
+	// menuItemAutoDetect = systray.AddMenuItem("Auto Detect", "")
+	// go clickListener(menuItemAutoDetect, func() {
+	// 	SelectSecurityLevel(SecurityLevelAutoDetect)
+	// })
 
 	menuItemTrusted = systray.AddMenuItem("Trusted", "Home")
 	go clickListener(menuItemTrusted, func() {
@@ -167,11 +168,14 @@ func updateTray() {
 	}
 
 	// Set security levels on menu item.
-	if systemStatus.SelectedSecurityLevel == SecurityLevelAutoDetect {
-		menuItemAutoDetect.Check()
-	} else {
-		menuItemAutoDetect.Uncheck()
-	}
+
+	// TODO: Enable when auto detection is available.
+	// if systemStatus.SelectedSecurityLevel == SecurityLevelAutoDetect {
+	// 	menuItemAutoDetect.Check()
+	// } else {
+	// 	menuItemAutoDetect.Uncheck()
+	// }
+
 	switch systemStatus.ActiveSecurityLevel {
 	case SecurityLevelAutoDetect:
 		// This will be the case when offline.
