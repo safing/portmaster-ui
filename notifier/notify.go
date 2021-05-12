@@ -68,15 +68,20 @@ func handleNotification(m *client.Message) {
 			return
 		}
 
-		// Handle notification per
-
-		if n.State != Active {
+		// Handle notification.
+		switch {
+		case existing != nil:
+			// Cancel existing notification if not active, else ignore.
+			if n.State != Active {
+				existing.Cancel()
+			}
 			return
-		} else if existing != nil {
-			existing.Cancel()
+		case n.State == Active:
+			// Show new notifications that are active.
+			n.Show()
+		default:
+			// Ignore new notifications that are not active.
 		}
-
-		n.Show()
 
 	case client.MsgDelete:
 

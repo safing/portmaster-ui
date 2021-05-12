@@ -51,7 +51,7 @@ func httpApiAction(endpoint string) (response string, err error) {
 	response = strings.TrimSpace(string(respData))
 
 	// Check if the request was successful on the server.
-	if resp.StatusCode != 200 {
+	if resp.StatusCode >= 200 && resp.StatusCode < 300 {
 		return response, fmt.Errorf("server failed with %s: %s", resp.Status, response)
 	}
 
