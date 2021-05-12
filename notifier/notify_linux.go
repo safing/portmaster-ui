@@ -99,8 +99,10 @@ func (n *Notification) Show() {
 	if capabilites.Actions {
 		sysN.Actions = make([]string, 0, len(n.AvailableActions)*2)
 		for _, action := range n.AvailableActions {
-			sysN.Actions = append(sysN.Actions, action.ID)
-			sysN.Actions = append(sysN.Actions, action.Text)
+			if action.IsSupported() {
+				sysN.Actions = append(sysN.Actions, action.ID)
+				sysN.Actions = append(sysN.Actions, action.Text)
+			}
 		}
 	}
 
@@ -127,7 +129,7 @@ func (n *Notification) Show() {
 
 	newID, err := sysN.Show()
 	if err != nil {
-		log.Warningf("notify: failed to show notification %s", n.ID)
+		log.Warningf("notify: failed to show notification %s", n.EventID)
 		return
 	}
 
@@ -149,7 +151,7 @@ func (n *Notification) Cancel() {
 	if n.systemID != 0 {
 		err := notify.CloseNotification(n.systemID)
 		if err != nil {
-			log.Warningf("notify: failed to close notification %s/%d", n.ID, n.systemID)
+			log.Warningf("notify: failed to close notification %s/%d", n.EventID, n.systemID)
 		}
 
 		notifsByIDLock.Lock()
