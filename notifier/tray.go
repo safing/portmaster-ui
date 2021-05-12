@@ -6,6 +6,7 @@ import (
 	"path/filepath"
 	"runtime"
 	"sync"
+	"time"
 
 	"github.com/safing/portmaster-ui/notifier/icons"
 
@@ -19,11 +20,12 @@ var (
 	activeIconID    int = -1
 	activeStatusMsg     = ""
 
-	menuItemStatusMsg  *systray.MenuItem
-	menuItemAutoDetect *systray.MenuItem
-	menuItemTrusted    *systray.MenuItem
-	menuItemUntrusted  *systray.MenuItem
-	menuItemDanger     *systray.MenuItem
+	menuItemStatusMsg *systray.MenuItem
+	// TODO: Enable when auto detection is available.
+	// menuItemAutoDetect *systray.MenuItem
+	menuItemTrusted   *systray.MenuItem
+	menuItemUntrusted *systray.MenuItem
+	menuItemDanger    *systray.MenuItem
 )
 
 func init() {
@@ -75,7 +77,7 @@ func onReady() {
 
 	// menu: status
 
-	menuItemStatusMsg = systray.AddMenuItem(activeStatusMsg, "")
+	menuItemStatusMsg = systray.AddMenuItem("Loading...", "")
 	menuItemStatusMsg.Disable()
 	systray.AddSeparator()
 
@@ -107,8 +109,14 @@ func onReady() {
 
 	// menu: quit
 	systray.AddSeparator()
-	menuItemQuit := systray.AddMenuItem("Notifier Quit", "")
-	go clickListener(menuItemQuit, func() {
+	closeTray := systray.AddMenuItem("Close Tray Notifier", "")
+	go clickListener(closeTray, func() {
+		cancelMainCtx()
+	})
+	shutdownPortmaster := systray.AddMenuItem("Shut Down Portmaster", "")
+	go clickListener(shutdownPortmaster, func() {
+		TriggerShutdown()
+		time.Sleep(1 * time.Second)
 		cancelMainCtx()
 	})
 }
@@ -164,7 +172,7 @@ func updateTray() {
 	// Set message if changed.
 	if newStatusMsg != activeStatusMsg {
 		activeStatusMsg = newStatusMsg
-		menuItemStatusMsg.SetTitle(activeStatusMsg)
+		menuItemStatusMsg.SetTitle("Status: " + activeStatusMsg)
 	}
 
 	// Set security levels on menu item.
