@@ -90,17 +90,17 @@ func onReady() {
 	// 	SelectSecurityLevel(SecurityLevelAutoDetect)
 	// })
 
-	menuItemTrusted = systray.AddMenuItem("Trusted", "Home")
+	menuItemTrusted = systray.AddMenuItemCheckbox("Trusted", "Home", false)
 	go clickListener(menuItemTrusted, func() {
 		SelectSecurityLevel(SecurityLevelTrusted)
 	})
 
-	menuItemUntrusted = systray.AddMenuItem("Untrusted", "Public Wifi")
+	menuItemUntrusted = systray.AddMenuItemCheckbox("Untrusted", "Public Wifi", false)
 	go clickListener(menuItemUntrusted, func() {
 		SelectSecurityLevel(SecurityLevelUntrusted)
 	})
 
-	menuItemDanger = systray.AddMenuItem("Danger", "Hacked Network")
+	menuItemDanger = systray.AddMenuItemCheckbox("Danger", "Hacked Network", false)
 	go clickListener(menuItemDanger, func() {
 		SelectSecurityLevel(SecurityLevelDanger)
 	})
