@@ -21,7 +21,7 @@ var (
 )
 
 func notifClient() {
-	notifOp := apiClient.Qsub(fmt.Sprintf("query %s", dbNotifBasePath), handleNotification)
+	notifOp := apiClient.Qsub(fmt.Sprintf("query %s where ShowOnSystem is true", dbNotifBasePath), handleNotification)
 	notifOp.EnableResuscitation()
 
 	// start the action listener and block
@@ -49,7 +49,7 @@ func handleNotification(m *client.Message) {
 		}
 
 		// copy existing system values
-		existing, ok := notifications[n.ID]
+		existing, ok := notifications[n.EventID]
 		if ok {
 			existing.Lock()
 			n.systemID = existing.systemID
@@ -57,7 +57,7 @@ func handleNotification(m *client.Message) {
 		}
 
 		// save
-		notifications[n.ID] = n
+		notifications[n.EventID] = n
 
 		// check if notifications are enabled
 		if !notificationsEnabled.IsSet() {
@@ -68,16 +68,22 @@ func handleNotification(m *client.Message) {
 			return
 		}
 
-		if n.Responded == 0 && n.SelectedActionID == "" {
-			n.Show()
+		// Handle notification per
+
+		if n.State != Active {
+			return
+		} else if existing != nil {
+			existing.Cancel()
 		}
+
+		n.Show()
 
 	case client.MsgDelete:
 
 		n, ok := notifications[strings.TrimPrefix(m.Key, dbNotifBasePath)]
 		if ok {
 			n.Cancel()
-			delete(notifications, n.ID)
+			delete(notifications, n.EventID)
 		}
 
 	case client.MsgWarning:

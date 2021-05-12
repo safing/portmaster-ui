@@ -263,14 +263,18 @@ func (n *Notification) buildSnoreToastButtonArgument() string {
 	defer n.Unlock()
 
 	temp := make([]string, 0, len(n.AvailableActions))
-	for _, elem := range n.AvailableActions {
-		if err := verifySnoreToastArgumentSyntax(elem.Text); err != nil {
-			log.Errorf("failed to build SnoreToast Button-Argument: failed to validate Text for %+v: %s", elem, err)
+	for _, action := range n.AvailableActions {
+		if !action.IsSupported() {
 			continue
 		}
 
-		if elem.Text != "" {
-			temp = append(temp, elem.Text)
+		if err := verifySnoreToastArgumentSyntax(action.Text); err != nil {
+			log.Errorf("failed to build SnoreToast Button-Argument: failed to validate Text for %+v: %s", action, err)
+			continue
+		}
+
+		if action.Text != "" {
+			temp = append(temp, action.Text)
 		}
 	}
 	return strings.Join(temp, ";")
