@@ -101,6 +101,7 @@ func main() {
 	go subsystemsClient()
 	go notifClient()
 	go configClient()
+	go startShutdownEventListener()
 
 	// Shutdown
 	// catch interrupt for clean shutdown
