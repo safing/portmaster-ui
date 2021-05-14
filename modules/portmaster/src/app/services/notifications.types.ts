@@ -56,10 +56,6 @@ export interface WebhookAction extends BaseAction {
     ResultAction: 'ignore' | 'display';
   }
 }
-export interface OpenURLAction {
-  ID: string;
-  Text: string;
-}
 
 export interface ActionHandler<T> extends BaseAction {
   Type: 'ui'

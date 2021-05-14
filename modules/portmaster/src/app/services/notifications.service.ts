@@ -246,7 +246,7 @@ export class NotificationsService {
     return defer(async () => {
       try {
         // if there's an action type defined execute the handler.
-        if (action.Type !== '') {
+        if (!!action.Type) {
           const handler = this.actionHandler[action.Type] as (a: Action) => Promise<any>;
           if (!!handler) {
             console.log(action);
