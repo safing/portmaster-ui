@@ -246,7 +246,7 @@ export class NotificationsService {
     return defer(async () => {
       try {
         // if there's an action type defined execute the handler.
-        if (action.Type !== '') {
+        if (!!action.Type) {
           const handler = this.actionHandler[action.Type] as (a: Action) => Promise<any>;
           if (!!handler) {
             console.log(action);
@@ -263,7 +263,16 @@ export class NotificationsService {
           await this.portapi.update(key, payload).toPromise();
         }
       } catch (err) {
-        this.actionIndicator.error('Internal Error', 'Cannot handle action type ' + action.Type)
+        let msg = '';
+        if (err instanceof Error) {
+          msg = err.message + `(${err.name})`;
+        } else if (typeof err === 'string') {
+          msg = err;
+        } else {
+          msg = JSON.stringify(err);
+        }
+
+        this.actionIndicator.error('Internal Error', 'Failed to perform action: ' + msg)
       }
     })
 
