@@ -53,7 +53,7 @@ export class ActionIndicatorService {
   httpObserver(successTitle?: string, errorTitle?: string): PartialObserver<HttpResponse<ArrayBuffer>> {
     return {
       next: resp => {
-        let msg = this.parseResponse(resp)
+        let msg = this.getErrorMessgae(resp)
         if (!successTitle) {
           successTitle = msg;
           msg = '';
@@ -61,12 +61,12 @@ export class ActionIndicatorService {
         this.success(successTitle || '', msg)
       },
       error: err => {
-        let msg = this.parseResponse(err);
+        let msg = this.getErrorMessgae(err);
         if (!errorTitle) {
           errorTitle = msg;
           msg = '';
         }
-        this.error(errorTitle || '', err);
+        this.error(errorTitle || '', msg);
       }
     }
   }
@@ -217,9 +217,13 @@ export class ActionIndicatorService {
    * Parses a HTTP or HTTP Error response and returns a
    * message that can be displayed to the user.
    */
-  private parseResponse(resp: HttpResponse<ArrayBuffer> | HttpErrorResponse): string {
+  getErrorMessgae(resp: HttpResponse<ArrayBuffer> | HttpErrorResponse | Error): string {
     let msg = '';
     let body: string | null = null;
+
+    if (resp instanceof Error) {
+      return resp.message;
+    }
 
     if (resp instanceof HttpErrorResponse) {
       // A client-side or network error occured.
