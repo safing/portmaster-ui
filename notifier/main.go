@@ -100,7 +100,6 @@ func main() {
 	go statusClient()
 	go subsystemsClient()
 	go notifClient()
-	go configClient()
 	go startShutdownEventListener()
 
 	// Shutdown

@@ -59,15 +59,6 @@ func handleNotification(m *client.Message) {
 		// save
 		notifications[n.EventID] = n
 
-		// check if notifications are enabled
-		if !notificationsEnabled.IsSet() {
-			return
-		}
-		// check if prompts are enabled
-		if n.Type == Prompt && !promptsEnabled.IsSet() {
-			return
-		}
-
 		// Handle notification.
 		switch {
 		case existing != nil:
