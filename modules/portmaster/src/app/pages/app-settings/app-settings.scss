@@ -47,7 +47,7 @@ h1 {
 
     button {
       transition: all .2s ease-in-out;
-      color: theme('colors.text.tertiary');
+      color     : theme('colors.text.tertiary');
       @apply bg-transparent;
       opacity: 0.8;
 
@@ -109,8 +109,8 @@ h2.app-settings {
 }
 
 .app-overview {
-  margin-left  : calc(200px + 1rem); // TODO(ppacher): copied from app-settings-view
-  margin-right : 1rem;
+  margin-left : calc(200px + 1rem); // TODO(ppacher): copied from app-settings-view
+  margin-right: 1rem;
 }
 
 .meta {
@@ -144,6 +144,29 @@ h2.app-settings {
     span {
       @apply text-primary;
       word-break: break-all;
+    }
+  }
+
+  .description {
+    display       : flex;
+    flex-direction: row;
+    border-left   : 2px solid;
+    border-color  : theme("colors.info.yellow");
+
+    .icon fa-icon {
+      color: theme("colors.info.yellow");
+    }
+
+    markdown {
+      padding: 0;
+    }
+
+    .icon {
+      display     : flex;
+      align-items : flex-start;
+      flex-shrink : 1;
+      margin-right: 1rem;
+      padding-top : 2px;
     }
   }
 }
