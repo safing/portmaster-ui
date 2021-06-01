@@ -16,7 +16,7 @@ export enum IPProtocol {
   IGMP = 2,
   TCP = 6,
   UDP = 17,
-  ICMPv6 = 589,
+  ICMPv6 = 58,
   UDPLite = 136,
   RAW = 255, // TODO(ppacher): what is RAW used for?
 }
