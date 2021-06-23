@@ -77,8 +77,6 @@ export class WebUILoader {
 
     async loadUI() {
         this.loaded = false;
-        await this.win.loadFile('loading.html').catch(err => console.error(err));
-
         let tries = 0;
         while (true) {
             try {
@@ -90,6 +88,9 @@ export class WebUILoader {
                 this.loaded = true;
                 return
             } catch (err) {
+                if (tries === 0) {
+                    await this.win.loadFile('loading.html').catch(err => console.error(err));
+                }
                 console.error(err.toString());
                 tries++;
             }
