@@ -16,7 +16,6 @@ export interface SupportPage {
   prologue?: string;
   epilogue?: string;
   sections: QuestionSection[];
-  canAttachFiles?: boolean;
   privateTicket?: boolean;
   ghIssuePreset?: string;
   includeDebugData?: boolean;
@@ -42,7 +41,7 @@ export const supportTypes: PageSections[] = [
         sections: [
           {
             title: "What happened?",
-            help: "Please describe what happened to you as detailed as possible"
+            // help: "Please describe what happened to you as detailed as possible"
           },
           {
             title: "What did you expect to happen?"
@@ -56,14 +55,12 @@ export const supportTypes: PageSections[] = [
         ],
         includeDebugData: true,
         privateTicket: true,
-        canAttachFiles: true,
         ghIssuePreset: "report-bug.md",
         repositories: [
           { repo: 'portmaster', name: 'Portmaster Core' },
           { repo: 'portmaster-ui', name: 'User Interface' },
           { repo: 'portmaster-packaging', name: 'Packaging & Installers' },
           { repo: 'spn', name: 'SPN' },
-          { repo: 'support-hub', name: 'Testing' },
         ]
       },
       {
@@ -80,7 +77,6 @@ export const supportTypes: PageSections[] = [
         ],
         includeDebugData: false,
         privateTicket: true,
-        canAttachFiles: true,
         ghIssuePreset: "suggest-feature.md",
       },
       {
@@ -92,14 +88,38 @@ export const supportTypes: PageSections[] = [
     ],
   },
   {
-    title: "Helpful Resources",
+    title: "Further Resources",
     choices: [
+      {
+        type: 'link',
+        title: 'Upcoming Features',
+        url: 'https://safing.io/next',
+        shortHelp: 'See what we are currently working on!',
+      },
       {
         type: 'link',
         title: 'Backlog',
         url: 'https://safing.io/backlog',
         shortHelp: 'Want to see a bigger picture of future planned features? Well, this is the place for you.',
       },
+      {
+        type: 'link',
+        title: 'Blog',
+        url: 'https://safing.io/next',
+        shortHelp: 'Follow us on our blog and get monthly progress updates.',
+      },
+      {
+        type: 'link',
+        title: 'Ask On Reddit',
+        url: 'https://reddit.com/r/safing',
+        shortHelp: 'Directly ask us on our Sub-Reddit r/safing.'
+      },
+      {
+        type: 'link',
+        title: 'Support',
+        url: 'https://safing.io/support',
+        shortHelp: 'See how to get further support on using the Portmaster.'
+      }
     ]
   }
 ]

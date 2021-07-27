@@ -1,18 +1,15 @@
 import { CdkScrollable } from '@angular/cdk/scrolling';
-import { HttpClient } from '@angular/common/http';
-import { Component, HostBinding, OnDestroy, OnInit, TrackByFunction, ViewChild } from '@angular/core';
+import { Component, OnDestroy, OnInit, TrackByFunction, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Observable, of, Subject } from 'rxjs';
-import { map, mergeMap, takeUntil } from 'rxjs/operators';
+import { mergeMap, takeUntil } from 'rxjs/operators';
 import { DebugAPI, StatusService } from 'src/app/services';
-import { PortapiService } from 'src/app/services/portapi.service';
-import { ActionIndicator, ActionIndicatorService } from 'src/app/shared/action-indicator';
-import { fadeInAnimation, fadeInListAnimation, moveInOutAnimation, moveInOutListAnimation } from 'src/app/shared/animations';
+import { Issue, SupportHubService } from 'src/app/services/supporthub.service';
+import { ActionIndicatorService } from 'src/app/shared/action-indicator';
+import { fadeInAnimation, fadeInListAnimation, moveInOutAnimation } from 'src/app/shared/animations';
 import { ConfirmDialogConfig, DialogService } from 'src/app/shared/dialog';
-import { SupportPage, SupportType, supportTypes } from '../pages';
-import { environment } from 'src/environments/environment';
-import { SupportHubService, Issue } from 'src/app/services/supporthub.service';
 import { FuzzySearchService } from 'src/app/shared/fuzzySearch';
+import { SupportPage, supportTypes } from '../pages';
 
 @Component({
   templateUrl: './support-form.html',

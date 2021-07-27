@@ -101,7 +101,8 @@
     <ul [@fadeInList]="relatedIssues.slice(0, 8).length">
       <li *ngFor="let issue of relatedIssues.slice(0, 8); trackBy: trackIssue" (click)="openIssue(issue)" class="issue">
         <span class="title">{{ issue.title }}</span>
-        <span class="meta">opened in <u>{{ repos[issue.repository] || issue.repository }}</u> by <u>{{ issue.user }}</u>
+        <span class="meta">{{ issue.closed ? 'closed' : 'opened'}} in <u>{{ repos[issue.repository] || issue.repository
+            }}</u> by <u>{{ issue.user }}</u>
           {{
           issue.createdAt | timeAgo
           }}</span>

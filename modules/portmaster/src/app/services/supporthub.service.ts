@@ -16,6 +16,7 @@ export interface Issue<CreatedAt = Date> {
   repository: string;
   url: string;
   user: string;
+  closed?: boolean;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -30,7 +31,7 @@ export class SupportHubService {
       .pipe(map(res => res.issues.map(issue => ({
         ...issue,
         createdAt: new Date(issue.createdAt),
-      }))));
+      })).reverse()));
   }
 
   /** Uploads content under name */
