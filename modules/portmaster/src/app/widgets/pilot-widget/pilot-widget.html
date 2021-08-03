@@ -19,9 +19,12 @@
   </span>
 </div>
 
-<div class="level-list" [class.auto-pilot]="mode === 'auto'">
+<div infoBoxAnchor class="level-list" [class.auto-pilot]="mode === 'auto'">
   <div class="rate-header">
-    <label>Rate your network</label>
+    <label style="white-space: nowrap; margin-right: 5px">
+      Rate your network
+      <fa-icon icon="question-circle" infoBoxTrigger="myKey"></fa-icon>
+    </label>
     <app-dropdown *appExpertiseLevel="'developer'" [ngModel]="mode" (ngModelChange)="updateMode($event)">
       <app-dropdown-item *dropDownValue="'auto'">
         <span class="auto-detect low"></span>

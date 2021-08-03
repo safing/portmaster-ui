@@ -43,7 +43,7 @@ export class DialogComponent {
   dragable: boolean = false;
 
   @HostListener('@dialogContainer.start', ['$event'])
-  onAnimationStart({ fromState, toState }: AnimationEvent) {
+  onAnimationStart({ toState }: AnimationEvent) {
     if (toState === 'enter') {
       this.onStateChange.next('opening');
     } else if (toState === 'exit') {
@@ -52,7 +52,7 @@ export class DialogComponent {
   }
 
   @HostListener('@dialogContainer.done', ['$event'])
-  onAnimationEnd({ fromState, toState }: AnimationEvent) {
+  onAnimationEnd({ toState }: AnimationEvent) {
     if (toState === 'enter') {
       this.onStateChange.next('open');
     } else if (toState === 'exit') {

@@ -66,6 +66,7 @@ import { ExitScreenComponent } from './shared/exit-screen/exit-screen';
 import { ConfirmDailogComponent, DialogComponent } from './shared/dialog';
 import { SupportPageComponent } from './pages/support';
 import { SupportFormComponent } from './pages/support/form';
+import { InfoBoxAnchorDirective, InfoBoxComponent, InfoBoxTriggerDirective } from './shared/infobox';
 
 @NgModule({
   declarations: [
@@ -142,6 +143,9 @@ import { SupportFormComponent } from './pages/support/form';
     ConfirmDailogComponent,
     SupportPageComponent,
     SupportFormComponent,
+    InfoBoxAnchorDirective,
+    InfoBoxTriggerDirective,
+    InfoBoxComponent,
   ],
   imports: [
     BrowserModule,

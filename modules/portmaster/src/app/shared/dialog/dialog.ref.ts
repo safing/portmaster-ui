@@ -2,7 +2,7 @@ import { OverlayRef } from "@angular/cdk/overlay";
 import { InjectionToken } from "@angular/core";
 import { Observable, PartialObserver, Subject } from "rxjs";
 import { filter, take } from "rxjs/operators";
-import { DialogComponent } from "./dialog.container";
+import { DialogComponent, DialogState } from "./dialog.container";
 
 export const DIALOG_REF = new InjectionToken<DialogRef<any>>('DialogRef');
 
@@ -22,6 +22,10 @@ export class DialogRef<T, R = any> {
         this.onClose.next(this.value);
         this.onClose.complete();
       });
+  }
+
+  get onStateChange(): Observable<DialogState> {
+    return this.container.onStateChange;
   }
 
   /**

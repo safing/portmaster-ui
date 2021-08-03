@@ -1,0 +1,10 @@
+<div class="content-wrapper">
+  <caption>Tip</caption>
+  <fa-icon class="close-icon" icon="times" (click)="close()"></fa-icon>
+
+  <h1>{{header}}</h1>
+
+  <markdown emoji [data]="message" class="message"></markdown>
+
+  <a *ngIf="!!link" [href]="link">Read More</a>
+</div>

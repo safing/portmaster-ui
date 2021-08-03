@@ -1,0 +1,13 @@
+myKey:
+  title: Cool Feature
+  content: |
+    This is a super cool, new feature that you will love!
+    It even supports markdown features like:
+    - order lists
+    - with multiple items
+
+    And :rocket: emojis
+
+    ### :tada: :facepalm:
+  url: https://docs.safing.io
+  urlText: Show me!
