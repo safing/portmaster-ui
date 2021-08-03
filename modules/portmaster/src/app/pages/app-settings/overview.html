@@ -3,8 +3,9 @@
   <app-expertise></app-expertise>
 </div>
 
-<div class="header">
+<div infoBoxAnchor class="header">
   <h1>Apps</h1>
+  <fa-icon icon="question-circle" infoBoxTrigger="AppsList"></fa-icon>
 </div>
 
 <div class="scrollable" [@fadeInList]="total">
@@ -31,13 +32,11 @@
 
   <ng-template #profileList let-list>
     <ng-container *ngFor="let profile of list; trackBy: trackProfile">
-      <div *appExpertiseLevel="profile.Internal ? 'developer' : 'user'" class="card-header"
-        [routerLink]="['/app', profile.Source,  profile.ID]">
+      <div *appExpertiseLevel="profile.Internal ? 'developer' : 'user'" class="card-header" [routerLink]="['/app', profile.Source,  profile.ID]">
         <app-icon [profile]="profile"></app-icon>
         <span class="card-title">
           <span [innerHTML]="profile?.Name | safe:'html'"></span>
-          <span class="card-sub-title" *appExpertiseLevel="'expert'"
-            [innerHTML]="profile?.LinkedPath | safe:'html'"></span>
+          <span class="card-sub-title" *appExpertiseLevel="'expert'" [innerHTML]="profile?.LinkedPath | safe:'html'"></span>
         </span>
       </div>
     </ng-container>

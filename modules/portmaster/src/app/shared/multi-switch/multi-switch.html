@@ -1,4 +1,8 @@
-<div class="buttons">
-    <ng-content></ng-content>
+<div infoBoxAnchor>
+    <div class="buttons">
+        <ng-content></ng-content>
+        <fa-icon icon="question-circle" infoBoxTrigger="networkRatingSwitch"></fa-icon>
+
+    </div>
+    <span #marker class="marker" (mousedown)="dragStarted($event)"></span>
 </div>
-<span #marker class="marker" (mousedown)="dragStarted($event)"></span>
