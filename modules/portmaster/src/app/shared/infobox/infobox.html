@@ -2,9 +2,16 @@
   <caption>Tip</caption>
   <fa-icon class="close-icon" icon="times" (click)="close()"></fa-icon>
 
-  <h1>{{header}}</h1>
+  <h1>{{title}}</h1>
 
-  <markdown emoji [data]="message" class="message"></markdown>
+  <markdown emoji [data]="content" class="message"></markdown>
 
-  <a *ngIf="!!link" [href]="link">Read More</a>
+  <a *ngIf="!!url" [href]="url">{{ urlText }}</a>
+
+  <div class="actions">
+    <div class="actions">
+
+    </div>
+    <button *ngIf="!!nextKey" class="btn" (click)="next()">Next</button>
+  </div>
 </div>

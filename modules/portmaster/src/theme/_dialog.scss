@@ -7,3 +7,25 @@
   backdrop-filter : blur(3px);
   background-color: rgba(#000000, 0.4);
 }
+
+.active-tipup {
+  color    : lightgreen !important;
+  opacity  : 1;
+  transform: scale(1.2);
+
+  svg,
+  svg g {
+    stroke : lightgreen !important;
+    opacity: 1 !important;
+  }
+}
+
+fa-icon.active-tipup {
+  svg {
+    transform: scale(1.2);
+  }
+}
+
+.active-tipup-anchor {
+  box-shadow: 0px 0px 2px rgba(59, 130, 246, .9) !important;
+}
