@@ -1,17 +1,20 @@
 import { coerceBooleanProperty, coerceNumberProperty } from '@angular/cdk/coercion';
 import { ConnectedPosition } from '@angular/cdk/overlay';
+import { _getShadowRoot } from '@angular/cdk/platform';
 import { DOCUMENT } from '@angular/common';
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, Directive, ElementRef, Host, HostBinding, HostListener, Inject, Injectable, InjectionToken, Injector, Input, isDevMode, OnDestroy, OnInit, Optional } from '@angular/core';
-import { DomSanitizer } from '@angular/platform-browser';
-import MyYamlFile, { TipUp } from 'js-yaml-loader!../../../i18n/helptexts.yaml';
-import { filter, take } from 'rxjs/operators';
-import { Action } from 'src/app/services';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, Directive, ElementRef, Host, HostBinding, HostListener, Inject, Injectable, InjectionToken, Injector, Input, isDevMode, NgZone, OnDestroy, OnInit, Optional } from '@angular/core';
+import { NavigationEnd, Router } from '@angular/router';
+import MyYamlFile, { TipUp, Button } from 'js-yaml-loader!../../../i18n/helptexts.yaml';
+import { Observable, of, Subject } from 'rxjs';
+import { debounce, debounceTime, filter, map, mergeMap, skip, take, tap, timeout } from 'rxjs/operators';
+import { Action, NotificationsService, routingActions } from 'src/app/services';
 import { DialogRef, DialogService, DIALOG_REF } from '../dialog';
 import { deepCloneNode, extendStyles, matchElementSize, removeNode } from './clone-node';
+import { getCssSelector, synchronizeCssStyles } from './css-utils';
 
 export const INFOBOX_TOKEN = new InjectionToken<string>('InfoboxJSONToken');
 
-const withBlurFeature = false;
+const withBlurFeature = true;
 
 @Directive({
   selector: '[infoBoxAnchor]',
@@ -83,9 +86,29 @@ export class InfoBoxAnchorDirective {
       //this.styleZIndex = 10000;
       //this.cdr.markForCheck();
 
-      this._preview = this.tipupService.createPreview(this.elementRef.nativeElement);
+      this._preview = this.tipupService.createPreview(this.elementRef.nativeElement, this._getShadowRoot());
     }
     this.cdr.markForCheck();
+  }
+
+  /**
+   * Cached shadow root that the element is placed in. `null` means that the element isn't in
+   * the shadow DOM and `undefined` means that it hasn't been resolved yet. Should be read via
+   * `_getShadowRoot`, not directly.
+   */
+  private _cachedShadowRoot: ShadowRoot | null | undefined;
+
+  /**
+   * Lazily resolves and returns the shadow root of the element. We do this in a function, rather
+   * than saving it in property directly on init, because we want to resolve it as late as possible
+   * in order to ensure that the element has been moved into the shadow DOM. Doing it inside the
+   * constructor might be too early if the element is inside of something like `ngFor` or `ngIf`.
+   */
+  private _getShadowRoot(): ShadowRoot | null {
+    if (this._cachedShadowRoot === undefined) {
+      this._cachedShadowRoot = _getShadowRoot(this.elementRef.nativeElement);
+    }
+    return this._cachedShadowRoot;
   }
 }
 
@@ -188,10 +211,15 @@ export class InfoBoxTriggerDirective implements OnDestroy {
       })
     }
 
+    let offset = this.anchor?.offset || this.offset;
+    if (this.anchor?.placement === 'left') {
+      offset *= -1;
+    }
+
     let postitionStrategy = this.dialog.position()
       .flexibleConnectedTo(anchor)
       .withPositions(positions)
-      .withDefaultOffsetX(this.anchor?.offset || this.offset);
+      .withDefaultOffsetX(offset);
 
     const inj = Injector.create({
       providers: [
@@ -214,6 +242,15 @@ export class InfoBoxTriggerDirective implements OnDestroy {
       this.anchor.activate();
     }
 
+    if (withBlurFeature && !!this.anchor) {
+      this.dialogRef.onStateChange
+        .pipe(
+          filter(state => state === 'closing'),
+          take(1)
+        )
+        .subscribe(() => this.anchor.deactivate());
+    }
+
     this.isActiveTipup = true;
     this.dialogRef.onClose
       .pipe(take(1))
@@ -225,18 +262,12 @@ export class InfoBoxTriggerDirective implements OnDestroy {
         // wait for an additional 200ms before deactivating the anchor
         // (= unsetting the position and z-index overwrite) so the dialog
         // backdrop can fade out completely.
-        if (!!this.anchor) {
-          if (withBlurFeature) {
-            setTimeout(() => {
-              this.anchor.deactivate();
-            }, 200)
-          } else {
-            this.anchor.deactivate();
-          }
+        if (!!this.anchor && !withBlurFeature) {
+          this.anchor.deactivate();
         }
       });
 
-    this.cdr.markForCheck();
+    this.cdr.detectChanges();
 
     return this.dialogRef.onStateChange
       .pipe(
@@ -256,14 +287,15 @@ export class InfoBoxComponent implements OnInit, TipUp {
   title: string = 'N/A';
   content: string = 'N/A';
   nextKey?: string;
-  actions?: Action[];
+  buttons?: Button[];
   url?: string;
   urlText: string = 'Read More';
 
   constructor(
     @Inject(INFOBOX_TOKEN) public readonly token: string,
     @Inject(DIALOG_REF) private readonly dialogRef: DialogRef<InfoBoxComponent>,
-    private domSanitizer: DomSanitizer,
+    private ngZone: NgZone,
+    private notificationService: NotificationsService,
     private tipupService: InfoBoxService,
   ) { }
 
@@ -280,8 +312,26 @@ export class InfoBoxComponent implements OnInit, TipUp {
       return;
     }
 
-    await this.tipupService.open(this.nextKey);
     this.dialogRef.close();
+    this.tipupService.open(this.nextKey);
+  }
+
+  async runAction(btn: Button) {
+    await this.notificationService.performAction(btn.action);
+
+    // if we have a nextKey for the button but do not do in-app
+    // routing we should be able to open the next tipup as soon
+    // as the action finished
+    if (!!btn.nextKey) {
+      this.dialogRef.close();
+      this.tipupService.waitFor(btn.nextKey!)
+        .subscribe({
+          next: () => {
+            this.tipupService.open(btn.nextKey!);
+          },
+          error: console.error
+        })
+    }
   }
 
   close() {
@@ -295,42 +345,124 @@ export class InfoBoxComponent implements OnInit, TipUp {
 export class InfoBoxService {
   tipups = new Map<string, InfoBoxTriggerDirective>();
 
+  private _onRegister = new Subject<string>();
+  private _onUnregister = new Subject<string>();
+
+  get onRegister(): Observable<string> {
+    return this._onRegister.asObservable();
+  }
+
+  get onUnregister(): Observable<string> {
+    return this._onUnregister.asObservable();
+  }
+
+  waitFor(key: string): Observable<void> {
+    if (this.tipups.has(key)) {
+      return of(undefined);
+    }
+
+    return this.onRegister
+      .pipe(
+        filter(val => val === key),
+        debounce(() => this.ngZone.onStable.pipe(skip(1))),
+        take(1),
+        map(() => { }),
+        timeout(5000),
+      );
+  }
+
   constructor(
-    @Inject(DOCUMENT) private _document: Document
+    @Inject(DOCUMENT) private _document: Document,
+    private ngZone: NgZone,
   ) { }
 
   register(key: string, trigger: InfoBoxTriggerDirective) {
+    if (this.tipups.has(key)) {
+      return;
+    }
+
     this.tipups.set(key, trigger);
+    this._onRegister.next(key);
   }
 
   deregister(key: string, trigger: InfoBoxTriggerDirective) {
     if (this.tipups.get(key) === trigger) {
       this.tipups.delete(key);
+      this._onUnregister.next(key);
     }
   }
 
-  createPreview(element: HTMLElement): HTMLElement {
+  createPreview(element: HTMLElement, shadowRoot: ShadowRoot | null): HTMLElement {
     const preview = deepCloneNode(element);
+    // clone all CSS styles by applying them directly to the copied
+    // nodes. Though, we skip the opacity property because we use that
+    // a lot and it makes the preview strange ....
+    synchronizeCssStyles(element, preview, new Set([
+      'opacity'
+    ]));
+
+    // make sure the preview element is at the exact same position
+    // as the original one.
     matchElementSize(preview, element.getBoundingClientRect());
 
     extendStyles(preview.style, {
-      'pointer-events': 'none',
       // We have to reset the margin, because it can throw off positioning relative to the viewport.
       'margin': '0',
       'position': 'fixed',
       'top': '0',
       'left': '0',
       'z-index': '1000',
-    }, new Set());
+      'opacity': '1'
+    }, new Set(['position', 'opacity']));
 
-    this._getPreviewInserationPoint().appendChild(preview);
+    // We add a dedicated class to the preview element so
+    // it can handle special higlighting itself.
+    preview.classList.add('infobox-preview')
+
+    // since the user might want to click on the preview element we must
+    // intercept the click-event, determine the path to the target element inside
+    // the preview and eventually dispatch a click-event on the actual
+    // - real - target inside the cloned element.
+    preview.onclick = function (event: MouseEvent) {
+      let path = getCssSelector(event.target as HTMLElement, preview);
+      if (!!path) {
+        // find the target by it's CSS path
+        let actualTarget: HTMLElement | null = element.querySelector<HTMLElement>(path);
+
+        // some (SVG) elements don't have a direct click() listener so we need to search
+        // the parents upwards to find one that implements click().
+        // we're basically searching up until we reach the <html> tag.
+        //
+        // TODO(ppacher): stop searching at the respective root node.
+        if (!!actualTarget) {
+          let iter: HTMLElement = actualTarget;
+          while (iter != null) {
+            if ('click' in iter && typeof iter['click'] === 'function') {
+              iter.click();
+              break;
+            }
+            iter = iter.parentNode as HTMLElement;
+          }
+        }
+      } else {
+        // the user clicked the preview element directly
+        try {
+          element.click()
+        } catch (e) {
+          console.error(e);
+        }
+      }
+    }
+
+    this._getPreviewInserationPoint(shadowRoot).appendChild(preview);
 
     return preview;
   }
 
-  private _getPreviewInserationPoint(): HTMLElement {
+  private _getPreviewInserationPoint(shadowRoot: ShadowRoot | null): HTMLElement {
     const documentRef = this._document;
-    return documentRef.fullscreenElement ||
+    return shadowRoot ||
+      documentRef.fullscreenElement ||
       (documentRef as any).webkitFullscreenElement ||
       (documentRef as any).mozFullScreenElement ||
       (documentRef as any).msFullscreenElement ||
@@ -343,6 +475,6 @@ export class InfoBoxService {
       console.error('Tried to open unknown tip-up with key ' + key);
       return;
     }
-    await comp.onClick()
+    comp.onClick()
   }
 }

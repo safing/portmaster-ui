@@ -8,9 +8,9 @@
 
   <a *ngIf="!!url" [href]="url">{{ urlText }}</a>
 
-  <div class="actions">
+  <div class="buttons">
     <div class="actions">
-
+      <button *ngFor="let btn of buttons" (click)="runAction(btn)">{{ btn.name }}</button>
     </div>
     <button *ngIf="!!nextKey" class="btn" (click)="next()">Next</button>
   </div>

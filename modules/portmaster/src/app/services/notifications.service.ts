@@ -5,7 +5,7 @@ import { Router } from '@angular/router';
 import { BehaviorSubject, combineLatest, defer, Observable, PartialObserver, throwError } from 'rxjs';
 import { delay, filter, map, repeatWhen, multicast, refCount, share, toArray, tap, concatMap, take } from 'rxjs/operators';
 import { ActionIndicatorService } from '../shared/action-indicator';
-import { Action, ActionHandler, BaseAction, Notification, NotificationState, NotificationType, OpenPageAction, OpenProfileAction, OpenSettingAction, OpenURLAction, WebhookAction } from './notifications.types';
+import { Action, ActionHandler, BaseAction, Notification, NotificationState, NotificationType, OpenPageAction, OpenProfileAction, OpenSettingAction, OpenURLAction, PageIDs, WebhookAction } from './notifications.types';
 import { PortapiService } from './portapi.service';
 import { RetryableOpts } from './portapi.types';
 import { VirtualNotification } from './virtual-notification';
@@ -54,6 +54,10 @@ export class NotificationsService {
         })
       },
       "open-page": (a: OpenPageAction) => {
+        const url = PageIDs[a.Payload];
+        if (!!url) {
+          return this.router.navigateByUrl(url);
+        }
         return Promise.reject('not yet supported');
       },
       "ui": (a: ActionHandler<any>) => {
@@ -245,16 +249,7 @@ export class NotificationsService {
 
     return defer(async () => {
       try {
-        // if there's an action type defined execute the handler.
-        if (!!action.Type) {
-          const handler = this.actionHandler[action.Type] as (a: Action) => Promise<any>;
-          if (!!handler) {
-            console.log(action);
-            await handler(action);
-          } else {
-            this.actionIndicator.error('Internal Error', 'Cannot handle action type ' + action.Type)
-          }
-        }
+        await this.performAction(action);
 
         // finally, if there's an action ID, mark the notification as resolved.
         if (!!action.ID) {
@@ -267,7 +262,19 @@ export class NotificationsService {
         this.actionIndicator.error('Internal Error', 'Failed to perform action: ' + msg)
       }
     })
+  }
 
+  async performAction(action: Action) {
+    // if there's an action type defined execute the handler.
+    if (!!action.Type) {
+      const handler = this.actionHandler[action.Type] as (a: Action) => Promise<any>;
+      if (!!handler) {
+        console.log(action);
+        await handler(action);
+      } else {
+        this.actionIndicator.error('Internal Error', 'Cannot handle action type ' + action.Type)
+      }
+    }
   }
 
   /**

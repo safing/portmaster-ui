@@ -30,6 +30,13 @@ navSettings:
   content: |
     Configure global Portmaster settings
   nextKey: navSupport
+  buttons:
+    - name: Show more
+      action:
+        Type: "open-setting"
+        Payload:
+          Key: "dns/noAssignedNameservers"
+      nextKey: globalSettings
 
 navSupport:
   title: Support Page
@@ -192,6 +199,12 @@ statusWidget-NetworkRating:
   #url: https://docs.safing.io/widgets/network-rating
   #urlText: Read More
   nextKey: statusWidget-NetworkRating-Trusted
+  buttons:
+    - name: Show Settings
+      action:
+        Type: open-page
+        Payload: settings
+      nextKey: networkRatingSwitch
 
 statusWidget-NetworkRating-Trusted:
   title: Trusted Level

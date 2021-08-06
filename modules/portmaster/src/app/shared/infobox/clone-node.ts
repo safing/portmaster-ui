@@ -59,7 +59,7 @@ function transferInputData(source: Element & { value: string },
   // otherwise original radio buttons can lose their checked state
   // once the clone is inserted in the DOM.
   if (clone.type === 'radio' && clone.name) {
-    clone.name = `mat-clone-${clone.name}-${cloneUniqueId++}`;
+    clone.name = `sfng-clone-${clone.name}-${cloneUniqueId++}`;
   }
 }
 
@@ -101,7 +101,6 @@ export function matchElementSize(target: HTMLElement, sourceRect: ClientRect): v
 /**
  * Shallow-extends a stylesheet object with another stylesheet-like object.
  * Note that the keys in `source` have to be dash-cased.
- * @docs-private
  */
 export function extendStyles(dest: CSSStyleDeclaration,
   source: Record<string, string>,
@@ -126,3 +125,4 @@ export function removeNode(node: Node | null) {
     node.parentNode.removeChild(node);
   }
 }
+

@@ -4,8 +4,8 @@
 
 export const environment = {
   production: false,
-  portAPI: "ws://10.100.0.58:817/api/database/v1",
-  httpAPI: "http://10.100.0.58:817/api",
+  portAPI: "ws://127.0.0.1:817/api/database/v1",
+  httpAPI: "http://127.0.0.1:817/api",
   supportHub: "https://support.safing.io"
 };
 
