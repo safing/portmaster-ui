@@ -140,6 +140,13 @@ AppsList-Active:
   title: Active
   content: |
     Programs and apps that have active network connections.
+    Connections that are active right now.
+  buttons:
+    - name: Show Monitor
+      action:
+        Type: open-page
+        Payload: monitor
+      nextKey: nil
   #url: https://docs.safing.io/network-monitor#app-focus
   #urlText: Read More
 
