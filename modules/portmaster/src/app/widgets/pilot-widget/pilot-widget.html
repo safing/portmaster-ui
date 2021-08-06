@@ -23,7 +23,7 @@
   <div class="rate-header">
     <label style="white-space: nowrap; margin-right: 5px">
       Rate your network
-      <app-tipup key="statusWidget-NetworkRating"></app-tipup>
+      <app-tipup key="pilot-widget-NetworkRating"></app-tipup>
     </label>
     <app-dropdown *appExpertiseLevel="'developer'" [ngModel]="mode" (ngModelChange)="updateMode($event)">
       <app-dropdown-item *dropDownValue="'auto'">
@@ -47,7 +47,7 @@
         <span class="situation">
           {{opt.subText || ''}}
         </span>
-        <app-tipup [key]="'statusWidget-NetworkRating-' + opt.displayText"></app-tipup>
+        <app-tipup [key]="'pilot-widget-NetworkRating-' + opt.displayText"></app-tipup>
       </div>
     </div>
   </ng-container>

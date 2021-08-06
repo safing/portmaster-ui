@@ -166,7 +166,7 @@ AppsList-Apps:
   #urlText: Read More
 
 # Not fully added yet WIP
-StatusWidget:
+pilot-widget:
   title: Status Widget
   content: |
     There are 3 status levels. Ie, Secure, Warring,
@@ -185,9 +185,9 @@ StatusWidget:
     -- TODO: Daniel
   #url: https://docs.safing.io/network-monitor#app-focus
   #urlText: Read More
-  nextKey: statusWidget-NetworkRating
+  nextKey: pilot-widget-NetworkRating
 
-statusWidget-NetworkRating:
+pilot-widget-NetworkRating:
   title: Rating Your Network
   content: |
     There are 3 risk level presets. Ie, Trusted, Untrusted,
@@ -198,27 +198,26 @@ statusWidget-NetworkRating:
     should be enabled, disabled or off for each preset.
   #url: https://docs.safing.io/widgets/network-rating
   #urlText: Read More
-  nextKey: statusWidget-NetworkRating-Trusted
 
-statusWidget-NetworkRating-Trusted:
+pilot-widget-NetworkRating-Trusted:
   title: Trusted Level
   content: |
     This level should be used when you feel that the wifi/network is
     safe. Ie, home wifi/network
   #url: https://docs.safing.io/widgets/network-rating#trusted
   #urlText: Read More
-  nextKey: statusWidget-NetworkRating-Untrusted
+  nextKey: pilot-widget-NetworkRating-Untrusted
 
-statusWidget-NetworkRating-Untrusted:
+pilot-widget-NetworkRating-Untrusted:
   title: Untrusted Level
   content: |
     This level should be used when you feel that the wifi/network is
     not fully safe. Ie, public wifi/network
   #url: https://docs.safing.io/widgets/network-rating#untrusted
   #urlText: Read More
-  nextKey: statusWidget-NetworkRating-Danger
+  nextKey: pilot-widget-NetworkRating-Danger
 
-statusWidget-NetworkRating-Danger:
+pilot-widget-NetworkRating-Danger:
   title: Danger Level
   content: |
     Warring turning this on will put portmaster in
@@ -237,8 +236,8 @@ statusWidget-NetworkRating-Danger:
       nextKey: networkRatingSwitch
 
 # Not added yet WIP
-nottifcationsWidget:
-  title: App Networking
+notification-widget:
+  title: Notifications
   content: |
     This informs you with what's going on with portmaster.
     Ie, Updates, Errors, Warring etc
@@ -246,13 +245,13 @@ nottifcationsWidget:
   #urlText: Read More
 
 # Not added yet WIP
-promptWidget:
-  title: App Networking
+prompt-widget:
+  title: Prompts
   content: |
     This is where you can more easily control the
     connections for the specific app for the time being.
 
-    How to use? In App settings, look for "Default Action"
+    How to use? In App settings, search for "Default Action"
     and set it to "Prompt".
 
     Note: Don't set the "Prompt" setting in your browser,
@@ -276,5 +275,13 @@ networkRatingSwitch:
       The setting is off for all network rating levels. <br />
       (Note: Not all network level settings can be fully turned off in
       order to provide a protective baseline for the danger level)
-  #url: https://docs.safing.io/actions#multiSwitche
-  #urlText: Read More
+    Off(Red)
+    The setting is off for all network rating levels.
+    (Note: Not all network level settings can be fully turned off in
+    order to provide a protective baseline for the danger level)
+  buttons:
+    - name: Show Widget
+      action:
+        Type: open-page
+        Payload: settings
+      nextKey: pilot-widget
