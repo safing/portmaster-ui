@@ -40,9 +40,9 @@ globalSettings:
   title: Global Settings
   content: |
     The Global settings is what is used to determine what is the
-    defualt settings for all apps.
-
-    Any settings you have changed in any app settings will overroid
+    default settings for all apps. 
+    
+    Any settings you have changed in any app settings will override
     the Global settings that has been changed by you.
   #url: https://docs.safing.io/settings#global
   #urlText: Read More
@@ -50,9 +50,9 @@ globalSettings:
 appSettings:
   title: App Settings
   content: |
-    By defualt the settings that are set in the global settings
-    will be used by the app by defualt. If you change the app
-    settings it will overroid the global settings for that
+    By default the settings that are set in the global settings
+    will be used by the app by default. If you change the app
+    settings, it will override the global settings for that
     specific app.
   #url: https://docs.safing.io/settings#app
   #urlText: Read More
@@ -60,9 +60,24 @@ appSettings:
 netowrkMonitor:
   title: Network Monitor
   content: |
-    This monitors your system atcivily in the last 10 minutes. Any
-    connections that an app on your system makes it will show here.
+    This monitors your system activity in the last 10 minutes. Any
+    connections that an app on your system makes, it will show here.
+  #url: https://docs.safing.io/network-monitor
+  #urlText: Read More
+  nextKey: netowrkMonitor-Overview
 
+netowrkMonitor-Overview:
+  title: Monitor Overview
+  content: |
+    This is just a placeholder for the meantime, but this is
+    just the Network Monitor with 3 stats on it.
+  #url: https://docs.safing.io/network-monitor#app-focus
+  #urlText: Read More
+  nextKey: netowrkMonitor-App
+
+netowrkMonitor-App:
+  title: App Activity
+  content: |
     There are 3 colours. Ie, Green, Red, Gray.
 
     Allowed(Green)
@@ -74,25 +89,72 @@ netowrkMonitor:
     the app.
 
     Allowed/Blocked(Gray)
-    The colour gray shows that some of the connections are
+    The colour gray shows that some connections are
     allowed and blocked in the app.
-  #url: https://docs.safing.io/network-monitor
+  #url: https://docs.safing.io/network-monitor#app
   #urlText: Read More
 
-netowrkMonitor-App:
-  title: App Networking
+netowrkMonitor-App-Focus:
+  title: App Networking Details
   content: |
-    This is where you can find all the connections that this
-    app is trying to make.
+    Theses are the apps which are trying to make connections.
   #url: https://docs.safing.io/network-monitor#app-focus
   #urlText: Read More
+
+netowrkMonitor-App-Focus-connection-history:
+  title: Connection History
+  content: |
+    This is where you can see the connections which are being made
+    in real-time.
+
+    -- TODO: Danial
+    There might be somthing imporant to mention here unsure.
+  #url: https://docs.safing.io/network-monitor#app-focus
+  #urlText: Read More
+  nextKey: netowrkMonitor-App-Focus-connection-history-filter
+
+netowrkMonitor-App-Focus-connection-history-filter:
+  title: Connections Filter
+  content: |
+    Theses are the apps which are trying to make connections.
+  #url: https://docs.safing.io/network-monitor#app-focus
+  #urlText: Read More
+  
 
 AppsList:
   title: List Of Apps
   content: |
     If any of your installed apps on your system tries to make
-    a connection it will be added to this list.
+    a connection, it will be added to this list.
+  #url: https://docs.safing.io/network-monitor#app-focus
+  #urlText: Read More
 
+AppsList-Active:
+  title: Active
+  content: |
+    Connections that are active right now.
+  #url: https://docs.safing.io/network-monitor#app-focus
+  #urlText: Read More
+
+AppsList-Recently-Used:
+  title: Active
+  content: |
+    Connections that has been active in the last week.
+  #url: https://docs.safing.io/network-monitor#app-focus
+  #urlText: Read More
+
+AppsList-Recently-Edited:
+  title: Active
+  content: |
+   User that changed a setting in the last week within the app settings.
+  #url: https://docs.safing.io/network-monitor#app-focus
+  #urlText: Read More
+
+AppsList-Apps:
+  title: Active
+  content: |
+    Apps that has made a connection at some point of time and now will be 
+    added to this list for future monitoring. (Everything else)
   #url: https://docs.safing.io/network-monitor#app-focus
   #urlText: Read More
 
@@ -104,22 +166,26 @@ StatusWidget:
     Insecure.
 
     Secure(Green)
+    
     -- TODO: Daniel
 
     Warring(Yellow)
+    
     -- TODO: Daniel
 
     Insecure(Red)
+    
     -- TODO: Daniel
   #url: https://docs.safing.io/network-monitor#app-focus
   #urlText: Read More
+  nextKey: statusWidget-NetworkRating
 
 statusWidget-NetworkRating:
   title: Rating Your Network
   content: |
     There are 3 risk level presets. Ie, Trusted, Untrusted,
-    Dnager. These should be selected depending how you rate
-    your current network safty.
+    Danger. These should be selected depending on how you rate
+    your current network safety.
 
     In the global/app settings you can configure what setting
     should be enabled, disabled or off for each preset.
@@ -149,7 +215,7 @@ statusWidget-NetworkRating-Danger:
   title: Danger Level
   content: |
     Warring turning this on will put portmaster in
-    "Over Protected"/"Lock Down" mode. Thus will make
+    "Over Protected"/"Lock Down" mode. Thus, will make
     some functionality of apps and or OS to stop working.
 
     This level should be used only when you feel that the wifi/network
@@ -161,8 +227,8 @@ statusWidget-NetworkRating-Danger:
 nottifcationsWidget:
   title: App Networking
   content: |
-    This is where you can find all the connections that this
-    app is trying to make.
+    This informs you with what's going on with portmaster. 
+    Ie, Updates, Errors, Warring etc
   #url: https://docs.safing.io/network-monitor#app-focus
   #urlText: Read More
 
@@ -170,15 +236,21 @@ nottifcationsWidget:
 promptWidget:
   title: App Networking
   content: |
-    This is where you can find all the connections that this
-    app is trying to make.
+    This is where you can more easily control the
+    connections for the specific app for the time being.
+
+    How to use? In App settings, look for "Default Action"
+    and set it to "Prompt".
+
+    Note: Don't set the "Prompt" setting in your browser,
+    you will be spammed. You have been warned.
   #url: https://docs.safing.io/network-monitor#app-focus
   #urlText: Read More
 
 networkRatingSwitch:
   title: Network Rating Switch
   content: |
-    These switches allows you to enable the selected setting for the
+    These switches allow you to enable the selected setting for the
     network rating levels. Ie, Trusted, Untrusted and Danger.
 
     Enabled(Green)
@@ -190,6 +262,6 @@ networkRatingSwitch:
     Off(Red)
     The setting is off for all network rating levels.
     (Note: Not all network level settings can be fully turned off in
-    order to provide a protevtive base line for the danger level)
+    order to provide a protective baseline for the danger level)
   #url: https://docs.safing.io/actions#multiSwitche
   #urlText: Read More
