@@ -158,7 +158,7 @@ AppsList-Recently-Edited:
   #urlText: Read More
 
 AppsList-Apps:
-  title: All Apps
+  title: Apps
   content: |
     Apps that has made a connection at some point of time and now will be
     added to this list for future monitoring. (Everything else)
