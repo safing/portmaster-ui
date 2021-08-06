@@ -88,8 +88,11 @@
     </div>
 
     <h2 infoBoxAnchor class="app-settings">
-      App Settings
-      <fa-icon icon="question-circle" infoBoxTrigger="appSettings"></fa-icon>
+      <div class="header-title">
+        <h1>App Settings</h1>
+        <fa-icon infoBoxAnchor icon="question-circle" infoBoxTrigger="globalSettings"></fa-icon>
+      </div>
+
       <app-dropdown [ngModel]="viewSetting" (ngModelChange)="viewSettingChange.next($event)">
         <app-dropdown-item *dropDownValue="'all'">
           View All

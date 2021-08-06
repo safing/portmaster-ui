@@ -3,30 +3,46 @@
   <app-expertise></app-expertise>
 </div>
 
-<div infoBoxAnchor class="header">
+<div class="header-title">
   <h1>Apps</h1>
-  <fa-icon icon="question-circle" infoBoxTrigger="AppsList"></fa-icon>
+  <!-- 
+    TODO: Patrick I tried to fix this weird issues when clicking it, 
+    but wasnt able too 
+  -->
+  <fa-icon infoBoxAnchor icon="question-circle" infoBoxTrigger="AppsList"></fa-icon>
 </div>
 
 <div class="scrollable" [@fadeInList]="total">
 
   <ng-container *ngIf="runningProfiles.length > 0">
-    <h4>Active</h4>
+    <div class="scrollable-header">
+      <h4>Active</h4>
+      <fa-icon infoBoxAnchor icon="question-circle" infoBoxTrigger="AppsList-Active"></fa-icon>
+    </div>
     <ng-container *ngTemplateOutlet="profileList; context: {$implicit: runningProfiles}"></ng-container>
   </ng-container>
 
   <ng-container *ngIf="recentlyUsed.length > 0">
-    <h4>Recently Used</h4>
+    <div class="scrollable-header">
+      <h4>Recently Used</h4>
+      <fa-icon infoBoxAnchor icon="question-circle" infoBoxTrigger="AppsList-Recently-Used"></fa-icon>
+    </div>
     <ng-container *ngTemplateOutlet="profileList; context: {$implicit: recentlyUsed}"></ng-container>
   </ng-container>
 
   <ng-container *ngIf="recentlyEdited.length > 0">
-    <h4>Recently Edited</h4>
+    <div class="scrollable-header">
+      <h4>Recently Edited</h4>
+      <fa-icon infoBoxAnchor icon="question-circle" infoBoxTrigger="AppsList-Recently-Edited"></fa-icon>
+    </div>
     <ng-container *ngTemplateOutlet="profileList; context: {$implicit: recentlyEdited}"></ng-container>
   </ng-container>
 
   <ng-container *ngIf="profiles.length > 0">
-    <h4>Apps</h4>
+    <div class="scrollable-header">
+      <h4>Apps</h4>
+      <fa-icon infoBoxAnchor icon="question-circle" infoBoxTrigger="AppsList-Apps"></fa-icon>
+    </div>
     <ng-container *ngTemplateOutlet="profileList; context: {$implicit: profiles}"></ng-container>
   </ng-container>
 

@@ -224,6 +224,10 @@
       overflow  : hidden;
       z-index   : 1;
 
+      fa-icon[icon*="question-circle"] {
+        float: right;
+      }
+
       &:after {
         transition: all cubic-bezier(0.19, 1, 0.82, 1) .2s;
         @apply rounded;

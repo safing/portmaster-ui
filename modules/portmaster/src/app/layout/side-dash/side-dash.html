@@ -1,5 +1,5 @@
 <div class="widget-list" cdkDropList cdkDragLockAxis="y" (cdkDropListDropped)="drop($event)">
-  <div class="widget" *ngFor="let widget of widgets; trackBy: widgetService.trackBy" cdkDrag>
+  <div class="widget" *ngFor="let widget of widgets; trackBy: widgetService.trackBy" cdkDrag infoBoxAnchor>
     <div class="buttons">
       <div class="dragable" cdkDragHandle>
         <svg xmlns="http://www.w3.org/2000/svg" data-name="Layer 2" viewBox="0 0 11.86 19.86">
@@ -11,11 +11,13 @@
           <circle cx="9.93" cy="17.93" r="1.93" />
         </svg>
       </div>
-      <fa-icon class="edit-icon" *ngIf="!!widget.definition.settingsComponent || expertise === 'developer'" icon="pen"
-        routerLink="/widget/edit/{{widget.key}}">
-      </fa-icon>
+      <!-- TODO: Patrick cant attach each of the infoboxes to eatch widget -->
+      <fa-icon icon="question-circle" infoBoxTrigger="StatusWidget"></fa-icon>
+      <!-- end -->
+      <fa-icon class="edit-icon" *ngIf="!!widget.definition.settingsComponent || expertise === 'developer'" icon="pen" routerLink="/widget/edit/{{widget.key}}"></fa-icon>
     </div>
     <ng-container [cdkPortalOutlet]="widget.portal"></ng-container>
+
   </div>
 </div>
 

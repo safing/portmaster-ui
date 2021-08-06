@@ -29,12 +29,12 @@
   </div>
 
   <div class="scrollable" [@moveInOutList]="profiles.length">
-    <li class="card-header overview" routerLink="/monitor/profile/overview/overview" routerLinkActive="active">
+    <li class="card-header overview" routerLink="/monitor/profile/overview/overview" routerLinkActive="active" infoBoxAnchor infoBoxTrigger="netowrkMonitor-Overview" infoBoxTriggerPassive="true">
       Overview
     </li>
     <ng-container>
       <ng-container *ngFor="let data of profiles; trackBy: trackProfile">
-        <li class="card-header" *appExpertiseLevel="data.size === 0 ? 'developer' : 'user'" [routerLink]="['/', 'monitor', 'profile', data.Source, data.ID]" routerLinkActive="active">
+        <li class="card-header" *appExpertiseLevel="data.size === 0 ? 'developer' : 'user'" [routerLink]="['/', 'monitor', 'profile', data.Source, data.ID]" routerLinkActive="active" infoBoxAnchor infoBoxTrigger="netowrkMonitor-App" infoBoxTriggerPassive="true">
           <app-icon [profile]="data"></app-icon>
           <span class="card-title">{{ data.Name }}</span>
           <app-count-indicator [count]="data.size" [risk]="data.blockStatus">
