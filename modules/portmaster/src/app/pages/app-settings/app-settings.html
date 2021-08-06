@@ -96,7 +96,8 @@
         </h1>
       </div>
 
-      <app-dropdown [ngModel]="viewSetting" (ngModelChange)="viewSettingChange.next($event)">
+      <app-dropdown [ngModel]="viewSetting" (ngModelChange)="viewSettingChange.next($event)" infoBoxAnchor="left"
+        infoBoxTrigger="appSettings-Sort" infoBoxTriggerPassive="true">
         <app-dropdown-item *dropDownValue="'all'">
           View All
         </app-dropdown-item>

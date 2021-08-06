@@ -61,6 +61,22 @@ appSettings:
     will be used by the app by default. If you change the app
     settings, it will override the global settings for that
     specific app.
+  nextKey: appSettings-Sort
+  #url: https://docs.safing.io/settings#app
+  #urlText: Read More
+
+
+appSettings-Sort:
+  title: Sort Setting
+  content: |
+    This allows you to eaily sort the setttings for this app.
+
+    View Active(Defualt): 
+    This shows all the settings only that you have activated.
+
+    View All: 
+    This shows all the settings that you activated and not 
+    activated.
   #url: https://docs.safing.io/settings#app
   #urlText: Read More
 
