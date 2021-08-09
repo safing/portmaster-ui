@@ -18,7 +18,7 @@
     </p>
 
     <div class="repo-list" *ngIf="page?.repositories?.length">
-      <h4>What was affected, please select:</h4>
+      <h4>Select where the bug took place:</h4>
       <button *ngFor="let repo of page?.repositories" [attr.id]="repo.repo"
         [class.selected]="selectedRepo === repo.repo" (click)="selectedRepo = repo.repo">
         {{ repo.name }}
@@ -43,15 +43,11 @@
 
     <ng-template [ngIf]="page?.includeDebugData">
       <div class="page-title">
-        <h1>Debug Information</h1>
+        <h1>Included Debug Logs</h1>
       </div>
 
       <p class="prologue secondary-text">
-        The following debug information will be sent together with your report. You may want to check if there's
-        any
-        private information in there. The debug data sent with your reports will be automatically destroyed after
-        one
-        month.
+        The following debug information will be sent together with your report. Check for and remove private or sensitive information. The debug data sent with your reports will automatically be destroyed after one month.
       </p>
       <div class="debug-header">
         <div class="pl-4 secondary-text">
@@ -68,10 +64,10 @@
         <input [(ngModel)]="haveGhAccount" type="checkbox" id="haveGhAccount">
       </div>
       <label for="haveGhAccount">
-        <span class="primary-text">Use my Github account for this issue (a new browser window will
+        <span class="primary-text">Use my GitHub account for this issue (a new browser window will
           open).</span><br />
-        If you don't want to use your own Github account you can still report the
-        issue but we won't be able to contact you through Github.
+        If you do not want to use your own GitHub account you can still report the
+        issue privately but then we will not be able to contact you through GitHub.
       </label>
     </div>
 

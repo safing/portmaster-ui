@@ -36,8 +36,8 @@ export const supportTypes: PageSections[] = [
     choices: [
       {
         id: "report-bug",
-        title: "Report a bug",
-        shortHelp: "Have you found some sort of bug? If so, we would love to know about it.",
+        title: "Report a Bug",
+        shortHelp: "Found a bug? Report your discovery and make the Portmaster better for everyone.",
         sections: [
           {
             title: "What happened?",
@@ -65,8 +65,8 @@ export const supportTypes: PageSections[] = [
       },
       {
         id: "give-feedback",
-        title: "Give Feedback",
-        shortHelp: "We really want your feedback, we read every feedback message we get.",
+        title: "Suggest an Improvement",
+        shortHelp: "Suggest an enhancement or a new feature for the Portmaster.",
         sections: [
           {
             title: "What would you like to add or change?",
@@ -81,9 +81,9 @@ export const supportTypes: PageSections[] = [
       },
       {
         type: 'link',
-        title: 'Documentation',
+        title: 'Open Portmaster Docs',
         url: 'https://docs.safing.io/',
-        shortHelp: 'See the complete documentation of the Portmaster',
+        shortHelp: 'View the Settings Handbook, get help with DNS Configuration and check VPN Compatibility.',
       },
     ],
   },

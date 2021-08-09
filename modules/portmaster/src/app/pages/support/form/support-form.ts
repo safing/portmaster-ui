@@ -232,9 +232,9 @@ export class SupportFormComponent implements OnInit, OnDestroy {
       caption: 'Caution',
       canCancel: true,
       header: 'How should we contact you?',
-      message: 'Please enter your E-Mail address below so we can contact you for further information and keep you updated on your issue.',
+      message: 'Please enter your email address below so we can contact you for further information and keep you updated on your issue.',
       inputModel: '',
-      inputPlaceholder: 'E-Mail Address',
+      inputPlaceholder: 'Email',
       inputType: 'text',
       buttons: [
         { id: '', class: 'outline', text: 'Cancel' },
