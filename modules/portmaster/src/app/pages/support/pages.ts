@@ -92,35 +92,28 @@ export const supportTypes: PageSections[] = [
     choices: [
       {
         type: 'link',
-        title: 'Upcoming Features',
+        title: 'What\'s Next?',
         url: 'https://safing.io/next',
-        shortHelp: 'See what we are currently working on!',
+        shortHelp: 'View what Safing is currently working on.',
       },
       {
         type: 'link',
-        title: 'Backlog',
-        url: 'https://safing.io/backlog',
-        shortHelp: 'Want to see a bigger picture of future planned features? Well, this is the place for you.',
+        title: 'Safing Blog',
+        url: 'https://safing.io/blog',
+        shortHelp: 'Visit the Safing Blog and the monthly progress updates.',
       },
       {
         type: 'link',
-        title: 'Blog',
-        url: 'https://safing.io/next',
-        shortHelp: 'Follow us on our blog and get monthly progress updates.',
-      },
-      {
-        type: 'link',
-        title: 'Ask On Reddit',
+        title: 'Ask on Reddit',
         url: 'https://reddit.com/r/safing',
-        shortHelp: 'Directly ask us on our Sub-Reddit r/safing.'
+        shortHelp: 'Directly ask us on our subreddit r/safing.'
       },
       {
         type: 'link',
-        title: 'Support',
-        url: 'https://safing.io/support',
-        shortHelp: 'See how to get further support on using the Portmaster.'
+        title: 'Contact Support via Mail',
+        url: 'mailto:support@safing.io',
+        shortHelp: 'Reach out to the Safing team directly.'
       }
     ]
   }
 ]
-
