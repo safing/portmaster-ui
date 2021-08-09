@@ -191,7 +191,7 @@ import { TipUpAnchorDirective, TipUpComponent, TipUpTriggerDirective, TipUpIconC
         name: 'Pilot',
         widgetComponent: PilotWidgetComponent,
         disableCustom: true,
-        helpKey: "StatusWidget"
+        tipUpKey: "pilot-widget"
       },
       multi: true,
     },

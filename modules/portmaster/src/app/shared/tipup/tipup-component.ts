@@ -57,6 +57,8 @@ export class TipUpComponent implements OnInit, TipUp {
           },
           error: console.error
         })
+    } else {
+      this.close();
     }
   }
 
