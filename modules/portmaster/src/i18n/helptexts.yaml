@@ -47,8 +47,8 @@ globalSettings:
   title: Global Settings
   content: |
     The Global settings is what is used to determine what is the
-    default settings for all apps. 
-    
+    default settings for all apps.
+
     Any settings you have changed in any app settings will override
     the Global settings that has been changed by you.
   #url: https://docs.safing.io/settings#global
@@ -64,25 +64,25 @@ appSettings:
   #url: https://docs.safing.io/settings#app
   #urlText: Read More
 
-netowrkMonitor:
+networkMonitor:
   title: Network Monitor
   content: |
     This monitors your system activity in the last 10 minutes. Any
     connections that an app on your system makes, it will show here.
   #url: https://docs.safing.io/network-monitor
   #urlText: Read More
-  nextKey: netowrkMonitor-Overview
+  nextKey: networkMonitor-Overview
 
-netowrkMonitor-Overview:
+networkMonitor-Overview:
   title: Monitor Overview
   content: |
     This is just a placeholder for the meantime, but this is
     just the Network Monitor with 3 stats on it.
   #url: https://docs.safing.io/network-monitor#app-focus
   #urlText: Read More
-  nextKey: netowrkMonitor-App
+  nextKey: networkMonitor-App
 
-netowrkMonitor-App:
+networkMonitor-App:
   title: App Activity
   content: |
     There are 3 colours. Ie, Green, Red, Gray.
@@ -101,14 +101,15 @@ netowrkMonitor-App:
   #url: https://docs.safing.io/network-monitor#app
   #urlText: Read More
 
-netowrkMonitor-App-Focus:
+networkMonitor-App-Focus:
   title: App Networking Details
   content: |
     Theses are the apps which are trying to make connections.
   #url: https://docs.safing.io/network-monitor#app-focus
   #urlText: Read More
+  nextKey: networkMonitor-App-Focus-connection-history
 
-netowrkMonitor-App-Focus-connection-history:
+networkMonitor-App-Focus-connection-history:
   title: Connection History
   content: |
     This is where you can see the connections which are being made
@@ -118,15 +119,14 @@ netowrkMonitor-App-Focus-connection-history:
     There might be somthing imporant to mention here unsure.
   #url: https://docs.safing.io/network-monitor#app-focus
   #urlText: Read More
-  nextKey: netowrkMonitor-App-Focus-connection-history-filter
+  nextKey: networkMonitor-App-Focus-connection-history-filter
 
-netowrkMonitor-App-Focus-connection-history-filter:
+networkMonitor-App-Focus-connection-history-filter:
   title: Connections Filter
   content: |
     Theses are the apps which are trying to make connections.
   #url: https://docs.safing.io/network-monitor#app-focus
   #urlText: Read More
-  
 
 AppsList:
   title: List Of Apps
@@ -139,28 +139,28 @@ AppsList:
 AppsList-Active:
   title: Active
   content: |
-    Connections that are active right now.
+    Programs and apps that have active network connections.
   #url: https://docs.safing.io/network-monitor#app-focus
   #urlText: Read More
 
 AppsList-Recently-Used:
-  title: Active
+  title: Recently Used
   content: |
-    Connections that has been active in the last week.
+    Programs and apps that have been active in the last week.
   #url: https://docs.safing.io/network-monitor#app-focus
   #urlText: Read More
 
 AppsList-Recently-Edited:
-  title: Active
+  title: Recently Edited
   content: |
-   User that changed a setting in the last week within the app settings.
+    User that changed a setting in the last week within the app settings.
   #url: https://docs.safing.io/network-monitor#app-focus
   #urlText: Read More
 
 AppsList-Apps:
-  title: Active
+  title: All Apps
   content: |
-    Apps that has made a connection at some point of time and now will be 
+    Apps that has made a connection at some point of time and now will be
     added to this list for future monitoring. (Everything else)
   #url: https://docs.safing.io/network-monitor#app-focus
   #urlText: Read More
@@ -173,15 +173,15 @@ StatusWidget:
     Insecure.
 
     Secure(Green)
-    
+
     -- TODO: Daniel
 
     Warring(Yellow)
-    
+
     -- TODO: Daniel
 
     Insecure(Red)
-    
+
     -- TODO: Daniel
   #url: https://docs.safing.io/network-monitor#app-focus
   #urlText: Read More
@@ -199,12 +199,6 @@ statusWidget-NetworkRating:
   #url: https://docs.safing.io/widgets/network-rating
   #urlText: Read More
   nextKey: statusWidget-NetworkRating-Trusted
-  buttons:
-    - name: Show Settings
-      action:
-        Type: open-page
-        Payload: settings
-      nextKey: networkRatingSwitch
 
 statusWidget-NetworkRating-Trusted:
   title: Trusted Level
@@ -235,12 +229,18 @@ statusWidget-NetworkRating-Danger:
     is compromised or malicious activities are occurring on your system.
   #url: https://docs.safing.io/widgets/network-rating#danger
   #urlText: Read More
+  buttons:
+    - name: Show Setting
+      action:
+        Type: open-page
+        Payload: settings
+      nextKey: networkRatingSwitch
 
 # Not added yet WIP
 nottifcationsWidget:
   title: App Networking
   content: |
-    This informs you with what's going on with portmaster. 
+    This informs you with what's going on with portmaster.
     Ie, Updates, Errors, Warring etc
   #url: https://docs.safing.io/network-monitor#app-focus
   #urlText: Read More
@@ -266,15 +266,15 @@ networkRatingSwitch:
     These switches allow you to enable the selected setting for the
     network rating levels. Ie, Trusted, Untrusted and Danger.
 
-    Enabled(Green)
-    The setting is enabled for that network rating level.
+    - **Enabled** *(Green)*  <br />
+      The setting is enabled for that network rating level.
 
-    Disabled(Gray)
-    The setting is disabled for that network rating level.
+    - **Disabled** *(Gray)* <br />
+      The setting is disabled for that network rating level.
 
-    Off(Red)
-    The setting is off for all network rating levels.
-    (Note: Not all network level settings can be fully turned off in
-    order to provide a protective baseline for the danger level)
+    - **Off** *(Red)* <br />
+      The setting is off for all network rating levels. <br />
+      (Note: Not all network level settings can be fully turned off in
+      order to provide a protective baseline for the danger level)
   #url: https://docs.safing.io/actions#multiSwitche
   #urlText: Read More

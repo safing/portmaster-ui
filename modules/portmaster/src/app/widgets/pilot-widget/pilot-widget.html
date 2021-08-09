@@ -19,11 +19,11 @@
   </span>
 </div>
 
-<div infoBoxAnchor class="level-list" [class.auto-pilot]="mode === 'auto'">
+<div tipUpAnchor class="level-list" [class.auto-pilot]="mode === 'auto'">
   <div class="rate-header">
     <label style="white-space: nowrap; margin-right: 5px">
       Rate your network
-      <fa-icon icon="question-circle" infoBoxTrigger="statusWidget-NetworkRating"></fa-icon>
+      <app-tipup key="statusWidget-NetworkRating"></app-tipup>
     </label>
     <app-dropdown *appExpertiseLevel="'developer'" [ngModel]="mode" (ngModelChange)="updateMode($event)">
       <app-dropdown-item *dropDownValue="'auto'">
@@ -38,7 +38,7 @@
   </div>
 
   <ng-container *ngFor="let opt of options">
-    <div infoBoxAnchor class="level" [class.selected]="activeLevel == opt.level"
+    <div tipUpAnchor class="level" [class.selected]="activeLevel == opt.level"
       [class.suggested]="suggestedLevel === opt.level && suggestedLevel > activeLevel" (click)="selectLevel(opt.level)">
       <div>
         <span>
@@ -47,7 +47,7 @@
         <span class="situation">
           {{opt.subText || ''}}
         </span>
-        <fa-icon icon="question-circle" [infoBoxTrigger]="'statusWidget-NetworkRating-' + opt.displayText"></fa-icon>
+        <app-tipup [key]="'statusWidget-NetworkRating-' + opt.displayText"></app-tipup>
       </div>
     </div>
   </ng-container>

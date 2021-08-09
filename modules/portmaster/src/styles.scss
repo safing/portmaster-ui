@@ -88,3 +88,20 @@
   position: sticky;
   top     : 0;
 }
+
+
+fa-icon.tipup,
+fa-icon[icon="question-circle"],
+fa-icon[icon="question"] {
+  max-width  : 10px;
+  max-height : 10px;
+  opacity    : 0.8;
+  display    : inline-block;
+  font-size  : 0.75rem;
+  color      : rgb(250 250 250 / 55%);
+  margin-left: 3px;
+
+  &:hover {
+    opacity: unset;
+  }
+}

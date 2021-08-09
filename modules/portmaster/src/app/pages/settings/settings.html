@@ -4,8 +4,10 @@
 </div>
 
 <div class="header-title">
-  <h1>Global Settings</h1>
-  <fa-icon infoBoxAnchor icon="question-circle" infoBoxTrigger="globalSettings"></fa-icon>
+  <h1>
+    Global Settings
+    <app-tipup key="globalSettings"></app-tipup>
+  </h1>
 </div>
 
 <ng-template #accordionHeader let-active="active">
@@ -111,7 +113,8 @@
           </ng-container>
 
           <tr cdk-header-row *cdkHeaderRowDef="['identifier', 'channel', 'active', 'selected']"></tr>
-          <tr cdk-row *cdkRowDef="let row; columns: ['identifier', 'channel', 'active', 'selected']" [class.unused]="!row.value.ActiveVersion"></tr>
+          <tr cdk-row *cdkRowDef="let row; columns: ['identifier', 'channel', 'active', 'selected']"
+            [class.unused]="!row.value.ActiveVersion"></tr>
         </table>
       </div>
     </div>
@@ -120,5 +123,6 @@
 </app-accordion-group>
 
 
-<app-settings-view [searchTerm]="searchTerm" [highlightKey]="highlightSettingKey" [availableSettings]="settings" (onSave)="saveSetting($event)">
+<app-settings-view [searchTerm]="searchTerm" [highlightKey]="highlightSettingKey" [availableSettings]="settings"
+  (onSave)="saveSetting($event)">
 </app-settings-view>

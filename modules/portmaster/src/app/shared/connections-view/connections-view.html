@@ -1,7 +1,9 @@
 <div class="toolbar">
-  <div class="header-title" infoBoxAnchor>
-    <h3>Connection History</h3>
-    <fa-icon icon="question-circle" infoBoxTrigger="netowrkMonitor-App-Focus-connection-history"></fa-icon>
+  <div class="header-title">
+    <h3>
+      Connection History
+      <app-tipup key="networkMonitor-App-Focus-connection-history"></app-tipup>
+    </h3>
   </div>
 
   <div class="actions">
@@ -16,10 +18,11 @@
       <fa-icon icon="redo"></fa-icon>
     </div>
 
-    <app-menu-trigger [menu]="viewMenu" useContent="true" infoBoxAnchor="left"
-      infoBoxTrigger="netowrkMonitor-App-Focus-connection-history-filter" infoBoxTriggerPassive="true">
+    <app-menu-trigger [menu]="viewMenu" useContent="true" tipUpAnchor="left"
+      tipUpTrigger="networkMonitor-App-Focus-connection-history-filter" tipUpPassive>
       <fa-icon icon="sort-amount-down" [class.filter-active]="ungroupedFilter !== 'All'"></fa-icon>
     </app-menu-trigger>
+
     <app-menu #viewMenu>
       <app-menu-group style="min-width: 150px;">Show</app-menu-group>
       <app-menu-item (click)="selectDisplayMode('ungrouped')" class="selectable-menu-item">

@@ -4,55 +4,63 @@
 </div>
 
 <div class="header-title">
-  <h1>Apps</h1>
-  <!-- 
-    TODO: Patrick I tried to fix this weird issues when clicking it, 
-    but wasnt able too 
-  -->
-  <fa-icon infoBoxAnchor icon="question-circle" infoBoxTrigger="AppsList"></fa-icon>
+  <h1>
+    Apps
+    <app-tipup key="AppsList"></app-tipup>
+  </h1>
 </div>
 
 <div class="scrollable" [@fadeInList]="total">
 
   <ng-container *ngIf="runningProfiles.length > 0">
     <div class="scrollable-header">
-      <h4>Active</h4>
-      <fa-icon infoBoxAnchor icon="question-circle" infoBoxTrigger="AppsList-Active"></fa-icon>
+      <h4>
+        Active
+        <app-tipup key="AppsList-Active"></app-tipup>
+      </h4>
     </div>
     <ng-container *ngTemplateOutlet="profileList; context: {$implicit: runningProfiles}"></ng-container>
   </ng-container>
 
   <ng-container *ngIf="recentlyUsed.length > 0">
     <div class="scrollable-header">
-      <h4>Recently Used</h4>
-      <fa-icon infoBoxAnchor icon="question-circle" infoBoxTrigger="AppsList-Recently-Used"></fa-icon>
+      <h4>
+        Recently Used
+        <app-tipup key="AppsList-Recently-Used"></app-tipup>
+      </h4>
     </div>
     <ng-container *ngTemplateOutlet="profileList; context: {$implicit: recentlyUsed}"></ng-container>
   </ng-container>
 
   <ng-container *ngIf="recentlyEdited.length > 0">
     <div class="scrollable-header">
-      <h4>Recently Edited</h4>
-      <fa-icon infoBoxAnchor icon="question-circle" infoBoxTrigger="AppsList-Recently-Edited"></fa-icon>
+      <h4>
+        Recently Edited
+        <app-tipup key="AppsList-Recently-Edited"></app-tipup>
+      </h4>
     </div>
     <ng-container *ngTemplateOutlet="profileList; context: {$implicit: recentlyEdited}"></ng-container>
   </ng-container>
 
   <ng-container *ngIf="profiles.length > 0">
     <div class="scrollable-header">
-      <h4>Apps</h4>
-      <fa-icon infoBoxAnchor icon="question-circle" infoBoxTrigger="AppsList-Apps"></fa-icon>
+      <h4>
+        Apps
+        <app-tipup key="AppsList-Apps"></app-tipup>
+      </h4>
     </div>
     <ng-container *ngTemplateOutlet="profileList; context: {$implicit: profiles}"></ng-container>
   </ng-container>
 
   <ng-template #profileList let-list>
     <ng-container *ngFor="let profile of list; trackBy: trackProfile">
-      <div *appExpertiseLevel="profile.Internal ? 'developer' : 'user'" class="card-header" [routerLink]="['/app', profile.Source,  profile.ID]">
+      <div *appExpertiseLevel="profile.Internal ? 'developer' : 'user'" class="card-header"
+        [routerLink]="['/app', profile.Source,  profile.ID]">
         <app-icon [profile]="profile"></app-icon>
         <span class="card-title">
           <span [innerHTML]="profile?.Name | safe:'html'"></span>
-          <span class="card-sub-title" *appExpertiseLevel="'expert'" [innerHTML]="profile?.LinkedPath | safe:'html'"></span>
+          <span class="card-sub-title" *appExpertiseLevel="'expert'"
+            [innerHTML]="profile?.LinkedPath | safe:'html'"></span>
         </span>
       </div>
     </ng-container>

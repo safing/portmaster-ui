@@ -66,7 +66,7 @@ import { ExitScreenComponent } from './shared/exit-screen/exit-screen';
 import { ConfirmDailogComponent, DialogComponent } from './shared/dialog';
 import { SupportPageComponent } from './pages/support';
 import { SupportFormComponent } from './pages/support/form';
-import { InfoBoxAnchorDirective, InfoBoxComponent, InfoBoxTriggerDirective } from './shared/infobox';
+import { TipUpAnchorDirective, TipUpComponent, TipUpTriggerDirective, TipUpIconComponent } from './shared/tipup';
 
 @NgModule({
   declarations: [
@@ -143,9 +143,10 @@ import { InfoBoxAnchorDirective, InfoBoxComponent, InfoBoxTriggerDirective } fro
     ConfirmDailogComponent,
     SupportPageComponent,
     SupportFormComponent,
-    InfoBoxAnchorDirective,
-    InfoBoxTriggerDirective,
-    InfoBoxComponent,
+    TipUpAnchorDirective,
+    TipUpTriggerDirective,
+    TipUpComponent,
+    TipUpIconComponent,
   ],
   imports: [
     BrowserModule,
@@ -190,6 +191,7 @@ import { InfoBoxAnchorDirective, InfoBoxComponent, InfoBoxTriggerDirective } fro
         name: 'Pilot',
         widgetComponent: PilotWidgetComponent,
         disableCustom: true,
+        helpKey: "StatusWidget"
       },
       multi: true,
     },
