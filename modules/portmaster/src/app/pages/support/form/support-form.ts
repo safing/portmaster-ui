@@ -100,7 +100,7 @@ export class SupportFormComponent implements OnInit, OnDestroy {
         }
         this.title = '';
         this.form = {};
-        this.selectedRepo = '';
+        this.selectedRepo = 'portmaster';
         this.debugData = '';
         this.repos = {};
         this.page.sections.forEach(section => this.form[section.title] = '');
