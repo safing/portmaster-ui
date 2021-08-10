@@ -40,20 +40,23 @@ export const supportTypes: PageSections[] = [
         id: "report-bug",
         title: "🐞 Report a Bug",
         shortHelp: "Found a bug? Report your discovery and make the Portmaster better for everyone.",
-        repoHelp: "Select where the bug took place:",
+        repoHelp: "Where did the bug take place?",
         sections: [
           {
             title: "What happened?",
-            help: "Please describe what happened to you as detailed as possible"
+            help: "Describe what happened in detail"
           },
           {
-            title: "What did you expect to happen?"
+            title: "What did you expect to happen?",
+            help: "Describe what you expected to happen instead"
           },
           {
             title: "How did you reproduce it?",
+            help: "Describe how to reproduce the issue"
           },
           {
-            title: "Something we have missed?",
+            title: "Additional information",
+            help: "Provide extra details if needed"
           },
         ],
         includeDebugData: true,
@@ -70,7 +73,7 @@ export const supportTypes: PageSections[] = [
         id: "give-feedback",
         title: "💡 Suggest an Improvement",
         shortHelp: "Suggest an enhancement or a new feature for the Portmaster.",
-        repoHelp: "Select what you would like to improve:",
+        repoHelp: "What would you would like to improve?",
         sections: [
           {
             title: "What would you like to add or change?",
