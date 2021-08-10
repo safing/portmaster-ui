@@ -42,7 +42,7 @@ export const supportTypes: PageSections[] = [
         sections: [
           {
             title: "What happened?",
-            // help: "Please describe what happened to you as detailed as possible"
+            help: "Please describe what happened to you as detailed as possible"
           },
           {
             title: "What did you expect to happen?"

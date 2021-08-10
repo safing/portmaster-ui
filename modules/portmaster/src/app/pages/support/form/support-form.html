@@ -25,21 +25,25 @@
       </button>
     </div>
 
+    <h3>Titel</h3>
     <div class="input-wrapper">
       <input class="title" [class.missing]="titleMissing && title === ''" required type="text" [(ngModel)]="title"
-        (ngModelChange)="searchIssues($event)" placeholder="Title">
+        (ngModelChange)="searchIssues($event)" placeholder="A short summary of your issue">
       <span class="copy-button" (click)="copyToClipboard(title)">Copy</span>
     </div>
 
     <section *ngFor="let section of page?.sections">
+      <h3>{{section.title}}</h3>
       <div class="input-wrapper">
         <textarea [(ngModel)]="form[section.title]" (ngModelChange)="onModelChange()" rows="4"
-          [placeholder]="section.title"></textarea>
+          [placeholder]="section.help || ''"></textarea>
         <span class="copy-button" (click)="copyToClipboard(form[section.title])">Copy</span>
       </div>
+      <!--
       <span class="section-help" *ngIf="section.help">
         {{section.help}}
       </span>
+    -->
     </section>
 
     <ng-template [ngIf]="page?.includeDebugData">

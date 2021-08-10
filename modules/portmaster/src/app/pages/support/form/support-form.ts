@@ -1,8 +1,8 @@
 import { CdkScrollable } from '@angular/cdk/scrolling';
 import { Component, OnDestroy, OnInit, TrackByFunction, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { Observable, of, Subject } from 'rxjs';
-import { mergeMap, takeUntil } from 'rxjs/operators';
+import { BehaviorSubject, Observable, of, Subject } from 'rxjs';
+import { debounceTime, mergeMap, takeUntil } from 'rxjs/operators';
 import { DebugAPI, SessionDataService, StatusService } from 'src/app/services';
 import { Issue, SupportHubService } from 'src/app/services/supporthub.service';
 import { ActionIndicatorService } from 'src/app/shared/action-indicator';
@@ -18,6 +18,7 @@ import { SupportPage, supportTypes } from '../pages';
 })
 export class SupportFormComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
+  private search$ = new BehaviorSubject<string>('');
   page: SupportPage | null = null;
 
   debugData: string = '';
@@ -56,6 +57,23 @@ export class SupportFormComponent implements OnInit, OnDestroy {
       this.allIssues = issues;
       this.relatedIssues = issues;
     })
+
+    this.search$.pipe(
+      takeUntil(this.destroy$),
+      debounceTime(200),
+    )
+      .subscribe((text) => {
+        this.relatedIssues = this.searchService.searchList(this.allIssues, text, {
+          disableHighlight: true,
+          shouldSort: true,
+          isCaseSensitive: false,
+          minMatchCharLength: 4,
+          keys: [
+            'title',
+            'body',
+          ],
+        }).map(res => res.item)
+      })
 
     this.statusService.getVersions()
       .subscribe(status => {
@@ -115,17 +133,7 @@ export class SupportFormComponent implements OnInit, OnDestroy {
 
   searchIssues(text: string) {
     this.onModelChange();
-
-    this.relatedIssues = this.searchService.searchList(this.allIssues, text, {
-      disableHighlight: true,
-      shouldSort: true,
-      isCaseSensitive: false,
-      minMatchCharLength: 4,
-      keys: [
-        'title',
-        'body',
-      ],
-    }).map(res => res.item)
+    this.search$.next(text);
   }
 
   ngOnDestroy() {
