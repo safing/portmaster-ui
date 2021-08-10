@@ -3,7 +3,7 @@ import { Component, OnDestroy, OnInit, TrackByFunction, ViewChild } from '@angul
 import { ActivatedRoute, Router } from '@angular/router';
 import { Observable, of, Subject } from 'rxjs';
 import { mergeMap, takeUntil } from 'rxjs/operators';
-import { DebugAPI, StatusService } from 'src/app/services';
+import { DebugAPI, SessionDataService, StatusService } from 'src/app/services';
 import { Issue, SupportHubService } from 'src/app/services/supporthub.service';
 import { ActionIndicatorService } from 'src/app/shared/action-indicator';
 import { fadeInAnimation, fadeInListAnimation, moveInOutAnimation } from 'src/app/shared/animations';
@@ -47,6 +47,7 @@ export class SupportFormComponent implements OnInit, OnDestroy {
     private dialog: DialogService,
     private supporthub: SupportHubService,
     private searchService: FuzzySearchService,
+    private sessionService: SessionDataService,
   ) { }
 
   ngOnInit() {
@@ -87,6 +88,9 @@ export class SupportFormComponent implements OnInit, OnDestroy {
         this.page.sections.forEach(section => this.form[section.title] = '');
         this.page.repositories?.forEach(repo => this.repos[repo.repo] = repo.name)
 
+        // try to restore from session service
+        this.sessionService.restore(this.page.id, this);
+
         if (this.page.includeDebugData) {
           this.debugapi.getCoreDebugInfo('github')
             .subscribe({
@@ -97,7 +101,21 @@ export class SupportFormComponent implements OnInit, OnDestroy {
       })
   }
 
+  onModelChange() {
+    if (!this.page) {
+      return;
+    }
+    this.sessionService.save(this.page.id, this, ['title', 'form', 'selectedRepo', 'haveGhAccount']);
+  }
+
+  selectRepo(repo: string) {
+    this.selectedRepo = repo;
+    this.onModelChange();
+  }
+
   searchIssues(text: string) {
+    this.onModelChange();
+
     this.relatedIssues = this.searchService.searchList(this.allIssues, text, {
       disableHighlight: true,
       shouldSort: true,
@@ -184,6 +202,7 @@ export class SupportFormComponent implements OnInit, OnDestroy {
       )
       .subscribe({
         next: url => {
+          this.sessionService.delete(this.page?.id || '');
           const openUrl = () => {
             if (!!window.app) {
               window.app.openExternal(url);
@@ -268,6 +287,7 @@ export class SupportFormComponent implements OnInit, OnDestroy {
                 msg = 'You will be contacted as soon as possible';
               }
               this.uai.success('Ticket created successfully', msg)
+              this.sessionService.delete(this.page?.id || '');
             },
             error: err => {
               this.uai.error('Failed to create ticket', this.uai.getErrorMessgae(err))

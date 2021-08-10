@@ -47,4 +47,26 @@ export class SessionDataService {
         distinctUntilChanged()
       );
   }
+
+  delete<T>(key: string): T | null {
+    let value = this.get<T>(key);
+    if (value !== null) {
+      this.data.delete(key);
+    }
+    return value;
+  }
+
+  save<M, K extends keyof M>(id: string, model: M, keys: K[]) {
+    let copy: Partial<M> = {};
+    keys.forEach(key => copy[key] = model[key]);
+    this.set(id, copy);
+  }
+
+  restore<M, K extends keyof M>(id: string, model: M) {
+    let copy: Partial<M> | null = this.get(id);
+    if (copy === null) {
+      return;
+    }
+    Object.assign(model, copy);
+  }
 }

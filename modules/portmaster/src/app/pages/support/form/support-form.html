@@ -20,7 +20,7 @@
     <div class="repo-list" *ngIf="page?.repositories?.length">
       <h4>Select where the bug took place:</h4>
       <button *ngFor="let repo of page?.repositories" [attr.id]="repo.repo"
-        [class.selected]="selectedRepo === repo.repo" (click)="selectedRepo = repo.repo">
+        [class.selected]="selectedRepo === repo.repo" (click)="selectRepo(repo.repo)">
         {{ repo.name }}
       </button>
     </div>
@@ -33,7 +33,8 @@
 
     <section *ngFor="let section of page?.sections">
       <div class="input-wrapper">
-        <textarea [(ngModel)]="form[section.title]" rows="4" [placeholder]="section.title"></textarea>
+        <textarea [(ngModel)]="form[section.title]" (ngModelChange)="onModelChange()" rows="4"
+          [placeholder]="section.title"></textarea>
         <span class="copy-button" (click)="copyToClipboard(form[section.title])">Copy</span>
       </div>
       <span class="section-help" *ngIf="section.help">
@@ -47,7 +48,8 @@
       </div>
 
       <p class="prologue secondary-text">
-        The following debug information will be sent together with your report. Check for and remove private or sensitive information. The debug data sent with your reports will automatically be destroyed after one month.
+        The following debug information will be sent together with your report. Check for and remove private or
+        sensitive information. The debug data sent with your reports will automatically be destroyed after one month.
       </p>
       <div class="debug-header">
         <div class="pl-4 secondary-text">
@@ -61,7 +63,7 @@
 
     <div class="gh-author" *ngIf="!!page?.ghIssuePreset">
       <div class="input-wrapper">
-        <input [(ngModel)]="haveGhAccount" type="checkbox" id="haveGhAccount">
+        <input [(ngModel)]="haveGhAccount" (ngModelChange)="onModelChange()" type="checkbox" id="haveGhAccount">
       </div>
       <label for="haveGhAccount">
         <span class="primary-text">Use my GitHub account for this issue (a new browser window will
