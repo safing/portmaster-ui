@@ -256,10 +256,10 @@ export class SupportFormComponent implements OnInit, OnDestroy {
     }
 
     const opts: ConfirmDialogConfig = {
-      caption: 'Caution',
+      caption: 'Info',
       canCancel: true,
-      header: 'How should we contact you?',
-      message: 'Please enter your email address below so we can contact you for further information and keep you updated on your issue.',
+      header: 'How should we stay in touch?',
+      message: 'Please enter your email address so we can write back and forth until the issue is concluded.',
       inputModel: '',
       inputPlaceholder: 'Email',
       inputType: 'text',
