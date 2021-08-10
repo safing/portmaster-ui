@@ -1,5 +1,4 @@
-<app-dropdown [ngModel]="(currentLevel | async)" (ngModelChange)="selectLevel($event)">
-
+<app-dropdown [ngModel]="(currentLevel | async)" (ngModelChange)="selectLevel($event)" tipUpTrigger="uiMode" tipUpAnchor="left">
   <app-dropdown-item *dropDownValue="expertiseLevels.User">
     Simple
   </app-dropdown-item>

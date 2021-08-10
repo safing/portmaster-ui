@@ -1,6 +1,11 @@
+############
+### Examples
+
 myKey:
-  title: Cool Feature
+  title: Tipup Example
   content: |
+    This is the Markdown formatted content.
+
     This is a super cool, new feature that you will love!
     It even supports markdown features like:
     - order lists
@@ -13,80 +18,154 @@ myKey:
   urlText: Show me!
   nextKey: navMonitor
 
+##############
+### Navigation
+
+intro:
+  title: Learn about Portmaster
+  content: |
+    Icons like the one you just clicked can be found everywhere in the Portmaster. Click them to learn how the Portmaster works.
+
+    Some of these "Tip Ups" will also give you the option to jump to the next one in order to tour an element or page, like this:
+  nextKey: navMonitor
+
 navMonitor:
   title: Network Monitor
   content: |
-    Inspect all running applications.
+    Inspect network connections of all running applications.
   nextKey: navApps
+  buttons:
+    - name: Explore this page
+      action:
+        Type: open-page
+        Payload: monitor
+      nextKey: networkMonitor
 
 navApps:
-  title: Application Overview
+  title: Per-App Settings
   content: |
-    See all application profiles.
+    Configure per-app Portmaster settings.
   nextKey: navSettings
+  buttons:
+    - name: Explore this page
+      action:
+        Type: open-page
+        Payload: apps
+      nextKey: AppsList
 
 navSettings:
-  title: Settings
+  title: Global Settings
   content: |
-    Configure global Portmaster settings
+    Configure global Portmaster settings.
   nextKey: navSupport
   buttons:
-    - name: Show more
+    - name: Explore this page
       action:
-        Type: "open-setting"
-        Payload:
-          Key: "dns/noAssignedNameservers"
+        Type: open-page
+        Payload: settings
       nextKey: globalSettings
 
 navSupport:
-  title: Support Page
+  title: Get Help
   content: |
-    Get support for issues or report a bug
+    Report a bug or suggest a feature.
+  nextKey: pilot-widget
+  buttons:
+    - name: Explore this page
+      action:
+        Type: open-page
+        Payload: support
 
-globalSettings:
-  title: Global Settings
+uiMode:
+  title: UI Mode
   content: |
-    The Global settings is what is used to determine what is the
-    default settings for all apps.
+    The UI Mode lets you switch between different view of the Portmaster UI.
 
-    Any settings you have changed in any app settings will override
-    the Global settings that has been changed by you.
-  #url: https://docs.safing.io/settings#global
-  #urlText: Read More
+    Do you want to keep things simple, or want to see *all* the details?
+    It's up to you.
+  buttons:
+    - name: Change Default UI Mode
+      action:
+        Type: "open-setting"
+        Payload:
+          Key: "core/expertiseLevel"
 
-appSettings:
-  title: App Settings
+############
+### Sidedash
+
+# Not fully added yet WIP
+pilot-widget:
+  title: Portmaster Status
   content: |
-    By default the settings that are set in the global settings
-    will be used by the app by default. If you change the app
-    settings, it will override the global settings for that
-    specific app.
-  nextKey: appSettings-Sort
-  #url: https://docs.safing.io/settings#app
-  #urlText: Read More
+    This shield gives you a quick indication of the status of the Portmaster.
 
+    If it's __green__, everything is running smoothly, and you have nothing to worry about.<br>
+    If it's __yellow__, then something unexpected happened. While you should investigate when you have time, your privacy should not be in danger.<br>
+    If it's __red__, the Portmaster experienced a serious error that might reduce it's ability to protect your privacy.
 
-appSettings-Sort:
-  title: Sort Setting
+    This color is also displayed as part of the icon the system tray.
+  nextKey: pilot-widget-NetworkRating
+
+pilot-widget-NetworkRating:
+  title: Rating Your Network
   content: |
-    This allows you to eaily sort the setttings for this app.
+    Some features and settings of the Portmaster behave differently, depending on the environment.
 
-    View Active(Defualt): 
-    This shows all the settings only that you have activated.
+    In order to help the Portmaster provide the most adequate protection, please select "Trusted", "Untrusted" or "Danger" according to the situation you are in.<br>
+    Continue to learn about these different levels.
+  nextKey: pilot-widget-NetworkRating-Trusted
 
-    View All: 
-    This shows all the settings that you activated and not 
-    activated.
-  #url: https://docs.safing.io/settings#app
-  #urlText: Read More
+pilot-widget-NetworkRating-Trusted:
+  title: Trusted Rating
+  content: |
+    This rating is for when you expect a network to be secure and help protect you.<br>
+    In most cases, you will use this for your network at home or at friends.
+  nextKey: pilot-widget-NetworkRating-Untrusted
+
+pilot-widget-NetworkRating-Untrusted:
+  title: Untrusted Rating
+  content: |
+    Use this when you are unsure about the security of a network.
+    A hotel or café WiFi is the best example for this.
+  nextKey: pilot-widget-NetworkRating-Danger
+
+pilot-widget-NetworkRating-Danger:
+  title: Danger Rating
+  content: |
+    This rating is for emergencies, when you have a reasonable suspicion that the network is hacked or otherwise hostile to you.
+
+    The Portmaster will become over-protective in this mode, which might also break functionality of apps or render them useless. Please note that some settings cannot be turned off for the Danger Rating in order to ensure a secure baseline that is always available to you and cannot be misconfigured.
+  nextKey: uiMode
+
+# Not added yet WIP
+prompt-widget:
+  title: Prompts
+  content: |
+    This is where you can more easily control the
+    connections for the specific app for the time being.
+
+    How to use? In App settings, search for "Default Action"
+    and set it to "Prompt".
+
+    Note: Don't set the "Prompt" setting in your browser,
+    you will be spammed. You have been warned.
+  nextKey: notification-widget
+
+# Not added yet WIP
+notification-widget:
+  title: Notifications
+  content: |
+    This informs you with what's going on with portmaster.
+    Ie, Updates, Errors, Warring etc
+
+########################
+### Network Monitor Page
 
 networkMonitor:
   title: Network Monitor
   content: |
     This monitors your system activity in the last 10 minutes. Any
     connections that an app on your system makes, it will show here.
-  #url: https://docs.safing.io/network-monitor
-  #urlText: Read More
   nextKey: networkMonitor-Overview
 
 networkMonitor-Overview:
@@ -94,8 +173,6 @@ networkMonitor-Overview:
   content: |
     This is just a placeholder for the meantime, but this is
     just the Network Monitor with 3 stats on it.
-  #url: https://docs.safing.io/network-monitor#app-focus
-  #urlText: Read More
   nextKey: networkMonitor-App
 
 networkMonitor-App:
@@ -114,43 +191,51 @@ networkMonitor-App:
     Allowed/Blocked(Gray)
     The colour gray shows that some connections are
     allowed and blocked in the app.
-  #url: https://docs.safing.io/network-monitor#app
-  #urlText: Read More
 
 networkMonitor-App-Focus:
   title: App Networking Details
   content: |
-    Theses are the apps which are trying to make connections.
-  #url: https://docs.safing.io/network-monitor#app-focus
-  #urlText: Read More
+    Here you can view basic information as well as the recent connection history of an app.
   nextKey: networkMonitor-App-Focus-connection-history
 
 networkMonitor-App-Focus-connection-history:
   title: Connection History
   content: |
-    This is where you can see the connections which are being made
-    in real-time.
+    This is where you can see the connections which are being made.
+    If not in live-mode, a refresh button will appear to show new connections.
 
-    -- TODO: Danial
-    There might be somthing imporant to mention here unsure.
-  #url: https://docs.safing.io/network-monitor#app-focus
-  #urlText: Read More
+    In the individual connection view (the default), every row in the table below is one connection.
+    You can click the rows to view more details and take action on a connection.
+
+    If this is overwhelming, try the "by Domain" view. Continue to learn how to enable it.
   nextKey: networkMonitor-App-Focus-connection-history-filter
 
 networkMonitor-App-Focus-connection-history-filter:
   title: Connections Filter
   content: |
-    Theses are the apps which are trying to make connections.
-  #url: https://docs.safing.io/network-monitor#app-focus
-  #urlText: Read More
+    This drop-down allow you to switch between different views and filter connections by properties.
+
+########################
+### Global Settings Page
+
+globalSettings:
+  title: Global Settings
+  content: |
+    The Global settings is what is used to determine what is the
+    default settings for all apps.
+
+    Any settings you have changed in any app settings will override
+    the Global settings that has been changed by you.
+
+#########################
+### Per-App Settings Page
 
 AppsList:
   title: List Of Apps
   content: |
     If any of your installed apps on your system tries to make
     a connection, it will be added to this list.
-  #url: https://docs.safing.io/network-monitor#app-focus
-  #urlText: Read More
+  nextKey: AppsList-Recently-Used # Skip AppsList-Active as not always present.
 
 AppsList-Active:
   title: Active
@@ -162,125 +247,47 @@ AppsList-Active:
       action:
         Type: open-page
         Payload: monitor
-      nextKey: nil
-  #url: https://docs.safing.io/network-monitor#app-focus
-  #urlText: Read More
 
 AppsList-Recently-Used:
   title: Recently Used
   content: |
     Programs and apps that have been active in the last week.
-  #url: https://docs.safing.io/network-monitor#app-focus
-  #urlText: Read More
+  nextKey: AppsList-Apps # Skip AppsList-Recently-Edited as not always present.
 
 AppsList-Recently-Edited:
   title: Recently Edited
   content: |
     User that changed a setting in the last week within the app settings.
-  #url: https://docs.safing.io/network-monitor#app-focus
-  #urlText: Read More
 
 AppsList-Apps:
   title: Apps
   content: |
     Apps that has made a connection at some point of time and now will be
     added to this list for future monitoring. (Everything else)
-  #url: https://docs.safing.io/network-monitor#app-focus
-  #urlText: Read More
 
-# Not fully added yet WIP
-pilot-widget:
-  title: Status Widget
+appSettings:
+  title: App Settings
   content: |
-    There are 3 status levels. Ie, Secure, Warring,
-    Insecure.
+    By default the settings that are set in the global settings
+    will be used by the app by default. If you change the app
+    settings, it will override the global settings for that
+    specific app.
+  nextKey: appSettings-Filter
 
-    Secure(Green)
-
-    -- TODO: Daniel
-
-    Warring(Yellow)
-
-    -- TODO: Daniel
-
-    Insecure(Red)
-
-    -- TODO: Daniel
-  #url: https://docs.safing.io/network-monitor#app-focus
-  #urlText: Read More
-  nextKey: pilot-widget-NetworkRating
-
-pilot-widget-NetworkRating:
-  title: Rating Your Network
+appSettings-Filter:
+  title: Display Mode
   content: |
-    There are 3 risk level presets. Ie, Trusted, Untrusted,
-    Danger. These should be selected depending on how you rate
-    your current network safety.
+    This allows you to easily change the view of settings.
 
-    In the global/app settings you can configure what setting
-    should be enabled, disabled or off for each preset.
-  #url: https://docs.safing.io/widgets/network-rating
-  #urlText: Read More
+    View Active (Default):<br>
+    This shows only the settings that you have activated.
 
-pilot-widget-NetworkRating-Trusted:
-  title: Trusted Level
-  content: |
-    This level should be used when you feel that the wifi/network is
-    safe. Ie, home wifi/network
-  #url: https://docs.safing.io/widgets/network-rating#trusted
-  #urlText: Read More
-  nextKey: pilot-widget-NetworkRating-Untrusted
+    View All:<br>
+    This shows all the settings that you activated and not
+    activated.
 
-pilot-widget-NetworkRating-Untrusted:
-  title: Untrusted Level
-  content: |
-    This level should be used when you feel that the wifi/network is
-    not fully safe. Ie, public wifi/network
-  #url: https://docs.safing.io/widgets/network-rating#untrusted
-  #urlText: Read More
-  nextKey: pilot-widget-NetworkRating-Danger
-
-pilot-widget-NetworkRating-Danger:
-  title: Danger Level
-  content: |
-    Warring turning this on will put portmaster in
-    "Over Protected"/"Lock Down" mode. Thus, will make
-    some functionality of apps and or OS to stop working.
-
-    This level should be used only when you feel that the wifi/network
-    is compromised or malicious activities are occurring on your system.
-  #url: https://docs.safing.io/widgets/network-rating#danger
-  #urlText: Read More
-  buttons:
-    - name: Show Setting
-      action:
-        Type: open-page
-        Payload: settings
-      nextKey: networkRatingSwitch
-
-# Not added yet WIP
-notification-widget:
-  title: Notifications
-  content: |
-    This informs you with what's going on with portmaster.
-    Ie, Updates, Errors, Warring etc
-  #url: https://docs.safing.io/network-monitor#app-focus
-  #urlText: Read More
-
-# Not added yet WIP
-prompt-widget:
-  title: Prompts
-  content: |
-    This is where you can more easily control the
-    connections for the specific app for the time being.
-
-    How to use? In App settings, search for "Default Action"
-    and set it to "Prompt".
-
-    Note: Don't set the "Prompt" setting in your browser,
-    you will be spammed. You have been warned.
-  #url: https://docs.safing.io/network-monitor#app-focus
-  #urlText: Read More
+#########################
+### Configuration Options
 
 networkRatingSwitch:
   title: Network Rating Switch
@@ -303,8 +310,8 @@ networkRatingSwitch:
     (Note: Not all network level settings can be fully turned off in
     order to provide a protective baseline for the danger level)
   buttons:
-    - name: Show Widget
+    - name: Learn how to rate your network
       action:
         Type: open-page
         Payload: settings
-      nextKey: pilot-widget
+      nextKey: pilot-widget-NetworkRating
