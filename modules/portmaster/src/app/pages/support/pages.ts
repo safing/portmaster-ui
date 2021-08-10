@@ -82,6 +82,35 @@ export const supportTypes: PageSections[] = [
         includeDebugData: false,
         privateTicket: true,
         ghIssuePreset: "suggest-feature.md",
+        repositories: [
+          { repo: 'portmaster', name: 'Portmaster Core' },
+          { repo: 'portmaster-ui', name: 'User Interface' },
+          { repo: 'portmaster-packaging', name: 'Packaging & Installers' },
+          { repo: 'spn', name: 'SPN' },
+        ]
+      },
+      {
+        id: "compatibility-report",
+        title: "Create a Compatibility Report",
+        shortHelp: "Report Portmaster in/compatibility with Linux Distros, VPN Clients or general Software.",
+        sections: [
+          {
+            title: "What worked?",
+            help: "Describe what worked"
+          },
+          {
+            title: "What did not work?",
+            help: "Describe what did not work in detail"
+          },
+          {
+            title: "Additional information",
+            help: "Provide extra details if needed"
+          },
+        ],
+        includeDebugData: true,
+        privateTicket: true,
+        ghIssuePreset: "report-compatibility.md",
+        repositories: [] // not needed with the default being "portmaster"
       },
       {
         type: 'link',
