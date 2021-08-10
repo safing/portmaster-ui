@@ -1,6 +1,7 @@
 export interface PageSections {
   title?: string;
   choices: SupportType[];
+  style?: 'small';
 }
 
 export interface QuestionSection {
@@ -89,6 +90,7 @@ export const supportTypes: PageSections[] = [
   },
   {
     title: "Further Resources",
+    style: 'small',
     choices: [
       {
         type: 'link',

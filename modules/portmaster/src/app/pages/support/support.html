@@ -6,7 +6,7 @@
 </div>
 
 <div class="list-container" [@fadeIn]="true">
-  <div *ngFor="let section of supportTypes" class="page-section">
+  <div *ngFor="let section of supportTypes" class="page-section" [class.small]="section.style === 'small'">
     <div *ngIf="!!section.title" class="section-title">
       <h4>{{section.title}}</h4>
     </div>

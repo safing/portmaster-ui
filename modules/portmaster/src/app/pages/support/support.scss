@@ -68,5 +68,11 @@
         opacity : .4;
       }
     }
+
+
+  }
+  
+  .small .option-list section {
+    @apply p-4;
   }
 }
