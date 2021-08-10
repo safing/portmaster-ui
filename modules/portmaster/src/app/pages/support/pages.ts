@@ -38,7 +38,7 @@ export const supportTypes: PageSections[] = [
     choices: [
       {
         id: "report-bug",
-        title: "Report a Bug",
+        title: "🐞 Report a Bug",
         shortHelp: "Found a bug? Report your discovery and make the Portmaster better for everyone.",
         repoHelp: "Select where the bug took place:",
         sections: [
@@ -68,7 +68,7 @@ export const supportTypes: PageSections[] = [
       },
       {
         id: "give-feedback",
-        title: "Suggest an Improvement",
+        title: "💡 Suggest an Improvement",
         shortHelp: "Suggest an enhancement or a new feature for the Portmaster.",
         repoHelp: "Select what you would like to improve:",
         sections: [
@@ -91,7 +91,7 @@ export const supportTypes: PageSections[] = [
       },
       {
         id: "compatibility-report",
-        title: "Create a Compatibility Report",
+        title: "📝 Make a Compatibility Report",
         shortHelp: "Report Portmaster in/compatibility with Linux Distros, VPN Clients or general Software.",
         sections: [
           {
@@ -114,7 +114,7 @@ export const supportTypes: PageSections[] = [
       },
       {
         type: 'link',
-        title: 'Open Portmaster Docs',
+        title: '📘 Open Portmaster Docs',
         url: 'https://docs.safing.io/',
         shortHelp: 'View the Settings Handbook, get help with DNS Configuration and check VPN Compatibility.',
       },
