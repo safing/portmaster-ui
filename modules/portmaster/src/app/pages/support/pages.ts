@@ -14,6 +14,7 @@ export interface SupportPage {
   id: string;
   title: string;
   shortHelp: string;
+  repoHelp?: string;
   prologue?: string;
   epilogue?: string;
   sections: QuestionSection[];
@@ -39,6 +40,7 @@ export const supportTypes: PageSections[] = [
         id: "report-bug",
         title: "Report a Bug",
         shortHelp: "Found a bug? Report your discovery and make the Portmaster better for everyone.",
+        repoHelp: "Select where the bug took place:",
         sections: [
           {
             title: "What happened?",
@@ -68,6 +70,7 @@ export const supportTypes: PageSections[] = [
         id: "give-feedback",
         title: "Suggest an Improvement",
         shortHelp: "Suggest an enhancement or a new feature for the Portmaster.",
+        repoHelp: "Select what you would like to improve:",
         sections: [
           {
             title: "What would you like to add or change?",

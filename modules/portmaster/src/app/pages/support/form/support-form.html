@@ -18,7 +18,7 @@
     </p>
 
     <div class="repo-list" *ngIf="page?.repositories?.length">
-      <h4>Select where the bug took place:</h4>
+      <h4>{{ page?.repoHelp }}</h4>
       <button *ngFor="let repo of page?.repositories" [attr.id]="repo.repo"
         [class.selected]="selectedRepo === repo.repo" (click)="selectRepo(repo.repo)">
         {{ repo.name }}
