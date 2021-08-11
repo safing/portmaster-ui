@@ -21,61 +21,6 @@ myKey:
 ##############
 ### Navigation
 
-intro:
-  title: Learn about Portmaster
-  content: |
-    Icons like the one you just clicked can be found everywhere in the Portmaster. Click them to learn how the Portmaster works.
-
-    Some of these "Tip Ups" will also give you the option to jump to the next one in order to tour an element or page, like this:
-  nextKey: navMonitor
-
-navMonitor:
-  title: Network Monitor
-  content: |
-    Inspect network connections of all running applications.
-  nextKey: navApps
-  buttons:
-    - name: Explore this page
-      action:
-        Type: open-page
-        Payload: monitor
-      nextKey: networkMonitor
-
-navApps:
-  title: Per-App Settings
-  content: |
-    Configure per-app Portmaster settings.
-  nextKey: navSettings
-  buttons:
-    - name: Explore this page
-      action:
-        Type: open-page
-        Payload: apps
-      nextKey: AppsList
-
-navSettings:
-  title: Global Settings
-  content: |
-    Configure global Portmaster settings.
-  nextKey: navSupport
-  buttons:
-    - name: Explore this page
-      action:
-        Type: open-page
-        Payload: settings
-      nextKey: globalSettings
-
-navSupport:
-  title: Get Help
-  content: |
-    Report a bug or suggest a feature.
-  nextKey: pilot-widget
-  buttons:
-    - name: Explore this page
-      action:
-        Type: open-page
-        Payload: support
-
 uiMode:
   title: UI Mode
   content: |
@@ -92,19 +37,6 @@ uiMode:
 
 ############
 ### Sidedash
-
-# Not fully added yet WIP
-pilot-widget:
-  title: Portmaster Status
-  content: |
-    This shield gives you a quick indication of the status of the Portmaster.
-
-    If it's __green__, everything is running smoothly, and you have nothing to worry about.<br>
-    If it's __yellow__, then something unexpected happened. While you should investigate when you have time, your privacy should not be in danger.<br>
-    If it's __red__, the Portmaster experienced a serious error that might reduce it's ability to protect your privacy.
-
-    This color is also displayed as part of the icon the system tray.
-  nextKey: pilot-widget-NetworkRating
 
 pilot-widget-NetworkRating:
   title: Rating Your Network
@@ -137,84 +69,6 @@ pilot-widget-NetworkRating-Danger:
     The Portmaster will become over-protective in this mode, which might also break functionality of apps or render them useless. Please note that some settings cannot be turned off for the Danger Rating in order to ensure a secure baseline that is always available to you and cannot be misconfigured.
   nextKey: uiMode
 
-# Not added yet WIP
-prompt-widget:
-  title: Prompts
-  content: |
-    This is where you can more easily control the
-    connections for the specific app for the time being.
-
-    How to use? In App settings, search for "Default Action"
-    and set it to "Prompt".
-
-    Note: Don't set the "Prompt" setting in your browser,
-    you will be spammed. You have been warned.
-  nextKey: notification-widget
-
-# Not added yet WIP
-notification-widget:
-  title: Notifications
-  content: |
-    This informs you with what's going on with portmaster.
-    Ie, Updates, Errors, Warring etc
-
-########################
-### Network Monitor Page
-
-networkMonitor:
-  title: Network Monitor
-  content: |
-    This monitors your system activity in the last 10 minutes. Any
-    connections that an app on your system makes, it will show here.
-  nextKey: networkMonitor-Overview
-
-networkMonitor-Overview:
-  title: Monitor Overview
-  content: |
-    This is just a placeholder for the meantime, but this is
-    just the Network Monitor with 3 stats on it.
-  nextKey: networkMonitor-App
-
-networkMonitor-App:
-  title: App Activity
-  content: |
-    There are 3 colours. Ie, Green, Red, Gray.
-
-    Allowed(Green)
-    The colour green shows that all the connections are allowed in
-    the app.
-
-    Blocked(Red)
-    The colour red shows that all the connections are blocked in
-    the app.
-
-    Allowed/Blocked(Gray)
-    The colour gray shows that some connections are
-    allowed and blocked in the app.
-
-networkMonitor-App-Focus:
-  title: App Networking Details
-  content: |
-    Here you can view basic information as well as the recent connection history of an app.
-  nextKey: networkMonitor-App-Focus-connection-history
-
-networkMonitor-App-Focus-connection-history:
-  title: Connection History
-  content: |
-    This is where you can see the connections which are being made.
-    If not in live-mode, a refresh button will appear to show new connections.
-
-    In the individual connection view (the default), every row in the table below is one connection.
-    You can click the rows to view more details and take action on a connection.
-
-    If this is overwhelming, try the "by Domain" view. Continue to learn how to enable it.
-  nextKey: networkMonitor-App-Focus-connection-history-filter
-
-networkMonitor-App-Focus-connection-history-filter:
-  title: Connections Filter
-  content: |
-    This drop-down allow you to switch between different views and filter connections by properties.
-
 ########################
 ### Global Settings Page
 
@@ -229,41 +83,6 @@ globalSettings:
 
 #########################
 ### Per-App Settings Page
-
-AppsList:
-  title: List Of Apps
-  content: |
-    If any of your installed apps on your system tries to make
-    a connection, it will be added to this list.
-  nextKey: AppsList-Recently-Used # Skip AppsList-Active as not always present.
-
-AppsList-Active:
-  title: Active
-  content: |
-    Programs and apps that have active network connections.
-    Connections that are active right now.
-  buttons:
-    - name: Show Monitor
-      action:
-        Type: open-page
-        Payload: monitor
-
-AppsList-Recently-Used:
-  title: Recently Used
-  content: |
-    Programs and apps that have been active in the last week.
-  nextKey: AppsList-Apps # Skip AppsList-Recently-Edited as not always present.
-
-AppsList-Recently-Edited:
-  title: Recently Edited
-  content: |
-    User that changed a setting in the last week within the app settings.
-
-AppsList-Apps:
-  title: Apps
-  content: |
-    Apps that has made a connection at some point of time and now will be
-    added to this list for future monitoring. (Everything else)
 
 appSettings:
   title: App Settings
