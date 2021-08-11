@@ -10,6 +10,7 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { FaIconLibrary, FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { far } from '@fortawesome/free-regular-svg-icons';
 import { fas } from '@fortawesome/free-solid-svg-icons';
+import { faGithub } from '@fortawesome/free-brands-svg-icons';
 import { MarkdownModule } from 'ngx-markdown';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
@@ -62,7 +63,9 @@ import { ScrollingModule } from '@angular/cdk/scrolling';
 import { ConnectionsViewComponent, ScopeGroupContentComponent, UngroupedConnectionContentComponent, UngroupedConnectionRowComponent, ConnectionExpertisePipe, ConnectionLocationPipe, CanUseRulesPipe, IsBlockedConnectionPipe } from './shared/connections-view';
 import { IndicatorComponent } from './shared/action-indicator';
 import { ExitScreenComponent } from './shared/exit-screen/exit-screen';
-import { ExitConfirmComponent } from './shared/exit-screen';
+import { ConfirmDailogComponent, DialogComponent } from './shared/dialog';
+import { SupportPageComponent } from './pages/support';
+import { SupportFormComponent } from './pages/support/form';
 
 @NgModule({
   declarations: [
@@ -135,7 +138,10 @@ import { ExitConfirmComponent } from './shared/exit-screen';
     IsBlockedConnectionPipe,
     IndicatorComponent,
     ExitScreenComponent,
-    ExitConfirmComponent,
+    DialogComponent,
+    ConfirmDailogComponent,
+    SupportPageComponent,
+    SupportFormComponent,
   ],
   imports: [
     BrowserModule,
@@ -208,5 +214,6 @@ import { ExitConfirmComponent } from './shared/exit-screen';
 export class AppModule {
   constructor(library: FaIconLibrary) {
     library.addIconPacks(fas, far);
+    library.addIcons(faGithub)
   }
 }

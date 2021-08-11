@@ -1,3 +1,7 @@
+:host {
+  display: block;
+}
+
 caption {
   @apply text-sm;
   opacity  : .6;
@@ -26,6 +30,12 @@ caption {
     font-size: 0.75rem;
     flex-grow: 1;
     opacity  : .6;
+    max-width: 300px;
+  }
+
+  .message~input {
+    margin-top: 0.5rem;
+    font-size : 95%;
   }
 
   .close-icon {
@@ -44,14 +54,25 @@ caption {
     margin-top     : 1rem;
     width          : 100%;
     display        : flex;
-    justify-content: space-between;
+    justify-content: flex-end;
     align-items    : center;
 
     button {
-      @apply bg-info-blue;
+      &:not(:last-child) {
+        margin-right: 0.5rem;
+      }
+
+      &:not(.outline) {
+        @apply bg-info-blue;
+      }
 
       &.danger {
         @apply bg-info-red;
+      }
+
+      &.outline {
+        @apply border;
+        @apply border-buttons-dark;
       }
     }
 
