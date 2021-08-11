@@ -79,6 +79,9 @@ export class TipUpTriggerDirective implements OnDestroy {
   get offset() { return this._defaultOffset }
   private _defaultOffset = 20;
 
+  @Input('tipUpPlacement')
+  placement: TipupPlacement | null = null;
+
   @HostListener('click', ['$event'])
   onClick(event?: MouseEvent): Promise<any> {
     if (!!event) {
@@ -98,7 +101,7 @@ export class TipUpTriggerDirective implements OnDestroy {
     }
 
     let anchorElement: ElementRef<any> | HTMLElement | null = this.defaultAnchor || this.elementRef;
-    let placement: TipupPlacement | undefined = undefined;
+    let placement: TipupPlacement | null = this.placement;
 
     if (!!this.anchor) {
       if (this.anchor instanceof TipUpAnchorDirective) {
@@ -141,17 +144,32 @@ export class TipUpTriggerDirective implements OnDestroy {
     class="tipup"
     [tipUpTrigger]="key"
     [tipUpDefaultAnchor]="parent"
+    [tipUpPlacement]="placement"
     [tipUpAnchorRef]="anchor"></fa-icon>`,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class TipUpIconComponent {
+export class TipUpIconComponent implements TipupPlacement {
   @Input()
   key: string = '';
 
-  @Input('anchor')
+  @Input()
   anchor: ElementRef<any> | HTMLElement | null = null;
 
+  @Input('placement')
+  origin: 'left' | 'right' = 'right';
+
+  @Input()
+  set offset(v: any) {
+    this._offset = coerceNumberProperty(v);
+  }
+  get offset() { return this._offset; }
+  private _offset: number = 10;
+
   constructor(private elementRef: ElementRef<any>) { }
+
+  get placement(): TipupPlacement {
+    return this
+  }
 
   get parent(): HTMLElement | null {
     return (this.elementRef?.nativeElement as HTMLElement)?.parentElement;
@@ -226,7 +244,7 @@ export class TipUpService {
     anchor: HTMLElement | ElementRef<any>,
     key: string,
     origin?: TipUpTriggerDirective,
-    opts: TipupPlacement = {},
+    opts: TipupPlacement | null = {},
     injector?: Injector): DialogRef<TipUpComponent> {
 
     console.log("anchor", anchor);
