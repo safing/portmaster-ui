@@ -119,7 +119,7 @@ networkRatingSwitch:
 
     Easily configure settings for different environments. When changing the "Network Rating" in the top left all settings will immediately adjust to your preferences.
 
-    - **Off**: This setting is completely turned off and not enforced anywhere
+    - **Off**: This setting is completely turned off and is never enforced
     - **Danger**: This setting is only enforced when you set your Network Rating to "Danger"
     - **Untrusted**: This setting is both enforced in the "Danger" _AND_ in the "Untrusted" environment
     - **Trusted**: This setting is active all the time, in all three Network Ratings
