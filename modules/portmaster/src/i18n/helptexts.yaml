@@ -39,7 +39,7 @@ uiMode:
 ### Sidedash
 
 pilot-widget-NetworkRating:
-  title: Rating Your Network
+  title: Network Rating
   content: |
     Some features and settings of the Portmaster behave differently, depending on the environment.
 
