@@ -24,10 +24,9 @@ myKey:
 uiMode:
   title: UI Mode
   content: |
-    The UI Mode lets you switch between different view of the Portmaster UI.
+    Quickly change the amount of settings and information shown.
 
-    Do you want to keep things simple, or want to see *all* the details?
-    It's up to you.
+    Hidden settings are still in effect. After closing the User Interface it changes back to the default.
   buttons:
     - name: Change Default UI Mode
       action:
@@ -41,33 +40,42 @@ uiMode:
 pilot-widget-NetworkRating:
   title: Network Rating
   content: |
-    Some features and settings of the Portmaster behave differently, depending on the environment.
+    Control your privacy even when connecting to new networks.
 
-    In order to help the Portmaster provide the most adequate protection, please select "Trusted", "Untrusted" or "Danger" according to the situation you are in.<br>
-    Continue to learn about these different levels.
+    In the Portmaster you configure settings to be active in one environment but not in the other, like allowing sensitive connections at home but not at the public library.
+
+    The only thing you have to do is to change the network rating whenever you connect to a different network.
   nextKey: pilot-widget-NetworkRating-Trusted
 
 pilot-widget-NetworkRating-Trusted:
-  title: Trusted Rating
+  title: "Network Rating: Trusted"
   content: |
-    This rating is for when you expect a network to be secure and help protect you.<br>
-    In most cases, you will use this for your network at home or at friends.
+    You trust the current network to be secure and protect you.
+
+    Examples:
+     - your home network
+     - network of a trusted friends
   nextKey: pilot-widget-NetworkRating-Untrusted
 
 pilot-widget-NetworkRating-Untrusted:
-  title: Untrusted Rating
+  title: "Network Rating: Untrusted"
   content: |
-    Use this when you are unsure about the security of a network.
-    A hotel or café WiFi is the best example for this.
+    You do not trust the current network and question if it will keep you secure and private.
+
+    Examples:
+     - public WiFi of a coffeeshop, a library, a train, a hotel, ...
+     - network of a non-tech-savvy relative
   nextKey: pilot-widget-NetworkRating-Danger
 
 pilot-widget-NetworkRating-Danger:
-  title: Danger Rating
+  title: "Network Rating: Danger"
   content: |
-    This rating is for emergencies, when you have a reasonable suspicion that the network is hacked or otherwise hostile to you.
+    You think that the current network is hacked or otherwise hostile to you.
 
-    The Portmaster will become over-protective in this mode, which might also break functionality of apps or render them useless. Please note that some settings cannot be turned off for the Danger Rating in order to ensure a secure baseline that is always available to you and cannot be misconfigured.
-  nextKey: uiMode
+    Examples:
+     - something suspicious is going on in your home network
+
+    <small>_Note: In the "Danger" rating the Portmaster will become very protective. This might break functionality of apps or render them useless._</small>
 
 ########################
 ### Global Settings Page
@@ -75,11 +83,9 @@ pilot-widget-NetworkRating-Danger:
 globalSettings:
   title: Global Settings
   content: |
-    The Global settings is what is used to determine what is the
-    default settings for all apps.
+    Here you can set system-wide preferences and configure default rules for all your apps and connections.
 
-    Any settings you have changed in any app settings will override
-    the Global settings that has been changed by you.
+    It is easy to create a stricter global ruleset and then create exceptions in the app settings, which override the global default.
 
 #########################
 ### Per-App Settings Page
@@ -87,23 +93,20 @@ globalSettings:
 appSettings:
   title: App Settings
   content: |
-    By default the settings that are set in the global settings
-    will be used by the app by default. If you change the app
-    settings, it will override the global settings for that
-    specific app.
-  nextKey: appSettings-Filter
+    Here you can configure app-specific settings which override the global settings.
+
+    It is easy to create a stricter global ruleset and then create exceptions in the app settings, which override the global default.
 
 appSettings-Filter:
   title: Display Mode
   content: |
-    This allows you to easily change the view of settings.
+    Quickly change what settings are displayed:
 
-    View Active (Default):<br>
-    This shows only the settings that you have activated.
+    **View Active:**<br>
+    Only show app-specific settings which override the global default.
 
-    View All:<br>
-    This shows all the settings that you activated and not
-    activated.
+    **View All:**<br>
+    Show all settings. App-specific settings which override the global default are highlighted.
 
 #########################
 ### Configuration Options
@@ -111,25 +114,18 @@ appSettings-Filter:
 networkRatingSwitch:
   title: Network Rating Switch
   content: |
-    These switches allow you to enable the selected setting for the
-    network rating levels. Ie, Trusted, Untrusted and Danger.
+    Choose in which environment(s) this setting should be enforced.
 
-    - **Enabled** *(Green)*  <br />
-      The setting is enabled for that network rating level.
+    Easily configure settings for different environments. When changing the "Network Rating" in the top left all settings will immediately adjust to your preferences.
 
-    - **Disabled** *(Gray)* <br />
-      The setting is disabled for that network rating level.
+    - **Off**: This setting is completely turned off and not enforced anywhere
+    - **Danger**: This setting is only enforced when you set your Network Rating to "Danger"
+    - **Untrusted**: This setting is both enforced in the "Danger" _AND_ in the "Untrusted" environment
+    - **Trusted**: This setting is active all the time, in all three Network Ratings
 
-    - **Off** *(Red)* <br />
-      The setting is off for all network rating levels. <br />
-      (Note: Not all network level settings can be fully turned off in
-      order to provide a protective baseline for the danger level)
-    Off(Red)
-    The setting is off for all network rating levels.
-    (Note: Not all network level settings can be fully turned off in
-    order to provide a protective baseline for the danger level)
+    <small>_Note: Not all settings can be fully turned "Off" in order to provide a protective baseline for the "Danger" environment_</small>
   buttons:
-    - name: Learn how to rate your network
+    - name: Learn how to Change Your Network Rating
       action:
         Type: open-page
         Payload: settings
