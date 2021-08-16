@@ -137,7 +137,7 @@ pilot-widget-NetworkRating-Untrusted:
 pilot-widget-NetworkRating-Danger:
   title: "Network Rating: Danger"
   content: |
-    You think that the current network is hacked or otherwise hostile to you.
+    You think that the current network is hacked or otherwise hostile towards you.
 
     Examples:
      - something suspicious is going on in your home network
@@ -277,13 +277,13 @@ support-page-related-issues:
 networkRatingSwitch:
   title: Network Rating Switch
   content: |
-    Choose in which environment(s) this setting should be enforced.
+    Choose in which environment(s) this setting should be enabled.
 
     Easily configure settings for different environments. When changing the "Network Rating" in the top left all settings will immediately adjust to your preferences.
 
-    - **Off**: This setting is completely turned off and is never enforced
-    - **Danger**: This setting is only enforced when you set your Network Rating to "Danger"
-    - **Untrusted**: This setting is both enforced in the "Danger" _AND_ in the "Untrusted" environment
+    - **Off**: This setting is completely turned off and is never enabled
+    - **Danger**: This setting is only enabled when you set your Network Rating to "Danger"
+    - **Untrusted**: This setting is both enabled in the "Danger" _AND_ in the "Untrusted" environment
     - **Trusted**: This setting is active all the time, in all three Network Ratings
 
     <small>_Note: Not all settings can be fully turned "Off" in order to provide a protective baseline for the "Danger" environment_</small>
