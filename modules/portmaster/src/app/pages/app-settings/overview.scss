@@ -36,7 +36,8 @@
 .scrollable-header{
 
   @apply bg-background;
-  @apply pb-2;
+  @apply pt-4;
+  @apply pb-1;
   width   : 100%;
   position: sticky;
   top     : 0px;

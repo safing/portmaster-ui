@@ -87,9 +87,12 @@
     </div>
   </div>
 
-  <div *ngIf="page?.ghIssuePreset" class="issue-list">
+  <div *ngIf="page?.ghIssuePreset" class="issue-list" tipUpAnchor="left">
     <div class="page-title">
-      <h1>Related Issues</h1>
+      <h1>
+        Related Issues
+        <app-tipup key="support-page-related-issues"></app-tipup>
+      </h1>
     </div>
     <p class="prologue secondary-text">
       Public known issues that are related to your title.

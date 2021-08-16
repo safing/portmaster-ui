@@ -1,26 +1,80 @@
-#############
+###########
 ### Example
-#############
-# 
-# myKey:
-#   title: Tipup Example
-#   content: |
-#     This is the Markdown formatted content.
-# 
-#     This is a super cool, new feature that you will love!
-#     It even supports markdown features like:
-#     - order lists
-#     - with multiple items
-# 
-#     And :rocket: emojis
-# 
-#     ### :tada: :facepalm:
-#   url: https://docs.safing.io
-#   urlText: Show me!
-#   nextKey: navMonitor
+
+myKey:
+  title: Tipup Example
+  content: |
+    This is the Markdown formatted content.
+
+    This is a super cool, new feature that you will love!
+    It even supports markdown features like:
+    - order lists
+    - with multiple items
+
+    And :rocket: emojis
+
+    ### :tada: :facepalm:
+  url: https://docs.safing.io
+  urlText: Show me!
+  nextKey: navMonitor
+
 
 ##############
 ### Navigation
+
+intro:
+  title: Learn about Portmaster
+  content: |
+    Icons like the one you just clicked can be found everywhere in the Portmaster. Click them to learn how the Portmaster works.
+
+    Some of these "Tip Ups" will also give you the option to jump to the next one in order to tour an element or page, like this:
+  nextKey: navMonitor
+
+navMonitor:
+  title: Network Monitor
+  content: |
+    Monitor network connections of all active applications.
+  nextKey: navApps
+  buttons:
+    - name: Take the tour
+      action:
+        Type: open-page
+        Payload: monitor
+      nextKey: networkMonitor
+
+navApps:
+  title: Per-App Settings
+  content: |
+    Configure per-app Portmaster settings.
+  nextKey: navSettings
+  buttons:
+    - name: Take the tour
+      action:
+        Type: open-page
+        Payload: apps
+      nextKey: appsTitle
+
+navSettings:
+  title: Global Settings
+  content: |
+    Configure global Portmaster settings.
+  nextKey: navSupport
+  buttons:
+    - name: Take the tour
+      action:
+        Type: open-page
+        Payload: settings
+      nextKey: globalSettings
+
+navSupport:
+  title: Get Help
+  content: |
+    Report a bug or suggest a feature.
+  buttons:
+    - name: Open Page
+      action:
+        Type: open-page
+        Payload: support
 
 uiMode:
   title: UI Mode
@@ -35,8 +89,20 @@ uiMode:
         Payload:
           Key: "core/expertiseLevel"
 
+
 ############
 ### Sidedash
+
+pilot-widget:
+  title: Portmaster Status
+  content: |
+    This shield gives you a quick indication of the status of the Portmaster.
+
+    🟢: All good.<br>
+    🟡: Something is off, please investigate.<br>
+    🔴: Dangerous condition, respond immediately.
+  
+    This color is also displayed as part of the icon the system tray.
 
 pilot-widget-NetworkRating:
   title: Network Rating
@@ -78,6 +144,79 @@ pilot-widget-NetworkRating-Danger:
 
     <small>_Note: In the "Danger" rating the Portmaster will become very protective. This might break functionality of apps or render them useless._</small>
 
+# TODO
+# prompt-widget:
+#   title: Prompts
+#   content: |
+#     This is where you can more easily control the
+#     connections for the specific app for the time being.
+
+#     How to use? In App settings, search for "Default Action"
+#     and set it to "Prompt".
+
+#     Note: Don't set the "Prompt" setting in your browser,
+#     you will be spammed. You have been warned.
+#   nextKey: notification-widget
+
+# TODO
+# notification-widget:
+#   title: Notifications
+#   content: |
+#     This informs you with what's going on with portmaster.
+#     Ie, Updates, Errors, Warring etc
+
+
+########################
+### Network Monitor Page
+
+networkMonitor:
+  title: Network Monitor
+  content: |
+    View connections of every application that was active on the network in the last 10 minutes.
+
+# TODO: Wait for overview to be more useful.
+# networkMonitor-Overview:
+#   title: Monitor Overview
+#   content: |
+#     This is just a placeholder for the meantime, but this is
+#     just the Network Monitor with 3 stats on it.
+
+# TODO: Wait for revamp of status indication.
+# networkMonitor-App:
+#   title: App Activity
+#   content: |
+#     There are 3 colours. Ie, Green, Red, Gray.
+
+#     Allowed(Green)
+#     The colour green shows that all the connections are allowed in
+#     the app.
+
+#     Blocked(Red)
+#     The colour red shows that all the connections are blocked in
+#     the app.
+
+#     Allowed/Blocked(Gray)
+#     The colour gray shows that some connections are
+#     allowed and blocked in the app.
+
+networkMonitor-App-Focus-connection-history:
+  title: Connection History
+  content: |
+    View connection of an application as they happen.
+    If the live-mode is not enabled, a refresh button lets you refresh the view.
+
+    In the individual connection view (the default), every row in the table below is one connection.
+    You can click the rows to view more details and take action on a connection.
+    
+    If this is overwhelming, try the "by Domain" view. Continue to learn how to enable it.
+  nextKey: networkMonitor-App-Focus-connection-history-filter
+
+networkMonitor-App-Focus-connection-history-filter:
+  title: Connections Filter
+  content: |
+    This drop-down allows you to switch between different views and filter connections by properties.
+
+
 ########################
 ### Global Settings Page
 
@@ -88,8 +227,20 @@ globalSettings:
 
     It is easy to create a stricter global ruleset and then create exceptions in the app settings, which override the global default.
 
+
 #########################
 ### Per-App Settings Page
+
+appsTitle:
+  title: Apps
+  content: |
+    Every application that the Portmaster once saw being active on the network is listed here.
+
+    Apps are categorized and only appear in the first category they match:
+    - **Active:** Apps that are currently active on the network are visible in the network monitor.
+    - **Recently Used:** Apps that were active some time within the last week.
+    - **Recently Edited:** Apps, whose settings were edited within the last week.
+    - **Other:** All other apps.
 
 appSettings:
   title: App Settings
@@ -97,6 +248,7 @@ appSettings:
     Here you can configure app-specific settings which override the global settings.
 
     It is easy to create a stricter global ruleset and then create exceptions in the app settings, which override the global default.
+  nextKey: appSettings-Filter
 
 appSettings-Filter:
   title: Display Mode
@@ -108,6 +260,16 @@ appSettings-Filter:
 
     **View All:**<br>
     Show all settings. App-specific settings which override the global default are highlighted.
+
+
+#########################
+### Support Page
+
+support-page-related-issues:
+  title: Private Issue Search
+  content: |
+    In order to not leak any sensitive data, known issues are only searched locally and are downloaded via our support system, in order to not expose you to GitHub.
+
 
 #########################
 ### Configuration Options

@@ -5,8 +5,8 @@
 
 <div class="header-title">
   <h1>
-    Apps
-    <app-tipup key="AppsList"></app-tipup>
+    All Apps
+    <app-tipup key="appsTitle"></app-tipup>
   </h1>
 </div>
 
@@ -16,7 +16,6 @@
     <div class="scrollable-header">
       <h4>
         Active
-        <app-tipup key="AppsList-Active"></app-tipup>
       </h4>
     </div>
     <ng-container *ngTemplateOutlet="profileList; context: {$implicit: runningProfiles}"></ng-container>
@@ -26,7 +25,6 @@
     <div class="scrollable-header">
       <h4>
         Recently Used
-        <app-tipup key="AppsList-Recently-Used"></app-tipup>
       </h4>
     </div>
     <ng-container *ngTemplateOutlet="profileList; context: {$implicit: recentlyUsed}"></ng-container>
@@ -36,7 +34,6 @@
     <div class="scrollable-header">
       <h4>
         Recently Edited
-        <app-tipup key="AppsList-Recently-Edited"></app-tipup>
       </h4>
     </div>
     <ng-container *ngTemplateOutlet="profileList; context: {$implicit: recentlyEdited}"></ng-container>
@@ -45,8 +42,7 @@
   <ng-container *ngIf="profiles.length > 0">
     <div class="scrollable-header">
       <h4>
-        Apps
-        <app-tipup key="AppsList-Apps"></app-tipup>
+        Other
       </h4>
     </div>
     <ng-container *ngTemplateOutlet="profileList; context: {$implicit: profiles}"></ng-container>
