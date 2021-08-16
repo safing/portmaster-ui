@@ -52,7 +52,7 @@
       </div>
 
       <p class="prologue secondary-text">
-        The following logs will be sent together with your report. Please check them and remove sensitive information. The debug information sent with your reports will be saved on Safing's PrivateBin server and is automatically destroyed after one month.
+        The following logs will be sent together with your report. Please check them and remove potentially sensitive information. The debug information sent with your reports will be saved on Safing's self-hosted pastebin server and is viewable via its created url. The data is automatically destroyed after one month.
       </p>
       <div class="debug-header">
         <div class="pl-4 secondary-text">
@@ -63,18 +63,6 @@
       </div>
       <textarea [(ngModel)]="debugData" rows="8"></textarea>
     </ng-template>
-
-    <div class="gh-author" *ngIf="!!page?.ghIssuePreset">
-      <div class="input-wrapper">
-        <input [(ngModel)]="haveGhAccount" (ngModelChange)="onModelChange()" type="checkbox" id="haveGhAccount">
-      </div>
-      <label for="haveGhAccount">
-        <span class="primary-text">Use my GitHub account for this issue (a new browser window will
-          open).</span><br />
-        If you do not want to use your own GitHub account you can still report the
-        issue privately but then we will not be able to contact you through GitHub.
-      </label>
-    </div>
 
     <div class="actions">
       <button *ngIf="!!page?.ghIssuePreset" class="primary" (click)="createOnGithub()">
