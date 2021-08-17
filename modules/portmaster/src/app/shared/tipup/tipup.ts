@@ -146,6 +146,13 @@ export class TipUpTriggerDirective implements OnDestroy {
     [tipUpDefaultAnchor]="parent"
     [tipUpPlacement]="placement"
     [tipUpAnchorRef]="anchor"></fa-icon>`,
+  styles: [
+    `
+      :host {
+        display: inline-block;
+      }
+      `
+  ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class TipUpIconComponent implements TipupPlacement {

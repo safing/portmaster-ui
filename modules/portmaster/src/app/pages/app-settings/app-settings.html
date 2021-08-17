@@ -96,14 +96,18 @@
         </h1>
       </div>
 
-      <app-dropdown [ngModel]="viewSetting" (ngModelChange)="viewSettingChange.next($event)" tipUpTrigger="appSettings-Filter" tipUpAnchor="left" tipUpPassive>
-        <app-dropdown-item *dropDownValue="'all'">
-          View All
-        </app-dropdown-item>
-        <app-dropdown-item *dropDownValue="'active'">
-          View Active
-        </app-dropdown-item>
-      </app-dropdown>
+      <div tipUpAnchor="left">
+        <app-tipup key="appSettings-Filter"></app-tipup>
+        <app-dropdown [ngModel]="viewSetting" (ngModelChange)="viewSettingChange.next($event)"
+          tipUpTrigger="appSettings-Filter" tipUpAnchor="left" tipUpPassive>
+          <app-dropdown-item *dropDownValue="'all'">
+            View All
+          </app-dropdown-item>
+          <app-dropdown-item *dropDownValue="'active'">
+            View Active
+          </app-dropdown-item>
+        </app-dropdown>
+      </div>
     </h2>
 
     <ng-container *ngIf="settings.length > 0; else: noSettingsTemplate">

@@ -1,5 +1,5 @@
 :host {
-  display: block;
+  display: inline-block;
   width  : fit-content;
 
   &:disabled {
@@ -10,39 +10,39 @@
 }
 
 button {
-  cursor        : pointer;
-  padding       : 0;
-  position      : relative;
-  width         : fit-content;
-  white-space   : nowrap;
-  display       : flex;
-  align-items   : center;
-  outline       : none;
-  text-transform: none;
-  transition: all cubic-bezier(0.175, 0.885, 0.32, 1) .2s;
+  cursor          : pointer;
+  padding         : 0;
+  position        : relative;
+  width           : fit-content;
+  white-space     : nowrap;
+  display         : flex;
+  align-items     : center;
+  outline         : none;
+  text-transform  : none;
+  transition      : all cubic-bezier(0.175, 0.885, 0.32, 1) .2s;
   background-color: #292929;
-  align-self: center;
+  align-self      : center;
 
   &.active {
     @apply bg-buttons-dark;
-    
+
     .arrow .arrow-icon {
-      transform : rotate(-90deg);
+      transform: rotate(-90deg);
     }
   }
 
   span {
-    flex-grow : 1;
-    text-align: center;
-    padding-left: 0.8rem;
+    flex-grow    : 1;
+    text-align   : center;
+    padding-left : 0.8rem;
     padding-right: 0.8rem;
   }
 
   .arrow {
-    padding-top: 0.415rem;
-    padding-bottom: 0.425rem;
-    padding-left: 0.2rem;
-    padding-right: 0.1rem;
+    padding-top     : 0.415rem;
+    padding-bottom  : 0.425rem;
+    padding-left    : 0.2rem;
+    padding-right   : 0.1rem;
     background-color: #202020;
     @apply rounded-r-sm;
     display        : flex;
@@ -50,17 +50,17 @@ button {
     justify-content: space-around;
 
     .arrow-icon {
-      width: 1.1rem;
-      float  : right;
-      padding: 0;
-      margin : 0;
-      transform: rotateZ(90deg);
+      width     : 1.1rem;
+      float     : right;
+      padding   : 0;
+      margin    : 0;
+      transform : rotateZ(90deg);
       transition: all ease-in-out .1s;
-  
+
       .inner {
         stroke: white;
       }
-     
+
     }
   }
 }

@@ -2,6 +2,10 @@ app-settings-overview {
   @apply pb-4;
 }
 
+app-tipup {
+  margin-right: 0.5rem;
+}
+
 h1 {
   @apply my-6;
   display    : flex;
@@ -62,7 +66,7 @@ h2.app-settings {
   display        : flex;
   justify-content: space-between;
   align-items    : center;
-  padding-left: 3rem;
+  padding-left   : 3rem;
 
   app-dropdown {
     margin-right: 0.5em;
@@ -71,10 +75,10 @@ h2.app-settings {
   .header-title {
     display: inline-flex;
 
-    fa-icon[icon*="question-circle"]{
-      align-self: center;
+    fa-icon[icon*="question-circle"] {
+      align-self : center;
       margin-left: 0.35rem;
-      font-size: 0.8rem;
+      font-size  : 0.8rem;
     }
 
   }
@@ -116,7 +120,7 @@ h2.app-settings {
 }
 
 .app-overview {
-  margin-left: calc(34px + 1rem);
+  margin-left : calc(34px + 1rem);
   margin-right: 1rem;
 }
 
