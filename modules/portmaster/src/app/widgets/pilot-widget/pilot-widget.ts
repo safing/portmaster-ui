@@ -1,4 +1,4 @@
-import { Component, OnInit, Inject, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, Inject, ChangeDetectionStrategy, ChangeDetectorRef, ElementRef } from '@angular/core';
 import { combineLatest } from 'rxjs';
 import { FailureStatus, SecurityLevel, StatusService, Subsystem } from 'src/app/services';
 import { WIDGET_CONFIG, WidgetConfig } from '../widget.types';

@@ -4,6 +4,16 @@
   justify-content: space-between;
   align-items    : center;
 
+  .header-title {
+    display: flex;
+  
+    fa-icon[icon*="question-circle"]{
+      margin-left: 0.35rem;
+      align-items: center;
+      display: flex;
+    }
+  }
+
   .actions {
     display        : flex;
     justify-content: space-between;

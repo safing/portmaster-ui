@@ -1,7 +1,11 @@
-<div class="sidebar no-scroll">
+<div tipUpAnchor class="sidebar no-scroll">
   <div class="sidebar-header">
     <div class="row" [class.search-active]="!!(onSearch | async) || showSearch">
-      <h4>Network Monitor <span>(last 10min)</span></h4>
+      <h4>
+        Network Monitor
+        <app-tipup key="networkMonitor"></app-tipup>
+        <br><span>last 10 minutes</span>
+      </h4>
       <div class="search-container">
         <div class="search-button" (click)="toggleSearch()">
           <div class="search">
@@ -31,13 +35,15 @@
   </div>
 
   <div class="scrollable" [@moveInOutList]="profiles.length">
-    <li class="card-header overview" routerLink="/monitor/profile/overview/overview" routerLinkActive="active">
+    <li class="card-header overview" routerLink="/monitor/profile/overview/overview" routerLinkActive="active"
+      tipUpTrigger="networkMonitor-Overview" tipUpAnchor tipUpPassive>
       Overview
     </li>
     <ng-container>
       <ng-container *ngFor="let data of profiles; trackBy: trackProfile">
         <li class="card-header" *appExpertiseLevel="data.size === 0 ? 'developer' : 'user'"
-          [routerLink]="['/', 'monitor', 'profile', data.Source, data.ID]" routerLinkActive="active">
+          [routerLink]="['/', 'monitor', 'profile', data.Source, data.ID]" routerLinkActive="active"
+          tipUpTrigger="networkMonitor-App" tipUpAnchor tipUpPassive>
           <app-icon [profile]="data"></app-icon>
           <span class="card-title">{{ data.Name }}</span>
           <app-count-indicator [count]="data.size" [risk]="data.blockStatus">

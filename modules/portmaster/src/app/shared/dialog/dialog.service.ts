@@ -1,15 +1,26 @@
-import { Overlay, OverlayConfig } from '@angular/cdk/overlay';
+import { Overlay, OverlayConfig, OverlayPositionBuilder, PositionStrategy } from '@angular/cdk/overlay';
 import { ComponentPortal, ComponentType, TemplatePortal } from '@angular/cdk/portal';
-import { ComponentRef, EmbeddedViewRef, Injectable, Injector } from '@angular/core';
+import { ComponentRef, ElementRef, EmbeddedViewRef, Injectable, Injector } from '@angular/core';
 import { filter, take, takeUntil } from 'rxjs/operators';
 import { ConfirmDailogComponent, ConfirmDialogConfig, CONFIRM_DIALOG_CONFIG } from './confirm.dialog';
 import { DialogComponent } from './dialog.container';
 import { DialogRef, DIALOG_REF } from './dialog.ref';
 
 export interface BaseDialogConfig {
+  /** whether or not the dialog should close on outside-clicks and ESC */
   autoclose?: boolean;
-  backdrop?: boolean;
+
+  /** whether or not a backdrop should be visible */
+  backdrop?: boolean | 'light';
+
+  /** whether or not the dialog should be dragable */
   dragable?: boolean;
+
+  /**
+   * optional position strategy for the overlay. if omitted, the
+   * overlay will be centered on the screen
+   */
+  positionStrategy?: PositionStrategy;
 }
 
 export interface ComponentPortalConfig {
@@ -24,18 +35,34 @@ export class DialogService {
     private overlay: Overlay,
   ) { }
 
+  position(): OverlayPositionBuilder {
+    return this.overlay.position();
+  }
+
   create<T>(template: TemplatePortal<T>, opts?: BaseDialogConfig): DialogRef<EmbeddedViewRef<T>>;
   create<T>(target: ComponentType<T>, opts?: BaseDialogConfig & ComponentPortalConfig): DialogRef<ComponentRef<T>>;
   create<T>(target: ComponentType<T> | TemplatePortal<T>, opts: BaseDialogConfig & ComponentPortalConfig = {}): DialogRef<any> {
+    let position: PositionStrategy = opts?.positionStrategy || this.overlay
+      .position()
+      .global()
+      .centerVertically()
+      .centerHorizontally();
+
+    let hasBackdrop = true;
+    let backdropClass = 'dialog-screen-backdrop';
+    if (opts.backdrop !== undefined) {
+      if (opts.backdrop === false) {
+        hasBackdrop = false;
+      } else if (opts.backdrop === 'light') {
+        backdropClass = 'dialog-screen-backdrop-light';
+      }
+    }
+
     const cfg = new OverlayConfig({
       scrollStrategy: this.overlay.scrollStrategies.noop(),
-      positionStrategy: this.overlay
-        .position()
-        .global()
-        .centerVertically()
-        .centerHorizontally(),
-      hasBackdrop: opts.backdrop === undefined ? true : opts.backdrop,
-      backdropClass: 'dialog-screen-backdrop'
+      positionStrategy: position,
+      hasBackdrop: hasBackdrop,
+      backdropClass: backdropClass,
     });
     const overlayref = this.overlay.create(cfg);
 

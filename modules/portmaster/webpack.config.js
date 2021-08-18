@@ -1,3 +1,5 @@
+const path = require("path");
+
 // Uses ngx-build-plus to add tailwindcss support
 module.exports = {
   module: {
@@ -16,7 +18,7 @@ module.exports = {
             ],
           },
         },
-      },
+      }
     ],
   },
 };

@@ -37,4 +37,6 @@ export interface WidgetDefinition<T> {
   widgetComponent: Type<any>;
   /* Disable custom user widgets of this type */
   disableCustom?: boolean;
+  /* Help Key defines the key for the widget-tip-up */
+  tipUpKey?: string;
 }

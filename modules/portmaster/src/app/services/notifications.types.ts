@@ -31,7 +31,18 @@ export interface OpenURLAction extends BaseAction {
 
 export interface OpenPageAction extends BaseAction {
   Type: 'open-page';
-  Payload: string;
+  Payload: keyof typeof PageIDs;
+}
+
+/**
+ * PageIDs holds a list of pages that can be opened using
+ * the OpenPageAction.
+ */
+export const PageIDs = {
+  'monitor': '/monitor',
+  'support': '/support',
+  'settings': '/settings',
+  'apps': '/app/overview'
 }
 
 export interface OpenSettingAction extends BaseAction {
@@ -70,6 +81,13 @@ export type Action = GenericAction
   | OpenProfileAction
   | WebhookAction
   | ActionHandler<any>;
+
+/** All action types that perform in-application routing. */
+export const routingActions = new Set<Action['Type']>([
+  'open-page',
+  'open-profile',
+  'open-setting'
+])
 
 /**
  * Available types of notifications. Notification

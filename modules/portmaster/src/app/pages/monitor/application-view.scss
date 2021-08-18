@@ -27,6 +27,15 @@ ol.layers {
   }
 }
 
+
+.header-title {
+  display: flex;
+
+  fa-icon[icon*="question-circle"]{
+    margin-left: 0.35rem;
+  }
+}
+
 h1 {
   margin-top   : 1.7rem;
   margin-bottom: 1.5rem;

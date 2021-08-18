@@ -29,6 +29,11 @@
     }
   }
 
+  div.first-tipup {
+    margin-top : 2.5rem;
+    margin-left: 3px;
+  }
+
   div.nav-list {
     display        : flex;
     flex-direction : column;
@@ -60,7 +65,8 @@
     & {
       outline: none;
 
-      svg {
+      svg,
+      fa-icon {
         opacity: .5;
       }
     }
@@ -69,19 +75,23 @@
     &.active {
       background-color: #2c2c2c;
 
-      svg {
+      svg,
+      fa-icon {
         opacity  : 1;
         transform: scale(1.08);
       }
     }
 
     &:hover {
-      svg {
+
+      svg,
+      fa-icon {
         opacity: 1;
       }
     }
 
-    svg {
+    svg,
+    fa-icon {
 
       &.dash,
       &.spn,

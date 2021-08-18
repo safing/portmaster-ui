@@ -3,29 +3,48 @@
   <app-expertise></app-expertise>
 </div>
 
-<div class="header">
-  <h1>Apps</h1>
+<div class="header-title">
+  <h1>
+    All Apps
+    <app-tipup key="appsTitle"></app-tipup>
+  </h1>
 </div>
 
 <div class="scrollable" [@fadeInList]="total">
 
   <ng-container *ngIf="runningProfiles.length > 0">
-    <h4>Active</h4>
+    <div class="scrollable-header">
+      <h4>
+        Active
+      </h4>
+    </div>
     <ng-container *ngTemplateOutlet="profileList; context: {$implicit: runningProfiles}"></ng-container>
   </ng-container>
 
   <ng-container *ngIf="recentlyUsed.length > 0">
-    <h4>Recently Used</h4>
+    <div class="scrollable-header">
+      <h4>
+        Recently Used
+      </h4>
+    </div>
     <ng-container *ngTemplateOutlet="profileList; context: {$implicit: recentlyUsed}"></ng-container>
   </ng-container>
 
   <ng-container *ngIf="recentlyEdited.length > 0">
-    <h4>Recently Edited</h4>
+    <div class="scrollable-header">
+      <h4>
+        Recently Edited
+      </h4>
+    </div>
     <ng-container *ngTemplateOutlet="profileList; context: {$implicit: recentlyEdited}"></ng-container>
   </ng-container>
 
   <ng-container *ngIf="profiles.length > 0">
-    <h4>Apps</h4>
+    <div class="scrollable-header">
+      <h4>
+        Other
+      </h4>
+    </div>
     <ng-container *ngTemplateOutlet="profileList; context: {$implicit: profiles}"></ng-container>
   </ng-container>
 

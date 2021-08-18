@@ -1,3 +1,22 @@
+.header-title {
+  display: flex;
+  width: 100%;
+  padding-left: 3rem;
+  padding-right: 1.25rem;
+  margin-bottom: 0.5rem;
+  align-items: center;
+  height: 3rem;
+  flex-shrink: 0;
+
+  h1{
+    flex-grow: unset;
+  }
+
+  fa-icon[icon*="question-circle"]{
+    margin-left: 0.35rem;
+  }
+}
+
 .card-title.meta {
   div {
     display: inline-block;

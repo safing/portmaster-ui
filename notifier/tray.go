@@ -83,7 +83,7 @@ func onReady() {
 
 	// menu: network rating
 
-	menuItemRateNetwork := systray.AddMenuItem("Rate your network", "")
+	menuItemRateNetwork := systray.AddMenuItem("Rate Your Network", "")
 	menuItemRateNetwork.Disable()
 
 	// TODO: Enable when auto detection is available.

@@ -23,10 +23,14 @@
         transform="translate(-127.99 .1)"></path>
     </g>
   </svg>
+  
+  <div class="first-tipup">
+    <app-tipup key="intro"></app-tipup>
+  </div>
 </div>
 
 <div class="nav-list">
-  <div routerLinkActive="active" routerLink="monitor" class="link">
+  <div routerLinkActive="active" routerLink="monitor" class="link" tipUpTrigger="navMonitor" tipUpPassive>
     <svg viewBox="0 0 24 24" class="monitor">
       <g fill="none" class="inner">
         <path shape-rendering="geometricPrecision" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -36,7 +40,7 @@
       </g>
     </svg>
   </div>
-  <div routerLinkActive="active" routerLink="app" class="link">
+  <div routerLinkActive="active" routerLink="app" class="link" tipUpTrigger="navApps" tipUpPassive>
     <svg viewBox="0 0 24 24" class="app">
       <g fill="none" class="inner">
         <path shape-rendering="geometricPrecision" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -50,7 +54,7 @@
       </g>
     </svg>
   </div>
-  <div routerLinkActive="active" routerLink="settings" class="link">
+  <div routerLinkActive="active" routerLink="settings" class="link" tipUpTrigger="navSettings" tipUpPassive>
     <svg viewBox="0 0 24 24" class="settings">
       <g fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="inner">
         <path shape-rendering="geometricPrecision"
@@ -60,7 +64,7 @@
       </g>
     </svg>
   </div>
-  <div routerLink="support" routerLinkActive="active" class="link">
+  <div routerLink="support" routerLinkActive="active" class="link" tipUpTrigger="navSupport" tipUpPassive>
     <fa-icon [icon]="['far', 'question-circle']"></fa-icon>
   </div>
 </div>

@@ -1,4 +1,5 @@
 <div class="buttons">
-    <ng-content></ng-content>
+  <ng-content></ng-content>
+  <app-tipup *ngIf="!!tipUpKey" [key]="tipUpKey" [anchor]="host"></app-tipup>
 </div>
 <span #marker class="marker" (mousedown)="dragStarted($event)"></span>

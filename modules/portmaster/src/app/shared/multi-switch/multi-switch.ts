@@ -33,6 +33,9 @@ export class MultiSwitchComponent<T> implements OnDestroy, AfterViewInit, Contro
   /** Subscription to the key manager */
   private keyManagerSub = Subscription.EMPTY;
 
+  @Input()
+  tipUpKey: string = '';
+
   /** All buttons projected into the multi-switch */
   @ContentChildren(SwitchItemComponent)
   buttons: QueryList<SwitchItemComponent<T>> | null = null;

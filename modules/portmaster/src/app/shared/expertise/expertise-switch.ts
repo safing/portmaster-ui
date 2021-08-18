@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, ElementRef, OnInit } from '@angular/core';
 import { ExpertiseService } from './expertise.service';
 import { ExpertiseLevel } from 'src/app/services';
 
@@ -13,15 +13,18 @@ export class ExpertiseComponent {
 
   currentLevel = this.expertiseService.change;
 
-  /** 
-   * @private 
+  /**
+   * @private
    * Getter to access the expertise level as saved in the database
    */
   get savedLevel() {
     return this.expertiseService.savedLevel;
   }
 
-  constructor(private expertiseService: ExpertiseService) { }
+  constructor(
+    private expertiseService: ExpertiseService,
+    public host: ElementRef<any>,
+  ) { }
 
   /**
    * @private

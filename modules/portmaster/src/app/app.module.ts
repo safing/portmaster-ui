@@ -66,6 +66,7 @@ import { ExitScreenComponent } from './shared/exit-screen/exit-screen';
 import { ConfirmDailogComponent, DialogComponent } from './shared/dialog';
 import { SupportPageComponent } from './pages/support';
 import { SupportFormComponent } from './pages/support/form';
+import { TipUpAnchorDirective, TipUpComponent, TipUpTriggerDirective, TipUpIconComponent } from './shared/tipup';
 
 @NgModule({
   declarations: [
@@ -142,6 +143,10 @@ import { SupportFormComponent } from './pages/support/form';
     ConfirmDailogComponent,
     SupportPageComponent,
     SupportFormComponent,
+    TipUpAnchorDirective,
+    TipUpTriggerDirective,
+    TipUpComponent,
+    TipUpIconComponent,
   ],
   imports: [
     BrowserModule,
@@ -186,6 +191,7 @@ import { SupportFormComponent } from './pages/support/form';
         name: 'Pilot',
         widgetComponent: PilotWidgetComponent,
         disableCustom: true,
+        tipUpKey: "pilot-widget"
       },
       multi: true,
     },

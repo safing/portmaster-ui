@@ -173,8 +173,8 @@ export class SupportFormComponent implements OnInit, OnDestroy {
       this.dialog.confirm({
         canCancel: true,
         caption: 'Caution',
-        header: 'Create Without Github Account',
-        message: 'We will create the Github issue for you but without knowing your Github account we will not be able to contact you for further information. How would you like to continue?',
+        header: 'Create Issue on GitHub',
+        message: 'You can easily create the issue with your own GitHub account. Or create the GitHub issue privately, but then we will have no way to communicate with you for further information.',
         buttons: [
           { id: 'createWithout', text: 'Create Without Account', class: 'outline' },
           { id: 'openGithub', text: 'Use My Account' },
