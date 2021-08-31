@@ -139,17 +139,31 @@ export class TipUpTriggerDirective implements OnDestroy {
 
 @Component({
   selector: 'app-tipup',
-  template: `<fa-icon
-    [icon]="['far', 'question-circle']"
+  template:
+    `<svg viewBox="0 0 24 24" 
     class="tipup"
     [tipUpTrigger]="key"
     [tipUpDefaultAnchor]="parent"
     [tipUpPlacement]="placement"
-    [tipUpAnchorRef]="anchor"></fa-icon>`,
+    [tipUpAnchorRef]="anchor">
+    <g fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" >
+      <path stroke="#ffff" shape-rendering="geometricPrecision" d="M12 21v0c-4.971 0-9-4.029-9-9v0c0-4.971 4.029-9 9-9v0c4.971 0 9 4.029 9 9v0c0 4.971-4.029 9-9 9z"/>
+      <path stroke="#ffff" shape-rendering="geometricPrecision" d="M12 17v-5h-1M11.749 8c-.138 0-.25.112-.249.25 0 .138.112.25.25.25s.25-.112.25-.25-.112-.25-.251-.25"/>
+    </g>
+  </svg>`,
   styles: [
     `
       :host {
-        display: inline-block;
+        display: inline-flex;
+        width   : 1rem;
+        position: relative;
+        opacity: 0.55;
+        cursor  : pointer;
+        align-self: center;
+      }
+
+      :host:hover {
+        opacity: 1;
       }
       `
   ],

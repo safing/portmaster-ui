@@ -11,9 +11,8 @@
           <circle cx="9.93" cy="17.93" r="1.93" />
         </svg>
       </div>
-      <app-tipup *ngIf="!!widget.definition.tipUpKey" [key]="widget.definition.tipUpKey"></app-tipup>
-      <fa-icon class="edit-icon" *ngIf="!!widget.definition.settingsComponent || expertise === 'developer'" icon="pen"
-        routerLink="/widget/edit/{{widget.key}}"></fa-icon>
+      <app-tipup style="padding-bottom: .25rem; margin-left: 1px;" *ngIf="!!widget.definition.tipUpKey" [key]="widget.definition.tipUpKey"></app-tipup>
+      <fa-icon class="edit-icon" *ngIf="!!widget.definition.settingsComponent || expertise === 'developer'" icon="pen" routerLink="/widget/edit/{{widget.key}}"></fa-icon>
     </div>
     <ng-container [cdkPortalOutlet]="widget.portal"></ng-container>
 

@@ -241,7 +241,7 @@ $transition-duration : .0s;
 
 .search-active {
   h4 {
-    display: none;
+    display: none !important;
   }
 
   input[type="text"] {
