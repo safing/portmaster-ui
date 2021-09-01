@@ -11,22 +11,18 @@
           <div class="search">
             <svg viewBox="0 0 24 24">
               <g fill="none">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
-                  d="M15.7138 6.8382c2.45093 2.45093 2.45093 6.42467 0 8.8756-2.45093 2.45093-6.42467 2.45093-8.8756 0-2.45093-2.45093-2.45093-6.42467 0-8.8756 2.45093-2.45093 6.42467-2.45093 8.8756 0M19 19l-3.29-3.29" />
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15.7138 6.8382c2.45093 2.45093 2.45093 6.42467 0 8.8756-2.45093 2.45093-6.42467 2.45093-8.8756 0-2.45093-2.45093-2.45093-6.42467 0-8.8756 2.45093-2.45093 6.42467-2.45093 8.8756 0M19 19l-3.29-3.29" />
               </g>
             </svg>
           </div>
         </div>
 
-        <input spellcheck="false" type="text" placeholder="Search Monitor" [ngModel]="(onSearch | async)"
-          (ngModelChange)="search($event)" (keydown)="onSearchKeyDown($event)"
-          [autoFocus]="!!(onSearch | async) || showSearch">
+        <input spellcheck="false" type="text" placeholder="Search Monitor" [ngModel]="(onSearch | async)" (ngModelChange)="search($event)" (keydown)="onSearchKeyDown($event)" [autoFocus]="!!(onSearch | async) || showSearch">
 
         <div class="times" (click)="toggleSearch()">
           <svg viewBox="0 0 24 24">
             <g fill="none">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.7"
-                d="M14.83 9.17l-5.66 5.66M14.83 14.83L9.17 9.17" />
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.7" d="M14.83 9.17l-5.66 5.66M14.83 14.83L9.17 9.17" />
             </g>
           </svg>
         </div>
@@ -35,18 +31,15 @@
   </div>
 
   <div class="scrollable" [@moveInOutList]="profiles.length">
-    <li class="card-header overview" routerLink="/monitor/profile/overview/overview" routerLinkActive="active"
-      tipUpTrigger="networkMonitor-Overview" tipUpAnchor tipUpPassive>
+    <li class="card-header overview" routerLink="/monitor/profile/overview/overview" routerLinkActive="active" tipUpTrigger="networkMonitor-Overview" tipUpAnchor tipUpPassive>
       Overview
     </li>
     <ng-container>
       <ng-container *ngFor="let data of profiles; trackBy: trackProfile">
-        <li class="card-header" *appExpertiseLevel="data.size === 0 ? 'developer' : 'user'"
-          [routerLink]="['/', 'monitor', 'profile', data.Source, data.ID]" routerLinkActive="active"
-          tipUpTrigger="networkMonitor-App" tipUpAnchor tipUpPassive>
+        <li class="card-header" *appExpertiseLevel="data.size === 0 ? 'developer' : 'user'" [routerLink]="['/', 'monitor', 'profile', data.Source, data.ID]" routerLinkActive="active" tipUpTrigger="networkMonitor-App" tipUpAnchor tipUpPassive>
           <app-icon [profile]="data"></app-icon>
-          <span class="card-title">{{ data.Name }}</span>
-          <app-count-indicator [count]="data.size" [risk]="data.blockStatus">
+          <span class="card-title">{{ data.Name }} </span>
+          <app-count-indicator [count]="data.size" [countAllowed]="data.countAllowed">
           </app-count-indicator>
         </li>
       </ng-container>
