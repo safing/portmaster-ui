@@ -40,8 +40,8 @@
       <ng-container *ngFor="let data of profiles; trackBy: trackProfile">
         <li class="card-header" *appExpertiseLevel="data.size === 0 ? 'developer' : 'user'" [routerLink]="['/', 'monitor', 'profile', data.Source, data.ID]" routerLinkActive="active" tipUpTrigger="networkMonitor-App" tipUpAnchor tipUpPassive>
           <app-icon [profile]="data"></app-icon>
-          <span class="card-title">{{ data.Name }}</span>
-          <app-count-indicator [count]="data.size" [risk]="data.blockStatus">
+          <span class="card-title">{{ data.Name }} </span>
+          <app-count-indicator [count]="data.size" [countAllowed]="data.countAllowed">
           </app-count-indicator>
         </li>
       </ng-container>
