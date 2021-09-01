@@ -1,6 +1,4 @@
-import { coerceBooleanProperty } from '@angular/cdk/coercion';
 import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
-import { RiskLevel } from '../../services';
 
 @Component({
   selector: 'app-count-indicator',
@@ -12,15 +10,11 @@ export class CountIndicatorComponent {
   @Input()
   count: number = 0;
 
-  @Input()
-  set loading(v: any) {
-    this._showLoading = coerceBooleanProperty(v);
-  }
-  get loading() {
-    return this._showLoading;
-  }
-  private _showLoading = false;
+  allowedPercentage: number = 0;
 
   @Input()
-  risk: RiskLevel = RiskLevel.Off;
+  set countAllowed(v: number) {
+    var ratio = v / this.count;
+    this.allowedPercentage = Math.round(ratio * 100);
+  }
 }
