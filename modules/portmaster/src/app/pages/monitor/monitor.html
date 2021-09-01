@@ -1,11 +1,13 @@
 <div tipUpAnchor class="sidebar no-scroll">
   <div class="sidebar-header">
     <div class="row" [class.search-active]="!!(onSearch | async) || showSearch">
-      <h4 style="display: flex;">
-        Network Monitor
-        <app-tipup style="margin-left: 0.5rem;" key="networkMonitor"></app-tipup>
-        <!-- <br><span>last 10 minutes</span> -->
-      </h4>
+      <div>
+        <h4>
+          Network Monitor
+          <app-tipup key="networkMonitor"></app-tipup>
+        </h4>
+        <span>last 10 minutes</span>
+      </div>
       <div class="search-container">
         <div class="search-button" (click)="toggleSearch()">
           <div class="search">

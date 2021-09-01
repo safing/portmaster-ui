@@ -34,16 +34,25 @@ div.sidebar {
     align-items    : center;
     flex-wrap      : nowrap;
 
-    h4 {
-      @apply py-3;
-      flex-grow    : 1;
-      overflow     : hidden;
-      white-space  : nowrap;
-      text-overflow: ellipsis;
-      font-size    : 0.775rem;
-      font-weight  : 500;
-      color        : #cacaca;
+    div {
+      @apply pb-3;
 
+      h4 {
+        @apply pt-3;
+        flex-grow    : 1;
+        overflow     : hidden;
+        white-space  : nowrap;
+        text-overflow: ellipsis;
+        font-size    : 0.775rem;
+        font-weight  : 500;
+        color        : #cacaca;
+        display: flex;
+        
+        app-tipup{
+          margin-left: 0.5rem;
+        }
+      }
+  
       span {
         font-size: 0.6rem;
         opacity  : 0.55;
