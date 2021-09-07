@@ -31,7 +31,8 @@
 
   div.first-tipup {
     margin-top : 2.5rem;
-    margin-left: 3px;
+    display: flex;
+    justify-content: center;
   }
 
   div.nav-list {
