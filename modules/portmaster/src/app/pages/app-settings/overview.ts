@@ -31,7 +31,7 @@ export class AppOverviewComponent implements OnInit, OnDestroy {
   /** All application profiles that have been edited recently */
   recentlyEdited: AppProfile[] = [];
 
-  /** All non-running application profiles */
+  /** All application profiles */
   profiles: AppProfile[] = [];
 
   /** The current search term */
@@ -109,9 +109,10 @@ export class AppOverviewComponent implements OnInit, OnDestroy {
                 this.recentlyUsed.push(profile);
               } else if (profile.LastEdited >= recentlyUsedThreshold) {
                 this.recentlyEdited.push(profile);
-              } else {
-                this.profiles.push(profile);
               }
+
+              // we always add the profile to "All Apps"
+              this.profiles.push(profile);
             });
 
           this.changeDetector.markForCheck();
