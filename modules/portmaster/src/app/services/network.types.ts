@@ -155,11 +155,29 @@ export enum ConnectionType {
   DNSRequest = 2
 }
 
+export interface CertInfo<dateType extends string | Date = string> {
+  Subject: string;
+  Issuer: string;
+  AlternateNames: string[];
+  NotBefore: dateType;
+  NotAfter: dateType;
+}
+
+export interface TLSContext {
+  Version: string;
+  VersionRaw: number;
+  SNI: string;
+  Chain: CertInfo[][];
+}
+
 export interface Connection extends Record {
   // ID is a unique ID for the connection.
   ID: string;
   // Type defines the connection type.
   Type: ConnectionType;
+  // TLS may holds additional data for the TLS
+  // session.
+  TLS: TLSContext | null;
   // Scope defines the scope of the connection. It's an somewhat
   // weired field that may contain a ScopeIdentifier or a string.
   // In case of a string it may eventually be interpreted as a

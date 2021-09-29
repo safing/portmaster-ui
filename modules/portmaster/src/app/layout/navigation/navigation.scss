@@ -12,6 +12,11 @@
     position: relative;
     width   : 1.53rem;
     @apply mt-6;
+
+    &,
+    &:active {
+      outline: none;
+    }
   }
 
   svg {

@@ -27,7 +27,7 @@
 <div class="content" cdkScrollable>
   <fa-icon icon="spinner" [spin]="true" *ngIf="loading"></fa-icon>
 
-  <div class="settings" *ngIf="!loading" [@fadeIn]>
+  <div class="settings" *ngIf="!loading">
     <!-- actual settings -->
     <ng-container *ngFor="let subsys of subsystems; trackBy: statusService.trackSubsystem">
       <ng-template [appExpertiseLevel]="subsys.minimumExpertise" [appExpertiseLevelData]="subsys"
@@ -48,7 +48,8 @@
               <div *appExpertiseLevel="setting.ExpertiseLevel; data: setting; overwrite: mustShowSetting"
                 [class.highlighted]="highlightKey === setting.Key">
                 <app-generic-setting [setting]="setting" [attr.id]="setting.Key" [resetLabelText]="resetLabelText"
-                  (onSave)="saveSetting($event)" [lockDefaults]="lockDefaults" [displayStackable]="displayStackable">
+                  (onSave)="saveSetting($event, setting)" [lockDefaults]="lockDefaults"
+                  [displayStackable]="displayStackable">
                 </app-generic-setting>
               </div>
             </ng-container>
@@ -64,7 +65,7 @@
       <div class="category">
         <ng-container *ngFor="let setting of others; trackBy: configService.trackBy">
           <app-generic-setting *appExpertiseLevel="setting.ExpertiseLevel; data: setting; overwrite: mustShowSetting"
-            [setting]="setting" [resetLabelText]="resetLabelText" (onSave)="saveSetting($event)"
+            [setting]="setting" [resetLabelText]="resetLabelText" (onSave)="saveSetting($event, setting)"
             [lockDefaults]="lockDefaults" [displayStackable]="displayStackable">
           </app-generic-setting>
         </ng-container>

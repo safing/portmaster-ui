@@ -61,15 +61,7 @@ export class ConnectionHelperService {
    * @param conn The connection object
    */
   getVerdictClass(conn: Connection): string {
-    switch (conn.Verdict) {
-      case Verdict.Accept:
-        return 'low';
-      case Verdict.Block:
-      case Verdict.Drop:
-        return 'high';
-      default:
-        return 'medium';
-    }
+    return Verdict[conn.Verdict].toLocaleLowerCase();
   }
 
   /**

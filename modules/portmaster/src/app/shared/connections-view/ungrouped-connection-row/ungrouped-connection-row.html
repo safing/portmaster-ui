@@ -5,9 +5,10 @@
     </g>
   </svg>
   <div class="scope">
-    <span class="trust-level centered" [ngClass]="helper.getVerdictClass(conn)"></span>
+    <span class="verdict centered" [class.outdated]="isOutdated" [ngClass]="helper.getVerdictClass(conn)"></span>
 
-    <ng-container *ngIf="conn.Entity?.Domain as domain; then scopeLabel; else scopeTranslation"></ng-container>
+    <ng-container *ngIf=" conn.Entity?.Domain as domain; then scopeLabel; else scopeTranslation">
+    </ng-container>
     <ng-template #scopeLabel let-domain>
       <app-scope-label leftRightFix="true" [scope]="domain">
       </app-scope-label>
@@ -47,8 +48,7 @@
   </span>
   <div class="reason">
     <ng-container>
-      <fa-icon [icon]="['far', 'clock']" class="old-revision"
-        *ngIf="conn.ProfileRevisionCounter !== helper.profile?.currentProfileRevision"></fa-icon>
+      <fa-icon [icon]="['far', 'clock']" class="old-revision" *ngIf="isOutdated"></fa-icon>
     </ng-container>
     <ng-container *ngIf="conn.Reason.OptionKey as option">
       <span class="de-emphasize applied">applied</span>

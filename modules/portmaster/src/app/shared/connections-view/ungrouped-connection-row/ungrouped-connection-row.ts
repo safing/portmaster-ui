@@ -2,6 +2,7 @@ import { ChangeDetectionStrategy, ChangeDetectorRef, Component, HostListener, In
 import { interval, Subscription } from "rxjs";
 import { startWith, share } from "rxjs/operators";
 import { Connection } from "src/app/services";
+import { InspectedProfile } from "src/app/services/connection-tracker.service";
 import { ConnectionHelperService } from "../connection-helper.service";
 
 @Component({
@@ -18,6 +19,20 @@ export class UngroupedConnectionRowComponent implements OnInit, OnDestroy {
   get conn() { return this._conn; }
   _conn: Connection | null = null;
 
+  @Input()
+  activeRevision: number | undefined = 0;
+
+  get isOutdated() {
+    if (!this.conn || !this.helper.profile) {
+      return false;
+    }
+    if (this.helper.profile.currentProfileRevision === -1) {
+      // we don't know the revision counter yet ...
+      return false;
+    }
+    return this.conn.ProfileRevisionCounter !== this.helper.profile.currentProfileRevision;
+  }
+
   /* timeAgoTicker ticks every 10000 seconds to force a refresh
      of the timeAgo pipes */
   timeAgoTicker: number = 0;
@@ -26,7 +41,7 @@ export class UngroupedConnectionRowComponent implements OnInit, OnDestroy {
 
   constructor(
     public helper: ConnectionHelperService,
-    private changeDetectorRef: ChangeDetectorRef
+    private changeDetectorRef: ChangeDetectorRef,
   ) { }
 
   ngOnInit() {

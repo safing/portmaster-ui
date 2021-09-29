@@ -1,8 +1,9 @@
-import { Injectable } from '@angular/core';
-import { BehaviorSubject, forkJoin, Observable, of, Subject, Subscription } from 'rxjs';
+import { Injectable, isDevMode } from '@angular/core';
+import { BehaviorSubject, combineLatest, forkJoin, Observable, of, Subject, Subscription } from 'rxjs';
 import { bufferTime, catchError, filter, map, startWith, switchMap, tap } from 'rxjs/operators';
 import { ExpertiseService } from '../shared/expertise/expertise.service';
-import { binaryInsert, parseDomain } from '../shared/utils';
+import { SnapshotPaginator } from '../shared/types';
+import { binaryInsert, binarySearch, parseDomain } from '../shared/utils';
 import { AppProfileService } from './app-profile.service';
 import { AppProfile, LayeredProfile } from './app-profile.types';
 import { ExpertiseLevel } from './config.types';
@@ -191,6 +192,22 @@ export class ProcessGroup {
   }
 }
 
+/** Sort function for connections that sorts then by most recent. */
+export const SortByMostRecent = (a: Connection, b: Connection) => {
+  let diff = a.Started - b.Started;
+  if (diff !== 0) {
+    return diff;
+  }
+
+  if (a.ID > b.ID) {
+    return 1;
+  }
+  if (a.ID < b.ID) {
+    return -1;
+  }
+  return 0;
+}
+
 export class ScopeGroup {
   /** Domain holds the eTLD+1 of the scope group, if any */
   public readonly domain: string | null;
@@ -203,78 +220,24 @@ export class ScopeGroup {
    *  in the scope group */
   public readonly stats = new ConnectionStatistics();
 
+  public readonly pagination: SnapshotPaginator<Connection>;
+
   /** Connections is a list of all connections that belong
    *  to the scope. */
   private _connections: Connection[] = [];
 
-  /** Connections is a list of connections that belong
-   *  to the scope but have been verdicted with a stale profile.
-   */
-  private _oldConnections: Connection[] = [];
-
-  /** An behavior subject to emit the current set of connections
-   *  that are attributed to this scope group. */
-  private _connectionUpdate = new BehaviorSubject<Connection[]>([]);
-
-  /** An behavior subject to emit the current set of old-connections
-   *  that are attributed to this scope group. */
-  private _oldConnectionUpdate = new BehaviorSubject<Connection[]>([]);
+  private _snapshot = new Subject<Connection[]>();
 
   /** The current block status of the scope group. */
   private _blockStatus: RiskLevel = RiskLevel.Off;
 
-  /** Subscription to changes in the expertise level */
-  private _expertiseSubscription = Subscription.EMPTY;
 
-  /** Sort function for connections that sorts then by most recent. */
-  public static readonly SortByMostRecent = (a: Connection, b: Connection) => {
-    let diff = a.Started - b.Started;
-    if (diff !== 0) {
-      return diff;
-    }
-
-    if (a.ID > b.ID) {
-      return 1;
-    }
-    if (a.ID < b.ID) {
-      return -1;
-    }
-    return 0;
-  }
-
-  /**
-   * Highest revision holds the highest profile revision used to verdict
-   * a connection.
-   */
-  highestRevision: number = 0;
 
   /** Holds the current block status of the scope group */
   get blockStatus() {
     return this._blockStatus;
   }
 
-  /** An observable that emits all connections that belong to the
-   *  scope group. */
-  get connections() {
-    return this._connectionUpdate.asObservable();
-  }
-
-  /**
-   * True if there are still old connections that have been verdicted
-   * using a stale profile.
-   */
-  hasOldConnections = false;
-
-  /**
-   * True if there are new (non-internal) connections.
-   */
-  hasNewConnections = false;
-
-  /** An observable that emits all old-connections that belong to the
-   *  scope group. */
-  get oldConnections() {
-    return this._oldConnectionUpdate.asObservable();
-  }
 
   /** Empty returns true if the scope group is empty */
   get empty() {
@@ -283,12 +246,11 @@ export class ScopeGroup {
 
   /** Size returns the number of (non-internal) connections */
   get size() {
-    return this._connections.length + this._oldConnections.length - this.stats.countInternal;
+    return this._connections.length - this.stats.countInternal;
   }
 
   constructor(
     public readonly scope: string,
-    private expertiseService: ExpertiseService,
   ) {
     this.domain = null;
     this.subdomain = null;
@@ -300,10 +262,11 @@ export class ScopeGroup {
       Object.assign(this, parseDomain(this.scope));
     }
 
-    // We republish the connections whenever the expertise changes.
-    this._expertiseSubscription = this.expertiseService.change.subscribe(
-      () => this.publishConnections()
-    )
+    this.pagination = new SnapshotPaginator(this._snapshot, 25);
+  }
+
+  publish() {
+    this._snapshot.next([...this._connections]);
   }
 
   /**
@@ -316,20 +279,19 @@ export class ScopeGroup {
   add(conn: Connection) {
     this.stats.update(conn);
 
-    // check if the connection has a high revision counter than
-    // we know of.
-    this.checkRevisionCounter(conn.ProfileRevisionCounter, true);
+    binaryInsert(this._connections, conn, SortByMostRecent);
 
-    if (conn.ProfileRevisionCounter === this.highestRevision) {
-      //this._connections.push(conn);
-      binaryInsert(this._connections, conn, ScopeGroup.SortByMostRecent)
-    } else {
-      //this._oldConnections.push(conn);
-      binaryInsert(this._oldConnections, conn, ScopeGroup.SortByMostRecent)
+    // since this might be an update we might also need to perform an inline update
+    // if conn is part of the current pagination page:
+    const pgIdx = binarySearch(this.pagination.pageItems, conn, SortByMostRecent);
+    if (pgIdx >= 0) {
+      console.log(`${this.scope}: inline update for current page`);
+      const newItems = [...this.pagination.snapshot];
+      newItems[pgIdx] = conn;
+      this._snapshot.next(newItems);
     }
 
     this.updateBlockStatus();
-    this.publishConnections();
   }
 
   /**
@@ -337,72 +299,19 @@ export class ScopeGroup {
    * the statistics and block-status.
    *
    * @param conn The connection to remove
+   * @param update Whether or not remove() is called as a part of a connection update.
    */
-  remove(conn: Connection) {
+  remove(conn: Connection, update: boolean = false) {
     this.stats.remove(conn);
 
-    if (conn.ProfileRevisionCounter === this.highestRevision) {
-      this._connections = this._connections
-        .filter(c => c.ID !== conn.ID);
-    } else {
-      this._oldConnections = this._oldConnections
-        .filter(c => c.ID !== conn.ID);
-    }
+    this._connections = this._connections
+      .filter(c => c.ID !== conn.ID);
+
+    // we don't remove connections from the current
+    // pagination page so no need to care about
+    // inline updates here.
 
     this.updateBlockStatus();
-    this.publishConnections();
-  }
-
-  /** Dispose the scope group an all associated resources. */
-  dispose() {
-    this._connectionUpdate.complete();
-    this._connections = [];
-    this._expertiseSubscription.unsubscribe();
-  }
-
-  /**
-   * Check the highest known revision counter againts newRec
-   * and updates the internal revision and connections arrays
-   * accordingly.
-   *
-   * @param newRev The new revision counter
-   * @param internal True if called from the scope-group itself.
-   */
-  checkRevisionCounter(newRev: number, internal = false) {
-    if (newRev > this.highestRevision) {
-      // we have a new "highest" revision counter
-      // so merge all "current" connections with the old ones
-      // and start fresh.
-      this.highestRevision = newRev;
-      this._oldConnections = this._oldConnections.concat(this._connections);
-      this._connections = [];
-
-      if (!internal) {
-        this.publishConnections();
-      }
-    }
-  }
-
-  /** Filter and publish a list of connection on a given subject */
-  private filterAndPublish(conns: Connection[], subj: Subject<Connection[]>) {
-    subj.next(
-      conns
-        .filter(conn => {
-          if (this.expertiseService.currentLevel === ExpertiseLevel.Developer) {
-            return true;
-          }
-          return !conn.Internal;
-        })
-    );
-  }
-
-  /** Publish all old-rev and current-rev connections */
-  private publishConnections() {
-    this.hasOldConnections = this._oldConnections.length > 0 && this._oldConnections.some(conn => conn.Ended === 0);
-    this.hasNewConnections = this._connections.length > 0 && this._connections.some(conn => !conn.Internal);
-
-    this.filterAndPublish(this._connections, this._connectionUpdate);
-    this.filterAndPublish(this._oldConnections, this._oldConnectionUpdate);
   }
 
   /**
@@ -463,12 +372,6 @@ export class InspectedProfile {
 
   /** Emits whenever that is an update to a profile connection */
   private _connUpdate = new Subject<ConnectionUpdateEvent>();
-
-  /**
-   * True if the inspected profile has still old connections
-   * that have been verdicted using a stale profile.
-   */
-  hasOldConnections = false;
 
   /** The current profile revision */
   get currentProfileRevision() {
@@ -543,50 +446,10 @@ export class InspectedProfile {
     return this._connections.values();
   }
 
-  /**
-   * Returns an array of all connections associated with this
-   * profile sorted in a requested order.
-   */
-  sortedAndFiltered(filterFunc?: (c: Connection) => boolean): Observable<Connection[]> {
-    return new Observable(observer => {
-      let updateSubscription = this.connectionUpdates
-        .pipe(
-          bufferTime(1000),
-          filter(updates => updates.length > 0),
-          startWith(-1),
-        )
-        .subscribe(() => {
-          let result: Connection[] = [];
-          let iterator = this._connections.values();
-
-          filterFunc = filterFunc || (() => true);
-
-          // there might be hundrets or even thousands of connections
-          // for this profile so we do an inserationSort instead of iterating
-          // the set multiple times with Array.from(iterator).sort()
-          for (let c of iterator) {
-            if (!filterFunc(c)) {
-              continue
-            }
-            binaryInsert(result, c, ScopeGroup.SortByMostRecent);
-          }
-
-          observer.next(result);
-        })
-
-
-      return () => {
-        console.log("Unsubscribed")
-        updateSubscription.unsubscribe();
-      };
-    });
-  }
-
   constructor(
     public readonly processGroup: ProcessGroup,
     private readonly portapi: PortapiService,
     private readonly profileService: AppProfileService,
-    private readonly expertiseService: ExpertiseService,
   ) {
     this._profileSubscription = new Subscription();
     // subscribe to all new connections published by the
@@ -616,20 +479,10 @@ export class InspectedProfile {
       )
       .subscribe(([appProfile, layers]) => {
         this._profileChanges.next(appProfile);
-        const prevProfileRevision = this.currentProfileRevision;
         this._layeredProfile = layers;
 
         // Make sure to copy the new name to our process group.
         this.processGroup.setName(appProfile.Name);
-
-        // if it changed, update all scope-groups with the new revision counter
-        if (this.currentProfileRevision > prevProfileRevision) {
-          this.hasOldConnections = false;
-
-          this._scopeGroups.forEach(grp => {
-            grp.checkRevisionCounter(this.currentProfileRevision);
-          });
-        }
       });
 
     this._profileSubscription.add(updateSub);
@@ -680,8 +533,6 @@ export class InspectedProfile {
 
     this._connections.clear();
     this._connUpdate.complete();
-
-    this._scopeGroups.forEach(grp => grp.dispose());
     this._scopeGroups.clear();
   }
 
@@ -750,14 +601,13 @@ export class InspectedProfile {
 
     const grp = this._scopeGroups.get(conn.Scope);
     if (!!grp) {
-      grp.remove(conn);
+      grp.remove(conn, update);
 
       // if the group is now empty, we're not loading and
       // we are not currenlty processing a connection update
       // then we can delete it.
-      if (grp.empty && !this.loading && !update) {
+      if (grp.empty && !this.loading) {
         this._scopeGroups.delete(conn.Scope);
-        grp.dispose();
         this.publishScopes('deleted');
       }
     }
@@ -777,7 +627,7 @@ export class InspectedProfile {
   private getOrCreateScopeGroup(conn: Connection): ScopeGroup {
     let grp = this._scopeGroups.get(conn.Scope);
     if (!grp) {
-      grp = new ScopeGroup(conn.Scope, this.expertiseService);
+      grp = new ScopeGroup(conn.Scope);
       this._scopeGroups.set(conn.Scope, grp);
 
       this.publishScopes('added');
@@ -903,7 +753,6 @@ export class ConnTracker {
   constructor(
     private portapi: PortapiService,
     private profileService: AppProfileService,
-    private expertiseService: ExpertiseService
   ) {
     const stream = this.portapi.request(
       'qsub',
@@ -1004,7 +853,6 @@ export class ConnTracker {
       profile,
       this.portapi,
       this.profileService,
-      this.expertiseService
     );
     this._inspectedProfileChange.next(this._inspectedProfile);
   }

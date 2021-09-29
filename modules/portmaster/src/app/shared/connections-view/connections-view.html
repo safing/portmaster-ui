@@ -8,13 +8,8 @@
 
   <div class="actions">
 
-    <div *ngIf="countNewConn !== 0 && displayMode == 'ungrouped'" (click)="selectPage(0)" class="reload-notice">
+    <div *ngIf="countNewConn > 0 && !liveMode" (click)="refresh()" class="reload-notice">
       {{ countNewConn > 0 ? countNewConn : '1' }} new connections: Reload
-      <fa-icon icon="redo"></fa-icon>
-    </div>
-
-    <div *ngIf="countNewScopes > 0 && displayMode == 'grouped'" (click)="reload.next()" class="reload-notice">
-      {{ countNewScopes }} new groups: Reload
       <fa-icon icon="redo"></fa-icon>
     </div>
 
@@ -111,54 +106,39 @@
 
   <div *ngSwitchCase="'ungrouped'">
     <!-- Accordion Header Template -->
-    <ng-template #accordionHeader let-conn>
-      <app-ungrouped-connection-row [conn]="conn" class="card-header">
+    <ng-template #accordionHeader let-conn let-active="active">
+      <app-ungrouped-connection-row [conn]="conn" class="card-header" [class.active]="active"
+        [activeRevision]="profile?.currentProfileRevision || 0">
       </app-ungrouped-connection-row>
     </ng-template>
     <!-- End Accordion Header Template -->
 
-    <!-- Pagination template -->
-    <ng-template #pagination>
-      <div class="pagination">
-        <button class="outline" [disabled]="currentPageIdx == 0" (click)="selectPage(this.currentPageIdx - 1)">
-          <fa-icon icon="chevron-left"></fa-icon>
-          Previous
-        </button>
-        <span>
-          <button class="page" *ngFor="let page of pageNumbers" [class.active-page]="page === currentPageIdx + 1"
-            (click)="selectPage(page-1)">{{ page }}</button>
-        </span>
-        <button class="outline" [disabled]="currentPageIdx+1 >= totalPages"
-          (click)="selectPage(this.currentPageIdx + 1)">
-          Next
-          <fa-icon icon="chevron-right"></fa-icon>
-        </button>
-      </div>
-    </ng-template>
-    <!-- End Pagination Template -->
 
+    <app-pagination [source]="pagination">
 
-    <ng-container *ngTemplateOutlet="pagination"></ng-container>
-    <ng-container *ngTemplateOutlet="loadingTemplate"></ng-container>
+      <ng-template [appPaginationContent]>
+        <ng-container *ngTemplateOutlet="loadingTemplate"></ng-container>
 
-    <app-accordion-group [headerTemplate]="accordionHeader" singleMode="false">
-      <ng-container *ngFor="let conn of currentPage; trackBy: trackByConnection">
-        <app-accordion *appExpertiseLevel="conn | connExpertise" [data]="conn" #accordion>
-          <app-ungrouped-connection-content [conn]="conn" *ngIf="accordion.active"></app-ungrouped-connection-content>
-        </app-accordion>
-      </ng-container>
-    </app-accordion-group>
+        <app-accordion-group [headerTemplate]="accordionHeader" singleMode="false">
+          <ng-container *ngFor="let conn of (pagination.pageItems$| async); trackBy: trackByConnection">
+            <app-accordion *appExpertiseLevel="conn | connExpertise" [data]="conn" #accordion>
+              <app-ungrouped-connection-content [conn]="conn" *ngIf="accordion.active">
+              </app-ungrouped-connection-content>
+            </app-accordion>
+          </ng-container>
+        </app-accordion-group>
 
-    <table *ngIf="!filteredUngroupedConnections.length && !ungroupedLoading" class="waiting-connections">
-      <tr>
-        <td>
-          <fa-icon icon="spinner" [spin]="true"></fa-icon>
-          Waiting for connections
-        </td>
-      </tr>
-    </table>
+        <table *ngIf="!filteredUngroupedConnections.length && !ungroupedLoading" class="waiting-connections">
+          <tr>
+            <td>
+              <fa-icon icon="spinner" [spin]="true"></fa-icon>
+              Waiting for connections
+            </td>
+          </tr>
+        </table>
+      </ng-template>
 
-    <ng-container *ngTemplateOutlet="pagination"></ng-container>
+    </app-pagination>
   </div>
 </ng-container>
 

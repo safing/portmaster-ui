@@ -60,13 +60,14 @@ import { ScopeLabelComponent } from './shared/scope-label';
 import { TimeAgoPipe } from './shared/time-ago.pipe';
 import { HttpClientModule } from '@angular/common/http';
 import { ScrollingModule } from '@angular/cdk/scrolling';
-import { ConnectionsViewComponent, ScopeGroupContentComponent, UngroupedConnectionContentComponent, UngroupedConnectionRowComponent, ConnectionExpertisePipe, ConnectionLocationPipe, CanUseRulesPipe, IsBlockedConnectionPipe } from './shared/connections-view';
+import { ConnectionsViewComponent, ScopeGroupContentComponent, UngroupedConnectionContentComponent, UngroupedConnectionRowComponent, ConnectionExpertisePipe, ConnectionLocationPipe, CanUseRulesPipe, IsBlockedConnectionPipe, CanShowConnection as CanShowConnectionPipe } from './shared/connections-view';
 import { IndicatorComponent } from './shared/action-indicator';
 import { ExitScreenComponent } from './shared/exit-screen/exit-screen';
 import { ConfirmDailogComponent, DialogComponent } from './shared/dialog';
 import { SupportPageComponent } from './pages/support';
 import { SupportFormComponent } from './pages/support/form';
 import { TipUpAnchorDirective, TipUpComponent, TipUpTriggerDirective, TipUpIconComponent } from './shared/tipup';
+import { PaginationContentDirective, PaginationWrapperComponent } from './shared/pagination';
 
 @NgModule({
   declarations: [
@@ -136,6 +137,7 @@ import { TipUpAnchorDirective, TipUpComponent, TipUpTriggerDirective, TipUpIconC
     ConnectionExpertisePipe,
     ConnectionLocationPipe,
     CanUseRulesPipe,
+    CanShowConnectionPipe,
     IsBlockedConnectionPipe,
     IndicatorComponent,
     ExitScreenComponent,
@@ -147,6 +149,8 @@ import { TipUpAnchorDirective, TipUpComponent, TipUpTriggerDirective, TipUpIconC
     TipUpTriggerDirective,
     TipUpComponent,
     TipUpIconComponent,
+    PaginationWrapperComponent,
+    PaginationContentDirective,
   ],
   imports: [
     BrowserModule,

@@ -1,7 +1,6 @@
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, Input, OnDestroy, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, Input, OnDestroy, OnInit, TrackByFunction } from '@angular/core';
 import { Subscription } from 'rxjs';
-import { Connection, ScopeTranslation, Verdict } from 'src/app/services';
+import { Connection } from 'src/app/services';
 import { ScopeGroup } from 'src/app/services/connection-tracker.service';
 import { ConnectionHelperService } from '../connection-helper.service';
 
@@ -20,6 +19,9 @@ export class ScopeGroupContentComponent implements OnInit, OnDestroy {
 
   @Input()
   profileId: string = '';
+
+  /** TrackByFunction for connection */
+  trackByConnection: TrackByFunction<Connection> = (_: number, c: Connection | null) => c?.ID;
 
   private _subscription = Subscription.EMPTY;
 

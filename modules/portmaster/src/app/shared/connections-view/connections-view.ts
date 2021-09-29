@@ -1,11 +1,11 @@
 import { coerceBooleanProperty } from '@angular/cdk/coercion';
-import { ThrowStmt } from '@angular/compiler';
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, Input, OnDestroy, OnInit, Output, TrackByFunction } from '@angular/core';
-import { Subject, Subscription } from 'rxjs';
-import { bufferTime, debounceTime, startWith, take, tap } from 'rxjs/operators';
-import { Connection, ExpertiseLevel, IsGlobalScope, IsLocalhost, IsLANScope, ScopeTranslation, Verdict } from 'src/app/services';
-import { ConnectionAddedEvent, InspectedProfile, ScopeGroup } from 'src/app/services/connection-tracker.service';
-import { binaryInsert, binarySearch, pagination } from '../utils';
+import { BehaviorSubject, Subject, Subscription } from 'rxjs';
+import { bufferTime, debounceTime, startWith, take, tap, withLatestFrom } from 'rxjs/operators';
+import { Connection, ExpertiseLevel, IsGlobalScope, IsLANScope, IsLocalhost, ScopeTranslation, Verdict } from 'src/app/services';
+import { ConnectionAddedEvent, InspectedProfile, ScopeGroup, ScopeGroupUpdate, SortByMostRecent } from 'src/app/services/connection-tracker.service';
+import { SnapshotPaginator } from '../types';
+import { binarySearch } from '../utils';
 import { ConnectionHelperService } from './connection-helper.service';
 
 export type ConnectionDisplayMode = 'grouped' | 'ungrouped';
@@ -24,6 +24,7 @@ interface ConnectionFilter {
   providers: [ConnectionHelperService],
 })
 export class ConnectionsViewComponent implements OnInit, OnDestroy {
+
   /** @private
    *  Contants made available for the template.
    */
@@ -51,20 +52,18 @@ export class ConnectionsViewComponent implements OnInit, OnDestroy {
   trackByScope: TrackByFunction<ScopeGroup> = (_: number, g: ScopeGroup) => g.scope;
 
   /** TrackByFunction for connection */
-  trackByConnection: TrackByFunction<Connection | null> = (_: number, c: Connection | null) => c?.ID;
+  trackByConnection: TrackByFunction<Connection> = (_: number, c: Connection | null) => c?.ID;
 
   /** Holds the filtered, ungrouped list of connections */
   filteredUngroupedConnections: Connection[] = [];
 
-  /** Pagination */
-  currentPageIdx = 0;
-  currentPage: Connection[] = [];
-  pageNumbers: number[] = [1];
-  readonly itemsPerPage = 100;
+  /** displayed paginated items */
+  paginatedItems = new BehaviorSubject<Connection[]>([]);
 
-  get totalPages() {
-    return Math.ceil(this.filteredUngroupedConnections.length / this.itemsPerPage);
-  }
+  pagination: SnapshotPaginator<Connection>;
+
+  /** Pagination */
+  readonly pageSize = 100;
 
   get loading() {
     return !this.profile || this.profile.loading || this.ungroupedLoading
@@ -114,9 +113,7 @@ export class ConnectionsViewComponent implements OnInit, OnDestroy {
           .subscribe(upd => {
             const isFirstLoad = this.scopeGroups.length === 0 || this.loading;
             if (this._liveMode || isFirstLoad) {
-              this.handleScopeGroupUpdate(upd.groups);
-            } else if (upd.type === 'added') {
-              this.countNewScopes++;
+              this.handleScopeGroupUpdate(upd.groups, upd.type);
             }
           });
       this._profileUpdatesSub.add(scopeUpdateSub);
@@ -149,16 +146,15 @@ export class ConnectionsViewComponent implements OnInit, OnDestroy {
   /** @private - Counts the number of new connections if live-mode is off */
   countNewConn = 0;
 
-  /** @private - Counts the number of new scope-groups if live-mode is off */
-  countNewScopes = 0;
-
   /** @private - The currenlty displayed scope-groups */
   scopeGroups: ScopeGroup[] = [];
 
   constructor(
     private changeDetector: ChangeDetectorRef,
     public helper: ConnectionHelperService,
-  ) { }
+  ) {
+    this.pagination = new SnapshotPaginator(this.paginatedItems, 100);
+  }
 
   ngOnInit() {
     this.reload.subscribe(() => {
@@ -167,7 +163,7 @@ export class ConnectionsViewComponent implements OnInit, OnDestroy {
       }
       // reload now
       this._profile.scopeGroups.pipe(take(1))
-        .subscribe(grps => this.handleScopeGroupUpdate(grps.groups))
+        .subscribe(grps => this.handleScopeGroupUpdate(grps.groups, grps.type))
     })
   }
 
@@ -187,7 +183,6 @@ export class ConnectionsViewComponent implements OnInit, OnDestroy {
     this.liveModeChange.next(this._liveMode);
     this.reload.next();
     this.countNewConn = 0;
-    this.countNewScopes = 0;
   }
 
   /**
@@ -199,11 +194,12 @@ export class ConnectionsViewComponent implements OnInit, OnDestroy {
     this.displayMode = mode;
     this.displayModeChange.next(mode);
 
+    this.refresh();
     if (this.displayMode !== 'ungrouped') {
       this.ungroupedFilter = 'All';
       this.reload.next();
     } else {
-      this.selectPage(0);
+      this.openPage(1);
     }
   }
 
@@ -239,31 +235,9 @@ export class ConnectionsViewComponent implements OnInit, OnDestroy {
     this.selectDisplayMode('grouped');
   }
 
-  /**
-   * Selects the page to display in ungrouped-connections view.
-   * @param idx The new page index (zero-based).
-   *
-   * @private
-   */
-  selectPage(idx: number) {
-    if (idx > this.totalPages) {
-      idx = this.totalPages - 1;
-    }
-    if (idx < 0) {
-      idx = 0;
-    }
-
-    this.currentPageIdx = idx;
-    this.currentPage = this.filteredUngroupedConnections.slice(idx * this.itemsPerPage, (idx + 1) * this.itemsPerPage)
-    this.pageNumbers = pagination(this.currentPageIdx, this.totalPages)
-    this.countNewConn = 0;
-    this.changeDetector.markForCheck();
-  }
-
   private resetUngroupedView() {
     this.filteredUngroupedConnections = [];
-    this.currentPage = [];
-    this.pageNumbers = [1];
+    this.refresh();
     this._ungroupedModeLoaded = false;
     this.changeDetector.markForCheck();
   }
@@ -273,10 +247,12 @@ export class ConnectionsViewComponent implements OnInit, OnDestroy {
    *
    * @private
    */
-  private handleScopeGroupUpdate(grps: ScopeGroup[]) {
+  private handleScopeGroupUpdate(grps: ScopeGroup[], updType: ScopeGroupUpdate['type']) {
     this.countNewConn = 0;
-    this.countNewScopes = 0;
     this.scopeGroups = grps;
+    if (updType === 'init') {
+      grps.forEach(grp => grp.publish())
+    }
     this.changeDetector.markForCheck();
   }
 
@@ -309,9 +285,10 @@ export class ConnectionsViewComponent implements OnInit, OnDestroy {
             key: conn._meta?.Key!,
           } as ConnectionAddedEvent))
         ),
+        withLatestFrom(this.pagination.pageNumber$),
       )
       .subscribe(
-        updates => {
+        ([updates, currentPageNumber]) => {
           let added = 0;
           let inlineUpdates = false;
           if (updates.length === 0) {
@@ -322,9 +299,11 @@ export class ConnectionsViewComponent implements OnInit, OnDestroy {
             const filtered = !!filterFunc && !filterFunc.fn(upd.conn!);
 
             if (upd.type === 'update') {
-              let idx = binarySearch(this.currentPage, upd.conn, ScopeGroup.SortByMostRecent);
-              if (idx >= 0 && this.currentPage[idx]?.ID === upd.conn.ID) {
-                this.currentPage[idx] = upd.conn;
+              const currentItems = this.pagination.snapshot;
+              let idx = binarySearch(currentItems, upd.conn, SortByMostRecent);
+              if (idx >= 0 && currentItems[idx]?.ID === upd.conn.ID) {
+                currentItems[idx] = upd.conn;
+                console.log(`${upd.conn.Scope}: applying inline update`)
               }
               inlineUpdates = true;
             }
@@ -338,7 +317,7 @@ export class ConnectionsViewComponent implements OnInit, OnDestroy {
               }
             }
 
-            let idx = binarySearch(result, upd.conn!, ScopeGroup.SortByMostRecent);
+            let idx = binarySearch(result, upd.conn!, SortByMostRecent);
             if (upd.type === 'deleted') {
               if (idx < 0) {
                 console.log(`connection not found`)
@@ -365,23 +344,39 @@ export class ConnectionsViewComponent implements OnInit, OnDestroy {
           })
 
           if (inlineUpdates) {
-            this.currentPage = [...this.currentPage];
-            this.changeDetector.markForCheck();
+            // re-emit the current page
+            this.paginatedItems.next([...this.pagination.snapshot]);
           }
 
-          this.updatePagination(result, added);
+          this.updatePagination(result, added, currentPageNumber);
           this.changeDetector.markForCheck();
         });
 
     this.filterSub.add(() => this.resetUngroupedView())
   }
 
-  private updatePagination(connections: Connection[], connectionsAdded: number) {
+  refresh() {
+    if (this.displayMode === 'ungrouped') {
+      this.paginatedItems.next(this.filteredUngroupedConnections);
+    } else {
+      this.scopeGroups.forEach(grp => grp.publish())
+    }
+    this.countNewConn = 0;
+  }
+
+  openPage(pageNumber: number) {
+    this.pagination.openPage(pageNumber);
+  }
+
+  private updatePagination(connections: Connection[], connectionsAdded: number, currentPageNumber: number) {
     const firstLoad = this.filteredUngroupedConnections.length === 0 || this.ungroupedLoading;
 
+    // keep track of all new connections. They will be made visible by calling
+    // this.refresh() at a later point.
     this.filteredUngroupedConnections = [...connections];
 
     // -1 is used as a marker in tap() above
+    // that we should reset the connection count to zero
     if (this.countNewConn === -1) {
       this.countNewConn = 0;
     }
@@ -390,12 +385,26 @@ export class ConnectionsViewComponent implements OnInit, OnDestroy {
 
     // update the current index if the page we are on does not
     // exist any more
-    if (firstLoad || this.currentPageIdx >= this.totalPages || (this.currentPageIdx === 0 && this.liveMode)) {
-      // reselect the current page in life mode or if it does not
-      // exist any more. In this case, selectPage will clip the index to the last page
-      this.selectPage(this.currentPageIdx);
-      this._ungroupedModeLoaded = true;
+    if (this.displayMode === 'ungrouped') {
+      if (firstLoad || currentPageNumber >= this.pagination.total || (this.liveMode && currentPageNumber === 1)) {
+        // reselect the current page in life mode or if it does not
+        // exist any more. In this case, selectPage will clip the index to the last page
+        this.refresh();
+        this.openPage(currentPageNumber);
+        this._ungroupedModeLoaded = true;
+      }
+    } else if (this._liveMode) {
+      // in live mode we update/publish all scope connections
+      // where the current page of the scope is the first page.
+      // Otherwise pagination does not make much sense because
+      // once you switch to another page you want to see static
+      // content instead of connections moving down and over to
+      // the next page.
+      this.scopeGroups.forEach(grp => {
+        if (grp.pagination.pageNumber === 1) {
+          grp.publish();
+        }
+      })
     }
   }
-
 }
