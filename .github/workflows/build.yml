@@ -90,14 +90,6 @@ jobs:
         with:
           go-version: "^1.15"
 
-      - name: golangci-lint
-        uses: golangci/golangci-lint-action@v2
-        with:
-          version: v1.29
-          args: -c ./.golangci.yml
-          skip-go-installation: true
-          working-directory: notifier
-
       - name: Download modules
         run: cd notifier && go mod download
 
@@ -106,3 +98,11 @@ jobs:
 
       - name: Build notifier for windows
         run: cd notifier && GOOS=windows go build .
+
+      - name: golangci-lint
+        uses: golangci/golangci-lint-action@v2
+        with:
+          version: v1.29
+          args: -c ./.golangci.yml
+          skip-go-installation: true
+          working-directory: notifier
