@@ -90,6 +90,11 @@ jobs:
         with:
           go-version: "^1.15"
 
+      - name: install libappindicator
+        run: sudo bash -c "apt update && apt install libappindicator-dev"
+        env:
+          DEBIAN_FRONTEND: noninteractive
+
       - name: Download modules
         run: cd notifier && go mod download
 
