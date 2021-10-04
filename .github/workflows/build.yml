@@ -35,7 +35,7 @@ jobs:
 
       - name: Build and lint
         run: |
-          cd modules/portmaster-ui
+          cd modules/portmaster
           npm install
           npm run build
           npm run lint
