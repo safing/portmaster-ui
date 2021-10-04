@@ -62,8 +62,8 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
 
-      - name: Install wine # wine is needed for electron multi-platform build
-        run: sudo bash -c "apt-get update || true ; apt-get install wine || true"
+      - name: Enable multi-arch and install wine32
+        run: sudo bash -c "dpkg --add-architecture i386 && apt-get update && apt-get install wine32 wine"
         env:
           DEBIAN_FRONTEND: noninteractive
 
