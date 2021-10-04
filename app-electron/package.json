@@ -7,7 +7,7 @@
     "build": "tsc && cp pages/* dist-src/ && cp package-prod.json dist-src/package.json",
     "watch": "tsc -w",
     "lint": "eslint -c .eslintrc --ext .ts ./src",
-    "bundle": "electron-builder -wl",
+    "bundle": "electron-builder -wl --publish never",
     "start": "npm run build && electron ./dist-src/index.js",
     "pack": "npm install && npm run build && npm run bundle"
   },
