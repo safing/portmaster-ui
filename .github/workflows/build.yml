@@ -63,6 +63,11 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
 
+      - name: Install wine # wine is needed for electron multi-platform build
+        run: bash -c "apt-get update || true ; apt-get install wine || true"
+        env:
+          DEBIAN_FRONTEND: noninteractive
+
       - name: Install dependencies
         run: cd app-electron && npm install
 
