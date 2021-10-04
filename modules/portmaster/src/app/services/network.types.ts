@@ -37,8 +37,8 @@ export enum IPScope {
   GlobalMulitcast = 6
 }
 
-let globalScopes = new Set([IPScope.GlobalMulitcast, IPScope.Global])
-let localScopes = new Set([IPScope.SiteLocal, IPScope.LinkLocal, IPScope.LocalMulticast])
+const globalScopes = new Set([IPScope.GlobalMulitcast, IPScope.Global]);
+const localScopes = new Set([IPScope.SiteLocal, IPScope.LinkLocal, IPScope.LocalMulticast]);
 
 // IsGlobalScope returns true if scope represents a globally
 // routed destination.
@@ -60,7 +60,7 @@ export function IsLocalhost(scope: IPScope): scope is IPScope.HostLocal {
 const deniedVerdicts = new Set([
   Verdict.Drop,
   Verdict.Block,
-])
+]);
 // IsDenied returns true if the verdict v represents a
 // deny or block decision.
 export function IsDenied(v: Verdict): boolean {
@@ -104,26 +104,26 @@ export interface IntelEntity {
 }
 
 export enum ScopeIdentifier {
-  IncomingHost = "IH",
-  IncomingLAN = "IL",
-  IncomingInternet = "II",
-  IncomingInvalid = "IX",
-  PeerHost = "PH",
-  PeerLAN = "PL",
-  PeerInternet = "PI",
-  PeerInvalid = "PX"
+  IncomingHost = 'IH',
+  IncomingLAN = 'IL',
+  IncomingInternet = 'II',
+  IncomingInvalid = 'IX',
+  PeerHost = 'PH',
+  PeerLAN = 'PL',
+  PeerInternet = 'PI',
+  PeerInvalid = 'PX'
 }
 
 export const ScopeTranslation: { [key: string]: string } = {
-  [ScopeIdentifier.IncomingHost]: "Device-Local Incoming",
-  [ScopeIdentifier.IncomingLAN]: "LAN Incoming",
-  [ScopeIdentifier.IncomingInternet]: "Internet Incoming",
-  [ScopeIdentifier.PeerHost]: "Device-Local Outgoing",
-  [ScopeIdentifier.PeerLAN]: "LAN Peer-to-Peer",
-  [ScopeIdentifier.PeerInternet]: "Internet Peer-to-Peer",
-  [ScopeIdentifier.IncomingInvalid]: "N/A",
-  [ScopeIdentifier.PeerInvalid]: "N/A",
-}
+  [ScopeIdentifier.IncomingHost]: 'Device-Local Incoming',
+  [ScopeIdentifier.IncomingLAN]: 'LAN Incoming',
+  [ScopeIdentifier.IncomingInternet]: 'Internet Incoming',
+  [ScopeIdentifier.PeerHost]: 'Device-Local Outgoing',
+  [ScopeIdentifier.PeerLAN]: 'LAN Peer-to-Peer',
+  [ScopeIdentifier.PeerInternet]: 'Internet Peer-to-Peer',
+  [ScopeIdentifier.IncomingInvalid]: 'N/A',
+  [ScopeIdentifier.PeerInvalid]: 'N/A',
+};
 
 export interface ProcessContext {
   BinaryPath: string;
@@ -131,7 +131,7 @@ export interface ProcessContext {
   ProfileName: string;
   PID: number;
   Profile: string;
-  Source: string
+  Source: string;
 }
 
 // Reason justifies the decision on a connection

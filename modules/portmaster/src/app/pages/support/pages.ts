@@ -25,7 +25,7 @@ export interface SupportPage {
 }
 
 export interface ExternalLink {
-  type: 'link',
+  type: 'link';
   url: string;
   title: string;
   shortHelp: string;
@@ -37,31 +37,31 @@ export const supportTypes: PageSections[] = [
   {
     choices: [
       {
-        id: "report-bug",
-        title: "🐞 Report a Bug",
-        shortHelp: "Found a bug? Report your discovery and make the Portmaster better for everyone.",
-        repoHelp: "Where did the bug take place?",
+        id: 'report-bug',
+        title: '🐞 Report a Bug',
+        shortHelp: 'Found a bug? Report your discovery and make the Portmaster better for everyone.',
+        repoHelp: 'Where did the bug take place?',
         sections: [
           {
-            title: "What happened?",
-            help: "Describe what happened in detail"
+            title: 'What happened?',
+            help: 'Describe what happened in detail'
           },
           {
-            title: "What did you expect to happen?",
-            help: "Describe what you expected to happen instead"
+            title: 'What did you expect to happen?',
+            help: 'Describe what you expected to happen instead'
           },
           {
-            title: "How did you reproduce it?",
-            help: "Describe how to reproduce the issue"
+            title: 'How did you reproduce it?',
+            help: 'Describe how to reproduce the issue'
           },
           {
-            title: "Additional information",
-            help: "Provide extra details if needed"
+            title: 'Additional information',
+            help: 'Provide extra details if needed'
           },
         ],
         includeDebugData: true,
         privateTicket: true,
-        ghIssuePreset: "report-bug.md",
+        ghIssuePreset: 'report-bug.md',
         repositories: [
           { repo: 'portmaster', name: 'Portmaster Core' },
           { repo: 'portmaster-ui', name: 'User Interface' },
@@ -70,21 +70,21 @@ export const supportTypes: PageSections[] = [
         ]
       },
       {
-        id: "give-feedback",
-        title: "💡 Suggest an Improvement",
-        shortHelp: "Suggest an enhancement or a new feature for the Portmaster.",
-        repoHelp: "What would you would like to improve?",
+        id: 'give-feedback',
+        title: '💡 Suggest an Improvement',
+        shortHelp: 'Suggest an enhancement or a new feature for the Portmaster.',
+        repoHelp: 'What would you would like to improve?',
         sections: [
           {
-            title: "What would you like to add or change?",
+            title: 'What would you like to add or change?',
           },
           {
-            title: "Why do you and others need this?"
+            title: 'Why do you and others need this?'
           }
         ],
         includeDebugData: false,
         privateTicket: true,
-        ghIssuePreset: "suggest-feature.md",
+        ghIssuePreset: 'suggest-feature.md',
         repositories: [
           { repo: 'portmaster', name: 'Portmaster Core' },
           { repo: 'portmaster-ui', name: 'User Interface' },
@@ -93,26 +93,26 @@ export const supportTypes: PageSections[] = [
         ]
       },
       {
-        id: "compatibility-report",
-        title: "📝 Make a Compatibility Report",
-        shortHelp: "Report Portmaster in/compatibility with Linux Distros, VPN Clients or general Software.",
+        id: 'compatibility-report',
+        title: '📝 Make a Compatibility Report',
+        shortHelp: 'Report Portmaster in/compatibility with Linux Distros, VPN Clients or general Software.',
         sections: [
           {
-            title: "What worked?",
-            help: "Describe what worked"
+            title: 'What worked?',
+            help: 'Describe what worked'
           },
           {
-            title: "What did not work?",
-            help: "Describe what did not work in detail"
+            title: 'What did not work?',
+            help: 'Describe what did not work in detail'
           },
           {
-            title: "Additional information",
-            help: "Provide extra details if needed"
+            title: 'Additional information',
+            help: 'Provide extra details if needed'
           },
         ],
         includeDebugData: true,
         privateTicket: true,
-        ghIssuePreset: "report-compatibility.md",
+        ghIssuePreset: 'report-compatibility.md',
         repositories: [] // not needed with the default being "portmaster"
       },
       {
@@ -124,7 +124,7 @@ export const supportTypes: PageSections[] = [
     ],
   },
   {
-    title: "Further Resources",
+    title: 'Further Resources',
     style: 'small',
     choices: [
       {
@@ -153,4 +153,4 @@ export const supportTypes: PageSections[] = [
       }
     ]
   }
-]
+];

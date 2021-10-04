@@ -72,7 +72,7 @@ export class IndicatorComponent implements OnInit {
       .subscribe(state => {
         this.state = 'replace';
         this.cdr.detectChanges();
-      })
+      });
   }
 }
 

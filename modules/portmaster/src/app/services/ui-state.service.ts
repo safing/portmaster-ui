@@ -1,7 +1,7 @@
-import { Injectable } from "@angular/core";
-import { Observable, of } from "rxjs";
-import { catchError } from "rxjs/operators";
-import { PortapiService } from "./portapi.service";
+import { Injectable } from '@angular/core';
+import { Observable, of } from 'rxjs';
+import { catchError } from 'rxjs/operators';
+import { PortapiService } from './portapi.service';
 import { Record } from './portapi.types';
 
 export interface UIState extends Record {
@@ -10,7 +10,7 @@ export interface UIState extends Record {
 
 const defaultState: UIState = {
   hideExitScreen: false,
-}
+};
 
 @Injectable({ providedIn: 'root' })
 export class UIStateService {
@@ -21,7 +21,7 @@ export class UIStateService {
     return this.portapi.get<UIState>(key)
       .pipe(
         catchError(err => of(defaultState))
-      )
+      );
   }
 
   saveState(state: UIState): Observable<void> {

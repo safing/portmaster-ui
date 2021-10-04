@@ -21,7 +21,7 @@ export class MenuTriggerComponent {
     this._useContent = coerceBooleanProperty(v);
   }
   get useContent() { return this._useContent; }
-  private _useContent: boolean = false;
+  private _useContent = false;
 
   @HostBinding('class.active')
   get isOpen() {
@@ -63,16 +63,9 @@ export class MenuItemComponent {
     this._disabled = coerceBooleanProperty(v);
   }
   get disabled() { return this._disabled; }
-  private _disabled: boolean = false;
 
-  @HostListener('click', ['$event'])
-  closeMenu(event: MouseEvent) {
-    if (this.disabled) {
-      return;
-    }
-    this.onActivate.next(event);
-    this.menu.close();
-  }
+  constructor(private menu: MenuComponent) { }
+  private _disabled = false;
 
   /**
    * onActivate fires when the menu item is clicked.
@@ -82,7 +75,14 @@ export class MenuItemComponent {
   @Output()
   onActivate = new EventEmitter<MouseEvent>();
 
-  constructor(private menu: MenuComponent) { }
+  @HostListener('click', ['$event'])
+  closeMenu(event: MouseEvent) {
+    if (this.disabled) {
+      return;
+    }
+    this.onActivate.next(event);
+    this.menu.close();
+  }
 }
 
 @Component({
@@ -122,14 +122,14 @@ export class MenuComponent {
       overlayX: 'end',
       overlayY: 'bottom',
     },
-  ]
+  ];
 
   trigger: MenuTriggerComponent | null = null;
 
   isOpen = false;
 
   onOverlayClosed() {
-    this.close()
+    this.close();
   }
 
   onOutsideClick(event: MouseEvent) {

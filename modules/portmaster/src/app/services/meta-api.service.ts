@@ -35,11 +35,11 @@ export class MetaAPI {
   constructor(private http: HttpClient) { }
 
   listEndpoints(): Observable<MetaEndpoint[]> {
-    return this.http.get<MetaEndpoint[]>(`${env.httpAPI}/v1/endpoints`)
+    return this.http.get<MetaEndpoint[]>(`${env.httpAPI}/v1/endpoints`);
   }
 
   permissions(): Observable<AuthPermission> {
-    return this.http.get<AuthPermission>(`${env.httpAPI}/v1/auth/permissions`)
+    return this.http.get<AuthPermission>(`${env.httpAPI}/v1/auth/permissions`);
   }
 
   login(bearer: string): Observable<boolean>;
@@ -50,15 +50,15 @@ export class MetaAPI {
     if (!!password) {
       login = this.http.get<void>(`${env.httpAPI}/v1/auth/basic`, {
         headers: {
-          'Authorization': `Basic ${btoa(usernameOrBearer + ":" + password)}`
+          Authorization: `Basic ${btoa(usernameOrBearer + ':' + password)}`
         }
-      })
+      });
     } else {
       login = this.http.get<void>(`${env.httpAPI}/v1/auth/bearer`, {
         headers: {
-          'Authorization': `Bearer ${usernameOrBearer}`
+          Authorization: `Bearer ${usernameOrBearer}`
         }
-      })
+      });
     }
 
     return login.pipe(
@@ -70,9 +70,9 @@ export class MetaAPI {
           }
         }
 
-        return throwError(err)
+        return throwError(err);
       })
-    )
+    );
   }
 
   logout(): Observable<void> {

@@ -13,7 +13,7 @@ export type ConnectionDisplayMode = 'grouped' | 'ungrouped';
 interface ConnectionFilter {
   name: string;
   fn: (c: Connection) => boolean;
-  expertiseLevel: ExpertiseLevel,
+  expertiseLevel: ExpertiseLevel;
 }
 
 @Component({
@@ -66,7 +66,7 @@ export class ConnectionsViewComponent implements OnInit, OnDestroy {
   readonly pageSize = 100;
 
   get loading() {
-    return !this.profile || this.profile.loading || this.ungroupedLoading
+    return !this.profile || this.profile.loading || this.ungroupedLoading;
   }
 
   get ungroupedLoading() {
@@ -139,7 +139,6 @@ export class ConnectionsViewComponent implements OnInit, OnDestroy {
   get profile() {
     return this._profile;
   }
-  private _profile: InspectedProfile | null = null;
 
   /** Whether or not we display connections in "real" time */
   @Input()
@@ -149,7 +148,55 @@ export class ConnectionsViewComponent implements OnInit, OnDestroy {
   get liveMode() {
     return this._liveMode;
   }
-  private _liveMode: boolean = false;
+
+  constructor(
+    private changeDetector: ChangeDetectorRef,
+    public helper: ConnectionHelperService,
+  ) { }
+  /** @private
+   *  Contants made available for the template.
+   */
+  readonly scopeTranslation = ScopeTranslation;
+  readonly connectionFilters: ConnectionFilter[] = [
+    { name: 'All', fn: () => true, expertiseLevel: ExpertiseLevel.User },
+    { name: 'Allowed', fn: c => c.Verdict !== Verdict.Block && c.Verdict !== Verdict.Drop, expertiseLevel: ExpertiseLevel.Expert },
+    { name: 'Blocked', fn: c => c.Verdict === Verdict.Block || c.Verdict === Verdict.Drop, expertiseLevel: ExpertiseLevel.User },
+    { name: 'Active', fn: c => !c.Ended, expertiseLevel: ExpertiseLevel.Expert },
+    { name: 'Ended', fn: c => !!c.Ended, expertiseLevel: ExpertiseLevel.Expert },
+    { name: 'Inbound', fn: c => c.Inbound, expertiseLevel: ExpertiseLevel.Developer },
+    { name: 'Outbound', fn: c => !c.Inbound, expertiseLevel: ExpertiseLevel.Developer },
+    { name: 'Local', fn: c => IsLocalhost(c.Entity.IPScope), expertiseLevel: ExpertiseLevel.Developer },
+    { name: 'LAN', fn: c => IsLANScope(c.Entity.IPScope), expertiseLevel: ExpertiseLevel.Developer },
+    { name: 'Global', fn: c => IsGlobalScope(c.Entity.IPScope), expertiseLevel: ExpertiseLevel.Developer },
+  ];
+
+  /** Subscription to profile updates. */
+  private _profileUpdatesSub = Subscription.EMPTY;
+
+  /** Subscription for the "ungrouped" and filtered connection view */
+  private filterSub = Subscription.EMPTY;
+
+  /** Holds the filtered, ungrouped list of connections */
+  filteredUngroupedConnections: Connection[] = [];
+
+  /** Pagination */
+  currentPageIdx = 0;
+  currentPage: Connection[] = [];
+  pageNumbers: number[] = [1];
+  readonly itemsPerPage = 100;
+  private _ungroupedModeLoaded = false;
+
+  ungroupedFilter = 'All';
+
+  /** The current display type */
+  @Input()
+  displayMode: ConnectionDisplayMode = 'ungrouped';
+
+  /** Output that emits whenever the users changes the display mode */
+  @Output()
+  displayModeChange = new EventEmitter<ConnectionDisplayMode>();
+  private _profile: InspectedProfile | null = null;
+  private _liveMode = false;
 
   /** Emits whenever the user enables or disables live-mode */
   @Output()
@@ -247,7 +294,7 @@ export class ConnectionsViewComponent implements OnInit, OnDestroy {
    */
   cycleDisplayMode() {
     if (this.displayMode === 'grouped') {
-      this.selectDisplayMode('ungrouped')
+      this.selectDisplayMode('ungrouped');
       return;
     }
 
@@ -277,11 +324,11 @@ export class ConnectionsViewComponent implements OnInit, OnDestroy {
     this.filterSub.unsubscribe();
 
     if (!this.profile) {
-      return
+      return;
     }
 
     const profile = this.profile;
-    let result: Connection[] = [];
+    const result: Connection[] = [];
 
     // get the currently assigned filter
     const filterFunc = this.connectionFilters.find(filter => filter.name === this.ungroupedFilter);
@@ -297,7 +344,7 @@ export class ConnectionsViewComponent implements OnInit, OnDestroy {
         startWith(
           Array.from(profile.connections).map(conn => ({
             type: 'added',
-            conn: conn,
+            conn,
             key: conn._meta?.Key!,
           } as ConnectionAddedEvent))
         ),
@@ -330,13 +377,13 @@ export class ConnectionsViewComponent implements OnInit, OnDestroy {
               upd = {
                 ...upd,
                 type: 'deleted',
-              }
+              };
             }
 
             let idx = binarySearch(result, upd.conn!, SortByMostRecent);
             if (upd.type === 'deleted') {
               if (idx < 0) {
-                console.log(`connection not found`)
+                console.log(`connection not found`);
                 return;
               }
 
@@ -356,8 +403,8 @@ export class ConnectionsViewComponent implements OnInit, OnDestroy {
 
             const newIdx = ~idx;
             added++;
-            result.splice(newIdx, 0, upd.conn)
-          })
+            result.splice(newIdx, 0, upd.conn);
+          });
 
           if (inlineUpdates) {
             // re-emit the current page
@@ -368,7 +415,7 @@ export class ConnectionsViewComponent implements OnInit, OnDestroy {
           this.changeDetector.markForCheck();
         });
 
-    this.filterSub.add(() => this.resetUngroupedView())
+    this.filterSub.add(() => this.resetUngroupedView());
   }
 
   refresh() {

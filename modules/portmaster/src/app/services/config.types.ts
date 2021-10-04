@@ -25,7 +25,7 @@ export function getExpertiseLevelNumber(lvl: ExpertiseLevel): ExpertiseLevelNumb
     case ExpertiseLevel.Expert:
       return ExpertiseLevelNumber.expert;
     case ExpertiseLevel.Developer:
-      return ExpertiseLevelNumber.developer
+      return ExpertiseLevelNumber.developer;
   }
 }
 
@@ -54,9 +54,9 @@ export function optionTypeName(opt: OptionType): string {
     case OptionType.StringArray:
       return '[]string';
     case OptionType.Int:
-      return 'int'
+      return 'int';
     case OptionType.Bool:
-      return 'bool'
+      return 'bool';
   }
 }
 
@@ -113,11 +113,11 @@ export function releaseLevelFromName(name: 'stable' | 'beta' | 'experimental'): 
 export function releaseLevelName(level: ReleaseLevel): string {
   switch (level) {
     case ReleaseLevel.Stable:
-      return 'stable'
+      return 'stable';
     case ReleaseLevel.Beta:
-      return 'beta'
+      return 'beta';
     case ReleaseLevel.Experimental:
-      return 'experimental'
+      return 'experimental';
   }
 }
 
@@ -136,14 +136,14 @@ export enum ExternalOptionHint {
 
 /** A list of well-known option annotation keys. */
 export enum WellKnown {
-  DisplayHint = "safing/portbase:ui:display-hint",
-  Order = "safing/portbase:ui:order",
-  Unit = "safing/portbase:ui:unit",
-  Category = "safing/portbase:ui:category",
-  Subsystem = "safing/portbase:module:subsystem",
-  Stackable = "safing/portbase:options:stackable",
-  QuickSetting = "safing/portbase:ui:quick-setting",
-  Requires = "safing/portbase:config:requires"
+  DisplayHint = 'safing/portbase:ui:display-hint',
+  Order = 'safing/portbase:ui:order',
+  Unit = 'safing/portbase:ui:unit',
+  Category = 'safing/portbase:ui:category',
+  Subsystem = 'safing/portbase:module:subsystem',
+  Stackable = 'safing/portbase:options:stackable',
+  QuickSetting = 'safing/portbase:ui:quick-setting',
+  Requires = 'safing/portbase:config:requires'
 }
 
 /**
@@ -249,11 +249,11 @@ export function applyQuickSetting<V extends OptionValueType>(current: V | null, 
   }
 
   const clone = deepClone(current);
-  let missing: any[] = [];
+  const missing: any[] = [];
 
   qs.Value.forEach(val => {
     if (clone.includes(val)) {
-      return
+      return;
     }
     missing.push(val);
   });
@@ -290,12 +290,12 @@ export function parseSupportedValues<S extends Setting>(s: S): SettingValueType<
       break;
     case OptionType.String:
     case OptionType.StringArray:
-      converter = s => s
-      break
+      converter = s => s;
+      break;
   }
 
   values?.forEach(val => {
-    result.push(converter(val))
+    result.push(converter(val));
   });
 
   return result;

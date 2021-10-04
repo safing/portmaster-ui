@@ -15,10 +15,10 @@ export class ScopeGroupContentComponent implements OnInit, OnDestroy {
   grp: ScopeGroup | null = null;
 
   @Input()
-  source: string = '';
+  source = '';
 
   @Input()
-  profileId: string = '';
+  profileId = '';
 
   /** TrackByFunction for connection */
   trackByConnection: TrackByFunction<Connection> = (_: number, c: Connection | null) => c?.ID;
@@ -35,7 +35,7 @@ export class ScopeGroupContentComponent implements OnInit, OnDestroy {
   ngOnInit() {
     this._subscription = this.helper.refresh.subscribe(() => {
       this.changeDetectorRef.markForCheck();
-    })
+    });
   }
 
   ngOnDestroy() {

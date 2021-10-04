@@ -41,7 +41,7 @@ export const fadeInListAnimation = trigger(
       ], { optional: true })
     ]),
   ]
-)
+);
 
 export const moveInOutAnimation = trigger(
   'moveInOut',
@@ -63,7 +63,7 @@ export const moveInOutAnimation = trigger(
       ]
     )
   ]
-)
+);
 
 export const moveInOutListAnimation = trigger(
   'moveInOutList',
@@ -85,4 +85,4 @@ export const moveInOutListAnimation = trigger(
       ], { optional: true })
     ]),
   ]
-)
+);

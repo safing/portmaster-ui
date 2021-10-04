@@ -1,5 +1,5 @@
-import { Injectable } from '@angular/core'
-import Fuse from 'fuse.js'
+import { Injectable } from '@angular/core';
+import Fuse from 'fuse.js';
 import { deepClone } from '../utils';
 
 export type FuseResult<T> = Fuse.FuseResult<T & {
@@ -27,21 +27,21 @@ export class FuzzySearchService {
     const opts: FuseSearchOpts<T> = {
       ...this.defaultOptions,
       ...options,
-    }
+    };
 
     let result: FuseResult<T>[] = [];
 
 
     if (searchTerms && searchTerms.length >= (opts.minSearchTermLength || 0)) {
-      let fuse = new Fuse(list, opts);
+      const fuse = new Fuse(list, opts);
       result = fuse.search(searchTerms);
 
     } else {
       result = list.map((item, index) => ({
-        item: item,
+        item,
         refIndex: index,
         score: 0,
-      }))
+      }));
     }
 
     if (!!options.disableHighlight) {
@@ -59,23 +59,23 @@ export class FuzzySearchService {
         return matchObject;
       }
 
-      for (let match of matchObject.matches!) {
+      for (const match of matchObject.matches!) {
         const indices = match.indices;
 
-        let highlightOffset: number = 0;
+        let highlightOffset = 0;
 
-        for (let indice of indices) {
-          let initialValue = getFromMatch(matchObject, match);
+        for (const indice of indices) {
+          const initialValue = getFromMatch(matchObject, match);
 
           const startOffset = indice[0] + highlightOffset;
           const endOffset = indice[1] + highlightOffset + 1;
 
           if (endOffset - startOffset < 4) {
-            continue
+            continue;
           }
 
-          let highlightedTerm = initialValue.substring(startOffset, endOffset);
-          let newValue = initialValue.substring(0, startOffset) + '<em class="search-result">' + highlightedTerm + '</em>' + initialValue.substring(endOffset);
+          const highlightedTerm = initialValue.substring(startOffset, endOffset);
+          const newValue = initialValue.substring(0, startOffset) + '<em class="search-result">' + highlightedTerm + '</em>' + initialValue.substring(endOffset);
 
           highlightOffset += '<em class="search-result"></em>'.length;
 

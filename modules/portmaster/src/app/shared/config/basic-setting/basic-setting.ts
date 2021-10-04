@@ -24,6 +24,39 @@ import { BaseSetting, ExternalOptionHint, parseSupportedValues, SettingValueType
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class BasicSettingComponent<S extends BaseSetting<any, any>> implements ControlValueAccessor, Validator, AfterViewChecked {
+
+  /** Whether or not the input should be currently disabled. */
+  @Input()
+  set disabled(v: any) {
+    const disabled = coerceBooleanProperty(v);
+    this.setDisabledState(disabled);
+  }
+  get disabled() {
+    return this._disabled;
+  }
+
+  /** The unit of the setting */
+  get unit() {
+    if (!this.setting) {
+      return '';
+    }
+    return this.setting.Annotations[WellKnown.Unit] || '';
+  }
+
+  /* Returns true if the current _type and _value is managed as JSON */
+  get isJSON(): boolean {
+    return this._type !== 'string'
+      && this._type !== 'number'
+      && this._type !== 'boolean';
+  }
+
+  // We are using ChangeDetectionStrategy.OnPush so angular does not
+  // update ourself when writeValue or setDisabledState is called.
+  // Using the changeDetectorRef we can take care of that ourself.
+  constructor(
+    @Inject(DOCUMENT) private document: Document,
+    private _changeDetectorRef: ChangeDetectorRef
+  ) { }
   /** @private template-access to all external option hits */
   readonly optionHints = ExternalOptionHint;
 
@@ -35,21 +68,6 @@ export class BasicSettingComponent<S extends BaseSetting<any, any>> implements C
 
   /** Cached canvas element used by getTextWidth */
   private cachedCanvas?: HTMLCanvasElement;
-
-  /** Returns the value of external-option hint annotation */
-  externalOptType(opt: S): ExternalOptionHint | null {
-    return opt.Annotations?.["safing/portbase:ui:display-hint"] || null;
-  }
-
-  /** Whether or not the input should be currently disabled. */
-  @Input()
-  set disabled(v: any) {
-    const disabled = coerceBooleanProperty(v);
-    this.setDisabledState(disabled);
-  }
-  get disabled() {
-    return this._disabled;
-  }
 
   /** The setting to display */
   @Input()
@@ -63,21 +81,13 @@ export class BasicSettingComponent<S extends BaseSetting<any, any>> implements C
   @ViewChild(NgModel)
   model: NgModel | null = null;
 
-  /** The unit of the setting */
-  get unit() {
-    if (!this.setting) {
-      return '';
-    }
-    return this.setting.Annotations[WellKnown.Unit] || '';
-  }
-
   /**
    * Holds the value as it is presented to the user.
    * That is, a JSON encoded object or array is dumped as a
    * JSON string. Strings, numbers and booleans are presented
    * as they are.
    */
-  _value: string | number | boolean = "";
+  _value: string | number | boolean = '';
 
   /**
    * Describes the type of the original settings value
@@ -88,13 +98,17 @@ export class BasicSettingComponent<S extends BaseSetting<any, any>> implements C
    * If it's set anything else (like "object") than _value is JSON.parse`d
    * before being emitted.
    */
-  _type: string = '';
+  _type = '';
 
-  /* Returns true if the current _type and _value is managed as JSON */
-  get isJSON(): boolean {
-    return this._type !== 'string'
-      && this._type !== 'number'
-      && this._type !== 'boolean'
+  /* Whether or not the input field is disabled. Set by setDisabledState
+   * from @angular/forms
+   */
+  _disabled = false;
+  private _valid = true;
+
+  /** Returns the value of external-option hint annotation */
+  externalOptType(opt: S): ExternalOptionHint | null {
+    return opt.Annotations?.['safing/portbase:ui:display-hint'] || null;
   }
 
   /*
@@ -109,20 +123,6 @@ export class BasicSettingComponent<S extends BaseSetting<any, any>> implements C
   private _onTouch: () => void = () => { };
 
   private _onValidatorChange: () => void = () => { };
-
-  /* Whether or not the input field is disabled. Set by setDisabledState
-   * from @angular/forms
-   */
-  _disabled: boolean = false;
-  private _valid: boolean = true;
-
-  // We are using ChangeDetectionStrategy.OnPush so angular does not
-  // update ourself when writeValue or setDisabledState is called.
-  // Using the changeDetectorRef we can take care of that ourself.
-  constructor(
-    @Inject(DOCUMENT) private document: Document,
-    private _changeDetectorRef: ChangeDetectorRef
-  ) { }
 
   ngAfterViewChecked() {
     // update the suffix position everytime angular has
@@ -165,11 +165,11 @@ export class BasicSettingComponent<S extends BaseSetting<any, any>> implements C
     if (!!this.unit && !!this.suffixElement) {
       const input = this.suffixElement.nativeElement.previousSibling! as HTMLInputElement;
       const style = window.getComputedStyle(input);
-      let paddingleft = parseInt(style.paddingLeft.slice(0, -2))
+      const paddingleft = parseInt(style.paddingLeft.slice(0, -2));
       // we need to use `input.value` instead of `value` as we need to
       // get preceding zeros of the number input as well, while still
       // using the value as a fallback.
-      let value = input.value || (this._value as string);
+      const value = input.value || (this._value as string);
       const width = this.getTextWidth(value, style.font) + paddingleft;
       this.suffixElement.nativeElement.style.left = `${width}px`;
     }
@@ -186,14 +186,14 @@ export class BasicSettingComponent<S extends BaseSetting<any, any>> implements C
     if (!this._valid) {
       return {
         jsonParseError: true
-      }
+      };
     }
 
     if (this._type === 'string' || value === null) {
       if (!!this.setting?.DefaultValue && !value) {
         return {
           required: true,
-        }
+        };
       }
     }
 
@@ -204,19 +204,19 @@ export class BasicSettingComponent<S extends BaseSetting<any, any>> implements C
         if (!re.test(`${value}`)) {
           return {
             pattern: `"${value}"`
-          }
+          };
         }
       } else {
         if (!Array.isArray(value)) {
           return {
             invalidType: true
-          }
+          };
         }
         const invalidLines = value.filter(v => !re.test(v));
         if (invalidLines.length) {
           return {
             pattern: invalidLines
-          }
+          };
         }
       }
     }
@@ -230,7 +230,7 @@ export class BasicSettingComponent<S extends BaseSetting<any, any>> implements C
    * @param v The new value to write
    */
   writeValue(v: SettingValueType<S>) {
-    let t = typeof v;
+    const t = typeof v;
     this._type = t;
 
     if (this.isJSON) {
@@ -294,9 +294,9 @@ export class BasicSettingComponent<S extends BaseSetting<any, any>> implements C
    */
   lineCount(value: string | number | boolean) {
     if (typeof value === 'string') {
-      return value.split('\n').length
+      return value.split('\n').length;
     }
-    return 1
+    return 1;
   }
 
   /**
@@ -307,12 +307,12 @@ export class BasicSettingComponent<S extends BaseSetting<any, any>> implements C
    * @param font The CSS font descriptor that would be used for the text
    */
   private getTextWidth(text: string, font: string): number {
-    let canvas = this.cachedCanvas || this.document.createElement('canvas');
+    const canvas = this.cachedCanvas || this.document.createElement('canvas');
     this.cachedCanvas = canvas;
 
-    let context = canvas.getContext("2d")!;
+    const context = canvas.getContext('2d')!;
     context.font = font;
-    let metrics = context.measureText(text);
+    const metrics = context.measureText(text);
     return metrics.width;
   }
 }

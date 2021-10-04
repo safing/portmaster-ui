@@ -21,48 +21,6 @@ import { SwitchItemComponent } from './switch-item';
   ]
 })
 export class MultiSwitchComponent<T> implements OnDestroy, AfterViewInit, ControlValueAccessor {
-  /** Subscription to all button-select changes */
-  private sub = Subscription.EMPTY;
-
-  /** Holds the current x-translation offset for the marker */
-  private markerOffset: number = 0;
-
-  /** Keymanager used for keyboard navigation support */
-  private keyManager: ListKeyManager<SwitchItemComponent<T>> | null = null;
-
-  /** Subscription to the key manager */
-  private keyManagerSub = Subscription.EMPTY;
-
-  @Input()
-  tipUpKey: string = '';
-
-  /** All buttons projected into the multi-switch */
-  @ContentChildren(SwitchItemComponent)
-  buttons: QueryList<SwitchItemComponent<T>> | null = null;
-
-  /** Emits whenever the selected button changes. */
-  @Output()
-  changed = new EventEmitter<T>();
-
-  /** Reference to the marker inside our view container */
-  @ViewChild('marker', { read: ElementRef, static: true })
-  marker: ElementRef | null = null;
-
-  @HostListener('blur')
-  onBlur() {
-    this._onTouch();
-  }
-
-  @HostBinding('attr.tabindex')
-  readonly tabindex = 0;
-
-  @HostListener('keyup', ['$event'])
-  onKeyUp(event: KeyboardEvent) {
-    if (this.disabled) {
-      return;
-    }
-    this.keyManager!.onKeydown(event);
-  }
 
   /** Whether or not the switch button component is disabled */
   @Input()
@@ -76,6 +34,42 @@ export class MultiSwitchComponent<T> implements OnDestroy, AfterViewInit, Contro
     }
   }
   get disabled() { return this._disabled; }
+
+  constructor(
+    public host: ElementRef,
+    private changeDetectorRef: ChangeDetectorRef,
+    private renderer: Renderer2,
+    @Inject(DOCUMENT) private document: Document,
+  ) { }
+  /** Subscription to all button-select changes */
+  private sub = Subscription.EMPTY;
+
+  /** Holds the current x-translation offset for the marker */
+  private markerOffset = 0;
+
+  /** Keymanager used for keyboard navigation support */
+  private keyManager: ListKeyManager<SwitchItemComponent<T>> | null = null;
+
+  /** Subscription to the key manager */
+  private keyManagerSub = Subscription.EMPTY;
+
+  @Input()
+  tipUpKey = '';
+
+  /** All buttons projected into the multi-switch */
+  @ContentChildren(SwitchItemComponent)
+  buttons: QueryList<SwitchItemComponent<T>> | null = null;
+
+  /** Emits whenever the selected button changes. */
+  @Output()
+  changed = new EventEmitter<T>();
+
+  /** Reference to the marker inside our view container */
+  @ViewChild('marker', { read: ElementRef, static: true })
+  marker: ElementRef | null = null;
+
+  @HostBinding('attr.tabindex')
+  readonly tabindex = 0;
   private _disabled = false;
 
   @HostBinding('class.grabbing')
@@ -87,18 +81,24 @@ export class MultiSwitchComponent<T> implements OnDestroy, AfterViewInit, Contro
   /** Which button is currently active (and holds the marker) */
   activeButton: T | null = null;
 
-  constructor(
-    public host: ElementRef,
-    private changeDetectorRef: ChangeDetectorRef,
-    private renderer: Renderer2,
-    @Inject(DOCUMENT) private document: Document,
-  ) { }
+  @HostListener('blur')
+  onBlur() {
+    this._onTouch();
+  }
+
+  @HostListener('keyup', ['$event'])
+  onKeyUp(event: KeyboardEvent) {
+    if (this.disabled) {
+      return;
+    }
+    this.keyManager!.onKeydown(event);
+  }
 
   /** Registeres the change callback. Required for ControlValueAccessor */
   registerOnChange(fn: (v: T) => void) {
     this._onChange = fn;
   }
-  private _onChange: (value: T) => void = () => { }
+  private _onChange: (value: T) => void = () => { };
 
   /** Registers the touch callback. Required for ControlValueAccessor */
   registerOnTouched(fn: () => void) {
@@ -129,7 +129,7 @@ export class MultiSwitchComponent<T> implements OnDestroy, AfterViewInit, Contro
           this.keyManager!.setActiveItem(btn);
           this.repositionMarker(btn);
         }
-      })
+      });
       this.externalWrite = false;
     }
   }
@@ -165,14 +165,14 @@ export class MultiSwitchComponent<T> implements OnDestroy, AfterViewInit, Contro
               this.keyManager!.setActiveItem(btn);
             })
           );
-        })
+        });
       });
 
     this.buttons.forEach(btn => {
       if (this.activeButton === btn.id) {
         btn.selected = true;
       }
-    })
+    });
 
     this.repositionMarker();
   }
@@ -205,7 +205,7 @@ export class MultiSwitchComponent<T> implements OnDestroy, AfterViewInit, Contro
     }
 
     this.isGrabbing = true;
-    this.renderer.addClass(this.document.getElementsByTagName("body")[0], 'document-grabbing');
+    this.renderer.addClass(this.document.getElementsByTagName('body')[0], 'document-grabbing');
 
     const mousemove$ = fromEvent<MouseEvent>(this.document, 'mousemove');
     const hostRect = this.host.nativeElement.getBoundingClientRect();
@@ -242,7 +242,7 @@ export class MultiSwitchComponent<T> implements OnDestroy, AfterViewInit, Contro
           this.updatePosition(offset);
 
           let foundTarget = false;
-          let target = this.findTargetButton(offset);
+          const target = this.findTargetButton(offset);
 
           if (!!target) {
             this.marker!.nativeElement.style.backgroundColor = target.borderColorActive;
@@ -276,7 +276,7 @@ export class MultiSwitchComponent<T> implements OnDestroy, AfterViewInit, Contro
           });
 
           this.isGrabbing = false;
-          this.renderer.removeClass(this.document.getElementsByTagName("body")[0], 'document-grabbing');
+          this.renderer.removeClass(this.document.getElementsByTagName('body')[0], 'document-grabbing');
         }
       });
   }

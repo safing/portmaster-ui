@@ -79,7 +79,7 @@ export class PilotWidgetComponent implements OnInit {
           level: SecurityLevel.Normal,
           class: 'low',
           displayText: 'Secure',
-        }
+        };
 
         // Find the highest failure-status reported by any module
         // of any subsystem.
@@ -90,7 +90,7 @@ export class PilotWidgetComponent implements OnInit {
           return system.FailureStatus > value
             ? system.FailureStatus
             : value;
-        }, FailureStatus.Operational)
+        }, FailureStatus.Operational);
 
         // update the failure level depending on the  highest
         // failure status.
@@ -100,14 +100,14 @@ export class PilotWidgetComponent implements OnInit {
               level: SecurityLevel.High,
               class: 'medium',
               displayText: 'Warning'
-            }
+            };
             break;
           case FailureStatus.Error:
             this.lockLevel = {
               level: SecurityLevel.Extreme,
               class: 'high',
               displayText: 'Insecure'
-            }
+            };
             break;
         }
 
@@ -118,7 +118,7 @@ export class PilotWidgetComponent implements OnInit {
             level: SecurityLevel.High,
             class: 'high',
             displayText: 'Insecure'
-          }
+          };
         }
 
         this.changeDetectorRef.markForCheck();

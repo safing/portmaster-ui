@@ -8,10 +8,10 @@ import { NgForm } from '@angular/forms';
   styleUrls: ['./notification-factory.scss']
 })
 export class NotificationFactoryComponent implements OnInit {
-  id: string = '';
+  id = '';
   type: NotificationType = NotificationType.Info;
-  message: string = '';
-  expires: string = '';
+  message = '';
+  expires = '';
   state: NotificationState = NotificationState.Active;
 
   @ViewChild(NgForm)
@@ -45,7 +45,7 @@ export class NotificationFactoryComponent implements OnInit {
    * @param value Either a datetime, the string "now" or a timestamp.
    */
   private parseTimeSpec(value: string): number | undefined {
-    if (value === "now") {
+    if (value === 'now') {
       return Math.round(Date.now() / 1000);
     }
 

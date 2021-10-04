@@ -16,7 +16,7 @@ export class ScopeLabelComponent implements OnChanges {
   readonly scopeTranslation = ScopeTranslation;
 
   @Input()
-  scope?: string = ''
+  scope = '';
 
   @Input()
   set leftRightFix(v: any) {
@@ -25,13 +25,13 @@ export class ScopeLabelComponent implements OnChanges {
   get leftRightFix() { return this._leftRightFix; }
   private _leftRightFix = false;
 
-  domain: string = '';
-  subdomain: string = '';
+  domain = '';
+  subdomain = '';
 
   ngOnChanges(change: SimpleChanges) {
-    if (!!change['scope']) {
-      //this.label = change.label.currentValue;
-      const result = parseDomain(change.scope.currentValue || '')
+    if (!!change.scope) {
+      // this.label = change.label.currentValue;
+      const result = parseDomain(change.scope.currentValue || '');
 
       this.domain = result?.domain || '';
       this.subdomain = result?.subdomain || '';

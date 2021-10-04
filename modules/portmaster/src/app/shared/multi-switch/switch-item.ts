@@ -8,25 +8,6 @@ import { coerceBooleanProperty } from '@angular/cdk/coercion';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SwitchItemComponent<T> implements OnInit {
-  @Input()
-  id: T | null = null;
-
-  @Input()
-  group = '';
-
-  @Output()
-  clicked = new EventEmitter<MouseEvent>();
-
-  @HostListener('click', ['$event'])
-  onClick(e: MouseEvent) {
-    this.clicked.next(e);
-  }
-
-  @Input()
-  borderColorActive: string = 'var(--info-green)';
-
-  @Input()
-  borderColorInactive: string = 'var(--button-light)';
 
   @HostBinding('style.border-color')
   get borderColor() {
@@ -44,7 +25,6 @@ export class SwitchItemComponent<T> implements OnInit {
   get disabled() {
     return this._disabled;
   }
-  private _disabled = false;
 
   @Input()
   @HostBinding('class.selected')
@@ -58,23 +38,43 @@ export class SwitchItemComponent<T> implements OnInit {
   get selected() {
     return this._selected;
   }
+
+  constructor(
+    public readonly elementRef: ElementRef,
+    public readonly changeDetectorRef: ChangeDetectorRef,
+  ) { }
+  @Input()
+  id: T | null = null;
+
+  @Input()
+  group = '';
+
+  @Output()
+  clicked = new EventEmitter<MouseEvent>();
+
+  @Input()
+  borderColorActive = 'var(--info-green)';
+
+  @Input()
+  borderColorInactive = 'var(--button-light)';
+  private _disabled = false;
   private _selected = false;
+
+  @Output()
+  selectedChange = new EventEmitter<boolean>();
+
+  @HostListener('click', ['$event'])
+  onClick(e: MouseEvent) {
+    this.clicked.next(e);
+  }
 
   getLabel() {
     return this.elementRef.nativeElement.innerText;
   }
-
-  @Output()
-  selectedChange = new EventEmitter<boolean>();
 
   ngOnInit() {
     if (this.id === null && isDevMode()) {
       throw new Error(`SwitchItemComponent must have an ID`);
     }
   }
-
-  constructor(
-    public readonly elementRef: ElementRef,
-    public readonly changeDetectorRef: ChangeDetectorRef,
-  ) { }
 }

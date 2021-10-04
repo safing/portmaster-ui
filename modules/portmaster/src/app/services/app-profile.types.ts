@@ -58,7 +58,7 @@ export function flattenProfileConfig(p: ConfigMap, prefix = ''): FlatConfigObjec
     }
 
     result[childPrefix] = prop;
-  })
+  });
 
   return result;
 }
@@ -115,11 +115,11 @@ export function setAppSetting(obj: ConfigObject, path: string, value: any) {
 
     if (idx === parts.length - 1) {
       if (value === undefined) {
-        delete (iter[propName])
+        delete (iter[propName]);
       } else {
         iter[propName] = value;
       }
-      return
+      return;
     }
 
     if (iter[propName] === undefined) {
@@ -143,12 +143,12 @@ function isConfigMap(v: any): v is ConfigMap {
  * @param b The second config object
  */
 function mergeObjects(a: FlatConfigObject, b: FlatConfigObject): FlatConfigObject {
-  var res: FlatConfigObject = {};
+  const res: FlatConfigObject = {};
   Object.keys(a).forEach(key => {
     res[key] = a[key];
   });
   Object.keys(b).forEach(key => {
     res[key] = b[key];
-  })
+  });
   return res;
 }

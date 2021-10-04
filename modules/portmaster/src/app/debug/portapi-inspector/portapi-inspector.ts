@@ -17,7 +17,7 @@ export class PortapiInspectorComponent implements OnInit {
         console.log(value);
         return Object.values(value);
       })
-    )
+    );
   }
 
   ngOnInit(): void {

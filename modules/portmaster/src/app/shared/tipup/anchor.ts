@@ -1,5 +1,5 @@
-import { Directive, ElementRef, HostBinding, Input, isDevMode } from "@angular/core";
-import { TipupPlacement } from "./utils";
+import { Directive, ElementRef, HostBinding, Input, isDevMode } from '@angular/core';
+import { TipupPlacement } from './utils';
 
 @Directive({
   selector: '[tipUpAnchor]',
@@ -10,14 +10,14 @@ export class TipUpAnchorDirective implements TipupPlacement {
   ) { }
 
   origin: 'left' | 'right' = 'right';
-  offset: number = 10;
+  offset = 10;
 
   @HostBinding('class.active-tipup-anchor')
   isActiveAnchor = false;
 
   @Input('tipUpAnchor')
   set position(posSpec: string) {
-    const parts = (posSpec || '').split(';')
+    const parts = (posSpec || '').split(';');
     if (parts.length > 2) {
       if (isDevMode()) {
         throw new Error(`Invalid value "${posSpec}" for [tipUpAnchor]`);

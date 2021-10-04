@@ -20,7 +20,7 @@ export class StatusWidgetSettingsComponent implements OnInit, WidgetFactory<Stat
       text: '',
     };
 
-    this.onConfigChange.next(this.config)
+    this.onConfigChange.next(this.config);
   }
 
   setValue(value: string) {

@@ -24,14 +24,14 @@ export class ExitScreenComponent {
   ) { }
 
   /** @private - used as ngModel form the template */
-  neveragain: boolean = false;
+  neveragain = false;
 
   closeUI() {
     const closeObserver = {
       next: () => {
         this._dialogRef.close('exit');
       }
-    }
+    };
 
     let close: Observable<any> = of(null);
     if (this.neveragain) {
@@ -42,12 +42,12 @@ export class ExitScreenComponent {
             return state;
           }),
           switchMap(state => this.stateService.saveState(state)),
-        )
+        );
     }
-    close.subscribe(closeObserver)
+    close.subscribe(closeObserver);
   }
 
   cancel() {
-    this._dialogRef.close()
+    this._dialogRef.close();
   }
 }

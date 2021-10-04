@@ -21,13 +21,13 @@ export class SupportFormComponent implements OnInit, OnDestroy {
   private search$ = new BehaviorSubject<string>('');
   page: SupportPage | null = null;
 
-  debugData: string = '';
-  title: string = '';
-  form: { [key: string]: string } = {}
-  selectedRepo: string = '';
+  debugData = '';
+  title = '';
+  form: { [key: string]: string } = {};
+  selectedRepo = '';
   haveGhAccount = false;
-  version: string = '';
-  buildDate: string = '';
+  version = '';
+  buildDate = '';
   titleMissing = false;
 
   relatedIssues: Issue[] = [];
@@ -56,7 +56,7 @@ export class SupportFormComponent implements OnInit, OnDestroy {
       issues = issues.reverse();
       this.allIssues = issues;
       this.relatedIssues = issues;
-    })
+    });
 
     this.search$.pipe(
       takeUntil(this.destroy$),
@@ -72,19 +72,19 @@ export class SupportFormComponent implements OnInit, OnDestroy {
             'title',
             'body',
           ],
-        }).map(res => res.item)
-      })
+        }).map(res => res.item);
+      });
 
     this.statusService.getVersions()
       .subscribe(status => {
         this.version = status.Core.Version;
         this.buildDate = status.Core.BuildDate;
-      })
+      });
 
     this.route.paramMap
       .pipe(takeUntil(this.destroy$))
       .subscribe(params => {
-        const id = params.get("id")
+        const id = params.get('id');
         for (let pIdx = 0; pIdx < supportTypes.length; pIdx++) {
           const pageSection = supportTypes[pIdx];
           const page = pageSection.choices.find(choice => choice.type !== 'link' && choice.id === id);
@@ -104,7 +104,7 @@ export class SupportFormComponent implements OnInit, OnDestroy {
         this.debugData = '';
         this.repos = {};
         this.page.sections.forEach(section => this.form[section.title] = '');
-        this.page.repositories?.forEach(repo => this.repos[repo.repo] = repo.name)
+        this.page.repositories?.forEach(repo => this.repos[repo.repo] = repo.name);
 
         // try to restore from session service
         this.sessionService.restore(this.page.id, this);
@@ -114,9 +114,9 @@ export class SupportFormComponent implements OnInit, OnDestroy {
             .subscribe({
               next: data => this.debugData = data,
               error: err => this.uai.error('Failed to get Debug Data', this.uai.getErrorMessgae(err))
-            })
+            });
         }
-      })
+      });
   }
 
   onModelChange() {
@@ -144,10 +144,10 @@ export class SupportFormComponent implements OnInit, OnDestroy {
   copyToClipboard(what: string) {
     if (!!navigator.clipboard) {
       navigator.clipboard.writeText(what)
-        .then(() => this.uai.success("Copied to Clipboard"))
+        .then(() => this.uai.success('Copied to Clipboard'))
         .catch(() => this.uai.error('Failed to Copy to Clipboard'));
     } else {
-      this.uai.info('Failed to Copy to Clipboard', 'Copy to clipboard is not supported by your browser')
+      this.uai.info('Failed to Copy to Clipboard', 'Copy to clipboard is not supported by your browser');
     }
   }
 
@@ -155,7 +155,7 @@ export class SupportFormComponent implements OnInit, OnDestroy {
     this.titleMissing = this.title === '';
     const valid = !this.titleMissing;
     if (!valid) {
-      this.scrollContainer?.scrollTo({ top: 0, behavior: 'smooth' })
+      this.scrollContainer?.scrollTo({ top: 0, behavior: 'smooth' });
     }
     return valid;
   }
@@ -185,7 +185,7 @@ export class SupportFormComponent implements OnInit, OnDestroy {
         })
         .onAction('createWithout', () => {
           this.createOnGithub(false);
-        })
+        });
       return;
     }
 
@@ -217,7 +217,7 @@ export class SupportFormComponent implements OnInit, OnDestroy {
             } else {
               window.open(url, '__blank');
             }
-          }
+          };
 
           if (genUrl === true) {
             openUrl();
@@ -230,16 +230,16 @@ export class SupportFormComponent implements OnInit, OnDestroy {
             caption: 'Info',
             header: 'Issue Created!',
             message: 'We successfully created the issue on Github for you. Use the following link to check for updates: ' + url,
-          }
+          };
           this.dialog.confirm(opts)
             .onAction('open', () => {
               openUrl();
-            })
+            });
         },
         error: err => {
-          this.uai.error('Failed to create issue', this.uai.getErrorMessgae(err))
+          this.uai.error('Failed to create issue', this.uai.getErrorMessgae(err));
         }
-      })
+      });
   }
 
   openIssue(issue: Issue) {
@@ -247,7 +247,7 @@ export class SupportFormComponent implements OnInit, OnDestroy {
       window.app.openExternal(issue.url);
       return;
     }
-    window.open(issue.url, '__blank')
+    window.open(issue.url, '__blank');
   }
 
   createPrivateTicket() {
@@ -267,7 +267,7 @@ export class SupportFormComponent implements OnInit, OnDestroy {
         { id: '', class: 'outline', text: 'Cancel' },
         { id: 'create', text: 'Create Ticket' },
       ],
-    }
+    };
     this.dialog.confirm(opts)
       .onAction('create', () => {
         let debugInfo: Observable<string> = this.supporthub.uploadText('debug-info', this.debugData);
@@ -294,13 +294,13 @@ export class SupportFormComponent implements OnInit, OnDestroy {
               if (!!opts.inputModel) {
                 msg = 'You will be contacted as soon as possible';
               }
-              this.uai.success('Ticket created successfully', msg)
+              this.uai.success('Ticket created successfully', msg);
               this.sessionService.delete(this.page?.id || '');
             },
             error: err => {
-              this.uai.error('Failed to create ticket', this.uai.getErrorMessgae(err))
+              this.uai.error('Failed to create ticket', this.uai.getErrorMessgae(err));
             }
-          })
+          });
       });
   }
 

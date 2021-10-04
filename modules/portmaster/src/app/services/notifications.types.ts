@@ -39,18 +39,18 @@ export interface OpenPageAction extends BaseAction {
  * the OpenPageAction.
  */
 export const PageIDs = {
-  'monitor': '/monitor',
-  'support': '/support',
-  'settings': '/settings',
-  'apps': '/app/overview'
-}
+  monitor: '/monitor',
+  support: '/support',
+  settings: '/settings',
+  apps: '/app/overview'
+};
 
 export interface OpenSettingAction extends BaseAction {
   Type: 'open-setting';
   Payload: {
     Key: string;
     Profile?: string;
-  }
+  };
 }
 
 export interface OpenProfileAction extends BaseAction {
@@ -65,11 +65,11 @@ export interface WebhookAction extends BaseAction {
     URL: string;
     Payload: any;
     ResultAction: 'ignore' | 'display';
-  }
+  };
 }
 
 export interface ActionHandler<T> extends BaseAction {
-  Type: 'ui'
+  Type: 'ui';
   Run: (vn: T) => Promise<void>;
   Payload: T;
 }
@@ -87,7 +87,7 @@ export const routingActions = new Set<Action['Type']>([
   'open-page',
   'open-profile',
   'open-setting'
-])
+]);
 
 /**
  * Available types of notifications. Notification
@@ -121,7 +121,7 @@ export interface ConnectionPromptData {
  * @param val The notifcation type
  */
 export function getNotificationTypeString(val: NotificationType): string {
-  return getEnumKey(NotificationType, val)
+  return getEnumKey(NotificationType, val);
 }
 
 /**
@@ -132,18 +132,18 @@ export enum NotificationState {
   // Active describes a notification that is active, no expired and,
   // if actions are available, still waits for the user to select an
   // action.
-  Active = "active",
+  Active = 'active',
   // Responded describes a notification where the user has already
   // selected which action to take but that action is still to be
   // performed.
-  Responded = "responded",
+  Responded = 'responded',
   // Responded describes a notification where the user has already
   // selected which action to take but that action is still to be
   // performed.
-  Executed = "executed",
+  Executed = 'executed',
   // Invalid is a UI-only state that is used when the state of a
   // notification is unknown.
-  Invalid = "invalid",
+  Invalid = 'invalid',
 }
 
 export interface Notification<T = any> extends Record {

@@ -1,4 +1,4 @@
-import { trigger, transition, style, animate, state } from "@angular/animations";
+import { trigger, transition, style, animate, state } from '@angular/animations';
 
 export const dialogAnimation = trigger(
   'dialogContainer',

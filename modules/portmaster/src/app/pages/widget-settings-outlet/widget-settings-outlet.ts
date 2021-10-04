@@ -80,9 +80,9 @@ export class WidgetSettingsOutletComponent<T = any> implements OnInit, OnDestroy
                   window.history.back();
                 }
               }
-            )
+            );
         }
-      })
+      });
   }
 
   ngOnDestroy() {
@@ -115,7 +115,7 @@ export class WidgetSettingsOutletComponent<T = any> implements OnInit, OnDestroy
     this.subscription = portal.instance.onConfigChange.subscribe((config: T) => {
       // Ingore updates if the configuration has not changed.
       if (JSON.stringify(config) === JSON.stringify(this.config)) {
-        return
+        return;
       }
 
       // Store the new configuration and mark as dirty.
@@ -156,12 +156,12 @@ export class WidgetSettingsOutletComponent<T = any> implements OnInit, OnDestroy
             .subscribe(
               // when we're done navigate away from the page.
               () => window.history.back()
-            )
+            );
         } else {
           // We just saved the edited configuration, navigate back now.
           window.history.back();
         }
-      })
+      });
   }
 
   /**

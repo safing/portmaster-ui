@@ -51,7 +51,7 @@ export class SideDashComponent implements OnInit, OnDestroy {
     this.widgetTemplates = {};
     definitions.forEach(def => {
       this.widgetTemplates[def.type] = def;
-    })
+    });
   }
 
   ngOnInit(): void {
@@ -74,7 +74,7 @@ export class SideDashComponent implements OnInit, OnDestroy {
               ...w,
               definition: this.widgetTemplates[w.type],
               portal: new ComponentPortal(this.widgetTemplates[w.type].widgetComponent, null, injector),
-            }
+            };
           });
 
         this.widgets = widgetsWithMeta;

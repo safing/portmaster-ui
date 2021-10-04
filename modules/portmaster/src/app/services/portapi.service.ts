@@ -96,7 +96,7 @@ export class PortapiService {
       .subscribe(this.uai.httpObserver(
         'Restarting ...',
         'Failed to restart',
-      ))
+      ));
   }
 
   /** Triggers a shutdown of the portmaster service */
@@ -105,7 +105,7 @@ export class PortapiService {
       .subscribe(this.uai.httpObserver(
         'Shutting down ...',
         'Failed to Shut Down',
-      ))
+      ));
   }
 
   /** Force the portmaster to check for updates */
@@ -114,7 +114,7 @@ export class PortapiService {
       .subscribe(this.uai.httpObserver(
         'Downloading Updates ...',
         'Failed to check for updates',
-      ))
+      ));
   }
 
   /** Force a reload of the UI assets */
@@ -122,13 +122,13 @@ export class PortapiService {
     this.http.post(`${environment.httpAPI}/v1/ui/reload`, undefined, { observe: 'response', responseType: 'arraybuffer' })
       .pipe(
         tap(() => {
-          setTimeout(() => window.location.reload(), 1000)
+          setTimeout(() => window.location.reload(), 1000);
         })
       )
       .subscribe(this.uai.httpObserver(
         'Reloading UI ...',
         'Failed to reload UI',
-      ))
+      ));
   }
 
   /** Clear DNS cache */
@@ -137,7 +137,7 @@ export class PortapiService {
       .subscribe(this.uai.httpObserver(
         'DNS Cache Cleared',
         'Failed to clear DNS cache.',
-      ))
+      ));
   }
 
   /**
@@ -153,7 +153,7 @@ export class PortapiService {
     return this.create(`api:${call}`, {
       Method: method,
     })
-      .pipe(map(() => { }))
+      .pipe(map(() => { }));
   }
 
   /**
@@ -168,7 +168,7 @@ export class PortapiService {
         this.ws$!.next(req.request);
         this._streams$.set(req.request.id, req.observer);
         this._pendingCalls$.delete(key);
-      })
+      });
     } catch (err) {
       // we failed to send the pending calls because the
       // websocket connection just broke.
@@ -228,7 +228,7 @@ export class PortapiService {
    */
   qsub<T extends Record>(query: string, opts: RetryableOpts = {}): Observable<DataReply<T>> {
     return this.request('qsub', { query })
-      .pipe(retryPipeline(opts))
+      .pipe(retryPipeline(opts));
   }
 
   /**
@@ -256,7 +256,7 @@ export class PortapiService {
   update(key: string, data: any): Observable<void> {
     data = this.stripMeta(data);
     return this.request('update', { key, data })
-      .pipe(map(() => { }))
+      .pipe(map(() => { }));
   }
 
   /**
@@ -304,7 +304,7 @@ export class PortapiService {
         filter(reply => reply.key === key),
         takeWhile(reply => reply.type !== 'del'),
         filter(reply => {
-          return !opts.ingoreNew || reply.type !== 'new'
+          return !opts.ingoreNew || reply.type !== 'new';
         }),
         map(reply => reply.data),
       );
@@ -312,8 +312,8 @@ export class PortapiService {
 
   watchAll<T extends Record>(query: string, opts?: RetryableOpts): Observable<T[]> {
     return new Observable<T[]>(observer => {
-      let values: T[] = [];
-      let keys: string[] = [];
+      const values: T[] = [];
+      const keys: string[] = [];
       let doneReceived = false;
 
       const sub = this.request('qsub', { query }, { forwardDone: true })
@@ -322,7 +322,7 @@ export class PortapiService {
             if ((value as any).type === 'done') {
               doneReceived = true;
               observer.next(values);
-              return
+              return;
             }
 
             if (!doneReceived) {
@@ -376,12 +376,12 @@ export class PortapiService {
           complete: () => {
             observer.complete();
           }
-        })
+        });
 
       return () => {
         sub.unsubscribe();
-      }
-    }).pipe(retryPipeline(opts))
+      };
+    }).pipe(retryPipeline(opts));
   }
 
   /**
@@ -402,8 +402,8 @@ export class PortapiService {
       const id = `${++uniqueRequestId}`;
 
       if (!this.ws$) {
-        observer.error("No websocket connection");
-        return
+        observer.error('No websocket connection');
+        return;
       }
 
       let unsub: RequestMessage | null = null;
@@ -413,31 +413,31 @@ export class PortapiService {
       // streaming data for that request id.
       if (isCancellable(method)) {
         unsub = {
-          id: id,
+          id,
           type: 'cancel'
-        }
+        };
       }
 
       const request: any = {
         ...attrs,
-        id: id,
+        id,
         type: method,
-      }
+      };
 
-      let inspected: InspectedActiveRequest = {
+      const inspected: InspectedActiveRequest = {
         type: method,
         messagesReceived: 0,
-        observer: observer,
+        observer,
         payload: request,
         lastData: null,
         lastKey: '',
-      }
+      };
 
       if (isDevMode() || !environment.production) {
         this.activeRequests.next({
           ...this.inspectActiveRequests(),
           [id]: inspected,
-        })
+        });
       }
 
       let stream$: Observable<ReplyMessage<any>> = this.multiplex(request, unsub);
@@ -447,10 +447,10 @@ export class PortapiService {
         stream$ = stream$.pipe(
           tap(
             msg => { },
-            //msg => console.log(`[portapi] reply for ${method} ${id}: `, msg),
+            // msg => console.log(`[portapi] reply for ${method} ${id}: `, msg),
             err => console.error(`[portapi] error in ${method} ${id}: `, err),
           )
-        )
+        );
       }
 
       const subscription = stream$?.subscribe({
@@ -461,7 +461,7 @@ export class PortapiService {
           // terminates the data flow.
           if (data.type === 'error') {
             observer.error(data.message);
-            return
+            return;
           }
 
           if (method === 'create'
@@ -505,7 +505,7 @@ export class PortapiService {
 
           if (!isDataReply(data)) {
             console.error(`Received unexpected message type ${data.type} in a ${method} operation`);
-            return
+            return;
           }
 
           inspected.lastData = data.data;
@@ -526,7 +526,7 @@ export class PortapiService {
         complete: () => {
           observer.complete();
         }
-      })
+      });
 
       if (isDevMode() || !environment.production) {
         // make sure we remove the "active" request when the subscription
@@ -535,12 +535,12 @@ export class PortapiService {
           const active = this.inspectActiveRequests();
           delete (active[request.id]);
           this.activeRequests.next(active);
-        })
+        });
       }
 
       return () => {
         subscription.unsubscribe();
-      }
+      };
     });
   }
 
@@ -554,10 +554,10 @@ export class PortapiService {
         // in case of an error we just add the request as
         // "pending" and wait for the connection to be
         // established.
-        console.warn(`Failed to send request ${req.id}:${req.type}, marking as pending ...`)
+        console.warn(`Failed to send request ${req.id}:${req.type}, marking as pending ...`);
         this._pendingCalls$.set(req.id, {
           request: req,
-          observer: observer
+          observer
         });
       }
 
@@ -572,8 +572,8 @@ export class PortapiService {
 
         this._pendingCalls$.delete(req.id);
         this._streams$.delete(req.id);
-      }
-    })
+      };
+    });
   }
 
   /**
@@ -588,11 +588,11 @@ export class PortapiService {
     this.ngZone.runTask(() => {
       const req = this.activeRequests.getValue()[id];
       if (!req) {
-        return
+        return;
       }
 
-      req.observer.next(msg as DataReply<any>)
-    })
+      req.observer.next(msg as DataReply<any>);
+    });
   }
 
   /**
@@ -603,7 +603,7 @@ export class PortapiService {
    * @param key [optional] The key of the entry to inject
    */
   _injectData(id: string, data: any, key: string = '') {
-    this._injectMessage(id, { type: 'ok', data: data, key, id: id });
+    this._injectMessage(id, { type: 'ok', data, key, id });
   }
 
   /**
@@ -620,11 +620,11 @@ export class PortapiService {
     }
 
     const newPayload = mergeDeep({}, req.lastData, data);
-    this._injectData(id, newPayload, req.lastKey)
+    this._injectData(id, newPayload, req.lastKey);
   }
 
   private stripMeta<T extends Record>(obj: T): T {
-    let copy = {
+    const copy = {
       ...obj,
       _meta: undefined,
     };
@@ -647,20 +647,20 @@ export class PortapiService {
           console.error('serialize message', err);
           return {
             type: 'error'
-          }
+          };
         }
       },
       // deserializeMessage also supports RequestMessage so cast as any
-      deserializer: <any>((msg: any) => {
+      deserializer: ((msg: any) => {
         try {
-          return deserializeMessage(msg)
+          return deserializeMessage(msg);
         } catch (err) {
           console.error('deserialize message', err);
           return {
             type: 'error'
-          }
+          };
         }
-      }),
+      }) as any,
       binaryType: 'arraybuffer',
       openObserver: {
         next: () => {
@@ -680,7 +680,7 @@ export class PortapiService {
           console.log('[portapi] connection to portmaster closing');
         },
       }
-    })
+    });
   }
 }
 
@@ -688,11 +688,11 @@ export class PortapiService {
 function countTruthyDataFields(obj: { [key: string]: any }): number {
   let count = 0;
   Object.keys(obj).forEach(key => {
-    let value = obj[key];
+    const value = obj[key];
     if (!!value) {
       count++;
     }
-  })
+  });
   return count;
 }
 
@@ -701,13 +701,13 @@ function isObject(item: any): item is Object {
 }
 
 function mergeDeep(target: any, ...sources: any): any {
-  if (!sources.length) return target;
+  if (!sources.length) { return target; }
   const source = sources.shift();
 
   if (isObject(target) && isObject(source)) {
     for (const key in source) {
       if (isObject(source[key])) {
-        if (!target[key]) Object.assign(target, { [key]: {} });
+        if (!target[key]) { Object.assign(target, { [key]: {} }); }
         mergeDeep(target[key], source[key]);
       } else {
         Object.assign(target, { [key]: source[key] });

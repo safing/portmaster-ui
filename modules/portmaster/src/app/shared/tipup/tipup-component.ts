@@ -1,8 +1,8 @@
-import { Component, ChangeDetectionStrategy, OnInit, Inject } from "@angular/core";
-import { NotificationsService } from "src/app/services";
-import { TipUpService } from "./tipup";
-import { DIALOG_REF, DialogRef } from "../dialog";
-import { TIPUP_TOKEN } from "./utils";
+import { Component, ChangeDetectionStrategy, OnInit, Inject } from '@angular/core';
+import { NotificationsService } from 'src/app/services';
+import { TipUpService } from './tipup';
+import { DIALOG_REF, DialogRef } from '../dialog';
+import { TIPUP_TOKEN } from './utils';
 import MyYamlFile, { Button, TipUp } from 'js-yaml-loader!../../../i18n/helptexts.yaml';
 
 @Component({
@@ -11,12 +11,12 @@ import MyYamlFile, { Button, TipUp } from 'js-yaml-loader!../../../i18n/helptext
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class TipUpComponent implements OnInit, TipUp {
-  title: string = 'N/A';
-  content: string = 'N/A';
+  title = 'N/A';
+  content = 'N/A';
   nextKey?: string;
   buttons?: Button[];
   url?: string;
-  urlText: string = 'Read More';
+  urlText = 'Read More';
 
   constructor(
     @Inject(TIPUP_TOKEN) public readonly token: string,
@@ -56,7 +56,7 @@ export class TipUpComponent implements OnInit, TipUp {
             this.tipupService.open(btn.nextKey!);
           },
           error: console.error
-        })
+        });
     } else {
       this.close();
     }

@@ -35,7 +35,7 @@ export class UngroupedConnectionRowComponent implements OnInit, OnDestroy {
 
   /* timeAgoTicker ticks every 10000 seconds to force a refresh
      of the timeAgo pipes */
-  timeAgoTicker: number = 0;
+  timeAgoTicker = 0;
 
   private _subscription = Subscription.EMPTY;
 
@@ -54,7 +54,7 @@ export class UngroupedConnectionRowComponent implements OnInit, OnDestroy {
 
     const helperSub = this.helper.refresh.subscribe(() => {
       this.changeDetectorRef.markForCheck();
-    })
+    });
 
     this._subscription.add(helperSub);
     this._subscription.add(tickerSub);

@@ -14,7 +14,7 @@ export class DebugComponent implements OnInit {
   }
 
   toggle() {
-    if (!!(window as any)['toggleDebug']) {
+    if (!!(window as any).toggleDebug) {
       (window as any).toggleDebug();
     }
   }

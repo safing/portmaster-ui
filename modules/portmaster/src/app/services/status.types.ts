@@ -1,5 +1,5 @@
 import { ReleaseLevel } from './config.types';
-import { getEnumKey, SecurityLevel } from "./core.types";
+import { getEnumKey, SecurityLevel } from './core.types';
 import { Record } from './portapi.types';
 
 export interface CaptivePortal {
@@ -21,7 +21,7 @@ export enum ModuleStatus {
  * @param stat The module status to translate
  */
 export function getModuleStatusString(stat: ModuleStatus): string {
-  return getEnumKey(ModuleStatus, stat)
+  return getEnumKey(ModuleStatus, stat);
 }
 
 export enum OnlineStatus {
@@ -39,7 +39,7 @@ export enum OnlineStatus {
  * @param stat The online status value to convert
  */
 export function getOnlineStatusString(stat: OnlineStatus): string {
-  return getEnumKey(OnlineStatus, stat)
+  return getEnumKey(OnlineStatus, stat);
 }
 
 export interface Threat<T = any> {
@@ -74,7 +74,7 @@ export enum FailureStatus {
  * @param stat The failure status value.
  */
 export function getFailureStatusString(stat: FailureStatus): string {
-  return getEnumKey(FailureStatus, stat)
+  return getEnumKey(FailureStatus, stat);
 }
 
 export interface Module {
@@ -131,5 +131,5 @@ export interface VersionStatus extends Record {
   Core: CoreVersion;
   Resources: {
     [key: string]: Resource
-  }
+  };
 }

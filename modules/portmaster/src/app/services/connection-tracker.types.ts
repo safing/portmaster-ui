@@ -1,4 +1,4 @@
-import { Connection, IntelEntity, Verdict } from "./network.types";
+import { Connection, IntelEntity, Verdict } from './network.types';
 
 export class ConnectionStatistics {
   constructor(
@@ -115,7 +115,7 @@ export class ConnectionStatistics {
   /** Either add or remove statistic counters for the given entity. */
   private updateEntity(entity: IntelEntity, method: (m: Map<string, number>, k: string) => void) {
     if (!!entity.ASN) {
-      method(this.distinctASNs, `AS${entity.ASN}`)
+      method(this.distinctASNs, `AS${entity.ASN}`);
     }
 
     if (!!entity.IP) {

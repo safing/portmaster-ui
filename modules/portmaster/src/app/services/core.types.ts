@@ -23,12 +23,12 @@ export interface Identifyable {
 /** A TrackByFunction for all Identifyable objects. */
 export const trackById: TrackByFunction<Identifyable> = (_: number, obj: Identifyable) => {
   return obj.ID;
-}
+};
 
 export function getEnumKey(enumLike: any, value: string | number): string {
   if (typeof value === 'string') {
-    return value.toLowerCase()
+    return value.toLowerCase();
   }
 
-  return (enumLike[value] as string).toLowerCase()
+  return (enumLike[value] as string).toLowerCase();
 }

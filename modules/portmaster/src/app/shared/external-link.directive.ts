@@ -22,7 +22,7 @@ export class ExternalLinkDirective {
   hrefAttr = '';
 
   @Input()
-  href: string = '';
+  href = '';
 
   constructor(@Inject(PLATFORM_ID) private platformId: string) { }
 

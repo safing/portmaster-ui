@@ -35,10 +35,10 @@ export class AppOverviewComponent implements OnInit, OnDestroy {
   profiles: AppProfile[] = [];
 
   /** The current search term */
-  searchTerm: string = '';
+  searchTerm = '';
 
   /** total number of profiles */
-  total: number = 0;
+  total = 0;
 
   /** Observable emitting the search term */
   private onSearch = new BehaviorSubject('');
@@ -117,7 +117,7 @@ export class AppOverviewComponent implements OnInit, OnDestroy {
 
           this.changeDetector.markForCheck();
         }
-      )
+      );
   }
 
   /**

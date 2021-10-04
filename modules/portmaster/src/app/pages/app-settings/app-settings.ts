@@ -32,7 +32,7 @@ export class AppSettingsPageComponent implements OnInit, OnDestroy {
    * @private
    * Whether or not the overview componet should be rendered.
    */
-  get showOverview() { return this.appProfile == null }
+  get showOverview() { return this.appProfile == null; }
 
   /**
    * @private
@@ -65,7 +65,7 @@ export class AppSettingsPageComponent implements OnInit, OnDestroy {
    */
   get viewSetting(): 'all' | 'active' {
     return this.viewSettingChange.getValue();
-  };
+  }
 
   /**
    * @private
@@ -128,7 +128,7 @@ export class AppSettingsPageComponent implements OnInit, OnDestroy {
           console.error(err);
           this.actionIndicator.error('Failed to save setting', err);
         },
-      })
+      });
   }
 
   ngOnInit() {
@@ -141,8 +141,8 @@ export class AppSettingsPageComponent implements OnInit, OnDestroy {
           switchMap(params => {
             // Get the profile source and id. If one is unset (null)
             // than return a"null" emit-once stream.
-            const source = params.get("source");
-            const id = params.get("id")
+            const source = params.get('source');
+            const id = params.get('id');
             if (source === null || id === null) {
               return of(null);
             }
@@ -160,7 +160,7 @@ export class AppSettingsPageComponent implements OnInit, OnDestroy {
         profileStream,                        // emits the current app profile everytime it changes
         this.route.queryParamMap,             // for changes to the settings= query parameter
         this.profileService.globalConfig(),   // for changes to ghe global profile
-        this.configService.query(""),         // get ALL settings (once, only the defintion is of intereset)
+        this.configService.query(''),         // get ALL settings (once, only the defintion is of intereset)
         this.viewSettingChange.pipe(          // watch the current "settings-view" setting, but only if it changes
           distinctUntilChanged(),
         ),
@@ -246,10 +246,10 @@ export class AppSettingsPageComponent implements OnInit, OnDestroy {
       .onAction('delete', () => {
         this.profileService.deleteProfile(this.appProfile!)
           .subscribe(() => {
-            this.router.navigate(['/app/overview'])
+            this.router.navigate(['/app/overview']);
             this.actionIndicator.success('Profile Deleted', 'Successfully deleted profile '
               + this.appProfile?.Name);
-          })
-      })
+          });
+      });
   }
 }

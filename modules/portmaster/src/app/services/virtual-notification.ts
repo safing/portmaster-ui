@@ -13,10 +13,10 @@ export class VirtualNotification<T> implements Notification<T> {
 
   get State() {
     if (this.SelectedActionID === '') {
-      return NotificationState.Active
+      return NotificationState.Active;
     }
 
-    return NotificationState.Executed
+    return NotificationState.Executed;
   }
 
   get SelectedActionID() {
@@ -76,7 +76,7 @@ export class VirtualNotification<T> implements Notification<T> {
       Expires: this.Expires,
       Modified: new Date().valueOf() / 1000,
       Key: `notifications:all/${EventID}`,
-    }
+    };
   }
 
   dispose() {

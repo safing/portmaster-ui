@@ -19,11 +19,11 @@ export type DialogState = 'opening' | 'open' | 'closing' | 'closed';
   animations: [dialogAnimation]
 })
 export class DialogComponent {
-  onStateChange = new Subject<DialogState>();
 
   constructor(
     private cdr: ChangeDetectorRef
   ) { }
+  onStateChange = new Subject<DialogState>();
 
   @HostBinding('@dialogContainer')
   state = 'enter';
@@ -31,16 +31,16 @@ export class DialogComponent {
   @ViewChild(CdkPortalOutlet, { static: true })
   _portalOutlet: CdkPortalOutlet | null = null;
 
+  @Input()
+  dragable = false;
+
   attachComponentPortal<T>(portal: ComponentPortal<T>): ComponentRef<T> {
-    return this._portalOutlet!.attachComponentPortal(portal)
+    return this._portalOutlet!.attachComponentPortal(portal);
   }
 
   attachTemplatePortal<T>(portal: TemplatePortal<T>): EmbeddedViewRef<T> {
     return this._portalOutlet!.attachTemplatePortal(portal);
   }
-
-  @Input()
-  dragable: boolean = false;
 
   @HostListener('@dialogContainer.start', ['$event'])
   onAnimationStart({ toState }: AnimationEvent) {

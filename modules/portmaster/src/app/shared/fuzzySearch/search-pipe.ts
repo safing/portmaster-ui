@@ -11,8 +11,8 @@ export class FuzzySearchPipe implements PipeTransform {
   ) { }
 
   transform<T>(elements: Array<T>,
-    searchTerms: string,
-    options: FuseSearchOpts<T> = {}): Array<FuseResult<T>> {
+               searchTerms: string,
+               options: FuseSearchOpts<T> = {}): Array<FuseResult<T>> {
 
     return this.FusejsService.searchList(elements, searchTerms, options);
   }

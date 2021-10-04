@@ -1,1 +1,1 @@
-export { PilotWidgetComponent } from "./pilot-widget";
+export { PilotWidgetComponent } from './pilot-widget';

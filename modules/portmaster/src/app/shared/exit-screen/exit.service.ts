@@ -22,15 +22,15 @@ export class ExitService {
         .subscribe(() => {
           setTimeout(() => {
             window.app.exitApp();
-          }, 1000)
-        })
+          }, 1000);
+        });
     }
 
     window.addEventListener('beforeunload', () => {
       // best effort. may not work all the time depending on
       // the current websocket buffer state
       this.portapi.bridgeAPI('ui/reload', 'POST').subscribe();
-    })
+    });
 
     window.addEventListener('message', event => {
       if (event.data === 'on-app-close') {
@@ -49,9 +49,9 @@ export class ExitService {
             this.dialog.create(ExitScreenComponent, { autoclose: true })
               .onAction('exit', () => window.app.exitApp())
               .onClose.subscribe(() => this.hasOverlay = false);
-          })
+          });
       }
-    })
+    });
   }
 
   shutdownPortmaster() {
@@ -68,6 +68,6 @@ export class ExitService {
         }
       ]
     })
-      .onAction('shutdown', () => this.portapi.shutdownPortmaster())
+      .onAction('shutdown', () => this.portapi.shutdownPortmaster());
   }
 }

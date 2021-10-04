@@ -14,14 +14,14 @@ import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
   ]
 })
 export class ToggleSwitchComponent implements OnInit, ControlValueAccessor {
+
+  constructor(private _changeDetector: ChangeDetectorRef) { }
+
+  value = false;
   @HostListener('blur')
   onBlur() {
     this.onTouch();
   }
-
-  value: boolean = false;
-
-  constructor(private _changeDetector: ChangeDetectorRef) { }
 
   ngOnInit(): void {
   }

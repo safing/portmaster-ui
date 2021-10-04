@@ -14,6 +14,11 @@ import { ConnTracker, ProcessGroup } from '../../services/connection-tracker.ser
   ],
 })
 export class NetworkOverviewComponent implements OnInit, OnDestroy {
+
+  constructor(
+    private connTrack: ConnTracker,
+    private changeDetector: ChangeDetectorRef,
+  ) { }
   /** @private Whether or not we are still loading initial data. */
   loading = true;
 
@@ -29,19 +34,14 @@ export class NetworkOverviewComponent implements OnInit, OnDestroy {
   /** @private All process-groups/profiles that are currently active. */
   profiles: ProcessGroup[] = [];
 
+  /** The subscription to our active process-group updates observable */
+  private subscription = Subscription.EMPTY;
+
   /**
    * @private
    * {@type TrackByFunction} from process groups.
    */
   trackProfile: TrackByFunction<ProcessGroup> = (_: number, p: ProcessGroup) => p.ID;
-
-  /** The subscription to our active process-group updates observable */
-  private subscription = Subscription.EMPTY;
-
-  constructor(
-    private connTrack: ConnTracker,
-    private changeDetector: ChangeDetectorRef,
-  ) { }
 
   ngOnInit() {
     // Subscribe to updates on the list of runnently running profiles
@@ -64,7 +64,7 @@ export class NetworkOverviewComponent implements OnInit, OnDestroy {
           this.profiles = profiles;
 
           this.changeDetector.markForCheck();
-        })
+        });
   }
 
   ngOnDestroy() {

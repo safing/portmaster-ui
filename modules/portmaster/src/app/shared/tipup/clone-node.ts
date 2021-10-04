@@ -32,7 +32,7 @@ export function deepCloneNode(node: HTMLElement): HTMLElement {
 
 /** Matches elements between an element and its clone and allows for their data to be cloned. */
 function transferData<T extends Element>(selector: string, node: HTMLElement, clone: HTMLElement,
-  callback: (source: T, clone: T) => void) {
+                                         callback: (source: T, clone: T) => void) {
   const descendantElements = node.querySelectorAll<T>(selector);
 
   if (descendantElements.length) {
@@ -49,7 +49,7 @@ let cloneUniqueId = 0;
 
 /** Transfers the data of one input element to another. */
 function transferInputData(source: Element & { value: string },
-  clone: Element & { value: string; name: string; type: string }) {
+                           clone: Element & { value: string; name: string; type: string }) {
   // Browsers throw an error when assigning the value of a file input programmatically.
   if (clone.type !== 'file') {
     clone.value = source.value;
@@ -103,9 +103,9 @@ export function matchElementSize(target: HTMLElement, sourceRect: ClientRect): v
  * Note that the keys in `source` have to be dash-cased.
  */
 export function extendStyles(dest: CSSStyleDeclaration,
-  source: Record<string, string>,
-  importantProperties?: Set<string>) {
-  for (let key in source) {
+                             source: Record<string, string>,
+                             importantProperties?: Set<string>) {
+  for (const key in source) {
     if (source.hasOwnProperty(key)) {
       const value = source[key];
 

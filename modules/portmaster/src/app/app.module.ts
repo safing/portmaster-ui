@@ -197,7 +197,7 @@ import { PrettyCountPipe } from './shared/count.pipe';
         name: 'Pilot',
         widgetComponent: PilotWidgetComponent,
         disableCustom: true,
-        tipUpKey: "pilot-widget"
+        tipUpKey: 'pilot-widget'
       },
       multi: true,
     },
@@ -207,7 +207,7 @@ import { PrettyCountPipe } from './shared/count.pipe';
         type: 'notification-widget',
         name: 'Notifications',
         widgetComponent: NotificationWidgetComponent,
-        //settingsComponent: NotificationWidgetSettingsComponent,
+        // settingsComponent: NotificationWidgetSettingsComponent,
       },
       multi: true,
     },
@@ -226,6 +226,6 @@ import { PrettyCountPipe } from './shared/count.pipe';
 export class AppModule {
   constructor(library: FaIconLibrary) {
     library.addIconPacks(fas, far);
-    library.addIcons(faGithub)
+    library.addIcons(faGithub);
   }
 }

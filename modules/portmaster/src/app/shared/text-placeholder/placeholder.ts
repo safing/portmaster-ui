@@ -16,7 +16,7 @@ export class PlaceholderComponent implements AfterContentChecked {
   set width(v: string | number) {
     if (typeof v === 'number') {
       this._width = `${v}px`;
-      return
+      return;
     }
 
     switch (v) {
@@ -28,13 +28,13 @@ export class PlaceholderComponent implements AfterContentChecked {
         break;
       case 'large':
         this._width = '15rem';
-        break
+        break;
       default:
         this._width = v;
     }
   }
   get width() { return this._width; }
-  private _width: string = '10rem';
+  private _width = '10rem';
 
   @Input()
   mode: 'auto' | 'input' = 'auto';

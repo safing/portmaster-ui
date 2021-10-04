@@ -59,6 +59,9 @@ interface TreeNode {
   ]
 })
 export class FilterListComponent implements OnInit, OnDestroy, ControlValueAccessor {
+
+  constructor(private portapi: PortapiService,
+              private changeDetectorRef: ChangeDetectorRef) { }
   /** The actual filter-list index as loaded from the portmaster. */
   private index: FilterListIndex | null = null;
 
@@ -68,24 +71,21 @@ export class FilterListComponent implements OnInit, OnDestroy, ControlValueAcces
   /** A lookup map for fast ID to TreeNode lookups */
   private lookupMap: Map<string, TreeNode> = new Map();
 
-  /** @private forward blur events to the onTouch callback. */
-  @HostListener('blur')
-  onBlur() {
-    this.onTouch();
-  }
-
   /** The currently selected IDs. */
   private selectedIDs: string[] = [];
 
   /** Subscription to watch the filterlist index. */
   private watchSubscription = Subscription.EMPTY;
 
-  constructor(private portapi: PortapiService,
-    private changeDetectorRef: ChangeDetectorRef) { }
+  /** @private forward blur events to the onTouch callback. */
+  @HostListener('blur')
+  onBlur() {
+    this.onTouch();
+  }
 
   ngOnInit() {
     this.watchSubscription =
-      this.portapi.watch<FilterListIndex>("cache:intel/filterlists/index")
+      this.portapi.watch<FilterListIndex>('cache:intel/filterlists/index')
         .subscribe(
           index => this.updateIndex(index),
           err => {
@@ -135,13 +135,13 @@ export class FilterListComponent implements OnInit, OnDestroy, ControlValueAcces
   private updateIndex(index: FilterListIndex) {
     this.index = index;
 
-    var nodes: TreeNode[] = [];
-    let lm = new Map<string, TreeNode>();
-    let childCategories: Category[] = [];
+    const nodes: TreeNode[] = [];
+    const lm = new Map<string, TreeNode>();
+    const childCategories: Category[] = [];
 
     // Create a tree-node for each category
     this.index.categories.forEach(category => {
-      let tn: TreeNode = {
+      const tn: TreeNode = {
         id: category.id,
         description: category.description,
         name: category.name,
@@ -150,7 +150,7 @@ export class FilterListComponent implements OnInit, OnDestroy, ControlValueAcces
         selected: false,
       };
 
-      lm.set(category.id, tn)
+      lm.set(category.id, tn);
 
       // if the category does not have a parent
       // it's a root node.
@@ -177,12 +177,12 @@ export class FilterListComponent implements OnInit, OnDestroy, ControlValueAcces
     });
 
     this.index.sources.forEach(source => {
-      let category = lm.get(source.category);
+      const category = lm.get(source.category);
       if (!category) {
         return;
       }
 
-      let tn: TreeNode = {
+      const tn: TreeNode = {
         id: source.id,
         name: source.name,
         description: source.description,
@@ -192,7 +192,7 @@ export class FilterListComponent implements OnInit, OnDestroy, ControlValueAcces
         parent: category,
         website: source.website,
         license: source.license,
-      }
+      };
 
       // Add the source to the lookup-map
       lm.set(source.id, tn);
@@ -225,9 +225,9 @@ export class FilterListComponent implements OnInit, OnDestroy, ControlValueAcces
 
   /** Returns all actually selected IDs. */
   private getIDs() {
-    let ids: string[] = [];
+    const ids: string[] = [];
 
-    let collectIds = (n: TreeNode) => {
+    const collectIds = (n: TreeNode) => {
       if (n.selected) {
         // If the parent is selected we can ignore the
         // childs because they must be selected as well.
@@ -236,9 +236,9 @@ export class FilterListComponent implements OnInit, OnDestroy, ControlValueAcces
       }
 
       n.children.forEach(child => collectIds(child));
-    }
+    };
 
-    this.nodes.forEach(node => collectIds(node))
+    this.nodes.forEach(node => collectIds(node));
 
     return ids;
   }
@@ -271,7 +271,7 @@ export class FilterListComponent implements OnInit, OnDestroy, ControlValueAcces
         // if we are unselected now we might need to "unselect" the parent
         // but select siblings directly
         const selectedSiblings = node.parent.children.filter(sibling => sibling.selected && sibling !== node);
-        this.updateNode(node.parent, false, false, true, false)
+        this.updateNode(node.parent, false, false, true, false);
       }
     }
 

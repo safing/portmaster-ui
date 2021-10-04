@@ -17,18 +17,6 @@ import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
   ],
 })
 export class RuleListComponent implements ControlValueAccessor {
-  /** Add the host element into the tab-sequence */
-  @HostBinding('tabindex')
-  readonly tabindex = 0;
-
-  /**
-   * @private
-   * Mark the component as dirty by calling the onTouch callback of the control-value accessor
-   */
-  @HostListener('blur')
-  onBlur() {
-    this.onTouch();
-  }
 
   /**
    * Whether or not the component should be displayed as read-only.
@@ -40,6 +28,11 @@ export class RuleListComponent implements ControlValueAccessor {
   get readonly() {
     return this._readonly;
   }
+
+  constructor(private changeDetector: ChangeDetectorRef) { }
+  /** Add the host element into the tab-sequence */
+  @HostBinding('tabindex')
+  readonly tabindex = 0;
   private _readonly = false;
 
   /**
@@ -48,7 +41,14 @@ export class RuleListComponent implements ControlValueAccessor {
    */
   entries: string[] = [];
 
-  constructor(private changeDetector: ChangeDetectorRef) { }
+  /**
+   * @private
+   * Mark the component as dirty by calling the onTouch callback of the control-value accessor
+   */
+  @HostListener('blur')
+  onBlur() {
+    this.onTouch();
+  }
 
   /**
    * @private

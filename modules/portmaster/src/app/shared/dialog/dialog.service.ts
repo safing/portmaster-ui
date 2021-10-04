@@ -42,7 +42,7 @@ export class DialogService {
   create<T>(template: TemplatePortal<T>, opts?: BaseDialogConfig): DialogRef<EmbeddedViewRef<T>>;
   create<T>(target: ComponentType<T>, opts?: BaseDialogConfig & ComponentPortalConfig): DialogRef<ComponentRef<T>>;
   create<T>(target: ComponentType<T> | TemplatePortal<T>, opts: BaseDialogConfig & ComponentPortalConfig = {}): DialogRef<any> {
-    let position: PositionStrategy = opts?.positionStrategy || this.overlay
+    const position: PositionStrategy = opts?.positionStrategy || this.overlay
       .position()
       .global()
       .centerVertically()
@@ -61,8 +61,8 @@ export class DialogService {
     const cfg = new OverlayConfig({
       scrollStrategy: this.overlay.scrollStrategies.noop(),
       positionStrategy: position,
-      hasBackdrop: hasBackdrop,
-      backdropClass: backdropClass,
+      hasBackdrop,
+      backdropClass,
     });
     const overlayref = this.overlay.create(cfg);
 
@@ -72,7 +72,7 @@ export class DialogService {
       DialogComponent,
       undefined,
       this.injector,
-    )
+    );
     const containerRef = containerPortal.attach(overlayref);
 
     if (!!opts.dragable) {
@@ -85,7 +85,7 @@ export class DialogService {
     // prepare the content portal and attach it to the container
     let result: any;
     if (target instanceof TemplatePortal) {
-      result = containerRef.instance.attachTemplatePortal(target)
+      result = containerRef.instance.attachTemplatePortal(target);
     } else {
       const contentPortal = new ComponentPortal(target, null, Injector.create({
         providers: [
@@ -112,7 +112,7 @@ export class DialogService {
         )
         .subscribe(() => {
           dialogRef.close();
-        })
+        });
     }
     return dialogRef;
   }
@@ -129,6 +129,6 @@ export class DialogService {
         ],
         parent: this.injector,
       })
-    })
+    });
   }
 }

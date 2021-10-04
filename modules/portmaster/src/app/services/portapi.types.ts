@@ -93,7 +93,7 @@ export function isDataReply(d: ReplyMessage): d is DataReply<any> {
     || d.type === 'upd'
     || d.type === 'new'
     || d.type === 'del';
-  //|| d.type === 'done'; // done is actually not correct
+  // || d.type === 'done'; // done is actually not correct
 }
 
 /**
@@ -255,7 +255,7 @@ export function retryPipeline<T>({ retryDelay, maxRetries }: RetryableOpts = {})
         of(e).pipe(delay(retryDelay || 1000))
       )
     )
-  ))
+  ));
 }
 
 /**
@@ -274,8 +274,8 @@ export function shareBehavior<T>(def: T): MonoTypeOperatorFunction<T> {
     return source.pipe(
       multicast(() => new BehaviorSubject<T>(def)),
       refCount(),
-    )
-  }
+    );
+  };
 }
 
 export interface WatchOpts extends RetryableOpts {
@@ -306,7 +306,7 @@ export function serializeMessage(msg: RequestMessage | ReplyMessage): any {
 
     case 'error':       // reply
     case 'warning':     // reply
-      blob += `|${msg.message}`
+      blob += `|${msg.message}`;
       break;
 
     case 'ok':          // reply
@@ -315,20 +315,20 @@ export function serializeMessage(msg: RequestMessage | ReplyMessage): any {
     case 'insert':      // request
     case 'update':      // request
     case 'create':      // request
-      blob += `|${msg.key}|J${JSON.stringify(msg.data)}`
+      blob += `|${msg.key}|J${JSON.stringify(msg.data)}`;
       break;
 
 
     case 'del':         // reply
     case 'get':         // request
     case 'delete':      // request
-      blob += `|${msg.key}`
+      blob += `|${msg.key}`;
       break;
 
     case 'query':       // request
     case 'sub':         // request
     case 'qsub':        // request
-      blob += `|query ${msg.query}`
+      blob += `|query ${msg.query}`;
       break;
 
     default:
@@ -351,12 +351,12 @@ export function deserializeMessage(event: MessageEvent): RequestMessage | ReplyM
   let data: string;
 
   if (typeof event.data !== 'string') {
-    data = new TextDecoder("utf-8").decode(event.data)
+    data = new TextDecoder('utf-8').decode(event.data);
   } else {
     data = event.data;
   }
 
-  const parts = data.split("|");
+  const parts = data.split('|');
 
   if (parts.length < 2) {
     throw new Error(`invalid number of message parts, expected 3-4 but got ${parts.length}`);
@@ -365,13 +365,13 @@ export function deserializeMessage(event: MessageEvent): RequestMessage | ReplyM
   const id = parts[0];
   const type = parts[1] as MessageType;
 
-  var msg: Partial<RequestMessage | ReplyMessage> = {
+  const msg: Partial<RequestMessage | ReplyMessage> = {
     id,
     type,
-  }
+  };
 
   if (parts.length > 4) {
-    parts[3] = parts.slice(3).join('|')
+    parts[3] = parts.slice(3).join('|');
   }
 
   switch (msg.type) {
@@ -409,7 +409,7 @@ export function deserializeMessage(event: MessageEvent): RequestMessage | ReplyM
     case 'sub':         // request
     case 'qsub':        // request
       msg.query = parts[2];
-      if (msg.query.startsWith("query ")) {
+      if (msg.query.startsWith('query ')) {
         msg.query = msg.query.slice(6);
       }
       break;

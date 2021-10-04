@@ -34,7 +34,7 @@ export class AppProfileService {
 
     if (!!id) {
       key = `core:profiles/${idOrSourceOrProfile}/${id}`;
-    };
+    }
 
     return key;
   }
@@ -56,7 +56,7 @@ export class AppProfileService {
    * @param key The key of the application profile.
    */
   getAppProfileFromKey(key: string): Observable<AppProfile> {
-    return this.portapi.get(key)
+    return this.portapi.get(key);
   }
 
   /**
@@ -66,7 +66,7 @@ export class AppProfileService {
     return this.getAppProfile('special', 'global-config')
       .pipe(
         map(profile => flattenProfileConfig(profile.Config)),
-      )
+      );
   }
 
   /**
@@ -77,7 +77,7 @@ export class AppProfileService {
    */
   watchAppProfile(source: string, id: string): Observable<AppProfile> {
     const key = `core:profiles/${source}/${id}`;
-    return this.portapi.watch(key)
+    return this.portapi.watch(key);
   }
 
   /** @deprecated use saveProfile instead */
@@ -99,7 +99,7 @@ export class AppProfileService {
    * Watch all application profiles
    */
   watchProfiles(): Observable<AppProfile[]> {
-    return this.portapi.watchAll<AppProfile>('core:profiles/')
+    return this.portapi.watchAll<AppProfile>('core:profiles/');
   }
 
   /**

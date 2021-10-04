@@ -54,7 +54,7 @@ export class ExpertiseDirective<T> implements OnInit, OnDestroy {
     if (hide && !!this._levelOverwriteFn) {
       hide = !this._levelOverwriteFn(current, this._data!);
       if (!hide) {
-        console.log("overwritten", current, this._data);
+        console.log('overwritten', current, this._data);
       }
     }
 
@@ -64,7 +64,7 @@ export class ExpertiseDirective<T> implements OnInit, OnDestroy {
         this.viewContainer.clear();
         this.view = null;
       }
-      return
+      return;
     }
 
     if (!!this.view) {
@@ -83,7 +83,7 @@ export class ExpertiseDirective<T> implements OnInit, OnDestroy {
   ) { }
 
   ngOnInit() {
-    this.subscription = this.expertiseService.change.subscribe(() => this.update())
+    this.subscription = this.expertiseService.change.subscribe(() => this.update());
   }
 
   ngOnDestroy() {

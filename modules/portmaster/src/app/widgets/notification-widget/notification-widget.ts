@@ -58,7 +58,7 @@ export class NotificationWidgetComponent implements OnInit, OnDestroy {
   }
 
   @HostBinding('@moveInOutList')
-  get length() { return this.notifications.length }
+  get length() { return this.notifications.length; }
 
   /** Used to remember the current scroll-top when expanding a notification. */
   private _prevScrollTop = 0;
@@ -84,7 +84,7 @@ export class NotificationWidgetComponent implements OnInit, OnDestroy {
       .pipe(
         // filter out any prompts as they are handled by a different widget.
         map(notifs =>
-          notifs.filter(notif => !(notif.Type === NotificationType.Prompt && notif.EventID.startsWith("filter:prompt"))))
+          notifs.filter(notif => !(notif.Type === NotificationType.Prompt && notif.EventID.startsWith('filter:prompt'))))
       )
       .subscribe(list => {
         this.notifications = list;
@@ -118,7 +118,7 @@ export class NotificationWidgetComponent implements OnInit, OnDestroy {
     }
 
     this.notifsService.execute(n, action)
-      .subscribe()
+      .subscribe();
   }
 
   /**

@@ -19,7 +19,7 @@ describe('ConfigService', () => {
       ]
     });
     service = TestBed.inject(ConfigService);
-    mock = MockWebSocketSubject.lastMock!
+    mock = MockWebSocketSubject.lastMock!;
   });
 
   it('should be created', () => {
@@ -28,28 +28,28 @@ describe('ConfigService', () => {
   });
 
   it('should support loading a setting', () => {
-    let observer = createSpyObserver();
-    service.get("updates/disable").subscribe(observer);
+    const observer = createSpyObserver();
+    service.get('updates/disable').subscribe(observer);
 
     mock.lastMultiplex!.next({
       id: mock.lastRequestId!,
       type: 'ok',
       data: {
-        Name: "Disable Updates",
-        Key: "updates/disable",
+        Name: 'Disable Updates',
+        Key: 'updates/disable',
         Value: true,
         DefaultValue: false,
       },
-      key: "config:updates/disable",
-    })
+      key: 'config:updates/disable',
+    });
 
-    mock.expectLastMessage('type').toBe('get')
-    mock.expectLastMessage('key').toBe('config:updates/disable')
+    mock.expectLastMessage('type').toBe('get');
+    mock.expectLastMessage('key').toBe('config:updates/disable');
 
     expect(observer.complete).toHaveBeenCalled();
     expect(observer.next).toHaveBeenCalledWith({
-      Name: "Disable Updates",
-      Key: "updates/disable",
+      Name: 'Disable Updates',
+      Key: 'updates/disable',
       Value: true,
       DefaultValue: false,
     });
@@ -57,36 +57,36 @@ describe('ConfigService', () => {
   });
 
   it('should support querying settings', () => {
-    let observer = createSpyObserver();
-    service.query("").subscribe(observer);
+    const observer = createSpyObserver();
+    service.query('').subscribe(observer);
 
-    mock.expectLastMessage('type').toBe('query')
-    mock.expectLastMessage('query').toBe('config:')
+    mock.expectLastMessage('type').toBe('query');
+    mock.expectLastMessage('query').toBe('config:');
 
-    var settings: Partial<Setting>[] = [ // de can live with partitial data here
+    const settings: Partial<Setting>[] = [ // de can live with partitial data here
       {
-        Name: "Disable Updates",
+        Name: 'Disable Updates',
         OptType: OptionType.Bool,
         DefaultValue: false,
         Value: true,
-        Key: "updates/disable",
+        Key: 'updates/disable',
       },
       {
-        Name: "Update Server",
+        Name: 'Update Server',
         OptType: OptionType.String,
-        DefaultValue: "https://updates.safing.io",
-        Key: "updates/server"
+        DefaultValue: 'https://updates.safing.io',
+        Key: 'updates/server'
       }
-    ]
+    ];
 
     settings.forEach(setting => {
       mock.lastMultiplex!.next({
         id: mock.lastRequestId!,
         type: 'ok',
         data: setting,
-        key: "config:" + setting.Key
-      })
-    })
+        key: 'config:' + setting.Key
+      });
+    });
 
     // we did not yet send a "done" and since service.query
     // is expected to collect results, nothing has been nexted
@@ -96,19 +96,19 @@ describe('ConfigService', () => {
     mock.lastMultiplex!.next({
       id: mock.lastRequestId!,
       type: 'done',
-    })
+    });
 
     expect(observer.complete).toHaveBeenCalled();
     expect(observer.error).not.toHaveBeenCalled();
     expect(observer.next).toHaveBeenCalledWith(settings);
-  })
+  });
 
   it('should support watching a setting', () => {
-    let observer = createSpyObserver();
-    service.watch("disable/updates").subscribe(observer);
+    const observer = createSpyObserver();
+    service.watch('disable/updates').subscribe(observer);
 
-    mock.expectLastMessage('type').toBe('qsub')
-    mock.expectLastMessage('query').toBe('config:disable/updates')
+    mock.expectLastMessage('type').toBe('qsub');
+    mock.expectLastMessage('query').toBe('config:disable/updates');
 
     const stream = mock.lastMultiplex!;
 
@@ -120,10 +120,10 @@ describe('ConfigService', () => {
       type: 'ok',
       data: {
         Key: 'disable/updatesSchedule',
-        Value: "value"
+        Value: 'value'
       },
       key: 'config:disable/updatesSchedule',
-    })
+    });
 
     stream.next({
       id: mock.lastRequestId!,
@@ -133,7 +133,7 @@ describe('ConfigService', () => {
         Value: true
       },
       key: 'config:disable/updates',
-    })
+    });
 
     // this one will not be emitted (on purpuse) because
     // the default value is the same as Value and we only want
@@ -146,11 +146,11 @@ describe('ConfigService', () => {
         DefaultValue: true,
       },
       key: 'config:disable/updates',
-    })
+    });
 
 
-    expect(observer.next).toHaveBeenCalledWith(true)
-    expect(observer.next).toHaveBeenCalledTimes(1)
+    expect(observer.next).toHaveBeenCalledWith(true);
+    expect(observer.next).toHaveBeenCalledTimes(1);
     // we are watching so the stream must be open
     expect(observer.complete).not.toHaveBeenCalled();
     expect(observer.error).not.toHaveBeenCalled();
@@ -160,7 +160,7 @@ describe('ConfigService', () => {
       type: 'ok',
       data: {
         Key: 'disable/updatesSchedule',
-        Value: "value"
+        Value: 'value'
       },
       key: 'config:disable/updatesSchedule',
     });
@@ -175,26 +175,26 @@ describe('ConfigService', () => {
       key: 'config:disable/updates',
     });
 
-    expect(observer.next).toHaveBeenCalledWith(false)
-    expect(observer.next).toHaveBeenCalledTimes(2)
+    expect(observer.next).toHaveBeenCalledWith(false);
+    expect(observer.next).toHaveBeenCalledTimes(2);
     // we are watching so the stream must be open
     expect(observer.complete).not.toHaveBeenCalled();
     expect(observer.error).not.toHaveBeenCalled();
   });
 
   it('should support saving a setting by object', () => {
-    let setting: BoolSetting = {
+    const setting: BoolSetting = {
       DefaultValue: false,
-      Name: "Disable Updates",
+      Name: 'Disable Updates',
       ExpertiseLevel: ExpertiseLevelNumber.developer,
       ExternalOptType: ExternalOptionHint.DisableUpdates,
-      Key: "updates/disable",
+      Key: 'updates/disable',
       OptType: OptionType.Bool,
       Value: true,
       ReleaseLevel: ReleaseLevel.Stable,
-    }
+    };
 
-    let observer = createSpyObserver()
+    const observer = createSpyObserver();
     service.save(setting).subscribe(observer);
 
     expect(mock.lastMessageSent).toEqual({
@@ -202,41 +202,41 @@ describe('ConfigService', () => {
       type: 'update',
       data: setting,
       key: 'config:updates/disable'
-    })
+    });
     mock.lastMultiplex!.next({
       id: mock.lastRequestId!,
       type: 'success',
-    })
+    });
 
     expect(observer.complete).toHaveBeenCalled();
     expect(observer.error).not.toHaveBeenCalled();
     expect(observer.next).toHaveBeenCalledWith(undefined);
-  })
+  });
 
   it('should support saving a setting by key/value', () => {
-    let observer = createSpyObserver()
-    service.save("updates/disable", true).subscribe(observer);
+    const observer = createSpyObserver();
+    service.save('updates/disable', true).subscribe(observer);
 
     expect(mock.lastMessageSent).toEqual({
       id: mock.lastRequestId!, // don't expect the request id
       type: 'update',
       data: {
-        Key: "updates/disable",
+        Key: 'updates/disable',
         Value: true,
       },
       key: 'config:updates/disable'
-    })
+    });
     mock.lastMultiplex!.next({
       id: mock.lastRequestId!,
       type: 'success',
-    })
+    });
 
     expect(observer.complete).toHaveBeenCalled();
     expect(observer.error).not.toHaveBeenCalled();
     expect(observer.next).toHaveBeenCalledWith(undefined);
-  })
+  });
 });
 
 function createSpyObserver(): PartialObserver<any> {
-  return jasmine.createSpyObj("observer", ["next", "error", "complete"])
+  return jasmine.createSpyObj('observer', ['next', 'error', 'complete']);
 }

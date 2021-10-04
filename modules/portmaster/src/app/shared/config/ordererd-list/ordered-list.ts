@@ -1,4 +1,4 @@
-import { Component, OnInit, forwardRef, HostListener, ChangeDetectionStrategy, HostBinding, Input, ChangeDetectorRef } from "@angular/core";
+import { Component, OnInit, forwardRef, HostListener, ChangeDetectionStrategy, HostBinding, Input, ChangeDetectorRef } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { coerceBooleanProperty } from '@angular/cdk/coercion';
 import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
@@ -18,13 +18,6 @@ import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
   ]
 })
 export class OrderedListComponent implements ControlValueAccessor {
-  @HostBinding('tabindex')
-  readonly tabindex = 0;
-
-  @HostListener('blur')
-  onBlur() {
-    this.onTouch();
-  }
 
   @Input()
   set readonly(v: any) {
@@ -33,7 +26,6 @@ export class OrderedListComponent implements ControlValueAccessor {
   get readonly() {
     return this._readonly;
   }
-  _readonly = false;
 
   @Input()
   set fixedOrder(v: any) {
@@ -42,11 +34,19 @@ export class OrderedListComponent implements ControlValueAccessor {
   get fixedOrder() {
     return this._fixedOrder;
   }
+
+  constructor(private changeDetector: ChangeDetectorRef) { }
+  @HostBinding('tabindex')
+  readonly tabindex = 0;
+  _readonly = false;
   private _fixedOrder = false;
 
   entries: string[] = [];
 
-  constructor(private changeDetector: ChangeDetectorRef) { }
+  @HostListener('blur')
+  onBlur() {
+    this.onTouch();
+  }
 
   updateValue(index: number, newValue: string) {
     // we need to make a new object copy here.
@@ -72,7 +72,7 @@ export class OrderedListComponent implements ControlValueAccessor {
 
     this.entries = [...this.entries];
     this.entries.push('');
-    //this.onChange(this.entries);
+    // this.onChange(this.entries);
   }
 
   writeValue(value: string[]) {

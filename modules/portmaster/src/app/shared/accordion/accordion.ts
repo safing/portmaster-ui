@@ -15,19 +15,6 @@ import { AccordionGroupComponent } from './accordion-group';
   ]
 })
 export class AccordionComponent<T = any> implements OnInit {
-  /** @deprecated in favor of [data] */
-  @Input()
-  title: string = '';
-
-  /**
-   * The data the accordion component is used for. This is passed as an $implicit context
-   * to the header template.
-   */
-  @Input()
-  data: T | undefined = undefined;
-
-  @Input()
-  trackBy: TrackByFunction<T | null> = (_, c) => c
 
   /** Whether or not the accordion component starts active. */
   @Input()
@@ -37,7 +24,25 @@ export class AccordionComponent<T = any> implements OnInit {
   get active() {
     return this._active;
   }
-  private _active: boolean = false;
+
+  @HostBinding('class.active')
+  /** @private Whether or not the accordion should have the 'active' class */
+  get activeClass(): string {
+    return this.active;
+  }
+
+  constructor(@Optional() private group: AccordionGroupComponent) { }
+  /** @deprecated in favor of [data] */
+  @Input()
+  title = '';
+
+  /**
+   * The data the accordion component is used for. This is passed as an $implicit context
+   * to the header template.
+   */
+  @Input()
+  data: T | undefined = undefined;
+  private _active = false;
 
   /** Emits whenever the active value changes. Supports two-way bindings. */
   @Output()
@@ -50,11 +55,8 @@ export class AccordionComponent<T = any> implements OnInit {
   @Input()
   headerTemplate: TemplateRef<any> | null = null;
 
-  @HostBinding('class.active')
-  /** @private Whether or not the accordion should have the 'active' class */
-  get activeClass(): string {
-    return this.active;
-  }
+  @Input()
+  trackBy: TrackByFunction<T | null> = (_, c) => c
 
   ngOnInit(): void {
     // register at our parent group-component (if any).
@@ -70,6 +72,4 @@ export class AccordionComponent<T = any> implements OnInit {
     event?.preventDefault();
     this.activeChange.emit(!this.active);
   }
-
-  constructor(@Optional() private group: AccordionGroupComponent) { }
 }

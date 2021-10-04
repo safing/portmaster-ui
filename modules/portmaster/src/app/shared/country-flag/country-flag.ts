@@ -4,14 +4,14 @@ import { AfterViewInit, Directive, ElementRef, HostBinding, Input, Renderer2 } f
   selector: 'span[appCountryFlags]',
 })
 export class CountryFlagDirective implements AfterViewInit {
-  private readonly flagDir = "/assets/img/flags/";
+  private readonly flagDir = '/assets/img/flags/';
   private readonly OFFSET = 127397;
 
   @HostBinding('style.text-shadow')
   textShadow = 'rgba(255, 255, 255, .5) 0px 0px 1px';
 
   @Input('appCountryFlags')
-  code: string = '';
+  code = '';
 
   constructor(
     private el: ElementRef,

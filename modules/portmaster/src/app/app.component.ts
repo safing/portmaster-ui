@@ -55,8 +55,8 @@ export class AppComponent implements OnInit {
             ]
           }
         ).subscribe();
-      })
-    }
+      });
+    };
 
     (window as any).createNotification = (notif: Partial<Notification>) => {
       this.ngZone.run(() => {
@@ -64,8 +64,8 @@ export class AppComponent implements OnInit {
         notif.Type = notif.Type || NotificationType.Info;
 
         this.notificationService.create(notif).subscribe();
-      })
-    }
+      });
+    };
 
     (window as any).fakePrompt = (what: string, profileId: string = '_unidentified') => {
       this.ngZone.run(() => {
@@ -77,7 +77,7 @@ export class AppComponent implements OnInit {
             Title: what,
             EventData: {
               Profile: {
-                Source: "local",
+                Source: 'local',
                 ID: profileId,
               },
               Entity: {
@@ -96,17 +96,17 @@ export class AppComponent implements OnInit {
                 Type: ''
               }
             ]
-          }).subscribe()
-      })
-    }
+          }).subscribe();
+      });
+    };
 
     (window as any).portapi = portapi;
 
     (window as any).fakeActionIndicator = (msg: ActionIndicator) => {
       this.ngZone.run(() => {
         this.actionIndicatorService.create(msg);
-      })
-    }
+      });
+    };
   }
 
   ngOnInit() {
@@ -120,8 +120,8 @@ export class AppComponent implements OnInit {
       )
       .subscribe(async () => {
         const current = this.router.url;
-        await this.router.navigateByUrl('/', { skipLocationChange: true })
+        await this.router.navigateByUrl('/', { skipLocationChange: true });
         this.router.navigate([current]);
-      })
+      });
   }
 }

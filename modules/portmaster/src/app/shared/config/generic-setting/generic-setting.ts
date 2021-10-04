@@ -10,7 +10,7 @@ export interface SaveSettingEvent<S extends BaseSetting<any, any> = any> {
   key: string;
   value: SettingValueType<S>;
   isDefault: boolean;
-  rejected?: (err: any) => void
+  rejected?: (err: any) => void;
 }
 
 @Component({
@@ -25,15 +25,6 @@ export interface SaveSettingEvent<S extends BaseSetting<any, any> = any> {
   ]
 })
 export class GenericSettingComponent<S extends BaseSetting<any, any>> implements OnInit, OnDestroy {
-  //
-  // Constants used in the template.
-  //
-
-  readonly optionHint = ExternalOptionHint;
-  readonly expertise = ExpertiseLevelNumber;
-  readonly optionType = OptionType;
-  readonly releaseLevel = ReleaseLevel;
-  readonly wellKnown = WellKnown;
 
   /**
    * Whether or not the component/setting is disabled and should
@@ -47,7 +38,6 @@ export class GenericSettingComponent<S extends BaseSetting<any, any>> implements
   get disabled() {
     return this._disabled;
   }
-  private _disabled: boolean = false;
 
 
   /**
@@ -62,15 +52,6 @@ export class GenericSettingComponent<S extends BaseSetting<any, any>> implements
   get lockDefaults() {
     return this._lockDefaults;
   }
-  private _lockDefaults: boolean = false;
-
-  /** The label to display in the reset-value button */
-  @Input()
-  resetLabelText = 'Reset';
-
-  /** Emits an event whenever the setting should be saved. */
-  @Output()
-  onSave = new EventEmitter<SaveSettingEvent<S>>();
 
   /** Wether or not stackable values should be displayed. */
   @Input()
@@ -80,7 +61,6 @@ export class GenericSettingComponent<S extends BaseSetting<any, any>> implements
   get displayStackable() {
     return this._displayStackable;
   }
-  private _displayStackable = false;
 
   /**
    * Whether or not the help text is currently shown
@@ -92,32 +72,11 @@ export class GenericSettingComponent<S extends BaseSetting<any, any>> implements
   get showHelp() {
     return this._showHelp;
   }
-  private _showHelp = false;
-
-  /** Used internally to publish save events. */
-  private save = new Subject();
-
-  /** Used internally for subscriptions to various changes */
-  private subscription = Subscription.EMPTY;
-
-  /** Whether or not the value was reset. */
-  private wasReset = false;
 
   /** Whether or not a save request was rejected */
   @HostBinding('class.rejected')
   get rejected() {
     return this._rejected;
-  }
-  private _rejected = false;
-
-  /**
-   * @private
-   * Returns the external option type hint from a setting.
-   *
-   * @param opt The setting for with to return the external option hint
-   */
-  externalOptType(opt: S | null): ExternalOptionHint | null {
-    return opt?.Annotations?.[WellKnown.DisplayHint] || null;
   }
 
   /**
@@ -128,7 +87,6 @@ export class GenericSettingComponent<S extends BaseSetting<any, any>> implements
   get touched() {
     return this._touched;
   }
-  private _touched = false;
 
   /**
    * Returns true if the settings is currently locked.
@@ -162,7 +120,7 @@ export class GenericSettingComponent<S extends BaseSetting<any, any>> implements
     // string representations. That's a bit more costly but should
     // still be fast enough.
     // TODO(ppacher): calculate this only when required.
-    return JSON.stringify(this._currentValue) !== JSON.stringify(this._savedValue)
+    return JSON.stringify(this._currentValue) !== JSON.stringify(this._savedValue);
   }
 
   /**
@@ -172,32 +130,7 @@ export class GenericSettingComponent<S extends BaseSetting<any, any>> implements
    */
   @HostBinding('class.pristine')
   get pristine() {
-    return !this.dirty && !this.userConfigured
-  }
-
-  /**
-   * Unlock the setting if it is locked. Unlocking will
-   * emit the default value to be safed for the setting.
-   */
-  unlock() {
-    if (!this.isLocked || !this.setting) {
-      return;
-    }
-
-    this._touched = true;
-    this.wasReset = false;
-    let value = this.defaultValue;
-
-    if (this.stackable) {
-      // TODO(ppacher): fix this one once string[] options can be
-      // stackable
-      value = [] as SettingValueType<S>;
-    }
-
-    this.updateValue(value, true);
-    // update the settings value now so the UI
-    // responds immediately.
-    this.setting!.Value = value;
+    return !this.dirty && !this.userConfigured;
   }
 
   /** True if the current setting is stackable */
@@ -209,30 +142,6 @@ export class GenericSettingComponent<S extends BaseSetting<any, any>> implements
   get showStackable() {
     return this.stackable && !this.isLocked && this.displayStackable;
   }
-
-  /**
-   * @private
-   * Toggle Whether or not the help text is displayed
-   */
-  toggleHelp() {
-    this.showHelp = !this.showHelp;
-  }
-
-  /**
-   * @private
-   * Toggle Whether or not the setting is currently locked.
-   */
-  toggleLock() {
-    if (this.isLocked) {
-      this.unlock();
-      return;
-    }
-
-    this.resetValue();
-  }
-
-  @ViewChild(NgModel, { static: false })
-  model: NgModel | null = null;
 
   /**
    * The actual setting that should be managed.
@@ -269,6 +178,63 @@ export class GenericSettingComponent<S extends BaseSetting<any, any>> implements
       : this._defaultValue;
   }
 
+  constructor(
+    private configService: ConfigService,
+    private changeDetectorRef: ChangeDetectorRef
+  ) { }
+
+  /**
+   * @private
+   * A list of quick-settings available for the setting.
+   * The getter makes sure to always return an array.
+   */
+  get quickSettings(): QuickSetting<SettingValueType<S>>[] {
+    if (!this.setting || !this.setting.Annotations[WellKnown.QuickSetting]) {
+      return [];
+    }
+
+    const quickSettings = this.setting.Annotations[WellKnown.QuickSetting]!;
+
+    return Array.isArray(quickSettings)
+      ? quickSettings
+      : [quickSettings];
+  }
+  //
+  // Constants used in the template.
+  //
+
+  readonly optionHint = ExternalOptionHint;
+  readonly expertise = ExpertiseLevelNumber;
+  readonly optionType = OptionType;
+  readonly releaseLevel = ReleaseLevel;
+  readonly wellKnown = WellKnown;
+  private _disabled = false;
+  private _lockDefaults = false;
+
+  /** The label to display in the reset-value button */
+  @Input()
+  resetLabelText = 'Reset';
+
+  /** Emits an event whenever the setting should be saved. */
+  @Output()
+  onSave = new EventEmitter<SaveSettingEvent<S>>();
+  private _displayStackable = false;
+  private _showHelp = false;
+
+  /** Used internally to publish save events. */
+  private save = new Subject();
+
+  /** Used internally for subscriptions to various changes */
+  private subscription = Subscription.EMPTY;
+
+  /** Whether or not the value was reset. */
+  private wasReset = false;
+  private _rejected = false;
+  private _touched = false;
+
+  @ViewChild(NgModel, { static: false })
+  model: NgModel | null = null;
+
   /* An optional default value overwrite */
   _defaultValue: SettingValueType<S> | null = null;
 
@@ -284,15 +250,66 @@ export class GenericSettingComponent<S extends BaseSetting<any, any>> implements
   /* The currently saved value. Updated by the setting() setter */
   _savedValue: SettingValueType<S> | null = null;
 
-  constructor(
-    private configService: ConfigService,
-    private changeDetectorRef: ChangeDetectorRef
-  ) { }
+  /**
+   * @private
+   * Returns the external option type hint from a setting.
+   *
+   * @param opt The setting for with to return the external option hint
+   */
+  externalOptType(opt: S | null): ExternalOptionHint | null {
+    return opt?.Annotations?.[WellKnown.DisplayHint] || null;
+  }
+
+  /**
+   * Unlock the setting if it is locked. Unlocking will
+   * emit the default value to be safed for the setting.
+   */
+  unlock() {
+    if (!this.isLocked || !this.setting) {
+      return;
+    }
+
+    this._touched = true;
+    this.wasReset = false;
+    let value = this.defaultValue;
+
+    if (this.stackable) {
+      // TODO(ppacher): fix this one once string[] options can be
+      // stackable
+      value = [] as SettingValueType<S>;
+    }
+
+    this.updateValue(value, true);
+    // update the settings value now so the UI
+    // responds immediately.
+    this.setting!.Value = value;
+  }
+
+  /**
+   * @private
+   * Toggle Whether or not the help text is displayed
+   */
+  toggleHelp() {
+    this.showHelp = !this.showHelp;
+  }
+
+  /**
+   * @private
+   * Toggle Whether or not the setting is currently locked.
+   */
+  toggleLock() {
+    if (this.isLocked) {
+      this.unlock();
+      return;
+    }
+
+    this.resetValue();
+  }
 
   ngOnInit() {
     this.subscription = this.save.pipe(
       debounceTime(500),
-    ).subscribe(() => this.emitSaveRequest())
+    ).subscribe(() => this.emitSaveRequest());
   }
 
   ngOnDestroy() {
@@ -351,10 +368,10 @@ export class GenericSettingComponent<S extends BaseSetting<any, any>> implements
    */
   private emitSaveRequest() {
     const isDefault = this.wasReset;
-    let value = this._setting!['Value'];
+    const value = this._setting!.Value;
 
     if (isDefault) {
-      delete (this._setting!['Value']);
+      delete (this._setting!.Value);
     } else {
       this._setting!.Value = this._currentValue;
     }
@@ -364,14 +381,14 @@ export class GenericSettingComponent<S extends BaseSetting<any, any>> implements
 
     this.onSave.next({
       key: this.setting!.Key,
-      isDefault: isDefault,
+      isDefault,
       value: this._setting!.Value,
       rejected: (err: any) => {
-        this._setting!['Value'] = value;
+        this._setting!.Value = value;
         this.changeDetectorRef.markForCheck();
         this._rejected = true;
       }
-    })
+    });
   }
 
   /**
@@ -391,30 +408,13 @@ export class GenericSettingComponent<S extends BaseSetting<any, any>> implements
   }
 
   /**
-   * @private
-   * A list of quick-settings available for the setting.
-   * The getter makes sure to always return an array.
-   */
-  get quickSettings(): QuickSetting<SettingValueType<S>>[] {
-    if (!this.setting || !this.setting.Annotations[WellKnown.QuickSetting]) {
-      return [];
-    }
-
-    const quickSettings = this.setting.Annotations[WellKnown.QuickSetting]!;
-
-    return Array.isArray(quickSettings)
-      ? quickSettings
-      : [quickSettings];
-  }
-
-  /**
    * Determine the current, actual value of the setting
    * by taking the settings Value, default Value or global
    * default into account.
    */
   private updateActualValue() {
     if (!this.setting) {
-      return
+      return;
     }
 
     this.wasReset = false;

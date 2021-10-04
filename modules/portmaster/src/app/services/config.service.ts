@@ -9,16 +9,16 @@ import { PortapiService } from './portapi.service';
   providedIn: 'root'
 })
 export class ConfigService {
+
+  constructor(private portapi: PortapiService) { }
+  readonly trackBy = ConfigService.trackBy;
+
+  /** configPrefix is the database key prefix for the config db */
+  readonly configPrefix = 'config:';
   /**
    * A {@link TrackByFunction} for tracking settings.
    */
   static trackBy: TrackByFunction<Setting> = (_: number, obj: Setting) => obj.Name;
-  readonly trackBy = ConfigService.trackBy;
-
-  /** configPrefix is the database key prefix for the config db */
-  readonly configPrefix = "config:";
-
-  constructor(private portapi: PortapiService) { }
 
   /**
    * Loads a configuration setting from the database.
@@ -83,7 +83,7 @@ export class ConfigService {
         map(value => value.data),
         map(value => value.Value !== undefined ? value.Value : value.DefaultValue),
         distinctUntilChanged(),
-      )
+      );
   }
 
   /**
@@ -103,19 +103,19 @@ export class ConfigService {
       case OptionType.Int:
       case OptionType.Bool:
         // todo(ppacher): do we validate that?
-        return
+        return;
       case OptionType.String:
         if (!re.test(value as string)) {
-          throw new Error(`${value} does not match ${spec.ValidationRegex}`)
+          throw new Error(`${value} does not match ${spec.ValidationRegex}`);
         }
         return;
       case OptionType.StringArray:
         (value as string[]).forEach(v => {
           if (!re.test(v as string)) {
-            throw new Error(`${value} does not match ${spec.ValidationRegex}`)
+            throw new Error(`${value} does not match ${spec.ValidationRegex}`);
           }
         });
-        return
+        return;
     }
   }
 }

@@ -13,7 +13,7 @@ export interface ActionIndicator {
   timeout?: number;
 }
 
-export const ACTION_REF = new InjectionToken<ActionIndicatorRef>('ActionIndicatorRef')
+export const ACTION_REF = new InjectionToken<ActionIndicatorRef>('ActionIndicatorRef');
 export class ActionIndicatorRef implements ActionIndicator {
   title: string;
   message?: string;
@@ -53,12 +53,12 @@ export class ActionIndicatorService {
   httpObserver(successTitle?: string, errorTitle?: string): PartialObserver<HttpResponse<ArrayBuffer>> {
     return {
       next: resp => {
-        let msg = this.getErrorMessgae(resp)
+        let msg = this.getErrorMessgae(resp);
         if (!successTitle) {
           successTitle = msg;
           msg = '';
         }
-        this.success(successTitle || '', msg)
+        this.success(successTitle || '', msg);
       },
       error: err => {
         let msg = this.getErrorMessgae(err);
@@ -68,7 +68,7 @@ export class ActionIndicatorService {
         }
         this.error(errorTitle || '', msg);
       }
-    }
+    };
   }
 
   info(title: string, message?: string, timeout?: number) {
@@ -77,7 +77,7 @@ export class ActionIndicatorService {
       message: this.ensureMessage(message),
       timeout,
       status: 'info'
-    })
+    });
   }
 
   error(title: string, message?: string | any, timeout?: number) {
@@ -86,7 +86,7 @@ export class ActionIndicatorService {
       message: this.ensureMessage(message),
       timeout,
       status: 'error'
-    })
+    });
   }
 
   success(title: string, message?: string, timeout?: number) {
@@ -95,7 +95,7 @@ export class ActionIndicatorService {
       message: this.ensureMessage(message),
       timeout,
       status: 'success'
-    })
+    });
   }
 
   /**
@@ -125,7 +125,7 @@ export class ActionIndicatorService {
       if (ref === this._activeIndicatorRef) {
         this._activeIndicatorRef = null;
       }
-    })
+    });
 
     // close after the specified time our (or 5000 seconds).
     const timeout = msg.timeout || 5000;
@@ -134,7 +134,7 @@ export class ActionIndicatorService {
       take(1),
     ).subscribe(() => {
       ref.close();
-    })
+    });
 
     const injector = this.createInjector(ref);
     const portal = new ComponentPortal(
@@ -159,7 +159,7 @@ export class ActionIndicatorService {
         }
       ],
       parent: this._injector,
-    })
+    });
   }
 
   /**
@@ -246,7 +246,7 @@ export class ActionIndicatorService {
     }
     // Make the first letter uppercase
     if (!!msg) {
-      msg = msg[0].toLocaleUpperCase() + msg.slice(1)
+      msg = msg[0].toLocaleUpperCase() + msg.slice(1);
     }
     return msg;
   }

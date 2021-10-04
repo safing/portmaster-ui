@@ -20,7 +20,7 @@ export class MarkdownWidgetSettingsComponent implements OnInit, WidgetFactory<Ma
       text: '',
     };
 
-    this.onConfigChange.next(this.config)
+    this.onConfigChange.next(this.config);
   }
 
   setValue(value: string) {

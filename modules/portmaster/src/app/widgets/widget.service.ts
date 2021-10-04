@@ -22,7 +22,7 @@ export class WidgetService {
   /** A {@link TrackByFunction} for widgets. */
   readonly trackBy: TrackByFunction<WidgetConfig> = (_: number, widget: WidgetConfig) => {
     return widget.key;
-  };
+  }
 
   constructor(private portapi: PortapiService) {
     this.getOrder()
@@ -37,7 +37,7 @@ export class WidgetService {
 
   /** Save the widget order */
   saveOrder(order: string[]): Observable<void> {
-    return this.portapi.update(this.widgetOrder, { order })
+    return this.portapi.update(this.widgetOrder, { order });
   }
 
   /** Watch the order of widgets. */
@@ -85,7 +85,7 @@ export class WidgetService {
 
   /** overloaded implementation */
   deleteWidget(widgetOrKey: string | WidgetConfig): Observable<void> {
-    const key = typeof widgetOrKey === "string"
+    const key = typeof widgetOrKey === 'string'
       ? widgetOrKey
       : widgetOrKey.key;
 
@@ -111,13 +111,13 @@ export class WidgetService {
             config: null,
             key: 'pilot-widget',
             type: 'pilot-widget',
-          })
+          });
 
           enforceWidget(widgets, {
             config: null,
             key: 'prompt-widget',
             type: 'prompt-widget',
-          })
+          });
 
           enforceWidget(widgets, {
             config: {
@@ -125,9 +125,9 @@ export class WidgetService {
             },
             key: 'notification-widget',
             type: 'notification-widget',
-          })
+          });
 
-          let byKey = new Map<string, WidgetConfig>();
+          const byKey = new Map<string, WidgetConfig>();
           widgets.forEach(widget => byKey.set(widget.key!, widget));
 
           if (!order) {
@@ -139,7 +139,7 @@ export class WidgetService {
           }
 
           return order.map(key => byKey.get(key))
-            .filter(value => !!value)
+            .filter(value => !!value);
         }),
       ) as Observable<WidgetConfig[]>;
   }
@@ -151,11 +151,11 @@ export class WidgetService {
 }
 
 function enforceWidget(list: WidgetConfig[], widget: WidgetConfig) {
-  let existingIndex = list.findIndex(w => w.type === widget.type);
+  const existingIndex = list.findIndex(w => w.type === widget.type);
 
   const newWidget: WidgetConfig<null> = {
     ...widget,
-  }
+  };
 
   if (existingIndex >= 0) {
     list[existingIndex] = newWidget;

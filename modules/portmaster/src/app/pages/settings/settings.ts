@@ -18,7 +18,7 @@ import { ExitService } from 'src/app/shared/exit-screen';
 })
 export class SettingsComponent implements OnInit, OnDestroy {
   /** @private The current search term for the settings. */
-  searchTerm: string = '';
+  searchTerm = '';
 
   /** @private All settings currently displayed. */
   settings: Setting[] = [];
@@ -64,7 +64,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
         params => {
           this.highlightSettingKey = params.get('setting');
         }
-      )
+      );
     this.subscription.add(querySub);
   }
 
@@ -89,17 +89,17 @@ export class SettingsComponent implements OnInit, OnDestroy {
    * @param event The save-settings event
    */
   saveSetting(event: SaveSettingEvent) {
-    let idx = this.settings.findIndex(setting => setting.Key === event.key);
+    const idx = this.settings.findIndex(setting => setting.Key === event.key);
     if (idx < 0) {
       return;
     }
 
     const setting = {
       ...this.settings[idx],
-    }
+    };
 
     if (event.isDefault) {
-      delete (setting['Value']);
+      delete (setting.Value);
     } else {
       setting.Value = event.value;
     }
@@ -120,7 +120,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
           this.actionIndicator.error('Failed to save setting', err);
           console.error(err);
         }
-      })
+      });
   }
 
   /**
@@ -182,7 +182,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
    */
   async openDataDir(event: Event) {
     if (!!window.app) {
-      const dir = await window.app.getInstallDir()
+      const dir = await window.app.getInstallDir();
       await window.app.openExternal(dir);
     }
   }
@@ -209,7 +209,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
           // Copy to clip-board if supported
           if (!!navigator.clipboard) {
             await navigator.clipboard.writeText(info);
-            this.actionIndicator.success("Copied to Clipboard")
+            this.actionIndicator.success('Copied to Clipboard');
           }
 
         },
@@ -217,6 +217,6 @@ export class SettingsComponent implements OnInit, OnDestroy {
           console.error(err);
           this.actionIndicator.error('Failed loading debug data', err);
         }
-      )
+      );
   }
 }

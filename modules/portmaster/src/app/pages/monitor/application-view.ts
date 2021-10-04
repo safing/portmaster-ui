@@ -53,8 +53,8 @@ export class MonitorApplicationViewComponent {
         // Copy to clip-board if supported
         if (!!navigator.clipboard) {
           navigator.clipboard.writeText(data);
-          this.actionIndicator.success('Copied to Clipboard')
+          this.actionIndicator.success('Copied to Clipboard');
         }
-      })
+      });
   }
 }

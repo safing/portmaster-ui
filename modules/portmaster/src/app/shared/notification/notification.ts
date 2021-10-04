@@ -20,9 +20,9 @@ export class NotificationComponent implements OnInit {
   get hostClass(): string {
     let cls = `notif-${this.state}`;
     if (!!this._notification) {
-      cls = `${cls} notif-${getNotificationTypeString(this._notification.Type)}`
+      cls = `${cls} notif-${getNotificationTypeString(this._notification.Type)}`;
     }
-    return cls
+    return cls;
   }
 
   state: NotificationState = NotificationState.Invalid;
@@ -46,7 +46,7 @@ export class NotificationComponent implements OnInit {
     this._markdown = coerceBooleanProperty(v);
   }
   get allowMarkdown() { return this._markdown; }
-  private _markdown: boolean = false;
+  private _markdown = false;
 
   @Output()
   actionExecuted: EventEmitter<Action> = new EventEmitter();
@@ -62,6 +62,6 @@ export class NotificationComponent implements OnInit {
       .subscribe(
         () => this.actionExecuted.next(action),
         err => console.error(err),
-      )
+      );
   }
 }

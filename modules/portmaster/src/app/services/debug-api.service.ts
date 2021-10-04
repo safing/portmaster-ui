@@ -12,13 +12,13 @@ export class DebugAPI {
   ping(): Observable<string> {
     return this.http.get(`${env.httpAPI}/v1/ping`, {
       responseType: 'text'
-    })
+    });
   }
 
   getStack(): Observable<string> {
     return this.http.get(`${env.httpAPI}/v1/debug/stack`, {
       responseType: 'text'
-    })
+    });
   }
 
   getDebugInfo(style = 'github'): Observable<string> {
@@ -27,7 +27,7 @@ export class DebugAPI {
         style,
       },
       responseType: 'text',
-    })
+    });
   }
 
   getCoreDebugInfo(style = 'github'): Observable<string> {
@@ -36,7 +36,7 @@ export class DebugAPI {
         style,
       },
       responseType: 'text',
-    })
+    });
   }
 
   getProfileDebugInfo(source: string, id: string, style = 'github'): Observable<string> {
@@ -46,6 +46,6 @@ export class DebugAPI {
         style,
       },
       responseType: 'text',
-    })
+    });
   }
 }

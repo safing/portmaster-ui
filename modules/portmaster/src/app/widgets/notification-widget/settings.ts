@@ -22,7 +22,7 @@ export class NotificationWidgetSettingsComponent implements OnInit, WidgetFactor
       text: '',
     };
 
-    this.onConfigChange.next(this.config)
+    this.onConfigChange.next(this.config);
   }
 
   update() {

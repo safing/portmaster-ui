@@ -17,7 +17,7 @@ export class SupportPageComponent {
   readonly supportTypes = supportTypes;
 
   /** @private The current search term for the settings. */
-  searchTerm: string = '';
+  searchTerm = '';
 
   constructor(
     private router: Router,
@@ -29,7 +29,7 @@ export class SupportPageComponent {
     const allTypes: SupportType[] = [];
     this.supportTypes.forEach(pages => pages.choices.forEach(choice => {
       allTypes.push(choice);
-    }))
+    }));
 
     // Use fuzzy-search to limit the number of settings shown.
     const filtered = this.searchService.searchList(supportTypes, searchTerm, {
@@ -46,7 +46,7 @@ export class SupportPageComponent {
     })
     // The search service wraps the items in a search-result object.
     // Unwrap them now.
-    let items = filtered
+    const items = filtered
       .map(res => res.item);
 
   }

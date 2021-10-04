@@ -26,7 +26,7 @@ export class UngroupedConnectionContentComponent implements OnInit, OnDestroy {
   ngOnInit() {
     this._subscription = this.helper.refresh.subscribe(() => {
       this.changeDetectorRef.markForCheck();
-    })
+    });
   }
 
   ngOnDestroy() {

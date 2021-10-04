@@ -15,12 +15,24 @@ import { VirtualNotification } from './virtual-notification';
   providedIn: 'root'
 })
 export class NotificationsService {
-  /**
-   * A {@link TrackByFunction} from tracking notifications.
-   */
-  static trackBy: TrackByFunction<Notification<any>> = function (_: number, n: Notification<any>) {
-    return n.EventID;
-  };
+
+  constructor(
+    private portapi: PortapiService,
+    private router: Router,
+    private http: HttpClient,
+    private actionIndicator: ActionIndicatorService,
+  ) {
+    this.new$ = this.watchAll().pipe(
+      src => this.injectVirtual(src),
+      map(msgs => {
+        return msgs.filter(msg => msg.State === NotificationState.Active || !msg.State);
+      }),
+      multicast(() => {
+        return new BehaviorSubject<Notification<any>[]>([]);
+      }),
+      refCount(),
+    );
+  }
 
   /**
    * This object contains handler methods for all
@@ -34,7 +46,7 @@ export class NotificationsService {
         if (!!window.app) {
           await window.app.openExternal(a.Payload);
         } else {
-          window.open(a.Payload, '_blank')
+          window.open(a.Payload, '_blank');
         }
       },
       'open-profile': (a: OpenProfileAction) => this.router.navigate([
@@ -46,22 +58,22 @@ export class NotificationsService {
             queryParams: {
               setting: a.Payload.Key
             }
-          })
+          });
         }
         return this.router.navigate(['/settings'], {
           queryParams: {
             setting: a.Payload.Key
           }
-        })
+        });
       },
-      "open-page": (a: OpenPageAction) => {
+      'open-page': (a: OpenPageAction) => {
         const url = PageIDs[a.Payload];
         if (!!url) {
           return this.router.navigateByUrl(url);
         }
         return Promise.reject('not yet supported');
       },
-      "ui": (a: ActionHandler<any>) => {
+      ui: (a: ActionHandler<any>) => {
         return a.Run(a);
       },
       "call-webhook": (a: WebhookAction) => {
@@ -81,14 +93,14 @@ export class NotificationsService {
             observe: 'response',
             responseType: 'arraybuffer',
           }
-        )
+        );
         return new Promise((resolve, reject) => {
           const observer = this.actionIndicator.httpObserver();
           req.subscribe({
             next: res => {
               if (a.Payload.ResultAction === 'display') {
                 if (!!observer?.next) {
-                  observer.next(res)
+                  observer.next(res);
                 }
               }
               resolve(res);
@@ -99,8 +111,8 @@ export class NotificationsService {
               }
               reject(err);
             },
-          })
-        })
+          });
+        });
       }
     };
 
@@ -117,28 +129,16 @@ export class NotificationsService {
   trackBy = NotificationsService.trackBy;
 
   /** The prefix that all notifications have */
-  readonly notificationPrefix = "notifications:all/";
+  readonly notificationPrefix = 'notifications:all/';
 
   /** new$ emits new (active) notifications as they arrive */
   readonly new$: Observable<Notification<any>[]>;
-
-  constructor(
-    private portapi: PortapiService,
-    private router: Router,
-    private http: HttpClient,
-    private actionIndicator: ActionIndicatorService,
-  ) {
-    this.new$ = this.watchAll().pipe(
-      src => this.injectVirtual(src),
-      map(msgs => {
-        return msgs.filter(msg => msg.State === NotificationState.Active || !msg.State)
-      }),
-      multicast(() => {
-        return new BehaviorSubject<Notification<any>[]>([]);
-      }),
-      refCount(),
-    );
-  }
+  /**
+   * A {@link TrackByFunction} from tracking notifications.
+   */
+  static trackBy: TrackByFunction<Notification<any>> = function(_: number, n: Notification<any>) {
+    return n.EventID;
+  };
 
   /**
    * Inject a new virtual notification. If not configured otherwise,
@@ -148,7 +148,7 @@ export class NotificationsService {
     this._virtualNotifications.set(notif.EventID, notif);
     this._virtualNotificationChange.next(
       Array.from(this._virtualNotifications.values())
-    )
+    );
 
     if (autoRemove) {
       notif.executed.subscribe({ complete: () => this.deject(notif) });
@@ -161,7 +161,7 @@ export class NotificationsService {
 
     this._virtualNotificationChange.next(
       Array.from(this._virtualNotifications.values())
-    )
+    );
   }
 
   /** A {@link MonoOperatorFunction} that injects all virtual observables into the source. */
@@ -174,9 +174,9 @@ export class NotificationsService {
         return [
           ...real,
           ...virtual,
-        ]
+        ];
       })
-    )
+    );
   }
 
   /**
@@ -204,7 +204,7 @@ export class NotificationsService {
       .pipe(
         map(value => value.data),
         toArray()
-      )
+      );
   }
 
   /**
@@ -213,7 +213,7 @@ export class NotificationsService {
    * @param id The ID of the notification
    */
   get<T>(id: string): Observable<Notification<T>> {
-    return this.portapi.get(this.notificationPrefix + id)
+    return this.portapi.get(this.notificationPrefix + id);
   }
 
   /**
@@ -249,7 +249,7 @@ export class NotificationsService {
         if (!!notif) {
           notif.selectAction(action.ID);
         }
-      })
+      });
     }
 
     return defer(async () => {
@@ -264,9 +264,9 @@ export class NotificationsService {
         }
       } catch (err) {
         const msg = this.actionIndicator.getErrorMessgae(err);
-        this.actionIndicator.error('Internal Error', 'Failed to perform action: ' + msg)
+        this.actionIndicator.error('Internal Error', 'Failed to perform action: ' + msg);
       }
-    })
+    });
   }
 
   async performAction(action: Action) {
@@ -277,7 +277,7 @@ export class NotificationsService {
         console.log(action);
         await handler(action);
       } else {
-        this.actionIndicator.error('Internal Error', 'Cannot handle action type ' + action.Type)
+        this.actionIndicator.error('Internal Error', 'Cannot handle action type ' + action.Type);
       }
     }
   }
@@ -311,7 +311,7 @@ export class NotificationsService {
     }
 
     payload.State = NotificationState.Responded;
-    const key = this.notificationPrefix + payload.EventID
+    const key = this.notificationPrefix + payload.EventID;
     return this.portapi.update(key, payload);
   }
 

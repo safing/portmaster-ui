@@ -6,10 +6,10 @@ export function deepClone<T = any>(o: T | null): T {
     return null as any as T;
   }
 
-  let _out: T = (Array.isArray(o) ? [] : {}) as any;
-  for (let _key in o) {
-    let v = o[_key];
-    _out[_key] = (typeof v === "object") ? deepClone(v) : v;
+  const _out: T = (Array.isArray(o) ? [] : {}) as any;
+  for (const _key in o) {
+    const v = o[_key];
+    _out[_key] = (typeof v === 'object') ? deepClone(v) : v;
   }
   return _out as T;
 }
@@ -22,18 +22,18 @@ export function parseDomain(scope: string): ParsedDomain {
   // Due to https://github.com/lupomontero/psl/issues/185
   // parse will throw an error for service-discovery lookups
   // so make sure we split them apart.
-  const domainParts = scope.split(".")
-  const lastUnderscorePart = domainParts.length - [...domainParts].reverse().findIndex(dom => dom.startsWith("_"))
-  let result: ParsedDomain = {
+  const domainParts = scope.split('.');
+  const lastUnderscorePart = domainParts.length - [...domainParts].reverse().findIndex(dom => dom.startsWith('_'));
+  const result: ParsedDomain = {
     domain: null,
     subdomain: null,
-  }
+  };
 
   let cleanedDomain = scope;
   let removedPrefix = '';
   if (lastUnderscorePart <= domainParts.length) {
-    removedPrefix = domainParts.slice(0, lastUnderscorePart).join('.')
-    cleanedDomain = domainParts.slice(lastUnderscorePart).join('.')
+    removedPrefix = domainParts.slice(0, lastUnderscorePart).join('.');
+    cleanedDomain = domainParts.slice(lastUnderscorePart).join('.');
   }
 
   const parsed = parse(cleanedDomain);
@@ -48,13 +48,13 @@ export function parseDomain(scope: string): ParsedDomain {
     }
   }
 
-  return result
+  return result;
 }
 
 export function binarySearch<T>(array: T[], what: T, sortFunc: (a: T, b: T) => number): number {
   let l = 0;
   let h = array.length - 1;
-  let currentIndex: number = 0;
+  let currentIndex = 0;
 
   while (l <= h) {
     currentIndex = (l + h) >>> 1;
@@ -81,6 +81,6 @@ export function binaryInsert<T>(array: T[], what: T, sortFunc: (a: T, b: T) => n
     // of the expected index in array.
     idx = ~idx;
   }
-  array.splice(idx, 0, what)
+  array.splice(idx, 0, what);
   return idx;
 }

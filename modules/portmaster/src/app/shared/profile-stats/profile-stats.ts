@@ -15,7 +15,7 @@ export class ProfileStatisticsComponent implements OnInit, OnDestroy {
   stats: ConnectionStatistics = new ConnectionStatistics();
 
   @Input()
-  total: number = 0;
+  total = 0;
 
   @Input()
   mode: 'input' | 'inspected' = 'input';
@@ -52,7 +52,7 @@ export class ProfileStatisticsComponent implements OnInit, OnDestroy {
         }
 
         this.changeDetectorRef.detectChanges();
-      })
+      });
   }
 
   ngOnDestroy() {

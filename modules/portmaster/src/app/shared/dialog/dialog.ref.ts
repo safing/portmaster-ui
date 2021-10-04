@@ -1,8 +1,8 @@
-import { OverlayRef } from "@angular/cdk/overlay";
-import { InjectionToken } from "@angular/core";
-import { Observable, PartialObserver, Subject } from "rxjs";
-import { filter, take } from "rxjs/operators";
-import { DialogComponent, DialogState } from "./dialog.container";
+import { OverlayRef } from '@angular/cdk/overlay';
+import { InjectionToken } from '@angular/core';
+import { Observable, PartialObserver, Subject } from 'rxjs';
+import { filter, take } from 'rxjs/operators';
+import { DialogComponent, DialogState } from './dialog.container';
 
 export const DIALOG_REF = new InjectionToken<DialogRef<any>>('DialogRef');
 
@@ -28,11 +28,6 @@ export class DialogRef<T, R = any> {
     return this.container.onStateChange;
   }
 
-  /**
-   * @returns The overlayref that holds the dialog container.
-   */
-  overlay() { return this._overlayRef }
-
 
   /** Value holds the value passed on close() */
   private value: R | null = null;
@@ -40,7 +35,12 @@ export class DialogRef<T, R = any> {
   /**
    * Emits the result of the dialog and closes the overlay.
    */
-  onClose = new Subject<R | null>()
+  onClose = new Subject<R | null>();
+
+  /**
+   * @returns The overlayref that holds the dialog container.
+   */
+  overlay() { return this._overlayRef; }
 
   /** onAction only emits if close() is called with action. */
   onAction<T extends R>(action: T, observer: PartialObserver<T> | ((value: T) => void)): this {

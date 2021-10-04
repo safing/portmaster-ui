@@ -18,7 +18,7 @@ export class ConnectionHelperService {
     this._profileSubscriptions = new Subscription();
 
     if (!!p) {
-      let profileUpdateSubscription = p.profileUpdates
+      const profileUpdateSubscription = p.profileUpdates
         .subscribe(() => {
           this.blockedDomains = null;
           this.collectBlockedDomains();
@@ -50,7 +50,7 @@ export class ConnectionHelperService {
           this.settings[setting.Key] = setting.Name;
         });
         this.refresh.next();
-      })
+      });
   }
 
   /**
@@ -82,7 +82,7 @@ export class ConnectionHelperService {
         queryParams: {
           setting: optionKey
         }
-      })
+      });
       return;
     }
 
@@ -91,7 +91,7 @@ export class ConnectionHelperService {
       queryParams: {
         setting: optionKey
       }
-    })
+    });
   }
 
   /**
@@ -117,8 +117,8 @@ export class ConnectionHelperService {
     // Copy to clip-board if supported
     try {
       if (!!navigator.clipboard) {
-        await navigator.clipboard.writeText(JSON.stringify(conn, undefined, "    "))
-        this.actionIndicator.info("Copied to Clipboard")
+        await navigator.clipboard.writeText(JSON.stringify(conn, undefined, '    '));
+        this.actionIndicator.info('Copied to Clipboard');
       }
     } catch (err: any) {
       this.actionIndicator.error("Copy to Clipboard Failed", err?.message || JSON.stringify(err))
@@ -136,7 +136,7 @@ export class ConnectionHelperService {
     } else {
       if (!grp.domain) {
         // scope blocking not yet supported
-        return
+        return;
       }
       domain = grp.scope;
     }
@@ -164,7 +164,7 @@ export class ConnectionHelperService {
     } else {
       if (!grp.domain) {
         // scope blocking not yet supported
-        return
+        return;
       }
       domain = grp.scope;
     }
@@ -209,10 +209,10 @@ export class ConnectionHelperService {
       return def;
     }
 
-    if (domain.endsWith(".")) {
+    if (domain.endsWith('.')) {
       domain = domain.slice(0, -1);
     }
-    if (this.blockedDomains.some(rule => domain === rule || (rule.startsWith(".") && domain.endsWith(rule)))) {
+    if (this.blockedDomains.some(rule => domain === rule || (rule.startsWith('.') && domain.endsWith(rule)))) {
       return true;
     }
     return def;
@@ -241,14 +241,14 @@ export class ConnectionHelperService {
    */
   private updateRules(newRule: string, add: boolean) {
     if (!this.profile) {
-      return
+      return;
     }
 
     let rules = getAppSetting<string[]>(this.profile!.profile!.Config, 'filter/endpoints') || [];
     rules = rules.filter(rule => rule !== newRule);
 
     if (add) {
-      rules.splice(0, 0, newRule)
+      rules.splice(0, 0, newRule);
     }
 
     const profile = deepClone(this.profile!.profile);
@@ -258,13 +258,13 @@ export class ConnectionHelperService {
       .subscribe({
         next: () => {
           if (add) {
-            this.actionIndicator.success('Rules Updated', 'Successfully created a new rule.')
+            this.actionIndicator.success('Rules Updated', 'Successfully created a new rule.');
           } else {
-            this.actionIndicator.success('Rules Updated', 'Successfully removed matching rule.')
+            this.actionIndicator.success('Rules Updated', 'Successfully removed matching rule.');
           }
         },
         error: err => {
-          this.actionIndicator.error('Failed to update rules', JSON.stringify(err))
+          this.actionIndicator.error('Failed to update rules', JSON.stringify(err));
         }
       });
   }
@@ -275,7 +275,7 @@ export class ConnectionHelperService {
    * is hit.
    */
   private collectBlockedDomains() {
-    let blockedDomains = new Set<string>();
+    const blockedDomains = new Set<string>();
 
     const rules = getAppSetting<string[]>(this.profile!.profile!.Config, 'filter/endpoints') || [];
     for (let i = 0; i < rules.length; i++) {
@@ -284,9 +284,9 @@ export class ConnectionHelperService {
         break;
       }
 
-      blockedDomains.add(rule.substr(2))
+      blockedDomains.add(rule.substr(2));
     }
 
-    this.blockedDomains = Array.from(blockedDomains)
+    this.blockedDomains = Array.from(blockedDomains);
   }
 }

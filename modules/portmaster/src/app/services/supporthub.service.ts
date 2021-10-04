@@ -39,14 +39,14 @@ export class SupportHubService {
     interface UploadResponse {
       urls: {
         [key: string]: string[];
-      }
+      };
     }
     const blob = new Blob([content], { type: 'text/plain' });
     const data = new FormData();
-    data.set("file", blob, name);
+    data.set('file', blob, name);
 
     return this.http.post<UploadResponse>(`${environment.supportHub}/api/v1/upload`, data)
-      .pipe(map(res => res.urls['file'][0]));
+      .pipe(map(res => res.urls.file[0]));
   }
 
   /** Create github issue */
@@ -60,12 +60,12 @@ export class SupportHubService {
       title,
       sections,
       debugInfoUrl
-    }
+    };
     let params = new HttpParams();
     if (!!opts?.generateUrl) {
-      params = params.set('generate-url', '')
+      params = params.set('generate-url', '');
     }
-    return this.http.post<CreateIssueResponse>(`${environment.supportHub}/api/v1/issues/${repo}/${preset}`, req, { params }).pipe(map(r => r.url))
+    return this.http.post<CreateIssueResponse>(`${environment.supportHub}/api/v1/issues/${repo}/${preset}`, req, { params }).pipe(map(r => r.url));
   }
 
   createTicket(repoName: string, title: string, email: string, sections: SupportSection[], debugInfoUrl?: string): Observable<void> {
@@ -75,7 +75,7 @@ export class SupportHubService {
       debugInfoUrl,
       email,
       repoName,
-    }
-    return this.http.post<void>(`${environment.supportHub}/api/v1/ticket`, req)
+    };
+    return this.http.post<void>(`${environment.supportHub}/api/v1/ticket`, req);
   }
 }

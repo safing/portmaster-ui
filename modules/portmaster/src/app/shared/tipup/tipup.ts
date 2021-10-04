@@ -26,8 +26,6 @@ export class TipUpTriggerDirective implements OnDestroy {
     private cdr: ChangeDetectorRef,
   ) { }
 
-  private dialogRef: DialogRef<TipUpComponent> | null = null;
-
   /**
    * The helptext token used to search for the tip up defintion.
    */
@@ -40,28 +38,11 @@ export class TipUpTriggerDirective implements OnDestroy {
     this.tipupService.register(this._textKey, this);
   }
   get textKey() { return this._textKey; }
-  private _textKey: string = '';
-
-  /**
-   * The default anchor for the tipup if non is provided via Dependency-Injection
-   * or using tipUpAnchorRef
-   */
-  @Input('tipUpDefaultAnchor')
-  defaultAnchor: ElementRef<any> | HTMLElement | null = null;
 
   /** Optionally overwrite the anchor element received via Dependency Injection */
   @Input('tipUpAnchorRef')
   set anchorRef(ref: ElementRef<any> | HTMLElement | null) {
     this.anchor = ref ?? this.anchor;
-  }
-
-  /** Used to ensure all tip-up triggers have a pointer cursor */
-  @HostBinding('style.cursor')
-  cursor = 'pointer';
-
-  /** De-register ourself upon destroy */
-  ngOnDestroy() {
-    this.tipupService.deregister(this.textKey, this);
   }
 
   /** Whether or not we're passive-only and thus do not handle click-events form the user */
@@ -70,17 +51,36 @@ export class TipUpTriggerDirective implements OnDestroy {
     this._passive = coerceBooleanProperty(v ?? true);
   }
   get passive() { return this._passive; }
-  private _passive = false;
 
   @Input('tipUpOffset')
   set offset(v: any) {
-    this._defaultOffset = coerceNumberProperty(v)
+    this._defaultOffset = coerceNumberProperty(v);
   }
-  get offset() { return this._defaultOffset }
+  get offset() { return this._defaultOffset; }
+
+  private dialogRef: DialogRef<TipUpComponent> | null = null;
+  private _textKey = '';
+
+  /**
+   * The default anchor for the tipup if non is provided via Dependency-Injection
+   * or using tipUpAnchorRef
+   */
+  @Input('tipUpDefaultAnchor')
+  defaultAnchor: ElementRef<any> | HTMLElement | null = null;
+
+  /** Used to ensure all tip-up triggers have a pointer cursor */
+  @HostBinding('style.cursor')
+  cursor = 'pointer';
+  private _passive = false;
   private _defaultOffset = 20;
 
   @Input('tipUpPlacement')
   placement: TipupPlacement | null = null;
+
+  /** De-register ourself upon destroy */
+  ngOnDestroy() {
+    this.tipupService.deregister(this.textKey, this);
+  }
 
   @HostListener('click', ['$event'])
   onClick(event?: MouseEvent): Promise<any> {
@@ -117,7 +117,7 @@ export class TipUpTriggerDirective implements OnDestroy {
       this.textKey,
       this,
       placement,
-    )
+    );
 
     this.dialogRef.onClose
       .pipe(take(1))
@@ -133,7 +133,7 @@ export class TipUpTriggerDirective implements OnDestroy {
         filter(state => state === 'opening'),
         take(1),
       )
-      .toPromise()
+      .toPromise();
   }
 }
 
@@ -171,7 +171,7 @@ export class TipUpTriggerDirective implements OnDestroy {
 })
 export class TipUpIconComponent implements TipupPlacement {
   @Input()
-  key: string = '';
+  key = '';
 
   @Input()
   anchor: ElementRef<any> | HTMLElement | null = null;
@@ -184,12 +184,12 @@ export class TipUpIconComponent implements TipupPlacement {
     this._offset = coerceNumberProperty(v);
   }
   get offset() { return this._offset; }
-  private _offset: number = 10;
+  private _offset = 10;
 
   constructor(private elementRef: ElementRef<any>) { }
 
   get placement(): TipupPlacement {
-    return this
+    return this;
   }
 
   get parent(): HTMLElement | null {
@@ -202,10 +202,6 @@ export class TipUpIconComponent implements TipupPlacement {
   providedIn: 'root'
 })
 export class TipUpService {
-  tipups = new Map<string, TipUpTriggerDirective>();
-
-  private _onRegister = new Subject<string>();
-  private _onUnregister = new Subject<string>();
 
   get onRegister(): Observable<string> {
     return this._onRegister.asObservable();
@@ -214,6 +210,24 @@ export class TipUpService {
   get onUnregister(): Observable<string> {
     return this._onUnregister.asObservable();
   }
+
+  constructor(
+    @Inject(DOCUMENT) private _document: Document,
+    private dialog: DialogService,
+    private ngZone: NgZone,
+    private injector: Injector,
+    rendererFactory: RendererFactory2
+  ) {
+    this.renderer = rendererFactory.createRenderer(null, null);
+  }
+  tipups = new Map<string, TipUpTriggerDirective>();
+
+  private _onRegister = new Subject<string>();
+  private _onUnregister = new Subject<string>();
+
+  private renderer: Renderer2;
+
+  private _latestTipUp: DialogRef<TipUpComponent> | null = null;
 
   waitFor(key: string): Observable<void> {
     if (this.tipups.has(key)) {
@@ -229,18 +243,6 @@ export class TipUpService {
         map(() => { }),
         timeout(5000),
       );
-  }
-
-  private renderer: Renderer2;
-
-  constructor(
-    @Inject(DOCUMENT) private _document: Document,
-    private dialog: DialogService,
-    private ngZone: NgZone,
-    private injector: Injector,
-    rendererFactory: RendererFactory2
-  ) {
-    this.renderer = rendererFactory.createRenderer(null, null)
   }
 
   register(key: string, trigger: TipUpTriggerDirective) {
@@ -259,8 +261,6 @@ export class TipUpService {
     }
   }
 
-  private _latestTipUp: DialogRef<TipUpComponent> | null = null;
-
   createTipup(
     anchor: HTMLElement | ElementRef<any>,
     key: string,
@@ -268,7 +268,7 @@ export class TipUpService {
     opts: TipupPlacement | null = {},
     injector?: Injector): DialogRef<TipUpComponent> {
 
-    console.log("anchor", anchor);
+    console.log('anchor', anchor);
 
     if (!!this._latestTipUp) {
       this._latestTipUp.close();
@@ -277,7 +277,7 @@ export class TipUpService {
 
     // make sure we have an ElementRef to work with
     if (!(anchor instanceof ElementRef)) {
-      anchor = new ElementRef(anchor)
+      anchor = new ElementRef(anchor);
     }
 
     // the the origin placement of the tipup
@@ -288,14 +288,14 @@ export class TipUpService {
         originY: 'center',
         overlayX: 'end',
         overlayY: 'center',
-      })
+      });
     } else {
       positions.push({
         originX: 'end',
         originY: 'center',
         overlayX: 'start',
         overlayY: 'center',
-      })
+      });
     }
 
     // determine the offset to the tipup origin
@@ -304,7 +304,7 @@ export class TipUpService {
       offset *= -1;
     }
 
-    let postitionStrategy = this.dialog.position()
+    const postitionStrategy = this.dialog.position()
       .flexibleConnectedTo(anchor)
       .withPositions(positions)
       .withDefaultOffsetX(offset);
@@ -340,7 +340,7 @@ export class TipUpService {
         target = _preview;
       }
 
-      this.renderer.addClass(target, 'active-tipup-trigger')
+      this.renderer.addClass(target, 'active-tipup-trigger');
     }
 
     this._latestTipUp.onStateChange
@@ -371,27 +371,27 @@ export class TipUpService {
 
     extendStyles(preview.style, {
       // We have to reset the margin, because it can throw off positioning relative to the viewport.
-      'margin': '0',
-      'position': 'fixed',
-      'top': '0',
-      'left': '0',
+      margin: '0',
+      position: 'fixed',
+      top: '0',
+      left: '0',
       'z-index': '1000',
-      'opacity': '1'
+      opacity: '1'
     }, new Set(['position', 'opacity']));
 
     // We add a dedicated class to the preview element so
     // it can handle special higlighting itself.
-    preview.classList.add('tipup-preview')
+    preview.classList.add('tipup-preview');
 
     // since the user might want to click on the preview element we must
     // intercept the click-event, determine the path to the target element inside
     // the preview and eventually dispatch a click-event on the actual
     // - real - target inside the cloned element.
-    preview.onclick = function (event: MouseEvent) {
-      let path = getCssSelector(event.target as HTMLElement, preview);
+    preview.onclick = function(event: MouseEvent) {
+      const path = getCssSelector(event.target as HTMLElement, preview);
       if (!!path) {
         // find the target by it's CSS path
-        let actualTarget: HTMLElement | null = element.querySelector<HTMLElement>(path);
+        const actualTarget: HTMLElement | null = element.querySelector<HTMLElement>(path);
 
         // some (SVG) elements don't have a direct click() listener so we need to search
         // the parents upwards to find one that implements click().
@@ -401,7 +401,7 @@ export class TipUpService {
         if (!!actualTarget) {
           let iter: HTMLElement = actualTarget;
           while (iter != null) {
-            if ('click' in iter && typeof iter['click'] === 'function') {
+            if ('click' in iter && typeof iter.click === 'function') {
               iter.click();
               break;
             }
@@ -411,12 +411,12 @@ export class TipUpService {
       } else {
         // the user clicked the preview element directly
         try {
-          element.click()
+          element.click();
         } catch (e) {
           console.error(e);
         }
       }
-    }
+    };
 
     this._getPreviewInserationPoint(shadowRoot).appendChild(preview);
 
@@ -439,6 +439,6 @@ export class TipUpService {
       console.error('Tried to open unknown tip-up with key ' + key);
       return;
     }
-    comp.onClick()
+    comp.onClick();
   }
 }

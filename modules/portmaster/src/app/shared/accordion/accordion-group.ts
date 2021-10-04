@@ -25,7 +25,7 @@ export class AccordionGroupComponent implements OnDestroy {
   set singleMode(v: any) {
     this._singleMode = coerceBooleanProperty(v);
   }
-  get singleMode() { return this._singleMode }
+  get singleMode() { return this._singleMode; }
   private _singleMode = false;
 
   /** A list of subscriptions to the activeChange output of the registered accordion-components */
@@ -51,7 +51,7 @@ export class AccordionGroupComponent implements OnDestroy {
     // accordion and call toggle() for each event emitted.
     this.subscriptions.push(a.activeChange.subscribe(() => {
       this.toggle(a);
-    }))
+    }));
   }
 
   ngOnDestroy() {

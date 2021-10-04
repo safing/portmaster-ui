@@ -26,16 +26,6 @@ interface SubsystemWithExpertise extends Subsystem {
   animations: [fadeInAnimation, fadeInListAnimation]
 })
 export class ConfigSettingsViewComponent implements OnInit, OnDestroy, AfterViewInit {
-  subsystems: SubsystemWithExpertise[] = [];
-  others: Setting[] | null = null
-  settings: Map<string, Category[]> = new Map();
-
-  activeSection = '';
-  activeCategory = '';
-  loading = true;
-
-  @Input()
-  resetLabelText = 'Reset to system default';
 
   @Input()
   set lockDefaults(v: any) {
@@ -44,7 +34,6 @@ export class ConfigSettingsViewComponent implements OnInit, OnDestroy, AfterView
   get lockDefaults() {
     return this._lockDefaults;
   }
-  private _lockDefaults = false;
 
   @Input()
   set searchTerm(v: string) {
@@ -55,9 +44,6 @@ export class ConfigSettingsViewComponent implements OnInit, OnDestroy, AfterView
   set availableSettings(v: Setting[]) {
     this.onSettingsChange.next(v);
   }
-
-  @Input()
-  displayStackable: string | boolean = false;
 
   @Input()
   set highlightKey(key: string | null) {
@@ -73,8 +59,42 @@ export class ConfigSettingsViewComponent implements OnInit, OnDestroy, AfterView
   get highlightKey() {
     return this._highlightKey;
   }
+
+  constructor(
+    public statusService: StatusService,
+    public configService: ConfigService,
+    private elementRef: ElementRef,
+    private changeDetectorRef: ChangeDetectorRef,
+    private scrollDispatcher: ScrollDispatcher,
+    private searchService: FuzzySearchService,
+  ) { }
+  subsystems: SubsystemWithExpertise[] = [];
+  others: Setting[] | null = null;
+  settings: Map<string, Category[]> = new Map();
+
+  activeSection = '';
+  activeCategory = '';
+  loading = true;
+
+  @Input()
+  resetLabelText = 'Reset to system default';
+  private _lockDefaults = false;
+
+  @Input()
+  displayStackable: string | boolean = false;
   private _highlightKey: string | null = null;
   private _scrolledToHighlighted = false;
+
+  @Output()
+  onSave = new EventEmitter<SaveSettingEvent>();
+
+  private onSearch = new BehaviorSubject<string>('');
+  private onSettingsChange = new BehaviorSubject<Setting[]>([]);
+
+  @ViewChildren('navLink', { read: ElementRef })
+  navLinks: QueryList<ElementRef> | null = null;
+
+  private subscription = Subscription.EMPTY;
 
   mustShowSetting: ExpertiseLevelOverwrite<Setting> = (lvl: ExpertiseLevelNumber, s: Setting) => {
     if (lvl >= s.ExpertiseLevel) {
@@ -96,7 +116,7 @@ export class ConfigSettingsViewComponent implements OnInit, OnDestroy, AfterView
   }
 
   mustShowSubsystem: ExpertiseLevelOverwrite<SubsystemWithExpertise> = (lvl: ExpertiseLevelNumber, subsys: SubsystemWithExpertise) => {
-    return !!this.settings.get(subsys.ConfigKeySpace)?.some(cat => this.mustShowCategory(lvl, cat))
+    return !!this.settings.get(subsys.ConfigKeySpace)?.some(cat => this.mustShowCategory(lvl, cat));
   }
 
   @Output()
@@ -171,7 +191,7 @@ export class ConfigSettingsViewComponent implements OnInit, OnDestroy, AfterView
               { name: 'Name', weight: 3 },
               { name: 'Description', weight: 2 },
             ]
-          })
+          });
 
           // The search service wraps the items in a search-result object.
           // Unwrap them now.
@@ -181,8 +201,8 @@ export class ConfigSettingsViewComponent implements OnInit, OnDestroy, AfterView
           // use order-annotations to sort the settings. This affects the order of
           // the categories as well as the settings inside the categories.
           settings.sort((a, b) => {
-            const orderA = a.Annotations?.["safing/portbase:ui:order"] || 0;
-            const orderB = b.Annotations?.["safing/portbase:ui:order"] || 0;
+            const orderA = a.Annotations?.['safing/portbase:ui:order'] || 0;
+            const orderB = b.Annotations?.['safing/portbase:ui:order'] || 0;
             return orderA - orderB;
           });
 
@@ -190,12 +210,12 @@ export class ConfigSettingsViewComponent implements OnInit, OnDestroy, AfterView
           settings.forEach(setting => {
             let pushed = false;
             this.subsystems.forEach(subsys => {
-              if (setting.Key.startsWith(subsys.ConfigKeySpace.slice("config:".length))) {
+              if (setting.Key.startsWith(subsys.ConfigKeySpace.slice('config:'.length))) {
 
                 // get the category name annotation and fallback to 'others'
                 let catName = 'other';
-                if (!!setting.Annotations && !!setting.Annotations["safing/portbase:ui:category"]) {
-                  catName = setting.Annotations["safing/portbase:ui:category"]
+                if (!!setting.Annotations && !!setting.Annotations['safing/portbase:ui:category']) {
+                  catName = setting.Annotations['safing/portbase:ui:category'];
                 }
 
                 // ensure we have a category array for the subsystem.
@@ -206,33 +226,33 @@ export class ConfigSettingsViewComponent implements OnInit, OnDestroy, AfterView
                 }
 
                 // find or create the appropriate category object.
-                let cat = categories.find(c => c.name === catName)
+                let cat = categories.find(c => c.name === catName);
                 if (!cat) {
                   cat = {
                     name: catName,
                     minimumExpertise: ExpertiseLevelNumber.developer,
                     settings: []
-                  }
+                  };
                   categories.push(cat);
                 }
 
                 // add the setting to the category object and update
                 // the minimum expertise required for the category.
-                cat.settings.push(setting)
+                cat.settings.push(setting);
                 if (setting.ExpertiseLevel < cat.minimumExpertise) {
                   cat.minimumExpertise = setting.ExpertiseLevel;
                 }
 
                 pushed = true;
               }
-            })
+            });
 
             // if we did not push the setting to some subsystem
             // we need to push it to "others"
             if (!pushed) {
               this.others!.push(setting);
             }
-          })
+          });
 
           if (this.others.length === 0) {
             this.others = null;
@@ -278,10 +298,10 @@ export class ConfigSettingsViewComponent implements OnInit, OnDestroy, AfterView
               }, ExpertiseLevelNumber.developer as ExpertiseLevelNumber);
 
               return subsys;
-            })
+            });
 
           // Force the core subsystem to the end.
-          if (this.subsystems.length >= 2 && this.subsystems[0].ID === "core") {
+          if (this.subsystems.length >= 2 && this.subsystems[0].ID === 'core') {
             this.subsystems.push(this.subsystems.shift() as SubsystemWithExpertise);
           }
 
@@ -298,10 +318,10 @@ export class ConfigSettingsViewComponent implements OnInit, OnDestroy, AfterView
             // Use the next animation frame for scrolling
             window.requestAnimationFrame(() => {
               this.scrollTo(this._highlightKey || '');
-            })
+            });
           }
         }
-      )
+      );
   }
 
   ngAfterViewInit() {
@@ -313,7 +333,7 @@ export class ConfigSettingsViewComponent implements OnInit, OnDestroy, AfterView
     this.subscription.add(
       this.scrollDispatcher.scrolled(10)
         .subscribe(() => this.intersectionCallback()),
-    )
+    );
 
     // Also, entries in the settings-navigation might become
     // visible with expertise/release level changes so make
@@ -354,15 +374,15 @@ export class ConfigSettingsViewComponent implements OnInit, OnDestroy, AfterView
     }
 
     // get the elements offset to page-top
-    var offsetTop = 0;
+    let offsetTop = 0;
     if (!!elem) {
       const viewRect = elem.getBoundingClientRect();
       offsetTop = viewRect.top;
     }
 
     this.navLinks?.some(link => {
-      const subsystem = link.nativeElement.getAttribute("subsystem");
-      const category = link.nativeElement.getAttribute("category");
+      const subsystem = link.nativeElement.getAttribute('subsystem');
+      const category = link.nativeElement.getAttribute('category');
 
 
       const lastChild = (link.nativeElement as HTMLElement).lastElementChild as HTMLElement;
@@ -382,7 +402,7 @@ export class ConfigSettingsViewComponent implements OnInit, OnDestroy, AfterView
       }
 
       return false;
-    })
+    });
     this.changeDetectorRef.detectChanges();
   }
 
@@ -397,6 +417,6 @@ export class ConfigSettingsViewComponent implements OnInit, OnDestroy, AfterView
       behavior: 'smooth',
       block: 'start',
       inline: 'nearest',
-    })
+    });
   }
 }

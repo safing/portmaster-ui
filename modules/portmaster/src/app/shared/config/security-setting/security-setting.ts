@@ -30,16 +30,6 @@ class SecuritySetting implements ListKeyManagerOption {
   ]
 })
 export class SecuritySettingComponent implements ControlValueAccessor {
-  readonly SecurityLevels = SecurityLevel;
-
-  @HostListener('blur')
-  onBlur() {
-    if (this.disabled) {
-      return;
-    }
-
-    this._onTouch();
-  }
 
   set disabled(v: any) {
     const disabled = coerceBooleanProperty(v);
@@ -47,12 +37,6 @@ export class SecuritySettingComponent implements ControlValueAccessor {
   }
   get disabled() {
     return this._disabled;
-  }
-  private _disabled: boolean = false;
-
-  setDisabledState(v: boolean) {
-    this._disabled = v;
-    this.changeDetectorRef.markForCheck();
   }
 
   /**
@@ -80,17 +64,38 @@ export class SecuritySettingComponent implements ControlValueAccessor {
 
       const values = parseSupportedValues(s);
       if (values.includes(SecurityLevel.Off)) {
-        this.availableLevels.splice(0, 0, new SecuritySetting('Off', SecurityLevel.Off, 'var(--info-red)'))
+        this.availableLevels.splice(0, 0, new SecuritySetting('Off', SecurityLevel.Off, 'var(--info-red)'));
       }
     }
   }
   get setting(): IntSetting | null {
     return this._setting;
   }
+
+  constructor(private changeDetectorRef: ChangeDetectorRef) { }
+  readonly SecurityLevels = SecurityLevel;
+  private _disabled = false;
   private _setting: IntSetting | null = null;
 
   /** The currently configured security level */
-  private currentValue: number = 0;
+  private currentValue = 0;
+
+  /** Available security levels for this setting */
+  availableLevels: SecuritySetting[] = [];
+
+  @HostListener('blur')
+  onBlur() {
+    if (this.disabled) {
+      return;
+    }
+
+    this._onTouch();
+  }
+
+  setDisabledState(v: boolean) {
+    this._disabled = v;
+    this.changeDetectorRef.markForCheck();
+  }
 
   /** called when the value changes. Set by registerOnChange */
   private _onChange: (value: number) => void = () => { };
@@ -98,17 +103,12 @@ export class SecuritySettingComponent implements ControlValueAccessor {
   /** called when the input is touched. Set by registerOnTouched */
   private _onTouch: () => void = () => { };
 
-  /** Available security levels for this setting */
-  availableLevels: SecuritySetting[] = [];
-
-  constructor(private changeDetectorRef: ChangeDetectorRef) { }
-
   /** Returns true if level is active */
   isActive(level: SecurityLevel): boolean {
     if (level === SecurityLevel.Off) {
       return this.currentValue === level;
     }
-    return (this.currentValue & level) > 0
+    return (this.currentValue & level) > 0;
   }
 
   getLevel(): SecurityLevel {
@@ -129,7 +129,7 @@ export class SecuritySettingComponent implements ControlValueAccessor {
 
   /** Sets the new level */
   setLevel(level: SecurityLevel) {
-    let newLevel: number = 0;
+    let newLevel = 0;
     switch (level) {
       case SecurityLevel.Off:
         newLevel = 0;

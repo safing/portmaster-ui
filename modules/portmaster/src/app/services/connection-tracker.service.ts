@@ -120,7 +120,7 @@ export class ProcessGroup {
     if (conn.Internal) {
       this.internal.add(key);
     } else {
-      let setToUse = conn.Verdict === Verdict.Accept
+      const setToUse = conn.Verdict === Verdict.Accept
         ? this.permitted
         : this.unpermitted;
 
@@ -133,7 +133,7 @@ export class ProcessGroup {
       type: update ? 'update' : 'added',
       key,
       conn,
-    })
+    });
   }
 
   /**
@@ -165,7 +165,7 @@ export class ProcessGroup {
       ...Array.from(this.permitted),
       ...Array.from(this.unpermitted),
       ...(includeInternal ? Array.from(this.internal) : []),
-    ]
+    ];
   }
 
   /**
@@ -207,6 +207,53 @@ export const SortByMostRecent = (a: Connection, b: Connection) => {
 }
 
 export class ScopeGroup {
+
+  /** Holds the current block status of the scope group */
+  get blockStatus() {
+    return this._blockStatus;
+  }
+
+  /** An observable that emits all connections that belong to the
+   *  scope group. */
+  get connections() {
+    return this._connectionUpdate.asObservable();
+  }
+
+  /** An observable that emits all old-connections that belong to the
+   *  scope group. */
+  get oldConnections() {
+    return this._oldConnectionUpdate.asObservable();
+  }
+
+  /** Empty returns true if the scope group is empty */
+  get empty() {
+    return this.size === 0;
+  }
+
+  /** Size returns the number of (non-internal) connections */
+  get size() {
+    return this._connections.length + this._oldConnections.length - this.stats.countInternal;
+  }
+
+  constructor(
+    public readonly scope: string,
+    private expertiseService: ExpertiseService,
+  ) {
+    this.domain = null;
+    this.subdomain = null;
+
+    // check if it's a scope by looking up the value in
+    // our scope translation list.
+    if (ScopeTranslation[this.scope] === undefined) {
+      // If it's not a scope it must be a domain.
+      Object.assign(this, parseDomain(this.scope));
+    }
+
+    // We republish the connections whenever the expertise changes.
+    this._expertiseSubscription = this.expertiseService.change.subscribe(
+      () => this.publishConnections()
+    );
+  }
   /** Domain holds the eTLD+1 of the scope group, if any */
   public readonly domain: string | null;
 
@@ -395,7 +442,7 @@ export class InspectedProfile {
   }
 
   /** Whether or not we are currently loading all connections */
-  get loading() { return this._loading }
+  get loading() { return this._loading; }
 
   /** The connection statistics for all existing connections. */
   get stats() { return this._stats; }
@@ -409,10 +456,10 @@ export class InspectedProfile {
   }
 
   /** Emits whenever there is an update to the profile's connections */
-  get connectionUpdates() { return this._connUpdate.asObservable() }
+  get connectionUpdates() { return this._connUpdate.asObservable(); }
 
   /** Emits when the initial loading of existing connections completes. */
-  get onDone() { return this._onLoadingDone.asObservable() }
+  get onDone() { return this._onLoadingDone.asObservable(); }
 
   /**
    * Emits updates to the underlying application profile whenever
@@ -479,7 +526,7 @@ export class InspectedProfile {
                   return of(null);
                 })
               ),
-          ])
+          ]);
         })
       )
       .subscribe(([appProfile, layers]) => {
@@ -497,12 +544,12 @@ export class InspectedProfile {
       .map(connKey => {
         return this.portapi.get<Connection>(connKey)
           .pipe(
-            //filter(c => !c.Internal),
+            // filter(c => !c.Internal),
             map(c => {
               return {
                 conn: c,
                 key: connKey,
-              }
+              };
             }),
             catchError(err => {
               console.error(`${connKey} failed to load`, err);
@@ -589,8 +636,8 @@ export class InspectedProfile {
 
     this._connUpdate.next({
       type: update ? 'update' : 'added',
-      conn: conn,
-      key: key,
+      conn,
+      key,
     });
 
     if (created && !this.loading) {
@@ -629,9 +676,9 @@ export class InspectedProfile {
     this._stats.remove(conn);
 
     this._connUpdate.next({
-      key: key,
+      key,
       type: 'deleted',
-      conn: conn,
+      conn,
     });
   }
 
@@ -669,7 +716,7 @@ export class InspectedProfile {
         }
 
         if (a.domain === null && b.domain === null) {
-          let scopeOrder = [
+          const scopeOrder = [
             ScopeIdentifier.PeerInternet,
             ScopeIdentifier.IncomingInternet,
             ScopeIdentifier.PeerLAN,
@@ -678,7 +725,7 @@ export class InspectedProfile {
             ScopeIdentifier.IncomingHost,
             ScopeIdentifier.PeerInvalid,
             ScopeIdentifier.IncomingInvalid,
-          ]
+          ];
 
           return scopeOrder.indexOf(a.scope as ScopeIdentifier) - scopeOrder.indexOf(b.scope as ScopeIdentifier);
         }
@@ -694,7 +741,7 @@ export class InspectedProfile {
 
     this._scopeUpdate.next({
       groups: grps,
-      type: type
+      type
     });
   }
 }
@@ -815,7 +862,7 @@ export class ConnTracker {
         this._profiles.forEach(p => p.dispose());
         this._profiles.clear();
         this._connectionToProfile.clear();
-      })
+      });
 
     this._streamSubscription.add(connectedSub);
     this._streamSubscription.add(resetSub);
@@ -905,7 +952,7 @@ export class ConnTracker {
           this.publishProfiles();
         }
       }
-      return
+      return;
     }
 
     const profile = this.getOrCreateProfile(msg.data);

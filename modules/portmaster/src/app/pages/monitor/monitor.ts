@@ -47,8 +47,8 @@ export class MonitorPageComponent implements OnInit, OnDestroy {
       .subscribe(params => {
         this.loading = false;
 
-        let source = params.get("source");
-        let id = params.get("profile");
+        let source = params.get('source');
+        let id = params.get('profile');
         if (source === 'overview') {
           source = null;
           id = null;
@@ -66,9 +66,9 @@ export class MonitorPageComponent implements OnInit, OnDestroy {
       ])
         .subscribe(([p, search, _]) => {
           this.profiles = p.filter(profile => {
-            return search === '' || profile.Name.toLocaleLowerCase().includes(search.toLocaleLowerCase())
+            return search === '' || profile.Name.toLocaleLowerCase().includes(search.toLocaleLowerCase());
           });
-        })
+        });
 
     // make sure we perform tear-down on the above subscriptions.
     this.subscription.add(routeSubscription);
@@ -89,7 +89,7 @@ export class MonitorPageComponent implements OnInit, OnDestroy {
   toggleSearch() {
     this.showSearch = !this.showSearch;
     if (!this.showSearch && this.onSearch.getValue() != '') {
-      this.search('')
+      this.search('');
     }
   }
 

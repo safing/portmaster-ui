@@ -16,8 +16,8 @@ export class StatusService {
   static trackSubsystem: TrackByFunction<Subsystem> = trackById;
   readonly trackSubsystem = StatusService.trackSubsystem;
 
-  readonly statusPrefix = "runtime:"
-  readonly subsystemPrefix = this.statusPrefix + "subsystems/"
+  readonly statusPrefix = 'runtime:';
+  readonly subsystemPrefix = this.statusPrefix + 'subsystems/';
 
   /**
    * status$ watches the global core status. It's mutlicasted using a BehaviorSubject so new
@@ -39,7 +39,7 @@ export class StatusService {
 
   /** Returns the currently available versions for all resources. */
   getVersions(): Observable<VersionStatus> {
-    return this.portapi.get<VersionStatus>('core:status/versions')
+    return this.portapi.get<VersionStatus>('core:status/versions');
   }
 
   /**
@@ -75,7 +75,7 @@ export class StatusService {
       .pipe(
         map(reply => reply.data),
         toArray(),
-      )
+      );
   }
 
   /**

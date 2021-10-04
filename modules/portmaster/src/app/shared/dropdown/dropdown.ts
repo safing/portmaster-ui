@@ -47,7 +47,7 @@ export class DropdownComponent<T> implements AfterViewInit, ControlValueAccessor
     return this._disabled;
   }
 
-  private _disabled: boolean = false;
+  private _disabled = false;
 
   trackItem(_: number, item: DropDownValueDirective) {
     return item.value;
@@ -126,12 +126,12 @@ export class DropdownComponent<T> implements AfterViewInit, ControlValueAccessor
     this.changeDetectorRef.markForCheck();
   }
 
-  onChange = (value: T): void => { }
+  onChange = (value: T): void => { };
   registerOnChange(fn: (value: T) => void): void {
     this.onChange = fn;
   }
 
-  onTouch = (): void => { }
+  onTouch = (): void => { };
   registerOnTouched(fn: () => void): void {
     this.onTouch = fn;
   }

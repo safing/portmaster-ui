@@ -50,7 +50,7 @@ export class RuleListItemComponent implements OnInit {
   get edit() {
     return this._edit;
   }
-  private _edit: boolean = false;
+  private _edit = false;
 
   /**
    * Emits whenever the component switch to or away from edit
@@ -70,7 +70,7 @@ export class RuleListItemComponent implements OnInit {
   get readonly() {
     return this._readonly;
   }
-  private _readonly: boolean = false;
+  private _readonly = false;
 
   /**
    * Emits when the user presses the delete button of

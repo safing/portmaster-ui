@@ -63,7 +63,7 @@ export class PromptWidgetComponent implements OnInit, OnDestroy {
       .pipe(
         map(notifs => notifs.filter(notif => {
           return notif.Type === NotificationType.Prompt &&
-            notif.EventID.startsWith("filter:prompt");
+            notif.EventID.startsWith('filter:prompt');
         })),
       );
 
@@ -74,14 +74,14 @@ export class PromptWidgetComponent implements OnInit, OnDestroy {
         switchMap(notifs => {
           // collect all profile keys in a distict set so we don't load
           // them more that once.
-          var profileKeys = new Set<string>();
+          const profileKeys = new Set<string>();
           notifs.forEach(n => profileKeys.add(
             this.profileService.getKey(n.EventData!.Profile.Source, n.EventData!.Profile.ID)
           ));
           // load all of them in parallel
           return forkJoin(
             Array.from(profileKeys).map(key => this.profileService.getAppProfileFromKey(key))
-          )
+          );
         })
       );
 
@@ -92,7 +92,7 @@ export class PromptWidgetComponent implements OnInit, OnDestroy {
         profiles$,
       ]).subscribe(([prompts, profiles]) => {
 
-        let promptsByProfile = new Map<string, ExtendedConnectionPrompt[]>();
+        const promptsByProfile = new Map<string, ExtendedConnectionPrompt[]>();
 
         // for each prompt, make an "extended" connection prompt by parsing the
         // domain and index them by profile key
@@ -114,13 +114,13 @@ export class PromptWidgetComponent implements OnInit, OnDestroy {
 
           // Create an "extended" version of the prompt by parsing
           // and assigning the domain and subdomain values.
-          let copy: ExtendedConnectionPrompt = {
+          const copy: ExtendedConnectionPrompt = {
             ...prompt,
             domain: null,
             subdomain: null,
-          }
-          Object.assign(copy, parseDomain(prompt.EventData.Entity.Domain))
-          entries.push(copy)
+          };
+          Object.assign(copy, parseDomain(prompt.EventData.Entity.Domain));
+          entries.push(copy);
         });
 
         // Convert the list of application profiles into a set of ProfilePrompts
@@ -134,7 +134,7 @@ export class PromptWidgetComponent implements OnInit, OnDestroy {
               ...profile,
               showAll: prompts.length < PromptLimit,
               promptsLimited: prompts.slice(0, PromptLimit),
-              prompts: prompts,
+              prompts,
             };
           })
           .sort((a, b) => {
@@ -148,18 +148,18 @@ export class PromptWidgetComponent implements OnInit, OnDestroy {
           });
 
         this.changeDetectorRef.markForCheck();
-      })
+      });
   }
 
   allow(prompt: ConnectionPrompt) {
-    let allowActions = [
+    const allowActions = [
       'allow-domain-all',
       'allow-serving-ip',
       'allow-ip',
     ];
 
     for (let i = 0; i < allowActions.length; i++) {
-      const action = prompt.AvailableActions.find(a => a.ID === allowActions[i])
+      const action = prompt.AvailableActions.find(a => a.ID === allowActions[i]);
       if (!!action) {
         this.execute(prompt, action);
         return;
@@ -168,14 +168,14 @@ export class PromptWidgetComponent implements OnInit, OnDestroy {
   }
 
   block(prompt: ConnectionPrompt) {
-    let permitActions = [
+    const permitActions = [
       'block-domain-all',
       'block-serving-ip',
       'block-ip',
     ];
 
     for (let i = 0; i < permitActions.length; i++) {
-      const action = prompt.AvailableActions.find(a => a.ID === permitActions[i])
+      const action = prompt.AvailableActions.find(a => a.ID === permitActions[i]);
       if (!!action) {
         this.execute(prompt, action);
         return;

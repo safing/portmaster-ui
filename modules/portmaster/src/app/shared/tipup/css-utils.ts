@@ -1,8 +1,8 @@
 
 export function synchronizeCssStyles(src: HTMLElement, destination: HTMLElement, skipStyles: Set<string>) {
   // Get a list of all the source and destination elements
-  const srcElements = <HTMLCollectionOf<HTMLElement>>src.getElementsByTagName('*');
-  const dstElements = <HTMLCollectionOf<HTMLElement>>destination.getElementsByTagName('*');
+  const srcElements = src.getElementsByTagName('*') as HTMLCollectionOf<HTMLElement>;
+  const dstElements = destination.getElementsByTagName('*') as HTMLCollectionOf<HTMLElement>;
 
   cloneStyle(src, destination, skipStyles);
 
@@ -23,14 +23,14 @@ function cloneStyle(srcElement: HTMLElement, dstElement: HTMLElement, skipStyles
     const attributeKeyNumber = styleAttributeKeyNumbers[j];
     const attributeKey: string = sourceElementStyles[attributeKeyNumber as any];
     if (!isNaN(+attributeKey)) {
-      continue
+      continue;
     }
     if (attributeKey === 'cssText') {
-      continue
+      continue;
     }
 
     if (skipStyles.has(attributeKey)) {
-      continue
+      continue;
     }
 
     try {
@@ -52,7 +52,7 @@ export function getCssSelector(el: HTMLElement, rootNode: HTMLElement | null): s
   if (!el) {
     return '';
   }
-  let stack = [];
+  const stack = [];
   let isShadow = false;
   while (el !== rootNode && el.parentNode !== null) {
     // console.log(el.nodeName);
@@ -60,7 +60,7 @@ export function getCssSelector(el: HTMLElement, rootNode: HTMLElement | null): s
     let sibIndex = 0;
     // get sibling indexes
     for (let i = 0; i < (el.parentNode as HTMLElement).childNodes.length; i++) {
-      let sib = (el.parentNode as HTMLElement).childNodes[i];
+      const sib = (el.parentNode as HTMLElement).childNodes[i];
       if (sib.nodeName == el.nodeName) {
         if (sib === el) {
           sibIndex = sibCount;
@@ -68,9 +68,9 @@ export function getCssSelector(el: HTMLElement, rootNode: HTMLElement | null): s
         sibCount++;
       }
     }
-    let nodeName = el.nodeName.toLowerCase();
+    const nodeName = el.nodeName.toLowerCase();
     if (isShadow) {
-      throw new Error(`cannot traverse into shadow dom.`)
+      throw new Error(`cannot traverse into shadow dom.`);
     }
     if (sibCount > 1) {
       stack.unshift(nodeName + ':nth-of-type(' + (sibIndex + 1) + ')');
