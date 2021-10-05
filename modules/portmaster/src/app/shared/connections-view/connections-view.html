@@ -82,7 +82,7 @@
             <app-menu-item (click)="helper.blockAll(data)">Block Domain
             </app-menu-item>
           </ng-template>
-          <app-menu-item (click)="helper.redirectToRules()">Add Rule</app-menu-item>
+          <app-menu-item (click)="helper.redirectToRules(data.incoming)">Add Rule</app-menu-item>
         </app-menu>
       </div>
     </ng-template>

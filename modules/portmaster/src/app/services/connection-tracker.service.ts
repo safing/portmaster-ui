@@ -229,13 +229,14 @@ export class ScopeGroup {
   /** The current block status of the scope group. */
   private _blockStatus: RiskLevel = RiskLevel.Off;
 
-
+  get incoming() {
+    return this._connections[0]?.Inbound || false;
+  }
 
   /** Holds the current block status of the scope group */
   get blockStatus() {
     return this._blockStatus;
   }
-
 
   /** Empty returns true if the scope group is empty */
   get empty() {

@@ -99,8 +99,12 @@ export class ConnectionHelperService {
    * Redirect the user to "outgoing rules" setting in the
    * application profile/settings.
    */
-  redirectToRules() {
-    this.redirectToSetting('filter/endpoints');
+  redirectToRules(inbound: boolean) {
+    if (inbound) {
+      this.redirectToSetting('filter/serviceEndpoints');
+    } else {
+      this.redirectToSetting('filter/endpoints');
+    }
   }
 
   /**

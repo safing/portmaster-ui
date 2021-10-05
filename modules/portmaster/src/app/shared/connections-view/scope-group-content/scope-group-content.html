@@ -62,6 +62,16 @@
         <span>{{grp.stats.distinctASNs?.size}}</span>
       </span>
     </div>
+
+    <div class="action-buttons">
+      <button class="outline" *ngIf="helper.isScopeBlocked(grp); else unblockAll" (click)="helper.unblockAll(grp)">Allow
+        Domain
+      </button>
+      <ng-template #unblockAll>
+        <button class="outline" (click)="helper.blockAll(grp)">Block Domain</button>
+      </ng-template>
+      <button class="outline" (click)="helper.redirectToRules(grp.incoming)">Add Rule</button>
+    </div>
   </div>
 
   <!-- Accordion Header Template -->
