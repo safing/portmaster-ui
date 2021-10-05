@@ -229,8 +229,14 @@ export class ScopeGroup {
   /** The current block status of the scope group. */
   private _blockStatus: RiskLevel = RiskLevel.Off;
 
+  /** Returns whether or not the scope group is for incoming connections */
   get incoming() {
-    return this._connections[0]?.Inbound || false;
+    return this.first?.Inbound || false;
+  }
+
+  /** Returns the first connection of the scope group */
+  get first() {
+    return this._connections[0] || null;
   }
 
   /** Holds the current block status of the scope group */

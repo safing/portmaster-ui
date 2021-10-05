@@ -12,13 +12,13 @@ span.verdict {
     content         : "";
     display         : block;
     position        : absolute;
-    height          : 9px;
-    width           : 9px;
+    height          : 8px;
+    width           : 8px;
     top             : 0px;
     left            : 0px;
     border-radius   : 50%;
     background-color: var(--bg-color);
-    border          : 1px solid var(--cards-secondary);
+    border          : 1px solid var(--bg-color);
     @apply shadow-inner-xs;
   }
 

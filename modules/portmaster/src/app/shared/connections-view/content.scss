@@ -1,6 +1,7 @@
 .meta {
   display        : flex;
   justify-content: space-between;
+  @apply mb-2;
 
   h4 {
     @apply mt-4;

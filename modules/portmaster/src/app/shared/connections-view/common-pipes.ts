@@ -1,5 +1,5 @@
 import { Pipe, PipeTransform } from '@angular/core';
-import { Connection, ExpertiseLevel, ExpertiseLevelNumber, IsDenied, Verdict } from 'src/app/services';
+import { Connection, ExpertiseLevel, IsDenied } from 'src/app/services';
 
 // the following settings are stronger than rules
 // and cannot be "fixed" by creating a new allow/deny

@@ -73,15 +73,17 @@
             <span *ngIf="!!data.subdomain" class="subdomain">{{data.subdomain}}.</span>{{data.domain}}
           </ng-template>
         </span>
-        <app-menu-trigger *ngIf="data.domain" [menu]="menu"></app-menu-trigger>
+        <app-menu-trigger [menu]="menu"></app-menu-trigger>
         <app-menu #menu>
-          <app-menu-item *ngIf="helper.isScopeBlocked(data); else unblockAll" (click)="helper.unblockAll(data)">Allow
-            Domain
-          </app-menu-item>
-          <ng-template #unblockAll>
-            <app-menu-item (click)="helper.blockAll(data)">Block Domain
+          <ng-container *ngIf="data.domain">
+            <app-menu-item *ngIf="helper.isScopeBlocked(data); else unblockAll" (click)="helper.unblockAll(data)">Allow
+              Domain
             </app-menu-item>
-          </ng-template>
+            <ng-template #unblockAll>
+              <app-menu-item (click)="helper.blockAll(data)">Block Domain
+              </app-menu-item>
+            </ng-template>
+          </ng-container>
           <app-menu-item (click)="helper.redirectToRules(data.incoming)">Add Rule</app-menu-item>
         </app-menu>
       </div>
