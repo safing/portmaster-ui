@@ -68,6 +68,7 @@ import { SupportPageComponent } from './pages/support';
 import { SupportFormComponent } from './pages/support/form';
 import { TipUpAnchorDirective, TipUpComponent, TipUpTriggerDirective, TipUpIconComponent } from './shared/tipup';
 import { PaginationContentDirective, PaginationWrapperComponent } from './shared/pagination';
+import { PrettyCountPipe } from './shared/count.pipe';
 
 @NgModule({
   declarations: [
@@ -136,6 +137,7 @@ import { PaginationContentDirective, PaginationWrapperComponent } from './shared
     UngroupedConnectionRowComponent,
     ConnectionExpertisePipe,
     ConnectionLocationPipe,
+    PrettyCountPipe,
     CanUseRulesPipe,
     CanShowConnectionPipe,
     IsBlockedConnectionPipe,

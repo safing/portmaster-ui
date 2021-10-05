@@ -3,7 +3,7 @@
     <div>
       <span *ngIf="grp.domain">
         <span>Domain:</span>
-        <span class="subdomain">{{grp.subdomain}}.</span>{{grp.domain}}
+        <span class="subdomain" *ngIf="!!grp.subdomain">{{grp.subdomain}}.</span>{{grp.domain}}
       </span>
 
       <span *ngIf="!grp.domain">
