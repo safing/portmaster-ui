@@ -49,7 +49,7 @@
     <div class="col">
       <app-text-placeholder mode="input" [loading]="!profile?.profile" width="large">
         <span>Binary Name:</span>
-        <span>{{profile?.profile?.LinkedPath?.replace(nameRegex, "$2")}}</span>
+        <span>{{profile?.profile?.LinkedPath?.replace(nameRegex, "$2") || 'N/A'}}</span>
       </app-text-placeholder>
     </div>
     <div class="col">
