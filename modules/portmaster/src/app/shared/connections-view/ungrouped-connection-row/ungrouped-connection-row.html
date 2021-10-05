@@ -47,9 +47,6 @@
     </ng-container>
   </span>
   <div class="reason">
-    <ng-container>
-      <fa-icon [icon]="['far', 'clock']" class="old-revision" *ngIf="isOutdated"></fa-icon>
-    </ng-container>
     <ng-container *ngIf="conn.Reason.OptionKey as option">
       <span class="de-emphasize applied">applied</span>
       <span class="setting">{{ helper.settings[option] || '' }}&nbsp;</span>

@@ -8,7 +8,8 @@
 
   <div class="actions">
 
-    <div *ngIf="countNewConn > 0 && !liveMode" (click)="refresh()" class="reload-notice">
+    <div *ngIf="countNewConn > 0 && !liveMode && (!loading && scopeGroups.length > 0)" (click)="refresh()"
+      class="reload-notice">
       {{ countNewConn > 0 ? countNewConn : '1' }} new connections: Reload
       <fa-icon icon="redo"></fa-icon>
     </div>

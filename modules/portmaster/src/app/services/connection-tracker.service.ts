@@ -1,12 +1,10 @@
-import { Injectable, isDevMode } from '@angular/core';
-import { BehaviorSubject, combineLatest, forkJoin, Observable, of, Subject, Subscription } from 'rxjs';
-import { bufferTime, catchError, filter, map, startWith, switchMap, tap } from 'rxjs/operators';
-import { ExpertiseService } from '../shared/expertise/expertise.service';
+import { Injectable } from '@angular/core';
+import { BehaviorSubject, forkJoin, Observable, of, Subject, Subscription } from 'rxjs';
+import { bufferTime, catchError, filter, map, switchMap, tap } from 'rxjs/operators';
 import { SnapshotPaginator } from '../shared/types';
 import { binaryInsert, binarySearch, parseDomain } from '../shared/utils';
 import { AppProfileService } from './app-profile.service';
 import { AppProfile, LayeredProfile } from './app-profile.types';
-import { ExpertiseLevel } from './config.types';
 import { ConnectionStatistics } from './connection-tracker.types';
 import { RiskLevel } from './core.types';
 import { Connection, ScopeIdentifier, ScopeTranslation, Verdict } from './network.types';
@@ -226,7 +224,7 @@ export class ScopeGroup {
    *  to the scope. */
   private _connections: Connection[] = [];
 
-  private _snapshot = new Subject<Connection[]>();
+  private _snapshot = new BehaviorSubject<Connection[]>([]);
 
   /** The current block status of the scope group. */
   private _blockStatus: RiskLevel = RiskLevel.Off;
@@ -517,6 +515,11 @@ export class InspectedProfile {
         this._loading = false;
         this._onLoadingDone.next();
         this._onLoadingDone.complete();
+
+        // publish all groups
+        for (let grp of this._scopeGroups.values()) {
+          grp.publish();
+        }
       });
 
     // if we cancel early make sure we cancel all the load
@@ -574,7 +577,7 @@ export class InspectedProfile {
     this._connections.set(key, conn);
     this._stats.update(conn);
 
-    const grp = this.getOrCreateScopeGroup(conn);
+    const [grp, created] = this.getOrCreateScopeGroup(conn);
     grp.add(conn);
 
     this._connUpdate.next({
@@ -582,6 +585,10 @@ export class InspectedProfile {
       conn: conn,
       key: key,
     });
+
+    if (created && !this.loading) {
+      grp.publish();
+    }
   }
 
   /**
@@ -624,16 +631,18 @@ export class InspectedProfile {
   /**
    * Returns (or creates) a scope group for the connection.
    */
-  private getOrCreateScopeGroup(conn: Connection): ScopeGroup {
+  private getOrCreateScopeGroup(conn: Connection): [ScopeGroup, boolean] {
     let grp = this._scopeGroups.get(conn.Scope);
+    let created = false;
     if (!grp) {
+      created = true;
       grp = new ScopeGroup(conn.Scope);
       this._scopeGroups.set(conn.Scope, grp);
 
       this.publishScopes('added');
     }
 
-    return grp;
+    return [grp, created];
   }
 
   /**

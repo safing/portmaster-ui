@@ -116,8 +116,8 @@ export class ConnectionHelperService {
         await navigator.clipboard.writeText(JSON.stringify(conn, undefined, "    "))
         this.actionIndicator.info("Copied to Clipboard")
       }
-    } catch (err) {
-      this.actionIndicator.error("Copy to Clipboard Failed", err.message || JSON.stringify(err))
+    } catch (err: any) {
+      this.actionIndicator.error("Copy to Clipboard Failed", err?.message || JSON.stringify(err))
     }
   }
 

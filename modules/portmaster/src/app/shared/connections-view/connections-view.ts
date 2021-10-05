@@ -87,7 +87,7 @@ export class ConnectionsViewComponent implements OnInit, OnDestroy {
 
   /** The current display type */
   @Input()
-  displayMode: ConnectionDisplayMode = 'ungrouped';
+  displayMode: ConnectionDisplayMode = 'grouped';
 
   /** Output that emits whenever the users changes the display mode */
   @Output()
@@ -114,9 +114,24 @@ export class ConnectionsViewComponent implements OnInit, OnDestroy {
             const isFirstLoad = this.scopeGroups.length === 0 || this.loading;
             if (this._liveMode || isFirstLoad) {
               this.handleScopeGroupUpdate(upd.groups, upd.type);
+
+              if (isFirstLoad) {
+                this.refresh();
+              }
             }
           });
       this._profileUpdatesSub.add(scopeUpdateSub);
+
+      // reset once we unsubscribe from this profile.
+      // the prevents flickering of old connections when we switch
+      // to a different profile because angular would render stale data
+      // first.
+      this._profileUpdatesSub.add(() => {
+        this.scopeGroups = [];
+        this.countNewConn = 0;
+        this.filteredUngroupedConnections = [];
+        this.paginatedItems.next([]);
+      })
 
       this.loadFilteredConnections()
     }
@@ -163,7 +178,10 @@ export class ConnectionsViewComponent implements OnInit, OnDestroy {
       }
       // reload now
       this._profile.scopeGroups.pipe(take(1))
-        .subscribe(grps => this.handleScopeGroupUpdate(grps.groups, grps.type))
+        .subscribe(grps => {
+          this.handleScopeGroupUpdate(grps.groups, grps.type);
+          this.scopeGroups.forEach(grp => grp.publish());
+        })
     })
   }
 
@@ -181,8 +199,8 @@ export class ConnectionsViewComponent implements OnInit, OnDestroy {
   toggleLiveMode() {
     this._liveMode = !this._liveMode;
     this.liveModeChange.next(this._liveMode);
-    this.reload.next();
     this.countNewConn = 0;
+    this.refresh();
   }
 
   /**
@@ -194,11 +212,12 @@ export class ConnectionsViewComponent implements OnInit, OnDestroy {
     this.displayMode = mode;
     this.displayModeChange.next(mode);
 
-    this.refresh();
     if (this.displayMode !== 'ungrouped') {
       this.ungroupedFilter = 'All';
-      this.reload.next();
-    } else {
+    }
+    this.refresh();
+
+    if (this.displayMode === 'ungrouped') {
       this.openPage(1);
     }
   }
@@ -250,9 +269,6 @@ export class ConnectionsViewComponent implements OnInit, OnDestroy {
   private handleScopeGroupUpdate(grps: ScopeGroup[], updType: ScopeGroupUpdate['type']) {
     this.countNewConn = 0;
     this.scopeGroups = grps;
-    if (updType === 'init') {
-      grps.forEach(grp => grp.publish())
-    }
     this.changeDetector.markForCheck();
   }
 
@@ -359,7 +375,7 @@ export class ConnectionsViewComponent implements OnInit, OnDestroy {
     if (this.displayMode === 'ungrouped') {
       this.paginatedItems.next(this.filteredUngroupedConnections);
     } else {
-      this.scopeGroups.forEach(grp => grp.publish())
+      this.reload.next();
     }
     this.countNewConn = 0;
   }
