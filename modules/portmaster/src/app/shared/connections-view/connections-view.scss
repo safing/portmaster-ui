@@ -50,6 +50,15 @@ fa-icon[icon="spinner"] {
   @apply mr-1;
 }
 
+app-count-indicator {
+  margin-left: 0.5rem;
+  width      : 80px;
+}
+
+.card-title {
+  padding-left: 0.5rem !important;
+}
+
 app-menu-item.selectable-menu-item {
   fa-icon {
     margin-right: 6px;

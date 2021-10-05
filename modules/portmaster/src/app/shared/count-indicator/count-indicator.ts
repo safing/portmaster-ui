@@ -1,4 +1,5 @@
-import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
+import { coerceNumberProperty } from '@angular/cdk/coercion';
+import { ChangeDetectionStrategy, Component, Input, OnChanges } from '@angular/core';
 
 @Component({
   selector: 'app-count-indicator',
@@ -6,15 +7,17 @@ import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
   styleUrls: ['./count-indicator.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class CountIndicatorComponent {
+export class CountIndicatorComponent implements OnChanges {
   @Input()
-  count: number = 0;
+  count = 0;
+
+  @Input()
+  countAllowed: number = 0;
 
   allowedPercentage: number = 0;
 
-  @Input()
-  set countAllowed(v: number) {
-    var ratio = v / this.count;
+  ngOnChanges() {
+    const ratio = (this.countAllowed / this.count) || 0;
     this.allowedPercentage = Math.round(ratio * 100);
   }
 }

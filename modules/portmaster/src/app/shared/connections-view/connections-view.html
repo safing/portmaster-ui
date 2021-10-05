@@ -60,6 +60,10 @@
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M10 16l4-4-4-4" />
           </g>
         </svg>
+
+        <app-count-indicator [count]="data.size" [countAllowed]="data.stats.countAccepted">
+        </app-count-indicator>
+
         <span class="card-title">
           <ng-container *ngIf="!data.domain; else: domainView">
             {{ scopeTranslation[data?.scope] || 'N/A' }}
@@ -68,10 +72,6 @@
             <span *ngIf="!!data.subdomain" class="subdomain">{{data.subdomain}}.</span>{{data.domain}}
           </ng-template>
         </span>
-
-        <app-count-indicator [count]="data.size" [countAllowed]="data.countAllowed" [count]="data.size"
-          [ngClass]="{spacer: !data.domain}">
-        </app-count-indicator>
         <app-menu-trigger *ngIf="data.domain" [menu]="menu"></app-menu-trigger>
         <app-menu #menu>
           <app-menu-item *ngIf="helper.isScopeBlocked(data); else unblockAll" (click)="helper.unblockAll(data)">Allow
