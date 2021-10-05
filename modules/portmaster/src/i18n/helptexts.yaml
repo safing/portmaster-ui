@@ -216,7 +216,7 @@ networkMonitor-App-Focus-connection-history:
     <span class="block verdict outdated"></span>
     <span class="verdict failed outdated"></span>
 
-    <small>_Note: By default every row is one connection. If this becomes overwhelming, try showing connections "by Domain", accessible when clicking "Next"_</small>
+    <small>_Note: By default connections are grouped by domain. To display individual connections use "Connections", accessible when clicking "Next"_</small>
   nextKey: networkMonitor-App-Focus-connection-history-filter
 
 networkMonitor-App-Focus-connection-history-filter:
