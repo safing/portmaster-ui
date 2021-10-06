@@ -68,6 +68,15 @@ export class ConfigSettingsViewComponent implements OnInit, OnDestroy, AfterView
     private scrollDispatcher: ScrollDispatcher,
     private searchService: FuzzySearchService,
   ) { }
+
+  constructor(
+    public statusService: StatusService,
+    public configService: ConfigService,
+    private elementRef: ElementRef,
+    private changeDetectorRef: ChangeDetectorRef,
+    private scrollDispatcher: ScrollDispatcher,
+    private searchService: FuzzySearchService,
+  ) { }
   subsystems: SubsystemWithExpertise[] = [];
   others: Setting[] | null = null;
   settings: Map<string, Category[]> = new Map();
@@ -84,6 +93,17 @@ export class ConfigSettingsViewComponent implements OnInit, OnDestroy, AfterView
   displayStackable: string | boolean = false;
   private _highlightKey: string | null = null;
   private _scrolledToHighlighted = false;
+
+  @Output()
+  onSave = new EventEmitter<SaveSettingEvent>();
+
+  private onSearch = new BehaviorSubject<string>('');
+  private onSettingsChange = new BehaviorSubject<Setting[]>([]);
+
+  @ViewChildren('navLink', { read: ElementRef })
+  navLinks: QueryList<ElementRef> | null = null;
+
+  private subscription = Subscription.EMPTY;
 
   @Output()
   onSave = new EventEmitter<SaveSettingEvent>();
@@ -119,29 +139,9 @@ export class ConfigSettingsViewComponent implements OnInit, OnDestroy, AfterView
     return !!this.settings.get(subsys.ConfigKeySpace)?.some(cat => this.mustShowCategory(lvl, cat));
   }
 
-  @Output()
-  onSave = new EventEmitter<SaveSettingEvent>();
-
-  private onSearch = new BehaviorSubject<string>('');
-  private onSettingsChange = new BehaviorSubject<Setting[]>([]);
-
-  @ViewChildren('navLink', { read: ElementRef })
-  navLinks: QueryList<ElementRef> | null = null;
-
-  private subscription = Subscription.EMPTY;
-
-  constructor(
-    public statusService: StatusService,
-    public configService: ConfigService,
-    private elementRef: ElementRef,
-    private changeDetectorRef: ChangeDetectorRef,
-    private scrollDispatcher: ScrollDispatcher,
-    private searchService: FuzzySearchService,
-  ) { }
-
   saveSetting(event: SaveSettingEvent, s: Setting) {
     this.onSave.next(event);
-    const subsys = this.subsystems.find(subsys => s.Key === subsys.ToggleOptionKey)
+    const subsys = this.subsystems.find(subsys => s.Key === subsys.ToggleOptionKey);
     if (!!subsys) {
       // trigger a reload of the page as we now might need to show more
       // settings.
@@ -267,9 +267,9 @@ export class ConfigSettingsViewComponent implements OnInit, OnDestroy, AfterView
             })
             .map(subsys => {
               let categories = this.settings.get(subsys.ConfigKeySpace)!;
-              let toggleOption: Setting | undefined = undefined;
-              for (let c of categories) {
-                toggleOption = c.settings.find(s => s.Key === subsys.ToggleOptionKey)
+              let toggleOption: Setting | undefined;
+              for (const c of categories) {
+                toggleOption = c.settings.find(s => s.Key === subsys.ToggleOptionKey);
                 if (!!toggleOption) {
                   if (toggleOption.Value !== undefined && !toggleOption.Value || (toggleOption.Value === undefined && !toggleOption.DefaultValue)) {
                     subsys.isDisabled = true;
@@ -281,7 +281,7 @@ export class ConfigSettingsViewComponent implements OnInit, OnDestroy, AfterView
                         ...c,
                         settings: c.settings.filter(s => s.Key === toggleOption!.Key)
                       }))
-                      .filter(cat => cat.settings.length > 0)
+                      .filter(cat => cat.settings.length > 0);
                     this.settings.set(subsys.ConfigKeySpace, categories);
                   }
                   break;

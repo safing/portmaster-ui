@@ -1,5 +1,5 @@
-import { BehaviorSubject, Observable } from "rxjs";
-import { debounceTime, map, take, tap, withLatestFrom } from "rxjs/operators";
+import { BehaviorSubject, Observable } from 'rxjs';
+import { debounceTime, map, take, tap, withLatestFrom } from 'rxjs/operators';
 
 export interface Pagination<T> {
   /**
@@ -34,7 +34,7 @@ export interface Pagination<T> {
    * the total amount of pages it is clipped to the lastPage. If it is
    * less than 1, it is clipped to 1.
    */
-  openPage(pageNumber: number): void
+  openPage(pageNumber: number): void;
 }
 
 /**
@@ -45,9 +45,9 @@ export interface Pagination<T> {
  * @returns An array of page numbers to display
  */
 export function generatePageNumbers(current: number, countPages: number): number[] {
-  let delta = 2;
-  let leftRange = current - delta;
-  let rightRange = current + delta + 1;
+  const delta = 2;
+  const leftRange = current - delta;
+  const rightRange = current + delta + 1;
 
   return Array.from({ length: countPages }, (v, k) => k + 1)
     .filter(i => i === 1 || i === countPages || (i >= leftRange && i < rightRange));
@@ -77,7 +77,7 @@ export class SnapshotPaginator<T> implements Pagination<T> {
         const end = this.pageSize * page;
         this._totalPages = Math.ceil(this._itemSnapshot.length / this.pageSize) || 1;
         this._activePageItems.next(this._itemSnapshot.slice(start, end));
-      })
+      });
   }
 
   private _currentPage = new BehaviorSubject<number>(0);
@@ -92,7 +92,7 @@ export class SnapshotPaginator<T> implements Pagination<T> {
     return this._currentPage.getValue();
   }
   get total(): number {
-    return this._totalPages
+    return this._totalPages;
   }
   get pageItems$(): Observable<T[]> {
     return this._activePageItems.asObservable();
@@ -100,13 +100,13 @@ export class SnapshotPaginator<T> implements Pagination<T> {
   get pageItems(): T[] {
     return this._activePageItems.getValue();
   }
-  get snapshot(): T[] { return this._itemSnapshot };
+  get snapshot(): T[] { return this._itemSnapshot; }
 
-  reload(): void { this.openPage(this._currentPage.getValue()) }
+  reload(): void { this.openPage(this._currentPage.getValue()); }
 
-  nextPage(): void { this.openPage(this._currentPage.getValue() + 1) }
+  nextPage(): void { this.openPage(this._currentPage.getValue() + 1); }
 
-  prevPage(): void { this.openPage(this._currentPage.getValue() - 1) }
+  prevPage(): void { this.openPage(this._currentPage.getValue() - 1); }
 
   openPage(pageNumber: number): void {
     if (pageNumber < 1) {

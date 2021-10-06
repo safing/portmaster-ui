@@ -4,21 +4,21 @@ import { Connection, ExpertiseLevel, IsDenied } from 'src/app/services';
 // the following settings are stronger than rules
 // and cannot be "fixed" by creating a new allow/deny
 // rule.
-let optionKeys = new Set([
-  "filter/blockInternet",
-  "filter/blockLAN",
-  "filter/blockLocal",
-  "filter/blockP2P",
-  "filter/blockInbound"
-])
+const optionKeys = new Set([
+  'filter/blockInternet',
+  'filter/blockLAN',
+  'filter/blockLocal',
+  'filter/blockP2P',
+  'filter/blockInbound'
+]);
 
 @Pipe({
-  name: "canUseRules",
+  name: 'canUseRules',
   pure: true,
 })
 export class CanUseRulesPipe implements PipeTransform {
   transform(conn: Connection): boolean {
-    if (conn.Reason.OptionKey != "" && IsDenied(conn.Verdict)) {
+    if (conn.Reason.OptionKey != '' && IsDenied(conn.Verdict)) {
       return !optionKeys.has(conn.Reason.OptionKey);
     }
     return true;
@@ -26,7 +26,7 @@ export class CanUseRulesPipe implements PipeTransform {
 }
 
 @Pipe({
-  name: "canShowConnection",
+  name: 'canShowConnection',
   pure: true,
 })
 export class CanShowConnection implements PipeTransform {
@@ -42,7 +42,7 @@ export class CanShowConnection implements PipeTransform {
 }
 
 @Pipe({
-  name: "isBlocked",
+  name: 'isBlocked',
   pure: true
 })
 export class IsBlockedConnectionPipe implements PipeTransform {

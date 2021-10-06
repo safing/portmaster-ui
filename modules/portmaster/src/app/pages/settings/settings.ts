@@ -188,7 +188,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
   }
 
   openChangeLog() {
-    const url = "https://github.com/safing/portmaster/releases";
+    const url = 'https://github.com/safing/portmaster/releases';
     if (!!window.app) {
       window.app.openExternal(url);
       return;

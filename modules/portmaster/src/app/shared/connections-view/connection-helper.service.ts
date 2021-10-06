@@ -121,7 +121,7 @@ export class ConnectionHelperService {
         this.actionIndicator.info('Copied to Clipboard');
       }
     } catch (err: any) {
-      this.actionIndicator.error("Copy to Clipboard Failed", err?.message || JSON.stringify(err))
+      this.actionIndicator.error('Copy to Clipboard Failed', err?.message || JSON.stringify(err));
     }
   }
 

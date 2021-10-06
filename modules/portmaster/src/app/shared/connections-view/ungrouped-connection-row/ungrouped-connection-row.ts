@@ -1,9 +1,9 @@
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, HostListener, Input, OnDestroy, OnInit } from "@angular/core";
-import { interval, Subscription } from "rxjs";
-import { startWith, share } from "rxjs/operators";
-import { Connection } from "src/app/services";
-import { InspectedProfile } from "src/app/services/connection-tracker.service";
-import { ConnectionHelperService } from "../connection-helper.service";
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, HostListener, Input, OnDestroy, OnInit } from '@angular/core';
+import { interval, Subscription } from 'rxjs';
+import { startWith, share } from 'rxjs/operators';
+import { Connection } from 'src/app/services';
+import { InspectedProfile } from 'src/app/services/connection-tracker.service';
+import { ConnectionHelperService } from '../connection-helper.service';
 
 @Component({
   selector: 'app-ungrouped-connection-row',

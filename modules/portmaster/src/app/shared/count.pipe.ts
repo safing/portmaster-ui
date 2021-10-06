@@ -1,4 +1,4 @@
-import { Pipe, PipeTransform } from "@angular/core";
+import { Pipe, PipeTransform } from '@angular/core';
 
 @Pipe({
   name: 'prettyCount',
@@ -11,8 +11,8 @@ export class PrettyCountPipe implements PipeTransform {
       if (value === v * 1000) {
         return `${v}k`;
       }
-      return `${v}k+`
+      return `${v}k+`;
     }
-    return `${value}`
+    return `${value}`;
   }
 }

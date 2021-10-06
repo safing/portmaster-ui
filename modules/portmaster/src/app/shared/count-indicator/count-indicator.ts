@@ -11,9 +11,9 @@ export class CountIndicatorComponent implements OnChanges {
   count = 0;
 
   @Input()
-  countAllowed: number = 0;
+  countAllowed = 0;
 
-  allowedPercentage: number = 0;
+  allowedPercentage = 0;
 
   ngOnChanges() {
     const ratio = (this.countAllowed / this.count) || 0;

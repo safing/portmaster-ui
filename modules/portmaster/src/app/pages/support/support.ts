@@ -43,7 +43,7 @@ export class SupportPageComponent {
         { name: ['choices', 'epilogue'], weight: 1 },
         { name: ['choices', 'prologue'], weight: 1 },
       ]
-    })
+    });
     // The search service wraps the items in a search-result object.
     // Unwrap them now.
     const items = filtered

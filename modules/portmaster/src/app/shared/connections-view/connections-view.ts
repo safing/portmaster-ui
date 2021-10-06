@@ -25,46 +25,6 @@ interface ConnectionFilter {
 })
 export class ConnectionsViewComponent implements OnInit, OnDestroy {
 
-  /** @private
-   *  Contants made available for the template.
-   */
-  readonly scopeTranslation = ScopeTranslation;
-  readonly connectionFilters: ConnectionFilter[] = [
-    { name: "All", fn: () => true, expertiseLevel: ExpertiseLevel.User },
-    { name: "Allowed", fn: c => c.Verdict !== Verdict.Block && c.Verdict !== Verdict.Drop, expertiseLevel: ExpertiseLevel.Expert },
-    { name: "Blocked", fn: c => c.Verdict === Verdict.Block || c.Verdict === Verdict.Drop, expertiseLevel: ExpertiseLevel.User },
-    { name: "Active", fn: c => !c.Ended, expertiseLevel: ExpertiseLevel.Expert },
-    { name: "Ended", fn: c => !!c.Ended, expertiseLevel: ExpertiseLevel.Expert },
-    { name: "Inbound", fn: c => c.Inbound, expertiseLevel: ExpertiseLevel.Developer },
-    { name: "Outbound", fn: c => !c.Inbound, expertiseLevel: ExpertiseLevel.Developer },
-    { name: "Local", fn: c => IsLocalhost(c.Entity.IPScope), expertiseLevel: ExpertiseLevel.Developer },
-    { name: "LAN", fn: c => IsLANScope(c.Entity.IPScope), expertiseLevel: ExpertiseLevel.Developer },
-    { name: "Global", fn: c => IsGlobalScope(c.Entity.IPScope), expertiseLevel: ExpertiseLevel.Developer },
-  ]
-
-  /** Subscription to profile updates. */
-  private _profileUpdatesSub = Subscription.EMPTY;
-
-  /** Subscription for the "ungrouped" and filtered connection view */
-  private filterSub = Subscription.EMPTY;
-
-  /** TrackByFunction for scope-groups */
-  trackByScope: TrackByFunction<ScopeGroup> = (_: number, g: ScopeGroup) => g.scope;
-
-  /** TrackByFunction for connection */
-  trackByConnection: TrackByFunction<Connection> = (_: number, c: Connection | null) => c?.ID;
-
-  /** Holds the filtered, ungrouped list of connections */
-  filteredUngroupedConnections: Connection[] = [];
-
-  /** displayed paginated items */
-  paginatedItems = new BehaviorSubject<Connection[]>([]);
-
-  pagination: SnapshotPaginator<Connection>;
-
-  /** Pagination */
-  readonly pageSize = 100;
-
   get loading() {
     return !this.profile || this.profile.loading || this.ungroupedLoading;
   }
@@ -81,17 +41,6 @@ export class ConnectionsViewComponent implements OnInit, OnDestroy {
     const processGroupSize = this.profile?.processGroup.size || 0;
     return processGroupSize > 0 && this.filteredUngroupedConnections.length == 0;
   }
-  private _ungroupedModeLoaded = false;
-
-  ungroupedFilter = 'All';
-
-  /** The current display type */
-  @Input()
-  displayMode: ConnectionDisplayMode = 'grouped';
-
-  /** Output that emits whenever the users changes the display mode */
-  @Output()
-  displayModeChange = new EventEmitter<ConnectionDisplayMode>();
 
   @Input()
   set profile(p: InspectedProfile | null) {
@@ -131,9 +80,9 @@ export class ConnectionsViewComponent implements OnInit, OnDestroy {
         this.countNewConn = 0;
         this.filteredUngroupedConnections = [];
         this.paginatedItems.next([]);
-      })
+      });
 
-      this.loadFilteredConnections()
+      this.loadFilteredConnections();
     }
   }
   get profile() {
@@ -153,6 +102,58 @@ export class ConnectionsViewComponent implements OnInit, OnDestroy {
     private changeDetector: ChangeDetectorRef,
     public helper: ConnectionHelperService,
   ) { }
+
+  constructor(
+    private changeDetector: ChangeDetectorRef,
+    public helper: ConnectionHelperService,
+  ) {
+    this.pagination = new SnapshotPaginator(this.paginatedItems, 100);
+  }
+
+  /** @private
+   *  Contants made available for the template.
+   */
+  readonly scopeTranslation = ScopeTranslation;
+  readonly connectionFilters: ConnectionFilter[] = [
+    { name: 'All', fn: () => true, expertiseLevel: ExpertiseLevel.User },
+    { name: 'Allowed', fn: c => c.Verdict !== Verdict.Block && c.Verdict !== Verdict.Drop, expertiseLevel: ExpertiseLevel.Expert },
+    { name: 'Blocked', fn: c => c.Verdict === Verdict.Block || c.Verdict === Verdict.Drop, expertiseLevel: ExpertiseLevel.User },
+    { name: 'Active', fn: c => !c.Ended, expertiseLevel: ExpertiseLevel.Expert },
+    { name: 'Ended', fn: c => !!c.Ended, expertiseLevel: ExpertiseLevel.Expert },
+    { name: 'Inbound', fn: c => c.Inbound, expertiseLevel: ExpertiseLevel.Developer },
+    { name: 'Outbound', fn: c => !c.Inbound, expertiseLevel: ExpertiseLevel.Developer },
+    { name: 'Local', fn: c => IsLocalhost(c.Entity.IPScope), expertiseLevel: ExpertiseLevel.Developer },
+    { name: 'LAN', fn: c => IsLANScope(c.Entity.IPScope), expertiseLevel: ExpertiseLevel.Developer },
+    { name: 'Global', fn: c => IsGlobalScope(c.Entity.IPScope), expertiseLevel: ExpertiseLevel.Developer },
+  ];
+
+  /** Subscription to profile updates. */
+  private _profileUpdatesSub = Subscription.EMPTY;
+
+  /** Subscription for the "ungrouped" and filtered connection view */
+  private filterSub = Subscription.EMPTY;
+
+  /** Holds the filtered, ungrouped list of connections */
+  filteredUngroupedConnections: Connection[] = [];
+
+  /** displayed paginated items */
+  paginatedItems = new BehaviorSubject<Connection[]>([]);
+
+  pagination: SnapshotPaginator<Connection>;
+
+  /** Pagination */
+  readonly pageSize = 100;
+  private _ungroupedModeLoaded = false;
+
+  ungroupedFilter = 'All';
+
+  /** The current display type */
+  @Input()
+  displayMode: ConnectionDisplayMode = 'grouped';
+
+  /** Output that emits whenever the users changes the display mode */
+  @Output()
+  displayModeChange = new EventEmitter<ConnectionDisplayMode>();
   /** @private
    *  Contants made available for the template.
    */
@@ -211,12 +212,11 @@ export class ConnectionsViewComponent implements OnInit, OnDestroy {
   /** @private - The currenlty displayed scope-groups */
   scopeGroups: ScopeGroup[] = [];
 
-  constructor(
-    private changeDetector: ChangeDetectorRef,
-    public helper: ConnectionHelperService,
-  ) {
-    this.pagination = new SnapshotPaginator(this.paginatedItems, 100);
-  }
+  /** TrackByFunction for scope-groups */
+  trackByScope: TrackByFunction<ScopeGroup> = (_: number, g: ScopeGroup) => g.scope;
+
+  /** TrackByFunction for connection */
+  trackByConnection: TrackByFunction<Connection> = (_: number, c: Connection | null) => c?.ID;
 
   ngOnInit() {
     this.reload.subscribe(() => {
@@ -228,8 +228,8 @@ export class ConnectionsViewComponent implements OnInit, OnDestroy {
         .subscribe(grps => {
           this.handleScopeGroupUpdate(grps.groups, grps.type);
           this.scopeGroups.forEach(grp => grp.publish());
-        })
-    })
+        });
+    });
   }
 
   ngOnDestroy() {
@@ -363,10 +363,10 @@ export class ConnectionsViewComponent implements OnInit, OnDestroy {
 
             if (upd.type === 'update') {
               const currentItems = this.pagination.snapshot;
-              let idx = binarySearch(currentItems, upd.conn, SortByMostRecent);
+              const idx = binarySearch(currentItems, upd.conn, SortByMostRecent);
               if (idx >= 0 && currentItems[idx]?.ID === upd.conn.ID) {
                 currentItems[idx] = upd.conn;
-                console.log(`${upd.conn.Scope}: applying inline update`)
+                console.log(`${upd.conn.Scope}: applying inline update`);
               }
               inlineUpdates = true;
             }
@@ -380,7 +380,7 @@ export class ConnectionsViewComponent implements OnInit, OnDestroy {
               };
             }
 
-            let idx = binarySearch(result, upd.conn!, SortByMostRecent);
+            const idx = binarySearch(result, upd.conn!, SortByMostRecent);
             if (upd.type === 'deleted') {
               if (idx < 0) {
                 console.log(`connection not found`);
@@ -467,7 +467,7 @@ export class ConnectionsViewComponent implements OnInit, OnDestroy {
         if (grp.pagination.pageNumber === 1) {
           grp.publish();
         }
-      })
+      });
     }
   }
 }

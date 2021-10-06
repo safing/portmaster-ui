@@ -192,7 +192,7 @@ export class ProcessGroup {
 
 /** Sort function for connections that sorts then by most recent. */
 export const SortByMostRecent = (a: Connection, b: Connection) => {
-  let diff = a.Started - b.Started;
+  const diff = a.Started - b.Started;
   if (diff !== 0) {
     return diff;
   }
@@ -204,7 +204,7 @@ export const SortByMostRecent = (a: Connection, b: Connection) => {
     return -1;
   }
   return 0;
-}
+};
 
 export class ScopeGroup {
 
@@ -571,7 +571,7 @@ export class InspectedProfile {
         this._onLoadingDone.complete();
 
         // publish all groups
-        for (let grp of this._scopeGroups.values()) {
+        for (const grp of this._scopeGroups.values()) {
           grp.publish();
         }
       });

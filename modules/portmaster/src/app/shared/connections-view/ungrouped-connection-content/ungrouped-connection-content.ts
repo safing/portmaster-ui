@@ -1,7 +1,7 @@
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, Input, OnDestroy, OnInit, TrackByFunction } from "@angular/core";
-import { Subscription } from "rxjs";
-import { Connection, IPProtocol, ScopeTranslation, Verdict } from "src/app/services";
-import { ConnectionHelperService } from "../connection-helper.service";
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, Input, OnDestroy, OnInit, TrackByFunction } from '@angular/core';
+import { Subscription } from 'rxjs';
+import { Connection, IPProtocol, ScopeTranslation, Verdict } from 'src/app/services';
+import { ConnectionHelperService } from '../connection-helper.service';
 
 @Component({
   selector: 'app-ungrouped-connection-content',

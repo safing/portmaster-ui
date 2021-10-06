@@ -1,6 +1,6 @@
-import { EventEmitter, ChangeDetectionStrategy, ChangeDetectorRef, Component, ContentChild, Directive, Input, OnChanges, OnDestroy, Output, SimpleChanges, TemplateRef } from "@angular/core";
-import { combineLatest, Subscription } from "rxjs";
-import { generatePageNumbers, Pagination } from "../types";
+import { EventEmitter, ChangeDetectionStrategy, ChangeDetectorRef, Component, ContentChild, Directive, Input, OnChanges, OnDestroy, Output, SimpleChanges, TemplateRef } from '@angular/core';
+import { combineLatest, Subscription } from 'rxjs';
+import { generatePageNumbers, Pagination } from '../types';
 
 @Directive({
   selector: '[appPaginationContent]'
@@ -32,7 +32,7 @@ export class PaginationWrapperComponent<T = any> implements OnChanges, OnDestroy
   @ContentChild(PaginationContentDirective)
   content: PaginationContentDirective | null = null;
 
-  currentPageIdx: number = 0;
+  currentPageIdx = 0;
   pageNumbers: number[] = [];
 
   ngOnChanges(changes: SimpleChanges) {
@@ -61,9 +61,9 @@ export class PaginationWrapperComponent<T = any> implements OnChanges, OnDestroy
           this.pageChange.next({
             totalPages: source.total,
             currentPage: current,
-          })
+          });
         })
-    )
+    );
   }
 
   constructor(private cdr: ChangeDetectorRef) { }

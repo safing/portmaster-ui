@@ -11,6 +11,11 @@ import { ConnectionHelperService } from '../connection-helper.service';
   templateUrl: './scope-group-content.html'
 })
 export class ScopeGroupContentComponent implements OnInit, OnDestroy {
+
+  constructor(
+    public helper: ConnectionHelperService,
+    private changeDetectorRef: ChangeDetectorRef,
+  ) { }
   @Input()
   grp: ScopeGroup | null = null;
 
@@ -20,17 +25,12 @@ export class ScopeGroupContentComponent implements OnInit, OnDestroy {
   @Input()
   profileId = '';
 
-  /** TrackByFunction for connection */
-  trackByConnection: TrackByFunction<Connection> = (_: number, c: Connection | null) => c?.ID;
-
   private _subscription = Subscription.EMPTY;
 
   readonly displayedColumns = ['state', 'entity', 'started', 'ended', 'reason', 'actions'];
 
-  constructor(
-    public helper: ConnectionHelperService,
-    private changeDetectorRef: ChangeDetectorRef,
-  ) { }
+  /** TrackByFunction for connection */
+  trackByConnection: TrackByFunction<Connection> = (_: number, c: Connection | null) => c?.ID;
 
   ngOnInit() {
     this._subscription = this.helper.refresh.subscribe(() => {

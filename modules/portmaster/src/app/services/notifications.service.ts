@@ -76,16 +76,16 @@ export class NotificationsService {
       ui: (a: ActionHandler<any>) => {
         return a.Run(a);
       },
-      "call-webhook": (a: WebhookAction) => {
+      'call-webhook': (a: WebhookAction) => {
         let method = a.Payload.Method;
         if (method === '') {
           if (a.Payload.Payload !== undefined && a.Payload.Payload !== null) {
-            method = 'PUT'
+            method = 'PUT';
           } else {
-            method = 'POST'
+            method = 'POST';
           }
         }
-        let req = this.http.request(
+        const req = this.http.request(
           method,
           `${environment.httpAPI}/v1/${a.Payload.URL}`,
           {
