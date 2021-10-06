@@ -4,6 +4,7 @@ import { Injectable, TrackByFunction } from '@angular/core';
 import { Router } from '@angular/router';
 import { BehaviorSubject, combineLatest, defer, Observable, PartialObserver, throwError } from 'rxjs';
 import { delay, filter, map, repeatWhen, multicast, refCount, share, toArray, tap, concatMap, take } from 'rxjs/operators';
+import { environment } from 'src/environments/environment';
 import { ActionIndicatorService } from '../shared/action-indicator';
 import { Action, ActionHandler, BaseAction, Notification, NotificationState, NotificationType, OpenPageAction, OpenProfileAction, OpenSettingAction, OpenURLAction, PageIDs, WebhookAction } from './notifications.types';
 import { PortapiService } from './portapi.service';
@@ -64,13 +65,17 @@ export class NotificationsService {
         return a.Run(a);
       },
       "call-webhook": (a: WebhookAction) => {
-        let method = a.Payload.Method
-          || !!a.Payload.Payload
-          ? 'PUT'
-          : 'POST';
+        let method = a.Payload.Method;
+        if (method === '') {
+          if (a.Payload.Payload !== undefined && a.Payload.Payload !== null) {
+            method = 'PUT'
+          } else {
+            method = 'POST'
+          }
+        }
         let req = this.http.request(
-          a.Payload.Method,
-          a.Payload.URL,
+          method,
+          `${environment.httpAPI}/v1/${a.Payload.URL}`,
           {
             body: a.Payload.Payload,
             observe: 'response',

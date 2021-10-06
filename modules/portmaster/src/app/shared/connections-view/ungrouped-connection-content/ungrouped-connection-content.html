@@ -68,6 +68,35 @@
         <span>Tunneled:</span>
         <span>{{ conn.Tunneled ? 'yes' : 'no' }}</span>
       </span>
+
+      <ng-container *ngIf="conn.TLS">
+        <span>
+          <span>TLS Version:</span>
+          <span>{{ conn.TLS.Version }}</span>
+        </span>
+        <span>
+          <span>TLS SNI:</span>
+          <span>{{ conn.TLS.SNI }}</span>
+        </span>
+        <ng-container *ngIf="!!conn.TLS.Chain">
+          <ng-container *ngIf="conn.TLS.Chain[0] as firstChain">
+            <span>
+              <span>TLS Certificate:</span>
+              <span>{{ firstChain[0].Subject }} <i class="port">by</i> {{ firstChain[0].Issuer }}</span>
+            </span>
+            <span>
+              <span>Trust-Chain</span>
+              <span>
+                <ol>
+                  <li *ngFor="let cert of firstChain.slice(1)">
+                    {{ cert.Subject }} <i class="port">by</i> {{ cert.Issuer }}
+                  </li>
+                </ol>
+              </span>
+            </span>
+          </ng-container>
+        </ng-container>
+      </ng-container>
     </div>
 
     <div>
@@ -130,7 +159,6 @@
       <span *ngIf="conn.ProfileRevisionCounter !== helper.profile?.currentProfileRevision">
         <span>Notice:</span>
         <span>
-          <fa-icon [icon]="['far', 'clock']" class="old-revision"></fa-icon>
           The settings used for this connection have been superseded.
         </span>
       </span>

@@ -8,17 +8,14 @@
 
   <div class="actions">
 
-    <div *ngIf="countNewConn !== 0 && displayMode == 'ungrouped'" (click)="selectPage(0)" class="reload-notice">
+    <div *ngIf="countNewConn > 0 && !liveMode && (!loading && scopeGroups.length > 0)" (click)="refresh()"
+      class="reload-notice">
       {{ countNewConn > 0 ? countNewConn : '1' }} new connections: Reload
       <fa-icon icon="redo"></fa-icon>
     </div>
 
-    <div *ngIf="countNewScopes > 0 && displayMode == 'grouped'" (click)="reload.next()" class="reload-notice">
-      {{ countNewScopes }} new groups: Reload
-      <fa-icon icon="redo"></fa-icon>
-    </div>
-
-    <app-menu-trigger [menu]="viewMenu" useContent="true" tipUpAnchor="left" tipUpTrigger="networkMonitor-App-Focus-connection-history-filter" tipUpPassive>
+    <app-menu-trigger [menu]="viewMenu" useContent="true" tipUpAnchor="left"
+      tipUpTrigger="networkMonitor-App-Focus-connection-history-filter" tipUpPassive>
       <fa-icon icon="sort-amount-down" [class.filter-active]="ungroupedFilter !== 'All'"></fa-icon>
     </app-menu-trigger>
 
@@ -35,7 +32,8 @@
       <app-menu-group>Filter</app-menu-group>
 
       <ng-container *ngFor="let item of connectionFilters">
-        <app-menu-item *appExpertiseLevel="item.expertiseLevel || 'user'" (click)="setUngroupedFilter(item.name)" class="selectable-menu-item">
+        <app-menu-item *appExpertiseLevel="item.expertiseLevel || 'user'" (click)="setUngroupedFilter(item.name)"
+          class="selectable-menu-item">
           <fa-icon icon="check" [class.hidden]="ungroupedFilter !== item.name"></fa-icon>
           {{ item.name }}
         </app-menu-item>
@@ -63,6 +61,10 @@
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M10 16l4-4-4-4" />
           </g>
         </svg>
+
+        <app-count-indicator [count]="data.size" [countAllowed]="data.stats.countAccepted">
+        </app-count-indicator>
+
         <span class="card-title">
           <ng-container *ngIf="!data.domain; else: domainView">
             {{ scopeTranslation[data?.scope] || 'N/A' }}
@@ -71,19 +73,18 @@
             <span *ngIf="!!data.subdomain" class="subdomain">{{data.subdomain}}.</span>{{data.domain}}
           </ng-template>
         </span>
-
-        <app-count-indicator [count]="data.size" [loading]="data.hasOldConnections || !data.hasNewConnections" [risk]="data.blockStatus" [ngClass]="{spacer: !data.domain}">
-        </app-count-indicator>
-        <app-menu-trigger *ngIf="data.domain" [menu]="menu"></app-menu-trigger>
+        <app-menu-trigger [menu]="menu"></app-menu-trigger>
         <app-menu #menu>
-          <app-menu-item *ngIf="helper.isScopeBlocked(data); else unblockAll" (click)="helper.unblockAll(data)">Allow
-            Domain
-          </app-menu-item>
-          <ng-template #unblockAll>
-            <app-menu-item (click)="helper.blockAll(data)">Block Domain
+          <ng-container *ngIf="data.domain">
+            <app-menu-item *ngIf="helper.isScopeBlocked(data); else unblockAll" (click)="helper.unblockAll(data)">Allow
+              Domain
             </app-menu-item>
-          </ng-template>
-          <app-menu-item (click)="helper.redirectToRules()">Add Rule</app-menu-item>
+            <ng-template #unblockAll>
+              <app-menu-item (click)="helper.blockAll(data)">Block Domain
+              </app-menu-item>
+            </ng-template>
+          </ng-container>
+          <app-menu-item (click)="helper.redirectToRules(data.incoming)">Add Rule</app-menu-item>
         </app-menu>
       </div>
     </ng-template>
@@ -92,7 +93,8 @@
     <app-accordion-group [headerTemplate]="accordionHeader" singleMode="false">
       <ng-container *ngFor="let grp of scopeGroups; trackBy: trackByScope">
         <app-accordion [data]="grp" *appExpertiseLevel="grp.size === 0 ? 'developer' : 'user'" #accordion>
-          <app-scope-group-content [grp]="grp" [profileId]="profile!.ID" [source]="profile!.Source" *ngIf="accordion.active">
+          <app-scope-group-content [grp]="grp" [profileId]="profile!.ID" [source]="profile!.Source"
+            *ngIf="accordion.active">
           </app-scope-group-content>
         </app-accordion>
       </ng-container>
@@ -107,52 +109,39 @@
 
   <div *ngSwitchCase="'ungrouped'">
     <!-- Accordion Header Template -->
-    <ng-template #accordionHeader let-conn>
-      <app-ungrouped-connection-row [conn]="conn" class="card-header">
+    <ng-template #accordionHeader let-conn let-active="active">
+      <app-ungrouped-connection-row [conn]="conn" class="card-header" [class.active]="active"
+        [activeRevision]="profile?.currentProfileRevision || 0">
       </app-ungrouped-connection-row>
     </ng-template>
     <!-- End Accordion Header Template -->
 
-    <!-- Pagination template -->
-    <ng-template #pagination>
-      <div class="pagination">
-        <button class="outline" [disabled]="currentPageIdx == 0" (click)="selectPage(this.currentPageIdx - 1)">
-          <fa-icon icon="chevron-left"></fa-icon>
-          Previous
-        </button>
-        <span>
-          <button class="page" *ngFor="let page of pageNumbers" [class.active-page]="page === currentPageIdx + 1" (click)="selectPage(page-1)">{{ page }}</button>
-        </span>
-        <button class="outline" [disabled]="currentPageIdx+1 >= totalPages" (click)="selectPage(this.currentPageIdx + 1)">
-          Next
-          <fa-icon icon="chevron-right"></fa-icon>
-        </button>
-      </div>
-    </ng-template>
-    <!-- End Pagination Template -->
 
+    <app-pagination [source]="pagination">
 
-    <ng-container *ngTemplateOutlet="pagination"></ng-container>
-    <ng-container *ngTemplateOutlet="loadingTemplate"></ng-container>
+      <ng-template [appPaginationContent]>
+        <ng-container *ngTemplateOutlet="loadingTemplate"></ng-container>
 
-    <app-accordion-group [headerTemplate]="accordionHeader" singleMode="false">
-      <ng-container *ngFor="let conn of currentPage; trackBy: trackByConnection">
-        <app-accordion *appExpertiseLevel="conn | connExpertise" [data]="conn" #accordion>
-          <app-ungrouped-connection-content [conn]="conn" *ngIf="accordion.active"></app-ungrouped-connection-content>
-        </app-accordion>
-      </ng-container>
-    </app-accordion-group>
+        <app-accordion-group [headerTemplate]="accordionHeader" singleMode="false">
+          <ng-container *ngFor="let conn of (pagination.pageItems$| async); trackBy: trackByConnection">
+            <app-accordion *appExpertiseLevel="conn | connExpertise" [data]="conn" #accordion>
+              <app-ungrouped-connection-content [conn]="conn" *ngIf="accordion.active">
+              </app-ungrouped-connection-content>
+            </app-accordion>
+          </ng-container>
+        </app-accordion-group>
 
-    <table *ngIf="!filteredUngroupedConnections.length && !ungroupedLoading" class="waiting-connections">
-      <tr>
-        <td>
-          <fa-icon icon="spinner" [spin]="true"></fa-icon>
-          Waiting for connections
-        </td>
-      </tr>
-    </table>
+        <table *ngIf="!filteredUngroupedConnections.length && !ungroupedLoading" class="waiting-connections">
+          <tr>
+            <td>
+              <fa-icon icon="spinner" [spin]="true"></fa-icon>
+              Waiting for connections
+            </td>
+          </tr>
+        </table>
+      </ng-template>
 
-    <ng-container *ngTemplateOutlet="pagination"></ng-container>
+    </app-pagination>
   </div>
 </ng-container>
 

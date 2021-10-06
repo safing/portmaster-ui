@@ -4,7 +4,7 @@ import { AfterViewInit, ChangeDetectorRef, Component, ElementRef, EventEmitter, 
 import { BehaviorSubject, combineLatest, Subscription } from 'rxjs';
 import { debounceTime } from 'rxjs/operators';
 import { ConfigService, ExpertiseLevelNumber, ReleaseLevel, releaseLevelFromName, Setting, StatusService, Subsystem } from 'src/app/services';
-import { fadeInAnimation } from 'src/app/shared/animations';
+import { fadeInAnimation, fadeInListAnimation } from 'src/app/shared/animations';
 import { FuzzySearchService } from 'src/app/shared/fuzzySearch'; import { ExpertiseLevelOverwrite } from '../expertise/expertise-directive';
 import { SaveSettingEvent } from './generic-setting/generic-setting';
 
@@ -16,13 +16,14 @@ interface Category {
 
 interface SubsystemWithExpertise extends Subsystem {
   minimumExpertise: ExpertiseLevelNumber;
+  isDisabled: boolean;
 }
 
 @Component({
   selector: 'app-settings-view',
   templateUrl: './config-settings.html',
   styleUrls: ['./config-settings.scss'],
-  animations: [fadeInAnimation]
+  animations: [fadeInAnimation, fadeInListAnimation]
 })
 export class ConfigSettingsViewComponent implements OnInit, OnDestroy, AfterViewInit {
   subsystems: SubsystemWithExpertise[] = [];
@@ -118,8 +119,14 @@ export class ConfigSettingsViewComponent implements OnInit, OnDestroy, AfterView
     private searchService: FuzzySearchService,
   ) { }
 
-  saveSetting(event: SaveSettingEvent) {
+  saveSetting(event: SaveSettingEvent, s: Setting) {
     this.onSave.next(event);
+    const subsys = this.subsystems.find(subsys => s.Key === subsys.ToggleOptionKey)
+    if (!!subsys) {
+      // trigger a reload of the page as we now might need to show more
+      // settings.
+      this.onSettingsChange.next(this.onSettingsChange.getValue());
+    }
   }
 
   trackCategory(_: number, cat: Category) {
@@ -140,6 +147,7 @@ export class ConfigSettingsViewComponent implements OnInit, OnDestroy, AfterView
             // we start with developer and decrease to the lowest number required
             // while grouping the settings.
             minimumExpertise: ExpertiseLevelNumber.developer,
+            isDisabled: false,
           }));
           this.others = [];
           this.settings = new Map();
@@ -238,8 +246,31 @@ export class ConfigSettingsViewComponent implements OnInit, OnDestroy, AfterView
               return !!this.settings.get(subsys.ConfigKeySpace);
             })
             .map(subsys => {
+              let categories = this.settings.get(subsys.ConfigKeySpace)!;
+              let toggleOption: Setting | undefined = undefined;
+              for (let c of categories) {
+                toggleOption = c.settings.find(s => s.Key === subsys.ToggleOptionKey)
+                if (!!toggleOption) {
+                  if (toggleOption.Value !== undefined && !toggleOption.Value || (toggleOption.Value === undefined && !toggleOption.DefaultValue)) {
+                    subsys.isDisabled = true;
+
+                    // remove all settings for all subsystem categories
+                    // except for the ToggleOption.
+                    categories = categories
+                      .map(c => ({
+                        ...c,
+                        settings: c.settings.filter(s => s.Key === toggleOption!.Key)
+                      }))
+                      .filter(cat => cat.settings.length > 0)
+                    this.settings.set(subsys.ConfigKeySpace, categories);
+                  }
+                  break;
+                }
+              }
+
+
               // reduce the categories to find the smallest expertise level requirement.
-              subsys.minimumExpertise = this.settings.get(subsys.ConfigKeySpace)!.reduce((min, current) => {
+              subsys.minimumExpertise = categories.reduce((min, current) => {
                 if (current.minimumExpertise < min) {
                   return current.minimumExpertise;
                 }

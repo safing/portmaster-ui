@@ -61,15 +61,7 @@ export class ConnectionHelperService {
    * @param conn The connection object
    */
   getVerdictClass(conn: Connection): string {
-    switch (conn.Verdict) {
-      case Verdict.Accept:
-        return 'low';
-      case Verdict.Block:
-      case Verdict.Drop:
-        return 'high';
-      default:
-        return 'medium';
-    }
+    return Verdict[conn.Verdict].toLocaleLowerCase();
   }
 
   /**
@@ -107,8 +99,12 @@ export class ConnectionHelperService {
    * Redirect the user to "outgoing rules" setting in the
    * application profile/settings.
    */
-  redirectToRules() {
-    this.redirectToSetting('filter/endpoints');
+  redirectToRules(inbound: boolean) {
+    if (inbound) {
+      this.redirectToSetting('filter/serviceEndpoints');
+    } else {
+      this.redirectToSetting('filter/endpoints');
+    }
   }
 
   /**
@@ -124,8 +120,8 @@ export class ConnectionHelperService {
         await navigator.clipboard.writeText(JSON.stringify(conn, undefined, "    "))
         this.actionIndicator.info("Copied to Clipboard")
       }
-    } catch (err) {
-      this.actionIndicator.error("Copy to Clipboard Failed", err.message || JSON.stringify(err))
+    } catch (err: any) {
+      this.actionIndicator.error("Copy to Clipboard Failed", err?.message || JSON.stringify(err))
     }
   }
 

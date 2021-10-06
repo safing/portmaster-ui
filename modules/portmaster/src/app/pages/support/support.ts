@@ -44,7 +44,6 @@ export class SupportPageComponent {
         { name: ['choices', 'prologue'], weight: 1 },
       ]
     })
-    console.log(filtered);
     // The search service wraps the items in a search-result object.
     // Unwrap them now.
     let items = filtered
@@ -56,7 +55,7 @@ export class SupportPageComponent {
     if (item.type === 'link') {
       if (!!window.app) {
         window.app.openExternal(item.url);
-      } {
+      } else {
         window.open(item.url, '_blank');
       }
       return;

@@ -36,6 +36,23 @@ table {
   }
 }
 
+.action-buttons {
+  padding-left   : 0.2rem;
+  margin-left    : 0.2rem;
+  border-left    : 1px solid #bec5cc20;
+  display        : flex;
+  justify-content: flex-start;
+  flex-direction : column;
+  width          : 120px;
+  flex-grow      : 0 !important;
+  flex-shrink    : 0 !important;
+  min-width      : unset;
+
+  button.outline {
+    text-align: left;
+  }
+}
+
 .tableFixHead {
   @apply mb-4;
 

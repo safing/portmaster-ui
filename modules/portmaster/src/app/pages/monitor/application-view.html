@@ -33,7 +33,7 @@
     </app-text-placeholder>
   </span>
   <button (click)="copyDebugInfo()">Copy Debug Information</button>
-  <app-count-indicator [count]="profile?.size || 0" [loading]="profile?.hasOldConnections">
+  <app-count-indicator [count]="profile?.size || 0" [countAllowed]="profile?.processGroup?.countAllowed || 0">
   </app-count-indicator>
   <app-menu-trigger [menu]="menu"></app-menu-trigger>
   <app-menu #menu>
@@ -49,7 +49,7 @@
     <div class="col">
       <app-text-placeholder mode="input" [loading]="!profile?.profile" width="large">
         <span>Binary Name:</span>
-        <span>{{profile?.profile?.LinkedPath?.replace(nameRegex, "$2")}}</span>
+        <span>{{profile?.profile?.LinkedPath?.replace(nameRegex, "$2") || 'N/A'}}</span>
       </app-text-placeholder>
     </div>
     <div class="col">
@@ -94,7 +94,7 @@
 </div>
 
 <app-connections-view [profile]="profile" [@fadeIn]
-  [displayMode]="sessionDataService.get('monitor:displayMode', 'ungrouped')"
+  [displayMode]="sessionDataService.get('monitor:displayMode', 'grouped')"
   (displayModeChange)="sessionDataService.set('monitor:displayMode', $event)"
   [liveMode]="sessionDataService.get('monitor:liveMode', false)"
   (liveModeChange)="sessionDataService.set('monitor:liveMode', $event)">

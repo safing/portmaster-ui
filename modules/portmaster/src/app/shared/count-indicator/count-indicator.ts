@@ -1,6 +1,4 @@
-import { coerceBooleanProperty } from '@angular/cdk/coercion';
-import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
-import { RiskLevel } from '../../services';
+import { ChangeDetectionStrategy, Component, Input, OnChanges } from '@angular/core';
 
 @Component({
   selector: 'app-count-indicator',
@@ -8,19 +6,17 @@ import { RiskLevel } from '../../services';
   styleUrls: ['./count-indicator.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class CountIndicatorComponent {
+export class CountIndicatorComponent implements OnChanges {
   @Input()
-  count: number = 0;
+  count = 0;
 
   @Input()
-  set loading(v: any) {
-    this._showLoading = coerceBooleanProperty(v);
-  }
-  get loading() {
-    return this._showLoading;
-  }
-  private _showLoading = false;
+  countAllowed: number = 0;
 
-  @Input()
-  risk: RiskLevel = RiskLevel.Off;
+  allowedPercentage: number = 0;
+
+  ngOnChanges() {
+    const ratio = (this.countAllowed / this.count) || 0;
+    this.allowedPercentage = Math.round(ratio * 100);
+  }
 }

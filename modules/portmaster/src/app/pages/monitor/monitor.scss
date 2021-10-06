@@ -34,7 +34,7 @@ div.sidebar {
     align-items    : center;
     flex-wrap      : nowrap;
 
-    div {
+    div.monitor-title {
       @apply pb-3;
 
       h4 {
@@ -46,16 +46,18 @@ div.sidebar {
         font-size    : 0.775rem;
         font-weight  : 500;
         color        : #cacaca;
-        display: flex;
-        
-        app-tipup{
+        display      : flex;
+
+        app-tipup {
           margin-left: 0.5rem;
         }
       }
-  
+
       span {
-        font-size: 0.6rem;
-        opacity  : 0.55;
+        font-size : 0.6rem;
+        opacity   : 0.55;
+        display   : block;
+        margin-top: -0.25rem;
       }
     }
 
@@ -249,7 +251,9 @@ $transition-duration : .0s;
 }
 
 .search-active {
-  h4 {
+  @apply mb-2;
+
+  .monitor-title {
     display: none !important;
   }
 

@@ -84,12 +84,3 @@ export function binaryInsert<T>(array: T[], what: T, sortFunc: (a: T, b: T) => n
   array.splice(idx, 0, what)
   return idx;
 }
-
-export function pagination(current: number, countPages: number): number[] {
-  let delta = 2;
-  let leftRange = current - delta;
-  let rightRange = current + delta + 1;
-
-  return Array.from({ length: countPages }, (v, k) => k + 1)
-    .filter(i => i === 1 || i === countPages || (i >= leftRange && i < rightRange));
-}

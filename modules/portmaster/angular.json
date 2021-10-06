@@ -37,7 +37,13 @@
             "scripts": [
               "node_modules/marked/lib/marked.js",
               "node_modules/emoji-toolkit/lib/js/joypixels.min.js"
-            ]
+            ],
+            "vendorChunk": true,
+            "extractLicenses": false,
+            "buildOptimizer": false,
+            "sourceMap": true,
+            "optimization": false,
+            "namedChunks": true
           },
           "configurations": {
             "production": {
@@ -50,8 +56,8 @@
               "optimization": {
                 "scripts": true,
                 "styles": {
-                    "minify": true,
-                    "inlineCritical": false
+                  "minify": true,
+                  "inlineCritical": false
                 }
               },
               "outputHashing": "all",

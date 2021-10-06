@@ -187,6 +187,15 @@ export class SettingsComponent implements OnInit, OnDestroy {
     }
   }
 
+  openChangeLog() {
+    const url = "https://github.com/safing/portmaster/releases";
+    if (!!window.app) {
+      window.app.openExternal(url);
+      return;
+    }
+    window.open(url, '_blank');
+  }
+
   copyDebugInfo(event: Event) {
     // prevent default and stop-propagation to avoid
     // expanding the accordion body.

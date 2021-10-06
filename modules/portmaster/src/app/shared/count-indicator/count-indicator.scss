@@ -1,55 +1,40 @@
 :host {
-  transform: scale(0.95);
+  transform      : scale(0.95);
   display        : flex;
   width          : auto;
   height         : 18px;
   align-items    : center;
   justify-content: flex-end;
-  font-size  : 0.6rem;
-  line-height: 18px;
+  font-size      : 0.6rem;
+  line-height    : 18px;
   @apply pl-2;
   @apply bg-buttons-dark;
   border-radius: 0.5rem;
-  margin-right: -5px;
 
   .counter {
-    flex-grow : 1;
-    display   : inline-block;
-    text-align: center;
+    flex-grow    : 1;
+    display      : inline-block;
+    text-align   : right;
     padding-right: 4px;
-    padding-left: 2px;
-    color: #999999ee;
-    font-size: 0.65rem;
-    font-weight: 800;
-    width: max-content;
+    padding-left : 2px;
+    color        : #999999ee;
+    font-size    : 0.65rem;
+    font-weight  : 800;
+    width        : max-content;
   }
 
-  div.state {
-    @apply bg-buttons-light;
+  .pill {
+    width           : 29px;
+    height          : 5px;
+    background-color: #686868;
+    border-radius   : 1rem;
+    margin-left     : 0.2rem;
+    margin-right    : 0.6rem;
+    overflow        : hidden;
 
-    .trust-level:before {
-      top: 0px;
-      transform: scale(0.79);
+    .percentage {
+      height          : 100%;
+      background-color: #21ad58;
     }
-  }
-
-
-}
-
-fa-icon {
-  &.low {
-    color: theme("colors.info.green");
-  }
-
-  &.medium {
-    color: theme("colors.info.yellow");
-  }
-
-  &.off {
-    color: theme("colors.info.gray");
-  }
-
-  &.high {
-    color: theme("colors.info.red");
   }
 }

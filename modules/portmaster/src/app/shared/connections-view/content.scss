@@ -1,6 +1,7 @@
 .meta {
   display        : flex;
   justify-content: space-between;
+  @apply mb-2;
 
   h4 {
     @apply mt-4;
@@ -8,7 +9,6 @@
 
   &>div {
     flex-grow: 0.9;
-    min-width: 30%;
 
     &>span {
       @apply my-1;

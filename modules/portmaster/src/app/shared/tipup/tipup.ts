@@ -140,7 +140,7 @@ export class TipUpTriggerDirective implements OnDestroy {
 @Component({
   selector: 'app-tipup',
   template:
-    `<svg viewBox="0 0 24 24" 
+    `<svg viewBox="0 0 24 24"
     class="tipup"
     [tipUpTrigger]="key"
     [tipUpDefaultAnchor]="parent"
@@ -154,7 +154,7 @@ export class TipUpTriggerDirective implements OnDestroy {
   styles: [
     `
       :host {
-        display: inline-flex;
+        display: inline-block;
         width   : 1rem;
         position: relative;
         opacity: 0.55;
