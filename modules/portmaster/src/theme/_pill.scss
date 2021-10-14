@@ -1,6 +1,6 @@
-@import '../../../theme/mixins/_pill.scss';
+@import 'mixins/_pill.scss';
 
-:host {
+.pill-container {
   @include pill-container;
   @apply pl-2;
   @apply bg-buttons-dark;

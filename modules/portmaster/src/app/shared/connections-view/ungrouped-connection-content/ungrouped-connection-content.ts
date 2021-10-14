@@ -1,6 +1,6 @@
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, Input, OnDestroy, OnInit, TrackByFunction } from "@angular/core";
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, Input, OnChanges, OnDestroy, OnInit, SimpleChanges, TrackByFunction } from "@angular/core";
 import { Subscription } from "rxjs";
-import { Connection, IPProtocol, ScopeTranslation, Verdict } from "src/app/services";
+import { Connection, IPProtocol, IsDenied, ScopeTranslation, Verdict } from "src/app/services";
 import { ConnectionHelperService } from "../connection-helper.service";
 
 @Component({
@@ -9,7 +9,7 @@ import { ConnectionHelperService } from "../connection-helper.service";
   templateUrl: './ungrouped-connection-content.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class UngroupedConnectionContentComponent implements OnInit, OnDestroy {
+export class UngroupedConnectionContentComponent implements OnInit, OnDestroy, OnChanges {
   @Input()
   conn: Connection | null = null;
 
@@ -18,6 +18,14 @@ export class UngroupedConnectionContentComponent implements OnInit, OnDestroy {
   readonly Protocols = IPProtocol;
   private _subscription = Subscription.EMPTY;
 
+  connectionNotice: string = '';
+
+  ngOnChanges(changes: SimpleChanges) {
+    if (!!changes?.conn) {
+      this.updateConnectionNotice();
+    }
+  }
+
   constructor(
     public helper: ConnectionHelperService,
     private changeDetectorRef: ChangeDetectorRef,
@@ -25,11 +33,32 @@ export class UngroupedConnectionContentComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     this._subscription = this.helper.refresh.subscribe(() => {
+      this.updateConnectionNotice();
       this.changeDetectorRef.markForCheck();
     })
   }
 
   ngOnDestroy() {
     this._subscription.unsubscribe();
+  }
+
+  private updateConnectionNotice() {
+    this.connectionNotice = '';
+    if (!this.conn) {
+      return;
+    }
+
+    if (this.conn!.Verdict === Verdict.Failed) {
+      this.connectionNotice = 'Failed with previous settings.'
+      return;
+    }
+
+    if (IsDenied(this.conn!.Verdict)) {
+      this.connectionNotice = 'Blocked by previous settings.';
+    } else {
+      this.connectionNotice = 'Allowed by previous settings.';
+    }
+
+    this.connectionNotice += ' You current settings could decide differently.'
   }
 }

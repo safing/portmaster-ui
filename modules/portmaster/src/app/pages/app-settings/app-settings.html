@@ -119,15 +119,17 @@
     <ng-template #noSettingsTemplate>
       <div class="no-customization">
         <fa-icon icon="cogs"></fa-icon>
-        <p>You have not changed anything yet.</p>
-        <p>Start customizing
+        <p>
           <span class="app-name">
             <app-icon [profile]="appProfile"></app-icon>
             {{ appProfile!.Name }}
           </span>
-          now
+          is fully using the global settings.
         </p>
-        <button (click)="viewSettingChange.next('all')">🚀 Edit Settings</button>
+        <p>
+          Start creating exceptions for it now.
+        </p>
+        <button (click)="viewSettingChange.next('all')">Edit Settings</button>
       </div>
     </ng-template>
 
