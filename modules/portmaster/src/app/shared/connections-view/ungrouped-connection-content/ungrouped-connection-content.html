@@ -46,7 +46,7 @@
       </span>
     </div>
 
-    <div>
+    <div *ngIf="!IsDNS(conn.Type); else: dnsTemplate">
       <span>
         <span>Direction:</span>
         <span>
@@ -99,7 +99,35 @@
       </ng-container>
     </div>
 
-    <div>
+    <ng-template #dnsTemplate>
+      <div *ngIf="conn.DNSContext as dns">
+        <span>
+          <span>Domain:</span>
+          <span>{{dns.Domain}}</span>
+        </span>
+        <span>
+          <span>Query:</span>
+          <span>{{dns.Question}}</span>
+        </span>
+
+        <span>
+          <span>Response:</span>
+          <span>{{dns.RCode}}</span>
+        </span>
+
+        <span *appExpertiseLevel="'expert'">
+          <span>Served from Cache:</span>
+          <span>{{dns.ServedFromCache ? 'yes' : 'no'}}</span>
+        </span>
+
+        <span *appExpertiseLevel="'expert'">
+          <span>Expires:</span>
+          <span>{{dns.Expires}}</span>
+        </span>
+      </div>
+    </ng-template>
+
+    <div *ngIf="!IsDNS(conn.Type)">
       <span *ngIf="conn.Entity.Domain">
         <span>Domain:</span>
         <app-scope-label leftRightFix="true" [scope]="conn.Entity.Domain">
@@ -164,6 +192,66 @@
       </span>
     </div>
   </div>
+
+
+  <ng-container *ngIf="conn.TunnelContext as tunnel">
+    <h3>SPN Tunnel Information</h3>
+    <div class="meta">
+      <div>
+        <span>
+          <span></span>
+          <span class="tunnel-path">
+            <div class="line"></div>
+            <ul>
+              <li *ngFor="let node of tunnel.Path; let first=first; let last=last">
+                <span *ngIf="(node.IPv4?.Country || node.IPv6?.Country) as country; else: noCountry" class="country"
+                  [appCountryFlags]="country"></span>
+                <ng-template #noCountry>
+                  <span class="country unknown"></span>
+                </ng-template>
+                <span>{{ node.IPv4?.Country || node.IPv6?.Country || 'No Location' }}</span>
+                <span class="ip de-emphasize">{{ node.IPv4?.IP || node.IPv6?.IP || ''
+                  }}</span>
+                <span class="node-tag" *ngIf="first">Home</span>
+                <span class="node-tag" *ngIf="last">Exit</span>
+                <span *appExpertiseLevel="'expert'" class="de-emphasize"><br />{{ node.Name }}</span>
+
+                <ng-container *ngIf="node.IPv4 as ipv4; else: ipv6asn">
+                  <span *appExpertiseLevel="'expert'" class="de-emphasize"><br />{{ ipv4.ASN }} - {{ ipv4.ASOwner ||
+                    'N/A'
+                    }}</span>
+                </ng-container>
+
+                <ng-template #ipv6asn>
+                  <ng-container *ngIf="node.IPv6 as ipv6">
+                    <span *appExpertiseLevel="'expert'" class="de-emphasize"><br />{{ ipv6.ASN }} - {{ ipv6.ASOwner ||
+                      'N/A'
+                      }}</span>
+                  </ng-container>
+                </ng-template>
+
+                <span *appExpertiseLevel="'developer'" class="de-emphasize"><br />{{ node.ID }}</span>
+              </li>
+
+              <ng-template #asnTemplate let-data>
+              </ng-template>
+            </ul>
+          </span>
+        </span>
+      </div>
+      <div *appExpertiseLevel="'developer'">
+        <span>
+          <span>Path Costs:</span>
+          <span>{{ tunnel.PathCost }}</span>
+        </span>
+        <span>
+          <span>Routing Algorithm:</span>
+          <span>{{ tunnel.RoutingAlg }}</span>
+        </span>
+      </div>
+    </div>
+  </ng-container>
+
   <div class="actions">
     <button class="outline" *appExpertiseLevel="'expert'" (click)="helper.dumpConnection(conn)">Copy JSON</button>
     <button class="outline" *ngIf="(conn | isBlocked); else blockAction"

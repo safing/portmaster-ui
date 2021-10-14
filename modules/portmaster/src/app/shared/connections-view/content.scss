@@ -12,9 +12,10 @@
 
     &>span {
       @apply my-1;
-      display    : block;
-      font-size  : 0.7rem;
-      font-weight: 500;
+      display        : flex;
+      font-size      : 0.7rem;
+      font-weight    : 500;
+      justify-content: flex-start;
 
       .subdomain {
         opacity: .58;

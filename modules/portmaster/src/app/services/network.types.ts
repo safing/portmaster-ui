@@ -155,6 +155,48 @@ export enum ConnectionType {
   DNSRequest = 2
 }
 
+export function IsDNSRequest(t: ConnectionType): t is ConnectionType.DNSRequest {
+  return t === ConnectionType.DNSRequest;
+}
+
+export function IsIPConnection(t: ConnectionType): t is ConnectionType.IPConnection {
+  return t === ConnectionType.IPConnection;
+}
+
+export interface DNSContext {
+  Domain: string;
+  ServedFromCache: boolean;
+  RequestingNew: boolean;
+  IsBackup: boolean;
+  Filtered: boolean;
+  FilteredEntries: string[], // RR
+  Question: 'A' | 'AAAA' | 'MX' | 'TXT' | 'SOA' | 'SRV' | 'PTR' | 'NS' | string;
+  RCode: 'NOERROR' | 'SERVFAIL' | 'NXDOMAIN' | 'REFUSED' | string;
+  Modified: string;
+  Expires: string;
+}
+
+export interface TunnelContext {
+  Path: TunnelNode[];
+  PathCost: number;
+  RoutingAlg: 'default';
+}
+
+export interface GeoIPInfo {
+  IP: string;
+  Country: string;
+  ASN: number;
+  ASOwner: string;
+}
+
+export interface TunnelNode {
+  ID: string;
+  Name: string;
+  IPv4?: GeoIPInfo;
+  IPv6?: GeoIPInfo;
+
+}
+
 export interface CertInfo<dateType extends string | Date = string> {
   Subject: string;
   Issuer: string;
@@ -178,6 +220,12 @@ export interface Connection extends Record {
   // TLS may holds additional data for the TLS
   // session.
   TLS: TLSContext | null;
+  // DNSContext holds additional data about the DNS request for
+  // this connection.
+  DNSContext: DNSContext | null;
+  // TunnelContext holds additional data about the SPN tunnel used for
+  // the connection.
+  TunnelContext: TunnelContext | null;
   // Scope defines the scope of the connection. It's an somewhat
   // weired field that may contain a ScopeIdentifier or a string.
   // In case of a string it may eventually be interpreted as a
