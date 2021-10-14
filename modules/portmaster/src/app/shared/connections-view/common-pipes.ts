@@ -18,6 +18,9 @@ let optionKeys = new Set([
 })
 export class CanUseRulesPipe implements PipeTransform {
   transform(conn: Connection): boolean {
+    if (!conn) {
+      return false;
+    }
     if (conn.Reason.OptionKey != "" && IsDenied(conn.Verdict)) {
       return !optionKeys.has(conn.Reason.OptionKey);
     }
@@ -31,6 +34,9 @@ export class CanUseRulesPipe implements PipeTransform {
 })
 export class CanShowConnection implements PipeTransform {
   transform(conn: Connection, level: ExpertiseLevel) {
+    if (!conn) {
+      return false;
+    }
     if (level === ExpertiseLevel.Developer) {
       // we show all connections for developers
       return true;
