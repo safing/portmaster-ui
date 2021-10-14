@@ -56,7 +56,7 @@ export class AppSettingsPageComponent implements OnInit, OnDestroy {
    * @private
    * Emits whenever the currently used settings "view" changes.
    */
-  viewSettingChange = new BehaviorSubject<'all' | 'active'>('active');
+  viewSettingChange = new BehaviorSubject<'all' | 'active'>('all');
 
   /**
    * @private
@@ -166,6 +166,11 @@ export class AppSettingsPageComponent implements OnInit, OnDestroy {
         ),
       ])
         .subscribe(([profile, queryMap, global, allSettings, viewSetting]) => {
+          let isFirstLoad = false;
+          if (this.appProfile?.ID !== profile?.ID) {
+            isFirstLoad = true;
+          }
+
           this.appProfile = profile;
           this.highlightSettingKey = queryMap.get('setting');
           let profileConfig: FlatConfigObject = {};
@@ -180,6 +185,16 @@ export class AppSettingsPageComponent implements OnInit, OnDestroy {
           // viewSetting to all if it's the "global" default (that is, no
           // value is set). Otherwise the setting won't render and we cannot
           // highlight it.
+          // We need to keep this even though we default to "all" now since
+          // the following might happen:
+          //  - user already navigated to an app-page and selected "View Active".
+          //  - a notification comes in that has a "show setting" action
+          //  - the user clicks the action button and the setting should be displayed
+          //  - since the requested setting has not been changed it is not available
+          //    in "View Active" so we need to switch back to "View All". Otherwise
+          //    the action button would fail and the user would not notice something
+          //    changing.
+          //
           if (!!this.highlightSettingKey) {
             if (profileConfig[this.highlightSettingKey] === undefined) {
               this.viewSettingChange.next('all');
@@ -194,6 +209,7 @@ export class AppSettingsPageComponent implements OnInit, OnDestroy {
             // profile specific (i.e. not part of the global config). Also
             // update the current settings value (from the app profile) and
             // the default value (from the global profile).
+            let countModified = 0;
             this.settings = allSettings
               .map(setting => {
                 setting.Value = profileConfig[setting.Key];
@@ -205,11 +221,23 @@ export class AppSettingsPageComponent implements OnInit, OnDestroy {
                   return false;
                 }
 
+                const isModified = setting.Value !== undefined;
+                if (isModified) {
+                  countModified++;
+                }
                 if (this.viewSetting === 'all') {
                   return true;
                 }
-                return setting.Value !== undefined;
+                return isModified;
               });
+
+            // if we don't have any modified settings and this is the first time
+            // we show the app-settings page for that profile we need to switch
+            // to "View active" so the user can seen the "defaults used, start customizing"
+            // screen.
+            if (isFirstLoad && countModified === 0 && viewSetting === 'all') {
+              this.viewSettingChange.next('active');
+            }
 
           } else {
             // there's no profile to view so tell the connection-tracker
