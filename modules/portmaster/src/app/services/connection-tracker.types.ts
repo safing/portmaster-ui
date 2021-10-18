@@ -1,3 +1,4 @@
+import { IsDenied } from ".";
 import { Connection, IntelEntity, Verdict } from "./network.types";
 
 export class ConnectionStatistics {
@@ -50,7 +51,7 @@ export class ConnectionStatistics {
       this.lastConn = conn.Started;
     }
 
-    if (conn.Verdict === Verdict.Accept) {
+    if (!IsDenied(conn.Verdict)) {
       this.countAccepted++;
     }
 

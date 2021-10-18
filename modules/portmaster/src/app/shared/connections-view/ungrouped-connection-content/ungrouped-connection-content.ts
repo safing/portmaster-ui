@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, Input, OnChanges, OnDestroy, OnInit, SimpleChanges, TrackByFunction } from "@angular/core";
 import { Subscription } from "rxjs";
-import { Connection, IPProtocol, IsDenied, ScopeTranslation, Verdict } from "src/app/services";
+import { Connection, IPProtocol, IsDenied, IsDNSRequest, ScopeTranslation, Verdict } from "src/app/services";
 import { ConnectionHelperService } from "../connection-helper.service";
 
 @Component({
@@ -13,6 +13,7 @@ export class UngroupedConnectionContentComponent implements OnInit, OnDestroy, O
   @Input()
   conn: Connection | null = null;
 
+  readonly IsDNS = IsDNSRequest;
   readonly scopeTranslation = ScopeTranslation;
   readonly verdict = Verdict;
   readonly Protocols = IPProtocol;

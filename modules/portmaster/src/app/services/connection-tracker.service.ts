@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, forkJoin, Observable, of, Subject, Subscription } from 'rxjs';
 import { bufferTime, catchError, filter, map, switchMap, tap } from 'rxjs/operators';
+import { IsDenied } from '.';
 import { SnapshotPaginator } from '../shared/types';
 import { binaryInsert, binarySearch, parseDomain } from '../shared/utils';
 import { AppProfileService } from './app-profile.service';
@@ -120,7 +121,7 @@ export class ProcessGroup {
     if (conn.Internal) {
       this.internal.add(key);
     } else {
-      let setToUse = conn.Verdict === Verdict.Accept
+      let setToUse = !IsDenied(conn.Verdict)
         ? this.permitted
         : this.unpermitted;
 
