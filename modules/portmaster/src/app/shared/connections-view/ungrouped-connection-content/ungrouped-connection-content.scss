@@ -16,6 +16,19 @@
     left            : 8px;
     width           : 1px;
     background-color: rgba(255, 255, 255, 0.1);
+
+    /*
+    .arrow {
+      position        : absolute;
+      width           : 1px;
+      height          : 8px;
+      left            : 0px;
+      background-color: rgba(255, 255, 255, 0.35);
+      border-radius   : 100%;
+      top             : 0px;
+      animation       : 4s linear 0s infinite arrow_move;
+    }
+    */
   }
 
   .node-tag {
@@ -70,5 +83,22 @@
         @apply bg-buttons-icon;
       }
     }
+  }
+}
+
+
+@keyframes arrow_move {
+  0% {
+    top    : 0%;
+    opacity: 1;
+  }
+
+  85% {
+    opacity: 1;
+  }
+
+  100% {
+    top    : 95%;
+    opacity: 0;
   }
 }

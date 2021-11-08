@@ -392,10 +392,14 @@ export function deserializeMessage(event: MessageEvent): RequestMessage | ReplyM
     case 'update':      // request
     case 'create':      // request
       msg.key = parts[2];
-      if (parts[3][0] === 'J') {
-        msg.data = JSON.parse(parts[3].slice(1));
-      } else {
-        msg.data = parts[3];
+      try {
+        if (parts[3][0] === 'J') {
+          msg.data = JSON.parse(parts[3].slice(1));
+        } else {
+          msg.data = parts[3];
+        }
+      } catch (e) {
+        console.log(e, data)
       }
       break;
 

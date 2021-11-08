@@ -51,6 +51,12 @@ export class ProcessGroup {
   /** The current block status of the profile. */
   private _blockStatus: RiskLevel = RiskLevel.Off;
 
+  /** All exit nodes currently used by this process group */
+  private spnExitNodes = new Map<string, Set<string>>();
+
+  /** Publishes the spnExitNode IDs whenever they are changed. */
+  private spnExitNodes$ = new BehaviorSubject<string[] | null>(null);
+
   /**
    * Subject used to notify subscribers about the addtion or removal
    * of a connection.
@@ -63,6 +69,20 @@ export class ProcessGroup {
   /** Emits connection update events to any subscriber */
   get updates() {
     return this._notifier.asObservable();
+  }
+
+  /** Like exitNodes but streams changes as they happen */
+  get exitNodes$(): Observable<string[] | null> {
+    return this.spnExitNodes$.asObservable();
+  }
+
+  /** returns a list of all SPN exit node IDs in use by this process group */
+  get exitNodes(): string[] | null {
+    const array = Array.from(this.spnExitNodes.keys())
+    if (array.length) {
+      return array;
+    }
+    return null;
   }
 
   /** Empty is true if there are not active connections for this profile */
@@ -104,6 +124,7 @@ export class ProcessGroup {
   /** Dispose the profile and all resources associated with it */
   dispose() {
     this._notifier.complete();
+    this.spnExitNodes$.complete();
     this.permitted.clear();
     this.unpermitted.clear();
   }
@@ -130,6 +151,21 @@ export class ProcessGroup {
       this.updateBlockStatus();
     }
 
+    if (conn.TunnelContext) {
+      const exit = conn.TunnelContext.Path[conn.TunnelContext.Path.length - 1];
+      let s = this.spnExitNodes.get(exit.ID);
+      let isNew = false;
+      if (!s) {
+        s = new Set();
+        isNew = true;
+        this.spnExitNodes.set(exit.ID, s);
+      }
+      s.add(key);
+      if (isNew) {
+        this.spnExitNodes$.next(this.exitNodes);
+      }
+    }
+
     this._notifier.next({
       type: update ? 'update' : 'added',
       key,
@@ -149,6 +185,21 @@ export class ProcessGroup {
     this.internal.delete(connKey);
 
     this.updateBlockStatus();
+
+    let changed = false;
+    for (let [key, set] of this.spnExitNodes.entries()) {
+      if (set.has(connKey)) {
+        set.delete(connKey);
+        if (set.size === 0) {
+          this.spnExitNodes.delete(key);
+          changed = true;
+        }
+      }
+    }
+    if (changed) {
+      this.spnExitNodes$.next(this.exitNodes);
+    }
+
     this._notifier.next({
       type: 'deleted',
       key: connKey,

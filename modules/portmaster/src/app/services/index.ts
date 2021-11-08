@@ -13,3 +13,5 @@ export * from './meta-api.service';
 export * from './session-data.service';
 export * from './ui-state.service';
 export * from './supporthub.service';
+export * from './spn.types';
+export * from './spn.service';

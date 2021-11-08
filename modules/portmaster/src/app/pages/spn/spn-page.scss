@@ -1,0 +1,70 @@
+:host {
+  @apply flex flex-row w-full h-full justify-items-stretch items-stretch relative;
+}
+
+.custom-background {
+  background-color: #121213bb;
+}
+
+.connect-button.connected {
+  @apply bg-info-blue;
+
+  &:hover {
+    @apply bg-info-blue opacity-75;
+  }
+}
+
+/** We need ::ng-deep here because the map and SVG parts are created using D3 and thus live outside
+    the view-encapsulation of the component */
+::ng-deep {
+
+  #map {
+    #world-group {
+      path {
+        fill: #252525;
+        stroke: #111111;
+        stroke-width: .5px;
+      }
+    }
+
+    .overlay {
+      fill: none;
+      pointer-events: all;
+    }
+
+    .marker {
+      cursor: pointer;
+      fill: #252525;
+      stroke: rgba(151, 151, 151, 0.8);
+      transition: all 250ms 0s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+
+      &.highlight {
+        fill: theme('colors.info.blue');
+        stroke: theme('colors.info.blue');
+        z-index: 100;
+      }
+    }
+
+    .marker-home {
+      fill: theme('colors.info.blue');
+    }
+
+    .marker-label {
+      fill: white;
+    }
+
+    path.lane {
+      stroke: rgba(151, 151, 151, 0.8);
+      transition: all 250ms 0s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+
+      &[in-use=true] {
+        stroke-dasharray: 0;
+      }
+
+      &.highlight {
+        stroke-dasharray: 0;
+        stroke: theme('colors.info.blue');
+      }
+    }
+  }
+}

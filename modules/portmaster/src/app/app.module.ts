@@ -69,6 +69,7 @@ import { SupportFormComponent } from './pages/support/form';
 import { TipUpAnchorDirective, TipUpComponent, TipUpTriggerDirective, TipUpIconComponent } from './shared/tipup';
 import { PaginationContentDirective, PaginationWrapperComponent } from './shared/pagination';
 import { PrettyCountPipe } from './shared/count.pipe';
+import { SpnPageComponent } from './pages/spn';
 
 @NgModule({
   declarations: [
@@ -153,6 +154,7 @@ import { PrettyCountPipe } from './shared/count.pipe';
     TipUpIconComponent,
     PaginationWrapperComponent,
     PaginationContentDirective,
+    SpnPageComponent,
   ],
   imports: [
     BrowserModule,

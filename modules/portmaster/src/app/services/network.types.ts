@@ -67,6 +67,12 @@ export function IsDenied(v: Verdict): boolean {
   return deniedVerdicts.has(v);
 }
 
+export interface GeoCoordinates {
+  AccuracyRadius: number;
+  Latitude: number;
+  Longitude: number;
+}
+
 export interface IntelEntity {
   // Protocol is the IP protocol used to connect/communicate
   // the the described entity.
@@ -91,6 +97,8 @@ export interface IntelEntity {
   ASN: number;
   // ASOrg holds the AS owner name.
   ASOrg: string;
+  // Coordinates contains the geographic coordinates of the entity.
+  Coordinates: GeoCoordinates | null;
   // BlockedByLists holds a list of filter list IDs that
   // would have blocked the entity.
   BlockedByLists: string[] | null;
