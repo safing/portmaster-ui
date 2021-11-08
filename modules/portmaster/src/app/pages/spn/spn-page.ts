@@ -11,6 +11,7 @@ import { feature } from 'topojson-client';
 /**
  * TODO(ppacher):
  *  - maximum zoom
+ *  - exit().remove()
  */
 
 const markerSize = 5;
@@ -29,6 +30,7 @@ interface _PinModel extends Pin {
   preferredLocation: GeoCoordinates;
   preferredEntity: IntelEntity;
   countProcesses: number;
+  collapsed?: boolean;
 }
 
 interface _ProcessGroupModel {
@@ -158,6 +160,9 @@ export class SpnPageComponent implements OnInit, OnDestroy, AfterViewInit {
         )])
       .pipe(takeUntil(this.destroy$))
       .subscribe(([pins, exitNodes]) => {
+        let existing = new Map<string, _PinModel>();
+        this.pins$.getValue().forEach(p => existing.set(p.ID, p));
+
         // create a lookup map for the pins and convert each Pin into our
         // local for-display _PinModel
         let lm = new Map<string, _PinModel>();
@@ -168,6 +173,7 @@ export class SpnPageComponent implements OnInit, OnDestroy, AfterViewInit {
             preferredLocation: getPinCoords(p) || UnknownLocation,
             preferredEntity: (p.EntityV4 || p.EntityV6)!, // there must always be one entity
             countProcesses: 0,
+            collapsed: existing.get(p.ID)?.collapsed || false,
           })
         })
 
