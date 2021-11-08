@@ -1,54 +1,101 @@
-<div class="absolute top-0 bottom-0 left-0 flex flex-col justify-center flex-grow-0 flex-shrink-0 w-1/5 p-2 space-y-4 border-r border-opacity-50 custom-background backdrop-filter backdrop-blur-sm border-buttons-dark" style="min-width: 16rem;">
-  <!-- Pre Alpha notice -->
-  <a class="flex flex-row items-center w-full my-2 rounded bg-cards-primary" href="https://docs.safing.io/spn/broader-testing/status">
-    <fa-icon icon="exclamation-triangle" class="px-3 py-5"></fa-icon>
-    <div class="flex-grow">
-      <span class="block font-medium">SPN is in "Broader Testing"</span>
-      <span class="text-xs text-tertiary">Find out more about the current status</span>
-    </div>
-    <fa-icon class="self-start mt-2 mr-2 text-tertiary" icon="external-link-alt"></fa-icon>
-  </a>
+<div class="absolute top-0 bottom-0 left-0 flex flex-row h-full">
+  <div class="flex flex-col justify-center flex-grow-0 flex-shrink-0 h-full p-2 space-y-4 border-r border-opacity-50 custom-background backdrop-filter backdrop-blur-sm border-buttons-dark" style="min-width: 16rem;">
+    <!-- Pre Alpha notice -->
+    <a class="flex flex-row items-center w-full my-2 rounded-sm bg-cards-primary" href="https://docs.safing.io/spn/broader-testing/status">
+      <fa-icon icon="exclamation-triangle" class="px-3 py-5"></fa-icon>
+      <div class="flex-grow">
+        <span class="block font-medium">SPN is in "Broader Testing"</span>
+        <span class="text-xs text-tertiary">Find out more about the current status</span>
+      </div>
+      <fa-icon class="self-start mt-2 mr-2 text-tertiary" icon="external-link-alt"></fa-icon>
+    </a>
 
-  <!-- SPN graph & connected button -->
-  <div class="flex flex-col items-center p-5">
-    <h1 class="text-2xl font-semibold">SPN</h1>
-    <span class="mb-4 text-xs font-medium text-tertiary">Active 00:00:00 <!--FIXME--> </span>
-    <div class="w-full px-5">
-      <button class="connect-button relative w-full p-2 bg-opacity-75 rounded-full {{ (spnActive$ | async) ? 'connected' : '' }} text-primary" (click)="toggleSPN()">
-        <span>{{ (spnActive$ | async ) ? 'Connected' : 'Disconnected' }}</span>
-        <span class="absolute inline-flex items-center w-6 h-2 ml-4 rounded-full shadow-inner opacity-50 bg-cards-primary" style="right: 0.55rem; top: 0.75rem">
-          <span class="inline-block w-2 h-2 transition-all duration-200 transform border rounded-full shadow-inner-xs bg-buttons-icon" [class.translate-x-4]="spnActive$ | async"></span>
-        </span>
-      </button>
+    <!-- SPN graph & connected button -->
+    <div class="flex flex-col items-center p-5">
+      <h1 class="text-2xl font-semibold">SPN</h1>
+      <span class="mb-4 text-xs font-medium text-tertiary">Active 00:00:00 <!--FIXME--> </span>
+      <div class="w-full px-5">
+        <button class="connect-button relative w-full p-2 bg-opacity-75 rounded-full {{ (spnActive$ | async) ? 'connected' : '' }} text-primary" (click)="toggleSPN()">
+          <span>{{ (spnActive$ | async ) ? 'Connected' : 'Disconnected' }}</span>
+          <span class="absolute inline-flex items-center w-6 h-2 ml-4 rounded-full shadow-inner opacity-50 bg-cards-primary" style="right: 0.55rem; top: 0.75rem">
+            <span class="inline-block w-2 h-2 transition-all duration-200 transform border rounded-full shadow-inner-xs bg-buttons-icon" [class.translate-x-4]="spnActive$ | async"></span>
+          </span>
+        </button>
+      </div>
+      <span class="mt-4 text-xs font-medium text-tertiary">You are currently using {{ countExitNodes }} exit server{{ countExitNodes > 1 ? 's' : ''}}.</span>
     </div>
-    <span class="mt-4 text-xs font-medium text-tertiary">You are currently using {{ countExitNodes }} exit servers.</span>
+
+    <!-- Process and Exit node list -->
+    <div class="flex flex-col flex-grow overflow-hidden">
+      <h2 class="ml-0">App Routes</h2>
+      <div class="flex-grow overflow-auto">
+        <ul>
+          <ng-container *ngFor="let process of (activeProfiles$ | async); trackBy: trackProfile">
+            <li *ngIf="process.exitPins as nodes">
+              <div class="card-header" (click)="selectGroup(process)" [class.active]="selectedProcessGroup === process.process.ID">
+                <app-icon [profile]="process.process"></app-icon>
+                <span class="card-title">{{ process.process.Name }} </span>
+              </div>
+              <ul class="ml-3">
+                <li *ngFor="let node of nodes; trackBy: trackPin" class="card-header overflow-ellipsis" [class.active]="selectedPinIDs?.has(node.ID)" (click)="selectGroup(process, node)">
+                    <span [appCountryFlags]="node.preferredEntity.Country" class="w-4 mr-3"></span>
+                    <span class="flex-grow">{{ node.preferredEntity.IP }}</span>
+                </li>
+              </ul>
+            </li>
+          </ng-container>
+        </ul>
+      </div>
+    </div>
   </div>
 
-  <div class="flex flex-col flex-grow overflow-hidden">
-    <h2 class="ml-0">App Routes</h2>
-    <div class="flex-grow overflow-auto">
-      <ul>
-        <ng-container *ngFor="let process of (activeProfiles$ | async); trackBy: trackProfile">
-          <li *ngIf="process.exitPins as nodes">
-            <div class="card-header" (click)="selectGroup(process)" [class.active]="selectedProcessGroup === process.process.ID">
-              <app-icon [profile]="process.process"></app-icon>
-              <span class="card-title">{{ process.process.Name }} </span>
-            </div>
-            <ul class="ml-3">
-              <li *ngFor="let node of nodes; trackBy: trackPin" class="card-header overflow-ellipsis" [class.active]="selectedPinIDs?.has(node.ID)" (click)="selectGroup(process, node)">
-                  <span [appCountryFlags]="node.preferredEntity.Country" class="w-4 mr-3"></span>
-                  <span class="flex-grow">{{ node.preferredEntity.IP }}</span>
-              </li>
-            </ul>
-          </li>
-        </ng-container>
-      </ul>
+  <!-- selected node pane -->
+  <div *ngIf="!!selectedPins" class="flex flex-col justify-start flex-grow flex-shrink-0 w-64 p-2 pt-4 space-y-3">
+    <div *ngFor="let pin of selectedPins!" class="relative p-3 ml-1 border rounded-sm shadow custom-background backdrop-filter backdrop-blur-md border-buttons-dark">
+      <fa-icon class="absolute top-0 right-0 mt-3 mr-3 text-xs cursor-pointer text-tertiary hover:text-secondary" icon="times" (click)="clearSelection(pin.ID)"></fa-icon>
+      <span class="mt-3 text-xs font-medium text-primary">Hub {{ pin.Name.toUpperCase() }}</span>
+
+      <div class="table mt-3">
+        <div>
+          <span>Country</span>
+          <span>
+            <span [appCountryFlags]="pin.preferredEntity.Country"></span>
+            {{ pin.preferredEntity.Country }}
+          </span>
+        </div>
+        <div>
+          <span>IP-Address</span>
+          <span>
+            {{ pin.preferredEntity.IP }}
+          </span>
+        </div>
+        <div>
+          <span>Distance from Home</span>
+          <span>
+            {{ pin.HopDistance }}
+          </span>
+        </div>
+        <div>
+          <span>Processes</span>
+          <span>
+            {{ pin.countProcesses }}
+          </span>
+        </div>
+      </div>
     </div>
   </div>
+
 </div>
+
 <div class="absolute top-0 right-0 mt-4 mr-4">
   <app-expertise></app-expertise>
 </div>
 <div class="flex-grow h-full">
   <div #map id="map" class="w-full h-full"></div>
+</div>
+
+<div class="absolute bottom-0 left-0 right-0 flex flex-col items-center overflow-hidden" style="margin-left: 20%">
+  <div class="flex-grow-0 flex-shrink-0 px-2 py-1 -mb-1 text-xs font-thin rounded-t text-tertiary">
+    {{ highlightReason }} <fa-icon class="ml-1 cursor-pointer" [icon]="['far', 'times-circle']" *ngIf="(selectedPinIDs?.size || 0) > 0" (click)="clearSelection()"></fa-icon>
+  </div>
 </div>

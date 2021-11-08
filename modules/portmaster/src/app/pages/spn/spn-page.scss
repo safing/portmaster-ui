@@ -14,56 +14,90 @@
   }
 }
 
+.table {
+  @apply w-full font-normal;
+
+  &>div {
+    @apply text-xs border-buttons-dark flex flex-row justify-between py-1;
+
+    &:not(:last-child) {
+      @apply border-b;
+    }
+
+    span:first-child {
+      @apply text-tertiary;
+    }
+
+    span:last-child {
+      @apply text-primary;
+    }
+  }
+}
+
 /** We need ::ng-deep here because the map and SVG parts are created using D3 and thus live outside
     the view-encapsulation of the component */
 ::ng-deep {
 
   #map {
-    #world-group {
-      path {
+    svg {
+      #world-group {
+        path {
+          fill: #252525;
+          stroke: #111111;
+          stroke-width: .5px;
+        }
+      }
+
+      .overlay {
+        fill: none;
+        pointer-events: all;
+      }
+
+      .marker {
+        cursor: pointer;
         fill: #252525;
-        stroke: #111111;
-        stroke-width: .5px;
+        stroke: rgba(151, 151, 151, 0.8);
+        transition: all 250ms 0s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+
+        &.highlight {
+          fill: theme('colors.info.blue');
+          stroke: theme('colors.info.blue');
+        }
       }
-    }
 
-    .overlay {
-      fill: none;
-      pointer-events: all;
-    }
-
-    .marker {
-      cursor: pointer;
-      fill: #252525;
-      stroke: rgba(151, 151, 151, 0.8);
-      transition: all 250ms 0s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-
-      &.highlight {
+      .marker-home {
         fill: theme('colors.info.blue');
-        stroke: theme('colors.info.blue');
-        z-index: 100;
-      }
-    }
-
-    .marker-home {
-      fill: theme('colors.info.blue');
-    }
-
-    .marker-label {
-      fill: white;
-    }
-
-    path.lane {
-      stroke: rgba(151, 151, 151, 0.8);
-      transition: all 250ms 0s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-
-      &[in-use=true] {
-        stroke-dasharray: 0;
       }
 
-      &.highlight {
-        stroke-dasharray: 0;
-        stroke: theme('colors.info.blue');
+      .marker-label {
+        fill: white;
+      }
+
+      path.lane {
+        stroke: rgba(151, 151, 151, 0.8);
+        transition: all 250ms 0s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+
+        &.highlight {
+          stroke-dasharray: 0;
+          stroke: theme('colors.info.blue');
+          visibility: visible !important;
+        }
+      }
+
+      &.show-active {
+
+        g[in-use=true],
+        g[is-exit=true] {
+          .marker {
+            fill: theme('colors.info.blue');
+            stroke: theme('colors.info.blue');
+          }
+        }
+
+        path.lane[in-use=true] {
+          stroke-dasharray: 0;
+          stroke: theme('colors.info.blue');
+        }
       }
     }
   }

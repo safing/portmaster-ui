@@ -1,4 +1,3 @@
-import { SelectorListContext } from "@angular/compiler";
 import { AfterViewInit, Component, ElementRef, OnDestroy, OnInit, RendererType2, TrackByFunction, ViewChild } from "@angular/core";
 import { curveBasis, geoMercator, geoPath, interpolateString, json, line, select, SelectionOrTransition, Selection, zoom, BaseType } from 'd3';
 import { BehaviorSubject, combineLatest, Observable, of, Subject } from "rxjs";
@@ -11,13 +10,10 @@ import { feature } from 'topojson-client';
 
 /**
  * TODO(ppacher):
- *  - show all active when nothing is selected in blue
- *  - allow selection of more nodes
  *  - maximum zoom
- * - update metadata (currently in enter())
  */
 
-const markerSize = 6;
+const markerSize = 5;
 const markerStroke = 1;
 const destinationHubFactor = 1.25;
 const laneDashArray = 4;
@@ -32,6 +28,7 @@ interface _PinModel extends Pin {
   isExit: boolean;
   preferredLocation: GeoCoordinates;
   preferredEntity: IntelEntity;
+  countProcesses: number;
 }
 
 interface _ProcessGroupModel {
@@ -77,14 +74,31 @@ export class SpnPageComponent implements OnInit, OnDestroy, AfterViewInit {
    */
   selectedPinIDs: Set<string> | null = null;
 
+  /**
+   * selectedPins is a list of selected PINs
+   */
+  selectedPins: _PinModel[] | null = null;
+
   /** selectedProcessGroup holds the ID of the currently selected process group */
   selectedProcessGroup = '';
+
+  /** highlightReason is displayed below the map and tells the user what is currently blue. */
+  highlightReason = '';
 
   /** flagDir holds the path to the flag assets */
   private readonly flagDir = '/assets/img/flags';
 
   /** activeLanes holds a list of active lanes */
   private activeLanes = new Set<string>();
+
+  /**
+   * activePins holds a list of active/in-use pins.
+   * This is calculated by navigating home from any exit node
+   * in use. This is basically the same as activeLanes. We need to
+   * gather that information ourself because Pin.Route might still
+   * be set because there's an active session on that Pin.
+   */
+  private activePins = new Set<string>();
 
   /** currentScaleLevel holds the scale level */
   private currentScaleLevel = 1;
@@ -153,6 +167,7 @@ export class SpnPageComponent implements OnInit, OnDestroy, AfterViewInit {
             isExit: false,
             preferredLocation: getPinCoords(p) || UnknownLocation,
             preferredEntity: (p.EntityV4 || p.EntityV6)!, // there must always be one entity
+            countProcesses: 0,
           })
         })
 
@@ -161,6 +176,7 @@ export class SpnPageComponent implements OnInit, OnDestroy, AfterViewInit {
             const p = lm.get(n || '');
             if (!!p) {
               p.isExit = true;
+              p.countProcesses++;
             }
           })
         })
@@ -176,6 +192,14 @@ export class SpnPageComponent implements OnInit, OnDestroy, AfterViewInit {
         multicast(() => new BehaviorSubject(false)),
         refCount(),
       );
+  }
+
+  clearSelection(id = '') {
+    if (!!id) {
+      this.selectedPins$.next(this.selectedPins$.getValue().filter(pinID => pinID !== id))
+      return;
+    }
+    this.selectedPins$.next([]);
   }
 
   toggleSPN() {
@@ -228,17 +252,15 @@ export class SpnPageComponent implements OnInit, OnDestroy, AfterViewInit {
 
   private lineTransition(path: Selection<SVGPathElement, any, any, any>): Promise<void> {
     return new Promise(resolve => {
-      path.style('opacity', 0)
+      path
+        .style('opacity', 0)
         .transition("enter-lane")
-        /**/.duration(750)
-        /**/.style('opacity', 0.8)
-        /**/.attrTween('stroke-dasharray', tweenDash)
+        .delay(500)
+        .style('opacity', 1)
+        .duration(500)
+        .attrTween('stroke-dasharray', tweenDash)
         .on('end', function () {
           resolve();
-          select(this)
-            .transition("end-enter-lane")
-            /**/.style('opacity', 1)
-            /**/.duration(500)
         });
     })
   }
@@ -271,7 +293,7 @@ export class SpnPageComponent implements OnInit, OnDestroy, AfterViewInit {
 
     const projection = geoMercator()
       .scale(350)
-      .translate([width / 100 * 40, height / 100 * 80]);
+      .translate([width / 100 * 70, height / 100 * 80]);
 
     // path is used to update the SVG path to match our mercator projection
     const path = geoPath().projection(projection);
@@ -292,7 +314,9 @@ export class SpnPageComponent implements OnInit, OnDestroy, AfterViewInit {
       .attr("xmlns", "http://www.w3.org/2000/svg")
       .attr('width', '100%')
       .attr('preserveAspectRation', 'none')
-      .attr('height', '100%');
+      .attr('height', '100%')
+      .classed('show-active', true);
+    this.highlightReason = 'Showing all active connections';
 
     // clicking the SVG or anything that does not have a dedicated
     // click listener resets the currently selected pin:
@@ -389,21 +413,34 @@ export class SpnPageComponent implements OnInit, OnDestroy, AfterViewInit {
         this.markerGroup.selectAll('.marker.highlight')
           .classed('highlight', false);
 
-        if (pinIDs.length === 0) {
-          this.selectedProcessGroup = '';
-          this.selectedPinIDs = null;
-        }
+        this.selectedProcessGroup = '';
+        this.selectedPins = null;
 
-        let s = new Set<string>();
+        this.selectedPinIDs = new Set();
         // finally, if there's a new ID to select - and not just
         // toggeling the old one - make sure we add the "highlight"
         // class to all pins and lanes from `id` to `home`
         pinIDs.forEach(id => {
-          s.add(id);
+          if (!this.selectedPinIDs!.has(id)) {
+            this.selectedPinIDs!.add(id);
+            if (!this.selectedPins) {
+              this.selectedPins = [];
+            }
+            const p = pins.find(p => p.ID === id);
+            if (!!p) {
+              this.selectedPins.push(p);
+            }
+          }
           this.highlightRoute(id, true, pins);
         })
 
-        this.selectedPinIDs = s;
+        if (this.selectedPinIDs.size === 0) {
+          this.highlightReason = 'Showing all active connections'
+          svg.classed('show-active', true);
+        } else {
+          this.highlightReason = 'Showing paths to selected hubs'
+          svg.classed('show-active', false);
+        }
       });
 
     // we need to re-render when the expertise level changes.
@@ -415,7 +452,7 @@ export class SpnPageComponent implements OnInit, OnDestroy, AfterViewInit {
     this.pins$
       .pipe(debounceTime(100))
       .subscribe(pins => {
-        console.log("rendering ....")
+        console.log("rendering ....", pins)
 
         // create a lookup map for PinID to PIN.
         const lm = new Map<string, _PinModel>();
@@ -423,11 +460,13 @@ export class SpnPageComponent implements OnInit, OnDestroy, AfterViewInit {
 
         // build a list of active lanes by navigating home from all exit nodes
         // that are currently in use.
-        this.activeLanes = new Set<string>();
+        this.activeLanes = new Set();
+        this.activePins = new Set();
         pins.filter(p => p.isExit).forEach(pin => {
           let current = (pin.Route || [])[0];
           (pin.Route || []).slice(1).forEach(hop => {
             this.activeLanes.add(`${current}-${hop}`)
+            this.activePins.add(current);
             current = hop;
           });
         })
@@ -476,7 +515,6 @@ export class SpnPageComponent implements OnInit, OnDestroy, AfterViewInit {
           // transition.
 
           // on hover we show all connected pins even if the connection is not in use
-
           const addHoverListener = (sel: Selection<any, _PinModel, any, any>) => {
             sel
               .on("mouseenter", function (e: MouseEvent) {
@@ -507,7 +545,23 @@ export class SpnPageComponent implements OnInit, OnDestroy, AfterViewInit {
                 e.stopImmediatePropagation();
 
                 const d = select<SVGElement, _PinModel>(this).datum();
-                self.selectedPins$.next([d.ID]); // TODO(ppacher): shift+click
+
+                // shift-key when clicking pins on the map allows to add or remove
+                // a pin from the selection.
+                if (e.shiftKey) {
+                  let existingIDs = Array.from(self.selectedPinIDs?.values() || []);
+                  const idx = existingIDs.findIndex(id => id === d.ID);
+                  if (idx >= 0) {
+                    existingIDs.splice(idx, 1);
+                  } else {
+                    existingIDs.push(d.ID);
+                  }
+                  self.selectedPins$.next([
+                    ...existingIDs
+                  ])
+                } else {
+                  self.selectedPins$.next([d.ID]);
+                }
               })
               .call(scaleIn);
           } else {
@@ -549,6 +603,9 @@ export class SpnPageComponent implements OnInit, OnDestroy, AfterViewInit {
           .call(sel => this.updateLaneData(sel))
           .attr('class', 'lane')
           .style('fill', 'none')
+          .filter(function () {
+            return select(this).style("visibility") === 'visible'
+          })
           .call(sel => this.lineTransition(sel));
 
         // now we can finally instruct d3 to update all existing elements, their position
@@ -560,7 +617,12 @@ export class SpnPageComponent implements OnInit, OnDestroy, AfterViewInit {
   private setupLane(scaleFactor: number = this.currentScaleLevel): (sel: any) => void {
     return sel => {
       sel.attr('stroke-width', (markerStroke / scaleFactor))
-        .attr('stroke-dasharray', (laneDashArray / scaleFactor));
+        .attr('stroke-dasharray', function (this: any) {
+          if (select(this).attr("in-use") === 'true') {
+            return 0;
+          }
+          return (laneDashArray / scaleFactor);
+        });
     }
   }
 
@@ -575,7 +637,7 @@ export class SpnPageComponent implements OnInit, OnDestroy, AfterViewInit {
     return sel => {
       sel.attr('x', (markerSize * 2 + 16 + 2) / scaleFactor)
         .attr('dy', (0.5 * markerSize) / scaleFactor)
-        .attr('font-size', 1.5 * (markerSize / scaleFactor))
+        .attr('font-size', 9 / scaleFactor)
     }
   }
 
@@ -613,11 +675,10 @@ export class SpnPageComponent implements OnInit, OnDestroy, AfterViewInit {
 
   private updateHubData(sel: Selection<any, _PinModel, any, any>) {
     sel.attr('hub-id', d => d.ID)
-      .attr('exit-node', d => d.isExit)
-      .attr('in-use', d => !!d.Route)
+      .attr('is-exit', d => d.isExit)
+      .attr('in-use', d => this.activePins.has(d.ID))
       .attr('is-home', d => d.HopDistance === 1)
   }
-
 }
 
 const tweenDash = function (this: SVGPathElement) {
@@ -625,7 +686,7 @@ const tweenDash = function (this: SVGPathElement) {
   const interpolate = interpolateString(`0, ${len}`, `${len}, ${len}`);
   return (t: number) => {
     if (t === 1) {
-      return `${laneDashArray}`;
+      return select(this).attr('in-use') === 'true' ? '0' : `${laneDashArray}`;
     }
     return interpolate(t);
   }
