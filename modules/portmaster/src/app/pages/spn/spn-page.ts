@@ -1,6 +1,6 @@
 import { AfterViewInit, Component, ElementRef, OnDestroy, OnInit, RendererType2, TrackByFunction, ViewChild } from "@angular/core";
-import { curveBasis, geoMercator, geoPath, interpolateString, json, line, select, SelectionOrTransition, Selection, zoom, BaseType } from 'd3';
-import { BehaviorSubject, combineLatest, Observable, of, Subject } from "rxjs";
+import { curveBasis, geoMercator, geoPath, interpolateString, json, line, select, SelectionOrTransition, Selection, zoom, BaseType, zoomIdentity, ZoomTransform } from 'd3';
+import { animationFrameScheduler, BehaviorSubject, combineLatest, Observable, of, scheduled, Subject } from "rxjs";
 import { debounceTime, map, multicast, refCount, switchMap, take, takeUntil, withLatestFrom } from "rxjs/operators";
 import { BoolSetting, ConfigService, ExpertiseLevel, GeoCoordinates, IntelEntity, SPNService } from "src/app/services";
 import { ConnTracker, ProcessGroup } from "src/app/services/connection-tracker.service";
@@ -102,9 +102,6 @@ export class SpnPageComponent implements OnInit, OnDestroy, AfterViewInit {
    */
   private activePins = new Set<string>();
 
-  /** currentScaleLevel holds the scale level */
-  private currentScaleLevel = 1;
-
   /** hoveredPin is set to the ID of the pin that is currently hovered */
   private hoveredPin = '';
 
@@ -173,7 +170,7 @@ export class SpnPageComponent implements OnInit, OnDestroy, AfterViewInit {
             preferredLocation: getPinCoords(p) || UnknownLocation,
             preferredEntity: (p.EntityV4 || p.EntityV6)!, // there must always be one entity
             countProcesses: 0,
-            collapsed: existing.get(p.ID)?.collapsed || false,
+            collapsed: existing.get(p.ID) ? existing.get(p.ID)!.collapsed : false,
           })
         })
 
@@ -292,14 +289,35 @@ export class SpnPageComponent implements OnInit, OnDestroy, AfterViewInit {
     // use a good old "self" to actually reference "this"
     // component.
     const self = this;
+    const rotate = 0; // so [-60, 0] is the initial center of the projection
+    const maxlat = 83; // clip nothern and southern pols (infinite in mercator)
 
     const map = select(this.mapElement.nativeElement);
     const width = map.node()!.getBoundingClientRect().width;
     const height = map.node()!.parentElement!.getBoundingClientRect().height;
 
     const projection = geoMercator()
-      .scale(350)
-      .translate([width / 100 * 70, height / 100 * 80]);
+      .rotate([rotate, 0])
+      .scale(1)
+      .translate([width / 2, height / 2]);
+
+    // returns the top-left and the bottom-right of the current projection
+    const mercatorBounds = () => {
+      const yaw = projection.rotate()[0];
+      const xymax = projection([-yaw + 180 - 1e-6, -maxlat])!;
+      const xymin = projection([-yaw - 180 + 1e-6, maxlat])!;
+      return [xymin, xymax];
+    }
+
+    const initialBounds = mercatorBounds();
+    const s = width / (initialBounds[1][0] - initialBounds[0][0]);
+    const scaleExtend = [s, 10 * s];
+    const transform = zoomIdentity
+      .scale(scaleExtend[0])
+      .translate(projection.translate()[0], projection.translate()[1]);
+
+    // scale the projection to the initial bounds
+    projection.scale(scaleExtend[0]);
 
     // path is used to update the SVG path to match our mercator projection
     const path = geoPath().projection(projection);
@@ -322,6 +340,7 @@ export class SpnPageComponent implements OnInit, OnDestroy, AfterViewInit {
       .attr('preserveAspectRation', 'none')
       .attr('height', '100%')
       .classed('show-active', true);
+
     this.highlightReason = 'Showing all active connections';
 
     // clicking the SVG or anything that does not have a dedicated
@@ -342,6 +361,7 @@ export class SpnPageComponent implements OnInit, OnDestroy, AfterViewInit {
 
       this.markerGroup.selectAll<SVGGElement, _PinModel>('g[hub-id]')
         .call(d => this.updateHubData(d))
+        .attr('transform', d => `translate(${projection([d.preferredLocation.Longitude, d.preferredLocation.Latitude])})`)
 
       this.laneGroup.selectAll<SVGPathElement, Line>('.lane')
         .attr('d', lineFunc as any)
@@ -350,49 +370,52 @@ export class SpnPageComponent implements OnInit, OnDestroy, AfterViewInit {
 
     // whenever the users zooms we need to update our groups
     // indivitually to apply the zoom effect.
+    let tlast = {
+      x: 0,
+      y: 0,
+      k: 0,
+    }
     let z = zoom()
+      .scaleExtent(scaleExtend as [number, number])
       .on('zoom', (e) => {
-        // apply the zoom transformation (that's zoom and pan)
-        // to all groups so the scale the same.
-        this.worldGroup.attr('transform', e.transform);
-        this.markerGroup.attr('transform', e.transform);
-        this.laneGroup.attr('transform', e.transform);
+        const t: ZoomTransform = e.transform;
 
-        this.currentScaleLevel = e.transform.k;
+        if (t.k != tlast.k) {
+          projection.scale(t.k);
+          render();
+        } else {
+          let dx = t.x - tlast.x;
+          let dy = t.y - tlast.y;
+          let yaw = projection.rotate()[0]
+          let tp = projection.translate();
 
-        // zooming the groups will also zoom the markers
-        // texts and lanes so we should invert the zoom effect
-        // there. We to this with a little animation to make
-        // the user happy :)
+          // use x translation to rotate based on current scale
+          projection.rotate([yaw + 360.0 * dx / width * scaleExtend[0] / t.k, 0, 0])
+          // use y translation to translate projection clamped to bounds
+          let bounds = mercatorBounds();
+          if (bounds[0][1] + dy > 0) {
+            dy = -bounds[0][1];
+          } else if (bounds[1][1] + dy < height) {
+            dy = height - bounds[1][1];
+          }
+          projection.translate([tp[0], tp[1] + dy]);
 
-        this.markerGroup.selectAll('.marker-home')
-          .transition()
-          /**/.duration(500)
-          /**/.attr('transform', `scale(${1 / e.transform.k})`);
+          render();
+        }
 
-        this.markerGroup.selectAll<SVGCircleElement, _PinModel>('.marker')
-          .transition()
-          /**/.duration(500)
-          /**/.call(this.setupMarkerCircle())
-
-        this.markerGroup.selectAll('.marker-label')
-          .transition()
-          /**/.duration(500)
-          /**/.call(this.setupMarkerLabel());
-
-        this.markerGroup.selectAll('.marker-flag')
-          .transition()
-          /**/.duration(500)
-          /**/.call(this.setupMarkerFlag());
-
-        this.laneGroup.selectAll<SVGPathElement, Line>('.lane')
-          .transition()
-          /**/.duration(500)
-          /**/.call(this.setupLane())
+        tlast = {
+          x: t.x,
+          y: t.y,
+          k: t.k,
+        }
       });
+
+
 
     // apply the zoom listeners to the whole SVG.
     svg.call(z as any);
+
+    svg.call(z.transform as any, transform);
 
     // load the world-map data and start rendering
     const world = await json<any>('assets/world-50m.json')
@@ -620,7 +643,7 @@ export class SpnPageComponent implements OnInit, OnDestroy, AfterViewInit {
       })
   }
 
-  private setupLane(scaleFactor: number = this.currentScaleLevel): (sel: any) => void {
+  private setupLane(scaleFactor: number = 1): (sel: any) => void {
     return sel => {
       sel.attr('stroke-width', (markerStroke / scaleFactor))
         .attr('stroke-dasharray', function (this: any) {
@@ -632,14 +655,14 @@ export class SpnPageComponent implements OnInit, OnDestroy, AfterViewInit {
     }
   }
 
-  private setupMarkerCircle(scaleFactor: number = this.currentScaleLevel): (sel: any) => void {
+  private setupMarkerCircle(scaleFactor: number = 1): (sel: any) => void {
     return sel => {
       sel.attr('r', (d: _PinModel) => (d.isExit ? markerSize * destinationHubFactor : markerSize) / scaleFactor)
         .attr('stroke-width', (markerStroke) / scaleFactor)
     }
   }
 
-  private setupMarkerLabel(scaleFactor: number = this.currentScaleLevel): (sel: any) => void {
+  private setupMarkerLabel(scaleFactor: number = 1): (sel: any) => void {
     return sel => {
       sel.attr('x', (markerSize * 2 + 16 + 2) / scaleFactor)
         .attr('dy', (0.5 * markerSize) / scaleFactor)
@@ -647,7 +670,7 @@ export class SpnPageComponent implements OnInit, OnDestroy, AfterViewInit {
     }
   }
 
-  private setupMarkerFlag(scaleFactor: number = this.currentScaleLevel): (sel: any) => void {
+  private setupMarkerFlag(scaleFactor: number = 1): (sel: any) => void {
     return sel => {
       sel.attr('x', (markerSize + 4) / scaleFactor)
         .attr('y', -(1.25 * markerSize) / scaleFactor)

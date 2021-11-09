@@ -56,7 +56,7 @@
       <fa-icon class="absolute top-0 right-0 mt-3 mr-8 text-xs cursor-pointer text-tertiary hover:text-secondary" [icon]="pin.collapsed ? 'chevron-up' : 'chevron-down'" (click)="pin.collapsed = !pin.collapsed"></fa-icon>
       <span class="mt-3 text-xs font-medium text-primary">Hub {{ pin.Name.toUpperCase() }}</span>
 
-      <div class="table mt-3" *ngIf="pin.collapsed">
+      <div class="table mt-3" *ngIf="!pin.collapsed">
         <div>
           <span>Country</span>
           <span>
@@ -100,7 +100,7 @@
 
 </div>
 
-<div class="absolute top-0 right-0 z-10 mt-4 mr-4">
+<div class="absolute top-0 right-0 z-10 mt-4 mr-4">
   <app-expertise></app-expertise>
 </div>
 <div class="relative flex-grow h-full">
