@@ -10,8 +10,13 @@ import { feature } from 'topojson-client';
 
 /**
  * TODO(ppacher):
- *  - maximum zoom
  *  - exit().remove()
+ *  - render pins immediately
+ *  - spn icon
+ *  - render data immediately
+ *  - display status
+ *  - hide data when disabling SPN
+ *  - unused node not highlighted when selected
  */
 
 const markerSize = 5;
