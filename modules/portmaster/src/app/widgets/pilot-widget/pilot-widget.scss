@@ -7,6 +7,7 @@
   background     : none;
   user-select    : none;
 
+  
 
   svg.shield {
     margin-top: -5.5rem;
@@ -340,3 +341,28 @@
     }
   }
 }
+
+.spn-status {
+    background-color: var(--info-blue);
+    border-radius: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 1 !important;
+    padding: 0.2rem;
+    transform: scale(0.8);
+    position: absolute;
+    bottom: 24px;
+    right: 18px;
+      
+    &.connected{
+      background-color: theme('colors.info.blue');
+    }
+    &.connecting, &.failed {
+      background-color: theme('colors.info.gray');
+    }
+
+    svg {
+      stroke: white;
+    }
+  }

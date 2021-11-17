@@ -73,6 +73,12 @@ export interface GeoCoordinates {
   Longitude: number;
 }
 
+export const UnknownLocation: GeoCoordinates = {
+  AccuracyRadius: 0,
+  Latitude: 0,
+  Longitude: 0
+}
+
 export interface IntelEntity {
   // Protocol is the IP protocol used to connect/communicate
   // the the described entity.

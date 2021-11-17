@@ -1,6 +1,14 @@
 import { GeoCoordinates, IntelEntity } from ".";
 import { Record } from "./portapi.types";
 
+export interface SPNStatus extends Record {
+  Status: 'failed' | 'disabled' | 'connecting' | 'connected';
+  HomeHubID: string;
+  ConnectedIP: string;
+  ConnectedTransport: string;
+  ConnectedSince: string | null;
+}
+
 export interface Pin extends Record {
   ID: string;
   Name: string;
@@ -8,6 +16,7 @@ export interface Pin extends Record {
   EntityV4?: IntelEntity | null;
   EntityV6?: IntelEntity | null;
   States: string[];
+  SessionActive: boolean;
   HopDistance: number;
   ConnectedTo: {
     [key: string]: Lane,
