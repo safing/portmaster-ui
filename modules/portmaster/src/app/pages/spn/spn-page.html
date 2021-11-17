@@ -1,0 +1,167 @@
+<div class="flex absolute top-0 bottom-0 left-0 flex-row justify-start items-start h-full">
+  <div
+    class="flex z-10 flex-col flex-grow-0 flex-shrink-0 justify-center p-2 space-y-4 h-full border-r border-opacity-50 backdrop-filter backdrop-blur-sm custom-background border-buttons-dark"
+    style="min-width: 16rem;">
+    <!-- Pre Alpha notice -->
+    <a class="flex flex-row items-center my-2 w-full rounded-sm bg-cards-primary"
+      href="https://docs.safing.io/spn/broader-testing/status">
+      <fa-icon icon="exclamation-triangle" class="px-3 py-5"></fa-icon>
+      <div class="flex-grow">
+        <span class="block font-medium">SPN is in "Broader Testing"</span>
+        <span class="text-xs text-tertiary">Find out more about the current status</span>
+      </div>
+      <fa-icon class="self-start mt-2 mr-2 text-tertiary" icon="external-link-alt"></fa-icon>
+    </a>
+
+    <!-- SPN graph & connected button -->
+    <div class="flex flex-col items-center py-5" *ngIf="!!spnStatus">
+      <h1 class="text-2xl font-semibold">SPN</h1>
+      <div class="px-5 w-full">
+        <button
+          class="connect-button relative w-full p-2 bg-opacity-75 rounded-full spn-{{ spnStatus!.Status }} text-primary"
+          (click)="toggleSPN()">
+          <span>{{ spnStatusTranslation[spnStatus!.Status] }}</span>
+          <span
+            class="inline-flex absolute items-center ml-4 w-6 h-2 rounded-full shadow-inner opacity-50 bg-cards-primary"
+            style="right: 0.55rem; top: 0.75rem">
+            <span
+              class="inline-block w-2 h-2 rounded-full border transition-all duration-200 transform shadow-inner-xs bg-buttons-icon"
+              [class.translate-x-4]="spnStatus.Status === 'connected' || spnStatus.Status === 'connecting'"></span>
+          </span>
+        </button>
+      </div>
+      <span class="mt-4 text-xs font-medium text-tertiary">
+        <ng-container *ngIf="spnStatus.Status === 'connected'">
+          to {{ spnStatus.ConnectedIP }}
+          for {{ activeSince }}
+        </ng-container>
+      </span>
+      <ng-container *ngIf="spnStatus.Status === 'connected'">
+        <span class="mt-6 text-xs font-semibold text-tertiary">
+          You are currently using
+        </span>
+        <div class="flex self-stretch mt-4 text-xs font-medium select-none">
+          <div
+            class="flex flex-col flex-grow items-center px-3 py-2 mx-1 rounded shadow cursor-pointer bg-cards-primary"
+            (click)="selectExitNodes($event)">
+            <span class="-mb-1 text-tertiary">Exit Nodes</span>
+            <span class="text-2xl text-primary">{{ countExitNodes }}</span>
+          </div>
+          <div
+            class="flex flex-col flex-grow items-center px-3 py-2 mr-1 rounded shadow cursor-pointer bg-cards-primary"
+            (click)="selectTransitNodes($event)">
+            <span class="-mb-1 text-tertiary">Transit Nodes</span>
+            <span class="text-2xl text-primary">{{ countTransitNodes }}</span>
+          </div>
+        </div>
+      </ng-container>
+    </div>
+
+    <!-- Process and Exit node list -->
+    <div class="flex overflow-hidden flex-col flex-grow">
+      <ng-container *ngIf="spnStatus?.Status !== 'disabled'">
+        <h2 class="ml-0">App Routes</h2>
+        <div class="overflow-auto flex-grow select-none">
+          <ul>
+            <ng-container *ngFor="let process of (activeProfiles$ | async); trackBy: trackProfile">
+              <li *ngIf="process.exitPins as nodes">
+                <div class="card-header" (click)="selectGroup(process, null, $event)"
+                  [class.active]="selectedProcessGroup === process.process.ID">
+                  <app-icon [profile]="process.process"></app-icon>
+                  <span class="flex flex-row justify-between card-title">
+                    <span>{{ process.process.Name }}</span>
+                    <span>{{ process.exitPins.length }} Exits</span>
+                  </span>
+                </div>
+                <ul class="ml-3 select-none">
+                  <li *ngFor="let node of nodes; trackBy: trackPin" class="overflow-ellipsis card-header"
+                    (mouseenter)="exitNodeHover(node, true)" (mouseleave)="exitNodeHover(node, false)"
+                    [class.active]="selectedPinIDs?.has(node.ID)" (click)="selectGroup(process, node, $event)">
+                    <span [appCountryFlags]="node.preferredEntity.Country" class="mr-3 w-4"></span>
+                    <span class="flex-grow">{{ node.preferredEntity.IP }}</span>
+                  </li>
+                </ul>
+              </li>
+            </ng-container>
+          </ul>
+        </div>
+      </ng-container>
+    </div>
+  </div>
+
+  <!-- selected node pane -->
+  <div *ngIf="!!selectedPins" class="flex z-10 flex-col flex-grow flex-shrink-0 justify-start p-2 pt-4 space-y-3 w-64">
+    <div *ngFor="let pin of selectedPins!"
+      class="relative p-4 ml-1 rounded border shadow bg-buttons-dark border-cards-primary">
+      <fa-icon class="absolute top-0 right-0 mt-3 mr-3 text-xs cursor-pointer text-tertiary hover:text-secondary"
+        icon="times" (click)="clearSelection(pin.ID)"></fa-icon>
+      <fa-icon class="absolute top-0 right-0 mt-3 mr-8 text-xs cursor-pointer text-tertiary hover:text-secondary"
+        [icon]="pin.collapsed ? 'chevron-up' : 'chevron-down'" (click)="pin.collapsed = !pin.collapsed"></fa-icon>
+      <span class="mt-3 text-xs font-medium text-primary">Hub {{ pin.Name.toUpperCase() }}</span>
+
+      <ng-container *ngIf="pin.route.length > 0; else: notInUse">
+        <div class="mt-3 tunnel-path" *ngIf="!pin.collapsed">
+          <div class="line"></div>
+          <ul>
+            <li>
+              <span class="hop-icon">
+                <fa-icon far icon="dot-circle"></fa-icon>
+              </span>
+              <span class="hop-title text-secondary">
+                Your Device
+              </span>
+            </li>
+
+
+            <li *ngFor="let node of pin.route">
+              <span *ngIf="node.preferredEntity.Country as country; else: noCountry" class="country"
+                [appCountryFlags]="country"></span>
+              <ng-template #noCountry>
+                <!-- TODO: use hop icon instead if unknown -->
+                <span class="country unknown"></span>
+              </ng-template>
+              <span>{{ node.preferredEntity?.Country || 'No Location' }}</span>
+              <span class="ip text-secondary">{{ node.preferredEntity?.IP || '' }}</span>
+              <span class="ip text-secondary" *appExpertiseLevel="'developer'">{{ node.Name }}</span>
+              <span *appExpertiseLevel="'expert'" class="text-xs text-tertiary"><br />AS{{ node.preferredEntity.ASN }} -
+                {{
+                node.preferredEntity.ASOrg ||
+                'Unknown AS'
+                }}
+              </span>
+            </li>
+
+            <li *ngIf="pin.isExit">
+              <span class="hop-icon">
+                <fa-icon far icon="dot-circle"></fa-icon>
+                <!-- TODO: use destination country flag instead if known -->
+              </span>
+              <span class="hop-title text-secondary">
+                Destinations
+              </span>
+              <!-- TODO: add destination details? (Would be duplicate information from above.) -->
+            </li>
+            <ng-template #asnTemplate let-data>
+            </ng-template>
+          </ul>
+        </div>
+      </ng-container>
+      <ng-template #notInUse>
+        <div class="text-xs text-tertiary">
+          {{
+          pin.HopDistance === 1
+          ? 'This SPN node is currently used as your HOME hub.'
+          : 'This SPN node is currently not used by any connections.'
+          }}</div>
+      </ng-template>
+    </div>
+  </div>
+
+</div>
+
+<div class="absolute top-0 right-0 z-10 mt-4 mr-4">
+  <app-expertise></app-expertise>
+</div>
+<div class="relative flex-grow h-full">
+  <div #map id="map" class="w-full h-full"></div>
+</div>

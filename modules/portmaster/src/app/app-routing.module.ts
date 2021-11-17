@@ -6,6 +6,7 @@ import { MonitorPageComponent } from './pages/monitor';
 import { AppSettingsPageComponent } from './pages/app-settings';
 import { SupportPageComponent } from './pages/support';
 import { SupportFormComponent } from './pages/support/form';
+import { SpnPageComponent } from './pages/spn';
 
 const routes: Routes = [
   {
@@ -53,6 +54,10 @@ const routes: Routes = [
   {
     path: 'support/:id',
     component: SupportFormComponent,
+  },
+  {
+    path: 'spn',
+    component: SpnPageComponent,
   },
   {
     path: '**',

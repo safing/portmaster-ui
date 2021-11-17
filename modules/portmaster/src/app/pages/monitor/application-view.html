@@ -91,6 +91,21 @@
       </span>
     </div>
   </div>
+
+  <ng-container *ngIf="profile?.processGroup?.exitNodes as exitNodes">
+    <div class="row" *appExpertiseLevel="'developer'">
+       <div class="col">
+         <span>
+           <span>Exit Nodes:</span>
+           <span>
+             <ul>
+              <li *ngFor="let nodeID of exitNodes">{{nodeID}}</li>
+             </ul>
+           </span>
+         </span>
+       </div>
+    </div>
+  </ng-container>
 </div>
 
 <app-connections-view [profile]="profile" [@fadeIn]
