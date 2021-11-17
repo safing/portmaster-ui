@@ -121,6 +121,7 @@ export class SpnPageComponent implements OnInit, OnDestroy, AfterViewInit {
   // missing initializers. That's only partly correct because they are initialized
   // after the view has been created by angular but not - as tslint checks - in the
   // constructor.
+  private svg: Selection<SVGSVGElement, unknown, null, undefined> = null as any;
   private worldGroup: Selection<SVGGElement, unknown, null, undefined> = null as any;
   private laneGroup: Selection<SVGGElement, unknown, null, undefined> = null as any;
   private markerGroup: Selection<SVGGElement, unknown, null, undefined> = null as any;
@@ -337,6 +338,10 @@ export class SpnPageComponent implements OnInit, OnDestroy, AfterViewInit {
     this.destroy$.complete();
     this.pins$.complete();
     this.selectedPins$.complete();
+
+    if (!!this.svg) {
+      this.svg.remove();
+    }
   }
 
   /** We need angular to have initialized our view before we can start rendering the map */
@@ -473,12 +478,15 @@ export class SpnPageComponent implements OnInit, OnDestroy, AfterViewInit {
 
     const map = select(this.mapElement.nativeElement);
     const width = map.node()!.getBoundingClientRect().width;
-    const height = map.node()!.parentElement!.getBoundingClientRect().height;
+    const height = window.innerHeight;
+
 
     const projection = geoMercator()
       .rotate([rotate, 0])
       .scale(1)
       .translate([width / 2, height / 2]);
+
+    console.log(width, height);
 
     // returns the top-left and the bottom-right of the current projection
     const mercatorBounds = () => {
@@ -513,7 +521,7 @@ export class SpnPageComponent implements OnInit, OnDestroy, AfterViewInit {
 
     // create the SVG that will hold the complete
     // visualization
-    const svg = map
+    this.svg = map
       .append('svg')
       .attr("xmlns", "http://www.w3.org/2000/svg")
       .attr('width', '100%')
@@ -521,20 +529,20 @@ export class SpnPageComponent implements OnInit, OnDestroy, AfterViewInit {
       .attr('height', '100%')
       .classed('show-active', true);
 
-    svg.append('circle')
+    this.svg.append('circle')
       .attr('class', 'mouse')
       .attr('r', 2)
       .attr('fill', '#fff')
 
     // clicking the SVG or anything that does not have a dedicated
     // click listener resets the currently selected pin:
-    svg.on('click', () => this.selectedPins$.next([]));
+    this.svg.on('click', () => this.selectedPins$.next([]));
 
     // create a group element for our world data, our markers and the
     // lanes between them.
-    this.worldGroup = svg.append('g').attr('id', 'world-group');
-    this.laneGroup = svg.append('g').attr('id', 'lane-group');
-    this.markerGroup = svg.append('g').attr('id', 'marker-group');
+    this.worldGroup = this.svg.append('g').attr('id', 'world-group');
+    this.laneGroup = this.svg.append('g').attr('id', 'lane-group');
+    this.markerGroup = this.svg.append('g').attr('id', 'marker-group');
 
     combineLatest([
       this.renderLines$,
@@ -656,9 +664,8 @@ export class SpnPageComponent implements OnInit, OnDestroy, AfterViewInit {
       .append('path');
 
     // apply the zoom listeners to the whole SVG.
-    svg.call(z as any);
-
-    svg.call(z.transform as any, transform);
+    this.svg.call(z as any);
+    this.svg.call(z.transform as any, transform);
 
     // selectPin always emits when the user selects a pin on either
     // the map or through a exit-node on the left.
