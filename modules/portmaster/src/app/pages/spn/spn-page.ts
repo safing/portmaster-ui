@@ -1,4 +1,4 @@
-import { AfterViewInit, ChangeDetectorRef, Component, ElementRef, OnDestroy, OnInit, TrackByFunction, ViewChild } from "@angular/core";
+import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, OnDestroy, OnInit, TrackByFunction, ViewChild } from "@angular/core";
 import { curveBasis, geoMercator, geoPath, interpolateString, json, line, pointer, select, Selection, zoom, zoomIdentity, ZoomTransform } from 'd3';
 import { BehaviorSubject, combineLatest, interval, Observable, of, Subject } from "rxjs";
 import { debounceTime, distinctUntilChanged, map, mergeMap, startWith, switchMap, takeUntil, withLatestFrom } from "rxjs/operators";
@@ -30,6 +30,7 @@ type Line = [_PinModel, _PinModel];
 @Component({
   templateUrl: './spn-page.html',
   styleUrls: ['./spn-page.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SpnPageComponent implements OnInit, OnDestroy, AfterViewInit {
   private destroy$ = new Subject();
@@ -306,7 +307,7 @@ export class SpnPageComponent implements OnInit, OnDestroy, AfterViewInit {
    * 
    * @private - template only
    */
-  selectTransitNodes() {
+  selectTransitNodes(event: MouseEvent) {
     // search for all transit pins in the current pin map
     let pinIDs: string[] = [];
     for (let pin of this.pins$.getValue().values()) {
@@ -314,7 +315,11 @@ export class SpnPageComponent implements OnInit, OnDestroy, AfterViewInit {
         pinIDs.push(pin.ID)
       }
     }
-    this.selectedPins$.next(pinIDs);
+    if (event.shiftKey) {
+      this.selectedPins$.next([...pinIDs, ...this.selectedPins$.getValue()]);
+    } else {
+      this.selectedPins$.next(pinIDs);
+    }
   }
 
   /**
@@ -322,7 +327,7 @@ export class SpnPageComponent implements OnInit, OnDestroy, AfterViewInit {
    * 
    * @private - template only
    */
-  selectExitNodes() {
+  selectExitNodes(event: MouseEvent) {
     // search for all exit pins in the current pin map
     let pinIDs: string[] = [];
     for (let pin of this.pins$.getValue().values()) {
@@ -330,7 +335,11 @@ export class SpnPageComponent implements OnInit, OnDestroy, AfterViewInit {
         pinIDs.push(pin.ID)
       }
     }
-    this.selectedPins$.next(pinIDs);
+    if (event.shiftKey) {
+      this.selectedPins$.next([...pinIDs, ...this.selectedPins$.getValue()]);
+    } else {
+      this.selectedPins$.next(pinIDs);
+    }
   }
 
   ngOnDestroy() {
@@ -351,18 +360,31 @@ export class SpnPageComponent implements OnInit, OnDestroy, AfterViewInit {
 
   /**
    * Marks a process group as selected and either selects one or all exit pins
-   * of that group.
+   * of that group. If shiftKey is pressed during click, the ID(s) will be added
+   * to the list of selected pins instead of replacing it. If shiftKey is pressed
+   * the process group itself will NOT be displayed as selected.
    * 
    * @private - template only
    */
-  selectGroup(grp: _ProcessGroupModel, pin?: _PinModel) {
+  selectGroup(grp: _ProcessGroupModel, pin?: _PinModel | null, event?: MouseEvent) {
+    const shiftKey = !!event && event.shiftKey;
     this.selectedProcessGroup = '';
     if (!!pin) {
-      this.selectedPins$.next([pin.ID]);
+      if (!!shiftKey) {
+        this.selectedPins$.next([pin.ID, ...this.selectedPins$.getValue()]);
+      } else {
+        this.selectedPins$.next([pin.ID]);
+      }
       return;
     }
-    this.selectedPins$.next(grp.exitPins.map(p => p.ID));
-    this.selectedProcessGroup = grp.process.ID;
+
+    const newIDs = grp.exitPins.map(p => p.ID);
+    if (shiftKey) {
+      this.selectedPins$.next([...newIDs, ...this.selectedPins$.getValue()]);
+    } else {
+      this.selectedProcessGroup = grp.process.ID;
+      this.selectedPins$.next(newIDs);
+    }
   }
 
   /**
@@ -588,6 +610,8 @@ export class SpnPageComponent implements OnInit, OnDestroy, AfterViewInit {
       this.markerGroup.selectAll<SVGGElement, _PinModel>('g[hub-id]')
         .call(d => this.updateHubData(d))
         .attr('transform', d => `translate(${projection([d.preferredLocation.Longitude, d.preferredLocation.Latitude])})`)
+
+      this.cdr.markForCheck();
     })
 
     // whenever the users zooms we need to update our groups
@@ -603,8 +627,6 @@ export class SpnPageComponent implements OnInit, OnDestroy, AfterViewInit {
         const t: ZoomTransform = e.transform;
 
         if (t.k != tlast.k) {
-
-
           let p = pointer(e)
           let scrollToMouse = () => { };
 
