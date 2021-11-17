@@ -674,7 +674,7 @@ export class SpnPageComponent implements OnInit, OnDestroy, AfterViewInit {
 
 
     // load the world-map data and start rendering
-    const world = await json<any>('assets/world-50m.json');
+    const world = await json<any>('/assets/world-50m.json');
 
     // actually render the countries
     const data = (feature(world, world.objects.countries) as any).features;
