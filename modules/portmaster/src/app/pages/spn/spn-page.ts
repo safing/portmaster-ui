@@ -1,10 +1,14 @@
-import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, OnDestroy, OnInit, TrackByFunction, ViewChild } from "@angular/core";
+import { TemplatePortal } from "@angular/cdk/portal";
+import { HttpErrorResponse } from "@angular/common/http";
+import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, OnDestroy, OnInit, TemplateRef, TrackByFunction, ViewChild, ViewContainerRef } from "@angular/core";
 import { curveBasis, geoMercator, geoPath, interpolateString, json, line, pointer, select, Selection, zoom, zoomIdentity, ZoomTransform } from 'd3';
 import { BehaviorSubject, combineLatest, interval, Observable, of, Subject } from "rxjs";
-import { debounceTime, distinctUntilChanged, map, mergeMap, startWith, switchMap, takeUntil, withLatestFrom } from "rxjs/operators";
-import { ConfigService, ExpertiseLevel, GeoCoordinates, UnknownLocation, IntelEntity, SPNService } from "src/app/services";
+import { catchError, debounceTime, distinctUntilChanged, finalize, map, mergeMap, startWith, switchMap, takeUntil, tap, withLatestFrom } from "rxjs/operators";
+import { ConfigService, ExpertiseLevel, GeoCoordinates, IntelEntity, SPNService, UnknownLocation } from "src/app/services";
 import { ConnTracker, ProcessGroup } from "src/app/services/connection-tracker.service";
-import { getPinCoords, Pin, SPNStatus } from "src/app/services/spn.types";
+import { getPinCoords, Pin, SPNStatus, UserProfile } from "src/app/services/spn.types";
+import { ActionIndicatorService } from "src/app/shared/action-indicator";
+import { DialogRef, DialogService } from "src/app/shared/dialog";
 import { ExpertiseService } from "src/app/shared/expertise/expertise.service";
 import { feature } from 'topojson-client';
 
@@ -37,6 +41,18 @@ export class SpnPageComponent implements OnInit, OnDestroy, AfterViewInit {
 
   @ViewChild('map', { read: ElementRef, static: true })
   mapElement: ElementRef<HTMLDivElement> | null = null;
+
+  @ViewChild('accountDetails', { read: TemplateRef, static: true })
+  accountDetails: TemplateRef<any> | null = null;
+
+  /** currentUser holds the current SPN user profile if any */
+  currentUser: UserProfile | null = null;
+
+  /** loginModel holds login information */
+  loginModel = {
+    username: '',
+    password: '',
+  }
 
   /**
    * activeSince holds the pre-formatted duration since the SPN is active
@@ -89,11 +105,17 @@ export class SpnPageComponent implements OnInit, OnDestroy, AfterViewInit {
     failed: 'Failure'
   }
 
+  /** dialogRef holds the reference to our account details dialog */
+  private dialogRef: DialogRef<any> | null = null;
+
   /** flagDir holds the path to the flag assets */
   private readonly flagDir = '/assets/img/flags';
 
   /** activeLanes holds a list of active lanes */
   private activeLanes = new Set<string>();
+
+  /** reloadUser$ emits when we should reload the current SPN user. */
+  private reloadUser$ = new BehaviorSubject<void>(undefined);
 
   /** pins$ emits all our map and SPN pins whenever the change */
   private pins$ = new BehaviorSubject<Map<string, _PinModel>>(new Map());
@@ -144,6 +166,9 @@ export class SpnPageComponent implements OnInit, OnDestroy, AfterViewInit {
     private configService: ConfigService,
     private spnService: SPNService,
     private expertiseService: ExpertiseService,
+    private uai: ActionIndicatorService,
+    private dialog: DialogService,
+    private viewRef: ViewContainerRef,
     private cdr: ChangeDetectorRef
   ) {
     // activeProfiles emits a list of process groups from the connection tracker
@@ -169,6 +194,41 @@ export class SpnPageComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   ngOnInit() {
+    // watch the current user profile
+    let last = -1;
+    const repeat$ = interval(5000)
+      .pipe(startWith(-1))
+    combineLatest([repeat$, this.reloadUser$])
+      .pipe(
+        takeUntil(this.destroy$),
+        switchMap(([i]) => {
+          const refresh = last === i;
+          last = i;
+          return this.spnService.userProfile(refresh)
+            .pipe(
+              catchError(err => {
+                if (err instanceof HttpErrorResponse) {
+                  console.log(`Failed to get SPN user profile. status=${err.status} message=${err.message} error=${err.error}`)
+                } else {
+                  console.error(`Failed to get SPN user profile:`, err)
+                }
+                return of(null as (UserProfile | null))
+              }),
+            );
+        }),
+      )
+      .subscribe(user => {
+        console.log(`[DEBUG] got current SPN user profile:`, user);
+        this.currentUser = user;
+        this.cdr.markForCheck();
+        if (user === null) {
+          if (!!this.dialogRef) {
+            this.dialogRef.close();
+          }
+        }
+
+      });
+
     // subscribe to the SPN runtime status and re-calculate/format activeSince every second
     combineLatest([this.spnService.status$, interval(1000).pipe(startWith(-1))])
       .pipe(takeUntil(this.destroy$))
@@ -274,9 +334,52 @@ export class SpnPageComponent implements OnInit, OnDestroy, AfterViewInit {
 
   }
 
-  /** 
+  login() {
+    if (!this.loginModel.username || !this.loginModel.password) {
+      return;
+    }
+
+    this.spnService.login(this.loginModel)
+      .pipe(finalize(() => {
+        this.reloadUser$.next();
+        this.loginModel.password = '';
+      }))
+      .subscribe(this.uai.httpObserver('SPN Login', 'SPN Login'))
+  }
+
+  logout() {
+    this.spnService.logout()
+      .pipe(finalize(() => this.reloadUser$.next()))
+      .subscribe(this.uai.httpObserver('SPN Logout', 'SPN Logout'))
+  }
+
+  showAccountDetails() {
+    if (!this.accountDetails) {
+      return;
+    }
+
+    if (!!this.dialogRef) {
+      return;
+    }
+
+    const portal = new TemplatePortal(this.accountDetails, this.viewRef);
+    this.dialogRef = this.dialog.create(portal, {
+      autoclose: true,
+      backdrop: 'light',
+    });
+    this.dialogRef.onClose.subscribe(() => this.dialogRef = null);
+  }
+
+  closeDialog() {
+    if (!this.dialogRef) {
+      return;
+    }
+    this.dialogRef.close();
+  }
+
+  /**
    * Either toggle the selection of a given pin or clear the complete selection.
-   * 
+   *
    * @private - template only
    */
   clearSelection(id = '') {
@@ -290,7 +393,7 @@ export class SpnPageComponent implements OnInit, OnDestroy, AfterViewInit {
   /**
    * Toggle the spn/enable setting. This does NOT update the view as that
    * will happen as soon as we get an update from the db qsub.
-   * 
+   *
    * @private - template only
    */
   toggleSPN() {
@@ -304,7 +407,7 @@ export class SpnPageComponent implements OnInit, OnDestroy, AfterViewInit {
 
   /**
    * Select all pins that are used for transit.
-   * 
+   *
    * @private - template only
    */
   selectTransitNodes(event: MouseEvent) {
@@ -324,7 +427,7 @@ export class SpnPageComponent implements OnInit, OnDestroy, AfterViewInit {
 
   /**
    * Select all pins that are used as an exit hub.
-   * 
+   *
    * @private - template only
    */
   selectExitNodes(event: MouseEvent) {
@@ -363,7 +466,7 @@ export class SpnPageComponent implements OnInit, OnDestroy, AfterViewInit {
    * of that group. If shiftKey is pressed during click, the ID(s) will be added
    * to the list of selected pins instead of replacing it. If shiftKey is pressed
    * the process group itself will NOT be displayed as selected.
-   * 
+   *
    * @private - template only
    */
   selectGroup(grp: _ProcessGroupModel, pin?: _PinModel | null, event?: MouseEvent) {
@@ -390,7 +493,7 @@ export class SpnPageComponent implements OnInit, OnDestroy, AfterViewInit {
   /**
    * Called from the template when a exit pin is hovered or unhovered in the process list or on
    * the map.
-   * 
+   *
    * @private - template only
    */
   exitNodeHover(pin: _PinModel, enter: boolean) {

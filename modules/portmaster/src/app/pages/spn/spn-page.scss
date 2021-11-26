@@ -11,9 +11,11 @@
   &.spn-connected {
     @apply bg-info-blue;
   }
+
   &.spn-connecting {
     @apply bg-info-blue;
   }
+
   &.spn-failed {
     @apply bg-info-red;
   }
@@ -43,22 +45,36 @@
   }
 }
 
+.custom-form-input {
+  background: none;
+  @apply border-0 border-b border-buttons-light text-secondary font-medium px-0;
+
+  &:active,
+  &:focus {
+    background: none;
+  }
+}
+
+table tr:nth-child(odd) {
+  background: none;
+}
+
 /** TODO(ppacher): same as in ungrouped-connection-content -> make shared */
 .tunnel-path {
   position: relative;
 
   .line {
-    position        : absolute;
-    top             : 10px;
-    bottom          : 10px;
-    left            : 8px;
-    width           : 1px;
+    position: absolute;
+    top: 10px;
+    bottom: 10px;
+    left: 8px;
+    width: 1px;
     background-color: rgba(255, 255, 255, 0.1);
   }
 
 
   ul {
-    position    : relative;
+    position: relative;
     padding-left: 20px;
 
     li:not(:last-of-type) {
@@ -70,13 +86,13 @@
     }
 
     .hop-icon {
-      display     : inline-block;
-      margin-left : -17px;
+      display: inline-block;
+      margin-left: -17px;
       margin-right: 4px;
       font-weight: 400;
 
       &.country {
-        margin-left : -20px;
+        margin-left: -20px;
       }
     }
 
@@ -85,17 +101,17 @@
     }
 
     .country {
-      display     : inline-block;
-      margin-left : -20px;
+      display: inline-block;
+      margin-left: -20px;
       margin-right: 4px;
 
       &.unknown {
-        height       : 14px;
-        width        : 16px;
-        position     : relative;
-        top          : 3px;
-        border       : 1px solid rgba(0, 0, 0, 0.25);
-        opacity      : 0.5;
+        height: 14px;
+        width: 16px;
+        position: relative;
+        top: 3px;
+        border: 1px solid rgba(0, 0, 0, 0.25);
+        opacity: 0.5;
         border-radius: 3px;
         @apply bg-buttons-icon;
       }
@@ -130,11 +146,13 @@
         }
       }
 
-      g[is-home=true], g[is-exit=true] {
+      g[is-home=true],
+      g[is-exit=true] {
         circle {
           fill: theme('colors.info.blue');
           stroke: theme('colors.info.blue');
         }
+
         path {
           stroke: theme('colors.info.blue');
           fill: theme('colors.info.blue');

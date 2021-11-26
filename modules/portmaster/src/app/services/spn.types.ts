@@ -36,3 +36,30 @@ export function getPinCoords(p: Pin): GeoCoordinates | null {
   }
   return p.EntityV6?.Coordinates || null;
 }
+
+export interface Device {
+  name: string;
+  id: string;
+}
+
+export interface Subscription {
+  ends_at: string;
+  state: string;
+}
+
+export interface Plan {
+  name: string;
+  amount: number;
+  months: number;
+  renewable: boolean;
+}
+export interface UserProfile {
+  username: string;
+  state: string;
+  balance: number;
+  device: Device | null;
+  subscription: Subscription | null;
+  current_plan: Plan | null;
+  next_plan: Plan | null;
+  LoggedInAt?: string;
+}

@@ -50,7 +50,7 @@ export class ActionIndicatorService {
    * Returns an observer that parses the HTTP API response
    * and shows a success/error action indicator.
    */
-  httpObserver(successTitle?: string, errorTitle?: string): PartialObserver<HttpResponse<ArrayBuffer>> {
+  httpObserver(successTitle?: string, errorTitle?: string): PartialObserver<HttpResponse<ArrayBuffer | string>> {
     return {
       next: resp => {
         let msg = this.getErrorMessgae(resp)
@@ -217,7 +217,7 @@ export class ActionIndicatorService {
    * Parses a HTTP or HTTP Error response and returns a
    * message that can be displayed to the user.
    */
-  getErrorMessgae(resp: HttpResponse<ArrayBuffer> | HttpErrorResponse | Error): string {
+  getErrorMessgae(resp: HttpResponse<ArrayBuffer | string> | HttpErrorResponse | Error): string {
     let msg = '';
     let body: string | null = null;
 
