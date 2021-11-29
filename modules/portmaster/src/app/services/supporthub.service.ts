@@ -17,6 +17,7 @@ export interface Issue<CreatedAt = Date> {
   url: string;
   user: string;
   closed?: boolean;
+  labels: string[];
 }
 
 @Injectable({ providedIn: 'root' })

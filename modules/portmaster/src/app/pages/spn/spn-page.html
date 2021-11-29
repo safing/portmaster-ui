@@ -1,4 +1,5 @@
-<div class="absolute top-0 bottom-0 left-0 flex flex-row items-start justify-start h-full" [class.w-full]="!currentUser">
+<div class="absolute top-0 bottom-0 left-0 flex flex-row items-start justify-start h-full"
+  [class.w-full]="!currentUser">
   <div
     class="z-10 flex flex-col justify-center flex-grow-0 flex-shrink-0 h-full p-2 space-y-4 border-r border-opacity-50 backdrop-filter backdrop-blur-sm custom-background border-buttons-dark"
     style="min-width: 16rem;">
@@ -38,7 +39,8 @@
             for {{ activeSince }}
           </ng-container>
           <span>
-            <span (click)="showAccountDetails()" class="underline cursor-pointer">
+            <span (click)="showAccountDetails()" class="underline cursor-pointer"
+              [class.text-info-red]="currentUser?.state !== 'approved'">
               Account Details
             </span>
             -
@@ -71,27 +73,32 @@
       <ng-template #loginView>
         <!-- login View -->
         <div class="w-full px-5">
-          <span class="inline-block w-full mb-4 text-xs font-medium text-center text-tertiary">
-            It's time to unleash the beast!
-          </span>
+          <a class="inline-block w-full mb-4 text-xs font-medium text-center text-tertiary" href="https://safing.io/spn"
+            target="_blank">
+            Unlock the <u>powerful VPN alternative</u>
+          </a>
 
           <div class="flex flex-col items-stretch mt-4 space-y-6">
             <div class="flex flex-col justify-items-start">
               <label for="username" class="font-semibold text-primary">Username</label>
-              <input type="text" name="username" placeholder="Your username" class="custom-form-input" [(ngModel)]="loginModel.username">
+              <input type="text" name="username" placeholder="Your username" autocomplete="off"
+                class="custom-form-input" [(ngModel)]="loginModel.username">
             </div>
 
             <div class="flex flex-col justify-items-start">
               <label for="password" class="font-semibold text-primary">Password</label>
-              <input type="password" name="password" placeholder="Enter your strong password" class="custom-form-input" [(ngModel)]="loginModel.password">
+              <input type="password" name="password" placeholder="Enter your strong password" autocomplete="off"
+                class="custom-form-input" [(ngModel)]="loginModel.password">
             </div>
 
             <div>
-              <button class="connect-button relative w-full p-2 bg-opacity-75 rounded-full spn-{{ spnStatus!.Status }} text-primary" (click)="login()">
+              <button
+                class="connect-button relative w-full p-2 bg-opacity-75 rounded-full spn-{{ spnStatus!.Status }} text-primary"
+                (click)="login()">
                 SIGN IN
               </button>
               <div class="w-full mt-6 text-xs font-semibold text-center text-tertiary">
-                <span>Have no account? <a href="https://account.safing.io">Sign Up</a></span>
+                <span>Have no account? <a class="underline" href="https://account.safing.io">Sign Up</a></span>
               </div>
             </div>
           </div>
@@ -101,8 +108,8 @@
 
     <!-- Process and Exit node list -->
     <div class="flex flex-col flex-grow overflow-hidden">
-      <ng-container  *ngIf="!!currentUser; else: whatsNewView">
-        <ng-container *ngIf="spnStatus?.Status !== 'disabled'">
+      <ng-container *ngIf="!!currentUser; else: whatsNewView">
+        <ng-container *ngIf="spnStatus?.Status !== 'disabled'; else: whatsNewView">
           <h2 class="ml-0">App Routes</h2>
           <div class="flex-grow overflow-auto select-none">
             <ul>
@@ -133,22 +140,42 @@
 
       <ng-template #whatsNewView>
         <!-- What's new on the SPN -->
-        <div class="flex items-center justify-items-center">
+        <div class="flex items-center mb-4 justify-items-center">
           <h4 class="mr-4">What's New?</h4>
           <span class="flex-grow inline-block border-b border-buttons-light"></span>
         </div>
 
 
+        <div class="issue-list">
+          <ul [@fadeInList]="spnIssues.slice(0, 8).length">
+            <li *ngFor="let issue of spnIssues.slice(0, 8); trackBy: trackIssue"
+              (click)="issue.expanded = !issue.expanded" class="issue">
+              <div class="header">
+                <span class="title">{{ issue.title }}</span>
+                <span class="meta">{{ issue.closed ? 'closed' : 'opened'}} by <u>{{ issue.user }}</u>
+                  {{
+                  issue.createdAt | timeAgo
+                  }}</span>
+              </div>
+              <markdown *ngIf="issue.expanded" class="body" emoji [data]="issue.body"></markdown>
+              <fa-icon icon="external-link-alt" (click)="openIssue(issue)"></fa-icon>
+            </li>
+          </ul>
+        </div>
+
       </ng-template>
     </div>
   </div>
 
-  <div class="z-10 flex flex-col items-center justify-center flex-grow h-full backdrop-filter backdrop-blur-sm custom-background" *ngIf="!currentUser">
-    <h1 class="text-4xl text-primary">Onion Layer Encryption</h1>
+  <div
+    class="z-10 flex flex-col items-center justify-center flex-grow h-full backdrop-filter backdrop-blur-sm custom-background"
+    *ngIf="!currentUser">
+    <img src="/assets/img/spn-login.png" width="250">
+    <h1 class="mt-4 text-4xl text-primary">Be Everywhere at Once</h1>
     <h2 class="text-base text-center text-secondary">
-      Re-route all your connections through our multi-hop network
-      <br>
-      to decouple your identity from the destination.
+      Protect your IP address with local onion-encryption.
+      <br />
+      Spread your connections across the globe instead of re-routing your connections to only one server.
     </h2>
   </div>
 
@@ -231,50 +258,76 @@
   <div #map id="map" class="w-full h-full"></div>
 </div>
 
+<!--
+  Dialog showing account details
+-->
 <ng-template #accountDetails>
   <h1 class="mb-4 text-xl">Account Details</h1>
+
+  <div *ngIf="currentUser?.state === 'loggedout'" class="w-full px-4 py-2 mb-4 text-center rounded bg-info-red">
+    You have been logged out by the account server.
+    <br />
+    Please check <a class="underline text-primary" href="https://account.safing.io">your account</a>.
+  </div>
+
   <table *ngIf="!!currentUser" class="mb-4">
+
     <tr>
-      <th>User</th>
+      <th>Username</th>
       <td>{{ currentUser.username }} </td>
     </tr>
     <tr>
       <th>Balance</th>
       <td>{{ currentUser.balance / 100 | currency:'EUR' }} </td>
     </tr>
+
+    <ng-container *ngIf="currentUser.state === 'approved'">
+      <ng-container *ngIf="isFreeDecember; else: currentPlan">
+        <tr>
+          <th>Current Plan</th>
+          <td>Free in December</td>
+        </tr>
+      </ng-container>
+
+      <ng-template #currentPlan>
+        <ng-container *ngIf="currentUser.current_plan as plan">
+          <tr>
+            <th>Current Plan</th>
+            <td>{{ plan.name }}</td>
+          </tr>
+        </ng-container>
+      </ng-template>
+    </ng-container>
+
     <tr>
-      <th>State</th>
-      <td>{{ currentUser.state }} </td>
+      <th>Subscription ends at</th>
+      <td>{{ currentUser.subscription?.ends_at | date:'medium' }}</td>
     </tr>
+
     <tr>
-      <th>Device-Name</th>
-      <td>{{ currentUser.device?.name }} ({{currentUser.device?.id}})</td>
+      <th>Device Name</th>
+      <td>{{ currentUser.device?.name }}</td>
     </tr>
-    <tr>
-      <th>Subscription</th>
-      <td>{{ currentUser.subscription?.ends_at }} ({{currentUser.subscription?.state}})</td>
+    <tr *appExpertiseLevel="'developer'">
+      <th>Device ID</th>
+      <td>{{currentUser.device?.id}}</td>
     </tr>
     <tr>
       <th>Logged in since</th>
-      <td>{{ currentUser.LoggedInAt | date }} </td>
+      <td>{{ currentUser.LoggedInAt | date:'medium' }} </td>
     </tr>
-    <ng-container *ngIf="currentUser.current_plan as plan">
-      <tr>
-        <th>Current Plan</th>
-        <td>{{ plan.name }}</td>
-      </tr>
-    </ng-container>
-
-    <ng-container *ngIf="currentUser.next_plan as plan">
-      <tr>
-        <th>Next Plan</th>
-        <td>{{ plan.name }}</td>
-      </tr>
-    </ng-container>
   </table>
 
   <div class="flex items-end justify-end w-full space-x-2">
     <button (click)="logout()" class="bg-info-red">Logout</button>
-    <button (click)="closeDialog()" >Close</button>
+    <button (click)="refreshAccount()" style="width: 70px">
+      <ng-container *ngIf="!refreshing; else: loading">
+        Refresh
+      </ng-container>
+      <ng-template #loading>
+        <fa-icon icon="spinner" [spin]="true"></fa-icon>
+      </ng-template>
+    </button>
+    <button (click)="closeDialog()">Close</button>
   </div>
 </ng-template>

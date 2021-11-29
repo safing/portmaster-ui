@@ -53,7 +53,7 @@ export interface Plan {
   months: number;
   renewable: boolean;
 }
-export interface UserProfile {
+export interface UserProfile extends Record {
   username: string;
   state: string;
   balance: number;

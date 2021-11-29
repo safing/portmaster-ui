@@ -77,4 +77,11 @@ export class SPNService {
       params
     });
   }
+
+  /**
+   * Watches the user profile
+   */
+  watchProfile(): Observable<UserProfile> {
+    return this.portapi.watch<UserProfile>('core:spn/account/user');
+  }
 }

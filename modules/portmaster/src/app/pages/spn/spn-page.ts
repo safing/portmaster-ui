@@ -3,11 +3,12 @@ import { HttpErrorResponse } from "@angular/common/http";
 import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, OnDestroy, OnInit, TemplateRef, TrackByFunction, ViewChild, ViewContainerRef } from "@angular/core";
 import { curveBasis, geoMercator, geoPath, interpolateString, json, line, pointer, select, Selection, zoom, zoomIdentity, ZoomTransform } from 'd3';
 import { BehaviorSubject, combineLatest, interval, Observable, of, Subject } from "rxjs";
-import { catchError, debounceTime, distinctUntilChanged, finalize, map, mergeMap, startWith, switchMap, takeUntil, tap, withLatestFrom } from "rxjs/operators";
-import { ConfigService, ExpertiseLevel, GeoCoordinates, IntelEntity, SPNService, UnknownLocation } from "src/app/services";
+import { catchError, debounceTime, delay, distinctUntilChanged, finalize, map, mergeMap, startWith, switchMap, take, takeUntil, tap, withLatestFrom } from "rxjs/operators";
+import { ConfigService, ExpertiseLevel, GeoCoordinates, IntelEntity, Issue, SPNService, SupportHubService, UnknownLocation } from "src/app/services";
 import { ConnTracker, ProcessGroup } from "src/app/services/connection-tracker.service";
 import { getPinCoords, Pin, SPNStatus, UserProfile } from "src/app/services/spn.types";
 import { ActionIndicatorService } from "src/app/shared/action-indicator";
+import { fadeInListAnimation } from "src/app/shared/animations";
 import { DialogRef, DialogService } from "src/app/shared/dialog";
 import { ExpertiseService } from "src/app/shared/expertise/expertise.service";
 import { feature } from 'topojson-client';
@@ -31,10 +32,23 @@ interface _ProcessGroupModel {
 
 type Line = [_PinModel, _PinModel];
 
+/** The name of the SPN repository used to filter SPN support hub issues. */
+const SPNRepository = "spn";
+
+/** A set of issue labels that are eligible to be displayed */
+const SPNTagSet = new Set<string>(["network status"])
+
+interface _Issue extends Issue {
+  expanded: boolean;
+}
+
 @Component({
   templateUrl: './spn-page.html',
   styleUrls: ['./spn-page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  animations: [
+    fadeInListAnimation,
+  ]
 })
 export class SpnPageComponent implements OnInit, OnDestroy, AfterViewInit {
   private destroy$ = new Subject();
@@ -44,6 +58,8 @@ export class SpnPageComponent implements OnInit, OnDestroy, AfterViewInit {
 
   @ViewChild('accountDetails', { read: TemplateRef, static: true })
   accountDetails: TemplateRef<any> | null = null;
+
+  readonly isFreeDecember = new Date().getTime() < new Date(2022, 1, 1, 0, 0, 0).getTime();
 
   /** currentUser holds the current SPN user profile if any */
   currentUser: UserProfile | null = null;
@@ -94,6 +110,15 @@ export class SpnPageComponent implements OnInit, OnDestroy, AfterViewInit {
   /** Status is the current SPN status */
   spnStatus: SPNStatus | null = null;
 
+  /** spnIssues holds github issues from the SPN repository */
+  spnIssues: _Issue[] = [];
+
+  /** Whether or not we're currently refreshing the user profile from the customer agent */
+  refreshing = false;
+
+  /** trackIssue is used as a track-by function when rendering SPN issues. */
+  trackIssue: TrackByFunction<Issue> = (_: number, issue: Issue) => issue.url;
+
   /**
    * spnStatusTranslation translates the spn status to the text that is displayed
    * at the view
@@ -113,9 +138,6 @@ export class SpnPageComponent implements OnInit, OnDestroy, AfterViewInit {
 
   /** activeLanes holds a list of active lanes */
   private activeLanes = new Set<string>();
-
-  /** reloadUser$ emits when we should reload the current SPN user. */
-  private reloadUser$ = new BehaviorSubject<void>(undefined);
 
   /** pins$ emits all our map and SPN pins whenever the change */
   private pins$ = new BehaviorSubject<Map<string, _PinModel>>(new Map());
@@ -169,6 +191,7 @@ export class SpnPageComponent implements OnInit, OnDestroy, AfterViewInit {
     private uai: ActionIndicatorService,
     private dialog: DialogService,
     private viewRef: ViewContainerRef,
+    private supportHub: SupportHubService,
     private cdr: ChangeDetectorRef
   ) {
     // activeProfiles emits a list of process groups from the connection tracker
@@ -194,40 +217,49 @@ export class SpnPageComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   ngOnInit() {
-    // watch the current user profile
-    let last = -1;
-    const repeat$ = interval(5000)
-      .pipe(startWith(-1))
-    combineLatest([repeat$, this.reloadUser$])
+    interval(5 * 60 * 1000)
       .pipe(
+        startWith(-1),
         takeUntil(this.destroy$),
-        switchMap(([i]) => {
-          const refresh = last === i;
-          last = i;
-          return this.spnService.userProfile(refresh)
-            .pipe(
-              catchError(err => {
-                if (err instanceof HttpErrorResponse) {
-                  console.log(`Failed to get SPN user profile. status=${err.status} message=${err.message} error=${err.error}`)
-                } else {
-                  console.error(`Failed to get SPN user profile:`, err)
-                }
-                return of(null as (UserProfile | null))
-              }),
-            );
-        }),
+        switchMap(() => this.supportHub.loadIssues()),
+        map(issues => {
+          return issues
+            .filter(issue => issue.repository === SPNRepository && issue.labels?.some(l => {
+              return SPNTagSet.has(l);
+            }))
+            .reverse()
+        })
       )
-      .subscribe(user => {
-        console.log(`[DEBUG] got current SPN user profile:`, user);
-        this.currentUser = user;
+      .subscribe(issues => {
+        let spnIssues: _Issue[] = issues
+          .map(i => {
+            const existing = this.spnIssues.find(existing => existing.url === i.url);
+            return {
+              ...i,
+              expanded: existing !== undefined ? existing.expanded : false
+            }
+          })
+        this.spnIssues = spnIssues;
         this.cdr.markForCheck();
-        if (user === null) {
+      })
+
+    this.spnService
+      .watchProfile()
+      .pipe(
+        takeUntil(this.destroy$)
+      )
+      .subscribe((user: UserProfile) => {
+        if (user.state === '') {
+          this.currentUser = null;
           if (!!this.dialogRef) {
             this.dialogRef.close();
           }
+        } else {
+          this.currentUser = user;
         }
 
-      });
+        this.cdr.markForCheck();
+      })
 
     // subscribe to the SPN runtime status and re-calculate/format activeSince every second
     combineLatest([this.spnService.status$, interval(1000).pipe(startWith(-1))])
@@ -315,7 +347,6 @@ export class SpnPageComponent implements OnInit, OnDestroy, AfterViewInit {
           })
         })
 
-
         // reset our counters as we will rebuild them now.
         this.countTransitNodes = 0;
         this.countExitNodes = 0;
@@ -334,6 +365,29 @@ export class SpnPageComponent implements OnInit, OnDestroy, AfterViewInit {
 
   }
 
+  /**
+   * Force a refresh of the local user account
+   *
+   * @private - template only
+   */
+  refreshAccount() {
+    this.refreshing = true;
+    this.spnService.userProfile(true)
+      .pipe(
+        delay(1000),
+        tap(() => {
+          this.refreshing = false;
+          this.cdr.markForCheck();
+        }),
+      )
+      .subscribe()
+  }
+
+  /**
+   * Log into the safing account for SPN usage
+   *
+   * @private - template only
+   */
   login() {
     if (!this.loginModel.username || !this.loginModel.password) {
       return;
@@ -341,18 +395,26 @@ export class SpnPageComponent implements OnInit, OnDestroy, AfterViewInit {
 
     this.spnService.login(this.loginModel)
       .pipe(finalize(() => {
-        this.reloadUser$.next();
         this.loginModel.password = '';
       }))
       .subscribe(this.uai.httpObserver('SPN Login', 'SPN Login'))
   }
 
+  /**
+   * Logout of your safing account
+   *
+   * @private - template only
+   */
   logout() {
     this.spnService.logout()
-      .pipe(finalize(() => this.reloadUser$.next()))
       .subscribe(this.uai.httpObserver('SPN Logout', 'SPN Logout'))
   }
 
+  /**
+   * Show the account details dialog
+   *
+   * @private - template only
+   */
   showAccountDetails() {
     if (!this.accountDetails) {
       return;
@@ -370,11 +432,29 @@ export class SpnPageComponent implements OnInit, OnDestroy, AfterViewInit {
     this.dialogRef.onClose.subscribe(() => this.dialogRef = null);
   }
 
+  /**
+   * Clsoe the account details dialog
+   *
+   * @private - template only
+   */
   closeDialog() {
     if (!this.dialogRef) {
       return;
     }
     this.dialogRef.close();
+  }
+
+  /**
+   * Open a github issue in a new tab/window
+   *
+   * @private - template only
+   */
+  openIssue(issue: Issue) {
+    if (!!window.app) {
+      window.app.openExternal(issue.url);
+      return;
+    }
+    window.open(issue.url, '__blank')
   }
 
   /**

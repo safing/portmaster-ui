@@ -3,7 +3,11 @@
 }
 
 .custom-background {
-  background-color: #121213bb;
+  background-color: #12121380;
+}
+
+.text-info-red {
+  color: theme("colors.info.red");
 }
 
 .connect-button {
@@ -57,6 +61,76 @@
 
 table tr:nth-child(odd) {
   background: none;
+}
+
+.issue-list {
+  width: 350px;
+
+  &,
+  ul {
+    overflow-y: auto;
+  }
+
+  .issue {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    cursor: pointer;
+    @apply mx-2;
+
+    .header {
+      @apply p-4;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      justify-content: center;
+      cursor: pointer;
+    }
+
+    @apply rounded;
+    @apply bg-cards-primary;
+
+    .title {
+      @apply mr-4;
+    }
+
+    span {
+      word-break: keep-all;
+    }
+
+    &:not(:last-child) {
+      margin-bottom: 0.5rem;
+    }
+
+    .body {
+      @apply bg-cards-secondary;
+      @apply rounded-b;
+      @apply p-4;
+    }
+
+    .meta {
+      @apply text-tertiary;
+      @apply font-normal;
+      opacity: .7;
+      font-size: 95%;
+    }
+
+    &:hover {
+      @apply bg-cards-tertiary;
+    }
+
+    fa-icon {
+      position: absolute;
+      right: 12px;
+      top: 12px;
+      opacity: .3;
+      cursor: pointer;
+
+      &:hover {
+        opacity: 1;
+      }
+    }
+  }
 }
 
 /** TODO(ppacher): same as in ungrouped-connection-content -> make shared */
