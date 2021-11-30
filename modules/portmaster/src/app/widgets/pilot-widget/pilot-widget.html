@@ -16,7 +16,7 @@
   </svg>
   <ng-container *ngIf="(spnStatus$ | async) as status">
     <span *ngIf="status.Status !== 'disabled'" class="spn-status {{ status.Status }} w-10 h-10">
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="w-full h-full">
         <g fill="none" stroke="#ffff" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5">
           <path
             d="M19.583 4.406c.66.659.66 1.728 0 2.387s-1.729.659-2.389 0c-.66-.659-.66-1.728 0-2.387s1.729-.659 2.389 0M4.431 19.594c-.66-.659-.66-1.728 0-2.387s1.729-.659 2.389 0c.66.659.66 1.728 0 2.387s-1.73.659-2.389 0" />

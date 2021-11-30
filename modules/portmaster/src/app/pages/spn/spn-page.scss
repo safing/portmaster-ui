@@ -10,6 +10,38 @@
   color: theme("colors.info.red");
 }
 
+.whats-new-dialog {
+  width: 50vw;
+  height: 50vh;
+  min-height: 300px;
+  min-width: 300px;
+  padding: 12px;
+  overflow: auto;
+  display: flex;
+  flex-direction: column;
+
+  .issue {
+    flex-grow: 1;
+  }
+
+  .issue-list {
+    width: 100% !important;
+    flex-grow: 1;
+
+    ul {
+      overflow: auto;
+    }
+  }
+
+  .issue.expanded {
+    background-color: var(--button-light) !important;
+  }
+
+  .body {
+    background-color: var(--cards-primary) !important;
+  }
+}
+
 .connect-button {
 
   &.spn-connected {

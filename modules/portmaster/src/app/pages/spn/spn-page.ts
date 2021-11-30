@@ -1,9 +1,9 @@
 import { TemplatePortal } from "@angular/cdk/portal";
-import { HttpErrorResponse } from "@angular/common/http";
+import { ThrowStmt } from "@angular/compiler";
 import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, OnDestroy, OnInit, TemplateRef, TrackByFunction, ViewChild, ViewContainerRef } from "@angular/core";
 import { curveBasis, geoMercator, geoPath, interpolateString, json, line, pointer, select, Selection, zoom, zoomIdentity, ZoomTransform } from 'd3';
 import { BehaviorSubject, combineLatest, interval, Observable, of, Subject } from "rxjs";
-import { catchError, debounceTime, delay, distinctUntilChanged, finalize, map, mergeMap, startWith, switchMap, take, takeUntil, tap, withLatestFrom } from "rxjs/operators";
+import { debounceTime, delay, distinctUntilChanged, finalize, map, mergeMap, startWith, switchMap, take, takeUntil, tap, withLatestFrom } from "rxjs/operators";
 import { ConfigService, ExpertiseLevel, GeoCoordinates, IntelEntity, Issue, SPNService, SupportHubService, UnknownLocation } from "src/app/services";
 import { ConnTracker, ProcessGroup } from "src/app/services/connection-tracker.service";
 import { getPinCoords, Pin, SPNStatus, UserProfile } from "src/app/services/spn.types";
@@ -58,6 +58,9 @@ export class SpnPageComponent implements OnInit, OnDestroy, AfterViewInit {
 
   @ViewChild('accountDetails', { read: TemplateRef, static: true })
   accountDetails: TemplateRef<any> | null = null;
+
+  @ViewChild('whatsNewDialog', { read: TemplateRef, static: true })
+  whatsNewDialog: TemplateRef<any> | null = null;
 
   readonly isFreeDecember = new Date().getTime() < new Date(2022, 1, 1, 0, 0, 0).getTime();
 
@@ -130,8 +133,11 @@ export class SpnPageComponent implements OnInit, OnDestroy, AfterViewInit {
     failed: 'Failure'
   }
 
-  /** dialogRef holds the reference to our account details dialog */
-  private dialogRef: DialogRef<any> | null = null;
+  /** accountDetailsDialogRef holds the reference to our account details dialog */
+  private accountDetailsDialogRef: DialogRef<any> | null = null;
+
+  /** whatsNewDialogRef holds the reference to our what's new dialog */
+  private whatsNewDialogRef: DialogRef<any> | null = null;
 
   /** flagDir holds the path to the flag assets */
   private readonly flagDir = '/assets/img/flags';
@@ -251,8 +257,8 @@ export class SpnPageComponent implements OnInit, OnDestroy, AfterViewInit {
       .subscribe((user: UserProfile) => {
         if (user.state === '') {
           this.currentUser = null;
-          if (!!this.dialogRef) {
-            this.dialogRef.close();
+          if (!!this.accountDetailsDialogRef) {
+            this.accountDetailsDialogRef.close();
           }
         } else {
           this.currentUser = user;
@@ -362,7 +368,43 @@ export class SpnPageComponent implements OnInit, OnDestroy, AfterViewInit {
         // emit the new pin map. to any other subscribers.
         this.pins$.next(lm);
       })
+  }
 
+  /**
+   * Opens the "what's new" dialog showing network status
+   * issues from GH
+   *
+   * @private - template only
+   */
+  openWhatsNewDialog() {
+    if (!this.whatsNewDialog) {
+      return;
+    }
+
+    if (!!this.whatsNewDialogRef) {
+      return;
+    }
+
+    const portal = new TemplatePortal(this.whatsNewDialog, this.viewRef);
+    this.whatsNewDialogRef = this.dialog.create(portal, {
+      autoclose: true,
+      backdrop: true,
+    })
+    this.whatsNewDialogRef.onClose
+      .pipe(take(1))
+      .subscribe(() => this.whatsNewDialogRef = null);
+  }
+
+  /**
+   * Close the What's new dialog if it's currently displayed
+   *
+   * @private - template only
+   */
+  closeWhatsNewDialog() {
+    if (!this.whatsNewDialogRef) {
+      return;
+    }
+    this.whatsNewDialogRef.close();
   }
 
   /**
@@ -420,16 +462,16 @@ export class SpnPageComponent implements OnInit, OnDestroy, AfterViewInit {
       return;
     }
 
-    if (!!this.dialogRef) {
+    if (!!this.accountDetailsDialogRef) {
       return;
     }
 
     const portal = new TemplatePortal(this.accountDetails, this.viewRef);
-    this.dialogRef = this.dialog.create(portal, {
+    this.accountDetailsDialogRef = this.dialog.create(portal, {
       autoclose: true,
       backdrop: 'light',
     });
-    this.dialogRef.onClose.subscribe(() => this.dialogRef = null);
+    this.accountDetailsDialogRef.onClose.subscribe(() => this.accountDetailsDialogRef = null);
   }
 
   /**
@@ -438,10 +480,10 @@ export class SpnPageComponent implements OnInit, OnDestroy, AfterViewInit {
    * @private - template only
    */
   closeDialog() {
-    if (!this.dialogRef) {
+    if (!this.accountDetailsDialogRef) {
       return;
     }
-    this.dialogRef.close();
+    this.accountDetailsDialogRef.close();
   }
 
   /**
