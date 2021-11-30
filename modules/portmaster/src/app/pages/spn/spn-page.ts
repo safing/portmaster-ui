@@ -388,7 +388,7 @@ export class SpnPageComponent implements OnInit, OnDestroy, AfterViewInit {
     const portal = new TemplatePortal(this.whatsNewDialog, this.viewRef);
     this.whatsNewDialogRef = this.dialog.create(portal, {
       autoclose: true,
-      backdrop: true,
+      backdrop: 'light',
     })
     this.whatsNewDialogRef.onClose
       .pipe(take(1))
