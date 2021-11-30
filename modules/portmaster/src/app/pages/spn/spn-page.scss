@@ -10,7 +10,7 @@
   color: theme("colors.info.red");
 }
 
-.whats-new-dialog {
+.network-status-dialog {
   width: 50vw;
   height: 50vh;
   min-height: 300px;
@@ -153,14 +153,10 @@ table tr:nth-child(odd) {
 
     fa-icon {
       position: absolute;
-      right: 12px;
-      top: 12px;
-      opacity: .3;
+      right: 1rem;
+      top: 1rem;
+      opacity: .8;
       cursor: pointer;
-
-      &:hover {
-        opacity: 1;
-      }
     }
   }
 }

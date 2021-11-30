@@ -44,8 +44,8 @@
               Account Details
             </span>
             -
-            <span (click)="openWhatsNewDialog()" class="underline cursor-pointer">
-              See What's New
+            <span (click)="openNetworkStatusDialog()" class="underline cursor-pointer">
+              Network Status
             </span>
           </span>
         </span>
@@ -110,8 +110,8 @@
 
     <!-- Process and Exit node list -->
     <div class="flex flex-col flex-grow overflow-hidden">
-      <ng-container *ngIf="!!currentUser; else: whatsNewView">
-        <ng-container *ngIf="spnStatus?.Status !== 'disabled'; else: whatsNewView">
+      <ng-container *ngIf="!!currentUser; else: networkStatusView">
+        <ng-container *ngIf="spnStatus?.Status !== 'disabled'; else: networkStatusView">
           <h2 class="ml-0">App Routes</h2>
           <div class="flex-grow overflow-auto select-none">
             <ul>
@@ -308,20 +308,20 @@
   </div>
 </ng-template>
 
-<ng-template #whatsNewDialog>
-  <div class="whats-new-dialog">
-    <ng-container *ngTemplateOutlet="whatsNewView"></ng-container>
+<ng-template #networkStatusDialog>
+  <div class="network-status-dialog">
+    <ng-container *ngTemplateOutlet="networkStatusView"></ng-container>
   </div>
 
   <div class="flex justify-end mt-4">
-    <button class="btn" (click)="closeWhatsNewDialog()">Close</button>
+    <button class="btn" (click)="closeNetworkStatusDialog()">Close</button>
   </div>
 </ng-template>
 
-<ng-template #whatsNewView>
+<ng-template #networkStatusView>
   <!-- What's new on the SPN -->
   <div class="flex items-center mb-4 justify-items-center">
-    <h4 class="mr-4">What's New?</h4>
+    <h4 class="mr-4">Network Status</h4>
     <span class="flex-grow inline-block border-b border-buttons-light"></span>
   </div>
 
@@ -336,8 +336,13 @@
             issue.createdAt | timeAgo
             }}</span>
         </div>
-        <markdown *ngIf="issue.expanded" class="body" emoji [data]="issue.body"></markdown>
-        <fa-icon icon="external-link-alt" (click)="openIssue(issue)"></fa-icon>
+        <fa-icon [icon]="issue.expanded ? 'chevron-up' : 'chevron-down'"></fa-icon>
+        <div class="body" *ngIf="issue.expanded">
+          <markdown emoji [data]="issue.body"></markdown>
+          <div>
+            <a class="underline text-primary" (click)="openIssue(issue)">Open on Github</a>
+          </div>
+        </div>
       </li>
     </ul>
   </div>

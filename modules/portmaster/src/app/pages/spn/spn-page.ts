@@ -59,8 +59,8 @@ export class SpnPageComponent implements OnInit, OnDestroy, AfterViewInit {
   @ViewChild('accountDetails', { read: TemplateRef, static: true })
   accountDetails: TemplateRef<any> | null = null;
 
-  @ViewChild('whatsNewDialog', { read: TemplateRef, static: true })
-  whatsNewDialog: TemplateRef<any> | null = null;
+  @ViewChild('networkStatusDialog', { read: TemplateRef, static: true })
+  networkStatusDialog: TemplateRef<any> | null = null;
 
   readonly isFreeDecember = new Date().getTime() < new Date(2022, 1, 1, 0, 0, 0).getTime();
 
@@ -137,7 +137,7 @@ export class SpnPageComponent implements OnInit, OnDestroy, AfterViewInit {
   private accountDetailsDialogRef: DialogRef<any> | null = null;
 
   /** whatsNewDialogRef holds the reference to our what's new dialog */
-  private whatsNewDialogRef: DialogRef<any> | null = null;
+  private networkStatusDialogRef: DialogRef<any> | null = null;
 
   /** flagDir holds the path to the flag assets */
   private readonly flagDir = '/assets/img/flags';
@@ -376,23 +376,23 @@ export class SpnPageComponent implements OnInit, OnDestroy, AfterViewInit {
    *
    * @private - template only
    */
-  openWhatsNewDialog() {
-    if (!this.whatsNewDialog) {
+  openNetworkStatusDialog() {
+    if (!this.networkStatusDialog) {
       return;
     }
 
-    if (!!this.whatsNewDialogRef) {
+    if (!!this.networkStatusDialogRef) {
       return;
     }
 
-    const portal = new TemplatePortal(this.whatsNewDialog, this.viewRef);
-    this.whatsNewDialogRef = this.dialog.create(portal, {
+    const portal = new TemplatePortal(this.networkStatusDialog, this.viewRef);
+    this.networkStatusDialogRef = this.dialog.create(portal, {
       autoclose: true,
       backdrop: 'light',
     })
-    this.whatsNewDialogRef.onClose
+    this.networkStatusDialogRef.onClose
       .pipe(take(1))
-      .subscribe(() => this.whatsNewDialogRef = null);
+      .subscribe(() => this.networkStatusDialogRef = null);
   }
 
   /**
@@ -400,11 +400,11 @@ export class SpnPageComponent implements OnInit, OnDestroy, AfterViewInit {
    *
    * @private - template only
    */
-  closeWhatsNewDialog() {
-    if (!this.whatsNewDialogRef) {
+  closeNetworkStatusDialog() {
+    if (!this.networkStatusDialogRef) {
       return;
     }
-    this.whatsNewDialogRef.close();
+    this.networkStatusDialogRef.close();
   }
 
   /**
