@@ -1,9 +1,10 @@
-<div class="flex absolute top-0 bottom-0 left-0 flex-row justify-start items-start h-full">
+<div class="absolute top-0 bottom-0 left-0 flex flex-row items-start justify-start h-full"
+  [class.w-full]="!currentUser">
   <div
-    class="flex z-10 flex-col flex-grow-0 flex-shrink-0 justify-center p-2 space-y-4 h-full border-r border-opacity-50 backdrop-filter backdrop-blur-sm custom-background border-buttons-dark"
+    class="z-10 flex flex-col justify-center flex-grow-0 flex-shrink-0 h-full p-2 space-y-4 border-r border-opacity-50 backdrop-filter backdrop-blur-sm custom-background border-buttons-dark"
     style="min-width: 16rem;">
     <!-- Pre Alpha notice -->
-    <a class="flex flex-row items-center my-2 w-full rounded-sm bg-cards-primary"
+    <a class="flex flex-row items-center w-full my-2 rounded-sm bg-cards-primary"
       href="https://docs.safing.io/spn/broader-testing/status">
       <fa-icon icon="exclamation-triangle" class="px-3 py-5"></fa-icon>
       <div class="flex-grow">
@@ -16,83 +17,151 @@
     <!-- SPN graph & connected button -->
     <div class="flex flex-col items-center py-5" *ngIf="!!spnStatus">
       <h1 class="text-2xl font-semibold">SPN</h1>
-      <div class="px-5 w-full">
-        <button
-          class="connect-button relative w-full p-2 bg-opacity-75 rounded-full spn-{{ spnStatus!.Status }} text-primary"
-          (click)="toggleSPN()">
-          <span>{{ spnStatusTranslation[spnStatus!.Status] }}</span>
-          <span
-            class="inline-flex absolute items-center ml-4 w-6 h-2 rounded-full shadow-inner opacity-50 bg-cards-primary"
-            style="right: 0.55rem; top: 0.75rem">
+
+      <ng-container *ngIf="!!currentUser; else: loginView">
+        <div class="w-full px-5">
+          <button
+            class="connect-button relative w-full p-2 bg-opacity-75 rounded-full spn-{{ spnStatus!.Status }} text-primary"
+            (click)="toggleSPN()">
+            <span>{{ spnStatusTranslation[spnStatus!.Status] }}</span>
             <span
-              class="inline-block w-2 h-2 rounded-full border transition-all duration-200 transform shadow-inner-xs bg-buttons-icon"
-              [class.translate-x-4]="spnStatus.Status === 'connected' || spnStatus.Status === 'connecting'"></span>
-          </span>
-        </button>
-      </div>
-      <span class="mt-4 text-xs font-medium text-tertiary">
-        <ng-container *ngIf="spnStatus.Status === 'connected'">
-          to {{ spnStatus.ConnectedIP }}
-          for {{ activeSince }}
-        </ng-container>
-      </span>
-      <ng-container *ngIf="spnStatus.Status === 'connected'">
-        <span class="mt-6 text-xs font-semibold text-tertiary">
-          You are currently using
-        </span>
-        <div class="flex self-stretch mt-4 text-xs font-medium select-none">
-          <div
-            class="flex flex-col flex-grow items-center px-3 py-2 mx-1 rounded shadow cursor-pointer bg-cards-primary"
-            (click)="selectExitNodes($event)">
-            <span class="-mb-1 text-tertiary">Exit Nodes</span>
-            <span class="text-2xl text-primary">{{ countExitNodes }}</span>
-          </div>
-          <div
-            class="flex flex-col flex-grow items-center px-3 py-2 mr-1 rounded shadow cursor-pointer bg-cards-primary"
-            (click)="selectTransitNodes($event)">
-            <span class="-mb-1 text-tertiary">Transit Nodes</span>
-            <span class="text-2xl text-primary">{{ countTransitNodes }}</span>
-          </div>
+              class="absolute inline-flex items-center w-6 h-2 ml-4 rounded-full shadow-inner opacity-50 bg-cards-primary"
+              style="right: 0.55rem; top: 0.75rem">
+              <span
+                class="inline-block w-2 h-2 transition-all duration-200 transform border rounded-full shadow-inner-xs bg-buttons-icon"
+                [class.translate-x-4]="spnStatus.Status === 'connected' || spnStatus.Status === 'connecting'"></span>
+            </span>
+          </button>
         </div>
+        <span class="flex flex-col items-center mt-4 text-xs font-medium text-tertiary justify-items-center">
+          <ng-container *ngIf="spnStatus.Status === 'connected'">
+            to {{ spnStatus.ConnectedIP }}
+            for {{ activeSince }}
+          </ng-container>
+          <span>
+            <span (click)="showAccountDetails()" class="underline cursor-pointer"
+              [class.text-info-red]="currentUser?.state !== 'approved'">
+              Account Details
+            </span>
+            -
+            <span (click)="openNetworkStatusDialog()" class="underline cursor-pointer">
+              Network Status
+            </span>
+          </span>
+        </span>
+        <ng-container *ngIf="spnStatus.Status === 'connected'">
+          <span class="mt-6 text-xs font-semibold text-tertiary">
+            You are currently using
+          </span>
+          <div class="flex self-stretch mt-4 text-xs font-medium select-none">
+            <div
+              class="flex flex-col items-center flex-grow px-3 py-2 mx-1 rounded shadow cursor-pointer bg-cards-primary"
+              (click)="selectExitNodes($event)">
+              <span class="-mb-1 text-tertiary">Exit Nodes</span>
+              <span class="text-2xl text-primary">{{ countExitNodes }}</span>
+            </div>
+            <div
+              class="flex flex-col items-center flex-grow px-3 py-2 mr-1 rounded shadow cursor-pointer bg-cards-primary"
+              (click)="selectTransitNodes($event)">
+              <span class="-mb-1 text-tertiary">Transit Nodes</span>
+              <span class="text-2xl text-primary">{{ countTransitNodes }}</span>
+            </div>
+          </div>
+        </ng-container>
       </ng-container>
+
+      <ng-template #loginView>
+        <!-- login View -->
+        <div class="w-full px-5">
+          <a class="inline-block w-full mb-4 text-xs font-medium text-center text-tertiary" href="https://safing.io/spn"
+            target="_blank">
+            Unlock the <u>powerful VPN alternative</u>
+          </a>
+
+          <form (ngSubmit)="login()">
+            <div class="flex flex-col items-stretch mt-4 space-y-6">
+              <div class="flex flex-col justify-items-start">
+                <label for="username" class="font-semibold text-primary">Username</label>
+                <input type="text" name="username" placeholder="Your username" autocomplete="off"
+                  class="custom-form-input" [(ngModel)]="loginModel.username">
+              </div>
+
+              <div class="flex flex-col justify-items-start">
+                <label for="password" class="font-semibold text-primary">Password</label>
+                <input type="password" name="password" placeholder="Enter your strong password" autocomplete="off"
+                  class="custom-form-input" [(ngModel)]="loginModel.password">
+              </div>
+
+              <div>
+                <button
+                  class="connect-button relative w-full p-2 bg-opacity-75 rounded-full spn-{{ spnStatus!.Status }} text-primary"
+                  type="submit">
+                  SIGN IN
+                </button>
+                <div class="w-full mt-6 text-xs font-semibold text-center text-tertiary">
+                  <span>Have no account? <a class="underline" href="https://account.safing.io">Sign Up</a></span>
+                </div>
+              </div>
+            </div>
+          </form>
+        </div>
+      </ng-template>
     </div>
 
     <!-- Process and Exit node list -->
-    <div class="flex overflow-hidden flex-col flex-grow">
-      <ng-container *ngIf="spnStatus?.Status !== 'disabled'">
-        <h2 class="ml-0">App Routes</h2>
-        <div class="overflow-auto flex-grow select-none">
-          <ul>
-            <ng-container *ngFor="let process of (activeProfiles$ | async); trackBy: trackProfile">
-              <li *ngIf="process.exitPins as nodes">
-                <div class="card-header" (click)="selectGroup(process, null, $event)"
-                  [class.active]="selectedProcessGroup === process.process.ID">
-                  <app-icon [profile]="process.process"></app-icon>
-                  <span class="flex flex-row justify-between card-title">
-                    <span>{{ process.process.Name }}</span>
-                    <span>{{ process.exitPins.length }} Exits</span>
-                  </span>
-                </div>
-                <ul class="ml-3 select-none">
-                  <li *ngFor="let node of nodes; trackBy: trackPin" class="overflow-ellipsis card-header"
-                    (mouseenter)="exitNodeHover(node, true)" (mouseleave)="exitNodeHover(node, false)"
-                    [class.active]="selectedPinIDs?.has(node.ID)" (click)="selectGroup(process, node, $event)">
-                    <span [appCountryFlags]="node.preferredEntity.Country" class="mr-3 w-4"></span>
-                    <span class="flex-grow">{{ node.preferredEntity.IP }}</span>
-                  </li>
-                </ul>
-              </li>
-            </ng-container>
-          </ul>
-        </div>
+    <div class="flex flex-col flex-grow overflow-hidden">
+      <ng-container *ngIf="!!currentUser; else: networkStatusView">
+        <ng-container *ngIf="spnStatus?.Status !== 'disabled'; else: networkStatusView">
+          <h2 class="ml-0">App Routes</h2>
+          <div class="flex-grow overflow-auto select-none">
+            <ul>
+              <ng-container *ngFor="let process of (activeProfiles$ | async); trackBy: trackProfile">
+                <li *ngIf="process.exitPins as nodes">
+                  <div class="card-header" (click)="selectGroup(process, null, $event)"
+                    [class.active]="selectedProcessGroup === process.process.ID">
+                    <app-icon [profile]="process.process"></app-icon>
+                    <span class="flex flex-row justify-between card-title">
+                      <span>{{ process.process.Name }}</span>
+                      <span>{{ process.exitPins.length }} Exits</span>
+                    </span>
+                  </div>
+                  <ul class="ml-3 select-none">
+                    <li *ngFor="let node of nodes; trackBy: trackPin" class="overflow-ellipsis card-header"
+                      (mouseenter)="exitNodeHover(node, true)" (mouseleave)="exitNodeHover(node, false)"
+                      [class.active]="selectedPinIDs?.has(node.ID)" (click)="selectGroup(process, node, $event)">
+                      <span [appCountryFlags]="node.preferredEntity.Country" class="w-4 mr-3"></span>
+                      <span class="flex-grow">{{ node.preferredEntity.IP }}</span>
+                    </li>
+                  </ul>
+                </li>
+              </ng-container>
+            </ul>
+          </div>
+        </ng-container>
       </ng-container>
+
     </div>
   </div>
 
+  <div
+    class="z-10 flex flex-col items-center justify-center flex-grow h-full backdrop-filter backdrop-blur-sm custom-background"
+    *ngIf="!currentUser">
+    <img src="/assets/img/spn-login.png" width="250">
+    <h1 class="mt-4 text-4xl text-primary">Be Everywhere at Once</h1>
+    <h2 class="text-base text-center text-secondary">
+      Spread your connections across the globe instead of re-routing your connections to only one server.
+      <br>
+      <br>
+      Re-route all your connections through our multi-hop network to decouple your identity from the destination.
+      <br>
+      With onion-encryption, no single party knows who you are and where you are going to.
+    </h2>
+  </div>
+
   <!-- selected node pane -->
-  <div *ngIf="!!selectedPins" class="flex z-10 flex-col flex-grow flex-shrink-0 justify-start p-2 pt-4 space-y-3 w-64">
+  <div *ngIf="!!selectedPins" class="z-10 flex flex-col justify-start flex-grow flex-shrink-0 w-64 p-2 pt-4 space-y-3">
     <div *ngFor="let pin of selectedPins!"
-      class="relative p-4 ml-1 rounded border shadow bg-buttons-dark border-cards-primary">
+      class="relative p-4 ml-1 border rounded shadow bg-buttons-dark border-cards-primary">
       <fa-icon class="absolute top-0 right-0 mt-3 mr-3 text-xs cursor-pointer text-tertiary hover:text-secondary"
         icon="times" (click)="clearSelection(pin.ID)"></fa-icon>
       <fa-icon class="absolute top-0 right-0 mt-3 mr-8 text-xs cursor-pointer text-tertiary hover:text-secondary"
@@ -147,7 +216,7 @@
         </div>
       </ng-container>
       <ng-template #notInUse>
-        <div class="text-xs text-tertiary">
+        <div class="text-xs text-tertiary" *ngIf="!pin.collapsed">
           {{
           pin.HopDistance === 1
           ? 'This SPN node is currently used as your HOME hub.'
@@ -157,11 +226,127 @@
     </div>
   </div>
 
+
 </div>
 
 <div class="absolute top-0 right-0 z-10 mt-4 mr-4">
   <app-expertise></app-expertise>
 </div>
 <div class="relative flex-grow h-full">
+
   <div #map id="map" class="w-full h-full"></div>
 </div>
+
+<!--
+  Dialog showing account details
+-->
+<ng-template #accountDetails>
+  <h1 class="mb-4 text-xl">Account Details</h1>
+
+  <div *ngIf="currentUser?.state === 'loggedout'" class="w-full px-4 py-2 mb-4 text-center rounded bg-info-red">
+    You have been logged out by the account server.
+    <br />
+    Please check <a class="underline text-primary" href="https://account.safing.io">your account</a>.
+  </div>
+
+  <table *ngIf="!!currentUser" class="mb-4">
+
+    <tr>
+      <th>Username</th>
+      <td>{{ currentUser.username }} </td>
+    </tr>
+    <tr>
+      <th>Balance</th>
+      <td>{{ currentUser.balance / 100 | currency:'EUR' }} </td>
+    </tr>
+
+    <ng-container *ngIf="currentUser.state === 'approved'">
+      <ng-container *ngIf="isFreeDecember; else: currentPlan">
+        <tr>
+          <th>Current Plan</th>
+          <td>Free in December</td>
+        </tr>
+      </ng-container>
+
+      <ng-template #currentPlan>
+        <ng-container *ngIf="currentUser.current_plan as plan">
+          <tr>
+            <th>Current Plan</th>
+            <td>{{ plan.name }}</td>
+          </tr>
+        </ng-container>
+      </ng-template>
+    </ng-container>
+
+    <tr>
+      <th>Subscription ends at</th>
+      <td>{{ currentUser.subscription?.ends_at | date:'medium' }}</td>
+    </tr>
+
+    <tr>
+      <th>Device Name</th>
+      <td>{{ currentUser.device?.name }}</td>
+    </tr>
+    <tr *appExpertiseLevel="'developer'">
+      <th>Device ID</th>
+      <td>{{currentUser.device?.id}}</td>
+    </tr>
+    <tr>
+      <th>Logged in since</th>
+      <td>{{ currentUser.LoggedInAt | date:'medium' }} </td>
+    </tr>
+  </table>
+
+  <div class="flex items-end justify-end w-full space-x-2">
+    <button (click)="logout()" class="bg-info-red">Logout</button>
+    <button (click)="refreshAccount()" style="width: 70px">
+      <ng-container *ngIf="!refreshing; else: loading">
+        Refresh
+      </ng-container>
+      <ng-template #loading>
+        <fa-icon icon="spinner" [spin]="true"></fa-icon>
+      </ng-template>
+    </button>
+    <button (click)="closeDialog()">Close</button>
+  </div>
+</ng-template>
+
+<ng-template #networkStatusDialog>
+  <div class="network-status-dialog">
+    <ng-container *ngTemplateOutlet="networkStatusView"></ng-container>
+  </div>
+
+  <div class="flex justify-end mt-4">
+    <button class="btn" (click)="closeNetworkStatusDialog()">Close</button>
+  </div>
+</ng-template>
+
+<ng-template #networkStatusView>
+  <!-- What's new on the SPN -->
+  <div class="flex items-center mb-4 justify-items-center">
+    <h4 class="mr-4">Network Status</h4>
+    <span class="flex-grow inline-block border-b border-buttons-light"></span>
+  </div>
+
+  <div class="issue-list">
+    <ul [@fadeInList]="spnIssues.slice(0, 8).length">
+      <li *ngFor="let issue of spnIssues.slice(0, 8); trackBy: trackIssue" (click)="issue.expanded = !issue.expanded"
+        class="issue" [class.expanded]="issue.expanded">
+        <div class="header">
+          <span class="title">{{ issue.title }}</span>
+          <span class="meta">{{ issue.closed ? 'closed' : 'opened'}} by <u>{{ issue.user }}</u>
+            {{
+            issue.createdAt | timeAgo
+            }}</span>
+        </div>
+        <fa-icon [icon]="issue.expanded ? 'chevron-up' : 'chevron-down'"></fa-icon>
+        <div class="body" *ngIf="issue.expanded">
+          <markdown emoji [data]="issue.body"></markdown>
+          <div>
+            <a class="underline text-primary" (click)="openIssue(issue)">Open on Github</a>
+          </div>
+        </div>
+      </li>
+    </ul>
+  </div>
+</ng-template>

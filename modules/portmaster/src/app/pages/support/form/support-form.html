@@ -52,7 +52,9 @@
       </div>
 
       <p class="prologue secondary-text">
-        The following logs will be sent together with your report. Please check them and remove potentially sensitive information. The debug information sent with your reports will be saved on Safing's self-hosted pastebin server and is viewable via its created url. The data is automatically destroyed after one month.
+        The following logs will be sent together with your report. Please check them and remove potentially sensitive
+        information. The debug information sent with your reports will be saved on Safing's self-hosted pastebin server
+        and is viewable via its created url. The data is automatically destroyed after one month.
       </p>
       <div class="debug-header">
         <div class="pl-4 secondary-text">
@@ -98,6 +100,7 @@
           {{
           issue.createdAt | timeAgo
           }}</span>
+        {{ issue.labels | json }}
         <fa-icon icon="external-link-alt"></fa-icon>
       </li>
     </ul>
