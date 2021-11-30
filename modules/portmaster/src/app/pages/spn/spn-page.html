@@ -213,7 +213,7 @@
         </div>
       </ng-container>
       <ng-template #notInUse>
-        <div class="text-xs text-tertiary">
+        <div class="text-xs text-tertiary" *ngIf="!pin.collapsed">
           {{
           pin.HopDistance === 1
           ? 'This SPN node is currently used as your HOME hub.'
