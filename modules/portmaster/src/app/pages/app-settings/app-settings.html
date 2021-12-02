@@ -77,12 +77,12 @@
         </div>
       </div>
 
-      <div class="meta" *ngIf="!!appProfile?.Description">
-        <div class="app-details description">
+      <div class="meta" *ngIf="!!appProfile?.Warning">
+        <div class="app-details app-warning">
           <div class="icon warning">
             <fa-icon icon="exclamation"></fa-icon>
           </div>
-          <markdown emoji [data]="appProfile.Description"></markdown>
+          <markdown emoji [data]="appProfile.Warning"></markdown>
         </div>
       </div>
 

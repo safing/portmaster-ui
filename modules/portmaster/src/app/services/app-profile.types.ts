@@ -31,6 +31,7 @@ export interface AppProfile extends Record {
   ApproxLastUsed: number;
   Config: ConfigMap;
   Description: string;
+  Warning: string;
   Homepage: string;
   Icon: string;
   Name: string;
