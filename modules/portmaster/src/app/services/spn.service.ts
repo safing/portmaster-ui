@@ -33,12 +33,23 @@ export class SPNService {
   }
 
   /**
+   * Encodes a unicode string to base64.
+   * See https://developer.mozilla.org/en-US/docs/Web/API/btoa
+   * and https://stackoverflow.com/questions/30106476/using-javascripts-atob-to-decode-base64-doesnt-properly-decode-utf-8-strings
+   */
+   b64EncodeUnicode(str: string): string {
+      return window.btoa(encodeURIComponent(str).replace(/%([0-9A-F]{2})/g, function(match, p1) {
+          return String.fromCharCode(parseInt(p1, 16))
+      }))
+  }
+
+  /**
    *  Logs into the SPN user account
    */
   login({ username, password }: { username: string, password: string }): Observable<HttpResponse<string>> {
     return this.http.post(`${environment.httpAPI}/v1/spn/account/login`, undefined, {
       headers: {
-        Authorization: `Basic ${window.btoa(username + ':' + password)}`
+        Authorization: `Basic ${this.b64EncodeUnicode(username + ':' + password)}`
       },
       responseType: 'text',
       observe: 'response'
