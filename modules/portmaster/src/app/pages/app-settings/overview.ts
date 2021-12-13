@@ -25,9 +25,6 @@ export class AppOverviewComponent implements OnInit, OnDestroy {
   /** All application profiles that are actually running */
   runningProfiles: AppProfile[] = [];
 
-  /** All application profiles that have been used recently */
-  recentlyUsed: AppProfile[] = [];
-
   /** All application profiles that have been edited recently */
   recentlyEdited: AppProfile[] = [];
 
@@ -77,7 +74,6 @@ export class AppOverviewComponent implements OnInit, OnDestroy {
           // Prepare new, empty lists for our groups
           this.profiles = [];
           this.runningProfiles = [];
-          this.recentlyUsed = [];
           this.recentlyEdited = [];
 
           // calcualte the threshold for "recently-used" (1 week).
@@ -105,8 +101,6 @@ export class AppOverviewComponent implements OnInit, OnDestroy {
             .forEach(profile => {
               if (this.connTrack.has(profile.ID)) {
                 this.runningProfiles.push(profile);
-              } else if (profile.ApproxLastUsed >= recentlyUsedThreshold) {
-                this.recentlyUsed.push(profile);
               } else if (profile.LastEdited >= recentlyUsedThreshold) {
                 this.recentlyEdited.push(profile);
               }
