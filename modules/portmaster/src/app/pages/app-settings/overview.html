@@ -21,15 +21,6 @@
     <ng-container *ngTemplateOutlet="profileList; context: {$implicit: runningProfiles}"></ng-container>
   </ng-container>
 
-  <ng-container *ngIf="recentlyUsed.length > 0">
-    <div class="scrollable-header">
-      <h4>
-        Recently Used
-      </h4>
-    </div>
-    <ng-container *ngTemplateOutlet="profileList; context: {$implicit: recentlyUsed}"></ng-container>
-  </ng-container>
-
   <ng-container *ngIf="recentlyEdited.length > 0">
     <div class="scrollable-header">
       <h4>
@@ -42,7 +33,7 @@
   <ng-container *ngIf="profiles.length > 0">
     <div class="scrollable-header">
       <h4>
-        Other
+        All
       </h4>
     </div>
     <ng-container *ngTemplateOutlet="profileList; context: {$implicit: profiles}"></ng-container>
