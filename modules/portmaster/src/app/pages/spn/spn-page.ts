@@ -62,8 +62,6 @@ export class SpnPageComponent implements OnInit, OnDestroy, AfterViewInit {
   @ViewChild('networkStatusDialog', { read: TemplateRef, static: true })
   networkStatusDialog: TemplateRef<any> | null = null;
 
-  readonly isFreeDecember = new Date().getTime() < new Date(2022, 1, 1, 0, 0, 0).getTime();
-
   /** currentUser holds the current SPN user profile if any */
   currentUser: UserProfile | null = null;
 
