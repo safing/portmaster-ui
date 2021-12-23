@@ -259,25 +259,10 @@
       <th>Balance</th>
       <td>{{ currentUser.balance / 100 | currency:'EUR' }} </td>
     </tr>
-
-    <ng-container *ngIf="currentUser.state === 'approved'">
-      <ng-container *ngIf="isFreeDecember; else: currentPlan">
-        <tr>
-          <th>Current Plan</th>
-          <td>Free in December</td>
-        </tr>
-      </ng-container>
-
-      <ng-template #currentPlan>
-        <ng-container *ngIf="currentUser.current_plan as plan">
-          <tr>
-            <th>Current Plan</th>
-            <td>{{ plan.name }}</td>
-          </tr>
-        </ng-container>
-      </ng-template>
-    </ng-container>
-
+    <tr>
+      <th>Current Plan</th>
+      <td>{{ currentUser.current_plan?.name }}</td>
+    </tr>
     <tr>
       <th>Subscription ends at</th>
       <td>{{ currentUser.subscription?.ends_at | date:'medium' }}</td>
