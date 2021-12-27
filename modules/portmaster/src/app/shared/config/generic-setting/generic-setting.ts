@@ -284,6 +284,9 @@ export class GenericSettingComponent<S extends BaseSetting<any, any>> implements
   /* The currently saved value. Updated by the setting() setter */
   _savedValue: SettingValueType<S> | null = null;
 
+  /** Whether or not the network rating system is enabled. */
+  networkRatingEnabled$ = this.configService.networkRatingEnabled$;
+
   constructor(
     private configService: ConfigService,
     private changeDetectorRef: ChangeDetectorRef

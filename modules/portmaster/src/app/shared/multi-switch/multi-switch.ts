@@ -1,10 +1,10 @@
 import { ListKeyManager } from '@angular/cdk/a11y';
 import { coerceBooleanProperty } from '@angular/cdk/coercion';
 import { DOCUMENT } from '@angular/common';
-import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, ContentChildren, ElementRef, EventEmitter, forwardRef, HostBinding, HostListener, Inject, Input, OnDestroy, Output, QueryList, Renderer2, ViewChild } from '@angular/core';
+import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, ContentChildren, ElementRef, EventEmitter, forwardRef, HostBinding, HostListener, Inject, Input, NgZone, OnDestroy, Output, QueryList, Renderer2, ViewChild } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { animationFrameScheduler, fromEvent, Subscription } from 'rxjs';
-import { map, startWith, subscribeOn, takeUntil } from 'rxjs/operators';
+import { map, startWith, subscribeOn, take, takeUntil } from 'rxjs/operators';
 import { SwitchItemComponent } from './switch-item';
 
 @Component({
@@ -91,6 +91,7 @@ export class MultiSwitchComponent<T> implements OnDestroy, AfterViewInit, Contro
     public host: ElementRef,
     private changeDetectorRef: ChangeDetectorRef,
     private renderer: Renderer2,
+    private ngZone: NgZone,
     @Inject(DOCUMENT) private document: Document,
   ) { }
 
@@ -165,7 +166,14 @@ export class MultiSwitchComponent<T> implements OnDestroy, AfterViewInit, Contro
               this.keyManager!.setActiveItem(btn);
             })
           );
-        })
+        });
+
+        // wait until the zone and change-detection stabilizes and
+        // reposition the marker afterwards. Doing it right now will
+        // likely position it wrongly since the DOM has not yet been
+        // fully updated.
+        this.ngZone.onStable.pipe(take(1))
+          .subscribe(() => this.repositionMarker())
       });
 
     this.buttons.forEach(btn => {

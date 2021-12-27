@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, Inject, OnInit } from '@angular/core';
 import { combineLatest } from 'rxjs';
-import { FailureStatus, SecurityLevel, SPNService, StatusService, Subsystem } from 'src/app/services';
+import { ConfigService, FailureStatus, SecurityLevel, SPNService, StatusService, Subsystem } from 'src/app/services';
 import { WidgetConfig, WIDGET_CONFIG } from '../widget.types';
 
 interface SecurityOption {
@@ -51,11 +51,14 @@ export class PilotWidgetComponent implements OnInit {
 
   get spnStatus$() { return this.spnService.status$ }
 
+  get networkRatingEnabled$() { return this.configService.networkRatingEnabled$ }
+
   constructor(
     @Inject(WIDGET_CONFIG) public config: WidgetConfig<any>,
     private statusService: StatusService,
     private spnService: SPNService,
     private changeDetectorRef: ChangeDetectorRef,
+    private configService: ConfigService,
   ) { }
 
   ngOnInit() {
