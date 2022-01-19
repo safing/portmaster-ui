@@ -40,15 +40,9 @@ export class ExitService {
         distinctUntilChanged(),
       )
       .subscribe(connected => {
-        if (this._showOverlay.getValue() === MessageShutdown) {
-          // ignore changes to the "connected" state if we're displaying
-          // a shutdown notification.
-          return;
-        }
-
         if (connected) {
           this._showOverlay.next(MessageHidden);
-        } else {
+        } else if (this._showOverlay.getValue() !== MessageShutdown) {
           this._showOverlay.next(MessageConnecting)
         }
       })

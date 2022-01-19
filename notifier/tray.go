@@ -143,9 +143,17 @@ func updateTray() {
 	newIconID := icons.GreenID
 	newStatusMsg := "Secure."
 	switch {
+	case shuttingDown.IsSet():
+		newIconID = icons.RedID
+		newStatusMsg = "Shutting Down Portmaster"
+
+	case restarting.IsSet():
+		newIconID = icons.RedID
+		newStatusMsg = "Restarting Portmaster"
+
 	case !connected.IsSet():
 		newIconID = icons.RedID
-		newStatusMsg = "Connection to Portmaster service lost."
+		newStatusMsg = "Connecting to Portmaster"
 
 	case systemStatus.ActiveSecurityLevel < systemStatus.ThreatMitigationLevel:
 		newIconID = icons.RedID
