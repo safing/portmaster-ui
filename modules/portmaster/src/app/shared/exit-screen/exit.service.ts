@@ -1,30 +1,79 @@
-import { Overlay } from '@angular/cdk/overlay';
-import { ComponentPortal, ComponentType } from '@angular/cdk/portal';
-import { Injectable, Injector } from '@angular/core';
-import { of } from 'rxjs';
-import { catchError, take, takeUntil, timeout } from 'rxjs/operators';
+import { Injectable } from '@angular/core';
+import { BehaviorSubject, merge, of } from 'rxjs';
+import { catchError, debounceTime, distinctUntilChanged, map, skip, switchMap, tap, timeout } from 'rxjs/operators';
 import { UIStateService } from 'src/app/services';
 import { PortapiService } from 'src/app/services/portapi.service';
 import { DialogService } from '../dialog';
-import { ExitScreenComponent, OVERLAYREF } from './exit-screen';
+import { ExitScreenComponent } from './exit-screen';
+
+const MessageConnecting = 'Connecting to Portmaster';
+const MessageShutdown = 'Shutting Down Portmaster';
+const MessageRestart = 'Restarting Portmaster';
+const MessageHidden = '';
+
+export type OverlayMessage = typeof MessageConnecting
+  | typeof MessageShutdown
+  | typeof MessageRestart
+  | typeof MessageHidden;
 
 @Injectable({ providedIn: 'root' })
 export class ExitService {
   private hasOverlay = false;
+
+  private _showOverlay = new BehaviorSubject<OverlayMessage>(MessageConnecting);
+
+  /**
+   * Emits whenever the "Connecting to ..." or "Restarting ..." overlays
+   * should be shown. It actually emits the message that should be shown.
+   * An empty string indicates the overlay should be closed.
+   */
+  get showOverlay$() { return this._showOverlay.asObservable() }
 
   constructor(
     private stateService: UIStateService,
     private portapi: PortapiService,
     private dialog: DialogService
   ) {
-    if (!!window.app) {
+
+    this.portapi.connected$
+      .pipe(
+        distinctUntilChanged(),
+      )
+      .subscribe(connected => {
+        if (this._showOverlay.getValue() === MessageShutdown) {
+          // ignore changes to the "connected" state if we're displaying
+          // a shutdown notification.
+          return;
+        }
+
+        if (connected) {
+          this._showOverlay.next(MessageHidden);
+        } else {
+          this._showOverlay.next(MessageConnecting)
+        }
+      })
+
+
+    merge<OverlayMessage, OverlayMessage>(
       this.portapi.sub('runtime:modules/core/event/shutdown')
-        .subscribe(() => {
+        .pipe(map(() => MessageShutdown)),
+      this.portapi.sub('runtime:modules/core/event/restart')
+        .pipe(map(() => MessageRestart)),
+    )
+      .pipe(
+        tap(msg => this._showOverlay.next(msg)),
+        switchMap(() => this.portapi.connected$),
+        distinctUntilChanged(),
+        skip(1),
+        debounceTime(1000), // make sure we display the "shutdown" overlay for at least a second
+      )
+      .subscribe(msg => {
+        if (this._showOverlay.getValue() === MessageShutdown && !!window.app) {
           setTimeout(() => {
             window.app.exitApp();
           }, 1000)
-        })
-    }
+        }
+      })
 
     window.addEventListener('beforeunload', () => {
       // best effort. may not work all the time depending on
