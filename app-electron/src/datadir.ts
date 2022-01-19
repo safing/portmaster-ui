@@ -1,6 +1,6 @@
 import { resolve } from 'path';
 import { statSync } from 'fs';
-import { app, remote } from 'electron';
+import { app } from 'electron';
 
 export function getDataDir(cmdLine: Electron.CommandLine): string {
     // If --data is not passed as an argument we expect
