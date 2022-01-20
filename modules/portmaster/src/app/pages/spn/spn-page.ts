@@ -1,6 +1,6 @@
 import { TemplatePortal } from "@angular/cdk/portal";
-import { ThrowStmt } from "@angular/compiler";
 import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, OnDestroy, OnInit, TemplateRef, TrackByFunction, ViewChild, ViewContainerRef } from "@angular/core";
+import { Router } from "@angular/router";
 import { curveBasis, geoMercator, geoPath, interpolateString, json, line, pointer, select, Selection, zoom, zoomIdentity, ZoomTransform } from 'd3';
 import { BehaviorSubject, combineLatest, interval, Observable, of, Subject } from "rxjs";
 import { debounceTime, delay, distinctUntilChanged, finalize, map, mergeMap, startWith, switchMap, take, takeUntil, tap, withLatestFrom } from "rxjs/operators";
@@ -17,11 +17,29 @@ const markerSize = 5;
 const markerStroke = 1;
 
 interface _PinModel extends Pin {
+  // isExit is set to true if the pin is or has been used as an exit pin
+  // within the last <portmaster-history> minutes
   isExit: boolean;
+  // isCurrentlyInUse is set to true if there's at least on connection that
+  // uses this pin as an exit node that is not yet marked as ended
+  isCurrentlyInUse: boolean;
+  // countAliveConnections holds the number of connections that are currently
+  // still alive (not ended) and use this pin as their exit.
+  countAliveConnections: number;
+  // preferredLocation is set to the geo-coordinates that should be used
+  // for that pin.
   preferredLocation: GeoCoordinates;
+  // preferredEntity is set to the intel entity that should be used for
+  // this pin.
   preferredEntity: IntelEntity;
+  // countProcesses is the number of processes that use this pin as an
+  // exit node.
   countProcesses: number;
+  // collapsed holds the UI state of whether or not the pin-data overlay
+  // for this pin is collapsed or not.
   collapsed?: boolean;
+  // route holds the route to this pin but mapped from IDs to the actual
+  // pin object.
   route: _PinModel[];
 }
 
@@ -85,6 +103,9 @@ export class SpnPageComponent implements OnInit, OnDestroy, AfterViewInit {
 
   /** countTransitNodes holds the number of transit nodes in use */
   countTransitNodes = 0;
+
+  /** countRoutedAliveConnections holds the number of connections routed through the SPN that are still alive (not ended) */
+  countRoutedAliveConnections = 0;
 
   /**
    * selectPin$ emits everytime the user selects a pin.
@@ -196,6 +217,7 @@ export class SpnPageComponent implements OnInit, OnDestroy, AfterViewInit {
     private dialog: DialogService,
     private viewRef: ViewContainerRef,
     private supportHub: SupportHubService,
+    private router: Router,
     private cdr: ChangeDetectorRef
   ) {
     // activeProfiles emits a list of process groups from the connection tracker
@@ -212,7 +234,7 @@ export class SpnPageComponent implements OnInit, OnDestroy, AfterViewInit {
             .filter(p => !!p.exitNodes)
             .map(p => ({
               process: p,
-              exitPins: p.exitNodes!
+              exitPins: Object.keys(p.exitNodes!)
                 .map(n => pins.get(n))
                 .filter(n => !!n)
             })) as any;
@@ -308,14 +330,14 @@ export class SpnPageComponent implements OnInit, OnDestroy, AfterViewInit {
         .pipe(
           map(profiles => profiles.map(p => p.exitNodes$)),
           switchMap(exitNodes$ => {
-            if (exitNodes$.length === 0) {
+            if (Object.keys(exitNodes$).length === 0) {
               return of([])
             }
             return combineLatest(exitNodes$);
           }),
         )])
       .pipe(takeUntil(this.destroy$))
-      .subscribe(([pins, exitNodes]) => {
+      .subscribe(([pins, exitNodesPerProcess]) => {
         let existing = this.pins$.getValue();
 
 
@@ -327,6 +349,8 @@ export class SpnPageComponent implements OnInit, OnDestroy, AfterViewInit {
           lm.set(p.ID, {
             ...p,
             isExit: false,
+            isCurrentlyInUse: false,
+            countAliveConnections: 0,
             preferredLocation: getPinCoords(p) || UnknownLocation,
             preferredEntity: (p.EntityV4 || p.EntityV6)!, // there must always be one entity
             countProcesses: 0,
@@ -341,10 +365,15 @@ export class SpnPageComponent implements OnInit, OnDestroy, AfterViewInit {
           p.route = p.Route?.map(r => lm.get(r)!) || [];
         }
 
-        exitNodes.forEach(nodes => {
-          nodes?.forEach(n => {
-            const p = lm.get(n || '');
+        exitNodesPerProcess.forEach(nodes => {
+          if (nodes === null) {
+            return;
+          }
+          Object.keys(nodes).forEach(exitPinID => {
+            const p = lm.get(exitPinID || '');
             if (!!p) {
+              p.isCurrentlyInUse = p.isCurrentlyInUse || nodes[exitPinID] > 0;
+              p.countAliveConnections += nodes[exitPinID];
               p.isExit = true;
               p.countProcesses++;
             }
@@ -354,6 +383,8 @@ export class SpnPageComponent implements OnInit, OnDestroy, AfterViewInit {
         // reset our counters as we will rebuild them now.
         this.countTransitNodes = 0;
         this.countExitNodes = 0;
+        this.countRoutedAliveConnections = 0;
+
         for (let p of lm.values()) {
           if (p.isExit) {
             this.countExitNodes++;
@@ -361,6 +392,7 @@ export class SpnPageComponent implements OnInit, OnDestroy, AfterViewInit {
           if (p.SessionActive) {
             this.countTransitNodes++;
           }
+          this.countRoutedAliveConnections += p.countAliveConnections;
         }
 
         // emit the new pin map. to any other subscribers.
@@ -531,8 +563,7 @@ export class SpnPageComponent implements OnInit, OnDestroy, AfterViewInit {
    * @private - template only
    */
   selectTransitNodes(event: MouseEvent) {
-    // search for all transit pins in the current pin map
-    let pinIDs: string[] = [];
+    const pinIDs: string[] = [];
     for (let pin of this.pins$.getValue().values()) {
       if (pin.SessionActive) {
         pinIDs.push(pin.ID)
@@ -551,8 +582,7 @@ export class SpnPageComponent implements OnInit, OnDestroy, AfterViewInit {
    * @private - template only
    */
   selectExitNodes(event: MouseEvent) {
-    // search for all exit pins in the current pin map
-    let pinIDs: string[] = [];
+    const pinIDs: string[] = [];
     for (let pin of this.pins$.getValue().values()) {
       if (pin.isExit) {
         pinIDs.push(pin.ID)
@@ -563,6 +593,29 @@ export class SpnPageComponent implements OnInit, OnDestroy, AfterViewInit {
     } else {
       this.selectedPins$.next(pinIDs);
     }
+  }
+
+  /**
+   * Select all pins that currently host alive connections.
+   *
+   * @private - template only
+   */
+  selectNodesWithAliveConnections(event: MouseEvent) {
+    const pinIDs: string[] = [];
+    for (let pin of this.pins$.getValue().values()) {
+      if (pin.isCurrentlyInUse) {
+        pinIDs.push(pin.ID)
+      }
+    }
+    if (event.shiftKey) {
+      this.selectedPins$.next([...pinIDs, ...this.selectedPins$.getValue()])
+    } else {
+      this.selectedPins$.next(pinIDs);
+    }
+  }
+
+  navigateToMonitor(process: _ProcessGroupModel) {
+    this.router.navigate(['/monitor/profile', process.process.Source, process.process.ID])
   }
 
   ngOnDestroy() {
@@ -914,8 +967,10 @@ export class SpnPageComponent implements OnInit, OnDestroy, AfterViewInit {
 
     // selectPin always emits when the user selects a pin on either
     // the map or through a exit-node on the left.
-    this.selectedPins$
-      .pipe(withLatestFrom(this.pins$))
+    combineLatest([
+      this.selectedPins$,
+      this.pins$,
+    ])
       .subscribe(async ([pinIDs, pins]) => {
 
         this.selectedProcessGroup = '';

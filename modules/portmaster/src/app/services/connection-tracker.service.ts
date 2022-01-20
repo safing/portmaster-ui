@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, forkJoin, Observable, of, Subject, Subscription } from 'rxjs';
-import { bufferTime, catchError, filter, map, switchMap, tap } from 'rxjs/operators';
+import { bufferTime, catchError, filter, map, publish, switchMap, tap } from 'rxjs/operators';
 import { IsDenied } from '.';
 import { SnapshotPaginator } from '../shared/types';
 import { binaryInsert, binarySearch, parseDomain } from '../shared/utils';
@@ -55,7 +55,10 @@ export class ProcessGroup {
   private spnExitNodes = new Map<string, Set<string>>();
 
   /** Publishes the spnExitNode IDs whenever they are changed. */
-  private spnExitNodes$ = new BehaviorSubject<string[] | null>(null);
+  private spnExitNodes$ = new BehaviorSubject<{ [pinID: string]: number } | null>(null);
+
+  /** A list of connection that are still alive (i.e. not ended) */
+  private aliveConnections = new Set<string>();
 
   /**
    * Subject used to notify subscribers about the addtion or removal
@@ -72,15 +75,18 @@ export class ProcessGroup {
   }
 
   /** Like exitNodes but streams changes as they happen */
-  get exitNodes$(): Observable<string[] | null> {
+  get exitNodes$(): Observable<{ [pinID: string]: number } | null> {
     return this.spnExitNodes$.asObservable();
   }
 
   /** returns a list of all SPN exit node IDs in use by this process group */
-  get exitNodes(): string[] | null {
-    const array = Array.from(this.spnExitNodes.keys())
-    if (array.length) {
-      return array;
+  get exitNodes(): { [pinID: string]: number } | null {
+    if (this.spnExitNodes.size > 0) {
+      const result: { [pinID: string]: number } = {}
+      this.spnExitNodes.forEach((connKeys, pinID) => {
+        result[pinID] = Array.from(connKeys.values()).filter(connKey => this.aliveConnections.has(connKey)).length
+      })
+      return result;
     }
     return null;
   }
@@ -103,6 +109,11 @@ export class ProcessGroup {
   /** Returns the number of unpermitted connections. */
   get countUnpermitted() {
     return this.unpermitted.size;
+  }
+
+  /** Returns the number of connections that are currently alive */
+  get countAliveConnections() {
+    return this.aliveConnections.size;
   }
 
   constructor(
@@ -151,19 +162,35 @@ export class ProcessGroup {
       this.updateBlockStatus();
     }
 
+    let publishExitNodes = false;
+
+    // track whether or not this connection is still alive.
+    if (conn.Ended === 0) {
+      if (!this.aliveConnections.has(key)) {
+        this.aliveConnections.add(key)
+        publishExitNodes = !!conn.TunnelContext;
+      }
+    } else {
+      if (this.aliveConnections.delete(key) && !!conn.TunnelContext) {
+        publishExitNodes = true;
+      }
+    }
+
     if (conn.TunnelContext) {
       const exit = conn.TunnelContext.Path[conn.TunnelContext.Path.length - 1];
       let s = this.spnExitNodes.get(exit.ID);
-      let isNew = false;
       if (!s) {
         s = new Set();
-        isNew = true;
         this.spnExitNodes.set(exit.ID, s);
       }
-      s.add(key);
-      if (isNew) {
-        this.spnExitNodes$.next(this.exitNodes);
+      if (!s.has(key)) {
+        publishExitNodes = true;
+        s.add(key);
       }
+    }
+
+    if (publishExitNodes) {
+      this.spnExitNodes$.next(this.exitNodes);
     }
 
     this._notifier.next({
@@ -186,7 +213,7 @@ export class ProcessGroup {
 
     this.updateBlockStatus();
 
-    let changed = false;
+    let changed = this.aliveConnections.delete(connKey);
     for (let [key, set] of this.spnExitNodes.entries()) {
       if (set.has(connKey)) {
         set.delete(connKey);
@@ -199,6 +226,7 @@ export class ProcessGroup {
     if (changed) {
       this.spnExitNodes$.next(this.exitNodes);
     }
+
 
     this._notifier.next({
       type: 'deleted',
@@ -850,7 +878,7 @@ export class ConnTracker {
       // we might have a very very noise websocket connection because
       // some processes are freaking out. Make sure we don't trigger
       // angular change detection too often by buffering updates
-      bufferTime(1000, null, 100),
+      bufferTime(1000, null, 1),
       filter(msgs => !!msgs.length)
     );
 
