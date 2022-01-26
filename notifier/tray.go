@@ -14,6 +14,10 @@ import (
 	"github.com/safing/portbase/log"
 )
 
+const (
+	shortenStatusMsgTo = 40
+)
+
 var (
 	trayLock sync.Mutex
 
@@ -181,7 +185,17 @@ func updateTray() {
 	// Set message if changed.
 	if newStatusMsg != activeStatusMsg {
 		activeStatusMsg = newStatusMsg
-		menuItemStatusMsg.SetTitle("Status: " + activeStatusMsg)
+
+		// Shorten message if too long.
+		shortenedMsg := activeStatusMsg
+		if len(shortenedMsg) > shortenStatusMsgTo && strings.Contains(shortenedMsg, ". ") {
+			shortenedMsg = strings.SplitN(shortenedMsg, ". ", 2)[0]
+		}
+		if len(shortenedMsg) > shortenStatusMsgTo {
+			shortenedMsg = shortenedMsg[:shortenStatusMsgTo] + "..."
+		}
+
+		menuItemStatusMsg.SetTitle("Status: " + shortenedMsg)
 	}
 
 	// Set security levels on menu item.
