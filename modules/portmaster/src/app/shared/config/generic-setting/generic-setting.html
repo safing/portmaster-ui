@@ -43,8 +43,8 @@
 
   <ng-container [ngSwitch]="externalOptType(setting)">
     <app-security-setting *ngSwitchCase="optionHint.SecurityLevel" [disabled]="disabled || isLocked"
-      [autoFocus]="!isLocked" [setting]="_setting" [ngModel]="_currentValue"
-      (ngModelChange)="updateValue($event, true)">
+      [onOffMode]="!(networkRatingEnabled$ | async)" [autoFocus]="!isLocked" [setting]="_setting"
+      [ngModel]="_currentValue" (ngModelChange)="updateValue($event, true)">
     </app-security-setting>
 
     <ng-container *ngSwitchCase="optionHint.EndpointList">

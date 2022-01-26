@@ -23,9 +23,10 @@ var (
 	menuItemStatusMsg *systray.MenuItem
 	// TODO: Enable when auto detection is available.
 	// menuItemAutoDetect *systray.MenuItem
-	menuItemTrusted   *systray.MenuItem
-	menuItemUntrusted *systray.MenuItem
-	menuItemDanger    *systray.MenuItem
+	menuItemTrusted     *systray.MenuItem
+	menuItemUntrusted   *systray.MenuItem
+	menuItemDanger      *systray.MenuItem
+	menuItemRateNetwork *systray.MenuItem
 )
 
 func init() {
@@ -83,7 +84,7 @@ func onReady() {
 
 	// menu: network rating
 
-	menuItemRateNetwork := systray.AddMenuItem("Rate Your Network", "")
+	menuItemRateNetwork = systray.AddMenuItem("Rate Your Network", "")
 	menuItemRateNetwork.Disable()
 
 	// TODO: Enable when auto detection is available.
@@ -202,6 +203,27 @@ func updateTray() {
 		menuItemTrusted.Uncheck()
 		menuItemUntrusted.Uncheck()
 		menuItemDanger.Check()
+	}
+
+	items := []*systray.MenuItem{
+		menuItemRateNetwork,
+		menuItemStatusMsg,
+		menuItemTrusted,
+		menuItemUntrusted,
+		menuItemDanger,
+	}
+
+	for _, i := range items {
+		if i == nil {
+			continue
+		}
+		if networkRatingEnabled.IsSet() {
+			log.Debugf("%s: showing item", i.String())
+			i.Show()
+		} else {
+			log.Debugf("%s: hiding item", i.String())
+			i.Hide()
+		}
 	}
 
 	log.Infof(

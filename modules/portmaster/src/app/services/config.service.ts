@@ -1,6 +1,7 @@
 import { Injectable, TrackByFunction } from '@angular/core';
-import { Observable } from 'rxjs';
-import { distinctUntilChanged, filter, map, toArray } from 'rxjs/operators';
+import { BehaviorSubject, Observable } from 'rxjs';
+import { distinctUntilChanged, filter, map, multicast, refCount, share, toArray } from 'rxjs/operators';
+import { BoolSetting } from '.';
 import { BaseSetting, OptionType, Setting, SettingValueType } from './config.types';
 import { PortapiService } from './portapi.service';
 
@@ -9,6 +10,8 @@ import { PortapiService } from './portapi.service';
   providedIn: 'root'
 })
 export class ConfigService {
+  networkRatingEnabled$: Observable<boolean>;
+
   /**
    * A {@link TrackByFunction} for tracking settings.
    */
@@ -18,7 +21,13 @@ export class ConfigService {
   /** configPrefix is the database key prefix for the config db */
   readonly configPrefix = "config:";
 
-  constructor(private portapi: PortapiService) { }
+  constructor(private portapi: PortapiService) {
+    this.networkRatingEnabled$ = this.watch<BoolSetting>("core/enableNetworkRating")
+      .pipe(
+        multicast(() => new BehaviorSubject(false)),
+        refCount(),
+      )
+  }
 
   /**
    * Loads a configuration setting from the database.

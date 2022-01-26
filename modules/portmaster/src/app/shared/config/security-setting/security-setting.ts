@@ -1,6 +1,6 @@
 import { ListKeyManagerOption } from '@angular/cdk/a11y';
 import { coerceBooleanProperty } from '@angular/cdk/coercion';
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, forwardRef, HostListener, Input } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, forwardRef, HostListener, Input, OnChanges, SimpleChanges } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { IntSetting, parseSupportedValues, SecurityLevel } from 'src/app/services';
 
@@ -29,7 +29,7 @@ class SecuritySetting implements ListKeyManagerOption {
     }
   ]
 })
-export class SecuritySettingComponent implements ControlValueAccessor {
+export class SecuritySettingComponent implements ControlValueAccessor, OnChanges {
   readonly SecurityLevels = SecurityLevel;
 
   @HostListener('blur')
@@ -56,38 +56,25 @@ export class SecuritySettingComponent implements ControlValueAccessor {
   }
 
   /**
+   * Whether or not the security level switch should be
+   * displayed as a simple on/off toggle. This is the case
+   * when the network rating system is disabled.
+   */
+  @Input()
+  set onOffMode(v: any) {
+    this._onOffMode = coerceBooleanProperty(v);
+  }
+  get onOffMode() { return this._onOffMode; }
+  private _onOffMode = false;
+
+  /**
    * The security setting represented by this component.
    * Whenever the setting is changed we need to check which
    * security levels are allowed (with or with OFF) and
    * recreate a list key manager for keyboard support.
    */
   @Input()
-  set setting(s: IntSetting | null) {
-    let changed = false;
-
-    if (!!s && !this._setting || s?.Key != this._setting?.Key) {
-      changed = true;
-    }
-
-    this._setting = s || null;
-
-    if (!!s && changed) {
-      this.availableLevels = [
-        new SecuritySetting('Danger', SecurityLevel.Extreme),
-        new SecuritySetting('Untrusted', SecurityLevel.High),
-        new SecuritySetting('Trusted', SecurityLevel.Normal),
-      ];
-
-      const values = parseSupportedValues(s);
-      if (values.includes(SecurityLevel.Off)) {
-        this.availableLevels.splice(0, 0, new SecuritySetting('Off', SecurityLevel.Off, 'var(--info-red)'))
-      }
-    }
-  }
-  get setting(): IntSetting | null {
-    return this._setting;
-  }
-  private _setting: IntSetting | null = null;
+  setting: IntSetting | null = null;
 
   /** The currently configured security level */
   private currentValue: number = 0;
@@ -103,24 +90,72 @@ export class SecuritySettingComponent implements ControlValueAccessor {
 
   constructor(private changeDetectorRef: ChangeDetectorRef) { }
 
-  /** Returns true if level is active */
-  isActive(level: SecurityLevel): boolean {
-    if (level === SecurityLevel.Off) {
-      return this.currentValue === level;
+  ngOnChanges(changes: SimpleChanges) {
+    if (('setting' in changes || 'onOffMode' in changes) && !!this.setting) {
+      const values = parseSupportedValues(this.setting);
+
+      if (!this.onOffMode) {
+        this.availableLevels = [
+          new SecuritySetting('Danger', SecurityLevel.Extreme),
+          new SecuritySetting('Untrusted', SecurityLevel.High),
+          new SecuritySetting('Trusted', SecurityLevel.Normal),
+        ];
+
+        if (values.includes(SecurityLevel.Off)) {
+          this.availableLevels.splice(0, 0, new SecuritySetting('Off', SecurityLevel.Off, 'var(--info-red)'))
+        }
+      } else {
+        let defaultValue = this.getSingleLevel(this.setting.DefaultValue);
+        if (defaultValue === SecurityLevel.Normal) {
+          defaultValue = SecurityLevel.High;
+        }
+
+        this.availableLevels = [
+          new SecuritySetting('Off', defaultValue, 'var(--info-red)'),
+          new SecuritySetting('On', SecurityLevel.Normal)
+        ]
+
+        console.log(`${this.setting.Key}: on-off mode with default/off = ${SecurityLevel[defaultValue]} and current = ${this.currentValue}`)
+      }
     }
-    return (this.currentValue & level) > 0
+  }
+
+  /** Returns true if level is active */
+  isActive(level: SecurityLevel, current = this.currentValue): boolean {
+    if (this.onOffMode) {
+      if (level === SecurityLevel.Normal) {
+        return current === 7;
+      }
+      return current !== 7;
+    }
+
+    if (level === SecurityLevel.Off) {
+      return current === level;
+    }
+    return (current & level) > 0
   }
 
   getLevel(): SecurityLevel {
-    if (this.isActive(SecurityLevel.Normal)) {
+    if (this.onOffMode) {
+      if (this.currentValue === 7) {
+        return SecurityLevel.Normal;
+      }
+      return this.availableLevels[0].level; // the default value
+    }
+
+    return this.getSingleLevel(this.currentValue);
+  }
+
+  private getSingleLevel(val: number): SecurityLevel {
+    if (this.isActive(SecurityLevel.Normal, val)) {
       return SecurityLevel.Normal;
     }
 
-    if (this.isActive(SecurityLevel.High)) {
+    if (this.isActive(SecurityLevel.High, val)) {
       return SecurityLevel.High;
     }
 
-    if (this.isActive(SecurityLevel.Extreme)) {
+    if (this.isActive(SecurityLevel.Extreme, val)) {
       return SecurityLevel.Extreme;
     }
 
@@ -145,6 +180,8 @@ export class SecuritySettingComponent implements ControlValueAccessor {
         break;
     }
 
+    console.log(`Setting to ${SecurityLevel[level]}, ${newLevel}`)
+
     this.currentValue = newLevel;
     this._onChange(newLevel);
   }
@@ -162,6 +199,7 @@ export class SecuritySettingComponent implements ControlValueAccessor {
   /** writeValues writes a new value for the security setings. It satisfies ControlValueAccessor */
   writeValue(value: number) {
     this.currentValue = value;
+    console.log(`${this.setting?.Key}: received new current value: ${this.currentValue} which counts as ${SecurityLevel[this.getLevel()]}`)
     this.changeDetectorRef.markForCheck();
   }
 }
