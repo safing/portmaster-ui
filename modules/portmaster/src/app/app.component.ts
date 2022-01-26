@@ -23,6 +23,8 @@ export class AppComponent implements OnInit {
   );
   title = 'portmaster';
 
+  get showOverlay$() { return this.exitService.showOverlay$ }
+
   constructor(
     public ngZone: NgZone,
     public portapi: PortapiService,
@@ -30,7 +32,7 @@ export class AppComponent implements OnInit {
     private router: Router,
     private notificationService: NotificationsService,
     private actionIndicatorService: ActionIndicatorService,
-    private exitService: ExitService, // NOT USED BUT MUST BE INJECTED
+    private exitService: ExitService,
   ) {
     (window as any).fakeNotification = () => {
       this.ngZone.run(() => {

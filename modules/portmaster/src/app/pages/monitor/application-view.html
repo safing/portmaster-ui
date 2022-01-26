@@ -64,6 +64,12 @@
         <span>{{profile!.profile!.ApproxLastUsed * 1000 | date:'medium'}}</span>
       </span>
     </div>
+    <div class="col" *appExpertiseLevel="'developer'">
+      <span>
+        <span>Active Connections:</span>
+        <span>{{profile!.processGroup!.countAliveConnections}}</span>
+      </span>
+    </div>
   </div>
 
   <div class="row" *appExpertiseLevel="'developer'">
@@ -94,16 +100,16 @@
 
   <ng-container *ngIf="profile?.processGroup?.exitNodes as exitNodes">
     <div class="row" *appExpertiseLevel="'developer'">
-       <div class="col">
-         <span>
-           <span>Exit Nodes:</span>
-           <span>
-             <ul>
-              <li *ngFor="let nodeID of exitNodes">{{nodeID}}</li>
-             </ul>
-           </span>
-         </span>
-       </div>
+      <div class="col">
+        <span>
+          <span>Exit Nodes:</span>
+          <span>
+            <ul>
+              <li *ngFor="let nodeID of (exitNodes | keyvalue)">{{nodeID.key}}</li>
+            </ul>
+          </span>
+        </span>
+      </div>
     </div>
   </ng-container>
 </div>

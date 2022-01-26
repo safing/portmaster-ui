@@ -6,7 +6,7 @@
   <router-outlet></router-outlet>
 </div>
 
-<div class="loading" *ngIf="!(connected | async)" [@fadeIn] [@fadeOut]>
+<div class="loading" *ngIf="(showOverlay$ | async) as overlayText" [@fadeIn] [@fadeOut]>
   <div class="message">
     <div class="logo" routerLink="monitor">
       <svg data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
@@ -39,7 +39,7 @@
         </g>
       </svg>
     </div>
-    <h1>Connecting to Portmaster service</h1>
+    <h1>{{overlayText}}</h1>
     <h1>...</h1>
   </div>
 </div>

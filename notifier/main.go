@@ -27,8 +27,10 @@ var (
 	printStackOnExit bool
 	showVersion      bool
 
-	apiClient = client.NewClient("127.0.0.1:817")
-	connected = abool.New()
+	apiClient    = client.NewClient("127.0.0.1:817")
+	connected    = abool.New()
+	shuttingDown = abool.New()
+	restarting   = abool.New()
 
 	mainCtx, cancelMainCtx = context.WithCancel(context.Background())
 	mainWg                 = &sync.WaitGroup{}
