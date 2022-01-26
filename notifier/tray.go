@@ -136,7 +136,7 @@ func updateTray() {
 		newStatusMsg = "Shutting Down Portmaster"
 
 	case restarting.IsSet():
-		newIconID = icons.RedID
+		newIconID = icons.YellowID
 		newStatusMsg = "Restarting Portmaster"
 
 	case !connected.IsSet():
