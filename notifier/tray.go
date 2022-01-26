@@ -5,6 +5,7 @@ import (
 	"os/exec"
 	"path/filepath"
 	"runtime"
+	"strings"
 	"sync"
 	"time"
 
@@ -58,25 +59,7 @@ func onReady() {
 	// menu: open app
 	if dataDir != "" {
 		menuItemOpenApp := systray.AddMenuItem("Open App", "")
-		go clickListener(menuItemOpenApp, func() {
-			// build path to app
-			pmStartPath := filepath.Join(dataDir, "portmaster-start")
-			if runtime.GOOS == "windows" {
-				pmStartPath += ".exe"
-			}
-
-			// start app
-			cmd := exec.Command(pmStartPath, "app", "--data", dataDir)
-			err := cmd.Start()
-			if err != nil {
-				log.Warningf("failed to start app: %s", err)
-				return
-			}
-			err = cmd.Process.Release()
-			if err != nil {
-				log.Warningf("failed to release app process: %s", err)
-			}
-		})
+		go clickListener(menuItemOpenApp, launchApp)
 		systray.AddSeparator()
 	}
 
@@ -260,4 +243,29 @@ func clickListener(item *systray.MenuItem, fn func()) {
 	for range item.ClickedCh {
 		fn()
 	}
+}
+
+func launchApp() {
+	// build path to app
+	pmStartPath := filepath.Join(dataDir, "portmaster-start")
+	if runtime.GOOS == "windows" {
+		pmStartPath += ".exe"
+	}
+
+	// start app
+	cmd := exec.Command(pmStartPath, "app", "--data", dataDir)
+	err := cmd.Start()
+	if err != nil {
+		log.Warningf("failed to start app: %s", err)
+		return
+	}
+
+	// Use cmd.Wait() instead of cmd.Process.Release() to properly release its resources.
+	// See https://github.com/golang/go/issues/36534
+	go func() {
+		err := cmd.Wait()
+		if err != nil {
+			log.Warningf("failed to wait/release app process: %s", err)
+		}
+	}()
 }
