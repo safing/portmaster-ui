@@ -42,7 +42,8 @@ export const PageIDs = {
   'monitor': '/monitor',
   'support': '/support',
   'settings': '/settings',
-  'apps': '/app/overview'
+  'apps': '/app/overview',
+  'spn': '/spn',
 }
 
 export interface OpenSettingAction extends BaseAction {
