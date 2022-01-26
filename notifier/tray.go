@@ -5,6 +5,7 @@ import (
 	"os/exec"
 	"path/filepath"
 	"runtime"
+	"strings"
 	"sync"
 	"time"
 
@@ -12,6 +13,10 @@ import (
 
 	"github.com/getlantern/systray"
 	"github.com/safing/portbase/log"
+)
+
+const (
+	shortenStatusMsgTo = 40
 )
 
 var (
@@ -54,25 +59,7 @@ func onReady() {
 	// menu: open app
 	if dataDir != "" {
 		menuItemOpenApp := systray.AddMenuItem("Open App", "")
-		go clickListener(menuItemOpenApp, func() {
-			// build path to app
-			pmStartPath := filepath.Join(dataDir, "portmaster-start")
-			if runtime.GOOS == "windows" {
-				pmStartPath += ".exe"
-			}
-
-			// start app
-			cmd := exec.Command(pmStartPath, "app", "--data", dataDir)
-			err := cmd.Start()
-			if err != nil {
-				log.Warningf("failed to start app: %s", err)
-				return
-			}
-			err = cmd.Process.Release()
-			if err != nil {
-				log.Warningf("failed to release app process: %s", err)
-			}
-		})
+		go clickListener(menuItemOpenApp, launchApp)
 		systray.AddSeparator()
 	}
 
@@ -149,7 +136,7 @@ func updateTray() {
 		newStatusMsg = "Shutting Down Portmaster"
 
 	case restarting.IsSet():
-		newIconID = icons.RedID
+		newIconID = icons.YellowID
 		newStatusMsg = "Restarting Portmaster"
 
 	case !connected.IsSet():
@@ -181,7 +168,17 @@ func updateTray() {
 	// Set message if changed.
 	if newStatusMsg != activeStatusMsg {
 		activeStatusMsg = newStatusMsg
-		menuItemStatusMsg.SetTitle("Status: " + activeStatusMsg)
+
+		// Shorten message if too long.
+		shortenedMsg := activeStatusMsg
+		if len(shortenedMsg) > shortenStatusMsgTo && strings.Contains(shortenedMsg, ". ") {
+			shortenedMsg = strings.SplitN(shortenedMsg, ". ", 2)[0]
+		}
+		if len(shortenedMsg) > shortenStatusMsgTo {
+			shortenedMsg = shortenedMsg[:shortenStatusMsgTo] + "..."
+		}
+
+		menuItemStatusMsg.SetTitle("Status: " + shortenedMsg)
 	}
 
 	// Set security levels on menu item.
@@ -215,7 +212,6 @@ func updateTray() {
 
 	items := []*systray.MenuItem{
 		menuItemRateNetwork,
-		menuItemStatusMsg,
 		menuItemTrusted,
 		menuItemUntrusted,
 		menuItemDanger,
@@ -247,4 +243,29 @@ func clickListener(item *systray.MenuItem, fn func()) {
 	for range item.ClickedCh {
 		fn()
 	}
+}
+
+func launchApp() {
+	// build path to app
+	pmStartPath := filepath.Join(dataDir, "portmaster-start")
+	if runtime.GOOS == "windows" {
+		pmStartPath += ".exe"
+	}
+
+	// start app
+	cmd := exec.Command(pmStartPath, "app", "--data", dataDir)
+	err := cmd.Start()
+	if err != nil {
+		log.Warningf("failed to start app: %s", err)
+		return
+	}
+
+	// Use cmd.Wait() instead of cmd.Process.Release() to properly release its resources.
+	// See https://github.com/golang/go/issues/36534
+	go func() {
+		err := cmd.Wait()
+		if err != nil {
+			log.Warningf("failed to wait/release app process: %s", err)
+		}
+	}()
 }
