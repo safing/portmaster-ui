@@ -229,7 +229,6 @@ func updateTray() {
 
 	items := []*systray.MenuItem{
 		menuItemRateNetwork,
-		menuItemStatusMsg,
 		menuItemTrusted,
 		menuItemUntrusted,
 		menuItemDanger,
