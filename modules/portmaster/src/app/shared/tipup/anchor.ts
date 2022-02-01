@@ -16,7 +16,7 @@ export class TipUpAnchorDirective implements TipupPlacement {
   isActiveAnchor = false;
 
   @Input('tipUpAnchor')
-  set position(posSpec: string) {
+  set position(posSpec: string | undefined) {
     const parts = (posSpec || '').split(';')
     if (parts.length > 2) {
       if (isDevMode()) {

@@ -26,7 +26,7 @@ export class TipUpComponent implements OnInit, TipUp {
   ) { }
 
   ngOnInit() {
-    const doc = MyYamlFile[this.token];
+    const doc = this.tipupService.getTipUp(this.token);
     if (!!doc) {
       Object.assign(this, doc);
       this.urlText = doc.urlText || 'Read More';
@@ -38,8 +38,8 @@ export class TipUpComponent implements OnInit, TipUp {
       return;
     }
 
-    this.dialogRef.close();
     this.tipupService.open(this.nextKey);
+    this.dialogRef.close();
   }
 
   async runAction(btn: Button) {
