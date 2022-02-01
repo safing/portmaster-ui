@@ -13,17 +13,50 @@ module.exports = {
     colors: {
       transparent: 'transparent',
       current: 'currentColor',
+      white: '#ffffff',
+      background: '#121213',
 
-      // The overall application background color
-      background: 'var(--background)',
-
-      // Text shades
-      text: {
-        primary: 'var(--text-primary)',
-        secondary: 'var(--text-secondary)',
-        tertiary: 'var(--text-tertiary)',
+      gray: {
+        100: '#131111',
+        200: '#1b1b1b',
+        300: '#222222',
+        400: '#2c2c2c',
+        500: '#474747',
+        600: '#888888',
+        700: '#ababab',
+        DEFAULT: '#ababab',
       },
 
+      green: {
+        100: '#143d24',
+        200: '#18823d',
+        300: '#1de966',
+        DEFAULT: '#18823d',
+      },
+
+      red: {
+        100: '#3d1414',
+        200: '#811818',
+        300: '#e01d1d',
+        DEFAULT: '#d12e2e',
+      },
+
+      yellow: {
+        100: '#3d3a14',
+        200: '#827918',
+        300: '#e9d81d',
+        DEFAULT: '#e9d81d',
+      },
+
+      blue: {
+        DEFAULT: '#4e97fa',
+      },
+
+      // Legacy color definitions
+
+      // The overall application background color
+
+      // Text shades
       cards: {
         primary: 'var(--cards-primary)',
         secondary: 'var(--cards-secondary)',
@@ -47,7 +80,9 @@ module.exports = {
     spacing: {
       px: '1px',
       '0': '0',
+      '0.5': '0.125rem',
       '1': '0.25rem',
+      '1.5': '0.375rem',
       '2': '0.5rem',
       '3': '0.75rem',
       '4': '1rem',
@@ -166,6 +201,7 @@ module.exports = {
       mono: ['Menlo', 'Monaco', 'Consolas', '"Liberation Mono"', '"Courier New"', 'monospace'],
     },
     fontSize: {
+      xxs: '0.7rem',
       xs: '0.75rem',
       sm: '0.875rem',
       base: '1rem',
@@ -310,7 +346,15 @@ module.exports = {
       '1': '1',
       '2': '2',
     },
-    textColor: theme => theme('colors').text,
+    textColor: theme => {
+      return {
+        primary: theme('colors.white'),
+        secondary: theme('colors.gray.700'),
+        tertiary: theme('colors.gray.600'),
+
+        ...theme('colors'),
+      }
+    },
     textOpacity: theme => theme('opacity'),
     width: theme => ({
       auto: 'auto',
@@ -343,6 +387,7 @@ module.exports = {
       '11/12': '91.666667%',
       full: '100%',
       screen: '100vw',
+      fit: 'fit-content'
     }),
     zIndex: {
       auto: 'auto',
