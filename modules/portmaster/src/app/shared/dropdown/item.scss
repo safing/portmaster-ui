@@ -1,5 +1,3 @@
 :host {
-  font-size: 0.7rem;
-  font-weight: 500;
-  color: #cacaca;
+  @apply text-xxs font-medium text-primary;
 }

@@ -1,5 +1,5 @@
 import { coerceBooleanProperty } from '@angular/cdk/coercion';
-import { CdkConnectedOverlay, CdkOverlayOrigin, ScrollStrategy, ScrollStrategyOptions } from '@angular/cdk/overlay';
+import { CdkOverlayOrigin, ScrollStrategy, ScrollStrategyOptions } from '@angular/cdk/overlay';
 import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, ContentChildren, ElementRef, forwardRef, HostBinding, HostListener, Input, QueryList, Renderer2, ViewChild } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { DropDownValueDirective } from './item';
