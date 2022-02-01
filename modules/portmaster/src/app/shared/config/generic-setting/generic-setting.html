@@ -1,19 +1,21 @@
-<div class="settings-wrapper">
-
-  <div class="setting-meta">
+<div class="relative flex flex-row flex-wrap items-center px-5 py-5 bg-gray-200 rounded" [class.pr-8]="lockDefaults">
+  <!--
+  <div>
     <h3 for="setting">
       <span class="release-level rejected">
         <fa-icon icon="exclamation"></fa-icon>
       </span>
+
       <span class="release-level beta" *ngIf="setting?.ReleaseLevel === releaseLevel.Beta">Beta</span>
       <span class="release-level experimental"
         *ngIf="setting?.ReleaseLevel === releaseLevel.Experimental">Experimental</span>
 
-      <span [innerHTML]="setting?.Name | safe:'html'"></span>
       <span class="expertise" *ngIf="setting?.ExpertiseLevel === expertise.expert">Advanced</span>
       <span class="expertise" *ngIf="setting?.ExpertiseLevel === expertise.developer">Developer</span>
 
       <span class="expertise" *appExpertiseLevel="'developer'">{{setting?.Key}}</span>
+
+      <span [innerHTML]="setting?.Name | safe:'html'"></span>
     </h3>
   </div>
 
@@ -32,74 +34,145 @@
 
     <markdown *ngIf="showHelp" [@fadeIn] [@fadeOut] class="help-text" emoji [data]="setting?.Help"></markdown>
   </div>
+-->
 
-  <!-- Quick Settings -->
-  <div *ngIf="quickSettings.length > 0" class="quick-settings">
-    <span>Quick Settings: </span>
-    <button *ngFor="let quick of quickSettings" (click)="applyQuickSetting(quick)">
-      {{quick.Name}}
-    </button>
+
+  <div class="flex flex-col flex-grow">
+
+    <div class="flex flex-row items-center justify-start space-x-2 w-fit">
+      <h3 [innerHTML]="setting?.Name | safe:'html'" class="mb-0 name"></h3>
+      <app-tipup *ngIf="setting?.Description" [key]="setting!.Key" [text]="setting?.Description"
+        [title]="setting?.Name"></app-tipup>
+    </div>
+
+    <span class="flex flex-row items-center justify-start space-x-2"
+      *ngIf="setting?.ReleaseLevel != releaseLevel.Stable || rejected || (expertiseLevel | async) === 'developer'">
+      <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-red-300" *ngIf="rejected" fill="none"
+        viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+          d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+      </svg>
+
+      <span class="inline-block px-1.5 py-0.5 bg-gray-400 rounded text-xxs text-blue"
+        *appExpertiseLevel="'developer'">{{setting?.Key}}</span>
+      <span class="inline-block px-1.5 py-0.5 text-gray-100 bg-yellow-300 rounded text-xxs"
+        *ngIf="setting?.ReleaseLevel === releaseLevel.Beta">Beta</span>
+      <span class="inline-block px-1.5 py-0.5 text-white bg-red-300 rounded text-xxs"
+        *ngIf="setting?.ReleaseLevel === releaseLevel.Experimental">Experimental</span>
+    </span>
   </div>
 
+
+  <!-- Quick Settings -->
+  <div *ngIf="quickSettings.length > 0">
+    <app-menu-trigger [menu]="quickSettingsMenu" useContent="true" class="text-secondary hover:text-primary">
+      <svg xmlns="http://www.w3.org/2000/svg" class="inline-block w-4 h-4" fill="none" viewBox="0 0 24 24"
+        stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+          d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
+      </svg>
+      <span class="ml-1 text-xs">Quick Settings</span>
+    </app-menu-trigger>
+
+    <app-menu #quickSettingsMenu>
+      <app-menu-item *ngFor="let quick of quickSettings" (click)="applyQuickSetting(quick)">
+        {{quick.Name}}
+      </app-menu-item>
+    </app-menu>
+  </div>
+
+  <!-- Actual settings input -->
   <ng-container [ngSwitch]="externalOptType(setting)">
+    <!-- Security Level Switches -->
     <app-security-setting *ngSwitchCase="optionHint.SecurityLevel" [disabled]="disabled || isLocked"
-      [onOffMode]="!(networkRatingEnabled$ | async)" [autoFocus]="!isLocked" [setting]="_setting"
-      [ngModel]="_currentValue" (ngModelChange)="updateValue($event, true)">
+      class="w-full mt-2 xl:mt-0 xl:w-auto" [onOffMode]="!(networkRatingEnabled$ | async)" [autoFocus]="!isLocked"
+      [setting]="_setting" [ngModel]="_currentValue" (ngModelChange)="updateValue($event, true)">
     </app-security-setting>
 
+    <!-- Rule lists -->
     <ng-container *ngSwitchCase="optionHint.EndpointList">
-      <app-rule-list [readonly]="disabled || isLocked" [ngModel]="_currentValue" [autoFocus]="!isLocked"
-        (ngModelChange)="updateValue($event, true)"></app-rule-list>
+      <app-rule-list class="w-full mt-4" [readonly]="disabled || isLocked" [ngModel]="_currentValue"
+        [autoFocus]="!isLocked" (ngModelChange)="updateValue($event, true)"></app-rule-list>
 
       <div class="stacked-values" *ngIf="showStackable">
-        <h4>This setting stacks on top of the following global values:</h4>
-        <app-rule-list [readonly]="true" [ngModel]="defaultValue"></app-rule-list>
+        <h4>This setting stacks on top of the following <a class="underline text-tertiary hover:text-primary"
+            routerLink="/settings" [queryParams]="{setting: setting?.Key}">global setting</a>:</h4>
+        <app-rule-list class="w-full mt-4" [readonly]="true" [ngModel]="defaultValue"></app-rule-list>
       </div>
     </ng-container>
 
+    <!-- Filter lists -->
     <ng-container *ngSwitchCase="optionHint.FilterList">
-      <app-filter-list [ngModel]="_currentValue" [autoFocus]="!isLocked" (ngModelChange)="updateValue($event, true)">
+      <app-filter-list class="w-full mt-4" [ngModel]="_currentValue" [autoFocus]="!isLocked"
+        (ngModelChange)="updateValue($event, true)">
       </app-filter-list>
     </ng-container>
 
+    <!-- Ordered string lists -->
     <ng-container *ngSwitchCase="optionHint.OrderedList">
-      <app-ordered-list [ngModel]="_currentValue" [autoFocus]="!isLocked" (ngModelChange)="updateValue($event, true)"
-        [readonly]="disabled || isLocked"></app-ordered-list>
+      <app-ordered-list class="w-full mt-4" [ngModel]="_currentValue" [autoFocus]="!isLocked"
+        (ngModelChange)="updateValue($event, true)" [readonly]="disabled || isLocked"></app-ordered-list>
 
       <div class="stacked-values" *ngIf="showStackable">
-        <h4>This setting stacks on top of the following global values:</h4>
-        <app-ordered-list [ngModel]="defaultValue" [readonly]="true"></app-ordered-list>
+        <h4>This setting stacks on top of the following <a class="underline text-tertiary hover:text-primary"
+            routerLink="/settings" [queryParams]="{setting: setting?.Key}">global setting</a>:</h4>
+        <app-ordered-list class="w-full mt-4" [ngModel]="defaultValue" [readonly]="true"></app-ordered-list>
       </div>
     </ng-container>
 
+    <!-- Default if no display hint is given -->
     <ng-container *ngSwitchDefault>
+      <!-- basic string array with fixed order on optional stacking -->
       <ng-container *ngIf="setting?.OptType == optionType.StringArray; else: basicSetting">
-        <app-ordered-list fixedOrder="true" [autoFocus]="!isLocked" [ngModel]="_currentValue"
+        <app-ordered-list class="w-full mt-4" fixedOrder="true" [autoFocus]="!isLocked" [ngModel]="_currentValue"
           (ngModelChange)="updateValue($event, true)" [readonly]="disabled || isLocked">
         </app-ordered-list>
 
         <div class="stacked-values" *ngIf="showStackable">
-          <h4>This setting stacks on top of the following global values:</h4>
-          <app-ordered-list fixedOrder="true" [ngModel]="defaultValue" [readonly]="true">
+          <h4>This setting stacks on top of the following <a class="underline text-tertiary hover:text-primary"
+              routerLink="/settings" [queryParams]="{setting: setting?.Key}">global setting</a>:</h4>
+          <app-ordered-list class="w-full mt-4" fixedOrder="true" [ngModel]="defaultValue" [readonly]="true">
           </app-ordered-list>
         </div>
       </ng-container>
 
       <ng-template #basicSetting>
-        <app-basic-setting [setting]="_setting" [disabled]="disabled || isLocked" [ngModel]="_currentValue"
-          [autoFocus]="!isLocked" (ngModelChange)="updateValue($event)" (onBlur)="updateValue(_currentValue!, true)">
+        <!-- basic inputs -->
+        <app-basic-setting class="block" [setting]="_setting" [disabled]="disabled || isLocked"
+          [ngModel]="_currentValue" [autoFocus]="!isLocked" (ngModelChange)="updateValue($event)"
+          (onBlur)="updateValue(_currentValue!, true)">
         </app-basic-setting>
       </ng-template>
     </ng-container>
   </ng-container>
 
-  <div class="secondary-actions">
-    <span [class.visible]="userConfigured" tabindex="0" (click)="resetValue()">
-      {{resetLabelText}}
-    </span>
-  </div>
+
+  <span class="unlock-button" [class.bg-blue]="!isLocked" [class.bg-gray-500]="isLocked" *ngIf="lockDefaults"
+    (click)="toggleLock()">
+    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-white" viewBox="0 0 20 20" fill="currentColor"
+      *ngIf="isLocked">
+      <path fill-rule="evenodd"
+        d="M4.083 9h1.946c.089-1.546.383-2.97.837-4.118A6.004 6.004 0 004.083 9zM10 2a8 8 0 100 16 8 8 0 000-16zm0 2c-.076 0-.232.032-.465.262-.238.234-.497.623-.737 1.182-.389.907-.673 2.142-.766 3.556h3.936c-.093-1.414-.377-2.649-.766-3.556-.24-.56-.5-.948-.737-1.182C10.232 4.032 10.076 4 10 4zm3.971 5c-.089-1.546-.383-2.97-.837-4.118A6.004 6.004 0 0115.917 9h-1.946zm-2.003 2H8.032c.093 1.414.377 2.649.766 3.556.24.56.5.948.737 1.182.233.23.389.262.465.262.076 0 .232-.032.465-.262.238-.234.498-.623.737-1.182.389-.907.673-2.142.766-3.556zm1.166 4.118c.454-1.147.748-2.572.837-4.118h1.946a6.004 6.004 0 01-2.783 4.118zm-6.268 0C6.412 13.97 6.118 12.546 6.03 11H4.083a6.004 6.004 0 002.783 4.118z"
+        clip-rule="evenodd" />
+    </svg>
+
+    <svg viewBox="0 0 24 24" class="w-4 h-4 text-white" stroke="currentColor" *ngIf="!isLocked">
+      <g fill="none" class="inner">
+        <path shape-rendering="geometricPrecision" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+          d="M8 20.064V11c0-1.105.895-2 2-2h10.487M8 14h12.776" />
+        <path shape-rendering="geometricPrecision" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+          d="M11.005 11.49c-.003 0-.005.002-.005.005s.002.005.005.005.005-.002.005-.005-.002-.005-.005-.005M13.548 11.49c-.003 0-.005.002-.005.005s.002.005.005.005.005-.002.005-.005-.002-.005-.005-.005" />
+        <path shape-rendering="geometricPrecision" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+          d="M12 21v0c4.971 0 9-4.029 9-9v0c0-4.971-4.029-9-9-9v0c-4.971 0-9 4.029-9 9v0c0 4.971 4.029 9 9 9z" />
+        <path shape-rendering="geometricPrecision" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+          d="M16.088 11.49c-.003 0-.005.002-.005.005s.002.005.005.005.005-.002.005-.005-.003-.005-.005-.005" />
+      </g>
+    </svg>
+  </span>
 </div>
 
-<span class="unlock-button" [class.locked]="isLocked" *ngIf="lockDefaults" (click)="toggleLock()">
-  <fa-icon [icon]="isLocked ? 'pen' : 'times'"></fa-icon>
-</span>
+<div *ngIf="userConfigured" class="mt-2" [@fadeIn] [@fadeOut]>
+  <span class="cursor-pointer text-tertiary hover:text-yellow" tabindex="0" (click)="resetValue()">
+    {{resetLabelText}}
+  </span>
+</div>

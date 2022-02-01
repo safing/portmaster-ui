@@ -1,13 +1,8 @@
 :host {
-  display : block;
-  position: relative;
-  @apply px-6;
-  @apply pt-2;
+  @apply block;
 
   &.ng-invalid {
-    border: 1px solid transparent;
-    @apply border-info-red;
-    --border-opacity: 0.5;
+    @apply border border-red border-opacity-50;
   }
 
   &.rejected {
@@ -16,127 +11,32 @@
     }
   }
 
-  &.locked {
-    background-color: rgba(var(--cards-secondary-rgb), var(--bg-opacity, 1));
-
-    .settings-wrapper {
-      opacity: 0.4;
+  &.highlighted:not(.touched) {
+    .name {
+      animation: fade-color 5s ease-out;
     }
-  }
-
-  .settings-wrapper {
-    opacity   : 1;
-    transition: all .3s ease-in-out;
   }
 }
 
 .stacked-values {
   margin-top: 0.5rem;
-  opacity   : 0.35;
+  opacity: 0.7;
+  @apply w-full;
 }
 
 .unlock-button {
-  --unlock-button-size: 30px;
+  @apply flex w-5 h-5 rounded-full;
 
-  display        : flex;
-  width          : var(--unlock-button-size);
-  height         : var(--unlock-button-size);
-  border-radius  : 50%;
   justify-content: center;
-  align-items    : center;
-  cursor         : pointer;
-  @apply bg-buttons-light;
-  transition: opacity .4s ease-in-out;
-
-  opacity: 0.6;
-
-  &.locked {
-    opacity: 1;
-  
-}
+  align-items: center;
+  cursor: pointer;
 
   position: absolute;
-  right   : calc(-1 *var(--unlock-button-size)/2);
-  top     : calc(50% - var(--unlock-button-size)/2);
+  right: calc(-1.25rem/2);
+  top: calc(50% - 1.25rem/2);
 
   &:hover {
-    @apply bg-buttons-dark;
-  }
-}
-
-div.setting-meta {
-  display        : flex;
-  justify-content: space-between;
-}
-
-h3 {
-  display: block;
-  width  : 100%;
-
-  .expertise {
-    @apply ml-2;
-    @apply text-xs;
-    @apply text-tertiary;
-  }
-
-  .release-level {
-    @apply mr-1;
-
-    &.beta {
-      color: theme('colors.info.yellow');
-    }
-
-    &.experimental {
-      color: theme('colors.info.red');
-    }
-
-    &.rejected {
-      margin-left: -1rem;
-      margin-right: 1rem;
-      color: theme("colors.info.yellow");
-      opacity: 0;
-    }
-  }
-}
-
-div.secondary-actions {
-  @apply mt-1;
-  @apply mb-1;
-
-  span {
-    cursor    : pointer;
-    visibility: hidden;
-    @apply text-tertiary;
-
-    &:hover {
-      @apply text-primary;
-    }
-
-    &.visible {
-      visibility: visible;
-    }
-
-    &:active,
-    &:focus {
-      outline: none;
-      color  : theme('colors.info.yellow');
-    }
-
-    &:not(:first-of-type) {
-      @apply ml-3;
-    }
-  }
-}
-
-.quick-settings {
-  width          : 100%;
-  display        : flex;
-  justify-content: flex-start;
-  align-items    : center;
-  @apply py-2;
-
-  button {
-    @apply ml-2;
+    @apply bg-blue;
   }
 }
 
@@ -151,8 +51,8 @@ div.secondary-actions {
 }
 
 .notice {
-  display      : block;
-  padding-left : 0.5rem;
+  display: block;
+  padding-left: 0.5rem;
   padding-right: 0.5rem;
   @apply mb-4;
   @apply text-secondary;
@@ -169,8 +69,8 @@ div.secondary-actions {
 
   .toggle {
     position: relative;
-    left    : -0.25rem;
-    cursor  : pointer;
+    left: -0.25rem;
+    cursor: pointer;
 
     fa-icon {
       @apply pr-1;
@@ -179,5 +79,19 @@ div.secondary-actions {
     &:hover {
       @apply text-primary;
     }
+  }
+}
+
+@keyframes fade-color {
+  0% {
+    @apply text-blue;
+  }
+
+  90% {
+    @apply text-blue;
+  }
+
+  100% {
+    @apply text-primary;
   }
 }

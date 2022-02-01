@@ -5,6 +5,7 @@ import { Subject, Subscription } from 'rxjs';
 import { debounceTime } from 'rxjs/operators';
 import { BaseSetting, ExternalOptionHint, SettingValueType, ConfigService, ExpertiseLevelNumber, ReleaseLevel, SecurityLevel, Setting, isDefaultValue, OptionType, WellKnown, QuickSetting, applyQuickSetting } from 'src/app/services';
 import { fadeInAnimation, fadeOutAnimation } from '../../animations';
+import { ExpertiseService } from '../../expertise/expertise.service';
 
 export interface SaveSettingEvent<S extends BaseSetting<any, any> = any> {
   key: string;
@@ -287,7 +288,12 @@ export class GenericSettingComponent<S extends BaseSetting<any, any>> implements
   /** Whether or not the network rating system is enabled. */
   networkRatingEnabled$ = this.configService.networkRatingEnabled$;
 
+  get expertiseLevel() {
+    return this.expertiseService.change;
+  }
+
   constructor(
+    private expertiseService: ExpertiseService,
     private configService: ConfigService,
     private changeDetectorRef: ChangeDetectorRef
   ) { }
