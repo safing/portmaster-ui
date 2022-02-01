@@ -1,66 +1,60 @@
 :host {
   display: flex;
   outline: none;
+  @apply space-x-2;
 
   &>* {
     @apply rounded;
-    @apply bg-buttons-light;
-
-    &:not(:last-child) {
-      @apply mr-1;
-    }
+    @apply bg-gray-300;
   }
 }
 
 div.action {
-  @apply p-2;
+  @apply border-gray-500 border;
   flex-shrink: 0;
-  min-width  : 4rem;
-  text-align : center;
-
-  &.edit {
-    @apply p-0;
-  }
-
-  &.allow {
-    color: theme('colors.info.green');
-  }
-
-  &.block {
-    color: theme('colors.info.red');
-  }
+  min-width: 6rem;
+  text-align: center;
 }
 
 div.value {
-  @apply p-2;
+  @apply border-gray-500 border;
+  @apply p-1.5;
   @apply px-2;
 
   &.edit {
     @apply p-0;
-    @apply pr-2;
+    @apply bg-gray-400;
 
     input {
-      margin   : 0;
-      width    : auto;
+      margin: 0;
+      width: auto;
+      height: 100%;
       flex-grow: 1;
-      border   : none;
+      border: none;
+      @apply shadow-none;
+    }
+
+    input:focus+.buttons {
+      @apply bg-gray-500 border-gray-600 bg-opacity-75 border-opacity-75;
     }
   }
 
-  flex-grow      : 1;
-  display        : flex;
+  flex-grow : 1;
+  display : flex;
   justify-content: space-between;
-  align-items    : center;
+  align-items : center;
 
   .buttons {
     flex-shrink: 0;
-    @apply ml-2;
+    height: 100%;
+    width: 4rem;
+    @apply flex items-center justify-evenly;
 
     fa-icon {
       cursor: pointer;
       @apply text-primary;
       @apply p-1;
-      opacity  : 0.7;
+      opacity: 0.7;
       font-size: 0.6rem;
 
       &:hover {
