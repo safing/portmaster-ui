@@ -3,13 +3,13 @@ label {
 }
 
 input[type="checkbox"] {
-  float      : right;
+  float: right;
   user-select: none;
 }
 
 .input-container {
-  display  : block;
-  position : relative;
+  display: block;
+  position: relative;
   font-size: 0.75rem;
 
   input {
@@ -17,11 +17,12 @@ input[type="checkbox"] {
   }
 
   .suffix {
-    position    : absolute;
-    left        : 0;
-    top         : 0.55rem;
+    user-select: none;
+    position: absolute;
+    left: 0;
+    top: calc(50% - 0.55rem);
     padding-left: 0.3rem;
-    color       : #aaa;
-    font        : inherit;
+    color: #aaa;
+    font: inherit;
   }
 }
