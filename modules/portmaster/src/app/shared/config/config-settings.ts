@@ -4,7 +4,7 @@ import { AfterViewInit, ChangeDetectorRef, Component, ElementRef, EventEmitter, 
 import { BehaviorSubject, combineLatest, Subscription } from 'rxjs';
 import { debounceTime } from 'rxjs/operators';
 import { ConfigService, ExpertiseLevelNumber, ReleaseLevel, releaseLevelFromName, Setting, StatusService, Subsystem } from 'src/app/services';
-import { fadeInAnimation, fadeInListAnimation } from 'src/app/shared/animations';
+import { fadeInAnimation, fadeInListAnimation, fadeOutAnimation } from 'src/app/shared/animations';
 import { FuzzySearchService } from 'src/app/shared/fuzzySearch'; import { ExpertiseLevelOverwrite } from '../expertise/expertise-directive';
 import { SaveSettingEvent } from './generic-setting/generic-setting';
 
@@ -12,6 +12,8 @@ interface Category {
   name: string;
   settings: Setting[];
   minimumExpertise: ExpertiseLevelNumber;
+  collapsed: boolean;
+  hasUserDefinedValues: boolean;
 }
 
 interface SubsystemWithExpertise extends Subsystem {
@@ -23,7 +25,7 @@ interface SubsystemWithExpertise extends Subsystem {
   selector: 'app-settings-view',
   templateUrl: './config-settings.html',
   styleUrls: ['./config-settings.scss'],
-  animations: [fadeInAnimation, fadeInListAnimation]
+  animations: [fadeInAnimation, fadeOutAnimation, fadeInListAnimation]
 })
 export class ConfigSettingsViewComponent implements OnInit, OnDestroy, AfterViewInit {
   subsystems: SubsystemWithExpertise[] = [];
@@ -45,6 +47,13 @@ export class ConfigSettingsViewComponent implements OnInit, OnDestroy, AfterView
     return this._lockDefaults;
   }
   private _lockDefaults = false;
+
+  @Input()
+  set userSettingsMarker(v: any) {
+    this._userSettingsMarker = coerceBooleanProperty(v);
+  }
+  get userSettingsMarker() { return this._userSettingsMarker }
+  private _userSettingsMarker = false;
 
   @Input()
   set searchTerm(v: string) {
@@ -211,7 +220,9 @@ export class ConfigSettingsViewComponent implements OnInit, OnDestroy, AfterView
                   cat = {
                     name: catName,
                     minimumExpertise: ExpertiseLevelNumber.developer,
-                    settings: []
+                    settings: [],
+                    collapsed: false,
+                    hasUserDefinedValues: false,
                   }
                   categories.push(cat);
                 }
@@ -246,7 +257,11 @@ export class ConfigSettingsViewComponent implements OnInit, OnDestroy, AfterView
               return !!this.settings.get(subsys.ConfigKeySpace);
             })
             .map(subsys => {
-              let categories = this.settings.get(subsys.ConfigKeySpace)!;
+              let categories = this.settings.get(subsys.ConfigKeySpace)!
+              categories.forEach(c => {
+                c.hasUserDefinedValues = c.settings.some(s => s.Value !== undefined)
+              });
+
               let toggleOption: Setting | undefined = undefined;
               for (let c of categories) {
                 toggleOption = c.settings.find(s => s.Key === subsys.ToggleOptionKey)
@@ -259,7 +274,7 @@ export class ConfigSettingsViewComponent implements OnInit, OnDestroy, AfterView
                     categories = categories
                       .map(c => ({
                         ...c,
-                        settings: c.settings.filter(s => s.Key === toggleOption!.Key)
+                        settings: c.settings.filter(s => s.Key === toggleOption!.Key),
                       }))
                       .filter(cat => cat.settings.length > 0)
                     this.settings.set(subsys.ConfigKeySpace, categories);
@@ -392,7 +407,10 @@ export class ConfigSettingsViewComponent implements OnInit, OnDestroy, AfterView
    *
    * @param id The ID of the anchor element to scroll to.
    */
-  scrollTo(id: string) {
+  scrollTo(id: string, cat?: Category) {
+    if (!!cat) {
+      cat.collapsed = false;
+    }
     document.getElementById(id)?.scrollIntoView({
       behavior: 'smooth',
       block: 'start',
