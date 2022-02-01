@@ -1,5 +1,5 @@
 <div class="value" [class.edit]="_edit">
-  <span *ngIf="!_edit; else: editValue">
+  <span *ngIf="!_edit; else: editValue" class="flex-grow">
     {{value}}
   </span>
 
