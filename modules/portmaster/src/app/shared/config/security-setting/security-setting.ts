@@ -163,7 +163,12 @@ export class SecuritySettingComponent implements ControlValueAccessor, OnChanges
   }
 
   /** Sets the new level */
-  setLevel(level: SecurityLevel) {
+  setLevel(level: SecurityLevel | boolean) {
+    if (typeof level === 'boolean') {
+      // this can only happen in on/off mode
+      level = level ? this.availableLevels[1].level : this.availableLevels[0].level;
+    }
+
     let newLevel: number = 0;
     switch (level) {
       case SecurityLevel.Off:

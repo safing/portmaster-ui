@@ -1,5 +1,10 @@
-<app-multi-switch [ngModel]="getLevel()" (ngModelChange)="setLevel($event)" [disabled]="disabled"
-  [tipUpKey]="onOffMode ? '' : 'networkRatingSwitch'">
+<app-multi-switch *ngIf="!onOffMode; else: onOffToggle" [ngModel]="getLevel()" (ngModelChange)="setLevel($event)"
+  [disabled]="disabled" tipUpKey="networkRatingSwitch">
   <app-switch-item *ngFor="let lvl of availableLevels" [borderColorActive]="lvl.activeBorder" [id]="lvl.level"
     [group]="lvl.activeBorder" [selected]="isActive(lvl.level)">{{lvl.name}}</app-switch-item>
 </app-multi-switch>
+
+<ng-template #onOffToggle>
+  <app-toggle-switch [ngModel]="getLevel() === SecurityLevels.Normal" (ngModelChange)="setLevel($event)">
+  </app-toggle-switch>
+</ng-template>
