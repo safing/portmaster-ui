@@ -2,7 +2,8 @@
 
   <ng-template cdkConnectedOverlay [cdkConnectedOverlayOrigin]="trigger!.origin!" [cdkConnectedOverlayOpen]="isOpen"
     (detach)="onOverlayClosed()" [cdkConnectedOverlayScrollStrategy]="scrollStrategy"
-    [cdkConnectedOverlayPositions]="positions" (overlayOutsideClick)="onOutsideClick($event)">
+    [cdkConnectedOverlayMinWidth]="minWidth" [cdkConnectedOverlayPositions]="positions"
+    (overlayOutsideClick)="onOutsideClick($event)">
     <div class="item-list" [@fadeIn] [@fadeOut]>
       <ng-content></ng-content>
     </div>
