@@ -1,5 +1,5 @@
 label {
-  @apply inline-block w-8 h-4 relative bg-gray-500 rounded-full;
+  @apply inline-block w-10 h-5 relative bg-gray-500 rounded-full;
 }
 
 .slider {
@@ -8,8 +8,8 @@ label {
 
 .dot {
   @apply absolute transition-all duration-200 rounded-full bg-white;
-  height: 14px;
-  width: 14px;
+  height: 18px;
+  width: 18px;
   bottom: 1px;
   left: 1px;
 }
@@ -19,5 +19,5 @@ input:checked+.slider {
 }
 
 .dot.checked {
-  transform: translateX(calc(32px - 14px - 2px));
+  transform: translateX(calc(40px - 18px - 2px));
 }
