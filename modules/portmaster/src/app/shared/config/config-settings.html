@@ -27,7 +27,7 @@
   </ul>
 </div>
 
-<div class="flex justify-center flex-grow px-0 pr-4 overflow-auto whitespace-normal" cdkScrollable>
+<div class="flex justify-center flex-grow px-0 pb-24 pr-4 overflow-auto whitespace-normal" cdkScrollable>
   <fa-icon icon="spinner" [spin]="true" *ngIf="loading"></fa-icon>
 
   <div class="w-full space-y-4" *ngIf="!loading">
@@ -88,5 +88,6 @@
         </ng-container>
       </div>
     </ng-container>
+    <div class="pb-24"></div>
   </div>
 </div>
