@@ -2,9 +2,14 @@
   display: inline-block;
   width: fit-content;
 
-  &:disabled {
+  &.disabled {
     button {
       cursor: not-allowed;
+      @apply opacity-75;
+
+      &:hover {
+        @apply bg-gray-400;
+      }
     }
   }
 }
