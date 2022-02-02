@@ -1,44 +1,5 @@
 <div class="relative flex flex-row flex-wrap items-center px-5 py-5 bg-gray-200 rounded" [class.pr-8]="lockDefaults">
-  <!--
-  <div>
-    <h3 for="setting">
-      <span class="release-level rejected">
-        <fa-icon icon="exclamation"></fa-icon>
-      </span>
-
-      <span class="release-level beta" *ngIf="setting?.ReleaseLevel === releaseLevel.Beta">Beta</span>
-      <span class="release-level experimental"
-        *ngIf="setting?.ReleaseLevel === releaseLevel.Experimental">Experimental</span>
-
-      <span class="expertise" *ngIf="setting?.ExpertiseLevel === expertise.expert">Advanced</span>
-      <span class="expertise" *ngIf="setting?.ExpertiseLevel === expertise.developer">Developer</span>
-
-      <span class="expertise" *appExpertiseLevel="'developer'">{{setting?.Key}}</span>
-
-      <span [innerHTML]="setting?.Name | safe:'html'"></span>
-    </h3>
-  </div>
-
-  <markdown class="description" emoji [data]="setting?.Description"></markdown>
-
-  <span class="notice" *ngIf="!!setting?.RequiresRestart">
-    <fa-icon icon="exclamation-triangle"></fa-icon>
-    Changes to this setting require a restart of Portmaster to take effect.
-  </span>
-
-  <div class="help-text" *ngIf="!!setting?.Help">
-    <span class="toggle" (click)="toggleHelp()">
-      <fa-icon icon="question-circle"></fa-icon>
-      {{ !showHelp ? 'Show Help' : 'Hide Help'}}
-    </span>
-
-    <markdown *ngIf="showHelp" [@fadeIn] [@fadeOut] class="help-text" emoji [data]="setting?.Help"></markdown>
-  </div>
--->
-
-
   <div class="flex flex-col flex-grow">
-
     <div class="flex flex-row items-center justify-start space-x-2 w-fit">
       <h3 [innerHTML]="setting?.Name | safe:'html'" class="mb-0 name"></h3>
       <app-tipup *ngIf="setting?.Description" [key]="setting!.Key" [text]="setting?.Description"
@@ -53,7 +14,7 @@
           d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
       </svg>
 
-      <span class="inline-block px-1.5 py-0.5 bg-gray-400 rounded text-xxs text-blue"
+      <span class="inline-block px-1.5 py-0.5 bg-gray-400 rounded text-xxs text-secondary"
         *appExpertiseLevel="'developer'">{{setting?.Key}}</span>
       <span class="inline-block px-1.5 py-0.5 text-gray-100 bg-yellow-300 rounded text-xxs"
         *ngIf="setting?.ReleaseLevel === releaseLevel.Beta">Beta</span>
