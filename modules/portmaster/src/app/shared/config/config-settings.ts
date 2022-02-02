@@ -53,7 +53,7 @@ export class ConfigSettingsViewComponent implements OnInit, OnDestroy, AfterView
     this._userSettingsMarker = coerceBooleanProperty(v);
   }
   get userSettingsMarker() { return this._userSettingsMarker }
-  private _userSettingsMarker = false;
+  private _userSettingsMarker = true;
 
   @Input()
   set searchTerm(v: string) {

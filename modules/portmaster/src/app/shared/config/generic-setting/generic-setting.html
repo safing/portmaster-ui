@@ -64,7 +64,7 @@
 
 
   <!-- Quick Settings -->
-  <div *ngIf="quickSettings.length > 0">
+  <div *ngIf="quickSettings.length > 0 && !disabled">
     <app-menu-trigger [menu]="quickSettingsMenu" useContent="true" class="text-secondary hover:text-primary">
       <svg xmlns="http://www.w3.org/2000/svg" class="inline-block w-4 h-4" fill="none" viewBox="0 0 24 24"
         stroke="currentColor">
@@ -84,15 +84,15 @@
   <!-- Actual settings input -->
   <ng-container [ngSwitch]="externalOptType(setting)">
     <!-- Security Level Switches -->
-    <app-security-setting *ngSwitchCase="optionHint.SecurityLevel" [disabled]="disabled || isLocked"
+    <app-security-setting *ngSwitchCase="optionHint.SecurityLevel" [disabled]="disabled"
       class="w-full mt-2 xl:mt-0 xl:w-auto" [onOffMode]="!(networkRatingEnabled$ | async)" [autoFocus]="!isLocked"
       [setting]="_setting" [ngModel]="_currentValue" (ngModelChange)="updateValue($event, true)">
     </app-security-setting>
 
     <!-- Rule lists -->
     <ng-container *ngSwitchCase="optionHint.EndpointList">
-      <app-rule-list class="w-full mt-4" [readonly]="disabled || isLocked" [ngModel]="_currentValue"
-        [autoFocus]="!isLocked" (ngModelChange)="updateValue($event, true)"></app-rule-list>
+      <app-rule-list class="w-full mt-4" [readonly]="disabled" [ngModel]="_currentValue" [autoFocus]="!isLocked"
+        (ngModelChange)="updateValue($event, true)"></app-rule-list>
 
       <div class="stacked-values" *ngIf="showStackable">
         <h4>This setting stacks on top of the following <a class="underline text-tertiary hover:text-primary"
@@ -111,7 +111,7 @@
     <!-- Ordered string lists -->
     <ng-container *ngSwitchCase="optionHint.OrderedList">
       <app-ordered-list class="w-full mt-4" [ngModel]="_currentValue" [autoFocus]="!isLocked"
-        (ngModelChange)="updateValue($event, true)" [readonly]="disabled || isLocked"></app-ordered-list>
+        (ngModelChange)="updateValue($event, true)" [readonly]="disabled"></app-ordered-list>
 
       <div class="stacked-values" *ngIf="showStackable">
         <h4>This setting stacks on top of the following <a class="underline text-tertiary hover:text-primary"
@@ -125,7 +125,7 @@
       <!-- basic string array with fixed order on optional stacking -->
       <ng-container *ngIf="setting?.OptType == optionType.StringArray; else: basicSetting">
         <app-ordered-list class="w-full mt-4" fixedOrder="true" [autoFocus]="!isLocked" [ngModel]="_currentValue"
-          (ngModelChange)="updateValue($event, true)" [readonly]="disabled || isLocked">
+          (ngModelChange)="updateValue($event, true)" [readonly]="disabled">
         </app-ordered-list>
 
         <div class="stacked-values" *ngIf="showStackable">
@@ -138,9 +138,8 @@
 
       <ng-template #basicSetting>
         <!-- basic inputs -->
-        <app-basic-setting class="block" [setting]="_setting" [disabled]="disabled || isLocked"
-          [ngModel]="_currentValue" [autoFocus]="!isLocked" (ngModelChange)="updateValue($event)"
-          (onBlur)="updateValue(_currentValue!, true)">
+        <app-basic-setting class="block" [setting]="_setting" [disabled]="disabled" [ngModel]="_currentValue"
+          [autoFocus]="!isLocked" (ngModelChange)="updateValue($event)" (onBlur)="updateValue(_currentValue!, true)">
         </app-basic-setting>
       </ng-template>
     </ng-container>

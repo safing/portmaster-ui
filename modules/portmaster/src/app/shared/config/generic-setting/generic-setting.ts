@@ -343,7 +343,7 @@ export class GenericSettingComponent<S extends BaseSetting<any, any>> implements
    * @param qs The quick-settting to apply
    */
   applyQuickSetting(qs: QuickSetting<SettingValueType<S>>) {
-    if (this.disabled || this.isLocked) {
+    if (this.disabled) {
       return;
     }
 
