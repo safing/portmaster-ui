@@ -119,6 +119,11 @@ export class AppSettingsPageComponent implements OnInit, OnDestroy {
     // Actually safe the profile
     this.profileService.saveProfile(this.appProfile!)
       .subscribe({
+        next: () => {
+          if (!!event.accepted) {
+            event.accepted();
+          }
+        },
         error: err => {
           // if there's a callback function for errors call it.
           if (!!event.rejected) {
@@ -213,7 +218,7 @@ export class AppSettingsPageComponent implements OnInit, OnDestroy {
             this.settings = allSettings
               .map(setting => {
                 setting.Value = profileConfig[setting.Key];
-                setting.DefaultValue = global[setting.Key];
+                setting.GlobalDefault = global[setting.Key];
                 return setting;
               })
               .filter(setting => {

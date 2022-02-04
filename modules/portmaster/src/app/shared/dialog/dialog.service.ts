@@ -1,6 +1,6 @@
 import { Overlay, OverlayConfig, OverlayPositionBuilder, PositionStrategy } from '@angular/cdk/overlay';
 import { ComponentPortal, ComponentType, TemplatePortal } from '@angular/cdk/portal';
-import { ComponentRef, ElementRef, EmbeddedViewRef, Injectable, Injector } from '@angular/core';
+import { ComponentRef, EmbeddedViewRef, Injectable, Injector } from '@angular/core';
 import { filter, take, takeUntil } from 'rxjs/operators';
 import { ConfirmDailogComponent, ConfirmDialogConfig, CONFIRM_DIALOG_CONFIG } from './confirm.dialog';
 import { DialogComponent } from './dialog.container';

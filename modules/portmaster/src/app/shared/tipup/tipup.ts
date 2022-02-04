@@ -14,7 +14,6 @@ import { TipUpComponent } from './tipup-component';
 import { TipupPlacement, TIPUP_TOKEN } from './utils';
 import MyYamlFile, { Button, TipUp } from 'js-yaml-loader!../../../i18n/helptexts.yaml';
 
-
 @Directive({
   selector: '[tipUpTrigger]',
 })
@@ -54,18 +53,24 @@ export class TipUpTriggerDirective implements OnDestroy {
   @Input('tipUpTitle')
   title: string | undefined;
 
+  @Input('tipUpButtons')
+  buttons: Button[] | undefined;
+
   /**
    * asTipUp returns a tip-up definition built from the input
    * properties tipUpText and tipUpTitle. If none are set
    * then null is returned.
    */
   asTipUp(): TipUp | null {
+    // TODO(ppacher): we could also merge the defintions from MyYamlFile
+    // and the properties set on this directive....
     if (!this.text) {
       return MyYamlFile[this.textKey];
     }
     return {
       title: this.title || '',
       content: this.text,
+      buttons: this.buttons,
     }
   }
 
@@ -174,6 +179,7 @@ export class TipUpTriggerDirective implements OnDestroy {
     [tipUpPlacement]="placement"
     [tipUpText]="text"
     [tipUpTitle]="title"
+    [tipUpButtons]="buttons"
     [tipUpAnchorRef]="anchor">
     <g fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" >
       <path stroke="#ffff" shape-rendering="geometricPrecision" d="M12 21v0c-4.971 0-9-4.029-9-9v0c0-4.971 4.029-9 9-9v0c4.971 0 9 4.029 9 9v0c0 4.971-4.029 9-9 9z"/>
@@ -205,6 +211,7 @@ export class TipUpIconComponent implements TipupPlacement {
   // see TipUpTrigger tipUpText and tipUpTitle
   @Input() text: string | undefined = undefined;
   @Input() title: string | undefined = undefined;
+  @Input() buttons: Button[] | undefined = undefined;
 
   @Input()
   anchor: ElementRef<any> | HTMLElement | null = null;

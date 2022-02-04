@@ -143,7 +143,8 @@ export enum WellKnown {
   Subsystem = "safing/portbase:module:subsystem",
   Stackable = "safing/portbase:options:stackable",
   QuickSetting = "safing/portbase:ui:quick-setting",
-  Requires = "safing/portbase:config:requires"
+  Requires = "safing/portbase:config:requires",
+  RestartPending = "safing/portbase:options:restart-pending"
 }
 
 /**
@@ -225,6 +226,10 @@ export interface BaseSetting<T extends OptionValueType, O extends OptionType> ex
   // JavaScript as well.
   ValidationRegex?: string;
   PossibleValues?: PossilbeValue[];
+
+  // GlobalDefault holds the global default value and is used in the app settings
+  // This property is NOT defined inside the portmaster!
+  GlobalDefault?: T;
 }
 
 export type IntSetting = BaseSetting<number, OptionType.Int>;

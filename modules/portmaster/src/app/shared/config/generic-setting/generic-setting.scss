@@ -25,15 +25,15 @@
 }
 
 .unlock-button {
-  @apply flex w-5 h-5 rounded-full;
+  @apply flex w-6 h-6 rounded-full;
 
   justify-content: center;
   align-items: center;
   cursor: pointer;
 
   position: absolute;
-  right: calc(-1.25rem/2);
-  top: calc(50% - 1.25rem/2);
+  right: calc(-1.5rem/2);
+  top: calc(50% - 1.5rem/2);
 
   &:hover {
     @apply bg-blue;
