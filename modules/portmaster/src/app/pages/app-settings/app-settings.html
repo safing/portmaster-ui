@@ -112,7 +112,7 @@
     </app-tab>
 
     <!-- App Settings -->
-    <app-tab id="settings" title="Settings" tipUpKey="appSettings">
+    <app-tab id="settings" title="Settings">
       <div *appTabContent class="py-4 overflow-auto" cdkScrollable>
 
         <div class="flex flex-row items-center pr-2 mb-4 space-x-4">
@@ -130,6 +130,11 @@
               </app-dropdown-item>
             </app-dropdown>
           </div>
+        </div>
+
+        <div class="flex items-center header-title text-tertiary" tipUpAnchor>
+          <span class="mr-3 text-xxs">Application Specific Settings</span>
+          <app-tipup key="appSettings"></app-tipup>
         </div>
 
         <ng-container *ngIf="settings.length > 0; else: noSettingsTemplate">
@@ -164,7 +169,7 @@
     </app-tab>
 
     <!-- Details -->
-    <app-tab id="details" title="Details">
+    <app-tab id="details" title="Details" [warning]="!!appProfile.Warning">
       <div *appTabContent class="py-4 space-y-8 overflow-auto" cdkScrollable>
 
         <div class="grid grid-cols-2 gap-4 text-primary text-xxs">
@@ -224,6 +229,23 @@
               </p>
             </div>
           </ng-container>
+        </div>
+
+        <!-- Description Section -->
+        <div class="flex flex-col space-y-4" *ngIf="!!appProfile?.Description">
+          <h2 class="flex flex-row items-center p-0 m-0 mb-4 mr-2 text-opacity-75 text-primary ">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 mr-1" fill="none" viewBox="0 0 24 24"
+              stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            </svg>
+            <span class="mr-2 text-xxs">Description</span>
+            <span class="flex-grow inline-block border-b border-gray-400"></span>
+          </h2>
+
+          <markdown emoji [data]="appProfile.Description"
+            class="self-stretch block w-auto h-auto p-4 ml-2 text-secondary">
+          </markdown>
         </div>
 
         <!-- Warning Section -->

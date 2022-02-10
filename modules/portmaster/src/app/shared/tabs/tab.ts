@@ -53,6 +53,13 @@ export class TabComponent implements OnInit, ListKeyManagerOption {
   @Input()
   tipUpKey = '';
 
+  @Input()
+  set warning(v) {
+    this._warning = coerceBooleanProperty(v)
+  }
+  get warning() { return this._warning }
+  private _warning = false;
+
   /** Whether or not the tab is currently disabled. */
   @Input()
   set disabled(v: any) {
