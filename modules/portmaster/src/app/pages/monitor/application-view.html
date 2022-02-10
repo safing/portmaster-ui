@@ -59,12 +59,6 @@
         <span>{{profile?.profile?.LinkedPath || 'N/A'}}</span>
       </app-text-placeholder>
     </div>
-    <div class="col">
-      <span *ngIf="(profile?.profile?.ApproxLastUsed || 0) > 0">
-        <span>Activity:</span>
-        <span>{{profile!.profile!.ApproxLastUsed * 1000 | date:'medium'}}</span>
-      </span>
-    </div>
     <div class="col" *appExpertiseLevel="'developer'">
       <span>
         <span>Active Connections:</span>

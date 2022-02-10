@@ -30,12 +30,6 @@
       <!-- App Metadata -->
       <div class="text-tertiary text-xxs">
         <div class="space-x-2">
-          <span>Last Used:</span>
-          <span class="text-opacity-75 text-primary">
-            {{appProfile!.ApproxLastUsed * 1000 | date:'medium'}}
-          </span>
-        </div>
-        <div class="space-x-2">
           <span>Path:</span>
           <span class="text-opacity-75 text-primary">
             {{ applicationDirectory }}
@@ -47,16 +41,13 @@
             {{ binaryName }}
           </span>
         </div>
-        <div *ngIf="(appProfile?.ApproxLastUsed || 0) > 0" class="space-x-2">
-          <span>Activity:</span>
-          <span class="text-opacity-75 text-primary">{{appProfile!.ApproxLastUsed * 1000 | date:'medium'}}</span>
-        </div>
         <div class="space-x-2">
           <span>Active Connections:</span>
           <span>
             <span class="text-opacity-75 text-primary">{{inspected?.processGroup?.countAliveConnections || 0}}</span>
             <span class="ml-4">
-              SPN Exits: <span class="text-opacity-75 text-primary">{{inspected?.processGroup?.exitNodes || 0}}</span>
+              SPN Exits: <span class="text-opacity-75 text-primary">{{inspected?.processGroup?.exitNodeCount ||
+                0}}</span>
             </span>
           </span>
         </div>
@@ -198,43 +189,41 @@
               <span *ngIf="!!appProfile.LastEdited">{{appProfile!.LastEdited * 1000 | date:'medium'}}</span>
               <span *ngIf="!appProfile.LastEdited">N/A</span>
             </p>
-            <p class="space-x-2">
-              <label class="text-secondary">Last Used:</label>
-              <span>{{appProfile!.ApproxLastUsed * 1000 | date:'medium'}}</span>
-            </p>
           </div>
 
-          <div class="flex flex-col justify-center p-4 bg-gray-200 rounded">
-            <p class="space-x-2">
-              <label class="text-secondary">Internal:</label>
-              <span>{{!!appProfile!.Internal ? 'yes' : 'no'}}</span>
-            </p>
-            <p class="space-x-2">
-              <label class="text-secondary">Source:</label>
-              <span>{{appProfile!.Source}}</span>
-            </p>
-            <p class="space-x-2">
-              <label class="text-secondary">ID:</label>
-              <span>{{appProfile!.ID}}</span>
-            </p>
-          </div>
+          <ng-container *appExpertiseLevel="'developer'">
+            <div class="flex flex-col justify-center p-4 bg-gray-200 rounded">
+              <p class="space-x-2">
+                <label class="text-secondary">Internal:</label>
+                <span>{{!!appProfile!.Internal ? 'yes' : 'no'}}</span>
+              </p>
+              <p class="space-x-2">
+                <label class="text-secondary">Source:</label>
+                <span>{{appProfile!.Source}}</span>
+              </p>
+              <p class="space-x-2">
+                <label class="text-secondary">ID:</label>
+                <span>{{appProfile!.ID}}</span>
+              </p>
+            </div>
 
-          <div class="flex flex-col justify-center p-4 bg-gray-200 rounded">
-            <p class="space-x-2">
-              <label class="text-secondary">Revision:</label>
-              <span>{{inspected?.currentProfileRevision}}</span>
-            </p>
-            <p class="space-x-2">
-              <label class="text-secondary">Layers:</label>
-              <span>
-                <ol class="inline-block">
-                  <li *ngFor="let layer of inspected?.layers" [routerLink]="['/', 'app'].concat(layer.split('/'))">
-                    {{layer}}
-                  </li>
-                </ol>
-              </span>
-            </p>
-          </div>
+            <div class="flex flex-col justify-center p-4 bg-gray-200 rounded">
+              <p class="space-x-2">
+                <label class="text-secondary">Revision:</label>
+                <span>{{inspected?.currentProfileRevision}}</span>
+              </p>
+              <p class="space-x-2">
+                <label class="text-secondary">Layers:</label>
+                <span>
+                  <ol class="inline-block">
+                    <li *ngFor="let layer of inspected?.layers" [routerLink]="['/', 'app'].concat(layer.split('/'))">
+                      {{layer}}
+                    </li>
+                  </ol>
+                </span>
+              </p>
+            </div>
+          </ng-container>
         </div>
 
         <!-- Warning Section -->

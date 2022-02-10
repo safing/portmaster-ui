@@ -91,6 +91,11 @@ export class ProcessGroup {
     return null;
   }
 
+  /** Returns the number of exit nodes used. */
+  get exitNodeCount() {
+    return Object.keys(this.exitNodes || {}).length;
+  }
+
   /** Empty is true if there are not active connections for this profile */
   get empty() {
     return this.size === 0;
