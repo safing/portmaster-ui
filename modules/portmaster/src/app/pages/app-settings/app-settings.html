@@ -95,9 +95,6 @@
     </div>
   </div>
 
-
-
-
   <app-tab-group class="flex flex-col flex-grow w-full overflow-hidden">
     <!-- Connections -->
     <app-tab id="connections" title="Connections">
@@ -132,9 +129,11 @@
           </div>
         </div>
 
-        <div class="flex items-center header-title text-tertiary" tipUpAnchor>
-          <span class="mr-3 text-xxs">Application Specific Settings</span>
-          <app-tipup key="appSettings"></app-tipup>
+        <div class="flex items-center text-tertiary">
+          <div class="inline-flex items-center" tipUpAnchor=>
+            <span class="mr-3 text-xxs">App Specific Settings</span>
+            <app-tipup key="appSettings"></app-tipup>
+          </div>
         </div>
 
         <ng-container *ngIf="settings.length > 0; else: noSettingsTemplate">
