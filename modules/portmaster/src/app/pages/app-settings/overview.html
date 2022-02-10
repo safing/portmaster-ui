@@ -70,5 +70,8 @@
       </div>
     </ng-container>
   </ng-template>
+</div>
 
+<div *ngIf="total === 0 && searchTerm !== ''" class="flex items-center justify-center p-2 bg-gray-200 text-secondary">
+  No applications match your search term.
 </div>
