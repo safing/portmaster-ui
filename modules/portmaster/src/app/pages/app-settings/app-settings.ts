@@ -2,7 +2,7 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { BehaviorSubject, combineLatest, Observable, of, Subscription } from 'rxjs';
 import { delayWhen, distinctUntilChanged, filter, switchMap, withLatestFrom } from 'rxjs/operators';
-import { AppProfile, ConfigService, FlatConfigObject, flattenProfileConfig, isDefaultValue, setAppSetting, Setting } from 'src/app/services';
+import { AppProfile, ConfigService, DebugAPI, FlatConfigObject, flattenProfileConfig, isDefaultValue, SessionDataService, setAppSetting, Setting } from 'src/app/services';
 import { AppProfileService } from 'src/app/services/app-profile.service';
 import { ConnTracker, InspectedProfile } from 'src/app/services/connection-tracker.service';
 import { ActionIndicatorService } from 'src/app/shared/action-indicator';
@@ -32,7 +32,9 @@ export class AppSettingsPageComponent implements OnInit, OnDestroy {
    * @private
    * Whether or not the overview componet should be rendered.
    */
-  get showOverview() { return this.appProfile == null }
+  get showOverview() {
+    return this.appProfile == null && !this._loading
+  }
 
   /**
    * @private
@@ -57,6 +59,21 @@ export class AppSettingsPageComponent implements OnInit, OnDestroy {
    * Emits whenever the currently used settings "view" changes.
    */
   viewSettingChange = new BehaviorSubject<'all' | 'active'>('all');
+
+  /**
+   * @private
+   * The path of the application binary
+   */
+  applicationDirectory = '';
+
+  /**
+   * @private
+   * The name of the binary
+   */
+  binaryName = ''
+
+  /** Used to track whether we are already initialized */
+  private _loading = true;
 
   /**
    * @private
@@ -85,6 +102,7 @@ export class AppSettingsPageComponent implements OnInit, OnDestroy {
   }
 
   constructor(
+    public sessionDataService: SessionDataService,
     private profileService: AppProfileService,
     private route: ActivatedRoute,
     private connTrack: ConnTracker,
@@ -92,6 +110,7 @@ export class AppSettingsPageComponent implements OnInit, OnDestroy {
     private router: Router,
     private actionIndicator: ActionIndicatorService,
     private dialog: DialogService,
+    private debugAPI: DebugAPI,
   ) { }
 
   /**
@@ -142,15 +161,16 @@ export class AppSettingsPageComponent implements OnInit, OnDestroy {
     const profileStream: Observable<AppProfile | null>
       = this.route.paramMap
         .pipe(
-          delayWhen(() => this.connTrack.ready),
           switchMap(params => {
             // Get the profile source and id. If one is unset (null)
             // than return a"null" emit-once stream.
             const source = params.get("source");
             const id = params.get("id")
             if (source === null || id === null) {
+              this._loading = false;
               return of(null);
             }
+            this._loading = true;
 
             // Start watching the application profile.
             // switchMap will unsubscribe automatically if
@@ -168,15 +188,37 @@ export class AppSettingsPageComponent implements OnInit, OnDestroy {
         this.configService.query(""),         // get ALL settings (once, only the defintion is of intereset)
         this.viewSettingChange.pipe(          // watch the current "settings-view" setting, but only if it changes
           distinctUntilChanged(),
-        ),
+        )
       ])
-        .subscribe(([profile, queryMap, global, allSettings, viewSetting]) => {
+        .subscribe(async ([profile, queryMap, global, allSettings, viewSetting]) => {
           let isFirstLoad = false;
           if (this.appProfile?.ID !== profile?.ID) {
             isFirstLoad = true;
           }
 
           this.appProfile = profile;
+          this._loading = false;
+
+          if (!!this.appProfile?.LinkedPath) {
+            let parts: string[] = [];
+            let sep = '/'
+            if (this.appProfile.LinkedPath[0] === '/') {
+              // linux, darwin, bsd ...
+              sep = '/'
+            } else {
+              // windows ...
+              sep = '\\'
+            }
+            parts = this.appProfile.LinkedPath.split(sep)
+
+            this.binaryName = parts.pop()!;
+            this.applicationDirectory = parts.join(sep)
+          } else {
+            this.applicationDirectory = '';
+            this.binaryName = '';
+          }
+
+
           this.highlightSettingKey = queryMap.get('setting');
           let profileConfig: FlatConfigObject = {};
 
@@ -250,6 +292,27 @@ export class AppSettingsPageComponent implements OnInit, OnDestroy {
             this.connTrack.clearInspection();
           }
         });
+  }
+
+  /**
+   * @private
+   * Retrieves debug information from the current
+   * profile and copies it to the clipboard
+   */
+  copyDebugInfo() {
+    if (!this.appProfile) {
+      return;
+    }
+
+    this.debugAPI.getProfileDebugInfo(this.appProfile.Source, this.appProfile.ID)
+      .subscribe(data => {
+        console.log(data);
+        // Copy to clip-board if supported
+        if (!!navigator.clipboard) {
+          navigator.clipboard.writeText(data);
+          this.actionIndicator.success('Copied to Clipboard')
+        }
+      })
   }
 
   ngOnDestroy() {

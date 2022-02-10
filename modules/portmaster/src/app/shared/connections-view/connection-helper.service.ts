@@ -89,6 +89,7 @@ export class ConnectionHelperService {
     this.router.navigate(
       ['/', 'app', this.profile.Source, this.profile.ID], {
       queryParams: {
+        tab: 'settings',
         setting: optionKey
       }
     })

@@ -1,2 +1,2 @@
 export * from './action-indicator.service';
-export * from './indicator';
+export * from './action-indicator.module';

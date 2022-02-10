@@ -22,7 +22,7 @@ import { SideDashComponent } from './layout/side-dash/side-dash';
 import { MonitorApplicationViewComponent, MonitorPageComponent, NetworkOverviewComponent } from './pages/monitor';
 import { SettingsComponent } from './pages/settings/settings';
 import { WidgetSettingsOutletComponent } from './pages/widget-settings-outlet/widget-settings-outlet';
-import { AccordionComponent, AccordionGroupComponent } from './shared/accordion';
+import { AccordionComponent, AccordionGroupComponent, AccordionModule } from './shared/accordion';
 import { BasicSettingComponent } from './shared/config/basic-setting/basic-setting';
 import { RuleListComponent } from './shared/config/rule-list/rule-list';
 import { RuleListItemComponent } from './shared/config/rule-list/list-item';
@@ -61,23 +61,24 @@ import { TimeAgoPipe } from './shared/time-ago.pipe';
 import { HttpClientModule } from '@angular/common/http';
 import { ScrollingModule } from '@angular/cdk/scrolling';
 import { ConnectionsViewComponent, ScopeGroupContentComponent, UngroupedConnectionContentComponent, UngroupedConnectionRowComponent, ConnectionExpertisePipe, ConnectionLocationPipe, CanUseRulesPipe, IsBlockedConnectionPipe, CanShowConnection as CanShowConnectionPipe } from './shared/connections-view';
-import { IndicatorComponent } from './shared/action-indicator';
 import { ExitScreenComponent } from './shared/exit-screen/exit-screen';
 import { ConfirmDailogComponent, DialogComponent } from './shared/dialog';
 import { SupportPageComponent } from './pages/support';
 import { SupportFormComponent } from './pages/support/form';
-import { TipUpAnchorDirective, TipUpComponent, TipUpTriggerDirective, TipUpIconComponent } from './shared/tipup';
+import { TipUpAnchorDirective, TipUpComponent, TipUpTriggerDirective, TipUpIconComponent, TipUpModule } from './shared/tipup';
 import { PaginationContentDirective, PaginationWrapperComponent } from './shared/pagination';
 import { PrettyCountPipe } from './shared/count.pipe';
 import { SpnPageComponent } from './pages/spn';
+import { TabModule } from './shared/tabs/tabs.module';
+import { ActionIndicatorModule } from './shared/action-indicator';
 
 @NgModule({
   declarations: [
     AppComponent,
     NotificationComponent,
     DebugComponent,
-    AccordionComponent,
-    AccordionGroupComponent,
+    //AccordionComponent,
+    //AccordionGroupComponent,
     NotificationFactoryComponent,
     PortapiInspectorComponent,
     BasicSettingComponent,
@@ -142,16 +143,16 @@ import { SpnPageComponent } from './pages/spn';
     CanUseRulesPipe,
     CanShowConnectionPipe,
     IsBlockedConnectionPipe,
-    IndicatorComponent,
+    //IndicatorComponent,
     ExitScreenComponent,
     DialogComponent,
     ConfirmDailogComponent,
     SupportPageComponent,
     SupportFormComponent,
-    TipUpAnchorDirective,
-    TipUpTriggerDirective,
-    TipUpComponent,
-    TipUpIconComponent,
+    //TipUpAnchorDirective,
+    //TipUpTriggerDirective,
+    //TipUpComponent,
+    //TipUpIconComponent,
     PaginationWrapperComponent,
     PaginationContentDirective,
     SpnPageComponent,
@@ -170,6 +171,10 @@ import { SpnPageComponent } from './pages/spn';
     HttpClientModule,
     MarkdownModule.forRoot(),
     ScrollingModule,
+    AccordionModule,
+    TabModule,
+    TipUpModule,
+    ActionIndicatorModule
   ],
   providers: [
     {

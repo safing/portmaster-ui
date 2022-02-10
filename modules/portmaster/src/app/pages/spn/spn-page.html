@@ -24,13 +24,6 @@
             class="connect-button relative w-full p-2 bg-opacity-75 rounded-full spn-{{ spnStatus!.Status }} text-primary"
             (click)="toggleSPN()">
             <span>{{ spnStatusTranslation[spnStatus!.Status] }}</span>
-            <span
-              class="absolute inline-flex items-center w-6 h-2 ml-4 rounded-full shadow-inner opacity-50 bg-cards-primary"
-              style="right: 0.55rem; top: 0.75rem">
-              <span
-                class="inline-block w-2 h-2 transition-all duration-200 transform border rounded-full shadow-inner-xs bg-buttons-icon"
-                [class.translate-x-4]="spnStatus.Status === 'connected' || spnStatus.Status === 'connecting'"></span>
-            </span>
           </button>
         </div>
         <span class="flex flex-col items-center mt-4 text-xs font-medium text-tertiary justify-items-center">

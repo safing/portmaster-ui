@@ -1,7 +1,7 @@
 <div class="toolbar">
   <div class="header-title">
     <h3>
-      Connection History
+      <span>{{ title }}</span>
       <app-tipup key="networkMonitor-App-Focus-connection-history"></app-tipup>
     </h3>
   </div>
@@ -131,19 +131,15 @@
           </ng-container>
         </app-accordion-group>
 
-        <table *ngIf="!filteredUngroupedConnections.length && !ungroupedLoading" class="waiting-connections">
-          <tr>
-            <td>
-              <fa-icon icon="spinner" [spin]="true"></fa-icon>
-              Waiting for connections
-            </td>
-          </tr>
-        </table>
       </ng-template>
 
     </app-pagination>
   </div>
 </ng-container>
+
+<div class="flex items-center justify-center p-4 bg-gray-2#00 text-secondary" *ngIf="noConnections">
+  There were no connections in the last 10 minutes.
+</div>
 
 <!-- loading -->
 <ng-template #loadingTemplate>

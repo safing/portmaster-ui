@@ -815,6 +815,12 @@ export class ConnTracker {
    *  profiles */
   private _profileUpdates = new BehaviorSubject<ProcessGroup[]>([]);
 
+  /** Whether or not we have a pending profile inspection and are still
+   *  waiting for the very first connection and thus the profile to become
+   *  active.
+   */
+  private _pendingProfileInspection: string | null = null;
+
   /** Emits a list of active profiles whenever a change occurs. */
   get profiles() {
     return this._profileUpdates.asObservable();
@@ -846,6 +852,11 @@ export class ConnTracker {
     );
   }
 
+  /** Whether or not we are ready and already loaded existing connections */
+  get isReady() {
+    return this._ready.getValue()
+  }
+
   constructor(
     private portapi: PortapiService,
     private profileService: AppProfileService,
@@ -860,18 +871,6 @@ export class ConnTracker {
     ).pipe(retryPipeline());
 
     const connectionStream = stream.pipe(
-      tap(
-        msg => {
-          // cast as any is required as we normally
-          // don't expose the done message to subscribers.
-          // See {forwardDone} parameter in portapi.request()
-          if (msg.type as any === 'done') {
-            this._ready.next(true);
-          }
-        }
-      ),
-      // don't forward the done message
-      filter(msg => (msg.type as any !== 'done')),
       // don't forward process entires, checking for the existence
       // of keys is faster than splitting and parsing the key.
       filter(msg => !msg.data || !('CmdLine' in msg.data)),
@@ -879,12 +878,27 @@ export class ConnTracker {
       // some processes are freaking out. Make sure we don't trigger
       // angular change detection too often by buffering updates
       bufferTime(1000, null, 1),
-      filter(msgs => !!msgs.length)
     );
 
     this._streamSubscription = new Subscription();
     const connectedSub = connectionStream.subscribe(
-      msgs => msgs.forEach(msg => this.processUpdate(msg)),
+      msgs => {
+        (msgs || []).forEach(msg => {
+          // cast as any is required as we normally
+          // don't expose the done message to subscribers.
+          // See {forwardDone} parameter in portapi.request()
+          if (msg.type as any === 'done') {
+            this._ready.next(true);
+            return;
+          }
+
+          this.processUpdate(msg);
+
+          if (this._ready.getValue() && this._pendingProfileInspection !== null) {
+            this.inspect(this._pendingProfileInspection);
+          }
+        });
+      }
     );
 
     const resetSub = this.portapi.connected$
@@ -921,6 +935,8 @@ export class ConnTracker {
         this._inspectedProfile = null;
         this._inspectedProfileChange.next(null);
       }
+
+      this._pendingProfileInspection = null;
       return;
     }
 
@@ -930,10 +946,14 @@ export class ConnTracker {
 
     const profile = this._profiles.get(id);
     if (!profile) {
-      // if the profile does not exist we count it as
-      // "null"
-      this.inspect(null);
+      // the profile is not yet active so we save the id
+      // as pending.
+      this._pendingProfileInspection = id;
       return;
+    } else {
+      // we got a new profile so we can clear out any
+      // pending inspection request.
+      this._pendingProfileInspection = null;
     }
 
     if (this._inspectedProfile !== null) {

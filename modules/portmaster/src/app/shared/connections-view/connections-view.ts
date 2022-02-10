@@ -1,9 +1,10 @@
 import { coerceBooleanProperty } from '@angular/cdk/coercion';
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, Input, OnDestroy, OnInit, Output, TrackByFunction } from '@angular/core';
+import { thresholdSturges } from 'd3';
 import { BehaviorSubject, Subject, Subscription } from 'rxjs';
 import { bufferTime, debounceTime, startWith, take, tap, withLatestFrom } from 'rxjs/operators';
 import { Connection, ExpertiseLevel, IsGlobalScope, IsLANScope, IsLocalhost, ScopeTranslation, Verdict } from 'src/app/services';
-import { ConnectionAddedEvent, InspectedProfile, ScopeGroup, ScopeGroupUpdate, SortByMostRecent } from 'src/app/services/connection-tracker.service';
+import { ConnectionAddedEvent, ConnTracker, InspectedProfile, ScopeGroup, ScopeGroupUpdate, SortByMostRecent } from 'src/app/services/connection-tracker.service';
 import { SnapshotPaginator } from '../types';
 import { binarySearch } from '../utils';
 import { ConnectionHelperService } from './connection-helper.service';
@@ -65,8 +66,21 @@ export class ConnectionsViewComponent implements OnInit, OnDestroy {
   /** Pagination */
   readonly pageSize = 100;
 
+  get noConnections() {
+    return this.connTrack.isReady && (!this.profile || this.profile.processGroup.size === 0);
+  }
+
   get loading() {
-    return !this.profile || this.profile.loading || this.ungroupedLoading
+    if (!this.connTrack.isReady) {
+      return true;
+    }
+
+    if (!this.profile) {
+      // the profile we are interested in is not active.
+      return false;
+    }
+
+    return this.profile.loading || this.ungroupedLoading
   }
 
   get ungroupedLoading() {
@@ -92,6 +106,9 @@ export class ConnectionsViewComponent implements OnInit, OnDestroy {
   /** Output that emits whenever the users changes the display mode */
   @Output()
   displayModeChange = new EventEmitter<ConnectionDisplayMode>();
+
+  @Input()
+  title = 'Connection History';
 
   @Input()
   set profile(p: InspectedProfile | null) {
@@ -166,6 +183,7 @@ export class ConnectionsViewComponent implements OnInit, OnDestroy {
 
   constructor(
     private changeDetector: ChangeDetectorRef,
+    private connTrack: ConnTracker,
     public helper: ConnectionHelperService,
   ) {
     this.pagination = new SnapshotPaginator(this.paginatedItems, 100);

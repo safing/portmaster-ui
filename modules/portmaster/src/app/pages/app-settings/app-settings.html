@@ -1,140 +1,303 @@
 <ng-container *ngIf="!showOverview && !!appProfile">
-  <div class="header">
-    <input type="text" placeholder="Search" [(ngModel)]="searchTerm">
+  <!-- Header -->
+  <div class="flex items-center justify-between text-xxs">
+    <!-- Breadcrumbs -->
+    <div class="flex items-center">
+      <a class="text-secondary hover:text-primary" routerLink="/app/overview">Apps</a>
+      <svg viewBox="0 0 24 24" class="inline-block w-4 h-4 text-secondary">
+        <g fill="none" class="inner" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M10 16l4-4-4-4" />
+        </g>
+      </svg>
+      <span class="text-primary">{{ appProfile.Name }}</span>
+    </div>
+
+    <!-- Expertise level switch -->
     <app-expertise></app-expertise>
   </div>
 
-  <div class="header">
-    <h4 class="breadcrumbs">
-      <span routerLink="/app"> Apps </span>
-      <fa-icon icon="chevron-right"></fa-icon>
-      <span> {{ appProfile!.Name }} </span>
-    </h4>
-  </div>
 
-  <div class="scroll-container" cdkScrollable>
-    <div class="app-overview">
-      <h1>
-        <app-icon [profile]="appProfile"></app-icon>
+  <!-- Application Header -->
+  <div class="flex flex-row items-center w-full py-8">
+    <!-- Application metadata -->
+    <div class="flex flex-col items-start flex-grow space-y-5">
+      <!-- App Name & Icon -->
+      <h1 class="flex flex-row items-center mb-0 text-2xl text-primary">
+        <app-icon [profile]="appProfile" style="--app-icon-size: 3rem"></app-icon>
         {{appProfile!.Name}}
-
-        <div *ngIf="isActive" [routerLink]="['/', 'monitor', 'profile', appProfile!.Source, appProfile!.ID]"
-          class="link">
-          <fa-icon icon="desktop"></fa-icon>
-        </div>
-
-        <div *ngIf="!!appProfile" class="delete-profile-container">
-          <button (click)="deleteProfile()">
-            Delete Profile
-          </button>
-        </div>
       </h1>
 
-      <app-profile-stats mode="inspected"></app-profile-stats>
-
-      <div class="meta">
-        <div class="app-details">
-          <p>
-            <label>Name:</label>
-            <span>{{appProfile!.Name}}</span>
-          </p>
-          <p>
-            <label>Path:</label>
-            <span>{{appProfile!.LinkedPath}}</span>
-          </p>
+      <!-- App Metadata -->
+      <div class="text-tertiary text-xxs">
+        <div class="space-x-2">
+          <span>Last Used:</span>
+          <span class="text-opacity-75 text-primary">
+            {{appProfile!.ApproxLastUsed * 1000 | date:'medium'}}
+          </span>
         </div>
-
-        <div class="app-details" *appExpertiseLevel="'developer'">
-          <p>
-            <label>Internal:</label>
-            <span>{{!!appProfile!.Internal ? 'yes' : 'no'}}</span>
-          </p>
-          <p>
-            <label>Source:</label>
-            <span>{{appProfile!.Source}}</span>
-          </p>
-          <p>
-            <label>ID:</label>
-            <span>{{appProfile!.ID}}</span>
-          </p>
-
+        <div class="space-x-2">
+          <span>Path:</span>
+          <span class="text-opacity-75 text-primary">
+            {{ applicationDirectory }}
+          </span>
         </div>
-
-        <div class="app-details">
-          <p>
-            <label>Created:</label>
-            <span>{{appProfile!.Created * 1000 | date:'medium'}}</span>
-          </p>
-          <p>
-            <label>Last Edited:</label>
-            <span *ngIf="!!appProfile.LastEdited">{{appProfile!.LastEdited * 1000 | date:'medium'}}</span>
-            <span *ngIf="!appProfile.LastEdited">N/A</span>
-          </p>
-          <p>
-            <label>Last Used:</label>
-            <span>{{appProfile!.ApproxLastUsed * 1000 | date:'medium'}}</span>
-          </p>
+        <div class="space-x-2">
+          <span>Binary:</span>
+          <span class="text-opacity-75 text-primary">
+            {{ binaryName }}
+          </span>
+        </div>
+        <div *ngIf="(appProfile?.ApproxLastUsed || 0) > 0" class="space-x-2">
+          <span>Activity:</span>
+          <span class="text-opacity-75 text-primary">{{appProfile!.ApproxLastUsed * 1000 | date:'medium'}}</span>
+        </div>
+        <div class="space-x-2">
+          <span>Active Connections:</span>
+          <span>
+            <span class="text-opacity-75 text-primary">{{inspected?.processGroup?.countAliveConnections || 0}}</span>
+            <span class="ml-4">
+              SPN Exits: <span class="text-opacity-75 text-primary">{{inspected?.processGroup?.exitNodes || 0}}</span>
+            </span>
+          </span>
         </div>
       </div>
 
-      <div class="meta" *ngIf="!!appProfile?.Warning">
-        <div class="app-details app-warning">
-          <div class="icon warning">
-            <fa-icon icon="exclamation"></fa-icon>
-          </div>
-          <markdown emoji [data]="appProfile.Warning"></markdown>
+      <!-- Quick Settings -->
+      <!--
+      <div class="flex flex-row space-x-3 text-xxs">
+        <div class="flex items-center px-3 py-2 space-x-2 bg-gray-300 rounded">
+          <span class="text-primary">Internet</span>
+          <app-toggle-switch></app-toggle-switch>
         </div>
-      </div>
 
+        <div class="flex items-center px-3 py-2 space-x-2 bg-gray-300 rounded">
+          <span class="text-primary">Use SPN</span>
+          <app-toggle-switch></app-toggle-switch>
+        </div>
+
+        <app-tipup key="todo"></app-tipup>
+      </div>
+      -->
     </div>
 
-    <h2 class="app-settings">
-      <div class="header-title">
-        <h1>
-          App Settings
-          <app-tipup key="appSettings"></app-tipup>
-        </h1>
+    <!-- Statistics -->
+    <div class="flex flex-row items-center justify-end flex-grow pr-8 space-x-4"
+      *ngIf="!!inspected && inspected.processGroup.size > 0">
+      <div class="flex flex-col items-center justify-center w-32 h-24 bg-gray-300 rounded shadow-xl">
+        <h2 class="p-0 m-0 text-xl text-primary">{{ (100 / inspected.processGroup.size) *
+          inspected.stats.countAccepted
+          | number:'1.0-1' }}%</h2>
+        <span class="text-secondary">Allowed</span>
       </div>
 
-      <div tipUpAnchor="left">
-        <app-tipup key="appSettings-Filter"></app-tipup>
-        <app-dropdown [ngModel]="viewSetting" (ngModelChange)="viewSettingChange.next($event)"
-          tipUpTrigger="appSettings-Filter" tipUpAnchor="left" tipUpPassive>
-          <app-dropdown-item *dropDownValue="'all'">
-            View All
-          </app-dropdown-item>
-          <app-dropdown-item *dropDownValue="'active'">
-            View Active
-          </app-dropdown-item>
-        </app-dropdown>
+      <div class="flex flex-col items-center justify-center w-32 h-24 bg-gray-400 rounded shadow-xl">
+        <h2 class="p-0 m-0 text-xl text-primary">{{ inspected.processGroup.size | prettyCount }}</h2>
+        <span class="text-secondary">Connections</span>
       </div>
-    </h2>
 
-    <ng-container *ngIf="settings.length > 0; else: noSettingsTemplate">
-      <app-settings-view [searchTerm]="searchTerm" [availableSettings]="settings" [highlightKey]="highlightSettingKey"
-        userSettingsMarker="true" (onSave)="saveSetting($event)" resetLabelText="Use global setting" lockDefaults="true"
-        displayStackable="true">
-      </app-settings-view>
-    </ng-container>
-
-    <ng-template #noSettingsTemplate>
-      <div class="no-customization">
-        <fa-icon icon="cogs"></fa-icon>
-        <p>
-          <span class="app-name">
-            <app-icon [profile]="appProfile"></app-icon>
-            {{ appProfile!.Name }}
-          </span>
-          is fully using the global settings.
-        </p>
-        <p>
-          Start creating exceptions for it now.
-        </p>
-        <button (click)="viewSettingChange.next('all')">Edit Settings</button>
+      <div class="flex flex-col items-center justify-center w-32 h-24 bg-gray-300 rounded shadow-xl">
+        <h2 class="p-0 m-0 text-xl text-primary">{{ (100 / inspected.processGroup.size) * (inspected.processGroup.size
+          -
+          inspected.stats.countAccepted) | number:'1.0-1' }}%</h2>
+        <span class="text-secondary">Blocked</span>
       </div>
-    </ng-template>
-
+    </div>
   </div>
+
+
+
+
+  <app-tab-group class="flex flex-col flex-grow w-full overflow-hidden">
+    <!-- Connections -->
+    <app-tab id="connections" title="Connections">
+      <div *appTabContent>
+        <app-connections-view [profile]="inspected" [@fadeIn]
+          [displayMode]="sessionDataService.get('monitor:displayMode', 'grouped')"
+          (displayModeChange)="sessionDataService.set('monitor:displayMode', $event)"
+          [liveMode]="sessionDataService.get('monitor:liveMode', false)"
+          (liveModeChange)="sessionDataService.set('monitor:liveMode', $event)">
+        </app-connections-view>
+      </div>
+    </app-tab>
+
+    <!-- App Settings -->
+    <app-tab id="settings" title="Settings" tipUpKey="appSettings">
+      <div *appTabContent class="py-4 overflow-auto" cdkScrollable>
+
+        <div class="flex flex-row items-center pr-2 mb-4 space-x-4">
+          <input type="text" [(ngModel)]="searchTerm" placeholder="Search Settings">
+
+          <div tipUpAnchor="left" class="flex space-x-2 flex-rows">
+            <app-tipup key="appSettings-Filter"></app-tipup>
+            <app-dropdown [ngModel]="viewSetting" (ngModelChange)="viewSettingChange.next($event)"
+              tipUpTrigger="appSettings-Filter" tipUpAnchor="left" tipUpPassive>
+              <app-dropdown-item *dropDownValue="'all'">
+                View All
+              </app-dropdown-item>
+              <app-dropdown-item *dropDownValue="'active'">
+                View Active
+              </app-dropdown-item>
+            </app-dropdown>
+          </div>
+        </div>
+
+        <ng-container *ngIf="settings.length > 0; else: noSettingsTemplate">
+          <app-settings-view [searchTerm]="searchTerm" [availableSettings]="settings"
+            [highlightKey]="highlightSettingKey" userSettingsMarker="true" (onSave)="saveSetting($event)"
+            resetLabelText="Use global setting" lockDefaults="true" displayStackable="true">
+          </app-settings-view>
+        </ng-container>
+
+        <ng-template #noSettingsTemplate>
+          <div class="flex flex-col items-center mt-32">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-32 h-32 text-opacity-50 text-tertiary" viewBox="0 0 20 20"
+              fill="currentColor">
+              <path fill-rule="evenodd"
+                d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z"
+                clip-rule="evenodd" />
+            </svg>
+
+            <p class="text-sm">
+              <span class="text-primary">
+                {{ appProfile!.Name }}
+              </span>
+              is fully using the global settings.
+            </p>
+            <p class="mb-4 text-sm">
+              Start creating exceptions for it now.
+            </p>
+            <button (click)="viewSettingChange.next('all')">Edit Settings</button>
+          </div>
+        </ng-template>
+      </div>
+    </app-tab>
+
+    <!-- Details -->
+    <app-tab id="details" title="Details">
+      <div *appTabContent class="py-4 space-y-8 overflow-auto" cdkScrollable>
+
+        <div class="grid grid-cols-2 gap-4 text-primary text-xxs">
+          <div class="flex flex-col justify-center p-4 bg-gray-200 rounded">
+            <p class="space-x-2">
+              <label class="text-secondary">Name:</label>
+              <span>{{appProfile!.Name}}</span>
+            </p>
+            <p class="space-x-2">
+              <label class="text-secondary">Path:</label>
+              <span>{{appProfile!.LinkedPath}}</span>
+            </p>
+          </div>
+
+          <div class="flex flex-col justify-center p-4 bg-gray-200 rounded">
+            <p class="space-x-2">
+              <label class="text-secondary">Created:</label>
+              <span>{{appProfile!.Created * 1000 | date:'medium'}}</span>
+            </p>
+            <p class="space-x-2">
+              <label class="text-secondary">Last Edited:</label>
+              <span *ngIf="!!appProfile.LastEdited">{{appProfile!.LastEdited * 1000 | date:'medium'}}</span>
+              <span *ngIf="!appProfile.LastEdited">N/A</span>
+            </p>
+            <p class="space-x-2">
+              <label class="text-secondary">Last Used:</label>
+              <span>{{appProfile!.ApproxLastUsed * 1000 | date:'medium'}}</span>
+            </p>
+          </div>
+
+          <div class="flex flex-col justify-center p-4 bg-gray-200 rounded">
+            <p class="space-x-2">
+              <label class="text-secondary">Internal:</label>
+              <span>{{!!appProfile!.Internal ? 'yes' : 'no'}}</span>
+            </p>
+            <p class="space-x-2">
+              <label class="text-secondary">Source:</label>
+              <span>{{appProfile!.Source}}</span>
+            </p>
+            <p class="space-x-2">
+              <label class="text-secondary">ID:</label>
+              <span>{{appProfile!.ID}}</span>
+            </p>
+          </div>
+
+          <div class="flex flex-col justify-center p-4 bg-gray-200 rounded">
+            <p class="space-x-2">
+              <label class="text-secondary">Revision:</label>
+              <span>{{inspected?.currentProfileRevision}}</span>
+            </p>
+            <p class="space-x-2">
+              <label class="text-secondary">Layers:</label>
+              <span>
+                <ol class="inline-block">
+                  <li *ngFor="let layer of inspected?.layers" [routerLink]="['/', 'app'].concat(layer.split('/'))">
+                    {{layer}}
+                  </li>
+                </ol>
+              </span>
+            </p>
+          </div>
+        </div>
+
+        <!-- Warning Section -->
+        <div class="flex flex-col space-y-4" *ngIf="!!appProfile?.Warning">
+          <h2 class="flex flex-row items-center p-0 m-0 mb-4 mr-2 text-opacity-75 text-primary ">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 mr-1" fill="none" viewBox="0 0 24 24"
+              stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+            </svg>
+            <span class="mr-2 text-xxs">Warning</span>
+            <span class="flex-grow inline-block border-b border-gray-400"></span>
+          </h2>
+
+          <markdown emoji [data]="appProfile.Warning"
+            class="self-stretch block w-auto h-auto p-4 ml-2 border-l text-secondary border-yellow">
+          </markdown>
+        </div>
+
+
+        <!-- Delete Profile Section -->
+        <div class="space-y-4">
+          <h2 class="flex flex-row items-center p-0 m-0 mb-4 mr-2 text-opacity-75 text-primary">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 mr-1" fill="none" viewBox="0 0 24 24"
+              stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+            </svg>
+            <span class="mr-2 text-xxs">Delete Profile</span>
+            <span class="flex-grow inline-block border-b border-gray-400"></span>
+          </h2>
+
+          <span class="text-secondary">You can completely delete this profile to get rid of any settings. The profile
+            will
+            be automatically re-created with default settings as soon as the application starts to use the
+            network.</span>
+
+          <button class="block mt-2" (click)="deleteProfile()">Delete Profile</button>
+        </div>
+
+        <!-- Debug Section -->
+        <div class="space-y-4">
+          <h2 class="flex flex-row items-center p-0 m-0 mb-4 mr-2 text-opacity-75 text-primary">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="w-5 h-5 mr-1">
+              <g fill="none">
+                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="m18 7-1 2-1.333.917M5 12h3.11M15.89 12H19M6 3H5c-1.105 0-2 .895-2 2v1M18 21h1c1.105 0 2-.895 2-2v-1M3 18v1c0 1.105.895 2 2 2h1M21 6V5c0-1.105-.895-2-2-2h-1M6 7l1 2 1.333.917M12.444 17h-.889c-1.657 0-3-1.343-3-3v-3c0-1.105.895-2 2-2h2.889c1.105 0 2 .895 2 2v3c0 1.657-1.343 3-3 3ZM6 17l1-2 1.333-.917M18 17l-1-2-1.333-.917M14 9h-4V7c0-.552.448-1 1-1h2c.552 0 1 .448 1 1v2Z" />
+              </g>
+            </svg>
+
+            <span class="mr-2 text-xxs">Debugging</span>
+            <span class="flex-grow inline-block border-b border-gray-400"></span>
+          </h2>
+
+          <span class="text-secondary">When reporting issues with certain applications please make sure to include the
+            following
+            debug information:</span>
+
+          <button class="block mt-2" (click)="copyDebugInfo()">Copy Debug Information</button>
+        </div>
+      </div>
+    </app-tab>
+  </app-tab-group>
 </ng-container>
 
 <app-settings-overview *ngIf="showOverview"></app-settings-overview>

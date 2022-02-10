@@ -30,9 +30,10 @@
 </div>
 
 <div class="nav-list">
+  <!-- Monitor -->
   <div routerLinkActive="active" routerLink="monitor" class="link" tipUpTrigger="navMonitor" tipUpPassive>
     <svg viewBox="0 0 24 24" class="monitor">
-      <g fill="none" class="inner">
+      <g fill="none">
         <path shape-rendering="geometricPrecision" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
           d="M8.464 8.464c-1.953 1.953-1.953 5.118 0 7.071 1.953 1.953 5.118 1.953 7.071 0 1.953-1.953 1.953-5.119 0-7.071C14.559 7.488 13.28 7 12 7" />
         <path shape-rendering="geometricPrecision" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -40,23 +41,21 @@
       </g>
     </svg>
   </div>
+
+  <!-- App View -->
   <div routerLinkActive="active" routerLink="app" class="link" tipUpTrigger="navApps" tipUpPassive>
-    <svg viewBox="0 0 24 24" class="app">
-      <g fill="none" class="inner">
-        <path shape-rendering="geometricPrecision" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-          d="M8 20.064V11c0-1.105.895-2 2-2h10.487M8 14h12.776" />
-        <path shape-rendering="geometricPrecision" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-          d="M11.005 11.49c-.003 0-.005.002-.005.005s.002.005.005.005.005-.002.005-.005-.002-.005-.005-.005M13.548 11.49c-.003 0-.005.002-.005.005s.002.005.005.005.005-.002.005-.005-.002-.005-.005-.005" />
-        <path shape-rendering="geometricPrecision" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-          d="M12 21v0c4.971 0 9-4.029 9-9v0c0-4.971-4.029-9-9-9v0c-4.971 0-9 4.029-9 9v0c0 4.971 4.029 9 9 9z" />
-        <path shape-rendering="geometricPrecision" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-          d="M16.088 11.49c-.003 0-.005.002-.005.005s.002.005.005.005.005-.002.005-.005-.003-.005-.005-.005" />
-      </g>
+    <svg xmlns="http://www.w3.org/2000/svg" data-name="Layer 1" viewBox="0 0 24 24" class="app" fill="none">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" fill="currentColor"
+        d="M19 21h-3a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h3a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2Z" />
+      <path fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+        d="M19 9h-3a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h3a2 2 0 0 1 2 2v2a2 2 0 0 1-2 2ZM5 3h3a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2ZM5 15h3a2 2 0 0 1 2 2v2a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-2a2 2 0 0 1 2-2Z" />
     </svg>
   </div>
+
+  <!-- Global Settings -->
   <div routerLinkActive="active" routerLink="settings" class="link" tipUpTrigger="navSettings" tipUpPassive>
     <svg viewBox="0 0 24 24" class="settings">
-      <g fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="inner">
+      <g fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="2">
         <path shape-rendering="geometricPrecision"
           d="M13.7678 10.2322c.976311.976311.976311 2.55922 0 3.53553-.976311.976311-2.55922.976311-3.53553 0-.976311-.976311-.976311-2.55922 0-3.53553.976311-.976311 2.55922-.976311 3.53553 0" />
         <path shape-rendering="geometricPrecision"
@@ -64,21 +63,21 @@
       </g>
     </svg>
   </div>
+
+  <!-- SPN -->
   <div routerLinkActive="active" routerLink="spn" class="link" tipUpTrigger="navSPN" tipUpPassive>
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="spn">
-      <g fill="none">
-        <path stroke="#ffff" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
-          d="M9 10.5c.828 0 1.5.672 1.5 1.5s-.672 1.5-1.5 1.5-1.5-.672-1.5-1.5.672-1.5 1.5-1.5M16.19 8c0 .828-.672 1.5-1.5 1.5s-1.5-.672-1.5-1.5.672-1.5 1.5-1.5 1.5.672 1.5 1.5M21.569 16c0 .828-.672 1.5-1.5 1.5s-1.5-.672-1.5-1.5.672-1.5 1.5-1.5 1.5.672 1.5 1.5M21 12H10.5M7.5 12H3M18.57 16H3.93M13.19 8H3.93M20.07 8h-3.88" />
-        <path stroke="#ffff" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
-          d="M14.881 9.489c.077.797.119 1.639.119 2.511 0 4.971-1.343 9-3 9-1.487 0-2.72-3.244-2.958-7.501M14.382 6.531C13.834 4.385 12.971 3 12 3c-1.486 0-2.72 3.244-2.958 7.5" />
-        <path stroke="#ffff" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
-          d="M20.617 14.601c.248-.824.383-1.696.383-2.601 0-4.971-4.029-9-9-9s-9 4.029-9 9 4.029 9 9 9c2.997 0 5.65-1.466 7.285-3.718" />
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="spn" stroke="currentColor">
+      <g fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="2">
+        <path
+          d="M6.488 15.581c.782.781.782 2.048 0 2.829-.782.781-2.049.781-2.83 0-.782-.781-.782-2.048 0-2.829.781-.781 2.048-.781 2.83 0M13.415 3.586c.782.781.782 2.048 0 2.829-.782.781-2.049.781-2.83 0-.782-.781-.782-2.048 0-2.829.781-.781 2.049-.781 2.83 0M20.343 15.58c.782.781.782 2.048 0 2.829-.782.781-2.049.781-2.83 0-.782-.781-.782-2.048 0-2.829.781-.781 2.048-.781 2.83 0" />
+        <path
+          d="M17.721 18.581C16.269 20.071 14.246 21 12 21c-1.146 0-2.231-.246-3.215-.68M4.293 15.152c-.56-1.999-.352-4.21.769-6.151.574-.995 1.334-1.814 2.205-2.449M13.975 5.254c2.017.512 3.834 1.799 4.957 3.743.569.985.899 2.041 1.018 3.103" />
       </g>
     </svg>
   </div>
   <div routerLink="support" routerLinkActive="active" class="link" tipUpTrigger="navSupport" tipUpPassive>
     <svg viewBox="0 0 24 24" class="help">
-      <g fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="inner">
+      <g fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="2">
         <path shape-rendering="geometricPrecision"
           d="M12 21v0c-4.971 0-9-4.029-9-9v0c0-4.971 4.029-9 9-9v0c4.971 0 9 4.029 9 9v0c0 4.971-4.029 9-9 9z" />
         <path shape-rendering="geometricPrecision"

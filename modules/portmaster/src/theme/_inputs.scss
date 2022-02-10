@@ -1,23 +1,23 @@
 input:not([type="checkbox"]),
 textarea,
 select {
-  @apply outline-none w-full block shadow-inner-xs;
-  @apply bg-gray-400 rounded;
+  @apply outline-none w-full block;
+  @apply bg-gray-300 rounded;
   @apply text-xs text-primary;
-  @apply border border-gray-500;
-  @apply text-xs rounded-sm font-medium;
+  @apply border border-gray-300;
+  @apply rounded-sm font-medium;
   @apply p-1.5;
 
   transition: border cubic-bezier(0.175, 0.885, 0.32, 1.275) .3s;
 
   &::placeholder {
-    @apply text-secondary;
+    @apply text-secondary text-xxs;
   }
 
   &:active,
   &:focus {
     @apply text-primary;
-    @apply bg-gray-500 border-gray-600 bg-opacity-75 border-opacity-75;
+    @apply bg-gray-500 border-gray-400 bg-opacity-75 border-opacity-75 shadow-inner-xs;
 
     &::placeholder {
       @apply text-tertiary;
