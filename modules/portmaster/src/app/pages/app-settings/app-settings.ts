@@ -199,8 +199,6 @@ export class AppSettingsPageComponent implements OnInit, OnDestroy {
           this.appProfile = profile;
           this._loading = false;
 
-          this.appProfile!.Description = "foo"
-
           if (!!this.appProfile?.LinkedPath) {
             let parts: string[] = [];
             let sep = '/'
