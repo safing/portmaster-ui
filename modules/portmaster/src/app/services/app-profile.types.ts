@@ -28,7 +28,6 @@ export interface AppProfile extends Record {
   LinkedPath: string;
   Created: number;
   LastEdited: number;
-  ApproxLastUsed: number;
   Config: ConfigMap;
   Description: string;
   Warning: string;

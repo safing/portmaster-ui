@@ -12,7 +12,7 @@ import { deepCloneNode, extendStyles, matchElementSize, removeNode } from './clo
 import { getCssSelector, synchronizeCssStyles } from './css-utils';
 import { TipUpComponent } from './tipup-component';
 import { TipupPlacement, TIPUP_TOKEN } from './utils';
-
+import MyYamlFile, { Button, TipUp } from 'js-yaml-loader!../../../i18n/helptexts.yaml';
 
 @Directive({
   selector: '[tipUpTrigger]',
@@ -41,6 +41,38 @@ export class TipUpTriggerDirective implements OnDestroy {
   }
   get textKey() { return this._textKey; }
   private _textKey: string = '';
+
+  /**
+   * The text to display inside the tip up. If unset, the tipup definition
+   * will be loaded form helptexts.yaml.
+   * This input property is mainly designed for programatic/dynamic tip-up generation
+   */
+  @Input('tipUpText')
+  text: string | undefined;
+
+  @Input('tipUpTitle')
+  title: string | undefined;
+
+  @Input('tipUpButtons')
+  buttons: Button[] | undefined;
+
+  /**
+   * asTipUp returns a tip-up definition built from the input
+   * properties tipUpText and tipUpTitle. If none are set
+   * then null is returned.
+   */
+  asTipUp(): TipUp | null {
+    // TODO(ppacher): we could also merge the defintions from MyYamlFile
+    // and the properties set on this directive....
+    if (!this.text) {
+      return MyYamlFile[this.textKey];
+    }
+    return {
+      title: this.title || '',
+      content: this.text,
+      buttons: this.buttons,
+    }
+  }
 
   /**
    * The default anchor for the tipup if non is provided via Dependency-Injection
@@ -145,6 +177,9 @@ export class TipUpTriggerDirective implements OnDestroy {
     [tipUpTrigger]="key"
     [tipUpDefaultAnchor]="parent"
     [tipUpPlacement]="placement"
+    [tipUpText]="text"
+    [tipUpTitle]="title"
+    [tipUpButtons]="buttons"
     [tipUpAnchorRef]="anchor">
     <g fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" >
       <path stroke="#ffff" shape-rendering="geometricPrecision" d="M12 21v0c-4.971 0-9-4.029-9-9v0c0-4.971 4.029-9 9-9v0c4.971 0 9 4.029 9 9v0c0 4.971-4.029 9-9 9z"/>
@@ -172,6 +207,11 @@ export class TipUpTriggerDirective implements OnDestroy {
 export class TipUpIconComponent implements TipupPlacement {
   @Input()
   key: string = '';
+
+  // see TipUpTrigger tipUpText and tipUpTitle
+  @Input() text: string | undefined = undefined;
+  @Input() title: string | undefined = undefined;
+  @Input() buttons: Button[] | undefined = undefined;
 
   @Input()
   anchor: ElementRef<any> | HTMLElement | null = null;
@@ -259,6 +299,10 @@ export class TipUpService {
     }
   }
 
+  getTipUp(key: string): TipUp | null {
+    return this.tipups.get(key)?.asTipUp() || null;
+  }
+
   private _latestTipUp: DialogRef<TipUpComponent> | null = null;
 
   createTipup(
@@ -268,11 +312,11 @@ export class TipUpService {
     opts: TipupPlacement | null = {},
     injector?: Injector): DialogRef<TipUpComponent> {
 
-    console.log("anchor", anchor);
-
-    if (!!this._latestTipUp) {
-      this._latestTipUp.close();
-      this._latestTipUp = null;
+    const lastTipUp = this._latestTipUp
+    let closePrevious = () => {
+      if (!!lastTipUp) {
+        lastTipUp.close();
+      }
     }
 
     // make sure we have an ElementRef to work with
@@ -319,18 +363,20 @@ export class TipUpService {
       parent: injector || this.injector,
     });
 
-    this._latestTipUp = this.dialog.create(TipUpComponent, {
+
+    const newTipUp = this.dialog.create(TipUpComponent, {
       dragable: false,
       autoclose: true,
       backdrop: 'light',
       injector: inj,
       positionStrategy: postitionStrategy
     });
+    this._latestTipUp = newTipUp;
 
     const _preview = this._createPreview(anchor.nativeElement, _getShadowRoot(anchor.nativeElement));
 
     // construct a CSS selector that targets the clicked origin (TipUpTriggerDirective) from within
-    // the anchor. We use that path to high light the copy of the trigger-directive in the preview.
+    // the anchor. We use that path to highlight the copy of the trigger-directive in the preview.
     if (!!origin) {
       const originSelector = getCssSelector(origin.elementRef.nativeElement, anchor.nativeElement);
       let target: HTMLElement | null = null;
@@ -343,20 +389,35 @@ export class TipUpService {
       this.renderer.addClass(target, 'active-tipup-trigger')
     }
 
-    this._latestTipUp.onStateChange
+    newTipUp.onStateChange
+      .pipe(
+        filter(state => state === 'open'),
+        take(1)
+      )
+      .subscribe(() => {
+        closePrevious();
+        _preview.attach()
+      })
+
+    newTipUp.onStateChange
       .pipe(
         filter(state => state === 'closing'),
         take(1)
       )
       .subscribe(() => {
-        this._latestTipUp = null;
-        removeNode(_preview);
+        if (this._latestTipUp === newTipUp) {
+          this._latestTipUp = null;
+        }
+        _preview.classList.remove('visible');
+        setTimeout(() => {
+          removeNode(_preview);
+        }, 300)
       });
 
-    return this._latestTipUp;
+    return newTipUp;
   }
 
-  private _createPreview(element: HTMLElement, shadowRoot: ShadowRoot | null): HTMLElement {
+  private _createPreview(element: HTMLElement, shadowRoot: ShadowRoot | null): HTMLElement & { attach: () => void } {
     const preview = deepCloneNode(element);
     // clone all CSS styles by applying them directly to the copied
     // nodes. Though, we skip the opacity property because we use that
@@ -376,8 +437,8 @@ export class TipUpService {
       'top': '0',
       'left': '0',
       'z-index': '1000',
-      'opacity': '1'
-    }, new Set(['position', 'opacity']));
+      'opacity': 'unset',
+    }, new Set(['position']));
 
     // We add a dedicated class to the preview element so
     // it can handle special higlighting itself.
@@ -418,9 +479,29 @@ export class TipUpService {
       }
     }
 
-    this._getPreviewInserationPoint(shadowRoot).appendChild(preview);
+    let attach = () => {
+      const parent = this._getPreviewInserationPoint(shadowRoot)
+      const cdkOverlayContainer = parent.getElementsByClassName('cdk-overlay-container')[0]
+      // if we find a cdkOverlayContainer in our inseration point (which we expect to be there)
+      // we insert the preview element right after the overlay-backdrop. This way the tip-up
+      // dialog will still be on top of the preview.
+      if (!!cdkOverlayContainer) {
+        const reference = cdkOverlayContainer.getElementsByClassName("cdk-overlay-backdrop")[0].nextSibling;
+        cdkOverlayContainer.insertBefore(preview, reference)
+      } else {
+        parent.appendChild(preview);
+      }
 
-    return preview;
+      setTimeout(() => {
+        preview.classList.add('visible');
+      })
+    }
+
+    Object.defineProperty(preview, 'attach', {
+      value: attach,
+    })
+
+    return preview as any;
   }
 
   private _getPreviewInserationPoint(shadowRoot: ShadowRoot | null): HTMLElement {

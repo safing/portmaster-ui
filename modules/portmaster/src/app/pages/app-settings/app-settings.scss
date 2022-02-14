@@ -1,3 +1,8 @@
+:host {
+  @apply p-4 px-12 flex flex-col h-screen max-h-screen;
+}
+
+/*
 app-settings-overview {
   @apply pb-4;
 }
@@ -8,7 +13,7 @@ app-tipup {
 
 h1 {
   @apply my-6;
-  display    : flex;
+  display: flex;
   align-items: center;
 
   app-icon {
@@ -16,17 +21,17 @@ h1 {
   }
 
   .link {
-    display        : flex;
+    display: flex;
     justify-content: center;
-    align-items    : center;
-    height         : 24px;
-    width          : 24px;
-    opacity        : .5;
+    align-items: center;
+    height: 24px;
+    width: 24px;
+    opacity: .5;
     @apply bg-buttons-dark;
     @apply ml-4;
-    cursor       : pointer;
+    cursor: pointer;
     border-radius: 50%;
-    transition   : all .15s ease-in-out;
+    transition: all .15s ease-in-out;
 
     &:hover {
       opacity: 1;
@@ -34,25 +39,24 @@ h1 {
     }
 
     fa-icon {
-      color          : theme('colors.buttons.icon');
-      display        : flex;
-      font-size      : 12px;
-      flex-direction : column;
-      align-items    : center;
+      @apply text-secondary;
+      display: flex;
+      font-size: 12px;
+      flex-direction: column;
+      align-items: center;
       justify-content: center;
     }
   }
 
   .delete-profile-container {
-    flex-grow      : 1;
-    display        : flex;
+    flex-grow: 1;
+    display: flex;
     justify-content: flex-end;
-    align-items    : center;
+    align-items: center;
 
     button {
       transition: all .2s ease-in-out;
-      color     : theme('colors.text.tertiary');
-      @apply bg-transparent;
+      @apply bg-transparent text-tertiary;
       opacity: 0.8;
 
       &:hover {
@@ -63,10 +67,10 @@ h1 {
 }
 
 h2.app-settings {
-  display        : flex;
+  display: flex;
   justify-content: space-between;
-  align-items    : center;
-  padding-left   : 3rem;
+  align-items: center;
+  padding-left: 3rem;
 
   app-dropdown {
     margin-right: 0.5em;
@@ -76,26 +80,25 @@ h2.app-settings {
     display: inline-flex;
 
     fa-icon[icon*="question-circle"] {
-      align-self : center;
+      align-self: center;
       margin-left: 0.35rem;
-      font-size  : 0.8rem;
+      font-size: 0.8rem;
     }
 
   }
 }
 
 .no-customization {
-  display        : flex;
+  display: flex;
   justify-content: center;
-  align-items    : center;
-  flex-direction : column;
+  align-items: center;
+  flex-direction: column;
   @apply p-8;
   @apply mt-8;
 
   fa-icon {
-    @apply text-4xl;
+    @apply text-4xl text-secondary;
     opacity: 0.5;
-    color  : theme('colors.buttons.icon');
   }
 
   p {
@@ -111,7 +114,7 @@ h2.app-settings {
 
 .app-name {
   @apply mx-2;
-  opacity  : 0.7;
+  opacity: 0.7;
   font-size: 0.9em;
 
   app-icon {
@@ -121,16 +124,16 @@ h2.app-settings {
 }
 
 .app-overview {
-  margin-left : calc(34px + 1rem);
+  margin-left: calc(34px + 1rem);
   margin-right: 1rem;
 }
 
 .meta {
-  display              : grid;
+  display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap                  : 1rem;
-  white-space          : normal;
-  text-overflow        : ellipsis;
+  gap: 1rem;
+  white-space: normal;
+  text-overflow: ellipsis;
 
   @apply mb-8;
 
@@ -139,12 +142,12 @@ h2.app-settings {
     @apply rounded;
     @apply p-4;
 
-    display        : flex;
-    flex-direction : column;
+    display: flex;
+    flex-direction: column;
     justify-content: space-evenly;
 
     p {
-      overflow     : hidden;
+      overflow: hidden;
       text-overflow: ellipsis;
     }
 
@@ -160,13 +163,13 @@ h2.app-settings {
   }
 
   .app-warning {
-    display       : flex;
+    display: flex;
     flex-direction: row;
-    border-left   : 2px solid;
-    border-color  : theme("colors.info.yellow");
+    border-left: 2px solid;
+    @apply border-yellow;
 
     .icon fa-icon {
-      color: theme("colors.info.yellow");
+      @apply text-yellow;
     }
 
     markdown {
@@ -174,11 +177,11 @@ h2.app-settings {
     }
 
     .icon {
-      display     : flex;
-      align-items : flex-start;
-      flex-shrink : 1;
+      display: flex;
+      align-items: flex-start;
+      flex-shrink: 1;
       margin-right: 1rem;
-      padding-top : 2px;
+      padding-top: 2px;
     }
   }
 }
@@ -187,3 +190,4 @@ h2.app-settings {
   overflow: auto;
   @apply mr-4;
 }
+*/

@@ -1,82 +1,23 @@
 :host {
-  display : flex;
+  display: flex;
   overflow: hidden;
 }
 
-.content {
-  display    : flex;
-  white-space: normal;
-  @apply pl-0;
-  @apply pr-0;
-}
-
-.settings {
-  display       : flex;
-  align-items   : flex-start;
-  flex-direction: column;
-  flex-grow     : 1;
-  max-width     : 950px; // it looks odd if it's wider than that.
-  @apply pr-4;
-
-  .category {
-    width        : 100%;
-    padding-left : 4rem;
-    margin-top   : 1rem;
-    margin-bottom: 1rem;
-    position     : relative;
-
-    .highlighted {
-
-      app-generic-setting:not(.touched) {
-        animation   : fade-border 5s ease-out;
-        border-color: rgba(var(--cards-secondary-rgb), 1);
-        @apply border-l-2;
-      }
-    }
-
-    app-generic-setting {
-      width      : 100%;
-      padding-top: 1.5rem;
-      margin-top : 1rem;
-
-      /*
-      FIXME:
-      This broke the spacing between the the single settings as an additional ng-container was added around every setting.
-      This made every setting to be the :first-of-type and removed spacing from all settings.
-      &:first-of-type {
-        @apply pt-4;
-      }
-      */
-    }
-
-    .border {
-      position    : absolute;
-      top         : 0.5rem;
-      bottom      : -0.5rem;
-      width       : 0.7rem;
-      margin-left : -1rem;
-      border      : 1px solid;
-      border-right: none;
-      @apply border-cards-tertiary;
-    }
-  }
-
-}
 
 fa-icon[icon="spinner"] {
   @apply text-3xl;
-  display   : block;
-  width     : 100%;
+  display: block;
+  width: 100%;
   text-align: center;
-  height    : 6rem;
+  height: 6rem;
 }
 
 div.settings-nav {
   @apply mt-4;
   @apply pl-12;
   flex-shrink: 0;
-  width      : 200px;
-  overflow   : visible;
+  width: 200px;
+  overflow: visible;
   white-space: nowrap;
 
   transition: height cubic-bezier(0.25, 0.46, 0.45, 0.94) .5s;
@@ -100,7 +41,7 @@ div.settings-nav {
       @apply text-tertiary;
 
       span {
-        cursor : pointer;
+        cursor: pointer;
         display: block;
       }
 
@@ -110,6 +51,14 @@ div.settings-nav {
       }
 
       &.active {
+        &.category:before {
+          content: "";
+          width: 1px;
+          height: 1rem;
+          @apply bg-white block absolute;
+          left: 0.5rem;
+        }
+
         ul.settings {
           display: inline-block;
         }
@@ -126,7 +75,7 @@ div.settings-nav {
         display: none;
 
         li {
-          cursor    : pointer;
+          cursor: pointer;
           margin-top: 0;
         }
       }
@@ -134,16 +83,10 @@ div.settings-nav {
   }
 }
 
-@keyframes fade-border {
-  0% {
-    border-color: rgba(var(--info-yellow-rgb), 0.4);
-  }
-
-  90% {
-    border-color: rgba(var(--info-yellow-rgb), 0.4);
-  }
-
-  100% {
-    border-color: rgba(var(--cards-secondary-rgb), 1);
-  }
+.user-defined-value:before {
+  content: "";
+  height: 1rem;
+  @apply bg-blue block absolute rounded-full w-1 h-1;
+  top: 0.35rem;
+  left: -2rem;
 }

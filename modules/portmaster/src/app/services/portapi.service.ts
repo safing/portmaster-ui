@@ -653,7 +653,8 @@ export class PortapiService {
       // deserializeMessage also supports RequestMessage so cast as any
       deserializer: <any>((msg: any) => {
         try {
-          return deserializeMessage(msg)
+          const res = deserializeMessage(msg)
+          return res
         } catch (err) {
           console.error('deserialize message', err);
           return {

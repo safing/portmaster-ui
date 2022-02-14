@@ -1,16 +1,22 @@
 import { coerceBooleanProperty } from '@angular/cdk/coercion';
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, HostBinding, Input, ViewChild, OnInit, OnDestroy, Output, EventEmitter, Host } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, HostBinding, Input, OnDestroy, OnInit, Output, TemplateRef, ViewChild, ViewContainerRef } from '@angular/core';
 import { NgModel } from '@angular/forms';
 import { Subject, Subscription } from 'rxjs';
 import { debounceTime } from 'rxjs/operators';
-import { BaseSetting, ExternalOptionHint, SettingValueType, ConfigService, ExpertiseLevelNumber, ReleaseLevel, SecurityLevel, Setting, isDefaultValue, OptionType, WellKnown, QuickSetting, applyQuickSetting } from 'src/app/services';
+import { applyQuickSetting, BaseSetting, ConfigService, ExpertiseLevelNumber, ExternalOptionHint, OptionType, QuickSetting, ReleaseLevel, SettingValueType, WellKnown } from 'src/app/services';
+import { PortapiService } from 'src/app/services/portapi.service';
 import { fadeInAnimation, fadeOutAnimation } from '../../animations';
+import { DialogRef, DialogService } from '../../dialog';
+import { ExpertiseService } from '../../expertise/expertise.service';
+import { Button } from 'js-yaml-loader!../../../i18n/helptexts.yaml';
+import { TemplatePortal } from '@angular/cdk/portal';
 
 export interface SaveSettingEvent<S extends BaseSetting<any, any> = any> {
   key: string;
   value: SettingValueType<S>;
   isDefault: boolean;
   rejected?: (err: any) => void
+  accepted?: () => void
 }
 
 @Component({
@@ -34,6 +40,10 @@ export class GenericSettingComponent<S extends BaseSetting<any, any>> implements
   readonly optionType = OptionType;
   readonly releaseLevel = ReleaseLevel;
   readonly wellKnown = WellKnown;
+
+  @ViewChild('helpTemplate', { read: TemplateRef, static: true })
+  helpTemplate: TemplateRef<any> | null = null;
+  private helpDialogRef: DialogRef<any> | null = null;
 
   /**
    * Whether or not the component/setting is disabled and should
@@ -101,7 +111,7 @@ export class GenericSettingComponent<S extends BaseSetting<any, any>> implements
   private subscription = Subscription.EMPTY;
 
   /** Whether or not the value was reset. */
-  private wasReset = false;
+  wasReset = false;
 
   /** Whether or not a save request was rejected */
   @HostBinding('class.rejected')
@@ -109,6 +119,12 @@ export class GenericSettingComponent<S extends BaseSetting<any, any>> implements
     return this._rejected;
   }
   private _rejected = false;
+
+  @HostBinding('class.saved')
+  get changeAccepted() {
+    return this._changeAccepted;
+  }
+  private _changeAccepted = false;
 
   /**
    * @private
@@ -118,6 +134,15 @@ export class GenericSettingComponent<S extends BaseSetting<any, any>> implements
    */
   externalOptType(opt: S | null): ExternalOptionHint | null {
     return opt?.Annotations?.[WellKnown.DisplayHint] || null;
+  }
+
+  /**
+   * @private
+   * Returns whether or not a restart is pending for this setting
+   * to apply.
+   */
+  get restartPending(): boolean {
+    return !!this._setting?.Annotations?.[WellKnown.RestartPending];
   }
 
   /**
@@ -175,6 +200,9 @@ export class GenericSettingComponent<S extends BaseSetting<any, any>> implements
     return !this.dirty && !this.userConfigured
   }
 
+  /** A list of buttons for the tip-up */
+  tipupButtons: Button[] = [];
+
   /**
    * Unlock the setting if it is locked. Unlocking will
    * emit the default value to be safed for the setting.
@@ -207,7 +235,7 @@ export class GenericSettingComponent<S extends BaseSetting<any, any>> implements
 
   /** Wether or not stackable values should be shown right now */
   get showStackable() {
-    return this.stackable && !this.isLocked && this.displayStackable;
+    return this.stackable && this.displayStackable;
   }
 
   /**
@@ -231,6 +259,14 @@ export class GenericSettingComponent<S extends BaseSetting<any, any>> implements
     this.resetValue();
   }
 
+  /**
+   * @private
+   * Closes the help dialog.
+   */
+  closeHelpDialog() {
+    this.helpDialogRef?.close();
+  }
+
   @ViewChild(NgModel, { static: false })
   model: NgModel | null = null;
 
@@ -242,12 +278,58 @@ export class GenericSettingComponent<S extends BaseSetting<any, any>> implements
    */
   @Input()
   set setting(s: S | null) {
+    this.tipupButtons = [];
+
     this._setting = s;
     if (!s) {
       this._currentValue = null;
       return;
     }
 
+    if (this._setting?.Help) {
+      this.tipupButtons = [
+        {
+          name: 'Show More',
+          action: {
+            ID: '',
+            Text: '',
+            Type: 'ui',
+            Run: async () => {
+              if (!this.helpTemplate) {
+                return;
+              }
+
+              // close any existing help dialog for THIS setting.
+              if (!!this.helpDialogRef) {
+                this.helpDialogRef.close();
+              }
+
+              // Create a new dialog form the helpTemplate
+              const portal = new TemplatePortal(this.helpTemplate, this.viewRef);
+              const ref = this.dialog.create(portal, {
+                // we don't use a backdrop and make the dialog dragable so the user can
+                // move it somewhere else and keep it open while configuring the setting.
+                backdrop: false,
+                dragable: true,
+              });
+
+              // make sure we reset the helpDialogRef to null once it get's clsoed.
+              this.helpDialogRef = ref;
+              this.helpDialogRef.onClose.subscribe(() => {
+                // but only if helpDialogRef still points to the same
+                // dialog reference. Otherwise we got closed because the user
+                // opened a new one and helpDialogRef already points to the new
+                // dialog.
+                if (this.helpDialogRef === ref) {
+                  this.helpDialogRef = null;
+                }
+              });
+            },
+            Payload: undefined,
+          },
+        },
+      ]
+    }
     this.updateActualValue();
   }
   get setting(): S | null {
@@ -264,6 +346,9 @@ export class GenericSettingComponent<S extends BaseSetting<any, any>> implements
     this.updateActualValue();
   }
   get defaultValue() {
+    if (this.stackable) {
+      return [] as SettingValueType<S>;
+    }
     return this._defaultValue === null
       ? this.setting?.DefaultValue
       : this._defaultValue;
@@ -284,12 +369,23 @@ export class GenericSettingComponent<S extends BaseSetting<any, any>> implements
   /* The currently saved value. Updated by the setting() setter */
   _savedValue: SettingValueType<S> | null = null;
 
+  /* Used to cache the value of a basic-setting because we only want to save that on blur */
+  _basicSettingsValueCache: SettingValueType<S> | null = null
+
   /** Whether or not the network rating system is enabled. */
   networkRatingEnabled$ = this.configService.networkRatingEnabled$;
 
+  get expertiseLevel() {
+    return this.expertiseService.change;
+  }
+
   constructor(
+    private expertiseService: ExpertiseService,
     private configService: ConfigService,
-    private changeDetectorRef: ChangeDetectorRef
+    private portapi: PortapiService,
+    private dialog: DialogService,
+    private changeDetectorRef: ChangeDetectorRef,
+    private viewRef: ViewContainerRef,
   ) { }
 
   ngOnInit() {
@@ -337,7 +433,7 @@ export class GenericSettingComponent<S extends BaseSetting<any, any>> implements
    * @param qs The quick-settting to apply
    */
   applyQuickSetting(qs: QuickSetting<SettingValueType<S>>) {
-    if (this.disabled || this.isLocked) {
+    if (this.disabled) {
       return;
     }
 
@@ -349,9 +445,38 @@ export class GenericSettingComponent<S extends BaseSetting<any, any>> implements
     this.updateValue(value, true);
   }
 
+  restartNow() {
+    if (!this._setting?.RequiresRestart) {
+      return;
+    }
+
+    this.dialog.confirm({
+      header: 'Restart Portmaster',
+      message: 'Do you want to restart the Portmaster now?',
+      buttons: [
+        {
+          id: 'no',
+          text: 'Maybe Later',
+          class: 'outline',
+        },
+        {
+          id: 'restart',
+          text: 'Restart',
+          class: 'danger'
+        }
+      ]
+    })
+      .onAction('restart', () => this.portapi.restartPortmaster())
+      .onAction('no', () => {
+        this._changeAccepted = false;
+        this.changeDetectorRef.markForCheck();
+      });
+  }
+
   /**
    * Emits a save request to the parent component.
    */
+  private _saveInterval: any;
   private emitSaveRequest() {
     const isDefault = this.wasReset;
     let value = this._setting!['Value'];
@@ -362,8 +487,14 @@ export class GenericSettingComponent<S extends BaseSetting<any, any>> implements
       this._setting!.Value = this._currentValue;
     }
 
+
+    let wasReset = this.wasReset;
     this.wasReset = false;
     this._rejected = false;
+    this._changeAccepted = false;
+    if (!!this._saveInterval) {
+      clearTimeout(this._saveInterval);
+    }
 
     this.onSave.next({
       key: this.setting!.Key,
@@ -371,8 +502,25 @@ export class GenericSettingComponent<S extends BaseSetting<any, any>> implements
       value: this._setting!.Value,
       rejected: (err: any) => {
         this._setting!['Value'] = value;
-        this.changeDetectorRef.markForCheck();
         this._rejected = true;
+        this.changeDetectorRef.markForCheck();
+      },
+      accepted: () => {
+        if (!wasReset) {
+          this._changeAccepted = true;
+          // if no restart is required fade the "✔️ Saved" out after
+          // a few seconds.
+          if (!this._setting?.RequiresRestart) {
+            this._saveInterval = setTimeout(() => {
+              this._changeAccepted = false;
+              this._saveInterval = null;
+              this.changeDetectorRef.markForCheck();
+            }, 4000);
+          }
+        }
+
+        this.changeDetectorRef.markForCheck();
+
       }
     })
   }
@@ -385,11 +533,20 @@ export class GenericSettingComponent<S extends BaseSetting<any, any>> implements
    * @param value The new value as emitted by the view
    */
   updateValue(value: SettingValueType<S>, save = false) {
-    this._currentValue = value;
     this._touched = true;
 
+    this._changeAccepted = false;
+    this._rejected = false;
+    if (!!this._saveInterval) {
+      clearTimeout(this._saveInterval);
+    }
+
     if (save) {
+
+      this._currentValue = value;
       this.save.next();
+    } else {
+      this._basicSettingsValueCache = value;
     }
   }
 
@@ -423,11 +580,14 @@ export class GenericSettingComponent<S extends BaseSetting<any, any>> implements
     this.wasReset = false;
 
     const s = this.setting;
+
     const value = s.Value === undefined
       ? this.defaultValue
       : s.Value;
 
+
     this._currentValue = value;
     this._savedValue = value;
+    this._basicSettingsValueCache = value;
   }
 }

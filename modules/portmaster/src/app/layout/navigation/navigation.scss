@@ -1,16 +1,16 @@
 :host {
-  height         : 100vh;
-  top            : 0px;
-  position       : sticky;
-  display        : flex;
-  flex-direction : column;
+  height: 100vh;
+  top: 0px;
+  position: sticky;
+  display: flex;
+  flex-direction: column;
   justify-content: space-between;
-  align-items    : center;
-  user-select    : none;
+  align-items: center;
+  user-select: none;
 
   div.logo {
     position: relative;
-    width   : 1.53rem;
+    width: 1.53rem;
     @apply mt-6;
 
     &,
@@ -20,10 +20,10 @@
   }
 
   svg {
-    width   : 100%;
+    width: 100%;
     position: absolute;
-    top     : 0;
-    left    : 0;
+    top: 0;
+    left: 0;
 
     &:not(.connected) {
       animation-timing-function: cubic-bezier(0.445, 0.05, 0.55, 0.95);
@@ -35,36 +35,36 @@
   }
 
   div.first-tipup {
-    margin-top : 2.5rem;
+    margin-top: 2.5rem;
     display: flex;
     justify-content: center;
   }
 
   div.nav-list {
-    display        : flex;
-    flex-direction : column;
+    display: flex;
+    flex-direction: column;
     justify-content: flex-start;
-    align-items    : center;
+    align-items: center;
   }
 
   div.nav-lower-list {
-    display        : flex;
-    flex-direction : column;
+    display: flex;
+    flex-direction: column;
     justify-content: flex-start;
-    align-items    : center;
-    padding-bottom : 1.5rem;
+    align-items: center;
+    padding-bottom: 1.5rem;
   }
 
   div.link {
     @apply my-2;
 
-    width        : 2rem;
-    height       : 2rem;
+    width: 2rem;
+    height: 2rem;
     border-radius: 10px;
 
-    display        : flex;
+    display: flex;
     justify-content: space-around;
-    align-items    : center;
+    align-items: center;
 
     cursor: pointer;
 
@@ -83,7 +83,7 @@
 
       svg,
       fa-icon {
-        opacity  : 1;
+        opacity: 1;
         transform: scale(1.08);
       }
     }
@@ -105,12 +105,10 @@
       &.app,
       &.help,
       &.settings {
-        width   : 1.1rem;
+        @apply text-white;
+        width: 1.1rem;
         position: relative;
-
-        .inner {
-          stroke: white;
-        }
+        stroke: currentColor;
       }
     }
   }

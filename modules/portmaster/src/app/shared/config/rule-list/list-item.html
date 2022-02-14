@@ -1,4 +1,4 @@
-<div class="action" [class.allow]="isAllow" [class.block]="isBlock" [class.edit]="edit">
+<div class="flex items-center action justify-evenly" [class.text-green-300]="isAllow" [class.text-red]="isBlock">
   <ng-container *ngIf="!edit; else: selectAction">
     <span *ngIf="isAllow">Allow</span>
     <span *ngIf="isBlock">Block</span>

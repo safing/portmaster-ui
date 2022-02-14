@@ -107,6 +107,10 @@ export class SettingsComponent implements OnInit, OnDestroy {
     this.configService.save(setting)
       .subscribe({
         next: () => {
+          if (!!event.accepted) {
+            event.accepted();
+          }
+
           this.settings[idx] = setting;
 
           // for the release level setting we need to
@@ -117,6 +121,10 @@ export class SettingsComponent implements OnInit, OnDestroy {
           }
         },
         error: err => {
+          if (!!event.rejected) {
+            event.rejected(err);
+          }
+
           this.actionIndicator.error('Failed to save setting', err);
           console.error(err);
         }

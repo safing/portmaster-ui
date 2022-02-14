@@ -1,4 +1,4 @@
-<div class="header">
+<div class="flex flex-row items-center justify-between mb-4">
   <input type="text" placeholder="Search" [ngModel]="searchTerm" (ngModelChange)="searchApps($event)">
   <app-expertise></app-expertise>
 </div>
@@ -11,7 +11,6 @@
 </div>
 
 <div class="scrollable" [@fadeInList]="total">
-
   <ng-container *ngIf="runningProfiles.length > 0">
     <div class="scrollable-header">
       <h4>
@@ -71,5 +70,8 @@
       </div>
     </ng-container>
   </ng-template>
+</div>
 
+<div *ngIf="total === 0 && searchTerm !== ''" class="flex items-center justify-center p-2 bg-gray-200 text-secondary">
+  No applications match your search term.
 </div>

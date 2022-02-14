@@ -1,10 +1,10 @@
 em.search-result {
-  @apply text-tertiary;
-  @apply bg-info-yellow;
+  @apply text-background;
+  @apply bg-yellow;
   @apply border;
-  @apply border-info-yellow;
+  @apply border-yellow;
   @apply rounded-sm;
 
   text-decoration: none;
-  font-style     : inherit;
+  font-style: inherit;
 }

@@ -1,6 +1,6 @@
 import { coerceBooleanProperty } from '@angular/cdk/coercion';
 import { CdkOverlayOrigin, ConnectedPosition, ScrollStrategy, ScrollStrategyOptions } from '@angular/cdk/overlay';
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, ContentChildren, EventEmitter, HostBinding, HostListener, Input, Output, QueryList, Renderer2, ViewChild, ViewEncapsulation } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, ContentChildren, ElementRef, EventEmitter, HostBinding, HostListener, Input, Output, QueryList, Renderer2, ViewChild, ViewEncapsulation } from '@angular/core';
 import { fadeInAnimation, fadeOutAnimation } from '../animations';
 
 @Component({
@@ -32,7 +32,10 @@ export class MenuTriggerComponent {
     return this.menu.isOpen;
   }
 
-  constructor(public changeDetectorRef: ChangeDetectorRef) { }
+  constructor(
+    public changeDetectorRef: ChangeDetectorRef,
+    public elementRef: ElementRef,
+  ) { }
 
   toggle(event: MouseEvent) {
     event.preventDefault();
@@ -108,6 +111,7 @@ export class MenuComponent {
   items: QueryList<MenuItemComponent> | null = null;
 
   scrollStrategy: ScrollStrategy;
+  minWidth: number = 0;
 
   positions: ConnectedPosition[] = [
     {
@@ -169,6 +173,8 @@ export class MenuComponent {
 
     if (!!t) {
       this.trigger = t;
+      const rect = (this.trigger.elementRef.nativeElement as HTMLElement).getBoundingClientRect()
+      this.minWidth = rect ? rect.width : 0;
     }
     this.isOpen = true;
   }

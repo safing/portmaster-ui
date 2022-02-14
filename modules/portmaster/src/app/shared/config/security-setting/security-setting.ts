@@ -114,8 +114,6 @@ export class SecuritySettingComponent implements ControlValueAccessor, OnChanges
           new SecuritySetting('Off', defaultValue, 'var(--info-red)'),
           new SecuritySetting('On', SecurityLevel.Normal)
         ]
-
-        console.log(`${this.setting.Key}: on-off mode with default/off = ${SecurityLevel[defaultValue]} and current = ${this.currentValue}`)
       }
     }
   }
@@ -163,7 +161,12 @@ export class SecuritySettingComponent implements ControlValueAccessor, OnChanges
   }
 
   /** Sets the new level */
-  setLevel(level: SecurityLevel) {
+  setLevel(level: SecurityLevel | boolean) {
+    if (typeof level === 'boolean') {
+      // this can only happen in on/off mode
+      level = level ? this.availableLevels[1].level : this.availableLevels[0].level;
+    }
+
     let newLevel: number = 0;
     switch (level) {
       case SecurityLevel.Off:
@@ -180,7 +183,6 @@ export class SecuritySettingComponent implements ControlValueAccessor, OnChanges
         break;
     }
 
-    console.log(`Setting to ${SecurityLevel[level]}, ${newLevel}`)
 
     this.currentValue = newLevel;
     this._onChange(newLevel);
@@ -199,7 +201,6 @@ export class SecuritySettingComponent implements ControlValueAccessor, OnChanges
   /** writeValues writes a new value for the security setings. It satisfies ControlValueAccessor */
   writeValue(value: number) {
     this.currentValue = value;
-    console.log(`${this.setting?.Key}: received new current value: ${this.currentValue} which counts as ${SecurityLevel[this.getLevel()]}`)
     this.changeDetectorRef.markForCheck();
   }
 }

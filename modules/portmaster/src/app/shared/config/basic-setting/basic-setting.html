@@ -26,8 +26,8 @@
       -->
       <ng-template #simpleTextInput>
         <div class="input-container">
-          <input type="text" [ngModel]="_value" (ngModelChange)="setInternalValue($event)" [disabled]="_disabled"
-            (blur)="touched()">
+          <input type="text" [ngModel]="_value" (ngModelChange)="setInternalValue($event)" [disabled]="_disabled" #input
+            (blur)="touched()" (click)="input.focus()">
           <span *ngIf="!!unit" class="suffix" #suffixElement>
             {{ unit }}
           </span>
@@ -39,9 +39,9 @@
       A number input
     -->
     <div class="input-container" *ngSwitchCase="'number'">
-      <input type="number" [ngModel]="_value" (ngModelChange)="setInternalValue($event)" [disabled]="_disabled"
+      <input type="number" [ngModel]="_value" (ngModelChange)="setInternalValue($event)" [disabled]="_disabled" #input
         (blur)="touched()">
-      <span *ngIf="!!unit" class="suffix" #suffixElement>
+      <span *ngIf="!!unit" class="suffix" #suffixElement (click)="input.focus()">
         {{ unit }}
       </span>
     </div>

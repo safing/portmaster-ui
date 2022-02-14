@@ -1,4 +1,5 @@
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, HostBinding, Input } from '@angular/core';
+import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
 import { switchMap } from 'rxjs/operators';
 import { AppProfileService } from '../../services';
 
@@ -29,7 +30,7 @@ const iconsToIngore = [
 })
 export class AppIconComponent {
   /** @private The data-URL for the app-icon if available */
-  src: string = '';
+  src: SafeUrl | string = ''
 
   /** The profile for which to show the app-icon */
   @Input()
@@ -56,6 +57,7 @@ export class AppIconComponent {
   constructor(
     private profileService: AppProfileService,
     private changeDetectorRef: ChangeDetectorRef,
+    private sanitzier: DomSanitizer,
   ) { }
 
   /** Updates the view of the app-icon and tries to find the actual application icon */
@@ -106,7 +108,11 @@ export class AppIconComponent {
             if (iconsToIngore.some(i => i === icon)) {
               icon = "";
             }
-            this.src = icon;
+            if (icon !== '') {
+              this.src = this.sanitzier.bypassSecurityTrustUrl(icon);
+            } else {
+              this.src = '';
+            }
             this.changeDetectorRef.detectChanges();
           },
           console.error

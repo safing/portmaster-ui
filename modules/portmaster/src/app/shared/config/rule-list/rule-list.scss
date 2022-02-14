@@ -4,9 +4,9 @@
 
 .item,
 .cdk-drag-preview {
-  display    : flex;
+  display: flex;
   align-items: center;
-  padding    : 3px;
+  padding: 3px;
 
   fa-icon {
     cursor: pointer;
@@ -21,8 +21,8 @@
 }
 
 .cdk-drag-placeholder {
-  left        : -4px;
-  padding     : 1px;
+  left: -4px;
+  padding: 1px;
   padding-left: 4px;
 }
 
@@ -32,19 +32,18 @@
 }
 
 .cdk-drag-preview {
-  left        : -4px;
-  padding     : 1px;
+  left: -4px;
+  padding: 1px;
   padding-left: 4px;
 }
 
 .button-list {
   @apply mt-2;
+  @apply ml-8;
 }
 
-.new-entry {
-  position: relative;
-  cursor  : pointer;
-  width   : 100%;
+.dotted {
+  @apply w-full;
   @apply rounded;
   @apply p-1;
   @apply border-2;
@@ -53,26 +52,24 @@
   @apply bg-background;
   @apply text-secondary;
 
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
   span {
-    @apply ml-2;
     @apply font-medium;
-
   }
+}
 
-  fa-icon {
-    font-size: 1rem;
-  }
+.new-entry {
+  cursor: pointer;
 
   &:hover {
     @apply text-primary;
-    @apply bg-cards-secondary;
+    @apply bg-gray-300;
 
     span {
       @apply text-primary;
     }
   }
-
-  display        : flex;
-  align-items    : center;
-  justify-content: center;
 }
