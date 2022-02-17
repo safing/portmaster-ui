@@ -274,6 +274,19 @@ appSettings-Filter:
     **View All:**<br>
     Show all settings. App-specific settings which override the global default are highlighted.
 
+appSettings-QuickSettings:
+  title: Quickly Change the Most Important Settings
+  content: |
+    __Internet__
+
+    Allow or block all network access of this app. This also includes LAN and Device-Local network access.
+    A yellow dot in the corner signifies that there may be interfering settings.
+
+    __SPN__
+
+    Quickly enable or disable SPN for this app.
+    A yellow dot in the corner signifies that there may be interfering settings.
+
 #########################
 ### Support Page
 

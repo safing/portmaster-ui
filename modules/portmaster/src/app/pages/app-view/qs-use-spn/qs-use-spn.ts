@@ -3,7 +3,7 @@ import { BoolSetting, getActualValue, Setting } from "src/app/services";
 import { SaveSettingEvent } from "src/app/shared/config/generic-setting/generic-setting";
 
 const interferingSettings = [
-  'filter/blockInternet',
+  'spn/dnsExitPolicy',
 ]
 
 @Component({
