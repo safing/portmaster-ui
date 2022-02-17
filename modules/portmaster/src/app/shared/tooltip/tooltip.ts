@@ -1,7 +1,7 @@
 import { coerceNumberProperty } from "@angular/cdk/coercion";
 import { ConnectedPosition, Overlay, OverlayRef, PositionStrategy } from "@angular/cdk/overlay";
 import { ComponentPortal } from "@angular/cdk/portal";
-import { ComponentRef, Directive, ElementRef, HostListener, Injector, Input, isDevMode, OnChanges, OnDestroy, OnInit } from "@angular/core";
+import { ComponentRef, Directive, ElementRef, HostListener, Injector, Input, isDevMode, OnChanges, OnDestroy, OnInit, TemplateRef } from "@angular/core";
 import { Subject } from "rxjs";
 import { SfngTooltipComponent, SFNG_TOOLTIP_CONTENT, SFNG_TOOLTIP_OVERLAY } from "./tooltip-component";
 
@@ -43,7 +43,7 @@ export class SfngTooltipDirective implements OnInit, OnDestroy, OnChanges {
   }
 
   @HostListener('mouseleave')
-  hide() {
+  hide(delay = this.delay / 2) {
     // if we're currently debouncing a "show" than
     // we should clear that out to avoid re-attaching
     // the tooltip right after we disposed it.
@@ -52,7 +52,10 @@ export class SfngTooltipDirective implements OnInit, OnDestroy, OnChanges {
       this.debouncer = null;
     }
 
-    this.attach$.next(false);
+    this.debouncer = setTimeout(() => {
+      this.attach$.next(false);
+      this.debouncer = null;
+    }, delay);
   }
 
   /** Debounce delay before showing the tooltip */
@@ -73,7 +76,7 @@ export class SfngTooltipDirective implements OnInit, OnDestroy, OnChanges {
   /** The actual content that should be displayed in the tooltip overlay. */
   @Input('sfngTooltip')
   @Input('sfng-tooltip')
-  tooltipContent: string | null = null;
+  tooltipContent: string | TemplateRef<any> | null = null;
 
   @Input('snfgTooltipPosition')
   position: ConnectedPosition | SfngTooltipPosition | (SfngTooltipPosition | ConnectedPosition)[] | 'any' = 'any';
