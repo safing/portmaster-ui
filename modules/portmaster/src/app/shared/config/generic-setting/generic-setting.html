@@ -77,12 +77,13 @@
     <!-- Rule lists -->
     <ng-container *ngSwitchCase="optionHint.EndpointList">
       <app-rule-list class="w-full mt-4" [readonly]="disabled" [ngModel]="_currentValue" [autoFocus]="!isLocked"
-        (ngModelChange)="updateValue($event, true)"></app-rule-list>
+        (ngModelChange)="updateValue($event, true)" [symbolMap]="symbolMap"></app-rule-list>
 
       <div class="stacked-values" *ngIf="showStackable">
         <h4>This setting stacks on top of the following <a class="underline text-tertiary hover:text-primary"
             routerLink="/settings" [queryParams]="{setting: setting?.Key}">global setting</a>:</h4>
-        <app-rule-list class="w-full mt-4" [readonly]="true" [ngModel]="setting?.GlobalDefault"></app-rule-list>
+        <app-rule-list class="w-full mt-4" [readonly]="true" [symbolMap]="symbolMap" [ngModel]="setting?.GlobalDefault">
+        </app-rule-list>
       </div>
     </ng-container>
 

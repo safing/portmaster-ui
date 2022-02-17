@@ -18,6 +18,9 @@ export class RuleListItemComponent implements OnInit {
   @HostBinding('@fadeOut')
   readonly animation = true;
 
+  @Input()
+  symbolMap: { [key: string]: string } = {}
+
   /**
    * The current value (rule) displayed by this component.
    * Supports two-way bindings.

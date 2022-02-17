@@ -59,6 +59,13 @@ export class GenericSettingComponent<S extends BaseSetting<any, any>> implements
   }
   private _disabled: boolean = false;
 
+  /** Returns the symbolMap annoation for endpoint-lists */
+  get symbolMap() {
+    return this.setting?.Annotations[WellKnown.EndpointListVerdictNames] || {
+      '+': 'Allow',
+      '-': 'Deny'
+    };
+  }
 
   /**
    * Whether or not the component should be displayed as "locked"
