@@ -132,7 +132,8 @@
   </ng-container>
 
   <span class="unlock-button" [class.bg-blue]="!isLocked" [class.bg-gray-500]="isLocked" *ngIf="lockDefaults"
-    (click)="toggleLock()">
+    snfgTooltipPosition="left"
+    [sfng-tooltip]="isLocked ? 'Inherited from Global Settings' : 'App specific configuration'" (click)="toggleLock()">
 
     <svg viewBox="0 0 24 24" class="w-4 h-4 text-white" stroke="currentColor" *ngIf="isLocked">
       <g fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="inner">

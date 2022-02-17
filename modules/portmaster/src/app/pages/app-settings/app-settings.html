@@ -43,13 +43,11 @@
         </div>
         <div class="space-x-2">
           <span>Active Connections:</span>
-          <span>
-            <span class="text-opacity-75 text-primary">{{inspected?.processGroup?.countAliveConnections || 0}}</span>
-            <span class="ml-4">
-              SPN Exits: <span class="text-opacity-75 text-primary">{{inspected?.processGroup?.exitNodeCount ||
-                0}}</span>
-            </span>
-          </span>
+          <span class="text-opacity-75 text-primary">{{inspected?.processGroup?.countAliveConnections || 0}}</span>
+        </div>
+        <div class="space-x-2">
+          <span>SPN Exits:</span>
+          <span class="text-opacity-75 text-primary">{{inspected?.processGroup?.exitNodeCount || 0}}</span>
         </div>
       </div>
 
@@ -299,7 +297,7 @@
             <span class="flex-grow inline-block border-b border-gray-400"></span>
           </h2>
 
-          <span class="text-secondary">When reporting issues with certain applications please make sure to include the
+          <span class="text-secondary">When reporting issues with this app please make sure to include the
             following
             debug information:</span>
 
