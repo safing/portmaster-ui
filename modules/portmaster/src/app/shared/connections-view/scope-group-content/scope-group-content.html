@@ -87,12 +87,12 @@
   <!-- End Accordion Header Template -->
 
   <app-pagination [source]="grp.pagination">
-    <app-accordion-group [headerTemplate]="accordionHeader" singleMode="false" *appPaginationContent>
+    <sfng-accordion-group [headerTemplate]="accordionHeader" singleMode="false" *appPaginationContent>
       <ng-container *ngFor="let conn of (grp.pagination.pageItems$ | async); trackBy: trackByConnection">
-        <app-accordion *appExpertiseLevel="conn | connExpertise" [data]="conn" #accordion>
+        <sfng-accordion *appExpertiseLevel="conn | connExpertise" [data]="conn" #accordion>
           <app-ungrouped-connection-content [conn]="conn" *ngIf="accordion.active"></app-ungrouped-connection-content>
-        </app-accordion>
+        </sfng-accordion>
       </ng-container>
-    </app-accordion-group>
+    </sfng-accordion-group>
   </app-pagination>
 </section>

@@ -25,7 +25,7 @@ import { SpnPageComponent } from './pages/spn';
 import { SupportPageComponent } from './pages/support';
 import { SupportFormComponent } from './pages/support/form';
 import { WidgetSettingsOutletComponent } from './pages/widget-settings-outlet/widget-settings-outlet';
-import { AccordionModule } from './shared/accordion';
+import { SfngAccordionModule } from './shared/accordion';
 import { ActionIndicatorModule } from './shared/action-indicator';
 import { AppIconComponent } from './shared/app-icon';
 import { BasicSettingComponent } from './shared/config/basic-setting/basic-setting';
@@ -159,7 +159,7 @@ import { WIDGET_DEFINTIONS } from './widgets/widget.types';
     HttpClientModule,
     MarkdownModule.forRoot(),
     ScrollingModule,
-    AccordionModule,
+    SfngAccordionModule,
     TabModule,
     TipUpModule,
     SfngTooltipModule,

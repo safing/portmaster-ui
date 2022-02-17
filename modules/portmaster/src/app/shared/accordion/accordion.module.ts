@@ -1,18 +1,19 @@
 import { CommonModule } from "@angular/common";
 import { NgModule } from "@angular/core";
-import { AccordionComponent, AccordionGroupComponent } from ".";
+import { SfngAccordionComponent } from "./accordion";
+import { SfngAccordionGroupComponent } from "./accordion-group";
 
 @NgModule({
   imports: [
     CommonModule,
   ],
   declarations: [
-    AccordionGroupComponent,
-    AccordionComponent,
+    SfngAccordionGroupComponent,
+    SfngAccordionComponent,
   ],
   exports: [
-    AccordionGroupComponent,
-    AccordionComponent,
+    SfngAccordionGroupComponent,
+    SfngAccordionComponent,
   ]
 })
-export class AccordionModule { }
+export class SfngAccordionModule { }

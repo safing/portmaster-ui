@@ -1,3 +1,4 @@
-export { AccordionComponent } from './accordion';
-export { AccordionGroupComponent } from './accordion-group';
-export { AccordionModule } from './accordion.module';
+export { SfngAccordionComponent } from './accordion';
+export { SfngAccordionGroupComponent } from './accordion-group';
+export { SfngAccordionModule } from './accordion.module';
+

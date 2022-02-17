@@ -90,15 +90,15 @@
     </ng-template>
 
     <!-- the actual accordion group, uses the header template above -->
-    <app-accordion-group [headerTemplate]="accordionHeader" singleMode="false">
+    <sfng-accordion-group [headerTemplate]="accordionHeader" singleMode="false">
       <ng-container *ngFor="let grp of scopeGroups; trackBy: trackByScope">
-        <app-accordion [data]="grp" *appExpertiseLevel="grp.size === 0 ? 'developer' : 'user'" #accordion>
+        <sfng-accordion [data]="grp" *appExpertiseLevel="grp.size === 0 ? 'developer' : 'user'" #accordion>
           <app-scope-group-content [grp]="grp" [profileId]="profile!.ID" [source]="profile!.Source"
             *ngIf="accordion.active">
           </app-scope-group-content>
-        </app-accordion>
+        </sfng-accordion>
       </ng-container>
-    </app-accordion-group>
+    </sfng-accordion-group>
 
     <ng-container *ngTemplateOutlet="loadingTemplate"></ng-container>
   </ng-container>
@@ -122,14 +122,14 @@
       <ng-template [appPaginationContent]>
         <ng-container *ngTemplateOutlet="loadingTemplate"></ng-container>
 
-        <app-accordion-group [headerTemplate]="accordionHeader" singleMode="false">
+        <sfng-accordion-group [headerTemplate]="accordionHeader" singleMode="false">
           <ng-container *ngFor="let conn of (pagination.pageItems$| async); trackBy: trackByConnection">
-            <app-accordion *appExpertiseLevel="conn | connExpertise" [data]="conn" #accordion>
+            <sfng-accordion *appExpertiseLevel="conn | connExpertise" [data]="conn" #accordion>
               <app-ungrouped-connection-content [conn]="conn" *ngIf="accordion.active">
               </app-ungrouped-connection-content>
-            </app-accordion>
+            </sfng-accordion>
           </ng-container>
-        </app-accordion-group>
+        </sfng-accordion-group>
 
       </ng-template>
 

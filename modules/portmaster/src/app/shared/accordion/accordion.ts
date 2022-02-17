@@ -1,20 +1,19 @@
 import { coerceBooleanProperty } from '@angular/cdk/coercion';
 import { Component, OnInit, Input, Output, EventEmitter, HostBinding, TemplateRef, Optional, ChangeDetectionStrategy, TrackByFunction } from '@angular/core';
 import { fadeInAnimation, fadeOutAnimation } from '../animations';
-import { AccordionGroupComponent } from './accordion-group';
+import { SfngAccordionGroupComponent } from './accordion-group';
 
 @Component({
-  selector: 'app-accordion',
+  selector: 'sfng-accordion',
   templateUrl: './accordion.html',
-  styleUrls: ['./accordion.scss'],
-  exportAs: 'appAccordion',
+  exportAs: 'sfngAccordion',
   changeDetection: ChangeDetectionStrategy.OnPush,
   animations: [
     fadeInAnimation,
     fadeOutAnimation
   ]
 })
-export class AccordionComponent<T = any> implements OnInit {
+export class SfngAccordionComponent<T = any> implements OnInit {
   /** @deprecated in favor of [data] */
   @Input()
   title: string = '';
@@ -71,5 +70,5 @@ export class AccordionComponent<T = any> implements OnInit {
     this.activeChange.emit(!this.active);
   }
 
-  constructor(@Optional() private group: AccordionGroupComponent) { }
+  constructor(@Optional() private group: SfngAccordionGroupComponent) { }
 }
