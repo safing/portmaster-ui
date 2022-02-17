@@ -3,7 +3,7 @@ import { Routes, RouterModule } from '@angular/router';
 import { SettingsComponent } from './pages/settings/settings';
 import { WidgetSettingsOutletComponent } from './pages/widget-settings-outlet/widget-settings-outlet';
 import { MonitorPageComponent } from './pages/monitor';
-import { AppSettingsPageComponent } from './pages/app-settings';
+import { AppSettingsPageComponent } from './pages/app-view';
 import { SupportPageComponent } from './pages/support';
 import { SupportFormComponent } from './pages/support/form';
 import { SpnPageComponent } from './pages/spn';

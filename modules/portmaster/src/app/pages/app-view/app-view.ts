@@ -11,8 +11,8 @@ import { SaveSettingEvent } from 'src/app/shared/config/generic-setting/generic-
 import { DialogService } from 'src/app/shared/dialog';
 
 @Component({
-  templateUrl: './app-settings.html',
-  styleUrls: ['../page.scss', './app-settings.scss'],
+  templateUrl: './app-view.html',
+  styleUrls: ['../page.scss', './app-view.scss'],
   animations: [
     fadeOutAnimation,
     fadeInAnimation,

@@ -21,7 +21,7 @@ import { NotificationFactoryComponent } from './debug/notification-factory/notif
 import { PortapiInspectorComponent } from './debug/portapi-inspector/portapi-inspector';
 import { NavigationComponent } from './layout/navigation/navigation';
 import { SideDashComponent } from './layout/side-dash/side-dash';
-import { AppOverviewComponent, AppSettingsPageComponent } from './pages/app-settings';
+import { AppOverviewComponent, AppSettingsPageComponent } from './pages/app-view';
 import { MonitorApplicationViewComponent, MonitorPageComponent, NetworkOverviewComponent } from './pages/monitor';
 import { SettingsComponent } from './pages/settings/settings';
 import { SpnPageComponent } from './pages/spn';
