@@ -1,6 +1,8 @@
 import { coerceBooleanProperty } from '@angular/cdk/coercion';
+import { TemplatePortal } from '@angular/cdk/portal';
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, HostBinding, Input, OnDestroy, OnInit, Output, TemplateRef, ViewChild, ViewContainerRef } from '@angular/core';
 import { NgModel } from '@angular/forms';
+import { Button } from 'js-yaml-loader!../../../i18n/helptexts.yaml';
 import { Subject, Subscription } from 'rxjs';
 import { debounceTime } from 'rxjs/operators';
 import { applyQuickSetting, BaseSetting, ConfigService, ExpertiseLevelNumber, ExternalOptionHint, OptionType, QuickSetting, ReleaseLevel, SettingValueType, WellKnown } from 'src/app/services';
@@ -8,8 +10,6 @@ import { PortapiService } from 'src/app/services/portapi.service';
 import { fadeInAnimation, fadeOutAnimation } from '../../animations';
 import { DialogRef, DialogService } from '../../dialog';
 import { ExpertiseService } from '../../expertise/expertise.service';
-import { Button } from 'js-yaml-loader!../../../i18n/helptexts.yaml';
-import { TemplatePortal } from '@angular/cdk/portal';
 
 export interface SaveSettingEvent<S extends BaseSetting<any, any> = any> {
   key: string;
@@ -349,9 +349,13 @@ export class GenericSettingComponent<S extends BaseSetting<any, any>> implements
     if (this.stackable) {
       return [] as SettingValueType<S>;
     }
-    return this._defaultValue === null
-      ? this.setting?.DefaultValue
-      : this._defaultValue;
+    if (this._defaultValue !== null) {
+      return this._defaultValue;
+    }
+    if (this.setting?.GlobalDefault !== undefined) {
+      return this.setting.GlobalDefault
+    }
+    return this.setting?.DefaultValue
   }
 
   /* An optional default value overwrite */
