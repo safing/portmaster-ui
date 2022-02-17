@@ -1,6 +1,6 @@
 import { animate, AnimationEvent, style, transition, trigger } from "@angular/animations";
 import { OverlayRef } from "@angular/cdk/overlay";
-import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, HostBinding, Inject, InjectionToken, TemplateRef } from "@angular/core";
+import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, HostBinding, Inject, InjectionToken, OnDestroy, TemplateRef } from "@angular/core";
 
 export const SFNG_TOOLTIP_CONTENT = new InjectionToken<string | TemplateRef<any>>('SFNG_TOOLTIP_CONTENT');
 export const SFNG_TOOLTIP_OVERLAY = new InjectionToken<OverlayRef>('SFNG_TOOLTIP_OVERLAY');
@@ -35,7 +35,7 @@ export const SFNG_TOOLTIP_OVERLAY = new InjectionToken<OverlayRef>('SFNG_TOOLTIP
     )]
 
 })
-export class SfngTooltipComponent implements AfterViewInit {
+export class SfngTooltipComponent implements AfterViewInit, OnDestroy {
   /**
    * Adds snfg-tooltip-instance class to the host element.
    * This is used as a selector in the FlexibleConnectedPosition stragegy
@@ -50,6 +50,8 @@ export class SfngTooltipComponent implements AfterViewInit {
   transformOrigin = '';
 
   _appAnimate = false;
+
+  private observer: MutationObserver | null = null;
 
   constructor(
     @Inject(SFNG_TOOLTIP_CONTENT) public message: string,
@@ -69,8 +71,12 @@ export class SfngTooltipComponent implements AfterViewInit {
     }
   }
 
+  ngOnDestroy(): void {
+    this.observer?.disconnect();
+  }
+
   ngAfterViewInit(): void {
-    const observer = new MutationObserver(mutations => {
+    this.observer = new MutationObserver(mutations => {
       this.transformOrigin = this.elementRef.nativeElement.style.transformOrigin;
       if (!this.transformOrigin) {
         return;
@@ -96,8 +102,7 @@ export class SfngTooltipComponent implements AfterViewInit {
       this._appAnimate = true;
       this.cdr.detectChanges();
     });
-
-    observer.observe(this.elementRef.nativeElement, { attributes: true, attributeFilter: ['style'] })
+    this.observer.observe(this.elementRef.nativeElement, { attributes: true, attributeFilter: ['style'] })
   }
 }
 
