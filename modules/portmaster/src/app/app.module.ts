@@ -18,7 +18,8 @@ import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { NavigationComponent } from './layout/navigation/navigation';
 import { SideDashComponent } from './layout/side-dash/side-dash';
-import { AppOverviewComponent, AppViewComponent } from './pages/app-view';
+import { AppOverviewComponent, AppViewComponent, QuickSettingInternetButtonComponent } from './pages/app-view';
+import { QuickSettingUseSPNButtonComponent } from './pages/app-view/qs-use-spn/qs-use-spn';
 import { MonitorApplicationViewComponent, MonitorPageComponent, NetworkOverviewComponent } from './pages/monitor';
 import { SettingsComponent } from './pages/settings/settings';
 import { SpnPageComponent } from './pages/spn';
@@ -107,6 +108,8 @@ import { WIDGET_DEFINTIONS } from './widgets/widget.types';
     MonitorApplicationViewComponent,
     CountIndicatorComponent,
     AppViewComponent,
+    QuickSettingInternetButtonComponent,
+    QuickSettingUseSPNButtonComponent,
     CountryFlagDirective,
     AppOverviewComponent,
     PlaceholderComponent,

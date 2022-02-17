@@ -44,6 +44,12 @@ export class AppViewComponent implements OnInit, OnDestroy {
 
   /**
    * @private
+   * All available settings.
+   */
+  allSettings: Setting[] = [];
+
+  /**
+   * @private
    * The current search term displayed in the search-input.
    */
   searchTerm = '';
@@ -257,6 +263,7 @@ export class AppViewComponent implements OnInit, OnDestroy {
             // update the current settings value (from the app profile) and
             // the default value (from the global profile).
             let countModified = 0;
+            console.log("got new settings")
             this.settings = allSettings
               .map(setting => {
                 setting.Value = profileConfig[setting.Key];
@@ -277,6 +284,7 @@ export class AppViewComponent implements OnInit, OnDestroy {
                 }
                 return isModified;
               });
+            this.allSettings = [...allSettings];
 
             // if we don't have any modified settings and this is the first time
             // we show the app-settings page for that profile we need to switch

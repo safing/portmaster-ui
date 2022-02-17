@@ -1,6 +1,6 @@
 import { SecurityLevel } from './core.types';
 import { Record } from './portapi.types';
-import { OptionValueType } from './config.types';
+import { BaseSetting, OptionValueType, SettingValueType } from './config.types';
 import { ScopeIdentifier } from './network.types';
 
 export interface ConfigMap {
@@ -95,6 +95,17 @@ export function getAppSetting<T extends OptionValueType>(obj: ConfigMap, path: s
   }
   return null;
 }
+
+export function getActualValue<S extends BaseSetting<any, any>>(s: S): SettingValueType<S> {
+  if (s.Value !== undefined) {
+    return s.Value;
+  }
+  if (s.GlobalDefault !== undefined) {
+    return s.GlobalDefault;
+  }
+  return s.DefaultValue;
+}
+
 
 /**
  * Sets the value of a settings inside the nested config object.

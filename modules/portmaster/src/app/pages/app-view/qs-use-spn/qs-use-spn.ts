@@ -1,0 +1,65 @@
+import { ChangeDetectionStrategy, Component, EventEmitter, Input, OnChanges, Output, SimpleChanges } from "@angular/core";
+import { BoolSetting, getActualValue, Setting } from "src/app/services";
+import { SaveSettingEvent } from "src/app/shared/config/generic-setting/generic-setting";
+
+const interferingSettings = [
+  'filter/blockInternet',
+]
+
+@Component({
+  selector: 'app-qs-use-spn',
+  templateUrl: './qs-use-spn.html',
+  changeDetection: ChangeDetectionStrategy.OnPush
+})
+export class QuickSettingUseSPNButtonComponent implements OnChanges {
+  @Input()
+  settings: Setting[] = [];
+
+  @Output()
+  save = new EventEmitter<SaveSettingEvent>();
+
+  currentValue = false
+
+  interferingSettings: Setting[] = [];
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if ('settings' in changes) {
+      this.currentValue = false;
+      const useSpnSetting = this.settings.find(s => s.Key == 'spn/use') as (BoolSetting | undefined);
+      if (!!useSpnSetting) {
+        this.currentValue = getActualValue(useSpnSetting);
+        this.updateInterfering();
+      }
+    }
+  }
+
+  updateUseSpn(allowed: boolean) {
+    this.save.next({
+      isDefault: false,
+      key: 'spn/use',
+      value: allowed,
+    })
+  }
+
+  private updateInterfering() {
+    this.interferingSettings = [];
+
+    // create a lookup map for setting key to setting
+    const lm = new Map<string, Setting>();
+    this.settings.forEach(s => lm.set(s.Key, s))
+
+    this.interferingSettings = interferingSettings
+      .map(key => lm.get(key))
+      .filter(setting => {
+        if (!setting) {
+          return false;
+        }
+        const value = getActualValue(setting);
+        if (Array.isArray(value)) {
+          return value.length > 0;
+        }
+
+        return !!value;
+      }) as Setting[];
+  }
+}

@@ -52,21 +52,13 @@
       </div>
 
       <!-- Quick Settings -->
-      <!--
       <div class="flex flex-row space-x-3 text-xxs">
-        <div class="flex items-center px-3 py-2 space-x-2 bg-gray-300 rounded">
-          <span class="text-primary">Internet</span>
-          <app-toggle-switch></app-toggle-switch>
-        </div>
+        <app-qs-internet [settings]="allSettings" (save)="saveSetting($event)"></app-qs-internet>
 
-        <div class="flex items-center px-3 py-2 space-x-2 bg-gray-300 rounded">
-          <span class="text-primary">Use SPN</span>
-          <app-toggle-switch></app-toggle-switch>
-        </div>
+        <app-qs-use-spn [settings]="allSettings" (save)="saveSetting($event)"></app-qs-use-spn>
 
-        <app-tipup key="todo"></app-tipup>
+        <app-tipup key="appSettings-QuickSettings"></app-tipup>
       </div>
-      -->
     </div>
 
     <!-- Statistics -->

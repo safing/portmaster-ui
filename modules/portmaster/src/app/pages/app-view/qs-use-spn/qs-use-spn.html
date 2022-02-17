@@ -1,0 +1,24 @@
+<div class="relative flex items-center px-3 py-2 space-x-2 bg-gray-300 rounded" snfgTooltipPosition="right"
+  [sfng-tooltip]="interferingSettings.length > 0 ? tooltipTemplate : null">
+  <span class="text-primary" [class.cursor-pointer]="interferingSettings.length > 0">
+    Use SPN
+  </span>
+
+  <app-toggle-switch [ngModel]="currentValue" (ngModelChange)="updateUseSpn($event)"></app-toggle-switch>
+
+  <span class="absolute right-0 block w-2 h-2 bg-yellow-300 border border-gray-100 rounded"
+    style="top: calc(50% - 0.25rem); transform: translateX(0.25rem)" *ngIf="interferingSettings.length > 0"></span>
+
+</div>
+
+<ng-template #tooltipTemplate>
+  The following enabled settings may interfere:
+  <ul class="pl-4 list-disc">
+    <ng-container *ngFor="let setting of interferingSettings">
+      <li class="cursor-pointer hover:underline" [routerLink]="setting.Value === undefined ? ['/settings'] : []"
+        [queryParams]="{setting: setting.Key, tab: 'settings'}">
+        {{ setting.Name }}
+      </li>
+    </ng-container>
+  </ul>
+</ng-template>
