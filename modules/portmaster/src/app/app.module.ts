@@ -16,9 +16,6 @@ import { fas } from '@fortawesome/free-solid-svg-icons';
 import { MarkdownModule } from 'ngx-markdown';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
-import { DebugComponent } from './debug/debug-panel';
-import { NotificationFactoryComponent } from './debug/notification-factory/notification-factory';
-import { PortapiInspectorComponent } from './debug/portapi-inspector/portapi-inspector';
 import { NavigationComponent } from './layout/navigation/navigation';
 import { SideDashComponent } from './layout/side-dash/side-dash';
 import { AppOverviewComponent, AppViewComponent } from './pages/app-view';
@@ -77,9 +74,6 @@ import { WIDGET_DEFINTIONS } from './widgets/widget.types';
   declarations: [
     AppComponent,
     NotificationComponent,
-    DebugComponent,
-    NotificationFactoryComponent,
-    PortapiInspectorComponent,
     BasicSettingComponent,
     GenericSettingComponent,
     SecuritySettingComponent,
