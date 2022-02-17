@@ -18,7 +18,7 @@ import { DialogService } from 'src/app/shared/dialog';
     fadeInAnimation,
   ]
 })
-export class AppSettingsPageComponent implements OnInit, OnDestroy {
+export class AppViewComponent implements OnInit, OnDestroy {
   /** subscription to our update-process observable */
   private subscription = Subscription.EMPTY;
 

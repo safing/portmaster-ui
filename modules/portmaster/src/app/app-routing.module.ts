@@ -3,7 +3,7 @@ import { Routes, RouterModule } from '@angular/router';
 import { SettingsComponent } from './pages/settings/settings';
 import { WidgetSettingsOutletComponent } from './pages/widget-settings-outlet/widget-settings-outlet';
 import { MonitorPageComponent } from './pages/monitor';
-import { AppSettingsPageComponent } from './pages/app-view';
+import { AppViewComponent } from './pages/app-view';
 import { SupportPageComponent } from './pages/support';
 import { SupportFormComponent } from './pages/support/form';
 import { SpnPageComponent } from './pages/spn';
@@ -25,11 +25,11 @@ const routes: Routes = [
   },
   {
     path: 'app/overview',
-    component: AppSettingsPageComponent,
+    component: AppViewComponent,
   },
   {
     path: 'app/:source/:id',
-    component: AppSettingsPageComponent,
+    component: AppViewComponent,
   },
   {
     path: 'monitor',
