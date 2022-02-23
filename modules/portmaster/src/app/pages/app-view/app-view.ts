@@ -78,6 +78,18 @@ export class AppViewComponent implements OnInit, OnDestroy {
    */
   binaryName = ''
 
+  /**
+   * @private
+   * Whether or not the profile warning message should be displayed
+   */
+  displayWarning = false;
+
+  /**
+   * @private
+   * The global settings object
+   */
+  globalSettings: FlatConfigObject | null = null;
+
   /** Used to track whether we are already initialized */
   private _loading = true;
 
@@ -201,8 +213,17 @@ export class AppViewComponent implements OnInit, OnDestroy {
           if (this.appProfile?.ID !== profile?.ID) {
             isFirstLoad = true;
           }
+          this.globalSettings = global;
 
           this.appProfile = profile;
+          this.displayWarning = false;
+
+          if (this.appProfile?.WarningLastUpdated) {
+            const now = new Date().getTime()
+            const diff = now - new Date(this.appProfile.WarningLastUpdated).getTime()
+            this.displayWarning = diff < 1000 * 60 * 60 * 24 * 7;
+          }
+
           this._loading = false;
 
           if (!!this.appProfile?.LinkedPath) {

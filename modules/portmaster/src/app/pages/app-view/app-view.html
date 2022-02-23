@@ -55,7 +55,7 @@
       <div class="flex flex-row space-x-3 text-xxs">
         <app-qs-internet [settings]="allSettings" (save)="saveSetting($event)"></app-qs-internet>
 
-        <app-qs-use-spn [settings]="allSettings" (save)="saveSetting($event)"></app-qs-use-spn>
+        <app-qs-use-spn [settings]="allSettings" [globalSettings]="globalSettings" (save)="saveSetting($event)"></app-qs-use-spn>
 
         <app-tipup key="appSettings-QuickSettings"></app-tipup>
       </div>
@@ -158,7 +158,7 @@
     </app-tab>
 
     <!-- Details -->
-    <app-tab id="details" title="Details" [warning]="!!appProfile.Warning">
+    <app-tab id="details" title="Details" [warning]="displayWarning">
       <div *appTabContent class="py-4 space-y-8 overflow-auto" cdkScrollable>
 
         <div class="grid grid-cols-2 gap-4 text-primary text-xxs">
@@ -233,12 +233,12 @@
           </h2>
 
           <markdown emoji [data]="appProfile.Description"
-            class="self-stretch block w-auto h-auto p-4 ml-2 text-secondary">
+            class="self-stretch block w-auto h-auto p-4 ml-2 -mb-4 text-secondary">
           </markdown>
         </div>
 
         <!-- Warning Section -->
-        <div class="flex flex-col space-y-4" *ngIf="!!appProfile?.Warning">
+        <div class="flex flex-col space-y-4" *ngIf="displayWarning">
           <h2 class="flex flex-row items-center p-0 m-0 mb-4 mr-2 text-opacity-75 text-primary ">
             <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 mr-1" fill="none" viewBox="0 0 24 24"
               stroke="currentColor">
@@ -252,6 +252,7 @@
           <markdown emoji [data]="appProfile.Warning"
             class="self-stretch block w-auto h-auto p-4 ml-2 border-l text-secondary border-yellow">
           </markdown>
+          <span class="text-tertiary text-xxs" *ngIf="appProfile?.WarningLastUpdated">updated {{ appProfile.WarningLastUpdated | timeAgo }}</span>
         </div>
 
 

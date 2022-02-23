@@ -277,15 +277,17 @@ appSettings-Filter:
 appSettings-QuickSettings:
   title: Quickly Change the Most Important Settings
   content: |
-    __Internet__
+    __Block Connections__
 
-    Allow or block all network access of this app. This also includes LAN and Device-Local network access.
-    A yellow dot in the corner signifies that there may be interfering settings.
+    Set the default action for when nothing else allows or blocks an outgoing connection.
+
+    When other settings might overwrite this, a yellow dot next to the toggle will inform you of possible exceptions.
 
     __SPN__
 
     Quickly enable or disable SPN for this app.
-    A yellow dot in the corner signifies that there may be interfering settings.
+
+    When other settings might overwrite this, a yellow dot next to the toggle will inform you of possible exceptions.
 
 #########################
 ### Support Page

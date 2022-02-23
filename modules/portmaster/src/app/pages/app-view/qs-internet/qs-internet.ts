@@ -10,11 +10,9 @@ const interferingSettings = {
     'filter/blockP2P',
     'filter/blockInbound',
     'filter/endpoints',
-    'filter/serviceEndpoints'
   ],
   'block': [
     'filter/endpoints',
-    'filter/serviceEndpoints'
   ],
 }
 
@@ -45,8 +43,8 @@ export class QuickSettingInternetButtonComponent implements OnChanges {
     }
   }
 
-  updateUseInternet(allowed: boolean) {
-    const newValue = allowed ? 'permit' : 'block';
+  updateUseInternet(blocked: boolean) {
+    const newValue = blocked ? 'block' : 'permit';
     this.save.next({
       isDefault: false,
       key: 'filter/defaultAction',

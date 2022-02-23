@@ -1,9 +1,9 @@
 import { ChangeDetectionStrategy, Component, EventEmitter, Input, OnChanges, Output, SimpleChanges } from "@angular/core";
-import { BoolSetting, getActualValue, Setting } from "src/app/services";
+import { BoolSetting, FlatConfigObject, getActualValue, Setting } from "src/app/services";
 import { SaveSettingEvent } from "src/app/shared/config/generic-setting/generic-setting";
 
 const interferingSettings = [
-  'spn/dnsExitPolicy',
+  'spn/usagePolicy'
 ]
 
 @Component({
@@ -12,6 +12,9 @@ const interferingSettings = [
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class QuickSettingUseSPNButtonComponent implements OnChanges {
+  @Input()
+  globalSettings: FlatConfigObject | null = null;
+
   @Input()
   settings: Setting[] = [];
 
@@ -22,14 +25,21 @@ export class QuickSettingUseSPNButtonComponent implements OnChanges {
 
   interferingSettings: Setting[] = [];
 
+  spnDisabled = false;
+
   ngOnChanges(changes: SimpleChanges): void {
     if ('settings' in changes) {
       this.currentValue = false;
-      const useSpnSetting = this.settings.find(s => s.Key == 'spn/use') as (BoolSetting | undefined);
+
+      const useSpnSetting = this.settings.find(s => s.Key === 'spn/use') as (BoolSetting | undefined);
       if (!!useSpnSetting) {
         this.currentValue = getActualValue(useSpnSetting);
         this.updateInterfering();
       }
+    }
+
+    if ('globalSettings' in changes) {
+      this.spnDisabled = changes.globalSettings.currentValue['spn/enable']
     }
   }
 
