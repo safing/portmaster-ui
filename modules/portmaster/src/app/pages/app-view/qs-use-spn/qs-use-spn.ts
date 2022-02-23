@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, Component, EventEmitter, Input, OnChanges, Out
 import { BoolSetting, FlatConfigObject, getActualValue, Setting } from "src/app/services";
 import { SaveSettingEvent } from "src/app/shared/config/generic-setting/generic-setting";
 
-const interferingSettings = [
+const interferingSettingsWhenOn = [
   'spn/usagePolicy'
 ]
 
@@ -54,11 +54,17 @@ export class QuickSettingUseSPNButtonComponent implements OnChanges {
   private updateInterfering() {
     this.interferingSettings = [];
 
+    // only enabled state has interfering settings
+    if (!this.currentValue) {
+      return
+    }
+
     // create a lookup map for setting key to setting
     const lm = new Map<string, Setting>();
     this.settings.forEach(s => lm.set(s.Key, s))
 
-    this.interferingSettings = interferingSettings
+    
+    this.interferingSettings = interferingSettingsWhenOn
       .map(key => lm.get(key))
       .filter(setting => {
         if (!setting) {
