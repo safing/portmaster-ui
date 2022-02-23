@@ -4,11 +4,17 @@
     Use SPN
   </span>
 
-  <app-toggle-switch [ngModel]="currentValue" (ngModelChange)="updateUseSpn($event)" *ngIf="!spnDisabled; else: spnDisabledMessage"></app-toggle-switch>
-  <ng-template #spnDisabledMessage>
-    <span routerLink="/spn" class="cursor-pointer text-tertiary hover:underline" >
-      Disabled
-    </span>
+  <!-- Display some loading until we know the state of the SPN -->
+  <ng-template [ngIf]="spnDisabled !== null" [ngIfElse]="loadingTemplate">
+    <app-toggle-switch [ngModel]="currentValue" (ngModelChange)="updateUseSpn($event)" *ngIf="!spnDisabled; else: spnDisabledMessage"></app-toggle-switch>
+    <ng-template #spnDisabledMessage>
+      <span routerLink="/spn" class="cursor-pointer text-tertiary hover:underline" >
+        Disabled
+      </span>
+    </ng-template>
+  </ng-template>
+  <ng-template #loadingTemplate>
+    <fa-icon icon="spinner" [spin]="true"></fa-icon>
   </ng-template>
 
   <span class="absolute right-0 block w-2 h-2 bg-yellow-300 border border-gray-100 rounded opacity-75"

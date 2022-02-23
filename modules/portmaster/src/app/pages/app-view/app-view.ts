@@ -84,12 +84,6 @@ export class AppViewComponent implements OnInit, OnDestroy {
    */
   displayWarning = false;
 
-  /**
-   * @private
-   * The global settings object
-   */
-  globalSettings: FlatConfigObject | null = null;
-
   /** Used to track whether we are already initialized */
   private _loading = true;
 
@@ -213,7 +207,6 @@ export class AppViewComponent implements OnInit, OnDestroy {
           if (this.appProfile?.ID !== profile?.ID) {
             isFirstLoad = true;
           }
-          this.globalSettings = global;
 
           this.appProfile = profile;
           this.displayWarning = false;
