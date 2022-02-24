@@ -144,7 +144,8 @@ export enum WellKnown {
   Stackable = "safing/portbase:options:stackable",
   QuickSetting = "safing/portbase:ui:quick-setting",
   Requires = "safing/portbase:config:requires",
-  RestartPending = "safing/portbase:options:restart-pending"
+  RestartPending = "safing/portbase:options:restart-pending",
+  EndpointListVerdictNames = "safing/portmaster:ui:endpoint-list:verdict-names"
 }
 
 /**

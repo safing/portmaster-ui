@@ -274,6 +274,21 @@ appSettings-Filter:
     **View All:**<br>
     Show all settings. App-specific settings which override the global default are highlighted.
 
+appSettings-QuickSettings:
+  title: Quickly Change the Most Important Settings
+  content: |
+    __Block Connections__
+
+    Set the default action for when nothing else allows or blocks an outgoing connection.
+
+    When other settings might overwrite this, a yellow dot next to the toggle will inform you of possible exceptions.
+
+    __SPN__
+
+    Quickly enable or disable SPN for this app.
+
+    When other settings might overwrite this, a yellow dot next to the toggle will inform you of possible exceptions.
+
 #########################
 ### Support Page
 

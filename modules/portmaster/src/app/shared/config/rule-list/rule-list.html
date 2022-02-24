@@ -5,8 +5,8 @@
       stroke="currentColor" cdkDragHandle [class.opacity-0]="readonly" [class.cusor-move]="!readonly">
       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l4-4 4 4m0 6l-4 4-4-4" />
     </svg>
-    <app-rule-list-item [readonly]="readonly" [value]="entry" (valueChange)="updateValue(index, $event)"
-      (delete)="deleteEntry(index)">
+    <app-rule-list-item [symbolMap]="symbolMap" [readonly]="readonly" [value]="entry"
+      (valueChange)="updateValue(index, $event)" (delete)="deleteEntry(index)">
     </app-rule-list-item>
   </div>
 </div>

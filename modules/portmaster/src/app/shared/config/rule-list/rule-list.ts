@@ -30,6 +30,12 @@ export class RuleListComponent implements ControlValueAccessor {
     this.onTouch();
   }
 
+  @Input()
+  symbolMap = {
+    '+': 'Allowed',
+    '-': 'Deny',
+  }
+
   /**
    * Whether or not the component should be displayed as read-only.
    */

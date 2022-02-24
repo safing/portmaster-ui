@@ -43,50 +43,40 @@
         </div>
         <div class="space-x-2">
           <span>Active Connections:</span>
-          <span>
-            <span class="text-opacity-75 text-primary">{{inspected?.processGroup?.countAliveConnections || 0}}</span>
-            <span class="ml-4">
-              SPN Exits: <span class="text-opacity-75 text-primary">{{inspected?.processGroup?.exitNodeCount ||
-                0}}</span>
-            </span>
-          </span>
+          <span class="text-opacity-75 text-primary">{{inspected?.processGroup?.countAliveConnections || 0}}</span>
+        </div>
+        <div class="space-x-2">
+          <span>SPN Exits:</span>
+          <span class="text-opacity-75 text-primary">{{inspected?.processGroup?.exitNodeCount || 0}}</span>
         </div>
       </div>
 
       <!-- Quick Settings -->
-      <!--
       <div class="flex flex-row space-x-3 text-xxs">
-        <div class="flex items-center px-3 py-2 space-x-2 bg-gray-300 rounded">
-          <span class="text-primary">Internet</span>
-          <app-toggle-switch></app-toggle-switch>
-        </div>
+        <app-qs-internet [settings]="allSettings" (save)="saveSetting($event)"></app-qs-internet>
 
-        <div class="flex items-center px-3 py-2 space-x-2 bg-gray-300 rounded">
-          <span class="text-primary">Use SPN</span>
-          <app-toggle-switch></app-toggle-switch>
-        </div>
+        <app-qs-use-spn [settings]="allSettings" (save)="saveSetting($event)"></app-qs-use-spn>
 
-        <app-tipup key="todo"></app-tipup>
+        <app-tipup key="appSettings-QuickSettings"></app-tipup>
       </div>
-      -->
     </div>
 
     <!-- Statistics -->
     <div class="flex flex-row items-center justify-end flex-grow pr-8 space-x-4"
       *ngIf="!!inspected && inspected.processGroup.size > 0">
-      <div class="flex flex-col items-center justify-center w-32 h-24 bg-gray-300 rounded shadow-xl">
+      <div class="flex flex-col items-center justify-center w-32 h-24 bg-gray-300 rounded shadow">
         <h2 class="p-0 m-0 text-xl text-primary">{{ (100 / inspected.processGroup.size) *
           inspected.stats.countAccepted
           | number:'1.0-1' }}%</h2>
         <span class="text-secondary">Allowed</span>
       </div>
 
-      <div class="flex flex-col items-center justify-center w-32 h-24 bg-gray-400 rounded shadow-xl">
+      <div class="flex flex-col items-center justify-center w-32 h-24 bg-gray-400 rounded shadow">
         <h2 class="p-0 m-0 text-xl text-primary">{{ inspected.processGroup.size | prettyCount }}</h2>
         <span class="text-secondary">Connections</span>
       </div>
 
-      <div class="flex flex-col items-center justify-center w-32 h-24 bg-gray-300 rounded shadow-xl">
+      <div class="flex flex-col items-center justify-center w-32 h-24 bg-gray-300 rounded shadow">
         <h2 class="p-0 m-0 text-xl text-primary">{{ (100 / inspected.processGroup.size) * (inspected.processGroup.size
           -
           inspected.stats.countAccepted) | number:'1.0-1' }}%</h2>
@@ -168,7 +158,7 @@
     </app-tab>
 
     <!-- Details -->
-    <app-tab id="details" title="Details" [warning]="!!appProfile.Warning">
+    <app-tab id="details" title="Details" [warning]="displayWarning">
       <div *appTabContent class="py-4 space-y-8 overflow-auto" cdkScrollable>
 
         <div class="grid grid-cols-2 gap-4 text-primary text-xxs">
@@ -243,12 +233,12 @@
           </h2>
 
           <markdown emoji [data]="appProfile.Description"
-            class="self-stretch block w-auto h-auto p-4 ml-2 text-secondary">
+            class="self-stretch block w-auto h-auto p-4 ml-2 -mb-4 text-secondary">
           </markdown>
         </div>
 
         <!-- Warning Section -->
-        <div class="flex flex-col space-y-4" *ngIf="!!appProfile?.Warning">
+        <div class="flex flex-col space-y-4" *ngIf="displayWarning">
           <h2 class="flex flex-row items-center p-0 m-0 mb-4 mr-2 text-opacity-75 text-primary ">
             <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 mr-1" fill="none" viewBox="0 0 24 24"
               stroke="currentColor">
@@ -262,6 +252,7 @@
           <markdown emoji [data]="appProfile.Warning"
             class="self-stretch block w-auto h-auto p-4 ml-2 border-l text-secondary border-yellow">
           </markdown>
+          <span class="text-tertiary text-xxs" *ngIf="appProfile?.WarningLastUpdated">updated {{ appProfile.WarningLastUpdated | timeAgo }}</span>
         </div>
 
 
@@ -299,7 +290,7 @@
             <span class="flex-grow inline-block border-b border-gray-400"></span>
           </h2>
 
-          <span class="text-secondary">When reporting issues with certain applications please make sure to include the
+          <span class="text-secondary">When reporting issues with this app please make sure to include the
             following
             debug information:</span>
 

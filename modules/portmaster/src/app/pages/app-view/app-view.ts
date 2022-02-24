@@ -11,14 +11,14 @@ import { SaveSettingEvent } from 'src/app/shared/config/generic-setting/generic-
 import { DialogService } from 'src/app/shared/dialog';
 
 @Component({
-  templateUrl: './app-settings.html',
-  styleUrls: ['../page.scss', './app-settings.scss'],
+  templateUrl: './app-view.html',
+  styleUrls: ['../page.scss', './app-view.scss'],
   animations: [
     fadeOutAnimation,
     fadeInAnimation,
   ]
 })
-export class AppSettingsPageComponent implements OnInit, OnDestroy {
+export class AppViewComponent implements OnInit, OnDestroy {
   /** subscription to our update-process observable */
   private subscription = Subscription.EMPTY;
 
@@ -41,6 +41,12 @@ export class AppSettingsPageComponent implements OnInit, OnDestroy {
    * The currently displayed list of settings
    */
   settings: Setting[] = [];
+
+  /**
+   * @private
+   * All available settings.
+   */
+  allSettings: Setting[] = [];
 
   /**
    * @private
@@ -71,6 +77,12 @@ export class AppSettingsPageComponent implements OnInit, OnDestroy {
    * The name of the binary
    */
   binaryName = ''
+
+  /**
+   * @private
+   * Whether or not the profile warning message should be displayed
+   */
+  displayWarning = false;
 
   /** Used to track whether we are already initialized */
   private _loading = true;
@@ -197,6 +209,14 @@ export class AppSettingsPageComponent implements OnInit, OnDestroy {
           }
 
           this.appProfile = profile;
+          this.displayWarning = false;
+
+          if (this.appProfile?.WarningLastUpdated) {
+            const now = new Date().getTime()
+            const diff = now - new Date(this.appProfile.WarningLastUpdated).getTime()
+            this.displayWarning = diff < 1000 * 60 * 60 * 24 * 7;
+          }
+
           this._loading = false;
 
           if (!!this.appProfile?.LinkedPath) {
@@ -257,6 +277,7 @@ export class AppSettingsPageComponent implements OnInit, OnDestroy {
             // update the current settings value (from the app profile) and
             // the default value (from the global profile).
             let countModified = 0;
+            console.log("got new settings")
             this.settings = allSettings
               .map(setting => {
                 setting.Value = profileConfig[setting.Key];
@@ -277,6 +298,7 @@ export class AppSettingsPageComponent implements OnInit, OnDestroy {
                 }
                 return isModified;
               });
+            this.allSettings = [...allSettings];
 
             // if we don't have any modified settings and this is the first time
             // we show the app-settings page for that profile we need to switch

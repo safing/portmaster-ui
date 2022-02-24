@@ -1,17 +1,16 @@
 import { coerceBooleanProperty } from '@angular/cdk/coercion';
 import { ChangeDetectionStrategy, Component, Input, OnDestroy, TemplateRef } from '@angular/core';
 import { Subscription } from 'rxjs';
-import { AccordionComponent } from './accordion';
+import { SfngAccordionComponent } from './accordion';
 
 @Component({
-  selector: 'app-accordion-group',
+  selector: 'sfng-accordion-group',
   templateUrl: './accordion-group.html',
-  styleUrls: ['./accordion-group.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class AccordionGroupComponent implements OnDestroy {
+export class SfngAccordionGroupComponent implements OnDestroy {
   /** @private Currently registered accordion components */
-  accordions: AccordionComponent[] = [];
+  accordions: SfngAccordionComponent[] = [];
 
   /**
    * A template-ref to render as the header for each accordion-component.
@@ -31,15 +30,13 @@ export class AccordionGroupComponent implements OnDestroy {
   /** A list of subscriptions to the activeChange output of the registered accordion-components */
   private subscriptions: Subscription[] = [];
 
-  constructor() { }
-
   /**
    * Registeres an accordion component to be handled together with this
    * accordion group.
    *
    * @param a The accordion component to register
    */
-  register(a: AccordionComponent) {
+  register(a: SfngAccordionComponent) {
     this.accordions.push(a);
 
     // Tell the accordion-component about the default header-template.
@@ -66,7 +63,7 @@ export class AccordionGroupComponent implements OnDestroy {
    *
    * @param a The accordion component to toggle.
    */
-  private toggle(a: AccordionComponent) {
+  private toggle(a: SfngAccordionComponent) {
     if (!a.active && this._singleMode) {
       this.accordions?.forEach(a => a.active = false);
     }

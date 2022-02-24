@@ -1,0 +1,41 @@
+<div class="relative flex items-center justify-between w-full h-full px-3 py-2 space-x-2 bg-gray-300 rounded" snfgTooltipPosition="right"
+  [sfng-tooltip]="spnDisabled ? disabledTooltipTemplate : interferingSettings.length > 0 ? tooltipTemplate : null">
+  <span class="text-primary" [class.cursor-pointer]="interferingSettings.length > 0">
+    Use SPN
+  </span>
+
+  <!-- Display some loading until we know the state of the SPN -->
+  <ng-template [ngIf]="spnDisabled !== null" [ngIfElse]="loadingTemplate">
+    <app-toggle-switch [ngModel]="currentValue" (ngModelChange)="updateUseSpn($event)" *ngIf="!spnDisabled; else: spnDisabledMessage"></app-toggle-switch>
+    <ng-template #spnDisabledMessage>
+      <span routerLink="/spn" class="cursor-pointer text-tertiary hover:underline" >
+        Disabled
+      </span>
+    </ng-template>
+  </ng-template>
+  <ng-template #loadingTemplate>
+    <fa-icon icon="spinner" [spin]="true"></fa-icon>
+  </ng-template>
+
+  <span class="absolute right-0 block w-2 h-2 bg-yellow-300 border border-gray-100 rounded opacity-75"
+    style="top: 2px; transform: translateX(-2px)" *ngIf="interferingSettings.length > 0"></span>
+
+</div>
+
+<ng-template #disabledTooltipTemplate>
+  <span routerLink="/spn" class="cursor-pointer hover:underline">
+    You need to enable the SPN first
+  </span>
+</ng-template>
+
+<ng-template #tooltipTemplate>
+  The following enabled settings may interfere:
+  <ul class="pl-4 list-disc">
+    <ng-container *ngFor="let setting of interferingSettings">
+      <li class="cursor-pointer hover:underline" [routerLink]="[]"
+        [queryParams]="{setting: setting.Key, tab: 'settings'}">
+        {{ setting.Name }}
+      </li>
+    </ng-container>
+  </ul>
+</ng-template>

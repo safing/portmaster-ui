@@ -18,10 +18,18 @@ label {
   left: 1px;
 }
 
-input:checked+.slider {
+input:checked:not(:disabled)+.slider {
   @apply bg-green-300 bg-opacity-50 text-green;
 }
 
+input:disabled+.slider {
+  @apply opacity-75 cursor-not-allowed;
+}
+
 .dot.checked {
-  transform: translateX(calc(40px - 18px - 2px));
+  transform: translateX(calc(2.5rem - 18px - 2px));
+}
+
+.dot.disabled {
+  transform: translateX(calc((2.5rem - 18px -2px)/2));
 }
