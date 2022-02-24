@@ -60,6 +60,7 @@ export class QuickSettingUseSPNButtonComponent implements OnInit, OnDestroy, OnC
       .subscribe(value => {
         this.spnDisabled = !value;
         this.cdr.markForCheck();
+        this.updateInterfering();
       })
   }
 
@@ -71,8 +72,9 @@ export class QuickSettingUseSPNButtonComponent implements OnInit, OnDestroy, OnC
   private updateInterfering() {
     this.interferingSettings = [];
 
-    // only enabled state has interfering settings
-    if (!this.currentValue) {
+    // only "enabled" state has interfering settings
+    // only show if we already know if the SPN module is enabled
+    if (!this.currentValue || this.spnDisabled !== false) {
       return
     }
 
