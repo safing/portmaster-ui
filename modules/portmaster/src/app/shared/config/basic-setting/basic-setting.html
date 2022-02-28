@@ -10,7 +10,7 @@
 
         <ng-container *ngIf="!!setting.PossibleValues; else: noPossibleValues">
           <ng-container *ngFor="let opt of setting.PossibleValues">
-            <app-dropdown-item *dropDownValue="opt.Value">{{opt.Name}}</app-dropdown-item>
+            <app-dropdown-item *dropDownValue="opt.Value; description: opt.Description">{{opt.Name}}</app-dropdown-item>
           </ng-container>
         </ng-container>
 
