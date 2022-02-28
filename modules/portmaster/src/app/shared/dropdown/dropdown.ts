@@ -110,6 +110,10 @@ export class DropdownComponent<T> implements AfterViewInit, ControlValueAccessor
   }
 
   selectItem(item: DropDownValueDirective) {
+    if (item.disabled) {
+      return;
+    }
+
     this.currentItem = item;
     this.value = item.value;
     this.isOpen = false;
