@@ -21,7 +21,7 @@
   [cdkConnectedOverlayOrigin]="trigger" [cdkConnectedOverlayOpen]="isOpen" (detach)="onOverlayClosed()"
   [cdkConnectedOverlayScrollStrategy]="scrollStrategy" (overlayOutsideClick)="onOutsideClick($event)">
   <ul class="item-list">
-    <li *ngFor="let item of items" (click)="selectItem(item)">
+    <li *ngFor="let item of items" (click)="selectItem(item)" [sfng-tooltip]="item.description || null" snfgTooltipPosition="left" [class.cursor-not-allowed]="item.disabled">
       <ng-container *ngTemplateOutlet="item.templateRef"></ng-container>
     </li>
   </ul>

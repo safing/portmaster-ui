@@ -1,4 +1,5 @@
-import { Component, Input, ViewChild, TemplateRef, Directive } from '@angular/core';
+import { coerceBooleanProperty } from '@angular/cdk/coercion';
+import { Component, Directive, HostBinding, Input, Optional, TemplateRef } from '@angular/core';
 
 @Component({
   selector: 'app-dropdown-item',
@@ -6,6 +7,12 @@ import { Component, Input, ViewChild, TemplateRef, Directive } from '@angular/co
   styleUrls: ['./item.scss'],
 })
 export class DropDownItemComponent {
+  @HostBinding('class.disabled')
+  get isDisabled() {
+    return this.dropDownValue?.disabled || false;
+  }
+
+  constructor(@Optional() private dropDownValue: DropDownValueDirective) {}
 }
 
 @Directive({
@@ -14,6 +21,16 @@ export class DropDownItemComponent {
 export class DropDownValueDirective {
   @Input('dropDownValue')
   value: any;
+
+  @Input('dropDownValueDescription')
+  description = '';
+
+  @Input('dropDownValueDisabled')
+  set disabled(v: any) {
+    this._disabled = coerceBooleanProperty(v)
+  }
+  get disabled() { return this._disabled }
+  private _disabled = false;
 
   constructor(public templateRef: TemplateRef<any>) { }
 }

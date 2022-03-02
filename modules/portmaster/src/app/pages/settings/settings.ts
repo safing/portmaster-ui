@@ -113,6 +113,10 @@ export class SettingsComponent implements OnInit, OnDestroy {
 
           this.settings[idx] = setting;
 
+          // copy the settings into a new array so we trigger
+          // an input update due to changed array identity.
+          this.settings = [...this.settings];
+
           // for the release level setting we need to
           // to a page-reload since portmaster will now
           // return more settings.
