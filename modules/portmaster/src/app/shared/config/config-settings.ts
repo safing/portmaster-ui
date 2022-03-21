@@ -19,6 +19,7 @@ interface Category {
 interface SubsystemWithExpertise extends Subsystem {
   minimumExpertise: ExpertiseLevelNumber;
   isDisabled: boolean;
+  hasUserDefinedValues: boolean;
 }
 
 @Component({
@@ -157,6 +158,7 @@ export class ConfigSettingsViewComponent implements OnInit, OnDestroy, AfterView
             // while grouping the settings.
             minimumExpertise: ExpertiseLevelNumber.developer,
             isDisabled: false,
+            hasUserDefinedValues: false,
           }));
           this.others = [];
           this.settings = new Map();
@@ -258,9 +260,14 @@ export class ConfigSettingsViewComponent implements OnInit, OnDestroy, AfterView
             })
             .map(subsys => {
               let categories = this.settings.get(subsys.ConfigKeySpace)!
+              let hasUserDefinedValues = false;
               categories.forEach(c => {
                 c.hasUserDefinedValues = c.settings.some(s => s.Value !== undefined)
+                hasUserDefinedValues = c.hasUserDefinedValues || hasUserDefinedValues;
               });
+
+              subsys.hasUserDefinedValues = hasUserDefinedValues;
+
 
               let toggleOption: Setting | undefined = undefined;
               for (let c of categories) {
