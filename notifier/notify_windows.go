@@ -4,8 +4,6 @@ import (
 	"fmt"
 	"io"
 	"net"
-	"net/http"
-	"os"
 	"os/exec"
 	"path/filepath"
 	"runtime"
@@ -21,13 +19,11 @@ import (
 var (
 	notifierPath                  string
 	notifierPathMutex             sync.Mutex
-	logoLocation                  string // no locking done since only written in init()
-	notificationsEnabledForThisOS bool   // Are Notifications even enabled? (not on Windows Versions < 8); no locking done since only written in init()
+	notificationsEnabledForThisOS bool // Are Notifications even enabled? (not on Windows Versions < 8); no locking done since only written in init()
 )
 
 const (
 	pipeName          = "\\\\.\\pipe\\portmasterNotifierToast"
-	webLogoLocation   = "http://127.0.0.1:817/assets/favicons/ms-icon-310x310.png"
 	appID             = "io.safing.portmaster"
 	notificationTitle = "Portmaster"
 )
@@ -43,10 +39,6 @@ type cmdArgs []string
 func init() {
 	var err error
 
-	if logoLocation == "" {
-		logoLocation = filepath.Join(os.TempDir(), "Portmaster", "logo-310x310.png")
-	}
-
 	notificationsEnabledForThisOS, err = osdetail.IsAtLeastWindowsVersion("8")
 	if err != nil {
 		log.Errorf("failed to obtain and compare Windows-Version: %s", err)
@@ -58,7 +50,6 @@ func init() {
 
 func actionListener() {
 	initNotifierPath()
-	initLogo()
 	go notificationListener()
 }
 
@@ -71,7 +62,10 @@ func (n *Notification) Show() {
 		return
 	}
 
-	initLogo() // if not already there
+	iconLocation, err := ensureAppIcon()
+	if err != nil {
+		log.Warningf("notify: failed to write icon: %s", err)
+	}
 
 	// beeing very safe while building the Snoretoast-Arguments because malformed arguments sometimes install the SnoreToast default shortcut, see https://bugs.kde.org/show_bug.cgi?id=410622
 	args := make(cmdArgs, 0, 10)
@@ -94,7 +88,7 @@ func (n *Notification) Show() {
 		return
 	}
 	args.addKeyVal("-appID", appID, false)
-	args.addKeyVal("-p", logoLocation, false)
+	args.addKeyVal("-p", iconLocation, false)
 	if err := verifySnoreToastArgumentSyntax(pipeName); err != nil {
 		log.Errorf("failed verifying the pipeName when building the SnoreToast-Command: %s", err)
 		return
@@ -136,17 +130,6 @@ func initNotifierPath() {
 		if err != nil {
 			log.Errorf("failed obtaining SnoreToast-Path: %s %s", err, notifierPath)
 			return
-		}
-	}
-}
-
-func initLogo() {
-	if _, err := os.Stat(logoLocation); err != nil { // File doesn't exist or another Error that is handled while copying file there
-		if err = os.MkdirAll(filepath.Dir(logoLocation), 0644); err != nil {
-			log.Errorf("failed to create Directory %s for Logo for SnoreToast: %s", logoLocation, err)
-		}
-		if err = downloadFile(logoLocation, webLogoLocation); err != nil {
-			log.Errorf("failed to copy Logo for SnoreToast from %s to %s: %s", webLogoLocation, logoLocation, err)
 		}
 	}
 }
@@ -366,31 +349,4 @@ func getPath(module string) (string, error) {
 	}
 
 	return strings.TrimSpace(string(ret)), err
-}
-
-// from https://golangcode.com/download-a-file-from-a-url/
-func downloadFile(filepath string, url string) error {
-
-	// Get the data
-	resp, err := http.Get(url)
-	if err != nil {
-		return fmt.Errorf("failed to open download url %s: %s", url, err)
-	}
-	defer resp.Body.Close()
-
-	// Create the file
-	out, err := os.Create(filepath)
-	if err != nil {
-		return fmt.Errorf("failed to create file for storing the downloading content: %s", err)
-	}
-	defer out.Close()
-
-	// Write the body to file
-	_, err = io.Copy(out, resp.Body)
-
-	if err != nil {
-		err = fmt.Errorf("failed to copy downloaded content to file: %s", err)
-	}
-
-	return err
 }
