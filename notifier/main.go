@@ -101,6 +101,7 @@ func main() {
 	go tray()
 	go statusClient()
 	go subsystemsClient()
+	go spnStatusClient()
 	go notifClient()
 	go startShutdownEventListener()
 	go networkRatingClient()
