@@ -203,11 +203,6 @@ export class AppViewComponent implements OnInit, OnDestroy {
         )
       ])
         .subscribe(async ([profile, queryMap, global, allSettings, viewSetting]) => {
-          let isFirstLoad = false;
-          if (this.appProfile?.ID !== profile?.ID) {
-            isFirstLoad = true;
-          }
-
           this.appProfile = profile;
           this.displayWarning = false;
 
@@ -277,7 +272,6 @@ export class AppViewComponent implements OnInit, OnDestroy {
             // update the current settings value (from the app profile) and
             // the default value (from the global profile).
             let countModified = 0;
-            console.log("got new settings")
             this.settings = allSettings
               .map(setting => {
                 setting.Value = profileConfig[setting.Key];
@@ -299,14 +293,6 @@ export class AppViewComponent implements OnInit, OnDestroy {
                 return isModified;
               });
             this.allSettings = [...allSettings];
-
-            // if we don't have any modified settings and this is the first time
-            // we show the app-settings page for that profile we need to switch
-            // to "View active" so the user can seen the "defaults used, start customizing"
-            // screen.
-            if (isFirstLoad && countModified === 0 && viewSetting === 'all') {
-              this.viewSettingChange.next('active');
-            }
 
           } else {
             // there's no profile to view so tell the connection-tracker
