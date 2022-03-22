@@ -24,8 +24,12 @@ var (
 
 	activeIconID    int = -1
 	activeStatusMsg     = ""
+	activeSPNStatus     = ""
+	activeSPNSwitch     = ""
 
 	menuItemStatusMsg *systray.MenuItem
+	menuItemSPNStatus *systray.MenuItem
+	menuItemSPNSwitch *systray.MenuItem
 	// TODO: Enable when auto detection is available.
 	// menuItemAutoDetect *systray.MenuItem
 	menuItemTrusted     *systray.MenuItem
@@ -67,6 +71,16 @@ func onReady() {
 
 	menuItemStatusMsg = systray.AddMenuItem("Loading...", "")
 	menuItemStatusMsg.Disable()
+	systray.AddSeparator()
+
+	// menu: SPN
+
+	menuItemSPNStatus = systray.AddMenuItem("Loading...", "")
+	menuItemSPNStatus.Disable()
+	menuItemSPNSwitch = systray.AddMenuItem("Loading...", "")
+	go clickListener(menuItemSPNSwitch, func() {
+		ToggleSPN()
+	})
 	systray.AddSeparator()
 
 	// menu: network rating
@@ -129,7 +143,7 @@ func updateTray() {
 
 	// Select icon and status message to show.
 	newIconID := icons.GreenID
-	newStatusMsg := "Secure."
+	newStatusMsg := "Secure"
 	switch {
 	case shuttingDown.IsSet():
 		newIconID = icons.RedID
@@ -157,6 +171,9 @@ func updateTray() {
 	case failureID == FailureWarning:
 		newIconID = icons.YellowID
 		newStatusMsg = failureMsg
+
+	case spnEnabled.IsSet():
+		newIconID = icons.BlueID
 	}
 
 	// Set icon if changed.
@@ -179,6 +196,29 @@ func updateTray() {
 		}
 
 		menuItemStatusMsg.SetTitle("Status: " + shortenedMsg)
+	}
+
+	// Set SPN status if changed.
+	var newSPNStatus string
+	func() {
+		spnStatusLock.Lock()
+		defer spnStatusLock.Unlock()
+
+		newSPNStatus = spnStatus.Status
+	}()
+	if activeSPNStatus != newSPNStatus {
+		activeSPNStatus = newSPNStatus
+		menuItemSPNStatus.SetTitle("SPN: " + strings.Title(activeSPNStatus))
+	}
+
+	// Set SPN switch if changed.
+	newSPNSwitch := "Enable SPN"
+	if spnEnabled.IsSet() {
+		newSPNSwitch = "Disable SPN"
+	}
+	if activeSPNSwitch != newSPNSwitch {
+		activeSPNSwitch = newSPNSwitch
+		menuItemSPNSwitch.SetTitle(activeSPNSwitch)
 	}
 
 	// Set security levels on menu item.

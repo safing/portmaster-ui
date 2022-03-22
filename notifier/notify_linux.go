@@ -6,7 +6,6 @@ import (
 
 	notify "github.com/dhaavi/go-notify"
 	"github.com/safing/portbase/log"
-	"github.com/safing/portmaster-ui/notifier/icons"
 )
 
 var (
@@ -15,17 +14,6 @@ var (
 	notifsByID     = make(map[uint32]*Notification)
 	notifsByIDLock sync.Mutex
 )
-
-// NotificationIcon represents a notification icon in form accepted by the spec: https://developer.gnome.org/notification-spec/
-type NotificationIcon struct {
-	Width         int
-	Height        int
-	Rowstride     int
-	HasAlpha      bool
-	BitsPerSample int
-	NChannels     int
-	Pixels        []byte
-}
 
 func init() {
 	var err error
@@ -106,22 +94,16 @@ func (n *Notification) Show() {
 		}
 	}
 
+	// Set Portmaster icon.
+	iconLocation, err := ensureAppIcon()
+	if err != nil {
+		log.Warningf("notify: failed to write icon: %s", err)
+	}
+	sysN.AppIcon = iconLocation
+
+	// TODO: Use hints to display icon of affected app.
 	// Hints are a way to provide extra data to a notification server.
-	sysN.Hints = make(map[string]interface{})
-	nChannels := 3
-	if icons.PB.HasAlpha {
-		nChannels = 4
-	}
-	notifIcon := NotificationIcon{
-		icons.PB.Width,
-		icons.PB.Height,
-		icons.PB.RowStride,
-		icons.PB.HasAlpha,
-		icons.PB.BitsPerSample,
-		nChannels,
-		icons.PB.Data,
-	}
-	sysN.Hints["image-data"] = notifIcon
+	// sysN.Hints = make(map[string]interface{})
 
 	// The timeout time in milliseconds since the display of the
 	// notification at which the notification should automatically close.
