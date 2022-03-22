@@ -9,7 +9,7 @@ import (
 )
 
 var (
-	appIconEnsureOnce = new(sync.Once)
+	appIconEnsureOnce sync.Once
 	appIconPath       string
 )
 
