@@ -5,7 +5,10 @@
       <ng-template [appExpertiseLevel]="subsys.minimumExpertise" [appExpertiseLevelData]="subsys"
         [appExpertiseLevelOverwrite]="mustShowSubsystem">
         <li [class.active]="activeSection === subsys.ConfigKeySpace" [class.separated]="subsys.ID === 'core'">
-          <span (click)="scrollTo(subsys.ConfigKeySpace)">{{subsys.Name}}</span>
+          <span (click)="scrollTo(subsys.ConfigKeySpace)" class="relative">
+            {{subsys.Name}}
+            <span *ngIf="subsys.hasUserDefinedValues && userSettingsMarker" class="user-defined-value"></span>
+          </span>
           <ul class="settings">
             <ng-container *ngFor="let cat of settings.get(subsys.ConfigKeySpace); trackBy: trackCategory">
               <li [class.active]="activeCategory === cat.name" class="category"
@@ -13,7 +16,7 @@
                 (click)="scrollTo(subsys.ConfigKeySpace + ':' + cat.name, cat)">
                 <span class="relative">
                   {{cat.name}}
-                  <span *ngIf="cat.hasUserDefinedValues && userSettingsMarker" class="user-defined-value"></span>
+                  <span *ngIf="cat.hasUserDefinedValues && userSettingsMarker" class="user-defined-value category"></span>
                 </span>
               </li>
             </ng-container>

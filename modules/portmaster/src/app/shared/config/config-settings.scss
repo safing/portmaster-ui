@@ -87,6 +87,11 @@ div.settings-nav {
   content: "";
   height: 1rem;
   @apply bg-blue block absolute rounded-full w-1 h-1;
-  top: 0.35rem;
+  top: 0.45rem;
+  left: -1rem;
+}
+
+.user-defined-value.category:before {
   left: -2rem;
+  top: 0.35rem;
 }
