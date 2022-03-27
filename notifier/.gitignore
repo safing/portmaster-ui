@@ -1,6 +1,8 @@
 # Compiled binaries
 notifier
 notifier.exe
+arm64_build/notifier_arm
+arm64_build/notifier_arm_legacy
 
 # Go vendor
 vendor

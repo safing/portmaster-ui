@@ -1,0 +1,4 @@
+#!/bin/bash
+
+docker build -t portmaster_notifier_arm64 .
+docker run -v $(pwd)/../..:/portmaster-ui portmaster_notifier_arm64 ./build_arm
