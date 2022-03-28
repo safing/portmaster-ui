@@ -143,6 +143,13 @@ async function main() {
       // dock icon is clicked and there are no other windows open.
       if (BrowserWindow.getAllWindows().length === 0) createWindow();
     });
+
+    // Disable secure DNS, as the Portmaster already handles this.
+    // Also, use built-in resolver for better process attribution.
+    app.configureHostResolver({
+      enableBuiltInResolver: true,
+      secureDnsMode: "off"
+    })
   });
 
   // Quit when all windows are closed, except on macOS. There, it's common
