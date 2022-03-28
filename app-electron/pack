@@ -47,7 +47,18 @@ function build {
   case $GOOS in
   "linux" )
     # Define output directory of building process.
-    outdir="linux-unpacked"
+    case $GOARCH in
+    "amd64" )
+      outdir="linux-unpacked"
+      ;;
+    "arm64" )
+      outdir="linux-arm64-unpacked"
+      ;;
+    * )
+      echo "unsupported arch: " $GOARCH
+      exit 1
+      ;;
+    esac
     # Rename binary to conform to convention.
     if [[ -f "dist/$outdir/portmaster-app" ]]; then
       mv "dist/$outdir/portmaster-app" "dist/$outdir/portmaster-app_v${version//./-}"
@@ -56,6 +67,18 @@ function build {
   "windows" )
     # Define output directory of building process.
     outdir="win-unpacked"
+    case $GOARCH in
+    "amd64" )
+      outdir="win-unpacked"
+      ;;
+    "arm64" )
+      outdir="win-arm64-unpacked"
+      ;;
+    * )
+      echo "unsupported arch: " $GOARCH
+      exit 1
+      ;;
+    esac
     # Rename binary to conform to convention.
     if [[ -f "dist/$outdir/Portmaster.exe" ]]; then
       mv "dist/$outdir/Portmaster.exe" "dist/$outdir/portmaster-app_v${version//./-}.exe"
@@ -104,17 +127,23 @@ function reset {
 
 function check_all {
   GOOS=linux GOARCH=amd64 check
+  GOOS=linux GOARCH=arm64 check
   GOOS=windows GOARCH=amd64 check
+  GOOS=windows GOARCH=arm64 check
 }
 
 function build_all {
   GOOS=linux GOARCH=amd64 build
+  GOOS=linux GOARCH=arm64 build
   GOOS=windows GOARCH=amd64 build
+  GOOS=windows GOARCH=arm64 build
 }
 
 function reset_all {
   GOOS=linux GOARCH=amd64 reset
+  GOOS=linux GOARCH=arm64 reset
   GOOS=windows GOARCH=amd64 reset
+  GOOS=windows GOARCH=arm64 reset
 }
 
 case $1 in
