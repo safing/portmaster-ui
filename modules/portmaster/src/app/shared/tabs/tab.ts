@@ -133,8 +133,8 @@ export class TabOutletComponent implements AfterViewInit {
     return this._animateDirection == 'left' ? '100%' : '-100%'
   }
 
-  @ViewChild(CdkPortalOutlet)
-  portalOutlet: CdkPortalOutlet | null = null;
+  @ViewChild(CdkPortalOutlet, { static: true })
+  portalOutlet!: CdkPortalOutlet;
 
 
   constructor(
