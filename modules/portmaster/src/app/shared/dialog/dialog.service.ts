@@ -41,7 +41,7 @@ export class DialogService {
   }
 
   create<T>(template: TemplatePortal<T>, opts?: BaseDialogConfig): DialogRef<EmbeddedViewRef<T>>;
-  create<T>(target: ComponentType<T>, opts?: BaseDialogConfig & ComponentPortalConfig): DialogRef<ComponentRef<T>>;
+  create<T>(target: ComponentType<T>, opts?: BaseDialogConfig & ComponentPortalConfig): DialogRef<T>;
   create<T>(target: ComponentType<T> | TemplatePortal<T>, opts: BaseDialogConfig & ComponentPortalConfig = {}): DialogRef<any> {
     let position: PositionStrategy = opts?.positionStrategy || this.overlay
       .position()
@@ -69,7 +69,7 @@ export class DialogService {
 
     // create our dialog container and attach it to the
     // overlay.
-    const containerPortal = new ComponentPortal(
+    const containerPortal = new ComponentPortal<DialogContainer<T>>(
       DialogContainer,
       undefined,
       this.injector,

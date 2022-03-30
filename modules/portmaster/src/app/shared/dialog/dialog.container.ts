@@ -1,6 +1,7 @@
 import { AnimationEvent } from '@angular/animations';
-import { CdkPortalOutlet, ComponentPortal, Portal, TemplatePortal } from '@angular/cdk/portal';
-import { ChangeDetectorRef, Component, ComponentRef, EmbeddedViewRef, HostBinding, HostListener, InjectionToken, Input, ViewChild } from '@angular/core';
+import { CdkPortalOutlet, ComponentPortal, ComponentType, Portal, TemplatePortal } from '@angular/cdk/portal';
+import { NullTemplateVisitor } from '@angular/compiler';
+import { ChangeDetectorRef, Component, ComponentRef, EmbeddedViewRef, HostBinding, HostListener, InjectionToken, Input, Type, ViewChild } from '@angular/core';
 import { Subject } from 'rxjs';
 import { dialogAnimation } from './dialog.animations';
 
@@ -18,8 +19,10 @@ export type DialogState = 'opening' | 'open' | 'closing' | 'closed';
   styleUrls: ['./dialog.scss'],
   animations: [dialogAnimation]
 })
-export class DialogContainer {
+export class DialogContainer<T> {
   onStateChange = new Subject<DialogState>();
+
+  ref: ComponentRef<T> | EmbeddedViewRef<T> | null = null;
 
   constructor(
     private cdr: ChangeDetectorRef
@@ -31,12 +34,14 @@ export class DialogContainer {
   @ViewChild(CdkPortalOutlet, { static: true })
   _portalOutlet: CdkPortalOutlet | null = null;
 
-  attachComponentPortal<T>(portal: ComponentPortal<T>): ComponentRef<T> {
-    return this._portalOutlet!.attachComponentPortal(portal)
+  attachComponentPortal(portal: ComponentPortal<T>): ComponentRef<T> {
+    this.ref = this._portalOutlet!.attachComponentPortal(portal)
+    return this.ref;
   }
 
-  attachTemplatePortal<T>(portal: TemplatePortal<T>): EmbeddedViewRef<T> {
-    return this._portalOutlet!.attachTemplatePortal(portal);
+  attachTemplatePortal(portal: TemplatePortal<T>): EmbeddedViewRef<T> {
+    this.ref = this._portalOutlet!.attachTemplatePortal(portal);
+    return this.ref;
   }
 
   @Input()

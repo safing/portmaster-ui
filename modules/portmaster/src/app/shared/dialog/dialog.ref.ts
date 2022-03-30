@@ -1,5 +1,5 @@
-import { OverlayRef } from "@angular/cdk/overlay";
-import { InjectionToken } from "@angular/core";
+import { ComponentType, OverlayRef } from "@angular/cdk/overlay";
+import { ComponentRef, EmbeddedViewRef, InjectionToken } from "@angular/core";
 import { Observable, PartialObserver, Subject } from "rxjs";
 import { filter, take } from "rxjs/operators";
 import { DialogContainer, DialogState } from "./dialog.container";
@@ -9,7 +9,7 @@ export const DIALOG_REF = new InjectionToken<DialogRef<any>>('DialogRef');
 export class DialogRef<T, R = any> {
   constructor(
     private _overlayRef: OverlayRef,
-    private container: DialogContainer,
+    private container: DialogContainer<T>,
   ) {
     this.container.onStateChange
       .pipe(
@@ -33,6 +33,10 @@ export class DialogRef<T, R = any> {
    */
   overlay() { return this._overlayRef }
 
+  /**
+   * @returns the instance attached to the dialog container
+   */
+  contentRef() { return this.container.ref! }
 
   /** Value holds the value passed on close() */
   private value: R | null = null;
