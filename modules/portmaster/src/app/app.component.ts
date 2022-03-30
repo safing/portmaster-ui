@@ -1,11 +1,13 @@
 import { ChangeDetectorRef, Component, NgZone, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { debounceTime, filter, skip, startWith } from 'rxjs/operators';
+import { IntroModule } from './intro';
 import { Notification, NotificationsService, NotificationType } from './services';
 import { PortapiService } from './services/portapi.service';
 import { ActionIndicator, ActionIndicatorService } from './shared/action-indicator';
 import { fadeInAnimation, fadeOutAnimation } from './shared/animations';
 import { ExitService } from './shared/exit-screen';
+import { OverlayStepper } from './shared/overlay-stepper';
 
 @Component({
   selector: 'app-root',
@@ -33,6 +35,7 @@ export class AppComponent implements OnInit {
     private notificationService: NotificationsService,
     private actionIndicatorService: ActionIndicatorService,
     private exitService: ExitService,
+    private overlayStepper: OverlayStepper,
   ) {
     (window as any).fakeNotification = () => {
       this.ngZone.run(() => {
@@ -125,5 +128,10 @@ export class AppComponent implements OnInit {
         await this.router.navigateByUrl('/', { skipLocationChange: true })
         this.router.navigate([current]);
       })
+
+    const stepperRef = this.overlayStepper.create(IntroModule.Stepper)
+
+    stepperRef.onFinish.subscribe(() => console.log("finished"))
+    stepperRef.onClose.subscribe(() => console.log("stepper closed"))
   }
 }

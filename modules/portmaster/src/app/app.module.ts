@@ -16,6 +16,7 @@ import { fas } from '@fortawesome/free-solid-svg-icons';
 import { MarkdownModule } from 'ngx-markdown';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
+import { IntroModule } from './intro';
 import { NavigationComponent } from './layout/navigation/navigation';
 import { SideDashComponent } from './layout/side-dash/side-dash';
 import { AppOverviewComponent, AppViewComponent, QuickSettingInternetButtonComponent } from './pages/app-view';
@@ -54,6 +55,7 @@ import { LoadingComponent } from './shared/loading';
 import { MenuComponent, MenuGroupComponent, MenuItemComponent, MenuTriggerComponent } from './shared/menu';
 import { MultiSwitchComponent, SwitchItemComponent } from './shared/multi-switch';
 import { NotificationComponent } from './shared/notification/notification';
+import { OverlayStepperModule } from './shared/overlay-stepper';
 import { PaginationContentDirective, PaginationWrapperComponent } from './shared/pagination';
 import { ProfileStatisticsComponent } from './shared/profile-stats';
 import { SafePipe } from './shared/save.pipe';
@@ -166,6 +168,8 @@ import { WIDGET_DEFINTIONS } from './widgets/widget.types';
     SfngTooltipModule,
     ActionIndicatorModule,
     DialogModule,
+    OverlayStepperModule,
+    IntroModule,
   ],
   providers: [
     {
