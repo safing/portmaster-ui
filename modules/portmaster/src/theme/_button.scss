@@ -7,17 +7,17 @@ button {
   @apply rounded-sm;
   @apply font-medium;
   user-select: none;
-  outline    : none;
-  cursor     : pointer;
-  font-size  : 0.7rem;
+  outline: none;
+  cursor: pointer;
+  font-size: 0.7rem;
 
   &.outline {
     background: transparent;
-    opacity   : 0.6;
+    opacity: 0.6;
   }
 
   &:hover {
-    &:not(.outline) {
+    &:not(.outline):not(.bg-blue) {
       @apply bg-buttons-light;
     }
 
@@ -45,12 +45,12 @@ button {
 }
 
 .info-circle {
-  width          : 18px;
-  height         : 18px;
-  display        : flex;
+  width: 18px;
+  height: 18px;
+  display: flex;
   justify-content: center;
-  align-items    : center;
-  font-size      : 0.8em;
+  align-items: center;
+  font-size: 0.8em;
   @apply rounded-full;
   @apply bg-buttons-dark;
 }
