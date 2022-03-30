@@ -1,0 +1,181 @@
+.scout {
+  user-select: none;
+
+  @apply flex flex-col w-full bg-background rounded border-gray-300 border;
+  @apply pb-3 pr-1;
+  max-height: 300px;
+}
+
+
+.card-header app-icon {
+  --app-icon-size: 15px;
+}
+
+@media screen and (min-width: 1280px) {
+  div.scout .card-header app-icon {
+    --app-icon-size: 22px;
+  }
+}
+
+.scout-header {
+  @apply pl-3 pb-0.5;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: nowrap;
+
+  div.monitor-title {
+    @apply pb-3;
+
+    h4 {
+      @apply pt-3;
+      flex-grow: 1;
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+      font-size: 0.775rem;
+      font-weight: 500;
+      color: #cacaca;
+      display: flex;
+
+      app-tipup {
+        margin-left: 0.5rem;
+      }
+    }
+
+    span {
+      font-size: 0.6rem;
+      opacity: 0.55;
+      display: block;
+      margin-top: -0.25rem;
+    }
+  }
+}
+
+fa-icon[icon="chevron-right"] {
+  font-size: 0.8em;
+  @apply mx-1;
+}
+
+
+.card-icon {
+  font-size: 1.5em; // em!!
+  color: theme('colors.info.green');
+
+  &.loading {
+    @apply text-tertiary;
+  }
+}
+
+app-loading {
+  @apply mt-4;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+$transition-duration : .0s;
+
+.search-container {
+  position: relative;
+  flex-grow: 1;
+  flex-shrink: 1;
+  height: 2.7rem;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  margin: auto;
+  overflow: hidden;
+  transition: all, $transition-duration;
+
+  input[type="text"] {
+    width: 0px;
+    flex-shrink: 1;
+    float: left;
+    transition: all ease-in-out .2s;
+    @apply bg-background border-none shadow-none;
+    padding-top: 0.65rem;
+    padding-bottom: 0.65rem;
+    font-size: 0.735rem;
+    font-weight: 500;
+    opacity: 0;
+    color: #cacaca;
+
+    &::-webkit-input-placeholder {
+      opacity: 0.5;
+      color: #cacaca;
+      font-size: 0.725rem;
+    }
+  }
+
+  .search-button {
+    height: 1rem;
+  }
+
+  div.search {
+    svg {
+      opacity: 0.7;
+      stroke: var(--text-secondary);
+      width: 1rem;
+      transition: all cubic-bezier(0.175, 0.885, 0.32, 1.275) .2s;
+      cursor: pointer;
+      margin-top: 0;
+
+      &:hover {
+        opacity: 1;
+        fill: #ffff;
+        transform: scale(1.2);
+      }
+    }
+  }
+
+  .close-search {
+    position: absolute;
+    right: 0.5rem;
+    opacity: 0;
+    margin-right: -1px;
+    margin-top: 5px;
+    flex-basis: 0;
+
+    &.visible {
+      opacity: 1;
+      z-index: 1;
+    }
+
+    svg {
+      opacity: 0.7;
+      stroke: #ffff;
+      width: 1.5rem;
+      transition: all cubic-bezier(0.175, 0.885, 0.32, 1.275) .2s;
+      cursor: pointer;
+
+      &:hover {
+        opacity: 1;
+        stroke: var(--text-secondary);
+        transform: scale(1.2);
+      }
+    }
+  }
+}
+
+.search-active {
+  @apply mb-2;
+
+  .monitor-title {
+    display: none !important;
+  }
+
+  input[type="text"] {
+    flex-grow: 1;
+    width: auto;
+    opacity: 1;
+  }
+
+  .close-search {
+    flex-basis: auto;
+    opacity: 1;
+  }
+
+  .search-button {
+    @apply mr-2;
+  }
+}

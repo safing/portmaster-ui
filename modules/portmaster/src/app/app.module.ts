@@ -58,6 +58,7 @@ import { TipUpModule } from './shared/tipup';
 import { SfngToggleSwitchModule } from './shared/toggle-switch';
 import { SfngTooltipModule } from './shared/tooltip';
 import { MarkdownWidgetComponent, MarkdownWidgetSettingsComponent } from './widgets/markdown-widget';
+import { NetworkActivityWidget } from './widgets/network-activity-widget';
 import { NotificationWidgetComponent, NotificationWidgetSettingsComponent } from './widgets/notification-widget';
 import { PilotWidgetComponent } from './widgets/pilot-widget';
 import { PromptWidgetComponent } from './widgets/prompt-widget';
@@ -115,6 +116,7 @@ import { WIDGET_DEFINTIONS } from './widgets/widget.types';
     PaginationWrapperComponent,
     PaginationContentDirective,
     SpnPageComponent,
+    NetworkActivityWidget,
   ],
   imports: [
     BrowserModule,
@@ -197,6 +199,15 @@ import { WIDGET_DEFINTIONS } from './widgets/widget.types';
         widgetComponent: PromptWidgetComponent,
       },
       multi: true,
+    },
+    {
+      provide: WIDGET_DEFINTIONS,
+      useValue: {
+        type: 'network-scout',
+        name: 'Network Scout',
+        widgetComponent: NetworkActivityWidget
+      },
+      multi: true
     }
   ],
   bootstrap: [AppComponent]
