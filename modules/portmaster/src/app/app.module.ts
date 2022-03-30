@@ -41,7 +41,7 @@ import { CanShowConnection as CanShowConnectionPipe, CanUseRulesPipe, Connection
 import { CountIndicatorComponent } from './shared/count-indicator/count-indicator';
 import { PrettyCountPipe } from './shared/count.pipe';
 import { CountryFlagDirective } from './shared/country-flag/country-flag';
-import { ConfirmDailogComponent, DialogComponent } from './shared/dialog';
+import { DialogModule } from './shared/dialog';
 import { DropdownComponent } from './shared/dropdown/dropdown';
 import { DropDownItemComponent, DropDownValueDirective } from './shared/dropdown/item';
 import { ExitScreenComponent } from './shared/exit-screen/exit-screen';
@@ -140,8 +140,6 @@ import { WIDGET_DEFINTIONS } from './widgets/widget.types';
     CanShowConnectionPipe,
     IsBlockedConnectionPipe,
     ExitScreenComponent,
-    DialogComponent,
-    ConfirmDailogComponent,
     SupportPageComponent,
     SupportFormComponent,
     PaginationWrapperComponent,
@@ -166,7 +164,8 @@ import { WIDGET_DEFINTIONS } from './widgets/widget.types';
     TabModule,
     TipUpModule,
     SfngTooltipModule,
-    ActionIndicatorModule
+    ActionIndicatorModule,
+    DialogModule,
   ],
   providers: [
     {

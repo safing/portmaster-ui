@@ -3,7 +3,8 @@ import { ComponentPortal, ComponentType, TemplatePortal } from '@angular/cdk/por
 import { ComponentRef, EmbeddedViewRef, Injectable, Injector } from '@angular/core';
 import { filter, take, takeUntil } from 'rxjs/operators';
 import { ConfirmDailogComponent, ConfirmDialogConfig, CONFIRM_DIALOG_CONFIG } from './confirm.dialog';
-import { DialogComponent } from './dialog.container';
+import { DialogContainer } from './dialog.container';
+import { DialogModule } from './dialog.module';
 import { DialogRef, DIALOG_REF } from './dialog.ref';
 
 export interface BaseDialogConfig {
@@ -27,7 +28,7 @@ export interface ComponentPortalConfig {
   injector?: Injector;
 }
 
-@Injectable({ providedIn: 'root' })
+@Injectable({ providedIn: DialogModule })
 export class DialogService {
 
   constructor(
@@ -69,7 +70,7 @@ export class DialogService {
     // create our dialog container and attach it to the
     // overlay.
     const containerPortal = new ComponentPortal(
-      DialogComponent,
+      DialogContainer,
       undefined,
       this.injector,
     )

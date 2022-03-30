@@ -18,7 +18,7 @@ export type DialogState = 'opening' | 'open' | 'closing' | 'closed';
   styleUrls: ['./dialog.scss'],
   animations: [dialogAnimation]
 })
-export class DialogComponent {
+export class DialogContainer {
   onStateChange = new Subject<DialogState>();
 
   constructor(

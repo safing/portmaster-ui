@@ -2,14 +2,14 @@ import { OverlayRef } from "@angular/cdk/overlay";
 import { InjectionToken } from "@angular/core";
 import { Observable, PartialObserver, Subject } from "rxjs";
 import { filter, take } from "rxjs/operators";
-import { DialogComponent, DialogState } from "./dialog.container";
+import { DialogContainer, DialogState } from "./dialog.container";
 
 export const DIALOG_REF = new InjectionToken<DialogRef<any>>('DialogRef');
 
 export class DialogRef<T, R = any> {
   constructor(
     private _overlayRef: OverlayRef,
-    private container: DialogComponent,
+    private container: DialogContainer,
   ) {
     this.container.onStateChange
       .pipe(
