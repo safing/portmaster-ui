@@ -127,6 +127,12 @@ export class WidgetService {
             type: 'notification-widget',
           })
 
+          enforceWidget(widgets, {
+            config: null,
+            key: 'network-scout',
+            type: 'network-scout'
+          })
+
           let byKey = new Map<string, WidgetConfig>();
           widgets.forEach(widget => byKey.set(widget.key!, widget));
 
@@ -135,7 +141,20 @@ export class WidgetService {
               'pilot-widget',
               'prompt-widget',
               'notification-widget',
+              'network-scout'
             ];
+          } else {
+            // get a list of all widgets that are not part of the order array.
+            // This may happen if we force a widget to exist after an update and
+            // the user has changed the order of his widgets.
+            const mergeToBottom = widgets
+              .filter(widget => !order.includes(widget.key!))
+              .map(widget => widget.key!)
+
+            order = [
+              ...order,
+              ...mergeToBottom,
+            ]
           }
 
           return order.map(key => byKey.get(key))
