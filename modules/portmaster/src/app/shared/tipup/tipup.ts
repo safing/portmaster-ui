@@ -2,8 +2,8 @@ import { coerceBooleanProperty, coerceNumberProperty } from '@angular/cdk/coerci
 import { ConnectedPosition } from '@angular/cdk/overlay';
 import { _getShadowRoot } from '@angular/cdk/platform';
 import { DOCUMENT } from '@angular/common';
-import { Renderer2, RendererFactory2 } from '@angular/core';
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, Directive, ElementRef, HostBinding, HostListener, Inject, Injectable, Injector, Input, NgZone, OnDestroy, Optional } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, Directive, ElementRef, HostBinding, HostListener, Inject, Injectable, Injector, Input, NgZone, OnDestroy, Optional, Renderer2, RendererFactory2 } from '@angular/core';
+import MyYamlFile, { Button, TipUp } from 'js-yaml-loader!../../../i18n/helptexts.yaml';
 import { Observable, of, Subject } from 'rxjs';
 import { debounce, debounceTime, filter, map, skip, take, timeout } from 'rxjs/operators';
 import { DialogRef, DialogService } from '../dialog';
@@ -12,7 +12,6 @@ import { deepCloneNode, extendStyles, matchElementSize, removeNode } from './clo
 import { getCssSelector, synchronizeCssStyles } from './css-utils';
 import { TipUpComponent } from './tipup-component';
 import { TipupPlacement, TIPUP_TOKEN } from './utils';
-import MyYamlFile, { Button, TipUp } from 'js-yaml-loader!../../../i18n/helptexts.yaml';
 
 @Directive({
   selector: '[tipUpTrigger]',
