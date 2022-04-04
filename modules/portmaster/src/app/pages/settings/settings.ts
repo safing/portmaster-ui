@@ -1,6 +1,7 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { Subscription } from 'rxjs';
+import { AppComponent } from 'src/app/app.component';
 import { ConfigService, DebugAPI, Setting, StatusService, VersionStatus } from 'src/app/services';
 import { PortapiService } from 'src/app/services/portapi.service';
 import { ActionIndicatorService } from 'src/app/shared/action-indicator';
@@ -43,6 +44,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
     private actionIndicator: ActionIndicatorService,
     private route: ActivatedRoute,
     private exitService: ExitService,
+    private appComponent: AppComponent,
   ) { }
 
   ngOnInit(): void {
@@ -206,6 +208,14 @@ export class SettingsComponent implements OnInit, OnDestroy {
       return;
     }
     window.open(url, '_blank');
+  }
+
+  showIntro() {
+    this.appComponent.showIntro()
+      .onClose
+      .subscribe(() => {
+        this.loadSettings();
+      })
   }
 
   copyDebugInfo(event: Event) {

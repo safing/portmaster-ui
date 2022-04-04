@@ -107,15 +107,15 @@
 
           <div tipUpAnchor="left" class="flex space-x-2 flex-rows">
             <app-tipup key="appSettings-Filter"></app-tipup>
-            <app-dropdown [ngModel]="viewSetting" (ngModelChange)="viewSettingChange.next($event)"
+            <sfng-select [ngModel]="viewSetting" (ngModelChange)="viewSettingChange.next($event)"
               tipUpTrigger="appSettings-Filter" tipUpAnchor="left" tipUpPassive>
-              <app-dropdown-item *dropDownValue="'all'">
+              <sfng-select-item *sfngSelectValue="'all'">
                 View All
-              </app-dropdown-item>
-              <app-dropdown-item *dropDownValue="'active'">
+              </sfng-select-item>
+              <sfng-select-item *sfngSelectValue="'active'">
                 View Active
-              </app-dropdown-item>
-            </app-dropdown>
+              </sfng-select-item>
+            </sfng-select>
           </div>
         </div>
 

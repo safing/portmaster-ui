@@ -1,13 +1,15 @@
+import { state } from '@angular/animations';
 import { ChangeDetectorRef, Component, NgZone, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-import { debounceTime, filter, skip, startWith } from 'rxjs/operators';
+import { timeThursdays } from 'd3';
+import { debounceTime, filter, mergeMap, skip, startWith, take } from 'rxjs/operators';
 import { IntroModule } from './intro';
-import { Notification, NotificationsService, NotificationType } from './services';
+import { Notification, NotificationsService, NotificationType, UIState, UIStateService } from './services';
 import { PortapiService } from './services/portapi.service';
 import { ActionIndicator, ActionIndicatorService } from './shared/action-indicator';
 import { fadeInAnimation, fadeOutAnimation } from './shared/animations';
 import { ExitService } from './shared/exit-screen';
-import { OverlayStepper } from './shared/overlay-stepper';
+import { OverlayStepper, StepperRef } from './shared/overlay-stepper';
 
 @Component({
   selector: 'app-root',
@@ -36,6 +38,7 @@ export class AppComponent implements OnInit {
     private actionIndicatorService: ActionIndicatorService,
     private exitService: ExitService,
     private overlayStepper: OverlayStepper,
+    private stateService: UIStateService,
   ) {
     (window as any).fakeNotification = () => {
       this.ngZone.run(() => {
@@ -129,9 +132,30 @@ export class AppComponent implements OnInit {
         this.router.navigate([current]);
       })
 
+    this.stateService.uiState()
+      .pipe(take(1))
+      .subscribe(state => {
+        if (!state.introScreenFinished) {
+          this.showIntro();
+        }
+      })
+  }
+
+  showIntro(): StepperRef {
     const stepperRef = this.overlayStepper.create(IntroModule.Stepper)
 
-    stepperRef.onFinish.subscribe(() => console.log("finished"))
-    stepperRef.onClose.subscribe(() => console.log("stepper closed"))
+    stepperRef.onFinish.subscribe(() => {
+      this.stateService.uiState()
+        .pipe(
+          take(1),
+          mergeMap(state => this.stateService.saveState({
+            ...state,
+            introScreenFinished: true
+          }))
+        )
+        .subscribe();
+    })
+
+    return stepperRef;
   }
 }
