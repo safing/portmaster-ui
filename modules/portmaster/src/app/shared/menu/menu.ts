@@ -2,6 +2,7 @@ import { coerceBooleanProperty } from '@angular/cdk/coercion';
 import { CdkOverlayOrigin, ConnectedPosition, ScrollStrategy, ScrollStrategyOptions } from '@angular/cdk/overlay';
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, ContentChildren, ElementRef, EventEmitter, HostBinding, HostListener, Input, Output, QueryList, Renderer2, ViewChild, ViewEncapsulation } from '@angular/core';
 import { fadeInAnimation, fadeOutAnimation } from '../animations';
+import { SfngDropdown } from '../dropdown/dropdown';
 
 @Component({
   selector: 'app-menu-trigger',
@@ -11,7 +12,7 @@ import { fadeInAnimation, fadeOutAnimation } from '../animations';
 })
 export class MenuTriggerComponent {
   @ViewChild(CdkOverlayOrigin, { static: true })
-  origin: CdkOverlayOrigin | null = null;
+  origin!: CdkOverlayOrigin;
 
   @Input()
   menu: MenuComponent | null = null;
@@ -29,34 +30,25 @@ export class MenuTriggerComponent {
       return false;
     }
 
-    return this.menu.isOpen;
+    return this.menu.dropdown.isOpen;
   }
 
   constructor(
     public changeDetectorRef: ChangeDetectorRef,
-    public elementRef: ElementRef,
   ) { }
 
   toggle(event: MouseEvent) {
     event.preventDefault();
     event.stopPropagation();
 
-    if (!this.menu) {
-      return;
-    }
-
-    if (this.menu.isOpen) {
-      this.menu.close();
-      return;
-    }
-
-    this.menu.show(this);
+    this.menu?.dropdown.toggle(this.origin)
   }
 }
 
 @Component({
   selector: 'app-menu-item',
   template: '<ng-content></ng-content>',
+  styleUrls: ['./menu-item.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class MenuItemComponent {
@@ -74,7 +66,7 @@ export class MenuItemComponent {
       return;
     }
     this.onActivate.next(event);
-    this.menu.close();
+    this.menu.dropdown.close();
   }
 
   /**
@@ -91,6 +83,7 @@ export class MenuItemComponent {
 @Component({
   selector: 'app-menu-group',
   template: '<ng-content></ng-content>',
+  styleUrls: ['./menu-group.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class MenuGroupComponent { }
@@ -99,83 +92,12 @@ export class MenuGroupComponent { }
   selector: 'app-menu',
   exportAs: 'appMenu',
   templateUrl: './menu.html',
-  styleUrls: ['./menu.scss'],
-  encapsulation: ViewEncapsulation.None,
-  animations: [
-    fadeInAnimation,
-    fadeOutAnimation,
-  ]
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class MenuComponent {
   @ContentChildren(MenuItemComponent)
   items: QueryList<MenuItemComponent> | null = null;
 
-  scrollStrategy: ScrollStrategy;
-  minWidth: number = 0;
-
-  positions: ConnectedPosition[] = [
-    {
-      originX: 'end',
-      originY: 'bottom',
-      overlayX: 'end',
-      overlayY: 'top',
-    },
-    {
-      originX: 'end',
-      originY: 'top',
-      overlayX: 'end',
-      overlayY: 'bottom',
-    },
-  ]
-
-  trigger: MenuTriggerComponent | null = null;
-
-  isOpen = false;
-
-  onOverlayClosed() {
-    this.close()
-  }
-
-  onOutsideClick(event: MouseEvent) {
-    if (!!this.trigger) {
-      const triggerEl = this.trigger.origin!.elementRef.nativeElement;
-
-      let node = event.target;
-      while (!!node) {
-        if (node === triggerEl) {
-          return;
-        }
-        node = this.renderer.parentNode(node);
-      }
-    }
-
-    this.close();
-  }
-
-  constructor(
-    scrollOptions: ScrollStrategyOptions,
-    private renderer: Renderer2,
-  ) {
-    this.scrollStrategy = scrollOptions.reposition();
-  }
-
-  close() {
-    this.isOpen = false;
-    if (!!this.trigger) {
-      this.trigger.changeDetectorRef.markForCheck();
-    }
-  }
-
-  show(t: MenuTriggerComponent | null) {
-    if (this.isOpen) {
-      return;
-    }
-
-    if (!!t) {
-      this.trigger = t;
-      const rect = (this.trigger.elementRef.nativeElement as HTMLElement).getBoundingClientRect()
-      this.minWidth = rect ? rect.width : 0;
-    }
-    this.isOpen = true;
-  }
+  @ViewChild(SfngDropdown, { static: true })
+  dropdown!: SfngDropdown;
 }

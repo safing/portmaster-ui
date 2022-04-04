@@ -1,12 +1,5 @@
-<ng-template [ngIf]="!!trigger">
-
-  <ng-template cdkConnectedOverlay [cdkConnectedOverlayOrigin]="trigger!.origin!" [cdkConnectedOverlayOpen]="isOpen"
-    (detach)="onOverlayClosed()" [cdkConnectedOverlayScrollStrategy]="scrollStrategy"
-    [cdkConnectedOverlayMinWidth]="minWidth" [cdkConnectedOverlayPositions]="positions"
-    (overlayOutsideClick)="onOutsideClick($event)">
-    <div class="item-list" [@fadeIn] [@fadeOut]>
-      <ng-content></ng-content>
-    </div>
-  </ng-template>
-
-</ng-template>
+<sfng-dropdown externalTrigger="true" #dropdown="sfngDropdown" offsetY="0">
+  <div class="flex flex-col flex-grow w-full h-full bg-gray-400 shadow select-none">
+    <ng-content></ng-content>
+  </div>
+</sfng-dropdown>
