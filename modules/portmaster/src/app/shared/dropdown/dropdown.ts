@@ -1,7 +1,6 @@
 import { coerceBooleanProperty, coerceCssPixelValue, coerceNumberProperty } from "@angular/cdk/coercion";
 import { CdkOverlayOrigin, ConnectedPosition, ScrollStrategy, ScrollStrategyOptions } from "@angular/cdk/overlay";
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, Input, OnInit, Renderer2, TemplateRef } from "@angular/core";
-import { timeHours } from "d3";
 import { fadeInAnimation, fadeOutAnimation } from '../animations';
 
 @Component({
