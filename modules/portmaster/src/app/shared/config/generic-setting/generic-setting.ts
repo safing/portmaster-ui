@@ -67,6 +67,22 @@ export class GenericSettingComponent<S extends BaseSetting<any, any>> implements
     };
   }
 
+  /** Controls whether or not header with the setting name and success/failure markers is shown */
+  @Input()
+  set showHeader(v: any) {
+    this._showHeader = coerceBooleanProperty(v);
+  }
+  get showHeader() { return this._showHeader }
+  private _showHeader = true;
+
+  /** Controls whether or not the blue or red status borders are shown */
+  @Input()
+  set enableActiveBorder(v: any) {
+    this._enableActiveBorder = coerceBooleanProperty(v);
+  }
+  get enableActiveBorder() { return this._enableActiveBorder }
+  private _enableActiveBorder = true;
+
   /**
    * Whether or not the component should be displayed as "locked"
    * when the default value is used (that is, no 'Value' property
