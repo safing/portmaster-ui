@@ -1,10 +1,8 @@
-import { state } from '@angular/animations';
 import { ChangeDetectorRef, Component, NgZone, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-import { timeThursdays } from 'd3';
 import { debounceTime, filter, mergeMap, skip, startWith, take } from 'rxjs/operators';
 import { IntroModule } from './intro';
-import { Notification, NotificationsService, NotificationType, UIState, UIStateService } from './services';
+import { Notification, NotificationsService, NotificationType, UIStateService } from './services';
 import { PortapiService } from './services/portapi.service';
 import { ActionIndicator, ActionIndicatorService } from './shared/action-indicator';
 import { fadeInAnimation, fadeOutAnimation } from './shared/animations';
