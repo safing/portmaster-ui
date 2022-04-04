@@ -21,6 +21,12 @@ myKey:
 ##############
 ### Navigation
 
+introTipup:
+  title: Hey there!
+  content: |
+    Portmaster has a lot more to offer. When you decide to dive deeper you can always click on an information
+    icon to learn more about a certain feature. Look out for those!
+
 intro:
   title: Portmaster Tips
   content: |
