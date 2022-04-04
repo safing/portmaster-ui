@@ -1,16 +1,16 @@
 <app-tipup key="uiMode" placement="left" [anchor]="host"></app-tipup>
-<app-dropdown [ngModel]="(currentLevel | async)" (ngModelChange)="selectLevel($event)">
-  <app-dropdown-item *dropDownValue="expertiseLevels.User">
+<sfng-select [ngModel]="(currentLevel | async)" (ngModelChange)="selectLevel($event)">
+  <sfng-select-item *sfngSelectValue="expertiseLevels.User">
     Simple Interface
-  </app-dropdown-item>
+  </sfng-select-item>
 
-  <app-dropdown-item *dropDownValue="expertiseLevels.Expert">
+  <sfng-select-item *sfngSelectValue="expertiseLevels.Expert">
     Advanced Interface
-  </app-dropdown-item>
+  </sfng-select-item>
 
   <ng-container *ngIf="savedLevel === expertiseLevels.Developer">
-    <app-dropdown-item *dropDownValue="expertiseLevels.Developer">
+    <sfng-select-item *sfngSelectValue="expertiseLevels.Developer">
       Developer Interface
-    </app-dropdown-item>
+    </sfng-select-item>
   </ng-container>
-</app-dropdown>
+</sfng-select>
