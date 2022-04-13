@@ -5,10 +5,10 @@
   </ng-container>
 
   <ng-template #selectAction>
-    <app-dropdown [ngModel]="currentAction" (ngModelChange)="setAction($event)">
-      <app-dropdown-item *dropDownValue="'+'">{{ symbolMap["+"] }}</app-dropdown-item>
-      <app-dropdown-item *dropDownValue="'-'">{{ symbolMap["-"] }}</app-dropdown-item>
-    </app-dropdown>
+    <sfng-select [ngModel]="currentAction" (ngModelChange)="setAction($event)">
+      <sfng-select-item *sfngSelectValue="'+'">{{ symbolMap["+"] }}</sfng-select-item>
+      <sfng-select-item *sfngSelectValue="'-'">{{ symbolMap["-"] }}</sfng-select-item>
+    </sfng-select>
   </ng-template>
 </div>
 <div class="value" [class.edit]="edit">

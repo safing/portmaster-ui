@@ -1,11 +1,12 @@
-<div class="relative flex flex-row flex-wrap items-center px-5 py-5 bg-gray-200 border-l border-transparent rounded-r"
+<div
+  class="relative flex flex-row flex-wrap h-full items-center px-5 py-5 bg-gray-200 border-l border-transparent rounded-r"
   [class.pr-8]="lockDefaults" [ngClass]="{
-    'border-blue': _setting?.Value !== undefined && !rejected,
-    'border-red': rejected,
+    'border-blue': enableActiveBorder && _setting?.Value !== undefined && !rejected,
+    'border-red': enableActiveBorder &&  rejected,
     'rounded-l': !rejected && _setting?.Value === undefined
   }">
   <div class="flex flex-col flex-grow">
-    <div class="flex flex-row items-center justify-start space-x-2 w-fit">
+    <div class="flex flex-row items-center justify-start space-x-2 w-fit" *ngIf="showHeader">
       <h3 [innerHTML]="setting?.Name | safe:'html'" class="mb-0 name"></h3>
       <app-tipup *ngIf="setting?.Description" [key]="setting!.Key" [text]="setting?.Description"
         [buttons]="tipupButtons" [title]="setting?.Name"></app-tipup>
@@ -58,7 +59,7 @@
 
 
   <!-- Quick Settings -->
-  <div *ngIf="quickSettings.length > 0 && !disabled">
+  <div *ngIf="(quickSettings || []).length > 0 && !disabled">
     <app-menu-trigger [menu]="quickSettingsMenu" useContent="true" class="text-secondary hover:text-primary">
       <svg xmlns="http://www.w3.org/2000/svg" class="inline-block w-4 h-4" fill="none" viewBox="0 0 24 24"
         stroke="currentColor">
@@ -98,7 +99,7 @@
 
     <!-- Filter lists -->
     <ng-container *ngSwitchCase="optionHint.FilterList">
-      <app-filter-list class="w-full mt-4" [ngModel]="_currentValue" [autoFocus]="!isLocked"
+      <app-filter-list class="w-full" [class.mt-4]="showHeader" [ngModel]="_currentValue" [autoFocus]="!isLocked"
         (ngModelChange)="updateValue($event, true)">
       </app-filter-list>
     </ng-container>

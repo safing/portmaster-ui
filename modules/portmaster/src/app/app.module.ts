@@ -16,6 +16,7 @@ import { fas } from '@fortawesome/free-solid-svg-icons';
 import { MarkdownModule } from 'ngx-markdown';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
+import { IntroModule } from './intro';
 import { NavigationComponent } from './layout/navigation/navigation';
 import { SideDashComponent } from './layout/side-dash/side-dash';
 import { AppOverviewComponent, AppViewComponent, QuickSettingInternetButtonComponent } from './pages/app-view';
@@ -29,40 +30,32 @@ import { WidgetSettingsOutletComponent } from './pages/widget-settings-outlet/wi
 import { SfngAccordionModule } from './shared/accordion';
 import { ActionIndicatorModule } from './shared/action-indicator';
 import { AppIconComponent } from './shared/app-icon';
-import { BasicSettingComponent } from './shared/config/basic-setting/basic-setting';
-import { ConfigSettingsViewComponent } from './shared/config/config-settings';
-import { FilterListComponent } from './shared/config/filter-lists';
-import { GenericSettingComponent } from './shared/config/generic-setting/generic-setting';
-import { OrderedListComponent, OrderedListItemComponent } from './shared/config/ordererd-list';
-import { RuleListItemComponent } from './shared/config/rule-list/list-item';
-import { RuleListComponent } from './shared/config/rule-list/rule-list';
-import { SecuritySettingComponent } from './shared/config/security-setting/security-setting';
+import { ConfigModule } from './shared/config';
 import { CanShowConnection as CanShowConnectionPipe, CanUseRulesPipe, ConnectionExpertisePipe, ConnectionLocationPipe, ConnectionsViewComponent, IsBlockedConnectionPipe, ScopeGroupContentComponent, UngroupedConnectionContentComponent, UngroupedConnectionRowComponent } from './shared/connections-view';
 import { CountIndicatorComponent } from './shared/count-indicator/count-indicator';
 import { PrettyCountPipe } from './shared/count.pipe';
 import { CountryFlagDirective } from './shared/country-flag/country-flag';
-import { ConfirmDailogComponent, DialogComponent } from './shared/dialog';
-import { DropdownComponent } from './shared/dropdown/dropdown';
-import { DropDownItemComponent, DropDownValueDirective } from './shared/dropdown/item';
+import { DialogModule } from './shared/dialog';
+import { SfngDropDownModule } from './shared/dropdown/dropdown.module';
 import { ExitScreenComponent } from './shared/exit-screen/exit-screen';
-import { ExpertiseDirective } from './shared/expertise/expertise-directive';
-import { ExpertiseComponent } from './shared/expertise/expertise-switch';
+import { ExpertiseModule } from './shared/expertise/expertise.module';
 import { ExternalLinkDirective } from './shared/external-link.directive';
-import { AutoFocusDirective } from './shared/focus';
+import { SfngFocusModule } from './shared/focus';
 import { FuzzySearchPipe } from './shared/fuzzySearch';
 import { LoadingComponent } from './shared/loading';
-import { MenuComponent, MenuGroupComponent, MenuItemComponent, MenuTriggerComponent } from './shared/menu';
-import { MultiSwitchComponent, SwitchItemComponent } from './shared/multi-switch';
+import { SfngMenuModule } from './shared/menu';
+import { SfngMultiSwitchModule } from './shared/multi-switch';
 import { NotificationComponent } from './shared/notification/notification';
+import { OverlayStepperModule } from './shared/overlay-stepper';
 import { PaginationContentDirective, PaginationWrapperComponent } from './shared/pagination';
 import { ProfileStatisticsComponent } from './shared/profile-stats';
-import { SafePipe } from './shared/save.pipe';
 import { ScopeLabelComponent } from './shared/scope-label';
+import { SfngSelectModule } from './shared/select';
 import { TabModule } from './shared/tabs/tabs.module';
 import { PlaceholderComponent } from './shared/text-placeholder';
 import { TimeAgoPipe } from './shared/time-ago.pipe';
 import { TipUpModule } from './shared/tipup';
-import { ToggleSwitchComponent } from './shared/toggle-switch/toggle-switch';
+import { SfngToggleSwitchModule } from './shared/toggle-switch';
 import { SfngTooltipModule } from './shared/tooltip';
 import { MarkdownWidgetComponent, MarkdownWidgetSettingsComponent } from './widgets/markdown-widget';
 import { NotificationWidgetComponent, NotificationWidgetSettingsComponent } from './widgets/notification-widget';
@@ -75,25 +68,14 @@ import { WIDGET_DEFINTIONS } from './widgets/widget.types';
   declarations: [
     AppComponent,
     NotificationComponent,
-    BasicSettingComponent,
-    GenericSettingComponent,
-    SecuritySettingComponent,
     SettingsComponent,
     MonitorPageComponent,
     SideDashComponent,
     NavigationComponent,
-    ExpertiseComponent,
-    ExpertiseDirective,
-    DropdownComponent,
     ConnectionsViewComponent,
-    DropDownItemComponent,
-    DropDownValueDirective,
     WidgetSettingsOutletComponent,
     StatusWidgetComponent,
     StatusWidgetSettingsComponent,
-    ToggleSwitchComponent,
-    RuleListComponent,
-    RuleListItemComponent,
     PilotWidgetComponent,
     StatusWidgetComponent,
     StatusWidgetSettingsComponent,
@@ -103,7 +85,6 @@ import { WIDGET_DEFINTIONS } from './widgets/widget.types';
     NotificationWidgetSettingsComponent,
     NotificationWidgetComponent,
     FuzzySearchPipe,
-    SafePipe,
     TimeAgoPipe,
     MonitorApplicationViewComponent,
     CountIndicatorComponent,
@@ -113,19 +94,8 @@ import { WIDGET_DEFINTIONS } from './widgets/widget.types';
     CountryFlagDirective,
     AppOverviewComponent,
     PlaceholderComponent,
-    ConfigSettingsViewComponent,
-    FilterListComponent,
     AppIconComponent,
     NetworkOverviewComponent,
-    MenuComponent,
-    MenuTriggerComponent,
-    MenuItemComponent,
-    MenuGroupComponent,
-    OrderedListComponent,
-    OrderedListItemComponent,
-    MultiSwitchComponent,
-    SwitchItemComponent,
-    AutoFocusDirective,
     PromptWidgetComponent,
     LoadingComponent,
     ExternalLinkDirective,
@@ -140,8 +110,6 @@ import { WIDGET_DEFINTIONS } from './widgets/widget.types';
     CanShowConnectionPipe,
     IsBlockedConnectionPipe,
     ExitScreenComponent,
-    DialogComponent,
-    ConfirmDailogComponent,
     SupportPageComponent,
     SupportFormComponent,
     PaginationWrapperComponent,
@@ -166,7 +134,18 @@ import { WIDGET_DEFINTIONS } from './widgets/widget.types';
     TabModule,
     TipUpModule,
     SfngTooltipModule,
-    ActionIndicatorModule
+    ActionIndicatorModule,
+    DialogModule,
+    OverlayStepperModule,
+    IntroModule,
+    SfngDropDownModule,
+    SfngSelectModule,
+    SfngMultiSwitchModule,
+    SfngMenuModule,
+    SfngFocusModule,
+    SfngToggleSwitchModule,
+    ExpertiseModule,
+    ConfigModule,
   ],
   providers: [
     {

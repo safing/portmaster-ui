@@ -1,0 +1,52 @@
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, OnDestroy, OnInit } from "@angular/core";
+import { of, Subject, throwError } from "rxjs";
+import { flatMap, mergeMap, takeUntil } from "rxjs/operators";
+import { ConfigService, Setting } from "src/app/services";
+import { SaveSettingEvent } from "src/app/shared/config/generic-setting";
+import { Step } from "src/app/shared/overlay-stepper";
+
+@Component({
+  templateUrl: './step-2-trackers.html',
+  styleUrls: ['../step.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
+})
+export class Step2TrackersComponent implements Step, OnInit, OnDestroy {
+  private destroy$ = new Subject<void>();
+
+  validChange = of(true)
+
+  setting: Setting | null = null;
+
+  constructor(
+    public configService: ConfigService,
+    public readonly elementRef: ElementRef,
+    private cdr: ChangeDetectorRef,
+  ) { }
+
+  ngOnInit(): void {
+    this.configService.get('filter/lists')
+      .pipe(
+        mergeMap(setting => {
+          this.setting = setting;
+
+          return this.configService.watch(setting.Key)
+        }),
+        takeUntil(this.destroy$),
+      )
+      .subscribe(value => {
+        this.setting!.Value = value;
+
+        this.cdr.markForCheck();
+      });
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
+  saveSetting(event: SaveSettingEvent) {
+    this.configService.save(event.key, event.value)
+      .subscribe()
+  }
+}

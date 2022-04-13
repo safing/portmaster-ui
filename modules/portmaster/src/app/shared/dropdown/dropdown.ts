@@ -1,70 +1,129 @@
-import { coerceBooleanProperty } from '@angular/cdk/coercion';
-import { CdkOverlayOrigin, ScrollStrategy, ScrollStrategyOptions } from '@angular/cdk/overlay';
-import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, ContentChildren, ElementRef, forwardRef, HostBinding, HostListener, Input, QueryList, Renderer2, ViewChild } from '@angular/core';
-import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
-import { DropDownValueDirective } from './item';
+import { coerceBooleanProperty, coerceCssPixelValue, coerceNumberProperty } from "@angular/cdk/coercion";
+import { CdkOverlayOrigin, ConnectedPosition, ScrollStrategy, ScrollStrategyOptions } from "@angular/cdk/overlay";
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, Input, OnInit, Renderer2, TemplateRef } from "@angular/core";
+import { fadeInAnimation, fadeOutAnimation } from '../animations';
 
 @Component({
-  selector: 'app-dropdown',
+  selector: 'sfng-dropdown',
+  exportAs: 'sfngDropdown',
   templateUrl: './dropdown.html',
-  styleUrls: ['./dropdown.scss'],
+  styles: [
+    `
+    :host {
+      display: block;
+    }
+    `
+  ],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  providers: [
-    {
-      provide: NG_VALUE_ACCESSOR,
-      useExisting: forwardRef(() => DropdownComponent),
-      multi: true,
-    },
-  ]
+  animations: [fadeInAnimation, fadeOutAnimation],
 })
-export class DropdownComponent<T> implements AfterViewInit, ControlValueAccessor {
-  @ContentChildren(DropDownValueDirective)
-  items: QueryList<DropDownValueDirective> | null = null;
-
-  @ViewChild(CdkOverlayOrigin)
+export class SfngDropdown implements OnInit {
+  /** The trigger origin used to open the drop-down */
   trigger: CdkOverlayOrigin | null = null;
 
-  @HostBinding('tabindex')
-  readonly tabindex = 0;
-
-  @HostBinding('attr.role')
-  readonly role = 'listbox';
-
-  value: T | null = null;
-  currentItem: DropDownValueDirective | null = null;
-
-  isOpen = false;
-
-  scrollStrategy: ScrollStrategy;
-
+  /**
+   * The button/drop-down label. Only when not using
+   * {@Link SfngDropdown.externalTrigger}
+   */
   @Input()
-  @HostBinding('class.disabled')
+  label: string = '';
+
+  /** The trigger template to use when {@Link SfngDropdown.externalTrigger} */
+  @Input()
+  triggerTemplate: TemplateRef<any> | null = null;
+
+  /** Set to true to provide an external dropdown trigger template using {@Link SfngDropdown.triggerTemplate} */
+  @Input()
+  set externalTrigger(v: any) {
+    this._externalTrigger = coerceBooleanProperty(v)
+  }
+  get externalTrigger() {
+    return this._externalTrigger;
+  }
+  private _externalTrigger = false;
+
+  /** Whether or not the drop-down is disabled. */
+  @Input()
   set disabled(v: any) {
-    const disabled = coerceBooleanProperty(v);
-    this.setDisabledState(disabled);
+    this._disabled = coerceBooleanProperty(v)
   }
   get disabled() {
     return this._disabled;
   }
+  private _disabled = false;
 
-  private _disabled: boolean = false;
+  /** The Y-offset of the drop-down overlay */
+  @Input()
+  set offsetY(v: any) {
+    this._offsetY = coerceNumberProperty(v);
+  }
+  get offsetY() { return this._offsetY }
+  private _offsetY = 4;
 
-  trackItem(_: number, item: DropDownValueDirective) {
-    return item.value;
+  /** The scrollStrategy of the drop-down */
+  @Input()
+  scrollStrategy!: ScrollStrategy;
+
+  /** Whether or not the pop-over is currently shown. Do not modify this directly */
+  isOpen = false;
+
+  /** The minimum width of the drop-down */
+  @Input()
+  set minWidth(val: any) {
+    this._minWidth = coerceCssPixelValue(val)
+  }
+  get minWidth() { return this._minWidth }
+  private _minWidth: string | number = 0;
+
+  /** The maximum width of the drop-down */
+  @Input()
+  set maxWidth(val: any) {
+    this._maxWidth = coerceCssPixelValue(val)
+  }
+  get maxWidth() { return this._maxWidth }
+  private _maxWidth: string | number | null = null;
+
+  /** The minimum height of the drop-down */
+  @Input()
+  set minHeight(val: any) {
+    this._minHeight = coerceCssPixelValue(val)
+  }
+  get minHeight() { return this._minHeight }
+  private _minHeight: string | number | null = null;
+
+  /** The maximum width of the drop-down */
+  @Input()
+  set maxHeight(val: any) {
+    this._maxHeight = coerceCssPixelValue(val)
+  }
+  get maxHeight() { return this._maxHeight }
+  private _maxHeight: string | number | null = null;
+
+  positions: ConnectedPosition[] = [
+    {
+      originX: 'end',
+      originY: 'bottom',
+      overlayX: 'end',
+      overlayY: 'top',
+    },
+    {
+      originX: 'end',
+      originY: 'top',
+      overlayX: 'end',
+      overlayY: 'bottom',
+    },
+  ]
+
+  constructor(
+    public readonly elementRef: ElementRef,
+    private changeDetectorRef: ChangeDetectorRef,
+    private renderer: Renderer2,
+    private scrollOptions: ScrollStrategyOptions,
+  ) {
   }
 
-  setDisabledState(disabled: boolean) {
-    this._disabled = disabled;
-    this.changeDetectorRef.markForCheck();
-  }
-
-  toggle() {
-    if (!this.isOpen && this._disabled) {
-      return;
-    }
-
-    this.isOpen = !this.isOpen;
-    this.changeDetectorRef.markForCheck();
+  ngOnInit() {
+    this.scrollStrategy = this.scrollStrategy || this.scrollOptions.close();
   }
 
   onOutsideClick(event: MouseEvent) {
@@ -83,20 +142,8 @@ export class DropdownComponent<T> implements AfterViewInit, ControlValueAccessor
     this.close();
   }
 
-  constructor(
-    public element: ElementRef,
-    private changeDetectorRef: ChangeDetectorRef,
-    private renderer: Renderer2,
-    scrollOptions: ScrollStrategyOptions,
-  ) {
-    this.scrollStrategy = scrollOptions.close();
-  }
-
-  ngAfterViewInit(): void {
-    if (!!this.value && !!this.items) {
-      this.currentItem = this.items.find(item => item.value === this.value) || null;
-      this.changeDetectorRef.detectChanges();
-    }
+  onOverlayClosed() {
+    this.trigger = null;
   }
 
   close() {
@@ -104,43 +151,29 @@ export class DropdownComponent<T> implements AfterViewInit, ControlValueAccessor
     this.changeDetectorRef.markForCheck();
   }
 
-  @HostListener('blur')
-  onBlur(): void {
-    this.onTouch();
-  }
+  toggle(t: CdkOverlayOrigin) {
+    if (this.isOpen) {
+      this.close();
 
-  selectItem(item: DropDownValueDirective) {
-    if (item.disabled) {
       return;
     }
 
-    this.currentItem = item;
-    this.value = item.value;
-    this.isOpen = false;
-    this.onChange(this.value!);
+    this.show(t);
   }
 
-  writeValue(value: T): void {
-    this.value = value;
-
-    if (!!this.items) {
-      this.currentItem = this.items.find(item => item.value === value) || null;
+  show(t: CdkOverlayOrigin) {
+    if (this.isOpen || this._disabled) {
+      return;
     }
 
+    if (!!t) {
+      this.trigger = t;
+      const rect = (this.trigger.elementRef.nativeElement as HTMLElement).getBoundingClientRect()
+
+      this.minWidth = rect ? rect.width : this.trigger.elementRef.nativeElement.offsetWidth;
+
+    }
+    this.isOpen = true;
     this.changeDetectorRef.markForCheck();
-  }
-
-  onChange = (value: T): void => { }
-  registerOnChange(fn: (value: T) => void): void {
-    this.onChange = fn;
-  }
-
-  onTouch = (): void => { }
-  registerOnTouched(fn: () => void): void {
-    this.onTouch = fn;
-  }
-
-  onOverlayClosed() {
-    this.close();
   }
 }

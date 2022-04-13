@@ -1,0 +1,27 @@
+<ng-template #customTriggerTemplate>
+  <button [class.active]="dropdown.isOpen" type="button">
+    <span *ngIf="currentItem === null">
+      Select
+    </span>
+    <span *ngIf="currentItem !== null">
+      <ng-container *ngTemplateOutlet="currentItem.templateRef"></ng-container>
+    </span>
+    <div class="arrow">
+      <svg viewBox="0 0 24 24" class="arrow-icon">
+        <g fill="none" class="inner">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M10 16l4-4-4-4" />
+        </g>
+      </svg>
+    </div>
+  </button>
+</ng-template>
+
+<!-- This template displays the overlay content and is connected to the button -->
+<sfng-dropdown #dropdown="sfngDropdown" [triggerTemplate]="customTriggerTemplate" class="w-full h-full">
+  <ul class="item-list">
+    <li *ngFor="let item of items" (click)="selectItem(item)" [sfng-tooltip]="item.description || null"
+      snfgTooltipPosition="left" [class.cursor-not-allowed]="item.disabled">
+      <ng-container *ngTemplateOutlet="item.templateRef"></ng-container>
+    </li>
+  </ul>
+</sfng-dropdown>

@@ -5,21 +5,21 @@
         Dropdowns for a limited set of allowed values. Either using PossibleValues (the new way)
         or by parsing the settings validation regex (deprecated)
       -->
-      <app-dropdown *ngIf="externalOptType(setting) === optionHints.OneOf; else: simpleTextInput" [ngModel]="_value"
+      <sfng-select *ngIf="externalOptType(setting) === optionHints.OneOf; else: simpleTextInput" [ngModel]="_value"
         (ngModelChange)="setInternalValue($event); touched()" [disabled]="_disabled">
 
         <ng-container *ngIf="!!setting.PossibleValues; else: noPossibleValues">
           <ng-container *ngFor="let opt of setting.PossibleValues">
-            <app-dropdown-item *dropDownValue="opt.Value; description: opt.Description">{{opt.Name}}</app-dropdown-item>
+            <sfng-select-item *sfngSelectValue="opt.Value; description: opt.Description">{{opt.Name}}</sfng-select-item>
           </ng-container>
         </ng-container>
 
         <ng-template #noPossibleValues>
           <ng-container *ngFor="let opt of parseSupportedValues(setting)">
-            <app-dropdown-item *dropDownValue="opt">{{opt}}</app-dropdown-item>
+            <sfng-select-item *sfngSelectValue="opt">{{opt}}</sfng-select-item>
           </ng-container>
         </ng-template>
-      </app-dropdown>
+      </sfng-select>
 
       <!--
         A simple text input

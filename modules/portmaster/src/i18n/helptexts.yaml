@@ -21,6 +21,11 @@ myKey:
 ##############
 ### Navigation
 
+introTipup:
+  title: Hey there!
+  content: |
+    Thanks for installing the Portmaster.
+
 intro:
   title: Portmaster Tips
   content: |

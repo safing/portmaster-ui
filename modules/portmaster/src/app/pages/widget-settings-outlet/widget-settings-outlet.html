@@ -9,13 +9,13 @@
 
   <div class="select-type" *ngIf="!isEdit">
     <span>Select widget type</span>
-    <app-dropdown [ngModel]="selectedWidget?.type" (ngModelChange)="changeWidget($event)">
+    <sfng-select [ngModel]="selectedWidget?.type" (ngModelChange)="changeWidget($event)">
       <ng-container *ngFor="let def of definitions">
-        <app-dropdown-item *dropDownValue="def.type">
+        <sfng-select-item *sfngSelectValue="def.type">
           {{def.name}}
-        </app-dropdown-item>
+        </sfng-select-item>
       </ng-container>
-    </app-dropdown>
+    </sfng-select>
   </div>
 
   <div *ngIf="!!portal" class="widget-setup">

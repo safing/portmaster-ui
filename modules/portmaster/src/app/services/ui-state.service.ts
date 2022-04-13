@@ -6,10 +6,12 @@ import { Record } from './portapi.types';
 
 export interface UIState extends Record {
   hideExitScreen?: boolean;
+  introScreenFinished?: boolean;
 }
 
 const defaultState: UIState = {
   hideExitScreen: false,
+  introScreenFinished: false
 }
 
 @Injectable({ providedIn: 'root' })

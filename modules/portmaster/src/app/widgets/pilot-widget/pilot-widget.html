@@ -42,16 +42,16 @@
       <app-tipup style="margin-left: 0.5rem; align-items: center;display: flex;" key="pilot-widget-NetworkRating">
       </app-tipup>
     </label>
-    <app-dropdown *appExpertiseLevel="'developer'" [ngModel]="mode" (ngModelChange)="updateMode($event)">
-      <app-dropdown-item *dropDownValue="'auto'">
+    <sfng-select *appExpertiseLevel="'developer'" [ngModel]="mode" (ngModelChange)="updateMode($event)">
+      <sfng-select-item *sfngSelectValue="'auto'">
         <span class="auto-detect low"></span>
         <span>Auto Detect</span>
-      </app-dropdown-item>
-      <app-dropdown-item *dropDownValue="'manual'">
+      </sfng-select-item>
+      <sfng-select-item *sfngSelectValue="'manual'">
         <span class="off"></span>
         <span>Manual</span>
-      </app-dropdown-item>
-    </app-dropdown>
+      </sfng-select-item>
+    </sfng-select>
   </div>
 
   <ng-container *ngFor="let opt of options">

@@ -2,30 +2,30 @@ import { coerceBooleanProperty } from '@angular/cdk/coercion';
 import { Component, Directive, HostBinding, Input, Optional, TemplateRef } from '@angular/core';
 
 @Component({
-  selector: 'app-dropdown-item',
+  selector: 'sfng-select-item',
   template: `<ng-content></ng-content>`,
   styleUrls: ['./item.scss'],
 })
-export class DropDownItemComponent {
+export class SfngSelectItemComponent {
   @HostBinding('class.disabled')
   get isDisabled() {
-    return this.dropDownValue?.disabled || false;
+    return this.sfngSelectValue?.disabled || false;
   }
 
-  constructor(@Optional() private dropDownValue: DropDownValueDirective) {}
+  constructor(@Optional() private sfngSelectValue: SfngSelectValueDirective) { }
 }
 
 @Directive({
-  selector: '[dropDownValue]',
+  selector: '[sfngSelectValue]',
 })
-export class DropDownValueDirective {
-  @Input('dropDownValue')
+export class SfngSelectValueDirective {
+  @Input('sfngSelectValue')
   value: any;
 
-  @Input('dropDownValueDescription')
+  @Input('sfngSelectValueDescription')
   description = '';
 
-  @Input('dropDownValueDisabled')
+  @Input('sfngSelectValueDisabled')
   set disabled(v: any) {
     this._disabled = coerceBooleanProperty(v)
   }

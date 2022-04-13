@@ -1,28 +1,26 @@
-<!-- This button triggers the overlay and is it's origin -->
-<button (click)="toggle()" [class.active]="isOpen" type="button" cdkOverlayOrigin #trigger="cdkOverlayOrigin"
-  class="border border-gray-400">
-  <span *ngIf="currentItem === null">
-    Select
-  </span>
-  <span *ngIf="currentItem !== null">
-    <ng-container *ngTemplateOutlet="currentItem.templateRef"></ng-container>
-  </span>
-  <div class="arrow">
-    <svg viewBox="0 0 24 24" class="arrow-icon">
-      <g fill="none" class="inner">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M10 16l4-4-4-4" />
-      </g>
+<div *ngIf="!externalTrigger" class="w-full" cdkOverlayOrigin #trigger="cdkOverlayOrigin" (click)="toggle(trigger)">
+  <ng-template [ngTemplateOutlet]="triggerTemplate || defaultTriggerTemplate"></ng-template>
+</div>
+
+<ng-template #defaultTriggerTemplate>
+  <!-- TODO(ppacher): use a button rather than a div but first fix the button styling -->
+  <div [class.rounded-b]="!isOpen"
+    class="flex flex-row items-center justify-between w-full px-4 py-2 mt-6 bg-gray-100 rounded-t cursor-pointer hover:bg-gray-100 hover:bg-opacity-75 text-secondary">
+    {{ label }}
+
+    <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"
+      stroke-width="2">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
     </svg>
   </div>
-</button>
+</ng-template>
 
-<!-- This template displays the overlay content and is connected to the button -->
-<ng-template cdkConnectedOverlay [cdkConnectedOverlayMinWidth]="element.nativeElement.offsetWidth"
-  [cdkConnectedOverlayOrigin]="trigger" [cdkConnectedOverlayOpen]="isOpen" (detach)="onOverlayClosed()"
-  [cdkConnectedOverlayScrollStrategy]="scrollStrategy" (overlayOutsideClick)="onOutsideClick($event)">
-  <ul class="item-list">
-    <li *ngFor="let item of items" (click)="selectItem(item)" [sfng-tooltip]="item.description || null" snfgTooltipPosition="left" [class.cursor-not-allowed]="item.disabled">
-      <ng-container *ngTemplateOutlet="item.templateRef"></ng-container>
-    </li>
-  </ul>
+<ng-template cdkConnectedOverlay [cdkConnectedOverlayOffsetY]="offsetY" [cdkConnectedOverlayMinWidth]="minWidth"
+  [cdkConnectedOverlayMinHeight]="minHeight" [cdkConnectedOverlayOrigin]="trigger!" [cdkConnectedOverlayOpen]="isOpen"
+  (detach)="onOverlayClosed()" [cdkConnectedOverlayScrollStrategy]="scrollStrategy"
+  (overlayOutsideClick)="onOutsideClick($event)" [cdkConnectedOverlayPositions]="positions">
+  <div class="w-full overflow-hidden bg-gray-200 rounded-b shadow" [style.maxHeight]="maxHeight"
+    [style.maxWidth]="maxWidth" [@fadeIn] [@fadeOut]>
+    <ng-content></ng-content>
+  </div>
 </ng-template>
