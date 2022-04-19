@@ -21,8 +21,8 @@ const (
 )
 
 var (
-	status     = new(SystemStatus)
-	statusLock sync.Mutex
+	systemStatusCache     = new(SystemStatus)
+	systemStatusCacheLock sync.Mutex
 )
 
 // SystemStatus saves basic information about the Portmasters system status.
@@ -40,17 +40,17 @@ type SystemStatus struct {
 
 // GetStatus returns the system status.
 func GetStatus() *SystemStatus {
-	statusLock.Lock()
-	defer statusLock.Unlock()
+	systemStatusCacheLock.Lock()
+	defer systemStatusCacheLock.Unlock()
 
-	return status
+	return systemStatusCache
 }
 
 func updateStatus(s *SystemStatus) {
-	statusLock.Lock()
-	defer statusLock.Unlock()
+	systemStatusCacheLock.Lock()
+	defer systemStatusCacheLock.Unlock()
 
-	status = s
+	systemStatusCache = s
 }
 
 func fmtSecurityLevel(level uint8) string {

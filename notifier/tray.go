@@ -136,6 +136,7 @@ func triggerTrayUpdate() {
 func updateTray() {
 	// Get current information.
 	systemStatus := GetStatus()
+	spnStatus := GetSPNStatus()
 	failureID, failureMsg := GetFailure()
 
 	trayLock.Lock()
@@ -199,15 +200,8 @@ func updateTray() {
 	}
 
 	// Set SPN status if changed.
-	var newSPNStatus string
-	func() {
-		spnStatusLock.Lock()
-		defer spnStatusLock.Unlock()
-
-		newSPNStatus = spnStatus.Status
-	}()
-	if activeSPNStatus != newSPNStatus {
-		activeSPNStatus = newSPNStatus
+	if spnStatus != nil && activeSPNStatus != spnStatus.Status {
+		activeSPNStatus = spnStatus.Status
 		menuItemSPNStatus.SetTitle("SPN: " + strings.Title(activeSPNStatus))
 	}
 
