@@ -9,10 +9,10 @@ import (
 	"sync"
 	"time"
 
-	"github.com/safing/portmaster-ui/notifier/icons"
+	"fyne.io/systray"
 
-	"github.com/getlantern/systray"
 	"github.com/safing/portbase/log"
+	"github.com/safing/portmaster-ui/notifier/icons"
 )
 
 const (

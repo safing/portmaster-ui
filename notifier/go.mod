@@ -3,6 +3,7 @@ module github.com/safing/portmaster-ui/notifier
 go 1.18
 
 require (
+	fyne.io/systray v1.9.1-0.20220331100914-9177bf851614 // indirect
 	github.com/Microsoft/go-winio v0.5.2
 	github.com/dhaavi/go-notify v0.0.0-20190209221809-c404b1f22435
 	github.com/getlantern/systray v1.2.1
@@ -22,6 +23,7 @@ require (
 	github.com/go-ole/go-ole v1.2.6 // indirect
 	github.com/go-stack/stack v1.8.1 // indirect
 	github.com/godbus/dbus v4.1.0+incompatible // indirect
+	github.com/godbus/dbus/v5 v5.0.4 // indirect
 	github.com/gofrs/uuid v4.2.0+incompatible // indirect
 	github.com/gorilla/websocket v1.5.0 // indirect
 	github.com/hashicorp/go-version v1.4.0 // indirect
