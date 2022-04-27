@@ -15,3 +15,4 @@ export * from './ui-state.service';
 export * from './supporthub.service';
 export * from './spn.types';
 export * from './spn.service';
+export * from './netquery.service';

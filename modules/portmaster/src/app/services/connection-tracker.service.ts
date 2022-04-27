@@ -38,7 +38,19 @@ export interface ConnectionDeletedEvent {
  */
 export type ConnectionUpdateEvent = ConnectionAddedEvent | ConnectionDeletedEvent;
 
-export class ProcessGroup {
+export interface IProfileStats {
+  ID: string;
+  Name: string;
+  Source: string;
+
+  size: number;
+  empty: boolean;
+  countAllowed: number;
+  countUnpermitted: number;
+  countAliveConnections: number;
+}
+
+export class ProcessGroup implements IProfileStats {
   /** A set of permitted conneciton keys */
   private permitted = new Set<string>();
 

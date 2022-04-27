@@ -21,7 +21,7 @@ import { NavigationComponent } from './layout/navigation/navigation';
 import { SideDashComponent } from './layout/side-dash/side-dash';
 import { AppOverviewComponent, AppViewComponent, QuickSettingInternetButtonComponent } from './pages/app-view';
 import { QuickSettingUseSPNButtonComponent } from './pages/app-view/qs-use-spn/qs-use-spn';
-import { MonitorApplicationViewComponent, MonitorPageComponent, NetworkOverviewComponent } from './pages/monitor';
+import { MonitorPageComponent } from './pages/monitor';
 import { SettingsComponent } from './pages/settings/settings';
 import { SpnPageComponent } from './pages/spn';
 import { SupportPageComponent } from './pages/support';
@@ -87,7 +87,6 @@ import { WIDGET_DEFINTIONS } from './widgets/widget.types';
     NotificationWidgetComponent,
     FuzzySearchPipe,
     TimeAgoPipe,
-    MonitorApplicationViewComponent,
     CountIndicatorComponent,
     AppViewComponent,
     QuickSettingInternetButtonComponent,
@@ -96,7 +95,6 @@ import { WIDGET_DEFINTIONS } from './widgets/widget.types';
     AppOverviewComponent,
     PlaceholderComponent,
     AppIconComponent,
-    NetworkOverviewComponent,
     PromptWidgetComponent,
     LoadingComponent,
     ExternalLinkDirective,
