@@ -1,20 +1,11 @@
 <div class="header">
   <div class="breadcrumbs">
     <span routerLink="/monitor">Network Monitor</span>
-    <ng-container *ngIf="!!selected">
-      <svg viewBox="0 0 24 24" class="arrow">
-        <g fill="none" class="inner">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M10 16l4-4-4-4" />
-        </g>
-      </svg>
-      <span>{{ selected!.Name }}</span>
-    </ng-container>
   </div>
   <app-expertise></app-expertise>
 </div>
-<div class="content" cdkScrollable>
-  <app-monitor-application *ngIf="!!selected" [profile]="selected">
-  </app-monitor-application>
-  <app-network-overview *ngIf="!selected">
-  </app-network-overview>
+<div class="flex-grow pt-2 " cdkScrollable>
+  <p class="px-2 py-3 text-center text-red-300 border border-red-300 rounded">
+    Currently not available
+  </p>
 </div>

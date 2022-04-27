@@ -1,7 +1,8 @@
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnDestroy, OnInit } from "@angular/core";
-import { BehaviorSubject, combineLatest, Subject } from "rxjs";
-import { takeUntil } from "rxjs/operators";
-import { ConnTracker, ProcessGroup } from "src/app/services/connection-tracker.service";
+import { BehaviorSubject, combineLatest, interval, Subject } from "rxjs";
+import { startWith, switchMap, takeUntil } from "rxjs/operators";
+import { Netquery } from "src/app/services";
+import { IProfileStats, ProcessGroup } from "src/app/services/connection-tracker.service";
 
 @Component({
   selector: 'app-network-activity-widget',
@@ -13,7 +14,7 @@ export class NetworkActivityWidget implements OnInit, OnDestroy {
   private destroy$ = new Subject();
 
   /** @private All process-groups/profiles that are currently active. */
-  profiles: ProcessGroup[] = [];
+  profiles: IProfileStats[] = [];
 
   /** @private Emits the search string whenever the user changes the search-input */
   onSearch = new BehaviorSubject<string>('');
@@ -25,9 +26,9 @@ export class NetworkActivityWidget implements OnInit, OnDestroy {
   showSearch = false;
 
   constructor(
-    private connTrack: ConnTracker,
-    private cdr: ChangeDetectorRef
-  ) {}
+    private cdr: ChangeDetectorRef,
+    private netquery: Netquery,
+  ) { }
 
   /**
    * @private
@@ -71,29 +72,32 @@ export class NetworkActivityWidget implements OnInit, OnDestroy {
    * @private
    * {@type TrackByFunction} for the process-groups.
    */
-  trackProfile(_: number, p: ProcessGroup) {
+  trackProfile(_: number, p: IProfileStats) {
     return p.ID;
   }
 
   ngOnInit(): void {
-      combineLatest([
-        this.connTrack.profiles,  // emits all profiles whenever something changes
-        this.onSearch,            // emits the search text of the user
-        this.connTrack.ready,     // blocks the stream unitl it emits the first time
-      ])
-        .pipe(takeUntil(this.destroy$))
-        .subscribe(([p, search, _]) => {
-          this.loading = false;
-          this.profiles = p
-            .filter(profile => {
-              return search === '' || profile.Name.toLocaleLowerCase().includes(search.toLocaleLowerCase())
-            })
-            .sort((a, b) => {
-              return b.size - a.size;
-            });
+    combineLatest([
+      interval(10000).pipe(
+        startWith(-1),
+        switchMap(() => this.netquery.getProfileStats())
+      ),
+      this.onSearch,            // emits the search text of the user
+    ])
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(([p, search]) => {
+        this.loading = false;
+        this.profiles = p
+          .filter(profile => {
+            return search === '' || profile.Name.toLocaleLowerCase().includes(search.toLocaleLowerCase())
+          })
+          .sort((a, b) => {
+            return b.size - a.size;
+          });
 
-          this.cdr.markForCheck();
-        })
+
+        this.cdr.markForCheck();
+      })
   }
 
   ngOnDestroy(): void {

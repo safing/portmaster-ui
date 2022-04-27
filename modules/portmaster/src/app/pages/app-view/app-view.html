@@ -43,11 +43,7 @@
         </div>
         <div class="space-x-2">
           <span>Active Connections:</span>
-          <span class="text-opacity-75 text-primary">{{inspected?.processGroup?.countAliveConnections || 0}}</span>
-        </div>
-        <div class="space-x-2">
-          <span>SPN Exits:</span>
-          <span class="text-opacity-75 text-primary">{{inspected?.processGroup?.exitNodeCount || 0}}</span>
+          <span class="text-opacity-75 text-primary">{{stats?.countAliveConnections || 0}}</span>
         </div>
       </div>
 
@@ -62,24 +58,22 @@
     </div>
 
     <!-- Statistics -->
-    <div class="flex flex-row items-center justify-end flex-grow pr-8 space-x-4"
-      *ngIf="!!inspected && inspected.processGroup.size > 0">
+    <div class="flex flex-row items-center justify-end flex-grow pr-8 space-x-4" *ngIf="!!stats && stats.size > 0">
       <div class="flex flex-col items-center justify-center w-32 h-24 bg-gray-300 rounded shadow">
-        <h2 class="p-0 m-0 text-xl text-primary">{{ (100 / inspected.processGroup.size) *
-          inspected.stats.countAccepted
+        <h2 class="p-0 m-0 text-xl text-primary">{{ (100 / stats!.size) *
+          stats!.countAllowed
           | number:'1.0-1' }}%</h2>
         <span class="text-secondary">Allowed</span>
       </div>
 
       <div class="flex flex-col items-center justify-center w-32 h-24 bg-gray-400 rounded shadow">
-        <h2 class="p-0 m-0 text-xl text-primary">{{ inspected.processGroup.size | prettyCount }}</h2>
+        <h2 class="p-0 m-0 text-xl text-primary">{{ stats!.size | prettyCount }}</h2>
         <span class="text-secondary">Connections</span>
       </div>
 
       <div class="flex flex-col items-center justify-center w-32 h-24 bg-gray-300 rounded shadow">
-        <h2 class="p-0 m-0 text-xl text-primary">{{ (100 / inspected.processGroup.size) * (inspected.processGroup.size
-          -
-          inspected.stats.countAccepted) | number:'1.0-1' }}%</h2>
+        <h2 class="p-0 m-0 text-xl text-primary">{{ (100 / stats!.size) * (stats!.size
+          - stats!.countAllowed) | number:'1.0-1' }}%</h2>
         <span class="text-secondary">Blocked</span>
       </div>
     </div>
@@ -204,13 +198,14 @@
             <div class="flex flex-col justify-center p-4 bg-gray-200 rounded">
               <p class="space-x-2">
                 <label class="text-secondary">Revision:</label>
-                <span>{{inspected?.currentProfileRevision}}</span>
+                <span>{{layeredProfile?.RevisionCounter}}</span>
               </p>
               <p class="space-x-2">
                 <label class="text-secondary">Layers:</label>
                 <span>
                   <ol class="inline-block">
-                    <li *ngFor="let layer of inspected?.layers" [routerLink]="['/', 'app'].concat(layer.split('/'))">
+                    <li *ngFor="let layer of layeredProfile?.LayerIDs"
+                      [routerLink]="['/', 'app'].concat(layer.split('/'))">
                       {{layer}}
                     </li>
                   </ol>
@@ -252,7 +247,8 @@
           <markdown emoji [data]="appProfile.Warning"
             class="self-stretch block w-auto h-auto p-4 ml-2 border-l text-secondary border-yellow">
           </markdown>
-          <span class="text-tertiary text-xxs" *ngIf="appProfile?.WarningLastUpdated">updated {{ appProfile.WarningLastUpdated | timeAgo }}</span>
+          <span class="text-tertiary text-xxs" *ngIf="appProfile?.WarningLastUpdated">updated
+            {{ appProfile.WarningLastUpdated | timeAgo }}</span>
         </div>
 
 

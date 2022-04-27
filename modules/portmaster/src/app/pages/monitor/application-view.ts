@@ -1,5 +1,5 @@
 import { Component, Input } from '@angular/core';
-import { AppProfileService, DebugAPI, SessionDataService } from 'src/app/services';
+import { AppProfileService, DebugAPI, Netquery, SessionDataService } from 'src/app/services';
 import { InspectedProfile } from 'src/app/services/connection-tracker.service';
 import { ConnectionStatistics } from 'src/app/services/connection-tracker.types';
 import { ActionIndicatorService } from 'src/app/shared/action-indicator';
@@ -26,7 +26,12 @@ export class MonitorApplicationViewComponent {
     return this.profile?.stats || new ConnectionStatistics();
   }
 
-  /** The inspected profile to display */
+  @Input()
+  profileSource?: string;
+
+  @Input()
+  profileID?: string;
+
   @Input()
   profile: InspectedProfile | null = null;
 
@@ -35,6 +40,7 @@ export class MonitorApplicationViewComponent {
     private profileSerivce: AppProfileService,
     public sessionDataService: SessionDataService,
     private actionIndicator: ActionIndicatorService,
+    private netquery: Netquery,
   ) { }
 
   /**
@@ -43,11 +49,11 @@ export class MonitorApplicationViewComponent {
    * profile and copies it to the clipboard
    */
   copyDebugInfo() {
-    if (!this.profile || !this.profile.profile) {
+    if (!this.profileID || !this.profileSource) {
       return;
     }
 
-    this.debugAPI.getProfileDebugInfo(this.profile.Source, this.profile.ID)
+    this.debugAPI.getProfileDebugInfo(this.profileSource, this.profileID)
       .subscribe(data => {
         console.log(data);
         // Copy to clip-board if supported
