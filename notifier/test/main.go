@@ -19,6 +19,10 @@ func main() {
 }
 
 func onReady() {
+	go iconChanger()
+}
+
+func iconChanger() {
 	var i int
 	for {
 		time.Sleep(250 * time.Millisecond)
