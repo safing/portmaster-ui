@@ -1,6 +1,5 @@
 :host {
-  @apply text-xxs font-medium text-primary;
-
+  @apply text-xxs w-full font-medium gap-3 text-primary flex flex-row items-center justify-start py-2;
 }
 
 :host(.disabled) {

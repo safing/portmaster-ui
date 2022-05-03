@@ -1,11 +1,28 @@
 <ng-template #customTriggerTemplate>
   <button [class.active]="dropdown.isOpen" type="button">
-    <span *ngIf="currentItem === null">
-      Select
-    </span>
-    <span *ngIf="currentItem !== null">
-      <ng-container *ngTemplateOutlet="currentItem.templateRef"></ng-container>
-    </span>
+
+    <ng-template [ngIf]="mode !== 'multi' || (currentItems.length || 0) <= 1" [ngIfElse]="multiTemplate">
+      <span *ngIf="!currentItems.length; else: itemTemplate">
+        {{ placeholder }}
+      </span>
+      <ng-template #itemTemplate>
+        <span class="flex flex-row items-center justify-start">
+          <ng-template [ngIf]="!!currentItems[0].label" [ngIfElse]="renderTemplate">
+            {{ currentItems[0].label }}
+          </ng-template>
+          <ng-template #renderTemplate>
+            <ng-container *ngTemplateOutlet="currentItems[0].templateRef"></ng-container>
+          </ng-template>
+        </span>
+      </ng-template>
+    </ng-template>
+
+    <ng-template #multiTemplate>
+      <span>
+        {{ itemName ? itemName + ': ' : '' }}{{currentItems?.length}} selected
+      </span>
+    </ng-template>
+
     <div class="arrow">
       <svg viewBox="0 0 24 24" class="arrow-icon">
         <g fill="none" class="inner">
@@ -17,10 +34,23 @@
 </ng-template>
 
 <!-- This template displays the overlay content and is connected to the button -->
-<sfng-dropdown #dropdown="sfngDropdown" [triggerTemplate]="customTriggerTemplate" class="w-full h-full">
-  <ul class="item-list">
+<sfng-dropdown #dropdown="sfngDropdown" [triggerTemplate]="customTriggerTemplate" class="w-full h-full"
+  [minWidth]="minWidth" [minHeight]="minHeight" (onOpen)="onDropdownOpen()" (onClose)="onDropdownClose()">
+  <input *ngIf="allowSearch && (allItems?.length || 0) >= searchItemThreshold" type="text" class="w-full mb-2 rounded-t"
+    [placeholder]="searchPlaceholder" [ngModel]="searchText" (ngModelChange)="onSearch($event)">
+
+  <ul style="max-height: 12rem" class="py-1 overflow-auto">
     <li *ngFor="let item of items" (click)="selectItem(item)" [sfng-tooltip]="item.description || null"
+      class="flex flex-row items-center justify-start gap-1 px-1 cursor-pointer hover:bg-gray-300"
       snfgTooltipPosition="left" [class.cursor-not-allowed]="item.disabled">
+
+      <svg xmlns="http://www.w3.org/2000/svg" class="flex-grow-0 flex-shrink-0 w-4 h-4 transition-all duration-200"
+        viewBox="0 0 20 20" fill="currentColor" [class.opacity-0]="!item.selected">
+        <path fill-rule="evenodd"
+          d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+          clip-rule="evenodd" />
+      </svg>
+
       <ng-container *ngTemplateOutlet="item.templateRef"></ng-container>
     </li>
   </ul>

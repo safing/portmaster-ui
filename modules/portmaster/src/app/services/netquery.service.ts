@@ -22,11 +22,19 @@ export interface Count {
   }
 }
 
+export interface Sum {
+  $sum: {
+    condition: Condition;
+    as: string;
+    distinct?: boolean;
+  }
+}
+
 export interface Distinct {
   $distinct: string;
 }
 
-export type Select = FieldSelect | Count | Distinct;
+export type Select = FieldSelect | Count | Distinct | Sum;
 
 export interface Equal {
   $eq: string;
@@ -41,7 +49,7 @@ export interface Like {
 }
 
 export interface In {
-  $in: string[];
+  $in: any[];
 }
 
 export interface NotIn {
@@ -56,7 +64,7 @@ export interface OrderBy {
 }
 
 export interface Condition {
-  [key: string]: string | Matcher | Matcher[];
+  [key: string]: string | Matcher | (string | Matcher)[];
 }
 
 export interface BatchQuery {
@@ -82,7 +90,7 @@ export interface NetqueryConnection {
   profile: string;
   profileSource: string;
   path: string;
-  type: string;
+  type: 'dns' | 'ip';
   external: boolean;
   ip_version: number;
   ip_protocol: number;
@@ -103,7 +111,8 @@ export interface NetqueryConnection {
   tunneled: boolean;
   encrypted: boolean;
   internal: boolean;
-  inbound: boolean;
+  direction: 'inbound' | 'outbound';
+  profile_revision: number;
   extra_data?: {
     cname?: string[];
     blockedByLists?: string[];
@@ -111,6 +120,11 @@ export interface NetqueryConnection {
     reason?: string[];
     tunnel?: TunnelContext;
   };
+}
+
+export interface ChartResult {
+  timestamp: number;
+  value: number;
 }
 
 export interface QueryResult extends Partial<NetqueryConnection> {
@@ -127,6 +141,13 @@ export class Netquery {
 
   query(query: Query): Observable<QueryResult[]> {
     return this.http.post<{ results: QueryResult[] }>(`${env.httpAPI}/v1/netquery/query`, query)
+      .pipe(map(res => res.results));
+  }
+
+  activeConnectionChart(cond: Condition): Observable<ChartResult[]> {
+    return this.http.post<{ results: ChartResult[] }>(`${env.httpAPI}/v1/netquery/charts/connection-active`, {
+      query: cond
+    })
       .pipe(map(res => res.results));
   }
 

@@ -127,22 +127,20 @@ export class TabOutletComponent implements AfterViewInit {
   _appAnimate = false;
 
   get in() {
-    return this._animateDirection == 'left' ? '-100%' : '100%'
+    return this._animateDirection == 'left' ? '100%' : '-100%'
   }
   get out() {
-    return this._animateDirection == 'left' ? '100%' : '-100%'
+    return this._animateDirection == 'left' ? '-100%' : '100%'
   }
 
   @ViewChild(CdkPortalOutlet, { static: true })
   portalOutlet!: CdkPortalOutlet;
 
-
   constructor(
     @Inject(TAB_PORTAL) public portal: TemplatePortal<any>,
     @Inject(TAB_ANIMATION_DIRECTION) public _animateDirection: 'left' | 'right',
     private cdr: ChangeDetectorRef
-  ) {
-  }
+  ) { }
 
   ngAfterViewInit(): void {
     this.portalOutlet?.attached

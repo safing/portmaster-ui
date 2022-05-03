@@ -1,0 +1,145 @@
+<div class="flex flex-col items-start justify-center p-2">
+  <h1 class="text-xl font-semibold text-primary">Network Monitor</h1>
+  <span class="text-secondary">
+    Look at everything happening on your device. Showing the last 10 minutes. Easily search and filter for specific
+    connections.
+  </span>
+</div>
+<div class="flex flex-row items-center w-full">
+  <input class="rounded-l-sm" type="text" [(ngModel)]="textSearch" placeholder="Search connections"
+    (ngModelChange)="performSearch()">
+  <button type="button" class="h-full rounded-r-sm btn" (click)="performSearch()">Reload</button>
+</div>
+
+<div class="flex flex-row items-center w-full gap-3">
+  <!--
+    Search / Suggestion boxes for most-commonly used filters
+  -->
+  <ng-container *ngFor="let field of (models | keyvalue)">
+    <sfng-select mode="multi" [itemName]="keyTranslation[field.key] || field.key"
+      [placeholder]="keyTranslation[field.key] || field.key" [(ngModel)]="field.value!.searchValues" allowSearch="true"
+      searchItemThreshold="5" itemLimit="10" [searchPlaceholder]="'Search' + (keyTranslation[field.key] || field.key)"
+      minWidth="400" minHeight="300" (ngModelChange)="performSearch()" (onOpen)="loadSuggestion(field.key)">
+      <ng-container *ngFor="let value of field.value?.suggestions; trackBy: trackSuggestion">
+        <sfng-select-item *sfngSelectValue="value.Value; label:value.Value">
+          <span *ngIf="field.key === 'country' && !!value.Name" [appCountryFlags]="value.Name"></span>
+          <span class="flex-grow inline-block overflow-hidden overflow-ellipsis whitespace-nowrap"
+            style="max-width: 20rem; direction: rtl;">
+            <span style="direction: ltr; unicode-bidi: bidi-override;">
+              {{ value.Name || 'N/A' }}
+            </span>
+          </span>
+          <span class="pr-3 text-xxs text-tertiary">
+            #{{ value.count }} connections
+          </span>
+        </sfng-select-item>
+      </ng-container>
+    </sfng-select>
+  </ng-container>
+
+  <div class="flex-grow"></div>
+
+  <!--
+    Group-By selection
+  -->
+  <sfng-select mode="multi" itemName="Group By" placeholder="Group By" allowSearch="false" [(ngModel)]="groupByKeys"
+    (ngModelChange)="performSearch()">
+    <ng-container *ngFor="let value of allowedGroupBy">
+      <sfng-select-item *sfngSelectValue="value">
+        {{ keyTranslation[value] || value }}
+      </sfng-select-item>
+    </ng-container>
+  </sfng-select>
+
+  <!--
+    Order-By selection
+  -->
+  <sfng-select mode="multi" itemName="Sort" placeholder="Sort" allowSearch="false" [(ngModel)]="orderByKeys"
+    (ngModelChange)="performSearch()">
+    <ng-container *ngFor="let value of allowedOrderBy">
+      <sfng-select-item *sfngSelectValue="value">
+        {{ keyTranslation[value] || value }}
+      </sfng-select-item>
+    </ng-container>
+  </sfng-select>
+</div>
+
+<div>
+  <span [ngStyle]="{visibility: loading ? 'visible' : 'hidden'}"
+    class="inline-flex flex-row items-center justify-start gap-2 text-secondary">
+    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24"
+      stroke="currentColor" stroke-width="1.5">
+      <path stroke-linecap="round" stroke-linejoin="round"
+        d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+    </svg>
+    Loading connections, just for you ...
+  </span>
+</div>
+
+<div *appExpertiseLevel="'developer'">
+  <sfng-netquery-line-chart [data]="chartData" class="h-24"></sfng-netquery-line-chart>
+</div>
+
+
+<ng-template #headerTemplate let-data let-active="active">
+  <div class="relative flex flex-row items-center w-full gap-3 px-3 py-2 bg-gray-200"
+    [ngClass]="{'rounded-sm': !active, 'rounded-t-sm': active}">
+    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 transition-all duration-150 transform"
+      [class.rotate-90]="active" viewBox="0 0 20 20" fill="currentColor">
+      <path fill-rule="evenodd"
+        d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
+        clip-rule="evenodd" />
+    </svg>
+
+    <!-- Group-By VIew -->
+    <ng-template [ngIf]="!!groupByKeys.length" [ngIfElse]="connView">
+      <app-count-indicator [count]="data.totalCount" [countAllowed]="data.countAllowed"></app-count-indicator>
+      <span *ngFor="let key of groupByKeys" class="flex flex-row items-center gap-1">
+        <span class="text-xxs text-secondary" *ngIf="groupByKeys.length !== 1">{{ keyTranslation[key] || key }}</span>
+        <span class="text-primary" *ngIf="key === 'country' && !!data[key]"
+          [appCountryFlags]="data[key]">{{ data[key] || 'N/A' }}</span>
+        <span class="text-primary">{{ data[key] || 'N/A' }}</span>
+      </span>
+
+      <div class="flex-grow"></div>
+      <ng-container *ngIf="(data._chart | async) as chartData">
+        <sfng-netquery-line-chart [data]="$any(chartData)" showAxis="false" margin="0" *appExpertiseLevel="'developer'"
+          class="absolute top-0 bottom-0 right-0 px-1 pt-1 pb-1 border-l border-gray-500 border-opacity-25 opacity-75 w-96">
+        </sfng-netquery-line-chart>
+      </ng-container>
+    </ng-template>
+
+    <ng-template #connView>
+      <sfng-netquery-connection-row [conn]="data"></sfng-netquery-connection-row>
+    </ng-template>
+
+  </div>
+</ng-template>
+
+<h3 class="flex flex-row items-center justify-start gap-3">
+  Results
+  <span class="text-xxs text-secondary">#{{ totalCount }} results</span>
+</h3>
+<sfng-accordion-group *ngIf="!loading" [headerTemplate]="headerTemplate" singleMode="false"
+  class="flex flex-col gap-2 pr-4 overflow-auto">
+  <sfng-accordion [data]="result" #accordion *ngFor="let result of results.slice(0, 100)">
+    <div class="p-3 bg-gray-300 bg-opacity-75 border-t border-gray-300 rounded-b-sm">
+      <pre>
+{{ result | json }}
+      </pre>
+    </div>
+  </sfng-accordion>
+</sfng-accordion-group>
+
+
+<h3 class="flex flex-row items-center justify-start gap-3 mt-4 cursor-pointer"
+  (click)="collapseQueryInspector = !collapseQueryInspector">
+  <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 transform" [class.rotate-90]="!collapseQueryInspector"
+    fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+    <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
+  </svg>
+  Query-Inspector
+</h3>
+<pre class="p-2 mt-2 text-xs bg-gray-400 rounded" *ngIf="!collapseQueryInspector">
+{{ getQuery() | json }}
+</pre>

@@ -22,6 +22,9 @@ export class SfngSelectValueDirective {
   @Input('sfngSelectValue')
   value: any;
 
+  @Input('sfngSelectValueLabel')
+  label?: string;
+
   @Input('sfngSelectValueDescription')
   description = '';
 
@@ -31,6 +34,9 @@ export class SfngSelectValueDirective {
   }
   get disabled() { return this._disabled }
   private _disabled = false;
+
+  /** Whether or not the item is currently selected */
+  selected = false;
 
   constructor(public templateRef: TemplateRef<any>) { }
 }

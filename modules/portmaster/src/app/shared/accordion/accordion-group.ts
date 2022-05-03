@@ -17,7 +17,18 @@ export class SfngAccordionGroupComponent implements OnDestroy {
    * Receives the accordion data as an $implicit context.
    */
   @Input()
-  headerTemplate: TemplateRef<any> | null = null;
+  set headerTemplate(v: TemplateRef<any> | null) {
+    this._headerTemplate = v;
+
+    if (!!this.accordions.length) {
+      this.accordions.forEach(a => {
+        a.headerTemplate = v;
+        a.cdr.markForCheck();
+      })
+    }
+  }
+  get headerTemplate() { return this._headerTemplate }
+  private _headerTemplate: TemplateRef<any> | null = null;
 
   /** Whether or not one or more components can be expanded. */
   @Input()

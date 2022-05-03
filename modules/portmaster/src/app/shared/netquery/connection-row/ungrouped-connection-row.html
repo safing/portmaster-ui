@@ -1,0 +1,101 @@
+<ng-container *ngIf="!!conn">
+  <svg viewBox="0 0 24 24" class="arrow">
+    <g fill="none" class="inner">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M10 16l4-4-4-4" />
+    </g>
+  </svg>
+  <div class="flex flex-row items-center gap-2">
+    <span class="" [class.outdated]="isOutdated" [ngClass]="helper.getVerdictClass(conn)"></span>
+
+    <ng-container *ngIf=" conn.domain as domain; then scopeLabel; else scopeTranslation">
+    </ng-container>
+    <ng-template #scopeLabel let-domain>
+      <!-- FIXME
+        <app-scope-label leftRightFix="true" [scope]="conn.domain">
+        </app-scope-label>
+      -->
+      {{ conn.domain }}
+    </ng-template>
+    <ng-template #scopeTranslation>
+      <span> {{ helper.scopeTranslation[conn.scope] }} </span>
+    </ng-template>
+
+  </div>
+  <span class="country" [class.de-emphasize]="!conn.country">
+    {{ conn | connectionLocation }}
+  </span>
+  <div class="flex flex-row items-center gap-2">
+    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 transform"
+      [ngClass]="{'rotate-180': conn.direction !== 'inbound', 'text-gray-600': !!conn.ended}" viewBox="0 0 20 20"
+      fill="currentColor">
+      <path fill-rule="evenodd"
+        d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-11a1 1 0 10-2 0v3.586L7.707 9.293a1 1 0 00-1.414 1.414l3 3a1 1 0 001.414 0l3-3a1 1 0 00-1.414-1.414L11 10.586V7z"
+        clip-rule="evenodd" />
+    </svg>
+
+    <span *ngIf="conn.type === 'dns'; else dnsRequest">
+      {{ conn.remote_ip }} <span class="de-emphasize" *ngIf="conn.remote_port">:{{ conn.remote_port }}</span>
+    </span>
+    <ng-template #dnsRequest>
+      <span class="de-emphasize">
+        DNS Request
+      </span>
+    </ng-template>
+  </div>
+  <span class="time">
+    <ng-container *ngIf="!!conn.ended">
+      <span class="de-emphasize">ended&nbsp;&nbsp;</span>
+      {{ conn.ended | timeAgo:timeAgoTicker }}
+    </ng-container>
+
+    <ng-container *ngIf="!conn.ended">
+      <span class="de-emphasize">started&nbsp;&nbsp;</span>
+      {{ conn.started | timeAgo:timeAgoTicker }}
+    </ng-container>
+  </span>
+  <div class="reason">
+    <!--
+      FIXME
+    <ng-container *ngIf="conn.reason.OptionKey as option">
+      <span class="de-emphasize applied">applied</span>
+      <span class="setting">{{ helper.settings[option] || '' }}&nbsp;</span>
+      <span class="de-emphasize from">from</span>
+      <span class="de-emphasize reason-source">&nbsp;{{
+        !!conn.Reason.Profile ? "App" :
+        "Global" }} Settings</span>
+    </ng-container>
+    -->
+  </div>
+
+  <div>
+    <app-menu-trigger [menu]="ungroupedConnectionMenu"></app-menu-trigger>
+    <app-menu #ungroupedConnectionMenu>
+      <!-- FIXME
+      <app-menu-item (onActivate)="helper.redirectToSetting(conn.Reason.OptionKey)" *ngIf="!!conn.Reason.OptionKey">
+        App Setting
+      </app-menu-item>
+
+      <app-menu-item (onActivate)="helper.redirectToSetting(conn.Reason.OptionKey, true)"
+        *ngIf="!!conn.Reason.OptionKey">
+        Global Setting
+      </app-menu-item>
+      -->
+
+      <app-menu-group class="separator"></app-menu-group>
+
+      <app-menu-item *ngIf="(conn | isBlocked); else blockAction"
+        (onActivate)="helper.unblockAll(conn.domain || conn.remote_ip)" [disabled]="!(conn | canUseRules)">
+        Allow {{ conn.domain ? 'Domain' : 'IP'}}
+      </app-menu-item>
+
+      <ng-template #blockAction>
+        <app-menu-item (onActivate)="helper.blockAll(conn.domain || conn.remote_ip)" [disabled]="!(conn | canUseRules)">
+          Block {{ conn.domain ? 'Domain' : 'IP '}}
+        </app-menu-item>
+      </ng-template>
+
+
+      <app-menu-item *appExpertiseLevel="'expert'" (click)="helper.dumpConnection(conn)">Copy JSON</app-menu-item>
+    </app-menu>
+  </div>
+</ng-container>
