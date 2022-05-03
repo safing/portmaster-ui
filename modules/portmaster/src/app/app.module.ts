@@ -32,9 +32,8 @@ import { ActionIndicatorModule } from './shared/action-indicator';
 import { AppIconComponent } from './shared/app-icon';
 import { ConfigModule } from './shared/config';
 import { CanShowConnection as CanShowConnectionPipe, CanUseRulesPipe, ConnectionExpertisePipe, ConnectionLocationPipe, ConnectionsViewComponent, IsBlockedConnectionPipe, ScopeGroupContentComponent, UngroupedConnectionContentComponent, UngroupedConnectionRowComponent } from './shared/connections-view';
-import { CountIndicatorComponent } from './shared/count-indicator/count-indicator';
-import { PrettyCountPipe } from './shared/count.pipe';
-import { CountryFlagDirective } from './shared/country-flag/country-flag';
+import { CountIndicatorModule } from './shared/count-indicator';
+import { CountryFlagModule } from './shared/country-flag';
 import { DialogModule } from './shared/dialog';
 import { SfngDropDownModule } from './shared/dropdown/dropdown.module';
 import { ExitScreenComponent } from './shared/exit-screen/exit-screen';
@@ -45,6 +44,7 @@ import { FuzzySearchPipe } from './shared/fuzzySearch';
 import { LoadingComponent } from './shared/loading';
 import { SfngMenuModule } from './shared/menu';
 import { SfngMultiSwitchModule } from './shared/multi-switch';
+import { NetqueryModule } from './shared/netquery';
 import { NotificationComponent } from './shared/notification/notification';
 import { OverlayStepperModule } from './shared/overlay-stepper';
 import { PaginationContentDirective, PaginationWrapperComponent } from './shared/pagination';
@@ -53,7 +53,7 @@ import { ScopeLabelComponent } from './shared/scope-label';
 import { SfngSelectModule } from './shared/select';
 import { TabModule } from './shared/tabs/tabs.module';
 import { PlaceholderComponent } from './shared/text-placeholder';
-import { TimeAgoPipe } from './shared/time-ago.pipe';
+import { CommonPipesModule } from './shared/pipes';
 import { TipUpModule } from './shared/tipup';
 import { SfngToggleSwitchModule } from './shared/toggle-switch';
 import { SfngTooltipModule } from './shared/tooltip';
@@ -86,12 +86,9 @@ import { WIDGET_DEFINTIONS } from './widgets/widget.types';
     NotificationWidgetSettingsComponent,
     NotificationWidgetComponent,
     FuzzySearchPipe,
-    TimeAgoPipe,
-    CountIndicatorComponent,
     AppViewComponent,
     QuickSettingInternetButtonComponent,
     QuickSettingUseSPNButtonComponent,
-    CountryFlagDirective,
     AppOverviewComponent,
     PlaceholderComponent,
     AppIconComponent,
@@ -104,7 +101,6 @@ import { WIDGET_DEFINTIONS } from './widgets/widget.types';
     UngroupedConnectionRowComponent,
     ConnectionExpertisePipe,
     ConnectionLocationPipe,
-    PrettyCountPipe,
     CanUseRulesPipe,
     CanShowConnectionPipe,
     IsBlockedConnectionPipe,
@@ -146,6 +142,10 @@ import { WIDGET_DEFINTIONS } from './widgets/widget.types';
     SfngToggleSwitchModule,
     ExpertiseModule,
     ConfigModule,
+    CountryFlagModule,
+    CountIndicatorModule,
+    NetqueryModule,
+    CommonPipesModule,
   ],
   providers: [
     {

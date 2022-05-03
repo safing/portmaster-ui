@@ -1,8 +1,8 @@
 import { ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { BehaviorSubject, combineLatest, interval, Observable, of, Subscription } from 'rxjs';
+import { BehaviorSubject, combineLatest, forkJoin, interval, Observable, of, Subscription } from 'rxjs';
 import { distinctUntilChanged, map, mergeMap, startWith, switchMap } from 'rxjs/operators';
-import { AppProfile, ConfigService, DebugAPI, FlatConfigObject, flattenProfileConfig, LayeredProfile, Netquery, SessionDataService, setAppSetting, Setting } from 'src/app/services';
+import { AppProfile, ChartResult, ConfigService, DebugAPI, FlatConfigObject, flattenProfileConfig, LayeredProfile, Netquery, QueryResult, SessionDataService, setAppSetting, Setting } from 'src/app/services';
 import { AppProfileService } from 'src/app/services/app-profile.service';
 import { ConnTracker, InspectedProfile, IProfileStats } from 'src/app/services/connection-tracker.service';
 import { ActionIndicatorService } from 'src/app/shared/action-indicator';
@@ -21,6 +21,12 @@ import { DialogService } from 'src/app/shared/dialog';
 export class AppViewComponent implements OnInit, OnDestroy {
   /** subscription to our update-process observable */
   private subscription = Subscription.EMPTY;
+
+  /**
+   * @private
+   * The current chart data
+   */
+  appChartData: ChartResult[] = [];
 
   /**
    * @private
@@ -175,7 +181,7 @@ export class AppViewComponent implements OnInit, OnDestroy {
   ngOnInit() {
     // watch the route parameters and start watching the referenced
     // application profile, it's layer profile and polling the stats.
-    const profileStream: Observable<[AppProfile, LayeredProfile, IProfileStats] | null>
+    const profileStream: Observable<[AppProfile, LayeredProfile, { stats: IProfileStats, graph: ChartResult[] }] | null>
       = this.route.paramMap
         .pipe(
           switchMap(params => {
@@ -198,11 +204,16 @@ export class AppViewComponent implements OnInit, OnDestroy {
               interval(10000)
                 .pipe(
                   startWith(-1),
-                  mergeMap(() => this.netquery.getProfileStats({
-                    profileSource: source,
-                    profile: id,
-                  })),
-                  map(result => result?.[0]),
+                  mergeMap(() => forkJoin({
+                    stats: this.netquery.getProfileStats({
+                      profileSource: source,
+                      profile: id,
+                    }).pipe(map(result => result?.[0])),
+                    graph: this.netquery.activeConnectionChart({
+                      profile: id,
+                      profileSource: source,
+                    })
+                  }))
                 )
             ])
           })
@@ -219,7 +230,8 @@ export class AppViewComponent implements OnInit, OnDestroy {
         ),
       ])
         .subscribe(async ([profile, queryMap, global, allSettings, viewSetting]) => {
-          this.stats = profile?.[2] || null;
+          this.stats = profile?.[2].stats || null;
+          this.appChartData = profile?.[2].graph || [];
 
           this.appProfile = profile?.[0] || null;
           this.layeredProfile = profile?.[1] || null;

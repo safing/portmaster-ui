@@ -1,6 +1,6 @@
 import { CommonModule } from "@angular/common";
 import { NgModule } from "@angular/core";
-import { FormsModule } from "@angular/forms";
+import { FormsModule, ReactiveFormsModule } from "@angular/forms";
 import { SfngDropDownModule } from "../dropdown/dropdown.module";
 import { SfngTooltipModule } from "../tooltip";
 import { SfngSelectItemComponent, SfngSelectValueDirective } from "./item";
@@ -10,6 +10,7 @@ import { SfngSelectComponent } from "./select";
   imports: [
     CommonModule,
     FormsModule,
+    ReactiveFormsModule,
     SfngDropDownModule,
     SfngTooltipModule,
   ],

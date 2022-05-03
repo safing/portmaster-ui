@@ -1,5 +1,5 @@
 import { coerceBooleanProperty } from '@angular/cdk/coercion';
-import { Component, OnInit, Input, Output, EventEmitter, HostBinding, TemplateRef, Optional, ChangeDetectionStrategy, TrackByFunction } from '@angular/core';
+import { Component, OnInit, Input, Output, EventEmitter, HostBinding, TemplateRef, Optional, ChangeDetectionStrategy, TrackByFunction, ChangeDetectorRef } from '@angular/core';
 import { fadeInAnimation, fadeOutAnimation } from '../animations';
 import { SfngAccordionGroupComponent } from './accordion-group';
 
@@ -70,5 +70,8 @@ export class SfngAccordionComponent<T = any> implements OnInit {
     this.activeChange.emit(!this.active);
   }
 
-  constructor(@Optional() private group: SfngAccordionGroupComponent) { }
+  constructor(
+    public cdr: ChangeDetectorRef,
+    @Optional() private group: SfngAccordionGroupComponent,
+  ) { }
 }

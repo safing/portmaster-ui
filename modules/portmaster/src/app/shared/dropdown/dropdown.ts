@@ -1,6 +1,6 @@
 import { coerceBooleanProperty, coerceCssPixelValue, coerceNumberProperty } from "@angular/cdk/coercion";
 import { CdkOverlayOrigin, ConnectedPosition, ScrollStrategy, ScrollStrategyOptions } from "@angular/cdk/overlay";
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, Input, OnInit, Renderer2, TemplateRef } from "@angular/core";
+import { EventEmitter, ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, Input, OnInit, Output, Renderer2, TemplateRef } from "@angular/core";
 import { fadeInAnimation, fadeOutAnimation } from '../animations';
 
 @Component({
@@ -99,6 +99,14 @@ export class SfngDropdown implements OnInit {
   get maxHeight() { return this._maxHeight }
   private _maxHeight: string | number | null = null;
 
+  /** Emits whenever the drop-down is opened */
+  @Output()
+  onOpen = new EventEmitter();
+
+  /** Emits whenever the drop-down is closed. */
+  @Output()
+  onClose = new EventEmitter();
+
   positions: ConnectedPosition[] = [
     {
       originX: 'end',
@@ -144,6 +152,7 @@ export class SfngDropdown implements OnInit {
 
   onOverlayClosed() {
     this.trigger = null;
+    this.onClose.next();
   }
 
   close() {
@@ -174,6 +183,7 @@ export class SfngDropdown implements OnInit {
 
     }
     this.isOpen = true;
+    this.onOpen.next();
     this.changeDetectorRef.markForCheck();
   }
 }

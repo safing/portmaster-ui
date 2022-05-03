@@ -68,17 +68,7 @@ button {
   }
 }
 
-ul.item-list {
+ul {
   width: 100%;
   display: block;
-
-  li {
-    cursor: pointer;
-    @apply p-2;
-    @apply px-4;
-
-    &:hover {
-      @apply bg-gray-300;
-    }
-  }
 }
