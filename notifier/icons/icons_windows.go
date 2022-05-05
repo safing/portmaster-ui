@@ -34,3 +34,8 @@ var (
 		BlueID:   BlueICO,
 	}
 )
+
+// ScaleColoredIconsTo scales all colored icons to the given size.
+// It must be called before any colored icons are used.
+// It does nothing on Windows.
+func ScaleColoredIconsTo(pixelSize int) {}

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"os/exec"
 	"path/filepath"
@@ -9,10 +10,10 @@ import (
 	"sync"
 	"time"
 
-	"github.com/safing/portmaster-ui/notifier/icons"
+	"fyne.io/systray"
 
-	"github.com/getlantern/systray"
 	"github.com/safing/portbase/log"
+	"github.com/safing/portmaster-ui/notifier/icons"
 )
 
 const (
@@ -21,6 +22,8 @@ const (
 
 var (
 	trayLock sync.Mutex
+
+	scaleColoredIconsTo int
 
 	activeIconID    int = -1
 	activeStatusMsg     = ""
@@ -39,11 +42,17 @@ var (
 )
 
 func init() {
+	flag.IntVar(&scaleColoredIconsTo, "scale-icons", 32, "scale colored icons to given size in pixels")
+
 	// lock until ready
 	trayLock.Lock()
 }
 
 func tray() {
+	if scaleColoredIconsTo > 0 {
+		icons.ScaleColoredIconsTo(scaleColoredIconsTo)
+	}
+
 	systray.Run(onReady, onExit)
 }
 
@@ -136,6 +145,7 @@ func triggerTrayUpdate() {
 func updateTray() {
 	// Get current information.
 	systemStatus := GetStatus()
+	spnStatus := GetSPNStatus()
 	failureID, failureMsg := GetFailure()
 
 	trayLock.Lock()
@@ -199,15 +209,8 @@ func updateTray() {
 	}
 
 	// Set SPN status if changed.
-	var newSPNStatus string
-	func() {
-		spnStatusLock.Lock()
-		defer spnStatusLock.Unlock()
-
-		newSPNStatus = spnStatus.Status
-	}()
-	if activeSPNStatus != newSPNStatus {
-		activeSPNStatus = newSPNStatus
+	if spnStatus != nil && activeSPNStatus != spnStatus.Status {
+		activeSPNStatus = spnStatus.Status
 		menuItemSPNStatus.SetTitle("SPN: " + strings.Title(activeSPNStatus))
 	}
 
@@ -271,10 +274,11 @@ func updateTray() {
 	}
 
 	log.Infof(
-		"tray: set to selected=%s active=%s icon=%d msg=%q",
+		"tray: set to selected=%s active=%s icon=%d spn=%q msg=%q",
 		fmtSecurityLevel(systemStatus.SelectedSecurityLevel),
 		fmtSecurityLevel(systemStatus.ActiveSecurityLevel),
 		newIconID,
+		activeSPNStatus,
 		newStatusMsg,
 	)
 }

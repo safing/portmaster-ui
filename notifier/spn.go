@@ -15,6 +15,13 @@ const (
 	spnStatusKey = "runtime:spn/status"
 )
 
+var (
+	spnEnabled = abool.New()
+
+	spnStatusCache     *SPNStatus
+	spnStatusCacheLock sync.Mutex
+)
+
 // SPNStatus holds SPN status information.
 type SPNStatus struct {
 	Status             string
@@ -25,12 +32,20 @@ type SPNStatus struct {
 	ConnectedSince     *time.Time
 }
 
-var (
-	spnEnabled = abool.New()
+// GetSPNStatus returns the SPN status.
+func GetSPNStatus() *SPNStatus {
+	spnStatusCacheLock.Lock()
+	defer spnStatusCacheLock.Unlock()
 
-	spnStatus     *SPNStatus
-	spnStatusLock sync.Mutex
-)
+	return spnStatusCache
+}
+
+func updateSPNStatus(s *SPNStatus) {
+	spnStatusCacheLock.Lock()
+	defer spnStatusCacheLock.Unlock()
+
+	spnStatusCache = s
+}
 
 func spnStatusClient() {
 	moduleQueryOp := apiClient.Qsub("query "+spnModuleKey, handleSPNModuleUpdate)
@@ -71,12 +86,7 @@ func handleSPNStatusUpdate(m *client.Message) {
 		}
 		log.Infof("config: received update to SPN status: %v", newStatus)
 
-		func() {
-			spnStatusLock.Lock()
-			defer spnStatusLock.Unlock()
-
-			spnStatus = newStatus
-		}()
+		updateSPNStatus(newStatus)
 		triggerTrayUpdate()
 
 	default:
