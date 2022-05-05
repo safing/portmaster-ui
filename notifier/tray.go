@@ -1,6 +1,7 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"os/exec"
 	"path/filepath"
@@ -22,6 +23,8 @@ const (
 var (
 	trayLock sync.Mutex
 
+	scaleColoredIconsTo int
+
 	activeIconID    int = -1
 	activeStatusMsg     = ""
 	activeSPNStatus     = ""
@@ -39,11 +42,17 @@ var (
 )
 
 func init() {
+	flag.IntVar(&scaleColoredIconsTo, "scale-icons", 32, "scale colored icons to given size in pixels")
+
 	// lock until ready
 	trayLock.Lock()
 }
 
 func tray() {
+	if scaleColoredIconsTo > 0 {
+		icons.ScaleColoredIconsTo(scaleColoredIconsTo)
+	}
+
 	systray.Run(onReady, onExit)
 }
 
@@ -265,10 +274,11 @@ func updateTray() {
 	}
 
 	log.Infof(
-		"tray: set to selected=%s active=%s icon=%d msg=%q",
+		"tray: set to selected=%s active=%s icon=%d spn=%q msg=%q",
 		fmtSecurityLevel(systemStatus.SelectedSecurityLevel),
 		fmtSecurityLevel(systemStatus.ActiveSecurityLevel),
 		newIconID,
+		activeSPNStatus,
 		newStatusMsg,
 	)
 }
