@@ -1,6 +1,5 @@
 <ng-template #customTriggerTemplate>
   <button [class.active]="dropdown.isOpen" type="button">
-
     <ng-template [ngIf]="mode !== 'multi' || (currentItems.length || 0) <= 1" [ngIfElse]="multiTemplate">
       <span *ngIf="!currentItems.length; else: itemTemplate">
         {{ placeholder }}
@@ -11,7 +10,9 @@
             {{ currentItems[0].label }}
           </ng-template>
           <ng-template #renderTemplate>
-            <ng-container *ngTemplateOutlet="currentItems[0].templateRef"></ng-container>
+            <ng-container
+              *ngTemplateOutlet="currentItems[0].templateRef || dynamicValueTemplate; context: {$implicit: currentItems[0]}">
+            </ng-container>
           </ng-template>
         </span>
       </ng-template>
@@ -22,7 +23,6 @@
         {{ itemName ? itemName + ': ' : '' }}{{currentItems?.length}} selected
       </span>
     </ng-template>
-
     <div class="arrow">
       <svg viewBox="0 0 24 24" class="arrow-icon">
         <g fill="none" class="inner">
@@ -35,9 +35,12 @@
 
 <!-- This template displays the overlay content and is connected to the button -->
 <sfng-dropdown #dropdown="sfngDropdown" [triggerTemplate]="customTriggerTemplate" class="w-full h-full"
-  [minWidth]="minWidth" [minHeight]="minHeight" (onOpen)="onDropdownOpen()" (onClose)="onDropdownClose()">
-  <input *ngIf="allowSearch && (allItems?.length || 0) >= searchItemThreshold" type="text" class="w-full mb-2 rounded-t"
-    [placeholder]="searchPlaceholder" [ngModel]="searchText" (ngModelChange)="onSearch($event)">
+  [disabled]="allItems.length === 0 && searchText === '' && disableWhenEmpty" [minWidth]="minWidth"
+  [minHeight]="minHeight" (onOpen)="onDropdownOpen()" (onClose)="onDropdownClose()">
+
+  <input *ngIf="allowSearch && (userProvidedItems?.length || 0) >= searchItemThreshold" type="text"
+    class="w-full mb-2 rounded-t" [placeholder]="searchPlaceholder" [ngModel]="searchText"
+    (ngModelChange)="onSearch($event)">
 
   <ul style="max-height: 12rem" class="py-1 overflow-auto">
     <li *ngFor="let item of items" (click)="selectItem(item)" [sfng-tooltip]="item.description || null"
@@ -51,7 +54,23 @@
           clip-rule="evenodd" />
       </svg>
 
-      <ng-container *ngTemplateOutlet="item.templateRef"></ng-container>
+      <ng-container *ngTemplateOutlet="item.templateRef || dynamicValueTemplate; context: {$implicit: item}">
+      </ng-container>
+    </li>
+
+    <!-- fake item for "dynamic" values -->
+    <li *ngIf="!!searchText && items.length === 0 && dynamicValues"
+      class="flex flex-row items-center justify-start gap-1 px-1 cursor-pointer hover:bg-gray-300"
+      (click)="selectItem({selected: false, value: searchText})">
+      <sfng-select-item>
+        <span>
+          <span class="mx-2 text-tertiary">Add </span> {{ searchText }}
+        </span>
+      </sfng-select-item>
     </li>
   </ul>
 </sfng-dropdown>
+
+<ng-template #dynamicValueTemplate let-data>
+  <sfng-select-item>{{ data.label || data.value }}</sfng-select-item>
+</ng-template>

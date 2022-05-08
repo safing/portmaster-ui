@@ -37,11 +37,11 @@ export interface Distinct {
 export type Select = FieldSelect | Count | Distinct | Sum;
 
 export interface Equal {
-  $eq: string;
+  $eq: any;
 }
 
 export interface NotEqual {
-  $ne: string;
+  $ne: any;
 }
 
 export interface Like {
@@ -148,7 +148,40 @@ export class Netquery {
     return this.http.post<{ results: ChartResult[] }>(`${env.httpAPI}/v1/netquery/charts/connection-active`, {
       query: cond
     })
-      .pipe(map(res => res.results));
+      .pipe(map(res => {
+        const now = new Date();
+
+        let data: ChartResult[] = [];
+
+        let lastPoint: ChartResult | null = {
+          timestamp: Math.floor(now.getTime() / 1000 - 600),
+          value: 0,
+        };
+        res.results?.forEach(point => {
+          if (!!lastPoint && lastPoint.timestamp < (point.timestamp - 10)) {
+            for (let i = lastPoint.timestamp; i < point.timestamp; i += 10) {
+              data.push({
+                timestamp: i,
+                value: 0,
+              })
+            }
+          }
+          data.push(point);
+          lastPoint = point;
+        })
+
+        const lastPointTs = Math.round(now.getTime() / 1000);
+        if (!!lastPoint && lastPoint.timestamp < (lastPointTs - 20)) {
+          for (let i = lastPoint.timestamp; i < lastPointTs; i += 20) {
+            data.push({
+              timestamp: i,
+              value: 0,
+            })
+          }
+        }
+
+        return data;
+      }));
   }
 
   getActiveProfileIDs(): Observable<string[]> {

@@ -1,5 +1,5 @@
 import { coerceBooleanProperty, coerceNumberProperty } from '@angular/cdk/coercion';
-import { AfterViewInit, Component, ElementRef, Input, OnChanges, OnInit, SimpleChange, SimpleChanges, ViewEncapsulation } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, Input, OnChanges, OnInit, SimpleChanges, ViewEncapsulation } from '@angular/core';
 import * as d3 from 'd3';
 import { Selection } from 'd3';
 import { ChartResult } from 'src/app/services';
@@ -13,13 +13,14 @@ import { timeAgo } from '../../pipes';
       @apply block;
     }
     .hideAxis path {
-      display: none;
+      @apply opacity-50
     }
     `
   ],
+  encapsulation: ViewEncapsulation.None,
   templateUrl: './line-chart.html',
 })
-export class NetqueryLineChart implements OnChanges, OnInit, AfterViewInit {
+export class SfngNetqueryLineChart implements OnChanges, OnInit, AfterViewInit {
   @Input()
   data: ChartResult[] = [];
 
@@ -31,7 +32,7 @@ export class NetqueryLineChart implements OnChanges, OnInit, AfterViewInit {
     this._margin = coerceNumberProperty(v);
   }
   get margin() { return this._margin; }
-  private _margin = 20;
+  private _margin = 0;
 
   svg!: Selection<any, any, any, any>;
   svgInner!: any;
@@ -39,6 +40,7 @@ export class NetqueryLineChart implements OnChanges, OnInit, AfterViewInit {
   xScale!: any;
   xAxis!: any;
   yAxis!: any;
+  areaGroup!: any;
   lineGroup!: any;
 
   @Input()
@@ -76,38 +78,47 @@ export class NetqueryLineChart implements OnChanges, OnInit, AfterViewInit {
     }
   }
 
+  get yMargin() {
+    if (this.showAxis) {
+      return 16;
+    }
+    return 0;
+  }
+
   private initializeChart(): void {
     this.svg = d3
       .select(this.chartElem.nativeElement)
       .select('.linechart')
       .append('svg')
       .attr('height', '100%');
-    this.svgInner = this.svg
 
+    this.svgInner = this.svg
       .append('g')
       .style('transform', 'translate(' + this.margin + 'px, ' + this.margin + 'px)');
+
 
     this.yScale = d3
       .scaleLinear()
       .domain([d3.max(this.data, d => d.value)! + 1, 0])
-      .range([0, this.height - 2 * this.margin]);
+      .range([0, this.height - this.yMargin]);
 
     this.data.sort((a, b) => a.timestamp - b.timestamp)
 
-    this.xScale = d3.scaleTime().domain(d3.extent(this.data, d => d.timestamp * 1000) as any);
+    const now = new Date();
+    this.xScale = d3.scaleTime().domain([new Date(now.getTime() - 10 * 60 * 1000), now]);
 
     if (this.showAxis) {
       this.yAxis = this.svgInner
         .append('g')
         .attr('id', 'y-axis')
-        .attr('class', 'text-secondary text-opacity-50 hideAxis')
-        .style('transform', 'translate(' + this.margin + 'px,  0)');
+        .attr('class', 'text-secondary text-opacity-75 hideAxis')
+        .style('transform', 'translate(' + (this.width - this.yMargin) + 'px,  0)');
 
       this.xAxis = this.svgInner
         .append('g')
         .attr('id', 'x-axis')
         .attr('class', 'text-secondary text-opacity-50 hideAxis')
-        .style('transform', 'translate(0, ' + (this.height - 2 * this.margin) + 'px)');
+        .style('transform', 'translate(0, ' + (this.height - this.yMargin) + 'px)');
     }
 
     this.lineGroup = this.svgInner
@@ -117,6 +128,13 @@ export class NetqueryLineChart implements OnChanges, OnInit, AfterViewInit {
       .style('fill', 'none')
       .style('stroke', 'currentColor')
       .style('stroke-width', '1')
+
+    this.areaGroup = this.svgInner
+      .append('path')
+      .attr("fill", "currentColor")
+      .attr("class", "area text-green-100 text-opacity-25")
+      .transition()
+      .duration(300)
   }
 
   private drawChart(): void {
@@ -124,12 +142,12 @@ export class NetqueryLineChart implements OnChanges, OnInit, AfterViewInit {
     this.height = this.chartElem.nativeElement.getBoundingClientRect().height;
     this.svg.attr('width', this.width);
 
-    this.xScale.range([this.margin, this.width - 2 * this.margin]);
+    this.xScale.range([0, this.width - this.yMargin]);
 
     if (this.showAxis) {
       const xAxis = d3
         .axisBottom(this.xScale)
-        .ticks(4)
+        .ticks(5)
         .tickFormat((val, idx) => {
           return timeAgo(val as any);
         })
@@ -149,11 +167,22 @@ export class NetqueryLineChart implements OnChanges, OnInit, AfterViewInit {
       .y(d => d[1])
       .curve(d3.curveMonotoneX);
 
+    // define the area
+    const area = d3.area()
+      .x(d => d[0])
+      .y0(this.height - this.yMargin)
+      .y1(d => d[1])
+      .curve(d3.curveMonotoneX)
+
     const points: [number, number][] = this.data.map(d => [
       this.xScale(new Date(d.timestamp * 1000)),
       this.yScale(d.value),
     ]);
 
     this.lineGroup.attr('d', line(points));
+
+    this.svgInner.selectAll('.area')
+      .data([points])
+      .attr('d', area(points))
   }
 }
