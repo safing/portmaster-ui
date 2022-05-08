@@ -5,9 +5,15 @@
     connections.
   </span>
 </div>
-<div class="flex flex-row items-center w-full">
-  <input class="rounded-l-sm" type="text" [(ngModel)]="textSearch" placeholder="Search connections"
-    (ngModelChange)="performSearch()">
+
+<div class="flex flex-row items-center w-full mb-2">
+  <sfng-netquery-tagbar [(ngModel)]="tagbarValues" (ngModelChange)="onTagbarChange($event)" [labels]="keyTranslation">
+  </sfng-netquery-tagbar>
+</div>
+
+<div class="flex flex-row items-center w-full gap-2">
+  <sfng-netquery-searchbar [(ngModel)]="textSearch" (ngModelChange)="performSearch()" class="block w-full"
+    [labels]="keyTranslation" (onFieldsParsed)="onFieldsParsed($event)"></sfng-netquery-searchbar>
   <button type="button" class="h-full rounded-r-sm btn" (click)="performSearch()">Reload</button>
 </div>
 
@@ -16,25 +22,28 @@
     Search / Suggestion boxes for most-commonly used filters
   -->
   <ng-container *ngFor="let field of (models | keyvalue)">
-    <sfng-select mode="multi" [itemName]="keyTranslation[field.key] || field.key"
-      [placeholder]="keyTranslation[field.key] || field.key" [(ngModel)]="field.value!.searchValues" allowSearch="true"
-      searchItemThreshold="5" itemLimit="10" [searchPlaceholder]="'Search' + (keyTranslation[field.key] || field.key)"
-      minWidth="400" minHeight="300" (ngModelChange)="performSearch()" (onOpen)="loadSuggestion(field.key)">
-      <ng-container *ngFor="let value of field.value?.suggestions; trackBy: trackSuggestion">
-        <sfng-select-item *sfngSelectValue="value.Value; label:value.Value">
-          <span *ngIf="field.key === 'country' && !!value.Name" [appCountryFlags]="value.Name"></span>
-          <span class="flex-grow inline-block overflow-hidden overflow-ellipsis whitespace-nowrap"
-            style="max-width: 20rem; direction: rtl;">
-            <span style="direction: ltr; unicode-bidi: bidi-override;">
-              {{ value.Name || 'N/A' }}
+    <ng-container *ngIf="field.value!.visible">
+      <sfng-select mode="multi" [itemName]="keyTranslation[field.key] || field.key" dynamicValues="true"
+        [placeholder]="keyTranslation[field.key] || field.key" [(ngModel)]="field.value!.searchValues"
+        allowSearch="true" searchItemThreshold="5" itemLimit="10"
+        [searchPlaceholder]="'Search' + (keyTranslation[field.key] || field.key)" minWidth="400" minHeight="300"
+        (ngModelChange)="performSearch()" (onOpen)="loadSuggestion(field.key)">
+        <ng-container *ngFor="let value of field.value?.suggestions; trackBy: trackSuggestion">
+          <sfng-select-item *sfngSelectValue="value.Value; label:value.Value">
+            <span *ngIf="field.key === 'country' && !!value.Name" [appCountryFlags]="value.Name"></span>
+            <span class="flex-grow inline-block overflow-hidden overflow-ellipsis whitespace-nowrap"
+              style="max-width: 20rem; direction: rtl;">
+              <span style="direction: ltr; unicode-bidi: bidi-override;">
+                {{ value.Name || 'N/A' }}
+              </span>
             </span>
-          </span>
-          <span class="pr-3 text-xxs text-tertiary">
-            #{{ value.count }} connections
-          </span>
-        </sfng-select-item>
-      </ng-container>
-    </sfng-select>
+            <span class="pr-3 text-xxs text-tertiary">
+              #{{ value.count }} connections
+            </span>
+          </sfng-select-item>
+        </ng-container>
+      </sfng-select>
+    </ng-container>
   </ng-container>
 
   <div class="flex-grow"></div>
@@ -104,7 +113,7 @@
       <div class="flex-grow"></div>
       <ng-container *ngIf="(data._chart | async) as chartData">
         <sfng-netquery-line-chart [data]="$any(chartData)" showAxis="false" margin="0" *appExpertiseLevel="'developer'"
-          class="absolute top-0 bottom-0 right-0 px-1 pt-1 pb-1 border-l border-gray-500 border-opacity-25 opacity-75 w-96">
+          class="absolute top-0 bottom-0 right-0 bg-gray-100 bg-opacity-25 border border-gray-400 border-opacity-25 rounded-r opacity-75 shadow-inner-xs w-96">
         </sfng-netquery-line-chart>
       </ng-container>
     </ng-template>

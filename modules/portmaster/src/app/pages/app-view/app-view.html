@@ -20,7 +20,7 @@
   <!-- Application Header -->
   <div class="relative">
     <div class="absolute top-0 bottom-0 left-0 right-0 opacity-50">
-      <sfng-netquery-line-chart [data]="appChartData" showAxis="false"></sfng-netquery-line-chart>
+      <sfng-netquery-line-chart [data]="appChartData" showAxis="false" class="h-full"></sfng-netquery-line-chart>
     </div>
 
     <div class="relative z-10 flex flex-row items-center w-full py-8">
@@ -54,9 +54,9 @@
 
         <!-- Quick Settings -->
         <div class="flex flex-row space-x-3 text-xxs">
-          <app-qs-internet [settings]="allSettings" (save)="saveSetting($event)"></app-qs-internet>
+          <app-qs-internet [settings]="allSettings" (save)="saveSetting($event)" class="shadow"></app-qs-internet>
 
-          <app-qs-use-spn [settings]="allSettings" (save)="saveSetting($event)"></app-qs-use-spn>
+          <app-qs-use-spn [settings]="allSettings" (save)="saveSetting($event)" class="shadow"></app-qs-use-spn>
 
           <app-tipup key="appSettings-QuickSettings"></app-tipup>
         </div>
@@ -64,7 +64,7 @@
 
       <!-- Statistics -->
       <div class="flex flex-row items-center justify-end flex-grow pr-8 space-x-4" *ngIf="!!stats && stats.size > 0">
-        <div class="flex flex-col items-center justify-center w-32 h-24 bg-gray-300 bg-opacity-75 rounded shadow">
+        <div class="flex flex-col items-center justify-center w-32 h-24 bg-gray-300 rounded shadow bg-opacity-90">
           <h2 class="p-0 m-0 text-xl text-primary">{{ (100 / stats!.size) *
             stats!.countAllowed
             | number:'1.0-1' }}%</h2>

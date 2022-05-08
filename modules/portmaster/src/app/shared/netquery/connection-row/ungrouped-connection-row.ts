@@ -16,7 +16,7 @@ import { NetqueryHelper } from "../connection-helper.service";
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class NetqueryConnectionRowComponent implements OnInit, OnDestroy {
+export class SfngNetqueryConnectionRowComponent implements OnInit, OnDestroy {
   @Input()
   set conn(c: NetqueryConnection | null) {
     this._conn = c;

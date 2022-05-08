@@ -8,12 +8,15 @@ import { CountryFlagModule } from "../country-flag";
 import { SfngDropDownModule } from "../dropdown/dropdown.module";
 import { SfngSelectModule } from "../select";
 import { SfngTooltipModule } from "../tooltip";
-import { NetqueryConnectionRowComponent } from "./connection-row";
-import { NetqueryViewer } from "./netquery.component";
+import { SfngNetqueryConnectionRowComponent } from "./connection-row";
+import { SfngNetqueryViewer } from "./netquery.component";
 import { CommonPipesModule } from "../pipes";
 import { SfngMenuModule } from "../menu";
-import { NetqueryLineChart } from "./line-chart/line-chart";
+import { SfngNetqueryLineChart } from "./line-chart/line-chart";
 import { ExpertiseModule } from "../expertise/expertise.module";
+import { SfngNetqueryTagbar } from "./tag-bar";
+import { OverlayModule } from "@angular/cdk/overlay";
+import { SfngNetquerySearchbar } from "./searchbar";
 
 @NgModule({
   imports: [
@@ -26,21 +29,24 @@ import { ExpertiseModule } from "../expertise/expertise.module";
     SfngAccordionModule,
     SfngMenuModule,
     ExpertiseModule,
+    OverlayModule,
     CountIndicatorModule,
     CommonPipesModule,
   ],
   exports: [
-    NetqueryViewer,
-    NetqueryLineChart
+    SfngNetqueryViewer,
+    SfngNetqueryLineChart
   ],
   declarations: [
-    NetqueryViewer,
-    NetqueryConnectionRowComponent,
+    SfngNetqueryViewer,
+    SfngNetqueryConnectionRowComponent,
+    SfngNetqueryLineChart,
+    SfngNetqueryTagbar,
+    SfngNetquerySearchbar,
     ConnectionLocationPipe,
     IsBlockedConnectionPipe,
     CanUseRulesPipe,
     CanShowConnection,
-    NetqueryLineChart
   ]
 })
 export class NetqueryModule { }

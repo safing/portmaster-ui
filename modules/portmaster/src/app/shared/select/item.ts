@@ -1,6 +1,16 @@
 import { coerceBooleanProperty } from '@angular/cdk/coercion';
 import { Component, Directive, HostBinding, Input, Optional, TemplateRef } from '@angular/core';
 
+export interface SelectOption {
+  value: any;
+  selected: boolean;
+
+  label?: string;
+  description?: string;
+  templateRef?: TemplateRef<any>;
+  disabled?: boolean;
+}
+
 @Component({
   selector: 'sfng-select-item',
   template: `<ng-content></ng-content>`,
@@ -18,7 +28,7 @@ export class SfngSelectItemComponent {
 @Directive({
   selector: '[sfngSelectValue]',
 })
-export class SfngSelectValueDirective {
+export class SfngSelectValueDirective implements SelectOption {
   @Input('sfngSelectValue')
   value: any;
 

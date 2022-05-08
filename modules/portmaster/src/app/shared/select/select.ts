@@ -1,10 +1,10 @@
-import { coerceBooleanProperty, coerceNumberProperty } from '@angular/cdk/coercion';
+import { coerceBooleanProperty, coerceCssPixelValue, coerceNumberProperty } from '@angular/cdk/coercion';
 import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, ContentChildren, EventEmitter, forwardRef, HostBinding, HostListener, Input, OnDestroy, Output, QueryList, ViewChild } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { BehaviorSubject, combineLatest, Subject } from 'rxjs';
 import { startWith, takeUntil } from 'rxjs/operators';
 import { SfngDropdown } from '../dropdown/dropdown';
-import { SfngSelectValueDirective } from './item';
+import { SelectOption, SfngSelectValueDirective } from './item';
 
 
 type SelectModes = 'single' | 'multi';
@@ -37,10 +37,13 @@ export class SfngSelectComponent<T> implements AfterViewInit, ControlValueAccess
   dropdown!: SfngDropdown;
 
   @ContentChildren(SfngSelectValueDirective)
-  allItems: QueryList<SfngSelectValueDirective> | null = null;
+  userProvidedItems: QueryList<SfngSelectValueDirective> | null = null;
+
+  /** A list of all items available in the select box including dynamic ones. */
+  allItems: SelectOption[] = []
 
   /** The acutally rendered list of items after applying search and item threshold */
-  items: SfngSelectValueDirective[] = [];
+  items: SelectOption[] = [];
 
   @HostBinding('tabindex')
   readonly tabindex = 0;
@@ -50,7 +53,8 @@ export class SfngSelectComponent<T> implements AfterViewInit, ControlValueAccess
 
   value?: SelectValue<T, this>;
 
-  currentItems: SfngSelectValueDirective[] = [];
+  /** A list of currently selected items */
+  currentItems: SelectOption[] = [];
 
   /** The current search text. Used by ngModel */
   searchText = '';
@@ -99,6 +103,29 @@ export class SfngSelectComponent<T> implements AfterViewInit, ControlValueAccess
   }
   private _searchItemThreshold = 0;
 
+  /**
+   * Whether or not the select should be disabled when not options
+   * are available.
+   */
+  @Input()
+  set disableWhenEmpty(v: any) {
+    this._disableWhenEmpty = coerceBooleanProperty(v);
+  }
+  get disableWhenEmpty() {
+    return this._disableWhenEmpty;
+  }
+  private _disableWhenEmpty = false;
+
+  /** Whether or not the select component will add options for dynamic values as well. */
+  @Input()
+  set dynamicValues(v: any) {
+    this._dynamicValues = coerceBooleanProperty(v);
+  }
+  get dynamicValues() {
+    return this._dynamicValues
+  }
+  private _dynamicValues = false;
+
   /** The minimum-width of the drop-down. See {@link SfngDropdown.minWidth} */
   @Input()
   minWidth: any;
@@ -124,7 +151,7 @@ export class SfngSelectComponent<T> implements AfterViewInit, ControlValueAccess
   @Output()
   onOpen = new EventEmitter();
 
-  trackItem(_: number, item: SfngSelectValueDirective) {
+  trackItem(_: number, item: SelectOption) {
     return item.value;
   }
 
@@ -137,27 +164,35 @@ export class SfngSelectComponent<T> implements AfterViewInit, ControlValueAccess
 
   ngAfterViewInit(): void {
     combineLatest([
-      this.allItems!.changes
+      this.userProvidedItems!.changes
         .pipe(startWith(undefined)),
       this.search$
     ])
       .pipe(takeUntil(this.destroy$))
       .subscribe(
         ([_, search]) => {
+          this.updateItems();
+
           search = (search || '').toLocaleLowerCase()
-          let items: SfngSelectValueDirective[] = [];
+          let items: SelectOption[] = [];
           if (search === '') {
-            items = this.allItems!.toArray()
+            items = this.allItems!;
           } else {
             items = this.allItems!.filter(item => {
+              // we always count selected items as a "match" in search mode.
+              // this is to ensure the user always see all selected items.
+              if (item.selected) {
+                return true;
+              }
+
               if (!!item.value && typeof item.value === 'string') {
-                if (item.value.includes(search)) {
+                if (item.value.toLocaleLowerCase().includes(search)) {
                   return true;
                 }
               }
 
               if (!!item.label) {
-                if (item.label.includes(search)) {
+                if (item.label.toLocaleLowerCase().includes(search)) {
                   return true
                 }
               }
@@ -167,7 +202,6 @@ export class SfngSelectComponent<T> implements AfterViewInit, ControlValueAccess
 
           this.items = items.slice(0, this._maxItemLimit);
 
-          this.updateCurrentItems();
           this.cdr.detectChanges();
         }
       );
@@ -207,7 +241,7 @@ export class SfngSelectComponent<T> implements AfterViewInit, ControlValueAccess
     this.search$.next(text);
   }
 
-  selectItem(item: SfngSelectValueDirective) {
+  selectItem(item: SelectOption) {
     if (item.disabled) {
       return;
     }
@@ -245,7 +279,7 @@ export class SfngSelectComponent<T> implements AfterViewInit, ControlValueAccess
     this.onChange(this.value!);
   }
 
-  private updateCurrentItems() {
+  private updateItems() {
     let values: T[] = [];
     if (this.mode === 'single') {
       values = [this.value as T];
@@ -253,22 +287,56 @@ export class SfngSelectComponent<T> implements AfterViewInit, ControlValueAccess
       values = (this.value as T[]) || [];
     }
 
-    this.allItems?.forEach(item => item.selected = false);
-    this.currentItems = values
-      .map(val => this.allItems?.find(item => item.value === val))
-      .filter(val => !!val)
-      .map(item => {
-        item!.selected = true;
-        return item;
-      }) as SfngSelectValueDirective[]
+    this.currentItems = [];
+    this.allItems = [];
+
+    // mark all user-selected items as "deselected" first
+    this.userProvidedItems?.forEach(item => {
+      item.selected = false;
+      this.allItems.push(item);
+    });
+
+    for (let i = 0; i < values.length; i++) {
+      const val = values[i];
+      let option: SelectOption | undefined = this.userProvidedItems?.find(item => item.value === val);
+      if (!option) {
+        option = {
+          selected: true,
+          value: val,
+          label: `${val}`,
+        }
+        this.allItems.push(option);
+      } else {
+        option.selected = true
+      }
+
+      this.currentItems.push(option);
+    }
+
+    this.allItems.sort((a, b) => {
+      if (b.selected && !a.selected) {
+        return 1;
+      }
+
+      if (a.selected && !b.selected) {
+        return -1;
+      }
+
+      if ((a.label || a.value) < (b.label || b.value)) {
+        return 1;
+      }
+      if ((a.label || a.value) > (b.label || b.value)) {
+        return -1;
+      }
+
+      return 0
+    })
   }
 
   writeValue(value: SelectValue<T, this>): void {
     this.value = value;
 
-    if (!!this.allItems) {
-      this.updateCurrentItems();
-    }
+    this.updateItems();
 
     this.cdr.markForCheck();
   }

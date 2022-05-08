@@ -1,0 +1,26 @@
+<input cdkOverlayOrigin class="w-full rounded-tr-sm" type="text" [(ngModel)]="textSearch"
+  placeholder="Search connections" (keydown)="onSearchKeyDown($event)" (blur)="_onTouched()">
+
+<sfng-dropdown externalTrigger="true" #suggestionDropdown>
+  <div class="flex flex-col items-start justify-start w-full gap-4 p-3 px-4">
+    <ng-container *ngFor="let sug of suggestions; trackBy: trackSuggestion">
+      <div class="flex flex-col items-start self-stretch justify-start gap-1">
+        <h3 class="flex flex-row items-center w-full gap-2 text-xxs text-tertiary">
+          {{ labels[sug.field] || sug.field }}
+          <span class="flex-grow inline-block border-t border-gray-400"></span>
+        </h3>
+        <ul class="self-stretch">
+          <li *ngFor="let val of sug.values" (click)="applySuggestion(sug.field, val.value)"
+            class="flex flex-row justify-between w-full px-2 py-1 rounded-sm cursor-pointer hover:bg-gray-400">
+            <span class="text-primary">{{ val.value }}</span>
+            <span class="text-secondary">#{{ val.count }} connections</span>
+          </li>
+        </ul>
+      </div>
+    </ng-container>
+
+    <ng-container *ngIf="!suggestions?.length">
+      No suggestions that match your query.
+    </ng-container>
+  </div>
+</sfng-dropdown>

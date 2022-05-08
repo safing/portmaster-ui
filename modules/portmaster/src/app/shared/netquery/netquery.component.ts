@@ -1,8 +1,12 @@
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnDestroy, OnInit, TrackByFunction } from "@angular/core";
-import { forkJoin, interval, Observable, of, Subject } from "rxjs";
-import { catchError, debounceTime, map, mergeMap, startWith, switchMap, takeUntil, tap } from "rxjs/operators";
+import { coerceArray } from "@angular/cdk/coercion";
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, Input, OnDestroy, OnInit, TrackByFunction } from "@angular/core";
+import { forkJoin, Observable, of, Subject } from "rxjs";
+import { catchError, debounceTime, map, switchMap } from "rxjs/operators";
 import { ChartResult, Condition, Netquery, NetqueryConnection, PossilbeValue, Query, QueryResult, Select, Verdict } from "src/app/services";
 import { ActionIndicatorService } from "../action-indicator";
+import { ExpertiseService } from "../expertise";
+import { SfngSearchbarFields } from "./searchbar";
+import { SfngTagbarValue } from "./tag-bar";
 
 interface Suggestion<T = any> extends PossilbeValue<T> {
   count: number;
@@ -11,6 +15,7 @@ interface Suggestion<T = any> extends PossilbeValue<T> {
 interface Model<T> {
   suggestions: Suggestion<T>[];
   searchValues: any[];
+  visible: boolean;
 }
 
 
@@ -50,7 +55,8 @@ const orderByKeys: (keyof Partial<NetqueryConnection>)[] = [
   ],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class NetqueryViewer implements OnInit, OnDestroy {
+export class SfngNetqueryViewer implements OnInit, OnDestroy {
+
   /** @private - used to trigger a reload of the current filter */
   private search$ = new Subject();
 
@@ -79,26 +85,54 @@ export class NetqueryViewer implements OnInit, OnDestroy {
 
   constructor(
     private netquery: Netquery,
+    private expertise: ExpertiseService,
     private cdr: ChangeDetectorRef,
     private actionIndicator: ActionIndicatorService
   ) { }
+
+  @Input()
+  set filters(v: any) {
+    v = coerceArray(v);
+    Object.keys(this.models).forEach((key: any) => {
+      this.models[key as keyof NetqueryConnection]!.visible = false;
+    })
+
+    v.forEach((val: any) => {
+      if (typeof val !== 'string') {
+        throw new Error("invalid value for @Input() filters")
+      }
+
+      if (!this.isValidFilter(val)) {
+        throw new Error('invalid filter key ' + val)
+      }
+
+      this.models[val]!.visible = true;
+    })
+  }
+
+  /** @private Holds the value displayed in the tag-bar */
+  tagbarValues: SfngTagbarValue[] = [];
 
   models: { [key in keyof Partial<NetqueryConnection>]: Model<any> } = {
     domain: {
       searchValues: [],
       suggestions: [],
+      visible: true,
     },
     path: {
       searchValues: [],
       suggestions: [],
+      visible: true,
     },
     as_owner: {
       searchValues: [],
       suggestions: [],
+      visible: true,
     },
     country: {
       searchValues: [],
       suggestions: [],
+      visible: true,
     }
   }
 
@@ -158,7 +192,7 @@ export class NetqueryViewer implements OnInit, OnDestroy {
         }),
       )
       .subscribe(result => {
-        this.results = result.results.map(r => {
+        this.results = (result.results || []).map(r => {
           const grpFilter: Condition = {};
           this.groupByKeys.forEach(key => {
             grpFilter[key] = r[key];
@@ -190,16 +224,7 @@ export class NetqueryViewer implements OnInit, OnDestroy {
     const query = this.getQuery().query || {};
 
     Object.keys(groupFilter).forEach(key => {
-      let existing = query[key];
-      if (existing === undefined) {
-        existing = [];
-      } else {
-        if (!Array.isArray(existing)) {
-          existing = [existing];
-        }
-      }
-      existing.push(groupFilter[key] as any);
-      query[key] = existing;
+      query[key] = [groupFilter[key] as any];
     });
 
     return this.netquery.activeConnectionChart(query);
@@ -259,16 +284,53 @@ export class NetqueryViewer implements OnInit, OnDestroy {
       })
   }
 
-  /** @private - query the portmaster service for connections matching the current settings */
-  performSearch() {
-    this.search$.next();
+  /** @private Callback for keyboard events on the search-input */
+  onFieldsParsed(fields: SfngSearchbarFields) {
+    const allowedKeys = new Set<string>();
+    Object.keys(this.models).forEach(key => allowedKeys.add(key));
+
+    Object.keys(fields).forEach(key => {
+      if (!allowedKeys.has(key)) {
+        this.actionIndicator.error("Invalid search query", "Column " + key + " is not allowed for filtering");
+        return;
+      }
+
+      fields[key as keyof NetqueryConnection]!.forEach(val => {
+        // quick fix to make sure domains always end in a period.
+        if (key === 'domain' && typeof val === 'string' && !val.endsWith('.')) {
+          val = `${val}.`
+        }
+
+        if (typeof val === 'object' && '$ne' in val) {
+          this.actionIndicator.error("NOT conditions are not yet supported")
+          return;
+        }
+
+        const k = key as keyof NetqueryConnection;
+        this.models[k]!.searchValues = [
+          ...this.models[k]!.searchValues,
+          val,
+        ]
+      })
+    })
+
+    this.cdr.markForCheck();
+
+    this.performSearch();
   }
 
-  /** @private - constructs a query from the current page settings */
+  /** @private Query the portmaster service for connections matching the current settings */
+  performSearch() {
+    this.updateTagbarValues();
+    this.search$.next();
+
+  }
+
+  /** @private Constructs a query from the current page settings. Supports excluding certain fields from the query. */
   getQuery(excludeFields: string[] = []): Query {
     let query: Condition = {}
 
-    // create the query conditions for all key on this.models
+    // create the query conditions for all keys on this.models
     const keys: (keyof NetqueryConnection)[] = Object.keys(this.models) as any;
     keys.forEach((key: keyof NetqueryConnection) => {
       if (excludeFields.includes(key)) {
@@ -281,6 +343,12 @@ export class NetqueryViewer implements OnInit, OnDestroy {
         }
       }
     })
+
+    if (this.expertise.currentLevel !== 'developer') {
+      query["internal"] = {
+        $eq: false,
+      }
+    }
 
     if (this.textSearch !== '') {
       freeTextSearchFields.forEach(key => {
@@ -337,7 +405,42 @@ export class NetqueryViewer implements OnInit, OnDestroy {
     }
   }
 
+  /** @private Updates the current model form all values emited by the tag-bar. */
+  onTagbarChange(tagKinds: SfngTagbarValue[]) {
+    Object.keys(this.models).forEach(key => {
+      this.models[key as keyof NetqueryConnection]!.searchValues = [];
+    });
+
+    tagKinds.forEach(kind => {
+      this.models[kind.key as keyof NetqueryConnection]!.searchValues = kind.values;
+    })
+
+    this.performSearch();
+  }
+
+  /** Updates the {@link tagbarValues} from {@link models}*/
+  private updateTagbarValues() {
+    this.tagbarValues = [];
+    Object.keys(this.models)
+      .sort() // make sure we always output values in a constant order
+      .forEach(modelKey => {
+        const values = this.models[modelKey as keyof NetqueryConnection]!.searchValues;
+        if (values.length > 0) {
+          this.tagbarValues.push({
+            key: modelKey,
+            values: values,
+          })
+        }
+      })
+  }
+
+  private isValidFilter(key: string): key is keyof NetqueryConnection {
+    return Object.keys(this.models).includes(key);
+  }
+
   trackSuggestion: TrackByFunction<Suggestion> = (_: number, s: Suggestion) => s.Value;
+
+
 
   //
   // Debug-Code
