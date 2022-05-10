@@ -129,26 +129,17 @@
   Results
   <span class="text-xxs text-secondary">#{{ totalCount }} results</span>
 </h3>
-<sfng-accordion-group *ngIf="!loading" [headerTemplate]="headerTemplate" singleMode="false"
-  class="flex flex-col gap-2 pr-4 overflow-auto">
-  <sfng-accordion [data]="result" #accordion *ngFor="let result of results.slice(0, 100)">
-    <div class="p-3 bg-gray-300 bg-opacity-75 border-t border-gray-300 rounded-b-sm">
-      <pre>
-{{ result | json }}
-      </pre>
-    </div>
-  </sfng-accordion>
-</sfng-accordion-group>
-
-
-<h3 class="flex flex-row items-center justify-start gap-3 mt-4 cursor-pointer"
-  (click)="collapseQueryInspector = !collapseQueryInspector">
-  <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 transform" [class.rotate-90]="!collapseQueryInspector"
-    fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-    <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
-  </svg>
-  Query-Inspector
-</h3>
-<pre class="p-2 mt-2 text-xs bg-gray-400 rounded" *ngIf="!collapseQueryInspector">
-{{ getQuery() | json }}
-</pre>
+<sfng-pagination [source]="paginator" class="flex flex-col flex-grow overflow-hidden">
+  <ng-template [sfngPageContent]>
+    <sfng-accordion-group class="flex flex-col gap-2 pr-4 overflow-auto" *ngIf="!loading"
+      [headerTemplate]="headerTemplate" singleMode="false">
+      <sfng-accordion [data]="result" #accordion *ngFor="let result of (paginator.pageItems$ | async)">
+        <div class="p-3 bg-gray-300 bg-opacity-75 border-t border-gray-300 rounded-b-sm">
+          <pre>
+    {{ result | json }}
+          </pre>
+        </div>
+      </sfng-accordion>
+    </sfng-accordion-group>
+  </ng-template>
+</sfng-pagination>

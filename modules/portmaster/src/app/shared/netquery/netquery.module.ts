@@ -17,6 +17,7 @@ import { ExpertiseModule } from "../expertise/expertise.module";
 import { SfngNetqueryTagbar } from "./tag-bar";
 import { OverlayModule } from "@angular/cdk/overlay";
 import { SfngNetquerySearchbar } from "./searchbar";
+import { SfngPaginationModule } from "../pagination";
 
 @NgModule({
   imports: [
@@ -28,6 +29,7 @@ import { SfngNetquerySearchbar } from "./searchbar";
     SfngTooltipModule,
     SfngAccordionModule,
     SfngMenuModule,
+    SfngPaginationModule,
     ExpertiseModule,
     OverlayModule,
     CountIndicatorModule,

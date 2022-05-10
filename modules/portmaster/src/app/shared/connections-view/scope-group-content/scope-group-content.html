@@ -86,13 +86,13 @@
   </ng-template>
   <!-- End Accordion Header Template -->
 
-  <app-pagination [source]="grp.pagination">
-    <sfng-accordion-group [headerTemplate]="accordionHeader" singleMode="false" *appPaginationContent>
+  <sfng-pagination [source]="grp.pagination">
+    <sfng-accordion-group [headerTemplate]="accordionHeader" singleMode="false" *sfngPageContent>
       <ng-container *ngFor="let conn of (grp.pagination.pageItems$ | async); trackBy: trackByConnection">
         <sfng-accordion *appExpertiseLevel="conn | connExpertise" [data]="conn" #accordion>
           <app-ungrouped-connection-content [conn]="conn" *ngIf="accordion.active"></app-ungrouped-connection-content>
         </sfng-accordion>
       </ng-container>
     </sfng-accordion-group>
-  </app-pagination>
+  </sfng-pagination>
 </section>

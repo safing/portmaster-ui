@@ -1,14 +1,14 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, forkJoin, Observable, of, Subject, Subscription } from 'rxjs';
-import { bufferTime, catchError, filter, map, publish, switchMap, tap } from 'rxjs/operators';
+import { bufferTime, catchError, filter, map, switchMap } from 'rxjs/operators';
 import { IsDenied } from '.';
-import { SnapshotPaginator } from '../shared/types';
+import { SnapshotPaginator } from '../shared/pagination';
 import { binaryInsert, binarySearch, parseDomain } from '../shared/utils';
 import { AppProfileService } from './app-profile.service';
 import { AppProfile, LayeredProfile } from './app-profile.types';
 import { ConnectionStatistics } from './connection-tracker.types';
 import { RiskLevel } from './core.types';
-import { Connection, ScopeIdentifier, ScopeTranslation, Verdict } from './network.types';
+import { Connection, ScopeIdentifier, ScopeTranslation } from './network.types';
 import { PortapiService } from './portapi.service';
 import { DataReply, retryPipeline } from './portapi.types';
 

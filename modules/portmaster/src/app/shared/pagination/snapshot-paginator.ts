@@ -1,57 +1,7 @@
 import { BehaviorSubject, Observable } from "rxjs";
-import { debounceTime, map, take, tap, withLatestFrom } from "rxjs/operators";
+import { debounceTime, map } from "rxjs/operators";
+import { clipPage, Pagination } from "./pagination";
 
-export interface Pagination<T> {
-  /**
-   * Total should return the total number of pages
-   */
-  total: number;
-
-  /**
-   * pageNumber$ should emit the currently displayed page
-   */
-  pageNumber$: Observable<number>;
-
-  /**
-   * pageItems$ should emit all items of the current page
-   */
-  pageItems$: Observable<T[]>;
-
-  /**
-   * nextPage should progress to the next page. If there are no more
-   * pages than nextPage() should be a no-op.
-   */
-  nextPage(): void;
-
-  /**
-   * prevPage should move back the the previous page. If there is no
-   * previous page, prevPage should be a no-op.
-   */
-  prevPage(): void;
-
-  /**
-   * openPage opens the page @pageNumber. If pageNumber is greater than
-   * the total amount of pages it is clipped to the lastPage. If it is
-   * less than 1, it is clipped to 1.
-   */
-  openPage(pageNumber: number): void
-}
-
-/**
- * Generates an array of page numbers that should be displayed in paginations.
- *
- * @param current The current page number
- * @param countPages The total number of pages
- * @returns An array of page numbers to display
- */
-export function generatePageNumbers(current: number, countPages: number): number[] {
-  let delta = 2;
-  let leftRange = current - delta;
-  let rightRange = current + delta + 1;
-
-  return Array.from({ length: countPages }, (v, k) => k + 1)
-    .filter(i => i === 1 || i === countPages || (i >= leftRange && i < rightRange));
-}
 
 export class SnapshotPaginator<T> implements Pagination<T> {
   private _itemSnapshot: T[] = [];
@@ -109,12 +59,7 @@ export class SnapshotPaginator<T> implements Pagination<T> {
   prevPage(): void { this.openPage(this._currentPage.getValue() - 1) }
 
   openPage(pageNumber: number): void {
-    if (pageNumber < 1) {
-      pageNumber = 1;
-    }
-    if (pageNumber > this.total && this.total > 0) {
-      pageNumber = this.total;
-    }
+    pageNumber = clipPage(pageNumber, this.total);
     this._currentPage.next(pageNumber);
   }
 }

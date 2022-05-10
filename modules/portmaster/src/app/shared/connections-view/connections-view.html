@@ -117,9 +117,9 @@
     <!-- End Accordion Header Template -->
 
 
-    <app-pagination [source]="pagination">
+    <sfng-pagination [source]="pagination">
 
-      <ng-template [appPaginationContent]>
+      <ng-template [sfngPageContent]>
         <ng-container *ngTemplateOutlet="loadingTemplate"></ng-container>
 
         <sfng-accordion-group [headerTemplate]="accordionHeader" singleMode="false">
@@ -133,7 +133,7 @@
 
       </ng-template>
 
-    </app-pagination>
+    </sfng-pagination>
   </div>
 </ng-container>
 

@@ -1,41 +1,20 @@
 .pagination {
-  display        : flex;
-  width          : 100%;
-  justify-content: space-between;
-  @apply my-2;
+  @apply my-2 w-full flex justify-between;
 
   button {
-    padding-left : 0.5rem;
-    padding-right: 0.5rem;
-    font-size    : 0.7rem;
-
-    fa-icon {
-      position: relative;
-      top     : 1px;
-    }
-
-    fa-icon:last-child {
-      margin-left: 0.2rem;
-    }
-
-    fa-icon:first-child {
-      margin-right: 0.2rem;
-    }
+    @apply text-xxs px-2 flex items-center justify-start;
 
     &.page {
-      @apply mx-1;
       @apply bg-cards-secondary;
-      opacity: .55;
+      @apply opacity-50;
 
       &:hover {
-        opacity: 1;
+        @apply opacity-100;
       }
     }
 
     &.active-page {
-      color      : theme("colors.info.blue");
-      font-weight: 500;
-      opacity    : 1;
+      @apply text-blue font-medium opacity-100;
     }
   }
 }

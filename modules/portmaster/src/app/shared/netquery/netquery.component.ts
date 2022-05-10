@@ -5,6 +5,7 @@ import { catchError, debounceTime, map, switchMap } from "rxjs/operators";
 import { ChartResult, Condition, Netquery, NetqueryConnection, PossilbeValue, Query, QueryResult, Select, Verdict } from "src/app/services";
 import { ActionIndicatorService } from "../action-indicator";
 import { ExpertiseService } from "../expertise";
+import { Datasource, DynamicItemsPaginator } from "../pagination";
 import { SfngSearchbarFields } from "./searchbar";
 import { SfngTagbarValue } from "./tag-bar";
 
@@ -17,7 +18,6 @@ interface Model<T> {
   searchValues: any[];
   visible: boolean;
 }
-
 
 const freeTextSearchFields: (keyof Partial<NetqueryConnection>)[] = [
   'domain',
@@ -63,7 +63,8 @@ export class SfngNetqueryViewer implements OnInit, OnDestroy {
   /** @private - emits and completed when the component is destroyed */
   private destroy$ = new Subject();
 
-  results: QueryResult[] = [];
+  /** @private - The paginator used for the result set */
+  paginator!: DynamicItemsPaginator<QueryResult>;
 
   /** The value of the free-text search */
   textSearch: string = '';
@@ -150,6 +151,33 @@ export class SfngNetqueryViewer implements OnInit, OnDestroy {
   orderByKeys: string[] = [];
 
   ngOnInit(): void {
+    const dataSource: Datasource<QueryResult> = {
+      view: (page: number, pageSize: number) => {
+        const query = this.getQuery();
+        query.page = page - 1; // UI starts at page 1 while the backend is 0-based
+        query.pageSize = pageSize;
+
+        return this.netquery.query(query)
+          .pipe(
+            map(results => {
+              return (results || []).map(r => {
+                const grpFilter: Condition = {};
+                this.groupByKeys.forEach(key => {
+                  grpFilter[key] = r[key];
+                })
+
+                return {
+                  ...r,
+                  _chart: this.groupByKeys.length > 0 ? this.getGroupChart(grpFilter) : null,
+                }
+              });
+            })
+          );
+      }
+    }
+
+    this.paginator = new DynamicItemsPaginator(dataSource)
+
     this.search$
       .pipe(
         debounceTime(1000),
@@ -160,17 +188,6 @@ export class SfngNetqueryViewer implements OnInit, OnDestroy {
           const query = this.getQuery();
 
           return forkJoin({
-            results: this.netquery.query(query)
-              .pipe(
-                catchError(err => {
-                  this.actionIndicator.error(
-                    'Internal Error',
-                    'Failed to perform search: ' + this.actionIndicator.getErrorMessgae(err)
-                  );
-
-                  return of([] as QueryResult[]);
-                }),
-              ),
             chart: this.netquery.activeConnectionChart(query.query!)
               .pipe(
                 catchError(err => {
@@ -182,33 +199,31 @@ export class SfngNetqueryViewer implements OnInit, OnDestroy {
                   return of([] as ChartResult[]);
                 }),
               ),
-            totalCount: this.groupByKeys.length === 0
-              ? this.netquery.query({
-                query: query.query,
-                select: { $count: { field: '*', as: 'totalCount' } },
-              }).pipe(map(result => result[0].totalCount || null))
-              : of(null),
+            totalCount: this.netquery.query({
+              query: query.query,
+              groupBy: query.groupBy,
+              orderBy: query.orderBy,
+              select: { $count: { field: '*', as: 'totalCount' } },
+            })
+              .pipe(
+                map(result => {
+                  if (this.groupByKeys.length === 0) {
+                    return result[0].totalCount;
+                  }
+                  return result.length;
+                })
+              )
           })
         }),
       )
       .subscribe(result => {
-        this.results = (result.results || []).map(r => {
-          const grpFilter: Condition = {};
-          this.groupByKeys.forEach(key => {
-            grpFilter[key] = r[key];
-          })
-
-          return {
-            ...r,
-            _chart: this.groupByKeys.length > 0 ? this.getGroupChart(grpFilter) : null,
-          }
-        });
         this.chartData = result.chart;
-        if (result.totalCount === null) {
-          this.totalCount = result.results?.length || 0;
-        } else {
-          this.totalCount = result.totalCount;
-        }
+        this.totalCount = result.totalCount;
+
+        // reset the paginator with the new total result count and
+        // open the first page.
+        this.paginator.reset(this.totalCount);
+
         this.loading = false;
         this.cdr.markForCheck();
       })
@@ -439,11 +454,4 @@ export class SfngNetqueryViewer implements OnInit, OnDestroy {
   }
 
   trackSuggestion: TrackByFunction<Suggestion> = (_: number, s: Suggestion) => s.Value;
-
-
-
-  //
-  // Debug-Code
-  //
-  collapseQueryInspector = true;
 }
