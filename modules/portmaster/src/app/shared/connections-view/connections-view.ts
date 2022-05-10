@@ -5,7 +5,7 @@ import { BehaviorSubject, Subject, Subscription } from 'rxjs';
 import { bufferTime, debounceTime, startWith, take, tap, withLatestFrom } from 'rxjs/operators';
 import { Connection, ExpertiseLevel, IsGlobalScope, IsLANScope, IsLocalhost, ScopeTranslation, Verdict } from 'src/app/services';
 import { ConnectionAddedEvent, ConnTracker, InspectedProfile, ScopeGroup, ScopeGroupUpdate, SortByMostRecent } from 'src/app/services/connection-tracker.service';
-import { SnapshotPaginator } from '../types';
+import { SnapshotPaginator } from '../pagination';
 import { binarySearch } from '../utils';
 import { ConnectionHelperService } from './connection-helper.service';
 

@@ -83,6 +83,8 @@ export interface Query {
   query?: Condition;
   orderBy?: string | OrderBy | (OrderBy | string)[];
   groupBy?: string[];
+  pageSize?: number;
+  page?: number;
 }
 
 export interface NetqueryConnection {

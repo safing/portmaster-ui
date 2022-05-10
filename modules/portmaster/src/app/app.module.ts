@@ -47,7 +47,6 @@ import { SfngMultiSwitchModule } from './shared/multi-switch';
 import { NetqueryModule } from './shared/netquery';
 import { NotificationComponent } from './shared/notification/notification';
 import { OverlayStepperModule } from './shared/overlay-stepper';
-import { PaginationContentDirective, PaginationWrapperComponent } from './shared/pagination';
 import { ProfileStatisticsComponent } from './shared/profile-stats';
 import { ScopeLabelComponent } from './shared/scope-label';
 import { SfngSelectModule } from './shared/select';
@@ -64,6 +63,7 @@ import { PilotWidgetComponent } from './widgets/pilot-widget';
 import { PromptWidgetComponent } from './widgets/prompt-widget';
 import { StatusWidgetComponent, StatusWidgetSettingsComponent } from './widgets/status-widget';
 import { WIDGET_DEFINTIONS } from './widgets/widget.types';
+import { SfngPaginationModule } from './shared/pagination';
 
 @NgModule({
   declarations: [
@@ -107,8 +107,6 @@ import { WIDGET_DEFINTIONS } from './widgets/widget.types';
     ExitScreenComponent,
     SupportPageComponent,
     SupportFormComponent,
-    PaginationWrapperComponent,
-    PaginationContentDirective,
     SpnPageComponent,
     NetworkActivityWidget,
   ],
@@ -140,6 +138,7 @@ import { WIDGET_DEFINTIONS } from './widgets/widget.types';
     SfngMenuModule,
     SfngFocusModule,
     SfngToggleSwitchModule,
+    SfngPaginationModule,
     ExpertiseModule,
     ConfigModule,
     CountryFlagModule,
