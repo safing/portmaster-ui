@@ -1,6 +1,6 @@
 <ng-container *ngIf="!showOverview && !!appProfile">
   <!-- Header -->
-  <div class="flex items-center justify-between text-xxs">
+  <div class="flex items-center justify-between p-4 px-12 text-xxs">
     <!-- Breadcrumbs -->
     <div class="flex items-center">
       <a class="text-secondary hover:text-primary" routerLink="/app/overview">Apps</a>
@@ -18,8 +18,8 @@
 
 
   <!-- Application Header -->
-  <div class="relative">
-    <div class="absolute top-0 bottom-0 left-0 right-0 opacity-50">
+  <div class="relative p-4 px-12">
+    <div class="absolute top-0 bottom-0 left-0 right-0 opacity-25">
       <sfng-netquery-line-chart [data]="appChartData" showAxis="false" class="h-full"></sfng-netquery-line-chart>
     </div>
 
@@ -54,9 +54,11 @@
 
         <!-- Quick Settings -->
         <div class="flex flex-row space-x-3 text-xxs">
-          <app-qs-internet [settings]="allSettings" (save)="saveSetting($event)" class="shadow"></app-qs-internet>
+          <app-qs-internet [settings]="allSettings" (save)="saveSetting($event)">
+          </app-qs-internet>
 
-          <app-qs-use-spn [settings]="allSettings" (save)="saveSetting($event)" class="shadow"></app-qs-use-spn>
+          <app-qs-use-spn [settings]="allSettings" (save)="saveSetting($event)">
+          </app-qs-use-spn>
 
           <app-tipup key="appSettings-QuickSettings"></app-tipup>
         </div>
@@ -64,19 +66,22 @@
 
       <!-- Statistics -->
       <div class="flex flex-row items-center justify-end flex-grow pr-8 space-x-4" *ngIf="!!stats && stats.size > 0">
-        <div class="flex flex-col items-center justify-center w-32 h-24 bg-gray-300 rounded shadow bg-opacity-90">
+        <div
+          class="flex flex-col items-center justify-center w-32 h-24 bg-gray-300 border border-gray-300 rounded shadow bg-opacity-90">
           <h2 class="p-0 m-0 text-xl text-primary">{{ (100 / stats!.size) *
             stats!.countAllowed
             | number:'1.0-1' }}%</h2>
           <span class="text-secondary">Allowed</span>
         </div>
 
-        <div class="flex flex-col items-center justify-center w-32 h-24 bg-gray-400 bg-opacity-75 rounded shadow">
+        <div
+          class="flex flex-col items-center justify-center w-32 h-24 bg-gray-400 bg-opacity-75 border border-gray-400 rounded shadow">
           <h2 class="p-0 m-0 text-xl text-primary">{{ stats!.size | prettyCount }}</h2>
           <span class="text-secondary">Connections</span>
         </div>
 
-        <div class="flex flex-col items-center justify-center w-32 h-24 bg-gray-300 bg-opacity-75 rounded shadow">
+        <div
+          class="flex flex-col items-center justify-center w-32 h-24 bg-gray-300 bg-opacity-75 border border-gray-300 rounded shadow">
           <h2 class="p-0 m-0 text-xl text-primary">{{ (100 / stats!.size) * (stats!.size
             - stats!.countAllowed) | number:'1.0-1' }}%</h2>
           <span class="text-secondary">Blocked</span>
@@ -85,16 +90,13 @@
     </div>
   </div>
 
-  <app-tab-group class="flex flex-col flex-grow w-full overflow-hidden">
+  <app-tab-group class="flex flex-col flex-grow w-full p-4 px-12 overflow-hidden">
     <!-- Connections -->
     <app-tab id="connections" title="Connections">
       <div *appTabContent>
-        <app-connections-view [profile]="inspected" [@fadeIn]
-          [displayMode]="sessionDataService.get('monitor:displayMode', 'grouped')"
-          (displayModeChange)="sessionDataService.set('monitor:displayMode', $event)"
-          [liveMode]="sessionDataService.get('monitor:liveMode', false)"
-          (liveModeChange)="sessionDataService.set('monitor:liveMode', $event)">
-        </app-connections-view>
+        <sfng-netquery-viewer [filters]="['as_owner', 'country', 'domain']"
+          [mergeFilter]="{profile: appProfile.Source + '/' + appProfile.ID}">
+        </sfng-netquery-viewer>
       </div>
     </app-tab>
 
@@ -303,4 +305,4 @@
   </app-tab-group>
 </ng-container>
 
-<app-settings-overview *ngIf="showOverview"></app-settings-overview>
+<app-settings-overview *ngIf="showOverview" class="p-4 px-12"></app-settings-overview>

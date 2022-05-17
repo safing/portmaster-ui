@@ -1,4 +1,4 @@
-import { isDigit, isIdentChar, isWhitespace, isLetter } from "./helper";
+import { isDigit, isIdentChar, isLetter, isWhitespace } from "./helper";
 import { InputStream } from "./input";
 import { Token, TokenType } from "./token";
 
@@ -44,6 +44,8 @@ export class Lexer {
 
   /** reads a number token */
   private readNumber(): Token<TokenType.NUMBER> {
+    const start = this._input.pos;
+
     let has_dot = false;
     let number = this.readWhile((ch: string) => {
       if (ch === '.') {
@@ -65,24 +67,29 @@ export class Lexer {
     return {
       type: TokenType.NUMBER,
       literal: number,
-      value: has_dot ? parseFloat(number) : parseInt(number)
+      value: has_dot ? parseFloat(number) : parseInt(number),
+      start
     }
   }
 
   private readIdent(): Token<TokenType.IDENT | TokenType.BOOL> {
+    const start = this._input.pos;
+
     const id = this.readWhile(ch => isIdentChar(ch));
     if (id === 'true') {
       return {
         type: TokenType.BOOL,
         literal: id,
-        value: true
+        value: true,
+        start
       }
     }
     if (id === 'false') {
       return {
         type: TokenType.BOOL,
         literal: id,
-        value: false
+        value: false,
+        start
       }
     }
 
@@ -90,15 +97,17 @@ export class Lexer {
       type: TokenType.IDENT,
       literal: id,
       value: id,
+      start
     };
   }
 
-  private readEscaped(end: string | RegExp): string {
+  private readEscaped(end: string | RegExp, skipStart: boolean): string {
     let escaped = false;
     let str = '';
 
-    // Skip the start character
-    this._input.next();
+    if (skipStart) {
+      this._input.next();
+    }
 
     while (!this._input.eof()) {
       let ch = this._input.next()!;
@@ -116,25 +125,30 @@ export class Lexer {
     return str;
   }
 
-  private readString(quote: string | RegExp): Token<TokenType.STRING> {
-    const value = this.readEscaped(quote)
+  private readString(quote: string | RegExp, skipStart: boolean): Token<TokenType.STRING> {
+    const start = this._input.pos;
+    const value = this.readEscaped(quote, skipStart)
     return {
       type: TokenType.STRING,
       literal: value,
       value: value,
+      start
     }
   }
 
   private readWhitespace(): Token<TokenType.WHITESPACE> {
+    const start = this._input.pos;
     const value = this.readWhile(ch => isWhitespace(ch));
     return {
       type: TokenType.WHITESPACE,
       literal: value,
-      value: value
+      value: value,
+      start,
     }
   }
 
   private readNextToken(): Token<any> | null {
+    const start = this._input.pos;
     const ch = this._input.peek();
     if (ch === '') {
       return null;
@@ -145,11 +159,11 @@ export class Lexer {
     }
 
     if (ch === '"') {
-      return this.readString('"');
+      return this.readString('"', true);
     }
 
     if (ch === '\'') {
-      return this.readString('\'');
+      return this.readString('\'', true);
     }
 
     try {
@@ -166,7 +180,8 @@ export class Lexer {
       return {
         type: TokenType.COLON,
         value: ':',
-        literal: ':'
+        literal: ':',
+        start
       }
     }
 
@@ -175,7 +190,8 @@ export class Lexer {
       return {
         type: TokenType.NOT,
         value: '!',
-        literal: '!'
+        literal: '!',
+        start
       }
     }
 
@@ -184,17 +200,17 @@ export class Lexer {
 
       const next = this._input.peek();
       if (!this._input.eof() && (!isWhitespace(next) && next !== ':')) {
+
         // identifiers should always end in a colon or with a whitespace.
         // if neither is the case we are in the middle of a token and are
         // likely parsing a string without quotes.
-        this._input.revert(ident.literal.length + 1);
+        this._input.revert(ident.literal.length);
 
         // read the string and revert by one as we terminate the string
         // at the next WHITESPACE token
-        const tok = this.readString(new RegExp('\\s'))
-        if (!this._input.eof()) {
-          this._input.revert(1)
-        }
+        const tok = this.readString(new RegExp('\\s'), false)
+        this.revertWhitespace();
+
         return tok;
       }
 
@@ -202,19 +218,22 @@ export class Lexer {
     }
 
     if (isLetter(ch)) {
-      const tok = this.readString(new RegExp('\\s'))
-
+      const tok = this.readString(new RegExp('\\s'), false)
       // read the string and revert by one as we terminate the string
       // at the next WHITESPACE token
-      if (!this._input.eof()) {
-        this._input.revert(1)
-      }
+      this.revertWhitespace();
+
       return tok
     }
 
     // Failed to handle the input character
     return this._input.croak(`Can't handle character: ${ch}`);
   }
+
+  private revertWhitespace() {
+    this._input.revert(1)
+    if (!isWhitespace(this._input.peek())) {
+      this._input.next();
+    }
+  }
 }
-
-

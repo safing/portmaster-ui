@@ -16,8 +16,15 @@ import { SfngNetqueryLineChart } from "./line-chart/line-chart";
 import { ExpertiseModule } from "../expertise/expertise.module";
 import { SfngNetqueryTagbar } from "./tag-bar";
 import { OverlayModule } from "@angular/cdk/overlay";
-import { SfngNetquerySearchbar } from "./searchbar";
+import { SfngNetquerySearchbar, SfngNetquerySuggestionDirective } from "./searchbar";
 import { SfngPaginationModule } from "../pagination";
+import { SfngNetquerySearchOverlay } from "./search-overlay";
+import { SfngFocusModule } from "../focus";
+import { A11yModule } from "@angular/cdk/a11y";
+import { SfngNetqueryScopeLabelComponent } from "./scope-label";
+import { SfngNetqueryConnectionDetailsComponent } from "./connection-details";
+import { FontAwesomeModule } from "@fortawesome/angular-fontawesome";
+import { SfngNetqueryAddToFilterDirective } from "./add-to-filter";
 
 @NgModule({
   imports: [
@@ -30,14 +37,19 @@ import { SfngPaginationModule } from "../pagination";
     SfngAccordionModule,
     SfngMenuModule,
     SfngPaginationModule,
+    SfngFocusModule,
+    A11yModule,
     ExpertiseModule,
     OverlayModule,
     CountIndicatorModule,
+    FontAwesomeModule,
     CommonPipesModule,
   ],
   exports: [
     SfngNetqueryViewer,
-    SfngNetqueryLineChart
+    SfngNetqueryLineChart,
+    SfngNetquerySearchOverlay,
+    SfngNetqueryScopeLabelComponent,
   ],
   declarations: [
     SfngNetqueryViewer,
@@ -45,6 +57,11 @@ import { SfngPaginationModule } from "../pagination";
     SfngNetqueryLineChart,
     SfngNetqueryTagbar,
     SfngNetquerySearchbar,
+    SfngNetquerySearchOverlay,
+    SfngNetquerySuggestionDirective,
+    SfngNetqueryScopeLabelComponent,
+    SfngNetqueryConnectionDetailsComponent,
+    SfngNetqueryAddToFilterDirective,
     ConnectionLocationPipe,
     IsBlockedConnectionPipe,
     CanUseRulesPipe,

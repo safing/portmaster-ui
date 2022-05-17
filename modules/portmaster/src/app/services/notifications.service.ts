@@ -6,7 +6,7 @@ import { BehaviorSubject, combineLatest, defer, Observable, PartialObserver, thr
 import { delay, filter, map, repeatWhen, multicast, refCount, share, toArray, tap, concatMap, take } from 'rxjs/operators';
 import { environment } from 'src/environments/environment';
 import { ActionIndicatorService } from '../shared/action-indicator';
-import { Action, ActionHandler, BaseAction, Notification, NotificationState, NotificationType, OpenPageAction, OpenProfileAction, OpenSettingAction, OpenURLAction, PageIDs, WebhookAction } from './notifications.types';
+import { Action, ActionHandler, BaseAction, NetqueryAction, Notification, NotificationState, NotificationType, OpenPageAction, OpenProfileAction, OpenSettingAction, OpenURLAction, PageIDs, WebhookAction } from './notifications.types';
 import { PortapiService } from './portapi.service';
 import { RetryableOpts } from './portapi.types';
 import { VirtualNotification } from './virtual-notification';
@@ -63,6 +63,13 @@ export class NotificationsService {
       },
       "ui": (a: ActionHandler<any>) => {
         return a.Run(a);
+      },
+      "netquery": (a: NetqueryAction) => {
+        return this.router.navigate(['/monitor'], {
+          queryParams: {
+            q: a.Payload,
+          }
+        })
       },
       "call-webhook": (a: WebhookAction) => {
         let method = a.Payload.Method;
@@ -262,7 +269,7 @@ export class NotificationsService {
           const key = this.notificationPrefix + payload.EventID;
           await this.portapi.update(key, payload).toPromise();
         }
-      } catch (err) {
+      } catch (err: any) {
         const msg = this.actionIndicator.getErrorMessgae(err);
         this.actionIndicator.error('Internal Error', 'Failed to perform action: ' + msg)
       }

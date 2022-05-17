@@ -1,22 +1,22 @@
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, Input, OnChanges, OnDestroy, OnInit, SimpleChanges, TrackByFunction } from "@angular/core";
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, Input, OnChanges, OnDestroy, OnInit, SimpleChanges } from "@angular/core";
 import { Subscription } from "rxjs";
-import { Connection, IPProtocol, IsDenied, IsDNSRequest, ScopeTranslation, Verdict } from "src/app/services";
-import { ConnectionHelperService } from "../connection-helper.service";
+import { IPProtocol, IPScope, IsDenied, IsDNSRequest, NetqueryConnection, Verdict } from "src/app/services";
+import { NetqueryHelper } from "../connection-helper.service";
 
 @Component({
-  selector: 'app-ungrouped-connection-content',
-  styleUrls: ['../content.scss', './ungrouped-connection-content.scss'],
-  templateUrl: './ungrouped-connection-content.html',
+  selector: 'sfng-netquery-conn-details',
+  styleUrls: ['./conn-details.scss'],
+  templateUrl: './conn-details.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class UngroupedConnectionContentComponent implements OnInit, OnDestroy, OnChanges {
+export class SfngNetqueryConnectionDetailsComponent implements OnInit, OnDestroy, OnChanges {
   @Input()
-  conn: Connection | null = null;
+  conn: NetqueryConnection | null = null;
 
   readonly IsDNS = IsDNSRequest;
-  readonly scopeTranslation = ScopeTranslation;
   readonly verdict = Verdict;
   readonly Protocols = IPProtocol;
+  readonly scopes = IPScope;
   private _subscription = Subscription.EMPTY;
 
   connectionNotice: string = '';
@@ -28,7 +28,7 @@ export class UngroupedConnectionContentComponent implements OnInit, OnDestroy, O
   }
 
   constructor(
-    public helper: ConnectionHelperService,
+    public helper: NetqueryHelper,
     private changeDetectorRef: ChangeDetectorRef,
   ) { }
 
@@ -49,12 +49,12 @@ export class UngroupedConnectionContentComponent implements OnInit, OnDestroy, O
       return;
     }
 
-    if (this.conn!.Verdict === Verdict.Failed) {
+    if (this.conn!.verdict === Verdict.Failed) {
       this.connectionNotice = 'Failed with previous settings.'
       return;
     }
 
-    if (IsDenied(this.conn!.Verdict)) {
+    if (IsDenied(this.conn!.verdict)) {
       this.connectionNotice = 'Blocked by previous settings.';
     } else {
       this.connectionNotice = 'Allowed by previous settings.';

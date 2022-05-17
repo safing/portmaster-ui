@@ -1,11 +1,11 @@
 import { TemplatePortal } from "@angular/cdk/portal";
 import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, OnDestroy, OnInit, TemplateRef, TrackByFunction, ViewChild, ViewContainerRef } from "@angular/core";
 import { Router } from "@angular/router";
+import { profile } from "console";
 import { curveBasis, geoMercator, geoPath, interpolateString, json, line, pointer, select, Selection, zoom, zoomIdentity, ZoomTransform } from 'd3';
-import { BehaviorSubject, combineLatest, interval, Observable, of, Subject } from "rxjs";
+import { BehaviorSubject, combineLatest, forkJoin, interval, Observable, of, Subject } from "rxjs";
 import { debounceTime, delay, distinctUntilChanged, finalize, map, mergeMap, startWith, switchMap, take, takeUntil, tap, withLatestFrom } from "rxjs/operators";
-import { ConfigService, ExpertiseLevel, GeoCoordinates, IntelEntity, Issue, SPNService, SupportHubService, UnknownLocation } from "src/app/services";
-import { ConnTracker, ProcessGroup } from "src/app/services/connection-tracker.service";
+import { AppProfile, ConfigService, ExpertiseLevel, GeoCoordinates, IntelEntity, IProfileStats, Issue, Netquery, SPNService, SupportHubService, UnknownLocation } from "src/app/services";
 import { getPinCoords, Pin, SPNStatus, UserProfile } from "src/app/services/spn.types";
 import { ActionIndicatorService } from "src/app/shared/action-indicator";
 import { fadeInListAnimation } from "src/app/shared/animations";
@@ -44,7 +44,8 @@ interface _PinModel extends Pin {
 }
 
 interface _ProcessGroupModel {
-  process: ProcessGroup;
+  profile: AppProfile;
+  stats: IProfileStats | null;
   exitPins: _PinModel[];
 }
 
@@ -167,6 +168,9 @@ export class SpnPageComponent implements OnInit, OnDestroy, AfterViewInit {
   /** pins$ emits all our map and SPN pins whenever the change */
   private pins$ = new BehaviorSubject<Map<string, _PinModel>>(new Map());
 
+  /** The exit node statistics */
+  private exitNodeStats$ = new BehaviorSubject<{ [nodeID: string]: number }>({});
+
   /**
    * activePins holds a list of active/in-use pins.
    * This is calculated by navigating home from any exit node
@@ -200,7 +204,7 @@ export class SpnPageComponent implements OnInit, OnDestroy, AfterViewInit {
    * trackProfile is the TrackBy function used when rendering the list of process profiles that use the SPN.
    * See activeProfiles$.
    */
-  trackProfile: TrackByFunction<_ProcessGroupModel> = (_: number, grp: _ProcessGroupModel) => grp.process.ID;
+  trackProfile: TrackByFunction<_ProcessGroupModel> = (_: number, grp: _ProcessGroupModel) => grp.profile.ID;
 
   /**
    * trackPin is the TrackBy function when rendering the exit pins of a process profile.
@@ -209,9 +213,9 @@ export class SpnPageComponent implements OnInit, OnDestroy, AfterViewInit {
   trackPin: TrackByFunction<_PinModel> = (_: number, pin: _PinModel) => pin.ID;
 
   constructor(
-    private tracker: ConnTracker,
     private configService: ConfigService,
     private spnService: SPNService,
+    private netquery: Netquery,
     private expertiseService: ExpertiseService,
     private uai: ActionIndicatorService,
     private dialog: DialogService,
@@ -220,24 +224,79 @@ export class SpnPageComponent implements OnInit, OnDestroy, AfterViewInit {
     private router: Router,
     private cdr: ChangeDetectorRef
   ) {
-    // activeProfiles emits a list of process groups from the connection tracker
-    // that are currently using the SPN (= have exit nodes). Those process groups
-    // are enriched with a slice of exitPins and are used to display the process-exit-node
-    // tree on the left side of the SPN page.
+    const exitNodes$ = interval(5000)
+      .pipe(
+        startWith(-1),
+        switchMap(() =>
+          forkJoin({
+            stats: this.netquery.getProfileStats(),
+            exitNodes: this.netquery.query({
+              select: [
+                { $count: { field: "*", as: "totalCount" } },
+                "exit_node",
+                "profile",
+              ],
+              groupBy: [
+                "exit_node",
+                "profile",
+              ]
+            }),
+            profile: this.netquery.getActiveProfiles(),
+          }),
+        ),
+        map(profiles => {
+          // create a lookup map from process
+          const stats: { [key: string]: number } = {};
+          const processMap = new Map<string, _ProcessGroupModel & { exitNodeIds: string[] }>();
+          profiles.profile.forEach(p => {
+            processMap.set(p.Source + "/" + p.ID, {
+              profile: p,
+              exitPins: [],
+              exitNodeIds: [],
+              stats: null
+            })
+          })
+
+          profiles.stats.forEach(stat => {
+            const p = processMap.get(stat.ID)
+            if (!p) {
+              return;
+            }
+
+            p.stats = stat;
+          })
+
+          profiles.exitNodes.forEach(result => {
+            stats[result.exit_node!] = (stats[result.exit_node!] || 0) + 1;
+
+            const p = processMap.get(result.profile!)
+            if (!p) {
+              return;
+            }
+
+            p.exitNodeIds.push(result.exit_node!);
+          })
+
+          this.exitNodeStats$.next(stats);
+
+          return Array.from(processMap.values())
+        })
+      )
+
     this.activeProfiles$ = combineLatest([
-      this.tracker.profiles,
+      exitNodes$,
       this.pins$,
     ])
       .pipe(
         map(([profiles, pins]) => {
-          return profiles
-            .filter(p => !!p.exitNodes)
-            .map(p => ({
-              process: p,
-              exitPins: Object.keys(p.exitNodes!)
-                .map(n => pins.get(n))
-                .filter(n => !!n)
-            })) as any;
+          return profiles.map(p => {
+            return {
+              ...p,
+              exitPins: p.exitNodeIds
+                .map(id => pins.get(id))
+                .filter(pin => !!pin),
+            } as any
+          })
         })
       );
   }
@@ -326,18 +385,10 @@ export class SpnPageComponent implements OnInit, OnDestroy, AfterViewInit {
 
     combineLatest([
       pinUpdates$,
-      this.tracker.profiles
-        .pipe(
-          map(profiles => profiles.map(p => p.exitNodes$)),
-          switchMap(exitNodes$ => {
-            if (Object.keys(exitNodes$).length === 0) {
-              return of([])
-            }
-            return combineLatest(exitNodes$);
-          }),
-        )])
+      this.exitNodeStats$,
+    ])
       .pipe(takeUntil(this.destroy$))
-      .subscribe(([pins, exitNodesPerProcess]) => {
+      .subscribe(([pins, exitNodeStats]) => {
         let existing = this.pins$.getValue();
 
 
@@ -365,19 +416,14 @@ export class SpnPageComponent implements OnInit, OnDestroy, AfterViewInit {
           p.route = p.Route?.map(r => lm.get(r)!) || [];
         }
 
-        exitNodesPerProcess.forEach(nodes => {
-          if (nodes === null) {
-            return;
+        Object.keys(exitNodeStats).forEach(exitPinID => {
+          const p = lm.get(exitPinID || '');
+          if (!!p) {
+            p.isCurrentlyInUse = p.isCurrentlyInUse || exitNodeStats[exitPinID] > 0;
+            p.countAliveConnections += exitNodeStats[exitPinID];
+            p.isExit = true;
+            p.countProcesses++;
           }
-          Object.keys(nodes).forEach(exitPinID => {
-            const p = lm.get(exitPinID || '');
-            if (!!p) {
-              p.isCurrentlyInUse = p.isCurrentlyInUse || nodes[exitPinID] > 0;
-              p.countAliveConnections += nodes[exitPinID];
-              p.isExit = true;
-              p.countProcesses++;
-            }
-          })
         })
 
         // reset our counters as we will rebuild them now.
@@ -615,7 +661,7 @@ export class SpnPageComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   navigateToMonitor(process: _ProcessGroupModel) {
-    this.router.navigate(['/monitor/profile', process.process.Source, process.process.ID])
+    this.router.navigate(['/app', process.profile.Source, process.profile.ID])
   }
 
   ngOnDestroy() {
@@ -658,7 +704,7 @@ export class SpnPageComponent implements OnInit, OnDestroy, AfterViewInit {
     if (shiftKey) {
       this.selectedPins$.next([...newIDs, ...this.selectedPins$.getValue()]);
     } else {
-      this.selectedProcessGroup = grp.process.ID;
+      this.selectedProcessGroup = grp.profile.ID;
       this.selectedPins$.next(newIDs);
     }
   }

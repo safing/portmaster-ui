@@ -38,5 +38,6 @@ export type TokenValue<T extends TokenType> =
 export interface Token<T extends TokenType> {
   type: T;
   literal: string;
-  value: TokenValue<T>
+  value: TokenValue<T>;
+  start: number;
 }

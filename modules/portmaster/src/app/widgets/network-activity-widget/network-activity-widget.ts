@@ -1,8 +1,9 @@
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnDestroy, OnInit } from "@angular/core";
 import { BehaviorSubject, combineLatest, interval, Subject } from "rxjs";
 import { startWith, switchMap, takeUntil } from "rxjs/operators";
-import { Netquery } from "src/app/services";
-import { IProfileStats, ProcessGroup } from "src/app/services/connection-tracker.service";
+import { ExpertiseLevel, Netquery } from "src/app/services";
+import { IProfileStats } from "src/app/services/netquery.service";
+import { ExpertiseService } from "src/app/shared/expertise";
 
 @Component({
   selector: 'app-network-activity-widget',
@@ -27,6 +28,7 @@ export class NetworkActivityWidget implements OnInit, OnDestroy {
 
   constructor(
     private cdr: ChangeDetectorRef,
+    private expertise: ExpertiseService,
     private netquery: Netquery,
   ) { }
 
@@ -78,9 +80,11 @@ export class NetworkActivityWidget implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     combineLatest([
-      interval(10000).pipe(
-        startWith(-1),
-        switchMap(() => this.netquery.getProfileStats())
+      combineLatest([
+        interval(10000).pipe(startWith(-1)),
+        this.expertise.change,
+      ]).pipe(
+        switchMap(([_, expertise]) => this.netquery.getProfileStats(expertise !== ExpertiseLevel.Developer ? { internal: { $eq: false } } : {}))
       ),
       this.onSearch,            // emits the search text of the user
     ])

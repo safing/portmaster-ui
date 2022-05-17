@@ -1,5 +1,6 @@
 <ng-template #customTriggerTemplate>
   <button [class.active]="dropdown.isOpen" type="button">
+
     <ng-template [ngIf]="mode !== 'multi' || (currentItems.length || 0) <= 1" [ngIfElse]="multiTemplate">
       <span *ngIf="!currentItems.length; else: itemTemplate">
         {{ placeholder }}
@@ -11,7 +12,7 @@
           </ng-template>
           <ng-template #renderTemplate>
             <ng-container
-              *ngTemplateOutlet="currentItems[0].templateRef || dynamicValueTemplate; context: {$implicit: currentItems[0]}">
+              *ngTemplateOutlet="currentItems[0].templateRef || dynamicValueTemplate || defaultDynamicValueTemplate; context: {$implicit: currentItems[0]}">
             </ng-container>
           </ng-template>
         </span>
@@ -23,6 +24,7 @@
         {{ itemName ? itemName + ': ' : '' }}{{currentItems?.length}} selected
       </span>
     </ng-template>
+
     <div class="arrow">
       <svg viewBox="0 0 24 24" class="arrow-icon">
         <g fill="none" class="inner">
@@ -40,12 +42,13 @@
 
   <input *ngIf="allowSearch && (userProvidedItems?.length || 0) >= searchItemThreshold" type="text"
     class="w-full mb-2 rounded-t" [placeholder]="searchPlaceholder" [ngModel]="searchText"
-    (ngModelChange)="onSearch($event)">
+    (ngModelChange)="onSearch($event)" (keydown)="onKeyDown($event)" (keydown.enter)="onEnter($event)">
 
-  <ul style="max-height: 12rem" class="py-1 overflow-auto">
+  <ul style="max-height: 12rem" class="relative py-1 overflow-auto" #scrollable>
     <li *ngFor="let item of items" (click)="selectItem(item)" [sfng-tooltip]="item.description || null"
-      class="flex flex-row items-center justify-start gap-1 px-1 cursor-pointer hover:bg-gray-300"
-      snfgTooltipPosition="left" [class.cursor-not-allowed]="item.disabled">
+      class="flex flex-row items-center justify-start gap-1 px-1 transition duration-200 ease-in-out cursor-pointer hover:bg-gray-300"
+      snfgTooltipPosition="left" [class.cursor-not-allowed]="item.disabled" #renderedItem
+      [sfngSelectRenderedListItem]="item">
 
       <svg xmlns="http://www.w3.org/2000/svg" class="flex-grow-0 flex-shrink-0 w-4 h-4 transition-all duration-200"
         viewBox="0 0 20 20" fill="currentColor" [class.opacity-0]="!item.selected">
@@ -54,7 +57,8 @@
           clip-rule="evenodd" />
       </svg>
 
-      <ng-container *ngTemplateOutlet="item.templateRef || dynamicValueTemplate; context: {$implicit: item}">
+      <ng-container
+        *ngTemplateOutlet="item.templateRef || dynamicValueTemplate || defaultDynamicValueTemplate; context: {$implicit: item}">
       </ng-container>
     </li>
 
@@ -71,6 +75,6 @@
   </ul>
 </sfng-dropdown>
 
-<ng-template #dynamicValueTemplate let-data>
+<ng-template #defaultDynamicValueTemplate let-data>
   <sfng-select-item>{{ data.label || data.value }}</sfng-select-item>
 </ng-template>

@@ -1,10 +1,12 @@
-import { coerceBooleanProperty, coerceCssPixelValue, coerceNumberProperty } from '@angular/cdk/coercion';
-import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, ContentChildren, EventEmitter, forwardRef, HostBinding, HostListener, Input, OnDestroy, Output, QueryList, ViewChild } from '@angular/core';
+import { ListKeyManager, ListKeyManagerOption } from '@angular/cdk/a11y';
+import { coerceBooleanProperty, coerceNumberProperty } from '@angular/cdk/coercion';
+import { CdkScrollable } from '@angular/cdk/scrolling';
+import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, ContentChildren, Directive, ElementRef, EventEmitter, forwardRef, HostBinding, HostListener, Input, OnDestroy, Output, QueryList, TemplateRef, ViewChild, ViewChildren } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { BehaviorSubject, combineLatest, Subject } from 'rxjs';
 import { startWith, takeUntil } from 'rxjs/operators';
 import { SfngDropdown } from '../dropdown/dropdown';
-import { SelectOption, SfngSelectValueDirective } from './item';
+import { SelectOption, SfngSelectItemComponent, SfngSelectValueDirective } from './item';
 
 
 type SelectModes = 'single' | 'multi';
@@ -12,6 +14,31 @@ type ModeInput = {
   mode: SelectModes;
 }
 type SelectValue<T, S extends ModeInput> = S['mode'] extends 'single' ? T : T[];
+
+@Directive({
+  selector: '[sfngSelectRenderedListItem]'
+})
+export class SfngSelectRenderedItemDirective implements ListKeyManagerOption {
+  @Input('sfngSelectRenderedListItem')
+  option: SelectOption | null = null;
+
+  getLabel() {
+    return this.option?.label || '';
+  }
+
+  get disabled() {
+    return this.option?.disabled || false;
+  }
+
+  @HostBinding('class.bg-gray-300')
+  set focused(v: boolean) {
+    this._focused = v;
+  }
+  get focused() { return this._focused }
+  private _focused = false;
+
+  constructor(public readonly elementRef: ElementRef) { }
+}
 
 @Component({
   selector: 'sfng-select',
@@ -33,11 +60,21 @@ export class SfngSelectComponent<T> implements AfterViewInit, ControlValueAccess
   /** emits and completes when the component is destroyed. */
   private destroy$ = new Subject<void>();
 
+  /** the key manager used for keyboard support */
+  private keyManager!: ListKeyManager<SfngSelectRenderedItemDirective>;
+
   @ViewChild(SfngDropdown, { static: true })
   dropdown!: SfngDropdown;
 
+  /** A reference to the cdk-scrollable directive that's placed on the item list */
+  @ViewChild('scrollable', { read: ElementRef })
+  scrollableList?: ElementRef;
+
   @ContentChildren(SfngSelectValueDirective)
-  userProvidedItems: QueryList<SfngSelectValueDirective> | null = null;
+  userProvidedItems!: QueryList<SfngSelectValueDirective>;
+
+  @ViewChildren('renderedItem', { read: SfngSelectRenderedItemDirective })
+  renderedItems!: QueryList<SfngSelectRenderedItemDirective>;
 
   /** A list of all items available in the select box including dynamic ones. */
   allItems: SelectOption[] = []
@@ -45,7 +82,8 @@ export class SfngSelectComponent<T> implements AfterViewInit, ControlValueAccess
   /** The acutally rendered list of items after applying search and item threshold */
   items: SelectOption[] = [];
 
-  @HostBinding('tabindex')
+  @Input()
+  @HostBinding('attr.tabindex')
   readonly tabindex = 0;
 
   @HostBinding('attr.role')
@@ -126,6 +164,10 @@ export class SfngSelectComponent<T> implements AfterViewInit, ControlValueAccess
   }
   private _dynamicValues = false;
 
+  /** An optional template to use for dynamic values. */
+  @Input()
+  dynamicValueTemplate?: TemplateRef<any>;
+
   /** The minimum-width of the drop-down. See {@link SfngDropdown.minWidth} */
   @Input()
   minWidth: any;
@@ -145,6 +187,33 @@ export class SfngSelectComponent<T> implements AfterViewInit, ControlValueAccess
   }
   private _disabled: boolean = false;
 
+  @HostListener('keydown.enter', ['$event'])
+  @HostListener('keydown.space', ['$event'])
+  onEnter(event: Event) {
+    if (!this.dropdown.isOpen) {
+      this.dropdown.toggle()
+
+      event.preventDefault();
+      event.stopPropagation();
+
+      return;
+    }
+
+    if (this.keyManager.activeItem !== null && !!this.keyManager.activeItem?.option) {
+      this.selectItem(this.keyManager.activeItem.option)
+
+      event.preventDefault();
+      event.stopPropagation();
+
+      return;
+    }
+  }
+
+  @HostListener('keydown', ['$event'])
+  onKeyDown(event: KeyboardEvent) {
+    this.keyManager.onKeydown(event);
+  }
+
   @Output()
   onClose = new EventEmitter();
 
@@ -163,6 +232,51 @@ export class SfngSelectComponent<T> implements AfterViewInit, ControlValueAccess
   constructor(private cdr: ChangeDetectorRef) { }
 
   ngAfterViewInit(): void {
+    this.keyManager = new ListKeyManager(this.renderedItems)
+      .withVerticalOrientation()
+      .withHomeAndEnd()
+      .withWrap()
+      .withTypeAhead();
+
+    this.keyManager.change
+      .pipe(
+        takeUntil(this.destroy$)
+      )
+      .subscribe(itemIdx => {
+        this.renderedItems.forEach(item => {
+          item.focused = false;
+        })
+
+        this.keyManager.activeItem!.focused = true;
+
+        // the item might be out-of-view so make sure
+        // we scroll enough to have it inside the view
+        const scrollable = this.scrollableList?.nativeElement;
+        if (!!scrollable) {
+          const active = this.keyManager.activeItem!.elementRef.nativeElement;
+          const activeHeight = active.getBoundingClientRect().height;
+          const bottom = scrollable.scrollTop + scrollable.getBoundingClientRect().height;
+          const top = scrollable.scrollTop;
+
+          let scrollTo = -1;
+          if (active.offsetTop >= bottom) {
+            scrollTo = top + active.offsetTop - bottom + activeHeight;
+          } else if (active.offsetTop < top) {
+            scrollTo = active.offsetTop;
+          }
+
+          if (scrollTo > -1) {
+            scrollable.scrollTo({
+              behavior: 'smooth',
+              top: scrollTo,
+            })
+          }
+        }
+
+        this.cdr.markForCheck();
+      })
+
+
     combineLatest([
       this.userProvidedItems!.changes
         .pipe(startWith(undefined)),
@@ -201,11 +315,11 @@ export class SfngSelectComponent<T> implements AfterViewInit, ControlValueAccess
           }
 
           this.items = items.slice(0, this._maxItemLimit);
+          this.keyManager.setActiveItem(0);
 
           this.cdr.detectChanges();
         }
       );
-
   }
 
   ngOnDestroy(): void {

@@ -1,4 +1,6 @@
-<div class="relative flex items-center justify-between w-full h-full px-3 py-2 space-x-2 bg-gray-300 rounded" snfgTooltipPosition="right"
+<div
+  class="relative flex items-center justify-between w-full h-full px-3 py-2 space-x-2 bg-gray-300 border border-gray-300 rounded shadow"
+  snfgTooltipPosition="right"
   [sfng-tooltip]="spnDisabled ? disabledTooltipTemplate : interferingSettings.length > 0 ? tooltipTemplate : null">
   <span class="text-primary" [class.cursor-pointer]="interferingSettings.length > 0">
     Use SPN
@@ -6,9 +8,10 @@
 
   <!-- Display some loading until we know the state of the SPN -->
   <ng-template [ngIf]="spnDisabled !== null" [ngIfElse]="loadingTemplate">
-    <app-toggle-switch [ngModel]="currentValue" (ngModelChange)="updateUseSpn($event)" *ngIf="!spnDisabled; else: spnDisabledMessage"></app-toggle-switch>
+    <app-toggle-switch [ngModel]="currentValue" (ngModelChange)="updateUseSpn($event)"
+      *ngIf="!spnDisabled; else: spnDisabledMessage"></app-toggle-switch>
     <ng-template #spnDisabledMessage>
-      <span routerLink="/spn" class="cursor-pointer text-tertiary hover:underline" >
+      <span routerLink="/spn" class="cursor-pointer text-tertiary hover:underline">
         Disabled
       </span>
     </ng-template>

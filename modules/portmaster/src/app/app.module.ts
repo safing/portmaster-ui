@@ -31,7 +31,6 @@ import { SfngAccordionModule } from './shared/accordion';
 import { ActionIndicatorModule } from './shared/action-indicator';
 import { AppIconComponent } from './shared/app-icon';
 import { ConfigModule } from './shared/config';
-import { CanShowConnection as CanShowConnectionPipe, CanUseRulesPipe, ConnectionExpertisePipe, ConnectionLocationPipe, ConnectionsViewComponent, IsBlockedConnectionPipe, ScopeGroupContentComponent, UngroupedConnectionContentComponent, UngroupedConnectionRowComponent } from './shared/connections-view';
 import { CountIndicatorModule } from './shared/count-indicator';
 import { CountryFlagModule } from './shared/country-flag';
 import { DialogModule } from './shared/dialog';
@@ -47,12 +46,11 @@ import { SfngMultiSwitchModule } from './shared/multi-switch';
 import { NetqueryModule } from './shared/netquery';
 import { NotificationComponent } from './shared/notification/notification';
 import { OverlayStepperModule } from './shared/overlay-stepper';
-import { ProfileStatisticsComponent } from './shared/profile-stats';
-import { ScopeLabelComponent } from './shared/scope-label';
+import { SfngPaginationModule } from './shared/pagination';
+import { CommonPipesModule } from './shared/pipes';
 import { SfngSelectModule } from './shared/select';
 import { TabModule } from './shared/tabs/tabs.module';
 import { PlaceholderComponent } from './shared/text-placeholder';
-import { CommonPipesModule } from './shared/pipes';
 import { TipUpModule } from './shared/tipup';
 import { SfngToggleSwitchModule } from './shared/toggle-switch';
 import { SfngTooltipModule } from './shared/tooltip';
@@ -63,7 +61,6 @@ import { PilotWidgetComponent } from './widgets/pilot-widget';
 import { PromptWidgetComponent } from './widgets/prompt-widget';
 import { StatusWidgetComponent, StatusWidgetSettingsComponent } from './widgets/status-widget';
 import { WIDGET_DEFINTIONS } from './widgets/widget.types';
-import { SfngPaginationModule } from './shared/pagination';
 
 @NgModule({
   declarations: [
@@ -73,7 +70,6 @@ import { SfngPaginationModule } from './shared/pagination';
     MonitorPageComponent,
     SideDashComponent,
     NavigationComponent,
-    ConnectionsViewComponent,
     WidgetSettingsOutletComponent,
     StatusWidgetComponent,
     StatusWidgetSettingsComponent,
@@ -81,7 +77,6 @@ import { SfngPaginationModule } from './shared/pagination';
     StatusWidgetComponent,
     StatusWidgetSettingsComponent,
     MarkdownWidgetSettingsComponent,
-    ProfileStatisticsComponent,
     MarkdownWidgetComponent,
     NotificationWidgetSettingsComponent,
     NotificationWidgetComponent,
@@ -95,15 +90,6 @@ import { SfngPaginationModule } from './shared/pagination';
     PromptWidgetComponent,
     LoadingComponent,
     ExternalLinkDirective,
-    ScopeLabelComponent,
-    ScopeGroupContentComponent,
-    UngroupedConnectionContentComponent,
-    UngroupedConnectionRowComponent,
-    ConnectionExpertisePipe,
-    ConnectionLocationPipe,
-    CanUseRulesPipe,
-    CanShowConnectionPipe,
-    IsBlockedConnectionPipe,
     ExitScreenComponent,
     SupportPageComponent,
     SupportFormComponent,

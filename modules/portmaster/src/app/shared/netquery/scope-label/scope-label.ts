@@ -1,18 +1,14 @@
 import { ChangeDetectionStrategy, Component, Input, OnChanges, SimpleChanges } from '@angular/core';
-import { parseDomain } from '../utils';
+import { parseDomain } from '../../utils';
 import { ScopeTranslation } from 'src/app/services';
 import { coerceBooleanProperty } from '@angular/cdk/coercion';
 
 @Component({
-  selector: 'app-scope-label',
+  selector: 'sfng-netquery-scope-label',
   templateUrl: 'scope-label.html',
-  styleUrls: [
-    './scope-label.scss'
-  ],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  preserveWhitespaces: false,
 })
-export class ScopeLabelComponent implements OnChanges {
+export class SfngNetqueryScopeLabelComponent implements OnChanges {
   readonly scopeTranslation = ScopeTranslation;
 
   @Input()
@@ -20,10 +16,9 @@ export class ScopeLabelComponent implements OnChanges {
 
   @Input()
   set leftRightFix(v: any) {
-    this._leftRightFix = coerceBooleanProperty(v);
+    console.warn("deprecated @Input usage")
   }
-  get leftRightFix() { return this._leftRightFix; }
-  private _leftRightFix = false;
+  get leftRightFix() { return false }
 
   domain: string = '';
   subdomain: string = '';

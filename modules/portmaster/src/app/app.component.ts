@@ -1,4 +1,5 @@
-import { ChangeDetectorRef, Component, NgZone, OnInit } from '@angular/core';
+import { Overlay } from '@angular/cdk/overlay';
+import { ChangeDetectorRef, Component, HostListener, NgZone, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { debounceTime, filter, mergeMap, skip, startWith, take } from 'rxjs/operators';
 import { IntroModule } from './intro';
@@ -6,7 +7,9 @@ import { Notification, NotificationsService, NotificationType, UIStateService } 
 import { PortapiService } from './services/portapi.service';
 import { ActionIndicator, ActionIndicatorService } from './shared/action-indicator';
 import { fadeInAnimation, fadeOutAnimation } from './shared/animations';
+import { DialogService } from './shared/dialog';
 import { ExitService } from './shared/exit-screen';
+import { SfngNetquerySearchOverlay } from './shared/netquery/search-overlay';
 import { OverlayStepper, StepperRef } from './shared/overlay-stepper';
 
 @Component({
@@ -27,6 +30,25 @@ export class AppComponent implements OnInit {
 
   get showOverlay$() { return this.exitService.showOverlay$ }
 
+  @HostListener('document:keydown', ['$event'])
+  onKeyDown(event: KeyboardEvent) {
+    if (event.key === ' ' && event.ctrlKey) {
+      this.dialog.create(
+        SfngNetquerySearchOverlay,
+        {
+          positionStrategy: this.overlay
+            .position()
+            .global()
+            .centerHorizontally()
+            .top('1rem'),
+          backdrop: 'light',
+          autoclose: true,
+        }
+      )
+      return;
+    }
+  }
+
   constructor(
     public ngZone: NgZone,
     public portapi: PortapiService,
@@ -36,6 +58,8 @@ export class AppComponent implements OnInit {
     private actionIndicatorService: ActionIndicatorService,
     private exitService: ExitService,
     private overlayStepper: OverlayStepper,
+    private dialog: DialogService,
+    private overlay: Overlay,
     private stateService: UIStateService,
   ) {
     (window as any).fakeNotification = () => {

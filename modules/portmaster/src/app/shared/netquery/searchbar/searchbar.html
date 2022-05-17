@@ -1,8 +1,21 @@
-<input cdkOverlayOrigin class="w-full rounded-tr-sm" type="text" [(ngModel)]="textSearch"
-  placeholder="Search connections" (keydown)="onSearchKeyDown($event)" (blur)="_onTouched()">
+<input [cdkTrapFocus]="false" [cdkTrapFocusAutoCapture]="true" cdkOverlayOrigin class="w-full rounded-tr-sm" type="text"
+  [(ngModel)]="textSearch" placeholder="Search for connections, press ENTER to apply"
+  (keydown)="onSearchKeyDown($event)" (blur)="onFocusLost($event)" (ngModelChange)="onSearchModelChange($event)"
+  #searchBar>
 
-<sfng-dropdown externalTrigger="true" #suggestionDropdown>
-  <div class="flex flex-col items-start justify-start w-full gap-4 p-3 px-4">
+
+<sfng-dropdown externalTrigger="true" #suggestionDropdown *ngIf="mode === 'default'; else: suggestionTemplate">
+  <ng-container *ngTemplateOutlet="suggestionTemplate"></ng-container>
+</sfng-dropdown>
+
+<ng-template #suggestionTemplate>
+  <div sfng-netquery-suggestion>
+    <!-- fake option -->
+  </div>
+
+  <div class="flex flex-col items-start justify-start w-full gap-4 p-3 px-4" (mouseenter)="cancelDropdownClose()"
+    [@fadeInList]="suggestions.length" (mousemove)="resetKeyboardSelection()">
+
     <ng-container *ngFor="let sug of suggestions; trackBy: trackSuggestion">
       <div class="flex flex-col items-start self-stretch justify-start gap-1">
         <h3 class="flex flex-row items-center w-full gap-2 text-xxs text-tertiary">
@@ -10,17 +23,36 @@
           <span class="flex-grow inline-block border-t border-gray-400"></span>
         </h3>
         <ul class="self-stretch">
-          <li *ngFor="let val of sug.values" (click)="applySuggestion(sug.field, val.value)"
-            class="flex flex-row justify-between w-full px-2 py-1 rounded-sm cursor-pointer hover:bg-gray-400">
-            <span class="text-primary">{{ val.value }}</span>
+          <li *ngFor="let val of sug.values" (click)="applySuggestion(sug.field, val.value, $event, sug.start)"
+            [sfng-netquery-suggestion]="val.value" [sfngSuggestion]="sug"
+            class="flex flex-row justify-between w-full gap-2 px-2 py-1 rounded-sm cursor-pointer hover:bg-gray-300">
+            <span class="text-primary">{{ val.value === '' ? 'N/A' : val.value }}</span>
             <span class="text-secondary">#{{ val.count }} connections</span>
           </li>
         </ul>
       </div>
     </ng-container>
 
-    <ng-container *ngIf="!suggestions?.length">
-      No suggestions that match your query.
+    <div class="flex flex-row items-center justify-start w-full gap-2 text-xs border-gray-400 text-primary" [@fadeIn]
+      *ngIf="loading" [ngClass]="{'border-t pt-2': !!suggestions?.length}">
+      <svg class="w-4 h-4 text-secondary animate-spin" xmlns="http://www.w3.org/2000/svg" fill="none"
+        viewBox="0 0 24 24">
+        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+        <path class="opacity-75" fill="currentColor"
+          d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+        </path>
+      </svg>
+      Loading suggestions ...
+    </div>
+
+    <ng-container *ngIf="!suggestions?.length && !loading">
+      <span>
+        There are no suggestions for your query. Press
+        <pre
+          class="inline-block text-xxs uppercase rounded-sm bg-gray-500 bg-opacity-25 font-mono border-gray-500 border px-0.5">Enter</pre>
+        to
+        perform a full text search.
+      </span>
     </ng-container>
   </div>
-</sfng-dropdown>
+</ng-template>

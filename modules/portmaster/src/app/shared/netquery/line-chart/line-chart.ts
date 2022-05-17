@@ -12,12 +12,8 @@ import { timeAgo } from '../../pipes';
     :host {
       @apply block;
     }
-    .hideAxis path {
-      @apply opacity-50
-    }
     `
   ],
-  encapsulation: ViewEncapsulation.None,
   templateUrl: './line-chart.html',
 })
 export class SfngNetqueryLineChart implements OnChanges, OnInit, AfterViewInit {
@@ -40,8 +36,8 @@ export class SfngNetqueryLineChart implements OnChanges, OnInit, AfterViewInit {
   xScale!: any;
   xAxis!: any;
   yAxis!: any;
-  areaGroup!: any;
-  lineGroup!: any;
+  activeConnGroup!: any;
+  blockedConnGroup!: any;
 
   @Input()
   set showAxis(v: any) {
@@ -88,18 +84,16 @@ export class SfngNetqueryLineChart implements OnChanges, OnInit, AfterViewInit {
   private initializeChart(): void {
     this.svg = d3
       .select(this.chartElem.nativeElement)
-      .select('.linechart')
       .append('svg')
-      .attr('height', '100%');
 
     this.svgInner = this.svg
       .append('g')
-      .style('transform', 'translate(' + this.margin + 'px, ' + this.margin + 'px)');
+      .attr('height', '100%');
 
 
     this.yScale = d3
       .scaleLinear()
-      .domain([d3.max(this.data, d => d.value)! + 1, 0])
+      .domain([d3.max(this.data, d => d.value + d.countBlocked)! + 1, 0])
       .range([0, this.height - this.yMargin]);
 
     this.data.sort((a, b) => a.timestamp - b.timestamp)
@@ -107,40 +101,55 @@ export class SfngNetqueryLineChart implements OnChanges, OnInit, AfterViewInit {
     const now = new Date();
     this.xScale = d3.scaleTime().domain([new Date(now.getTime() - 10 * 60 * 1000), now]);
 
-    if (this.showAxis) {
-      this.yAxis = this.svgInner
-        .append('g')
-        .attr('id', 'y-axis')
-        .attr('class', 'text-secondary text-opacity-75 hideAxis')
-        .style('transform', 'translate(' + (this.width - this.yMargin) + 'px,  0)');
+    this.svgInner
+      .append('path')
+      .attr("fill", "currentColor")
+      .attr("class", "active-area text-green-100")
 
-      this.xAxis = this.svgInner
-        .append('g')
-        .attr('id', 'x-axis')
-        .attr('class', 'text-secondary text-opacity-50 hideAxis')
-        .style('transform', 'translate(0, ' + (this.height - this.yMargin) + 'px)');
-    }
+    this.svgInner
+      .append('path')
+      .attr("fill", "currentColor")
+      .attr("class", "blocked-area text-red-100")
 
-    this.lineGroup = this.svgInner
+    this.activeConnGroup = this.svgInner
       .append('g')
       .append('path')
       .attr('id', 'line')
       .style('fill', 'none')
       .style('stroke', 'currentColor')
       .style('stroke-width', '1')
+      .attr('class', 'text-green-300')
 
-    this.areaGroup = this.svgInner
+    this.blockedConnGroup = this.svgInner
+      .append('g')
       .append('path')
-      .attr("fill", "currentColor")
-      .attr("class", "area text-green-100 text-opacity-25")
-      .transition()
-      .duration(300)
+      .attr('id', 'blocked-line')
+      .style('fill', 'none')
+      .style('stroke', 'currentColor')
+      .style('stroke-width', '1')
+      .attr("class", "text-red-300")
+
+    if (this.showAxis) {
+      this.yAxis = this.svgInner
+        .append('g')
+        .attr('id', 'y-axis')
+        .attr('class', 'text-secondary text-opacity-75 ')
+        .style('transform', 'translate(' + (this.width - this.yMargin) + 'px,  0)');
+
+      this.xAxis = this.svgInner
+        .append('g')
+        .attr('id', 'x-axis')
+        .attr('class', 'text-secondary text-opacity-50 ')
+        .style('transform', 'translate(0, ' + (this.height - this.yMargin) + 'px)');
+    }
+
   }
 
   private drawChart(): void {
     this.width = this.chartElem.nativeElement.getBoundingClientRect().width;
     this.height = this.chartElem.nativeElement.getBoundingClientRect().height;
     this.svg.attr('width', this.width);
+    this.svg.attr('height', this.height);
 
     this.xScale.range([0, this.width - this.yMargin]);
 
@@ -174,15 +183,29 @@ export class SfngNetqueryLineChart implements OnChanges, OnInit, AfterViewInit {
       .y1(d => d[1])
       .curve(d3.curveMonotoneX)
 
-    const points: [number, number][] = this.data.map(d => [
+    const activeConnPoints: [number, number][] = this.data.map(d => [
       this.xScale(new Date(d.timestamp * 1000)),
-      this.yScale(d.value),
+      this.yScale(d.value + d.countBlocked),
     ]);
 
-    this.lineGroup.attr('d', line(points));
+    const blockedConnPoints: [number, number][] = this.data.map(d => [
+      this.xScale(new Date(d.timestamp * 1000)),
+      this.yScale(d.countBlocked),
+    ]);
 
-    this.svgInner.selectAll('.area')
-      .data([points])
-      .attr('d', area(points))
+    this.blockedConnGroup.attr('d', line(blockedConnPoints))
+
+    this.svgInner.selectAll('.active-area')
+      .data([activeConnPoints])
+      .attr('d', area(activeConnPoints))
+
+    this.svgInner.selectAll('.blocked-area')
+      .data([blockedConnPoints])
+      .attr('d', area(blockedConnPoints))
+
+    this.blockedConnGroup.attr('d', line(blockedConnPoints));
+
+    this.activeConnGroup.attr('d', line(activeConnPoints))
+
   }
 }

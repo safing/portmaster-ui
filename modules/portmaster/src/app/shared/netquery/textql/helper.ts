@@ -13,7 +13,7 @@ export function isWhitespace(ch: string): boolean {
 }
 
 export function isLetter(ch: string): boolean {
-  return /[a-zA-Z0-9\._-]/.test(ch)
+  return new RegExp('[\/a-zA-Z0-9\._-]').test(ch)
 }
 
 export function isIdentChar(ch: string): boolean {

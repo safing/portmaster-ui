@@ -1,25 +1,24 @@
-import { Directive, ElementRef, Input } from "@angular/core";
+import { coerceBooleanProperty } from "@angular/cdk/coercion";
+import { Directive, ElementRef, Input, OnInit } from "@angular/core";
 
 @Directive({
   selector: '[autoFocus]',
 })
-export class AutoFocusDirective {
-  private _first = true;
+export class AutoFocusDirective implements OnInit {
+  private _focus = true;
 
   @Input('autoFocus')
   set focus(v: any) {
-    // Skip the very first input change.
-    if (this._first) {
-      this._first = false;
-      return;
-    }
-
-    if (!!v) {
-      this.elementRef.nativeElement.focus();
-    } else {
-      this.elementRef.nativeElement.blur();
-    }
+    this._focus = coerceBooleanProperty(v) !== false;
   }
 
   constructor(private elementRef: ElementRef) { }
+
+  ngOnInit(): void {
+    setTimeout(() => {
+      if (this._focus) {
+        this.elementRef.nativeElement.focus();
+      }
+    }, 100)
+  }
 }

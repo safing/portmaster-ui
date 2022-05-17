@@ -33,11 +33,11 @@ const routes: Routes = [
   },
   {
     path: 'monitor',
-    redirectTo: 'monitor/profile/overview/overview',
+    component: MonitorPageComponent,
   },
   {
     path: 'monitor/profile/:source/:profile',
-    component: MonitorPageComponent,
+    redirectTo: 'monitor',
   },
   {
     path: 'widget/new',

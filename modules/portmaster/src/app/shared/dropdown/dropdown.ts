@@ -1,6 +1,6 @@
 import { coerceBooleanProperty, coerceCssPixelValue, coerceNumberProperty } from "@angular/cdk/coercion";
 import { CdkOverlayOrigin, ConnectedPosition, ScrollStrategy, ScrollStrategyOptions } from "@angular/cdk/overlay";
-import { EventEmitter, ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, Input, OnInit, Output, Renderer2, TemplateRef } from "@angular/core";
+import { EventEmitter, ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, Input, OnInit, Output, Renderer2, TemplateRef, ViewChild } from "@angular/core";
 import { fadeInAnimation, fadeOutAnimation } from '../animations';
 
 @Component({
@@ -19,6 +19,7 @@ import { fadeInAnimation, fadeOutAnimation } from '../animations';
 })
 export class SfngDropdown implements OnInit {
   /** The trigger origin used to open the drop-down */
+  @ViewChild('trigger', { read: CdkOverlayOrigin })
   trigger: CdkOverlayOrigin | null = null;
 
   /**
@@ -151,16 +152,19 @@ export class SfngDropdown implements OnInit {
   }
 
   onOverlayClosed() {
-    this.trigger = null;
     this.onClose.next();
   }
 
   close() {
+    if (!this.isOpen) {
+      return;
+    }
+
     this.isOpen = false;
     this.changeDetectorRef.markForCheck();
   }
 
-  toggle(t: CdkOverlayOrigin) {
+  toggle(t: CdkOverlayOrigin | null = this.trigger) {
     if (this.isOpen) {
       this.close();
 
@@ -170,7 +174,11 @@ export class SfngDropdown implements OnInit {
     this.show(t);
   }
 
-  show(t: CdkOverlayOrigin) {
+  show(t: CdkOverlayOrigin | null = this.trigger) {
+    if (t === null) {
+      return;
+    }
+
     if (this.isOpen || this._disabled) {
       return;
     }

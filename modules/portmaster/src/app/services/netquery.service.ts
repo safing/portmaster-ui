@@ -1,13 +1,11 @@
 import { HttpClient } from "@angular/common/http";
-import { StringMap } from "@angular/compiler/src/compiler_facade_interface";
 import { Injectable } from "@angular/core";
-import { forkJoin, Observable, of } from "rxjs";
-import { map, mergeMap, switchMap } from "rxjs/operators";
+import { forkJoin, Observable } from "rxjs";
+import { map, mergeMap } from "rxjs/operators";
 import { environment as env } from '../../environments/environment';
 import { AppProfileService } from "./app-profile.service";
 import { AppProfile } from "./app-profile.types";
-import { IProfileStats } from "./connection-tracker.service";
-import { IPScope, TunnelContext, Verdict } from "./network.types";
+import { DNSContext, IPScope, Reason, TLSContext, TunnelContext, Verdict } from "./network.types";
 import { PortapiService } from "./portapi.service";
 
 export interface FieldSelect {
@@ -78,10 +76,16 @@ type BatchResult<T extends BatchQuery> = {
   }
 }
 
+export interface TextSearch {
+  fields: string[];
+  value: string;
+}
+
 export interface Query {
   select?: string | Select | (Select | string)[];
   query?: Condition;
   orderBy?: string | OrderBy | (OrderBy | string)[];
+  textSearch?: TextSearch;
   groupBy?: string[];
   pageSize?: number;
   page?: number;
@@ -89,8 +93,8 @@ export interface Query {
 
 export interface NetqueryConnection {
   id: string;
+  allowed: boolean;
   profile: string;
-  profileSource: string;
   path: string;
   type: 'dns' | 'ip';
   external: boolean;
@@ -115,22 +119,38 @@ export interface NetqueryConnection {
   internal: boolean;
   direction: 'inbound' | 'outbound';
   profile_revision: number;
+  exit_node?: string;
   extra_data?: {
+    pid?: number;
     cname?: string[];
     blockedByLists?: string[];
     blockedEntities?: string[];
-    reason?: string[];
+    reason?: Reason;
     tunnel?: TunnelContext;
+    dns?: DNSContext;
+    tls?: TLSContext;
   };
 }
 
 export interface ChartResult {
   timestamp: number;
   value: number;
+  countBlocked: number;
 }
 
 export interface QueryResult extends Partial<NetqueryConnection> {
   [key: string]: any;
+}
+
+export interface IProfileStats {
+  ID: string;
+  Name: string;
+
+  size: number;
+  empty: boolean;
+  countAllowed: number;
+  countUnpermitted: number;
+  countAliveConnections: number;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -143,12 +163,13 @@ export class Netquery {
 
   query(query: Query): Observable<QueryResult[]> {
     return this.http.post<{ results: QueryResult[] }>(`${env.httpAPI}/v1/netquery/query`, query)
-      .pipe(map(res => res.results));
+      .pipe(map(res => res.results || []));
   }
 
-  activeConnectionChart(cond: Condition): Observable<ChartResult[]> {
+  activeConnectionChart(cond: Condition, textSearch?: TextSearch): Observable<ChartResult[]> {
     return this.http.post<{ results: ChartResult[] }>(`${env.httpAPI}/v1/netquery/charts/connection-active`, {
-      query: cond
+      query: cond,
+      textSearch,
     })
       .pipe(map(res => {
         const now = new Date();
@@ -158,6 +179,7 @@ export class Netquery {
         let lastPoint: ChartResult | null = {
           timestamp: Math.floor(now.getTime() / 1000 - 600),
           value: 0,
+          countBlocked: 0,
         };
         res.results?.forEach(point => {
           if (!!lastPoint && lastPoint.timestamp < (point.timestamp - 10)) {
@@ -165,6 +187,7 @@ export class Netquery {
               data.push({
                 timestamp: i,
                 value: 0,
+                countBlocked: 0,
               })
             }
           }
@@ -178,6 +201,7 @@ export class Netquery {
             data.push({
               timestamp: i,
               value: 0,
+              countBlocked: 0
             })
           }
         }
@@ -190,15 +214,13 @@ export class Netquery {
     return this.query({
       select: [
         'profile',
-        'profileSource'
       ],
       groupBy: [
         'profile',
-        'profileSource'
       ],
     }).pipe(
       map(result => {
-        return result.map(res => `${res.profileSource}/${res.profile}`);
+        return result.map(res => res.profile!);
       })
     )
   }
@@ -216,13 +238,11 @@ export class Netquery {
       verdicts: this.query({
         select: [
           'profile',
-          'profileSource',
           'verdict',
           { $count: { field: '*', as: 'totalCount' } },
         ],
         groupBy: [
           'profile',
-          'profileSource',
           'verdict',
         ],
         query: query,
@@ -231,13 +251,11 @@ export class Netquery {
       conns: this.query({
         select: [
           'profile',
-          'profileSource',
           { $count: { field: '*', as: 'totalCount' } },
           { $count: { field: 'ended', as: 'countEnded' } },
         ],
         groupBy: [
           'profile',
-          'profileSource',
         ],
         query: query,
       })
@@ -246,10 +264,9 @@ export class Netquery {
       map(result => {
         let statsMap = new Map<string, IProfileStats>();
         result.verdicts?.forEach((res: any) => {
-          const id = `${res.profileSource}/${res.profile}`;
+          const id = res.profile;
           let stats = statsMap.get(id) || {
             ID: res.profile,
-            Source: res.profileSource,
             Name: 'TODO',
             countAliveConnections: 0,
             countAllowed: 0,
@@ -281,8 +298,7 @@ export class Netquery {
         })
 
         result.conns?.forEach(res => {
-          const id = `${res.profileSource}/${res.profile}`;
-          let stats = statsMap.get(id)!;
+          let stats = statsMap.get(res.profile!)!;
 
           stats.countAliveConnections = res.totalCount - res.countEnded;
         })
@@ -290,11 +306,11 @@ export class Netquery {
         return Array.from(statsMap.values())
       }),
       mergeMap(stats => {
-        return forkJoin(stats.map(p => this.profileService.getAppProfile(`${p.Source}/${p.ID}`)))
+        return forkJoin(stats.map(p => this.profileService.getAppProfile(p.ID)))
           .pipe(
             map(profiles => {
               let lm = new Map<string, IProfileStats>();
-              stats.forEach(stat => lm.set(`${stat.Source}/${stat.ID}`, stat));
+              stats.forEach(stat => lm.set(stat.ID, stat));
 
               profiles.forEach(p => {
                 let stat = lm.get(`${p.Source}/${p.ID}`)

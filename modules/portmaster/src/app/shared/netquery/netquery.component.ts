@@ -1,13 +1,20 @@
 import { coerceArray } from "@angular/cdk/coercion";
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, Input, OnDestroy, OnInit, TrackByFunction } from "@angular/core";
+import { ObserversModule } from "@angular/cdk/observers";
+import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, Inject, Injector, Input, OnDestroy, OnInit, QueryList, TemplateRef, TrackByFunction, ViewChild, ViewChildren } from "@angular/core";
+import { ActivatedRoute, Router } from "@angular/router";
 import { forkJoin, Observable, of, Subject } from "rxjs";
-import { catchError, debounceTime, map, switchMap } from "rxjs/operators";
+import { ObserveOnSubscriber } from "rxjs/internal/operators/observeOn";
+import { catchError, debounceTime, filter, map, switchMap, takeUntil, tap } from "rxjs/operators";
 import { ChartResult, Condition, Netquery, NetqueryConnection, PossilbeValue, Query, QueryResult, Select, Verdict } from "src/app/services";
 import { ActionIndicatorService } from "../action-indicator";
 import { ExpertiseService } from "../expertise";
 import { Datasource, DynamicItemsPaginator } from "../pagination";
+import { objKeys } from "../utils";
+import { NetqueryHelper } from "./connection-helper.service";
 import { SfngSearchbarFields } from "./searchbar";
 import { SfngTagbarValue } from "./tag-bar";
+import { Parser } from "./textql";
+import { connectionFieldTranslation, mergeConditions } from "./utils";
 
 interface Suggestion<T = any> extends PossilbeValue<T> {
   count: number;
@@ -17,6 +24,8 @@ interface Model<T> {
   suggestions: Suggestion<T>[];
   searchValues: any[];
   visible: boolean;
+  decodeValue?: (val: string) => T,
+  encodeValue?: (val: T) => string,
 }
 
 const freeTextSearchFields: (keyof Partial<NetqueryConnection>)[] = [
@@ -30,7 +39,7 @@ const groupByKeys: (keyof Partial<NetqueryConnection>)[] = [
   'as_owner',
   'country',
   'direction',
-  'path'
+  'path',
 ]
 
 const orderByKeys: (keyof Partial<NetqueryConnection>)[] = [
@@ -43,28 +52,45 @@ const orderByKeys: (keyof Partial<NetqueryConnection>)[] = [
   'ended'
 ]
 
+interface LocalQueryResult extends QueryResult {
+  _chart: Observable<ChartResult[]> | null;
+  _group: Observable<DynamicItemsPaginator<NetqueryConnection>> | null;
+}
+
 @Component({
   selector: 'sfng-netquery-viewer',
   templateUrl: './netquery.component.html',
+  providers: [
+    NetqueryHelper,
+  ],
   styles: [
     `
     :host {
-      @apply flex flex-col h-full gap-3 overflow-hidden;
+      @apply flex flex-col gap-3 pr-3 min-h-full;
+    }
+
+    .protip pre {
+      @apply inline-block text-xxs uppercase rounded-sm bg-gray-500 bg-opacity-25 font-mono border-gray-500 border px-0.5;
     }
     `
   ],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class SfngNetqueryViewer implements OnInit, OnDestroy {
-
-  /** @private - used to trigger a reload of the current filter */
+export class SfngNetqueryViewer implements OnInit, OnDestroy, AfterViewInit {
+  /** @private Used to trigger a reload of the current filter */
   private search$ = new Subject();
 
-  /** @private - emits and completed when the component is destroyed */
+  /** @private Emits and completed when the component is destroyed */
   private destroy$ = new Subject();
 
+  /** @private Whether or not the next update on ActivatedRoute should be ignored */
+  private skipNextRouteUpdate = false;
+
+  /** @private Whether or not we should update the URL when performSearch() finishes */
+  private skipUrlUpdate = false;
+
   /** @private - The paginator used for the result set */
-  paginator!: DynamicItemsPaginator<QueryResult>;
+  paginator!: DynamicItemsPaginator<LocalQueryResult>;
 
   /** The value of the free-text search */
   textSearch: string = '';
@@ -75,24 +101,29 @@ export class SfngNetqueryViewer implements OnInit, OnDestroy {
   /** a list of allowed order-by keys */
   readonly allowedOrderBy = orderByKeys;
 
-  /** @private - whether or not we are currently loading data */
+  /** @private Whether or not we are currently loading data */
   loading = false;
 
-  /** @private - the total amount of results */
-  totalCount = 0;
-
-  /** @private - the chart data */
+  /** @private The chart data */
   chartData: ChartResult[] = [];
+
+  @ViewChildren('proTip', { read: TemplateRef })
+  proTips!: QueryList<TemplateRef<any>>
+
+  proTipIdx = 0;
 
   constructor(
     private netquery: Netquery,
+    private helper: NetqueryHelper,
     private expertise: ExpertiseService,
     private cdr: ChangeDetectorRef,
-    private actionIndicator: ActionIndicatorService
+    private actionIndicator: ActionIndicatorService,
+    private route: ActivatedRoute,
+    private router: Router,
   ) { }
 
   @Input()
-  set filters(v: any) {
+  set filters(v: any | keyof this['models'] | (keyof this['models'])[]) {
     v = coerceArray(v);
     Object.keys(this.models).forEach((key: any) => {
       this.models[key as keyof NetqueryConnection]!.visible = false;
@@ -111,47 +142,54 @@ export class SfngNetqueryViewer implements OnInit, OnDestroy {
     })
   }
 
+  @Input()
+  mergeFilter: Condition | null = null;
+
   /** @private Holds the value displayed in the tag-bar */
   tagbarValues: SfngTagbarValue[] = [];
 
-  models: { [key in keyof Partial<NetqueryConnection>]: Model<any> } = {
+  models: { [key in keyof NetqueryConnection]?: Model<any> } = initializeModels({
     domain: {
-      searchValues: [],
-      suggestions: [],
       visible: true,
     },
     path: {
-      searchValues: [],
-      suggestions: [],
       visible: true,
     },
     as_owner: {
-      searchValues: [],
-      suggestions: [],
       visible: true,
     },
     country: {
-      searchValues: [],
-      suggestions: [],
       visible: true,
-    }
-  }
+    },
+    internal: {},
+    allowed: {},
+    type: {},
+    tunneled: {},
+    encrypted: {},
+    scope: {},
+    verdict: {
+      decodeValue: (val: string) => Verdict[val as any],
+      encodeValue: (val: any) => Verdict[val],
+    },
+    started: {},
+    ended: {},
+    profile_revision: {},
+    remote_ip: {},
+    remote_port: {},
+    local_ip: {},
+    local_port: {},
+    profile: {},
+    direction: {},
+    exit_node: {},
+  })
 
-  keyTranslation: { [key: string]: string } = {
-    domain: "Domain",
-    path: "Application",
-    as_owner: "Organization",
-    country: "Country",
-    direction: 'Direction',
-    started: 'Started',
-    ended: 'Ended'
-  }
+  keyTranslation = connectionFieldTranslation;
 
   groupByKeys: string[] = [];
   orderByKeys: string[] = [];
 
   ngOnInit(): void {
-    const dataSource: Datasource<QueryResult> = {
+    const dataSource: Datasource<LocalQueryResult> = {
       view: (page: number, pageSize: number) => {
         const query = this.getQuery();
         query.page = page - 1; // UI starts at page 1 while the backend is 0-based
@@ -169,6 +207,7 @@ export class SfngNetqueryViewer implements OnInit, OnDestroy {
                 return {
                   ...r,
                   _chart: this.groupByKeys.length > 0 ? this.getGroupChart(grpFilter) : null,
+                  _group: this.groupByKeys.length > 0 ? this.lazyLoadGroup(grpFilter) : null,
                 }
               });
             })
@@ -200,9 +239,7 @@ export class SfngNetqueryViewer implements OnInit, OnDestroy {
                 }),
               ),
             totalCount: this.netquery.query({
-              query: query.query,
-              groupBy: query.groupBy,
-              orderBy: query.orderBy,
+              ...query,
               select: { $count: { field: '*', as: 'totalCount' } },
             })
               .pipe(
@@ -218,21 +255,103 @@ export class SfngNetqueryViewer implements OnInit, OnDestroy {
       )
       .subscribe(result => {
         this.chartData = result.chart;
-        this.totalCount = result.totalCount;
 
         // reset the paginator with the new total result count and
         // open the first page.
-        this.paginator.reset(this.totalCount);
+        this.paginator.reset(result.totalCount);
+
+        // update the current URL to include the new search
+        // query and make sure we skip the update
+        if (!this.skipUrlUpdate) {
+          this.skipNextRouteUpdate = true;
+          this.router.navigate([], {
+            relativeTo: this.route,
+            queryParams: {
+              ...this.route.snapshot.queryParams,
+              q: this.getQueryString(),
+            }
+          })
+        }
+        this.skipUrlUpdate = false;
 
         this.loading = false;
         this.cdr.markForCheck();
       })
+
+    this.route.queryParamMap
+      .pipe(
+        takeUntil(this.destroy$),
+      )
+      .subscribe(params => {
+        if (this.skipNextRouteUpdate) {
+          this.skipNextRouteUpdate = false;
+          return;
+        }
+
+        const query = params.get("q")
+
+        if (query !== null) {
+          objKeys(this.models).forEach(key => {
+            this.models[key]!.searchValues = [];
+          })
+
+          const result = Parser.parse(query!)
+
+          this.onFieldsParsed(result.conditions);
+          this.textSearch = result.textQuery;
+        }
+
+        this.skipUrlUpdate = true;
+        this.performSearch();
+      })
+
+    this.helper.onFieldsAdded()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(fields => this.onFieldsParsed(fields))
+  }
+
+  ngAfterViewInit(): void {
+    this.proTipIdx = Math.floor(Math.random() * this.proTips.length);
   }
 
   ngOnDestroy() {
     this.destroy$.next();
     this.destroy$.complete();
     this.search$.complete();
+    this.helper.dispose();
+  }
+
+  lazyLoadGroup(groupFilter: Condition): Observable<DynamicItemsPaginator<NetqueryConnection>> {
+    return new Observable(observer => {
+      this.netquery.query({
+        query: groupFilter,
+        select: [
+          { $count: { field: "*", as: "totalCount" } }
+        ],
+        orderBy: [
+          { field: 'started', desc: true },
+          { field: 'ended', desc: true }
+        ],
+      }).subscribe(result => {
+        const paginator = new DynamicItemsPaginator<NetqueryConnection>({
+          view: (pageNumber: number, pageSize: number) => {
+            return this.netquery.query({
+              query: groupFilter,
+              orderBy: [
+                { field: 'started', desc: true },
+                { field: 'ended', desc: true }
+              ],
+              page: pageNumber - 1,
+              pageSize: pageSize,
+            }) as Observable<NetqueryConnection[]>;
+          }
+        }, 25)
+
+        paginator.reset(result[0]?.totalCount || 0)
+
+        observer.next(paginator)
+      })
+    })
   }
 
   getGroupChart(groupFilter: Condition): Observable<ChartResult[]> {
@@ -276,7 +395,7 @@ export class SfngNetqueryViewer implements OnInit, OnDestroy {
 
         this.models[field]!.suggestions =
           result.map(record => ({
-            Name: record[field]!,
+            Name: this.models[field]!.encodeValue ? this.models[field]!.encodeValue!(record[field]!) : record[field],
             Value: record[field]!,
             Description: '',
             count: record.count,
@@ -301,18 +420,17 @@ export class SfngNetqueryViewer implements OnInit, OnDestroy {
 
   /** @private Callback for keyboard events on the search-input */
   onFieldsParsed(fields: SfngSearchbarFields) {
-    const allowedKeys = new Set<string>();
-    Object.keys(this.models).forEach(key => allowedKeys.add(key));
+    const allowedKeys = new Set(objKeys(this.models));
 
-    Object.keys(fields).forEach(key => {
+    objKeys(fields).forEach(key => {
       if (!allowedKeys.has(key)) {
         this.actionIndicator.error("Invalid search query", "Column " + key + " is not allowed for filtering");
         return;
       }
 
-      fields[key as keyof NetqueryConnection]!.forEach(val => {
+      fields[key]!.forEach(val => {
         // quick fix to make sure domains always end in a period.
-        if (key === 'domain' && typeof val === 'string' && !val.endsWith('.')) {
+        if (key === 'domain' && typeof val === 'string' && val.length > 0 && !val.endsWith('.')) {
           val = `${val}.`
         }
 
@@ -321,9 +439,13 @@ export class SfngNetqueryViewer implements OnInit, OnDestroy {
           return;
         }
 
-        const k = key as keyof NetqueryConnection;
-        this.models[k]!.searchValues = [
-          ...this.models[k]!.searchValues,
+        // avoid duplicates
+        if (this.models[key]!.searchValues.includes(val)) {
+          return;
+        }
+
+        this.models[key]!.searchValues = [
+          ...this.models[key]!.searchValues,
           val,
         ]
       })
@@ -336,18 +458,64 @@ export class SfngNetqueryViewer implements OnInit, OnDestroy {
 
   /** @private Query the portmaster service for connections matching the current settings */
   performSearch() {
+    this.loading = true;
+    this.paginator.clear()
     this.updateTagbarValues();
     this.search$.next();
+  }
 
+  /** @private Returns the current query in it's string representation */
+  getQueryString(): string {
+    let result = '';
+
+    objKeys(this.models).forEach(key => {
+      this.models[key]?.searchValues.forEach(val => {
+        // we use JSON.stringify here to make sure the value is
+        // correclty quoted.
+        result += `${key}:${JSON.stringify(val)} `;
+      })
+    })
+
+    if (result.length > 0 && this.textSearch.length > 0) {
+      result += ' '
+    }
+
+    result += `${this.textSearch}`
+
+    return result;
+  }
+
+  /** @private Copies the current query into the user clipboard */
+  copyQuery() {
+    if ('clipboard' in window.navigator) {
+      window.navigator.clipboard.writeText(this.getQueryString())
+        .then(() => {
+          this.actionIndicator.success("Query copied to clipboard", 'Go ahead and share your query!')
+        })
+        .catch((err) => {
+          this.actionIndicator.error('Failed to copy to clipboard', this.actionIndicator.getErrorMessgae(err))
+        })
+    }
+  }
+
+  /** @private Clears the current query */
+  clearQuery() {
+    objKeys(this.models).forEach(key => {
+      this.models[key]!.searchValues = [];
+    })
+    this.textSearch = '';
+
+    this.updateTagbarValues();
+    this.performSearch();
   }
 
   /** @private Constructs a query from the current page settings. Supports excluding certain fields from the query. */
   getQuery(excludeFields: string[] = []): Query {
     let query: Condition = {}
+    let textSearch: Query['textSearch'];
 
     // create the query conditions for all keys on this.models
-    const keys: (keyof NetqueryConnection)[] = Object.keys(this.models) as any;
-    keys.forEach((key: keyof NetqueryConnection) => {
+    objKeys(this.models).forEach((key: keyof NetqueryConnection) => {
       if (excludeFields.includes(key)) {
         return;
       }
@@ -366,21 +534,10 @@ export class SfngNetqueryViewer implements OnInit, OnDestroy {
     }
 
     if (this.textSearch !== '') {
-      freeTextSearchFields.forEach(key => {
-        let existing = query[key];
-        if (existing === undefined) {
-          existing = [];
-        } else {
-          if (!Array.isArray(existing)) {
-            existing = [existing];
-          }
-        }
-
-        existing.push({
-          $like: "%" + this.textSearch + "%"
-        })
-        query[key] = existing;
-      });
+      textSearch = {
+        fields: freeTextSearchFields,
+        value: this.textSearch
+      }
     }
 
     let select: (Select | string)[] | undefined = undefined;
@@ -412,18 +569,21 @@ export class SfngNetqueryViewer implements OnInit, OnDestroy {
       ]
     }
 
+    let normalizedQuery = mergeConditions(query, this.mergeFilter || {})
+
     return {
       select: select,
-      query: query,
+      query: normalizedQuery,
       groupBy: this.groupByKeys,
       orderBy: this.orderByKeys,
+      textSearch,
     }
   }
 
   /** @private Updates the current model form all values emited by the tag-bar. */
   onTagbarChange(tagKinds: SfngTagbarValue[]) {
-    Object.keys(this.models).forEach(key => {
-      this.models[key as keyof NetqueryConnection]!.searchValues = [];
+    objKeys(this.models).forEach(key => {
+      this.models[key]!.searchValues = [];
     });
 
     tagKinds.forEach(kind => {
@@ -453,5 +613,37 @@ export class SfngNetqueryViewer implements OnInit, OnDestroy {
     return Object.keys(this.models).includes(key);
   }
 
+  useAsFilter(rec: QueryResult) {
+    const keys = new Set(objKeys(this.models))
+
+    // reset the search values
+    keys.forEach(key => {
+      this.models[key]!.searchValues = [];
+    })
+
+    objKeys(rec).forEach(key => {
+      if (keys.has(key as keyof NetqueryConnection)) {
+        this.models[key as keyof NetqueryConnection]!.searchValues = [rec[key]];
+      }
+    })
+
+    // reset the group-by-keys since they don't make any sense anymore.
+    this.groupByKeys = [];
+    this.performSearch();
+  }
+
   trackSuggestion: TrackByFunction<Suggestion> = (_: number, s: Suggestion) => s.Value;
+}
+
+function initializeModels(models: { [key: string]: Partial<Model<any>> }): { [key: string]: Model<any> } {
+  objKeys(models).forEach(key => {
+    models[key] = {
+      suggestions: [],
+      searchValues: [],
+      visible: false,
+      ...models[key],
+    }
+  })
+
+  return models as any;
 }
