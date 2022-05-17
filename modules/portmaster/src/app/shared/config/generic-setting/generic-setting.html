@@ -80,13 +80,13 @@
   <ng-container [ngSwitch]="externalOptType(setting)">
     <!-- Security Level Switches -->
     <app-security-setting *ngSwitchCase="optionHint.SecurityLevel" [disabled]="disabled"
-      class="w-full mt-2 xl:mt-0 xl:w-auto" [onOffMode]="!(networkRatingEnabled$ | async)" [autoFocus]="!isLocked"
-      [setting]="_setting" [ngModel]="_currentValue" (ngModelChange)="updateValue($event, true)">
+      class="w-full mt-2 xl:mt-0 xl:w-auto" [onOffMode]="!(networkRatingEnabled$ | async)" [setting]="_setting"
+      [ngModel]="_currentValue" (ngModelChange)="updateValue($event, true)">
     </app-security-setting>
 
     <!-- Rule lists -->
     <ng-container *ngSwitchCase="optionHint.EndpointList">
-      <app-rule-list class="w-full mt-4" [readonly]="disabled" [ngModel]="_currentValue" [autoFocus]="!isLocked"
+      <app-rule-list class="w-full mt-4" [readonly]="disabled" [ngModel]="_currentValue"
         (ngModelChange)="updateValue($event, true)" [symbolMap]="symbolMap"></app-rule-list>
 
       <div class="stacked-values" *ngIf="showStackable">
@@ -99,15 +99,15 @@
 
     <!-- Filter lists -->
     <ng-container *ngSwitchCase="optionHint.FilterList">
-      <app-filter-list class="w-full" [class.mt-4]="showHeader" [ngModel]="_currentValue" [autoFocus]="!isLocked"
+      <app-filter-list class="w-full" [class.mt-4]="showHeader" [ngModel]="_currentValue"
         (ngModelChange)="updateValue($event, true)">
       </app-filter-list>
     </ng-container>
 
     <!-- Ordered string lists -->
     <ng-container *ngSwitchCase="optionHint.OrderedList">
-      <app-ordered-list class="w-full mt-4" [ngModel]="_currentValue" [autoFocus]="!isLocked"
-        (ngModelChange)="updateValue($event, true)" [readonly]="disabled"></app-ordered-list>
+      <app-ordered-list class="w-full mt-4" [ngModel]="_currentValue" (ngModelChange)="updateValue($event, true)"
+        [readonly]="disabled"></app-ordered-list>
 
       <div class="stacked-values" *ngIf="showStackable">
         <h4>This setting stacks on top of the following <a class="underline text-tertiary hover:text-primary"
@@ -120,7 +120,7 @@
     <ng-container *ngSwitchDefault>
       <!-- basic string array with fixed order on optional stacking -->
       <ng-container *ngIf="setting?.OptType == optionType.StringArray; else: basicSetting">
-        <app-ordered-list class="w-full mt-4" fixedOrder="true" [autoFocus]="!isLocked" [ngModel]="_currentValue"
+        <app-ordered-list class="w-full mt-4" fixedOrder="true" [ngModel]="_currentValue"
           (ngModelChange)="updateValue($event, true)" [readonly]="disabled">
         </app-ordered-list>
 
@@ -135,7 +135,7 @@
       <ng-template #basicSetting>
         <!-- basic inputs -->
         <app-basic-setting class="block" [setting]="_setting" [disabled]="disabled" [ngModel]="_currentValue"
-          [autoFocus]="!isLocked" (ngModelChange)="updateValue($event)"
+          (ngModelChange)="updateValue($event)"
           (onBlur)="updateValue(_basicSettingsValueCache!, _currentValue !== _basicSettingsValueCache)">
         </app-basic-setting>
       </ng-template>

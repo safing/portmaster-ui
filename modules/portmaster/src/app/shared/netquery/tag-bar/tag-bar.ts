@@ -15,7 +15,7 @@ export interface SfngTagbarValue {
   styles: [
     `
     :host {
-      @apply flex flex-row gap-2 w-full items-center text-xxs;
+      @apply flex flex-row gap-3 w-auto items-center text-xxs flex-wrap;
     }
     `
   ],

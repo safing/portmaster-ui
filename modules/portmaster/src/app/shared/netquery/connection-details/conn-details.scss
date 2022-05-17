@@ -1,20 +1,27 @@
-.actions {
-  padding-top    : 0.2rem;
-  margin-top     : 0.2rem;
-  border-top     : 1px solid #bec5cc20;
-  display        : flex;
-  justify-content: flex-end;
+section {
+  &>div {
+    @apply flex flex-col gap-2 items-start justify-start text-xxs;
+
+    &>span {
+      @apply flex flex-row items-center justify-start gap-1 whitespace-nowrap;
+
+      &>span:first-child {
+        @apply text-secondary;
+      }
+    }
+  }
 }
+
 
 .tunnel-path {
   position: relative;
 
   .line {
-    position        : absolute;
-    top             : 10px;
-    bottom          : 10px;
-    left            : 8px;
-    width           : 1px;
+    position: absolute;
+    top: 10px;
+    bottom: 10px;
+    left: 8px;
+    width: 1px;
     background-color: rgba(255, 255, 255, 0.1);
 
     /*
@@ -32,16 +39,16 @@
   }
 
   .node-tag {
-    border-radius   : 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 1px solid rgba(255, 255, 255, 0.2);
     background-color: rgba(255, 255, 255, 0.1);
-    padding      : 2px;
-    font-size    : 85%;
+    padding: 2px;
+    font-size: 85%;
     border-radius: 2px;
-    transform    : scale(0.85);
+    transform: scale(0.85);
   }
 
   ul {
-    position    : relative;
+    position: relative;
     padding-left: 20px;
 
     li:not(:last-of-type) {
@@ -53,13 +60,13 @@
     }
 
     .hop-icon {
-      display     : inline-block;
-      margin-left : -17px;
+      display: inline-block;
+      margin-left: -17px;
       margin-right: 4px;
       font-weight: 400;
 
       &.country {
-        margin-left : -20px;
+        margin-left: -20px;
       }
     }
 
@@ -68,17 +75,17 @@
     }
 
     .country {
-      display     : inline-block;
-      margin-left : -20px;
+      display: inline-block;
+      margin-left: -20px;
       margin-right: 4px;
 
       &.unknown {
-        height       : 14px;
-        width        : 16px;
-        position     : relative;
-        top          : 3px;
-        border       : 1px solid rgba(0, 0, 0, 0.25);
-        opacity      : 0.5;
+        height: 14px;
+        width: 16px;
+        position: relative;
+        top: 3px;
+        border: 1px solid rgba(0, 0, 0, 0.25);
+        opacity: 0.5;
         border-radius: 3px;
         @apply bg-buttons-icon;
       }
@@ -89,7 +96,7 @@
 
 @keyframes arrow_move {
   0% {
-    top    : 0%;
+    top: 0%;
     opacity: 1;
   }
 
@@ -98,7 +105,7 @@
   }
 
   100% {
-    top    : 95%;
+    top: 95%;
     opacity: 0;
   }
 }

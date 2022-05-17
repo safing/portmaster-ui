@@ -20,17 +20,13 @@ let optionKeys = new Set([
 })
 export class CanUseRulesPipe implements PipeTransform {
   transform(conn: NetqueryConnection): boolean {
-    // FIXME:
-    return false;
-    /*
     if (!conn) {
       return false;
     }
-    if (conn.Reason.OptionKey != "" && IsDenied(conn.Verdict)) {
-      return !optionKeys.has(conn.Reason.OptionKey);
+    if (!!conn.extra_data?.reason?.OptionKey && IsDenied(conn.verdict)) {
+      return !optionKeys.has(conn.extra_data.reason.OptionKey);
     }
     return true;
-    */
   }
 }
 

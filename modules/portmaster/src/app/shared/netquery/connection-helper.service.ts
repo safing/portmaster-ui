@@ -1,50 +1,54 @@
-import { forwardRef, Injectable } from '@angular/core';
+import { DOCUMENT } from '@angular/common';
+import { Inject, Injectable, Renderer2 } from '@angular/core';
 import { Router } from '@angular/router';
-import { Subject, Subscription } from 'rxjs';
-import { AppProfileService, ConfigService, Connection, getAppSetting, IsDenied, NetqueryConnection, ScopeTranslation, setAppSetting, Verdict } from 'src/app/services';
-import { InspectedProfile, ScopeGroup } from 'src/app/services/connection-tracker.service';
+import { BehaviorSubject, Observable, Subject } from 'rxjs';
+import { distinctUntilChanged, switchMap } from 'rxjs/operators';
+import { AppProfileService, ConfigService, getAppSetting, NetqueryConnection, setAppSetting, Verdict } from 'src/app/services';
 import { ActionIndicatorService } from '../action-indicator';
 import { deepClone } from '../utils';
-import { NetqueryModule } from './netquery.module';
+import { SfngSearchbarFields } from './searchbar';
 
-@Injectable({ providedIn: forwardRef(() => NetqueryModule) })
+@Injectable()
 export class NetqueryHelper {
-  readonly scopeTranslation = ScopeTranslation;
-
-  set profile(p: InspectedProfile | null) {
-    this._profile = p;
-    this.blockedDomains = [];
-
-    this._profileSubscriptions.unsubscribe();
-    this._profileSubscriptions = new Subscription();
-
-    if (!!p) {
-      let profileUpdateSubscription = p.profileUpdates
-        .subscribe(() => {
-          this.blockedDomains = null;
-          this.collectBlockedDomains();
-          this.refresh.next();
-        });
-      this._profileSubscriptions.add(profileUpdateSubscription);
-    }
-  }
-  get profile() { return this._profile; }
-  private _profile: InspectedProfile | null = null;
-
-  private _profileSubscriptions = Subscription.EMPTY;
-
-  private blockedDomains: string[] | null = null;
-
   readonly settings: { [key: string]: string } = {};
 
   refresh = new Subject<void>();
+
+  private onShiftKey$ = new BehaviorSubject<boolean>(false);
+  private addToFilter$ = new Subject<SfngSearchbarFields>();
+
+  readonly onShiftKey: Observable<boolean>;
 
   constructor(
     private router: Router,
     private profileService: AppProfileService,
     private configService: ConfigService,
-    private actionIndicator: ActionIndicatorService
+    private actionIndicator: ActionIndicatorService,
+    private renderer: Renderer2,
+    @Inject(DOCUMENT) private document: Document,
   ) {
+    const cleanupKeyDown = this.renderer.listen(this.document, 'keydown', (event: KeyboardEvent) => {
+      if (event.shiftKey) {
+        this.onShiftKey$.next(true)
+      }
+    });
+
+    const cleanupKeyUp = this.renderer.listen(this.document, 'keyup', () => {
+      if (this.onShiftKey$.getValue()) {
+        this.onShiftKey$.next(false);
+      }
+    })
+
+    this.onShiftKey$.subscribe({
+      complete: () => {
+        cleanupKeyDown();
+        cleanupKeyUp();
+      }
+    })
+
+    this.onShiftKey = this.onShiftKey$
+      .pipe(distinctUntilChanged());
+
     this.configService.query('')
       .subscribe(settings => {
         settings.forEach(setting => {
@@ -52,6 +56,22 @@ export class NetqueryHelper {
         });
         this.refresh.next();
       })
+  }
+
+  dispose() {
+    this.onShiftKey$.complete();
+  }
+
+  /** Emits added fields whenever addToFilter is called */
+  onFieldsAdded(): Observable<SfngSearchbarFields> {
+    return this.addToFilter$.asObservable();
+  }
+
+  /** Adds a new filter to the current query */
+  addToFilter(key: string, value: any[]) {
+    this.addToFilter$.next({
+      [key]: value,
+    })
   }
 
   /**
@@ -72,8 +92,17 @@ export class NetqueryHelper {
    *
    * @param key The settings key to redirect to
    */
-  redirectToSetting(optionKey: string, globalSettings = false) {
-    if (!optionKey || !this.profile) {
+  redirectToSetting(setting: string, conn: NetqueryConnection, globalSettings = false) {
+    const reason = conn.extra_data?.reason;
+    if (!reason) {
+      return;
+    }
+
+    if (!setting) {
+      setting = reason.OptionKey;
+    }
+
+    if (!setting) {
       return;
     }
 
@@ -81,17 +110,23 @@ export class NetqueryHelper {
       this.router.navigate(
         ['/', 'settings'], {
         queryParams: {
-          setting: optionKey
+          setting: setting,
         }
       })
       return;
     }
 
+    let profile = conn.profile
+
+    if (!!reason.Profile) {
+      profile = reason.Profile;
+    }
+
     this.router.navigate(
-      ['/', 'app', this.profile.Source, this.profile.ID], {
+      ['/', 'app', ...profile.split("/")], {
       queryParams: {
         tab: 'settings',
-        setting: optionKey
+        setting: setting,
       }
     })
   }
@@ -101,11 +136,11 @@ export class NetqueryHelper {
    * Redirect the user to "outgoing rules" setting in the
    * application profile/settings.
    */
-  redirectToRules(inbound: boolean) {
-    if (inbound) {
-      this.redirectToSetting('filter/serviceEndpoints');
+  redirectToRules(conn: NetqueryConnection) {
+    if (conn.direction === 'inbound') {
+      this.redirectToSetting('filter/serviceEndpoints', conn);
     } else {
-      this.redirectToSetting('filter/endpoints');
+      this.redirectToSetting('filter/endpoints', conn);
     }
   }
 
@@ -131,18 +166,7 @@ export class NetqueryHelper {
    * @private
    * Creates a new "block domain" outgoing rules
    */
-  blockAll(grp: ScopeGroup | string) {
-    let domain: string;
-    if (typeof grp === 'string') {
-      domain = grp;
-    } else {
-      if (!grp.domain) {
-        // scope blocking not yet supported
-        return
-      }
-      domain = grp.scope;
-    }
-
+  blockAll(domain: string, conn: NetqueryConnection) {
     /* Deactivate until exact behavior is specified.
     if (this.isDomainBlocked(domain)) {
       this.actionIndicator.info(domain + ' already blocked')
@@ -152,25 +176,14 @@ export class NetqueryHelper {
 
     domain = domain.replace(/\.+$/, '');
     const newRule = `- ${domain}`;
-    this.updateRules(newRule, true);
+    this.updateRules(newRule, true, conn)
   }
 
   /**
    * @private
    * Removes a "block domain" rule from the outgoing rules
    */
-  unblockAll(grp: ScopeGroup | string) {
-    let domain: string;
-    if (typeof grp === 'string') {
-      domain = grp;
-    } else {
-      if (!grp.domain) {
-        // scope blocking not yet supported
-        return
-      }
-      domain = grp.scope;
-    }
-
+  unblockAll(domain: string, conn: NetqueryConnection) {
     /* Deactivate until exact behavior is specified.
     if (!this.isDomainBlocked(domain)) {
       this.actionIndicator.info(domain + ' already allowed')
@@ -180,57 +193,7 @@ export class NetqueryHelper {
 
     domain = domain.replace(/\.+$/, '');
     const newRule = `+ ${domain}`;
-    this.updateRules(newRule, true);
-  }
-
-  /**
-   * @private
-   * Returns true if the scope (domain) is blocked.
-   * Non-domain scopes are not yet supported.
-   *
-   * @param grp The scope group which should be blocked from now on.
-   */
-  isScopeBlocked(grp: ScopeGroup, def: boolean = false): boolean {
-    // check if `grp.domain` is set. If, then grp.scope holdes
-    // the complete domain of the connection.
-    if (!!grp.domain) {
-      return this.isDomainBlocked(grp.scope, def);
-    } else {
-      // TODO(ppacher): correctly handle all other scopes here.
-    }
-
-    return false;
-  }
-
-  /**
-   * @private
-   * Checks if `domain` is blocked.
-   */
-  isDomainBlocked(domain: string, def: boolean = false): boolean {
-    if (this.blockedDomains === null) {
-      return def;
-    }
-
-    if (domain.endsWith(".")) {
-      domain = domain.slice(0, -1);
-    }
-    if (this.blockedDomains.some(rule => domain === rule || (rule.startsWith(".") && domain.endsWith(rule)))) {
-      return true;
-    }
-    return def;
-  }
-
-  /**
-   *
-   * Checks if a connection has been blocked by rules.
-   * If the connection is not blocked/allowed by rules
-   * it defaults to the the current connection verdict.
-   */
-  isConnectionBlocked(conn: Connection): boolean {
-    if (this.isDomainBlocked(conn.Entity.Domain)) {
-      return true;
-    }
-    return IsDenied(conn.Verdict);
+    this.updateRules(newRule, true, conn);
   }
 
   /**
@@ -241,22 +204,32 @@ export class NetqueryHelper {
    * @param newRule The new rule to create or delete.
    * @param add  Whether or not to create or delete the rule.
    */
-  private updateRules(newRule: string, add: boolean) {
-    if (!this.profile) {
+  private updateRules(newRule: string, add: boolean, conn: NetqueryConnection) {
+    if (!conn.extra_data?.reason?.Profile) {
       return
     }
 
-    let rules = getAppSetting<string[]>(this.profile!.profile!.Config, 'filter/endpoints') || [];
-    rules = rules.filter(rule => rule !== newRule);
-
-    if (add) {
-      rules.splice(0, 0, newRule)
+    let key = 'filter/endpoints';
+    if (conn.direction === 'inbound') {
+      key = 'filter/serviceEndpoints'
     }
 
-    const profile = deepClone(this.profile!.profile);
-    setAppSetting(profile.Config, 'filter/endpoints', rules);
+    this.profileService.getAppProfileFromKey(conn.profile)
+      .pipe(
+        switchMap(profile => {
+          let rules = getAppSetting<string[]>(profile.Config, key) || [];
+          rules = rules.filter(rule => rule !== newRule);
 
-    this.profileService.saveProfile(profile)
+          if (add) {
+            rules.splice(0, 0, newRule)
+          }
+
+          const newProfile = deepClone(profile);
+          setAppSetting(newProfile.Config, 'filter/endpoints', rules);
+
+          return this.profileService.saveProfile(newProfile)
+        })
+      )
       .subscribe({
         next: () => {
           if (add) {
@@ -276,6 +249,8 @@ export class NetqueryHelper {
    * It stops collecting domains as soon as the first "allow something" rule
    * is hit.
    */
+  // FIXME
+  /*
   private collectBlockedDomains() {
     let blockedDomains = new Set<string>();
 
@@ -291,4 +266,5 @@ export class NetqueryHelper {
 
     this.blockedDomains = Array.from(blockedDomains)
   }
+  */
 }

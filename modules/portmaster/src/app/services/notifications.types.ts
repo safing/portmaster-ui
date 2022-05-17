@@ -34,6 +34,11 @@ export interface OpenPageAction extends BaseAction {
   Payload: keyof typeof PageIDs;
 }
 
+export interface NetqueryAction extends BaseAction {
+  Type: 'netquery';
+  Payload: string;
+}
+
 /**
  * PageIDs holds a list of pages that can be opened using
  * the OpenPageAction.
@@ -81,6 +86,7 @@ export type Action = GenericAction
   | OpenSettingAction
   | OpenProfileAction
   | WebhookAction
+  | NetqueryAction
   | ActionHandler<any>;
 
 /** All action types that perform in-application routing. */

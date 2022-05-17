@@ -1,1 +1,1 @@
-export * from './ungrouped-connection-row';
+export * from './conn-row';

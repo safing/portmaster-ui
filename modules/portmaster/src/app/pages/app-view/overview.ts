@@ -1,6 +1,6 @@
 import { ChangeDetectorRef, Component, OnDestroy, OnInit, TrackByFunction } from '@angular/core';
 import { BehaviorSubject, combineLatest, Subscription } from 'rxjs';
-import { debounceTime, map } from 'rxjs/operators';
+import { debounceTime, map, startWith } from 'rxjs/operators';
 import { AppProfile, AppProfileService, Netquery, trackById } from 'src/app/services';
 import { fadeInAnimation, fadeInListAnimation, moveInOutListAnimation } from 'src/app/shared/animations';
 import { FuzzySearchService } from 'src/app/shared/fuzzySearch';
@@ -54,7 +54,7 @@ export class AppOverviewComponent implements OnInit, OnDestroy {
     // enters or chanages the search-text.
     this.subscription = combineLatest([
       this.profileService.watchProfiles(),
-      this.onSearch.pipe(debounceTime(100)),
+      this.onSearch.pipe(debounceTime(100), startWith('')),
       this.netquery.getActiveProfileIDs(),
     ])
       .subscribe(

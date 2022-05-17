@@ -1,7 +1,8 @@
+import { ListKeyManagerOption } from '@angular/cdk/a11y';
 import { coerceBooleanProperty } from '@angular/cdk/coercion';
 import { Component, Directive, HostBinding, Input, Optional, TemplateRef } from '@angular/core';
 
-export interface SelectOption {
+export interface SelectOption extends ListKeyManagerOption {
   value: any;
   selected: boolean;
 
@@ -16,10 +17,14 @@ export interface SelectOption {
   template: `<ng-content></ng-content>`,
   styleUrls: ['./item.scss'],
 })
-export class SfngSelectItemComponent {
+export class SfngSelectItemComponent implements ListKeyManagerOption {
   @HostBinding('class.disabled')
-  get isDisabled() {
+  get disabled() {
     return this.sfngSelectValue?.disabled || false;
+  }
+
+  getLabel() {
+    return this.sfngSelectValue?.label || '';
   }
 
   constructor(@Optional() private sfngSelectValue: SfngSelectValueDirective) { }
@@ -44,6 +49,10 @@ export class SfngSelectValueDirective implements SelectOption {
   }
   get disabled() { return this._disabled }
   private _disabled = false;
+
+  getLabel() {
+    return this.label || ('' + this.value);
+  }
 
   /** Whether or not the item is currently selected */
   selected = false;

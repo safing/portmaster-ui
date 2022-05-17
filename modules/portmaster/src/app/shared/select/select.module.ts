@@ -1,10 +1,11 @@
+import { CdkScrollableModule } from "@angular/cdk/scrolling";
 import { CommonModule } from "@angular/common";
 import { NgModule } from "@angular/core";
 import { FormsModule, ReactiveFormsModule } from "@angular/forms";
 import { SfngDropDownModule } from "../dropdown/dropdown.module";
 import { SfngTooltipModule } from "../tooltip";
 import { SfngSelectItemComponent, SfngSelectValueDirective } from "./item";
-import { SfngSelectComponent } from "./select";
+import { SfngSelectComponent, SfngSelectRenderedItemDirective } from "./select";
 
 @NgModule({
   imports: [
@@ -13,11 +14,13 @@ import { SfngSelectComponent } from "./select";
     ReactiveFormsModule,
     SfngDropDownModule,
     SfngTooltipModule,
+    CdkScrollableModule
   ],
   declarations: [
     SfngSelectComponent,
     SfngSelectValueDirective,
     SfngSelectItemComponent,
+    SfngSelectRenderedItemDirective
   ],
   exports: [
     SfngSelectComponent,

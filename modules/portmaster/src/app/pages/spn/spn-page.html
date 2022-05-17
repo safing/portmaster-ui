@@ -121,14 +121,14 @@
                 <li *ngIf="process.exitPins as nodes">
                   <div class="card-header" (click)="selectGroup(process, null, $event)"
                     (dblclick)="navigateToMonitor(process)"
-                    [class.active]="selectedProcessGroup === process.process.ID">
-                    <app-icon [profile]="process.process"></app-icon>
+                    [class.active]="selectedProcessGroup === process.profile.ID">
+                    <app-icon [profile]="process.profile"></app-icon>
                     <span class="flex flex-row items-center justify-between card-title">
-                      <span>{{ process.process.Name }}</span>
+                      <span>{{ process.profile.Name }}</span>
                       <span class="flex flex-col items-end leading-3">
                         <span>{{ process.exitPins.length }} Exits</span>
                         <span *appExpertiseLevel="'developer'" class="text-secondary">
-                          &nbsp;{{ process.process.countAliveConnections }} Active Conns
+                          &nbsp;{{ process.stats?.countAliveConnections || 0 }} Active Conns
                         </span>
                       </span>
                     </span>
