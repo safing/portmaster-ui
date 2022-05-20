@@ -1,5 +1,7 @@
 fyne.io/systray v1.9.1-0.20220504210505-28f121f95e64 h1:QZtt/rxWBVfzFgyVtic1oPUTVlHZobc0pTwhi5uoN5k=
 fyne.io/systray v1.9.1-0.20220504210505-28f121f95e64/go.mod h1:N4ZU0i34X+n8soFRlBNkmJTunw9wD+9jIP19fSZpjSI=
+fyne.io/systray v1.9.1-0.20220515191230-b479fb2893c9 h1:x+mY3LkhrXaWaY1pU008msQ2qCL7a55TvE3F4d5kt9g=
+fyne.io/systray v1.9.1-0.20220515191230-b479fb2893c9/go.mod h1:N4ZU0i34X+n8soFRlBNkmJTunw9wD+9jIP19fSZpjSI=
 github.com/AndreasBriese/bbloom v0.0.0-20190825152654-46b345b51c96/go.mod h1:bOvUY6CB00SOBii9/FifXqc0awNKxLFCL/+pkDPuyl8=
 github.com/BurntSushi/toml v0.3.1/go.mod h1:xHWCNGjB5oqiDr8zfno3MHue2Ht5sIBksp03qcyfWMU=
 github.com/Microsoft/go-winio v0.5.2 h1:a9IhgEQBCUEk6QCdml9CiJGhAws+YwffDHEMp1VMrpA=

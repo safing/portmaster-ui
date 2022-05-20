@@ -3,7 +3,7 @@ module github.com/safing/portmaster-ui/notifier
 go 1.18
 
 require (
-	fyne.io/systray v1.9.1-0.20220504210505-28f121f95e64
+	fyne.io/systray v1.9.1-0.20220515191230-b479fb2893c9
 	github.com/Microsoft/go-winio v0.5.2
 	github.com/dhaavi/go-notify v0.0.0-20190209221809-c404b1f22435
 	github.com/safing/portbase v0.14.2
