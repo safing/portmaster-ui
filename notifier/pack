@@ -73,16 +73,22 @@ function reset {
 function check_all {
   GOOS=linux GOARCH=amd64 check
   GOOS=windows GOARCH=amd64 check
+  GOOS=linux GOARCH=arm64 check
+  GOOS=windows GOARCH=arm64 check
 }
 
 function build_all {
   GOOS=linux GOARCH=amd64 build
   GOOS=windows GOARCH=amd64 build
+  GOOS=linux GOARCH=arm64 build
+  GOOS=windows GOARCH=arm64 build
 }
 
 function reset_all {
   GOOS=linux GOARCH=amd64 reset
   GOOS=windows GOARCH=amd64 reset
+  GOOS=linux GOARCH=arm64 reset
+  GOOS=windows GOARCH=arm64 reset
 }
 
 case $1 in
