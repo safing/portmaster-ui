@@ -32,8 +32,8 @@ export class RuleListComponent implements ControlValueAccessor {
 
   @Input()
   symbolMap = {
-    '+': 'Allowed',
-    '-': 'Deny',
+    '+': 'Allow',
+    '-': 'Block',
   }
 
   /**
