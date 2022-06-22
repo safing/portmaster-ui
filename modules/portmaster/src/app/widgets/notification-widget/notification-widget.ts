@@ -10,6 +10,10 @@ export interface NotificationWidgetConfig {
   markdown: boolean;
 }
 
+interface _Notification<T = any> extends Notification<T> {
+  isBroadcast: boolean
+}
+
 @Component({
   templateUrl: './notification-widget.html',
   styleUrls: [
@@ -65,13 +69,13 @@ export class NotificationWidgetComponent implements OnInit, OnDestroy {
   private notifSub = Subscription.EMPTY;
 
   /** The currently expanded notification, if any. */
-  expandedNotification: Notification<any> | null = null;
+  expandedNotification: _Notification<any> | null = null;
 
   /** All active notifications. */
-  notifications: Notification<any>[] = [];
+  notifications: _Notification<any>[] = [];
 
   constructor(
-    private elementRef: ElementRef,
+    public elementRef: ElementRef,
     @Inject(WIDGET_CONFIG) public config: WidgetConfig<NotificationWidgetConfig>,
     public notifsService: NotificationsService,
   ) { }
@@ -85,8 +89,12 @@ export class NotificationWidgetComponent implements OnInit, OnDestroy {
           notifs.filter(notif => !(notif.Type === NotificationType.Prompt && notif.EventID.startsWith("filter:prompt"))))
       )
       .subscribe(list => {
-        this.notifications = list;
-
+        this.notifications = list.map(notification => {
+          return {
+            ...notification,
+            isBroadcast: notification.EventID.startsWith("broadcasts:"),
+          }
+        });
         if (!!this.expandedNotification) {
           this.expandedNotification = this.notifications.find(notif => notif.EventID === this.expandedNotification?.EventID) || null;
         }
@@ -107,7 +115,7 @@ export class NotificationWidgetComponent implements OnInit, OnDestroy {
    * @param actionId  The ID of the action to execute.
    * @param event The mouse click event.
    */
-  execute(n: Notification<any>, action: Action, event: MouseEvent) {
+  execute(n: _Notification<any>, action: Action, event: MouseEvent) {
     event.preventDefault();
     event.stopPropagation();
 
@@ -125,7 +133,7 @@ export class NotificationWidgetComponent implements OnInit, OnDestroy {
    *
    * @param notif The notification that has been clicked.
    */
-  toggelView(notif: Notification<any>) {
+  toggelView(notif: _Notification<any>) {
     if (this.expandedNotification === notif) {
       this.expandedNotification = null;
       this.elementRef.nativeElement.scrollTop = this._prevScrollTop;
