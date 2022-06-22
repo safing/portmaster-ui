@@ -63,7 +63,7 @@ export class GenericSettingComponent<S extends BaseSetting<any, any>> implements
   get symbolMap() {
     return this.setting?.Annotations[WellKnown.EndpointListVerdictNames] || {
       '+': 'Allow',
-      '-': 'Deny'
+      '-': 'Block'
     };
   }
 
@@ -361,7 +361,7 @@ export class GenericSettingComponent<S extends BaseSetting<any, any>> implements
 
   /**
    * The defaultValue input allows to overwrite the default
-   * value of the seting.
+   * value of the setting.
    */
   @Input()
   set defaultValue(val: SettingValueType<S>) {
@@ -369,12 +369,20 @@ export class GenericSettingComponent<S extends BaseSetting<any, any>> implements
     this.updateActualValue();
   }
   get defaultValue() {
-    if (this.stackable) {
-      return [] as SettingValueType<S>;
-    }
+    // Return cached value.
     if (this._defaultValue !== null) {
       return this._defaultValue;
     }
+
+    // Stackable options are displayed differently.
+    if (this.stackable) {
+      if (this.setting?.GlobalDefault === undefined && this.setting?.DefaultValue !== null) {
+        return this.setting?.DefaultValue;
+      }
+      return [] as SettingValueType<S>;
+    }
+
+    // Return global, then default value.
     if (this.setting?.GlobalDefault !== undefined) {
       return this.setting.GlobalDefault
     }
