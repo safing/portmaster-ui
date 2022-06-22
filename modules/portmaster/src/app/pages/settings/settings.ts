@@ -157,6 +157,14 @@ export class SettingsComponent implements OnInit, OnDestroy {
 
   /**
    * @private
+   * Reset the broadcast notifications state.
+   */
+  resetBroadcastState(_: Event) {
+    this.portapi.resetBroadcastState();
+  }
+
+  /**
+   * @private
    * Trigger downloading of updates
    *
    * @param event - The mouse event

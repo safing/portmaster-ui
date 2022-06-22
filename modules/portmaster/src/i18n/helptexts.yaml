@@ -147,6 +147,15 @@ pilot-widget-NetworkRating-Danger:
 
     <small>_Note: In the "Danger" rating the Portmaster will become very protective. This might break functionality of apps or render them useless._</small>
 
+broadcast-info:
+  title: Broadcast Notifications
+  content: |
+    Broadcast Notifications are public messages downloaded by the Portmaster when checking for updates.
+    
+    The Portmaster then locally decides which messages should be displayed.
+  url: https://github.com/safing/portmaster/issues/703
+  urlText: Learn More
+
 # TODO
 # prompt-widget:
 #   title: Prompts
