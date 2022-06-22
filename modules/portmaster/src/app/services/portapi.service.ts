@@ -95,7 +95,7 @@ export class PortapiService {
     this.http.post(`${environment.httpAPI}/v1/core/restart`, undefined, { observe: 'response', responseType: 'arraybuffer' })
       .subscribe(this.uai.httpObserver(
         'Restarting ...',
-        'Failed to restart',
+        'Failed to Restart',
       ))
   }
 
@@ -103,7 +103,7 @@ export class PortapiService {
   shutdownPortmaster(): void {
     this.http.post(`${environment.httpAPI}/v1/core/shutdown`, undefined, { observe: 'response', responseType: 'arraybuffer' })
       .subscribe(this.uai.httpObserver(
-        'Shutting down ...',
+        'Shutting Down ...',
         'Failed to Shut Down',
       ))
   }
@@ -122,7 +122,7 @@ export class PortapiService {
     this.http.post(`${environment.httpAPI}/v1/updates/check`, undefined, { observe: 'response', responseType: 'arraybuffer', reportProgress: false })
       .subscribe(this.uai.httpObserver(
         'Downloading Updates ...',
-        'Failed to check for updates',
+        'Failed to Check for Updates',
       ))
   }
 
@@ -136,7 +136,7 @@ export class PortapiService {
       )
       .subscribe(this.uai.httpObserver(
         'Reloading UI ...',
-        'Failed to reload UI',
+        'Failed to Reload UI',
       ))
   }
 
@@ -145,7 +145,16 @@ export class PortapiService {
     this.http.post(`${environment.httpAPI}/v1/dns/clear`, undefined, { observe: 'response', responseType: 'arraybuffer' })
       .subscribe(this.uai.httpObserver(
         'DNS Cache Cleared',
-        'Failed to clear DNS cache.',
+        'Failed to Clear DNS Cache.',
+      ))
+  }
+
+  /** Reset the broadcast notifications state */
+  resetBroadcastState(): void {
+    this.http.post(`${environment.httpAPI}/v1/broadcasts/reset-state`, undefined, { observe: 'response', responseType: 'arraybuffer' })
+      .subscribe(this.uai.httpObserver(
+        'Broadcast State Cleared',
+        'Failed to Reset Broadcast State.',
       ))
   }
 
