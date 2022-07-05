@@ -1,11 +1,13 @@
 import { coerceBooleanProperty, coerceCssPixelValue } from '@angular/cdk/coercion';
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, forwardRef, HostBinding, Input } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
+import { PossilbeValue } from 'src/app/services';
 import { fadeInListAnimation } from '../../animations';
+import { NetqueryHelper } from '../connection-helper.service';
 
 export interface SfngTagbarValue {
   key: string;
-  values: string[];
+  values: PossilbeValue[];
 }
 
 @Component({
@@ -105,7 +107,10 @@ export class SfngNetqueryTagbar implements ControlValueAccessor {
       return;
     }
 
+    console.log(this.values);
+
     let cpy: SfngTagbarValue[] = [];
+
     this.values.forEach(val => {
       if (val.key === key) {
         val.values = [...val.values];
@@ -118,11 +123,14 @@ export class SfngNetqueryTagbar implements ControlValueAccessor {
 
     this.values = cpy;
 
+    console.log(this.values);
+
     this._onChange(this.values);
     this.cdr.markForCheck();
   }
 
   constructor(
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private helper: NetqueryHelper,
   ) { }
 }
