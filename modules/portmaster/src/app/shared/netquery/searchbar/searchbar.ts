@@ -5,14 +5,15 @@ import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, D
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from "@angular/forms";
 import { timeHours } from "d3";
 import { Direct } from "protractor/built/driverProviders";
-import { forkJoin, Observable, of, Subject } from "rxjs";
-import { catchError, debounceTime, map, switchMap, takeUntil } from "rxjs/operators";
+import { combineLatest, forkJoin, Observable, of, Subject } from "rxjs";
+import { catchError, debounceTime, map, mergeMap, switchMap, takeUntil, tap } from "rxjs/operators";
 import { Condition, ExpertiseLevel, Netquery, NetqueryConnection } from "src/app/services";
 import { threadId } from "worker_threads";
 import { fadeInAnimation, fadeInListAnimation } from "../../animations";
 import { SfngDropdown } from "../../dropdown/dropdown";
 import { ExpertiseService } from "../../expertise";
 import { objKeys } from "../../utils";
+import { NetqueryHelper } from "../connection-helper.service";
 import { Parser } from "../textql";
 
 export type SfngSearchbarFields = {
@@ -21,6 +22,7 @@ export type SfngSearchbarFields = {
 
 export type SfngSearchbarSuggestionValue<K extends keyof NetqueryConnection> = {
   value: NetqueryConnection[K];
+  display: string;
   count: number;
 }
 
@@ -157,6 +159,7 @@ export class SfngNetquerySearchbar implements ControlValueAccessor, OnInit, OnDe
         debounceTime(500),
         switchMap(() => {
           let fields: (keyof NetqueryConnection)[] = [
+            'profile',
             'path',
             'domain',
             'as_owner',
@@ -166,7 +169,8 @@ export class SfngNetquerySearchbar implements ControlValueAccessor, OnInit, OnDe
           const parser = new Parser(this.textSearch);
           const parseResult = parser.process();
 
-          const queries: { [key in keyof Partial<NetqueryConnection>]: Observable<SfngSearchbarSuggestion<any>> } = {};
+          const queries: Observable<SfngSearchbarSuggestion<any>>[] = [];
+          const queryKeys: (keyof Partial<NetqueryConnection>)[] = [];
 
           // FIXME(ppacher): confirm .type is an actually allowed field
           if (!!parser.lastUnterminatedCondition) {
@@ -206,6 +210,7 @@ export class SfngNetquerySearchbar implements ControlValueAccessor, OnInit, OnDe
               orderBy: [{ field: "count", desc: true }]
             })
               .pipe(
+                this.helper.transformValues(field),
                 map(results => {
                   let val: SfngSearchbarSuggestion<typeof field> = {
                     field: field,
@@ -214,8 +219,9 @@ export class SfngNetquerySearchbar implements ControlValueAccessor, OnInit, OnDe
                   }
 
                   results.forEach(res => {
-                    (val.values).push({
-                      value: res[field],
+                    val.values.push({
+                      value: res.Value,
+                      display: res.Name,
                       count: res.count,
                     })
                   })
@@ -223,26 +229,27 @@ export class SfngNetquerySearchbar implements ControlValueAccessor, OnInit, OnDe
                   return val;
                 }),
                 catchError(err => {
+                  console.error(err);
+
                   return of({
                     field: field,
-                    values: []
+                    values: [],
                   })
                 })
               )
 
-            queries[field] = obs;
+            queries.push(obs)
+            queryKeys.push(field)
           })
 
-          return forkJoin(queries)
-        })
+          return combineLatest(queries)
+        }),
       )
       .subscribe(result => {
         this.loading = false;
-        this.suggestions = Object.keys(result)
-          .map(key => result[key])
+
+        this.suggestions = result
           .filter((sug: SfngSearchbarSuggestion<any>) => sug.values?.length > 0)
-
-
 
         this.keyManager.setActiveItem(0);
 
@@ -390,5 +397,6 @@ export class SfngNetquerySearchbar implements ControlValueAccessor, OnInit, OnDe
     private cdr: ChangeDetectorRef,
     private expertiseService: ExpertiseService,
     private netquery: Netquery,
+    private helper: NetqueryHelper,
   ) { }
 }

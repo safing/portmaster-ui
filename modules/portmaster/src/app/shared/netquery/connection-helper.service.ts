@@ -1,9 +1,9 @@
 import { DOCUMENT } from '@angular/common';
 import { Inject, Injectable, Renderer2 } from '@angular/core';
 import { Router } from '@angular/router';
-import { BehaviorSubject, Observable, Subject } from 'rxjs';
-import { distinctUntilChanged, switchMap } from 'rxjs/operators';
-import { AppProfileService, ConfigService, getAppSetting, NetqueryConnection, setAppSetting, Verdict } from 'src/app/services';
+import { BehaviorSubject, combineLatest, Observable, of, OperatorFunction, Subject } from 'rxjs';
+import { catchError, distinctUntilChanged, map, switchMap, takeUntil, tap } from 'rxjs/operators';
+import { AppProfile, AppProfileService, ConfigService, getAppSetting, NetqueryConnection, PossilbeValue, QueryResult, setAppSetting, Verdict } from 'src/app/services';
 import { ActionIndicatorService } from '../action-indicator';
 import { deepClone } from '../utils';
 import { SfngSearchbarFields } from './searchbar';
@@ -16,6 +16,8 @@ export class NetqueryHelper {
 
   private onShiftKey$ = new BehaviorSubject<boolean>(false);
   private addToFilter$ = new Subject<SfngSearchbarFields>();
+  private destroy$ = new Subject<void>();
+  private appProfiles$ = new BehaviorSubject<AppProfile[]>([]);
 
   readonly onShiftKey: Observable<boolean>;
 
@@ -55,11 +57,55 @@ export class NetqueryHelper {
           this.settings[setting.Key] = setting.Name;
         });
         this.refresh.next();
-      })
+      });
+
+    // watch all application profiles
+    this.profileService.watchProfiles()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(profiles => {
+        this.appProfiles$.next(profiles || [])
+      });
+  }
+
+  transformValues(field: keyof NetqueryConnection): OperatorFunction<QueryResult[], (QueryResult & PossilbeValue)[]> {
+    return source => combineLatest([
+      source,
+      this.appProfiles$
+    ]).pipe(
+      map(([items, profiles]) => {
+        // convert profile IDs to profile name
+        if (field === 'profile') {
+          let lm = new Map<string, AppProfile>();
+          profiles.forEach(profile => {
+            lm.set(`${profile.Source}/${profile.ID}`, profile)
+          })
+
+          return items.map((item: any) => {
+            const profile = lm.get(item[field])
+            return {
+              Name: profile?.Name || `${item}`,
+              Value: item[field],
+              Description: '',
+              ...item,
+            }
+          })
+        }
+
+        return items.map(item => ({
+          Name: `${item[field]}`,
+          Value: item[field],
+          Description: '',
+          ...item,
+        }))
+      }),
+    )
   }
 
   dispose() {
     this.onShiftKey$.complete();
+
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   /** Emits added fields whenever addToFilter is called */

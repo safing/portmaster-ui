@@ -1,10 +1,8 @@
 import { coerceArray } from "@angular/cdk/coercion";
-import { ObserversModule } from "@angular/cdk/observers";
-import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, Inject, Injector, Input, OnDestroy, OnInit, QueryList, TemplateRef, TrackByFunction, ViewChild, ViewChildren } from "@angular/core";
+import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, Input, OnDestroy, OnInit, QueryList, TemplateRef, TrackByFunction, ViewChildren } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
-import { forkJoin, Observable, of, Subject } from "rxjs";
-import { ObserveOnSubscriber } from "rxjs/internal/operators/observeOn";
-import { catchError, debounceTime, filter, map, switchMap, takeUntil, tap } from "rxjs/operators";
+import { combineLatest, forkJoin, Observable, of, Subject } from "rxjs";
+import { catchError, debounceTime, map, switchMap, takeUntil } from "rxjs/operators";
 import { ChartResult, Condition, Netquery, NetqueryConnection, PossilbeValue, Query, QueryResult, Select, Verdict } from "src/app/services";
 import { ActionIndicatorService } from "../action-indicator";
 import { ExpertiseService } from "../expertise";
@@ -82,6 +80,9 @@ export class SfngNetqueryViewer implements OnInit, OnDestroy, AfterViewInit {
 
   /** @private Emits and completed when the component is destroyed */
   private destroy$ = new Subject();
+
+  /** Used to trigger an update of all displayed values in the tag-bar. */
+  private updateTagBar$ = new Subject<void>();
 
   /** @private Whether or not the next update on ActivatedRoute should be ignored */
   private skipNextRouteUpdate = false;
@@ -308,6 +309,50 @@ export class SfngNetqueryViewer implements OnInit, OnDestroy, AfterViewInit {
     this.helper.onFieldsAdded()
       .pipe(takeUntil(this.destroy$))
       .subscribe(fields => this.onFieldsParsed(fields))
+
+    this.updateTagBar$
+      .pipe(
+        takeUntil(this.destroy$),
+        switchMap(() => {
+          const obs: Observable<{ [key: string]: (PossilbeValue & QueryResult)[] }>[] = [];
+
+          objKeys(this.models)
+            .sort() // make sure we always output values in a constant order
+            .forEach(modelKey => {
+              const values = this.models[modelKey as keyof NetqueryConnection]!.searchValues;
+
+              if (values.length > 0) {
+                obs.push(
+                  this.helper.transformValues(modelKey)(of(values.map(val => ({
+                    [modelKey]: val,
+                  }))))
+                    .pipe(map(result => ({
+                      [modelKey]: result,
+                    })))
+                )
+              }
+            })
+
+          return combineLatest(obs);
+        })
+      )
+      .subscribe(tagBarValues => {
+        this.tagbarValues = [];
+        tagBarValues.forEach(obj => {
+          objKeys(obj).forEach(key => {
+            if (obj[key].length > 0) {
+              this.tagbarValues.push({
+                key: key as string,
+                values: obj[key],
+              })
+            }
+          })
+        })
+
+        console.log("tagBarValues", this.tagbarValues);
+
+        this.cdr.markForCheck();
+      })
   }
 
   ngAfterViewInit(): void {
@@ -595,7 +640,9 @@ export class SfngNetqueryViewer implements OnInit, OnDestroy, AfterViewInit {
 
   /** Updates the {@link tagbarValues} from {@link models}*/
   private updateTagbarValues() {
+    /*
     this.tagbarValues = [];
+
     Object.keys(this.models)
       .sort() // make sure we always output values in a constant order
       .forEach(modelKey => {
@@ -607,6 +654,8 @@ export class SfngNetqueryViewer implements OnInit, OnDestroy, AfterViewInit {
           })
         }
       })
+    */
+    this.updateTagBar$.next();
   }
 
   private isValidFilter(key: string): key is keyof NetqueryConnection {
