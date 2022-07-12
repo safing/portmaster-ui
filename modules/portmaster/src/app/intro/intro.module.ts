@@ -4,7 +4,7 @@ import { NgModule } from "@angular/core";
 import { FormsModule } from "@angular/forms";
 import { ConfigModule } from "../shared/config";
 import { SfngDropDownModule } from "@safing/ui";
-import { StepperConfig } from "../shared/overlay-stepper";
+import { StepperConfig } from "../../../projects/safing/ui/src/lib/overlay-stepper";
 import { SfngTipUpModule } from "@safing/ui";
 import { Step1WelcomeComponent } from "./step-1-welcome";
 import { Step2TrackersComponent } from "./step-2-trackers";

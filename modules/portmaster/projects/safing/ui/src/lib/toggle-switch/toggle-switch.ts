@@ -1,21 +1,21 @@
 import { coerceBooleanProperty } from '@angular/cdk/coercion';
-import { Component, OnInit, HostBinding, HostListener, ChangeDetectionStrategy, forwardRef, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, HostBinding, HostListener, ChangeDetectionStrategy, forwardRef, ChangeDetectorRef, ViewEncapsulation } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 
 @Component({
-  selector: 'app-toggle-switch',
+  selector: 'sfng-toggle',
   templateUrl: './toggle-switch.html',
-  styleUrls: ['./toggle-switch.scss'],
+  encapsulation: ViewEncapsulation.None,
   changeDetection: ChangeDetectionStrategy.OnPush,
   providers: [
     {
       provide: NG_VALUE_ACCESSOR,
-      useExisting: forwardRef(() => ToggleSwitchComponent),
+      useExisting: forwardRef(() => SfngToggleSwitchComponent),
       multi: true,
     }
   ]
 })
-export class ToggleSwitchComponent implements ControlValueAccessor {
+export class SfngToggleSwitchComponent implements ControlValueAccessor {
   @HostListener('blur')
   onBlur() {
     this.onTouch();

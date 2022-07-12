@@ -1,7 +1,7 @@
 import { ModuleWithProviders, NgModule, Type } from "@angular/core";
-import { TipUpIconComponent, TipUpTriggerDirective } from './tipup';
-import { TipUpComponent } from './tipup-component';
-import { TipUpAnchorDirective } from './anchor';
+import { SfngTipUpIconComponent, SfngTipUpTriggerDirective } from './tipup';
+import { SfngTipUpComponent } from './tipup-component';
+import { SfngTipUpAnchorDirective } from './anchor';
 import { MarkdownModule } from "ngx-markdown";
 import { CommonModule } from "@angular/common";
 import { SfngDialogModule } from "../dialog";
@@ -14,16 +14,16 @@ import { ActionRunner, HelpTexts, SFNG_TIP_UP_ACTION_RUNNER, SFNG_TIP_UP_CONTENT
     SfngDialogModule,
   ],
   declarations: [
-    TipUpIconComponent,
-    TipUpTriggerDirective,
-    TipUpComponent,
-    TipUpAnchorDirective
+    SfngTipUpIconComponent,
+    SfngTipUpTriggerDirective,
+    SfngTipUpComponent,
+    SfngTipUpAnchorDirective
   ],
   exports: [
-    TipUpIconComponent,
-    TipUpTriggerDirective,
-    TipUpComponent,
-    TipUpAnchorDirective
+    SfngTipUpIconComponent,
+    SfngTipUpTriggerDirective,
+    SfngTipUpComponent,
+    SfngTipUpAnchorDirective
   ],
 })
 export class SfngTipUpModule {

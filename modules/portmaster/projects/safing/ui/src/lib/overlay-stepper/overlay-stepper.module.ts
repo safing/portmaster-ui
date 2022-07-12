@@ -2,7 +2,7 @@ import { OverlayModule } from "@angular/cdk/overlay";
 import { PortalModule } from "@angular/cdk/portal";
 import { CommonModule } from "@angular/common";
 import { NgModule } from "@angular/core";
-import { SfngDialogModule } from "@safing/ui";
+import { SfngDialogModule } from "../dialog";
 import { OverlayStepperContainer } from "./overlay-stepper-container";
 import { StepOutletComponent } from "./step-outlet";
 

@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, Inject, TemplateRef, ViewChild } from "@angular/core";
 import { of } from "rxjs";
-import { Step, StepRef, STEP_REF } from "src/app/shared/overlay-stepper";
+import { Step, StepRef, STEP_REF } from "@safing/ui";
 
 @Component({
   templateUrl: './step-1-welcome.html',
@@ -17,6 +17,6 @@ export class Step1WelcomeComponent implements Step {
 
   constructor(
     @Inject(STEP_REF) public stepRef: StepRef<void>,
-  ) {}
+  ) { }
 }
 

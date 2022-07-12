@@ -1,5 +1,5 @@
 import { ComponentRef, Injectable, Injector } from "@angular/core";
-import { SfngDialogService } from "@safing/ui";
+import { SfngDialogService } from "../dialog";
 import { OverlayStepperContainer, STEP_CONFIG } from "./overlay-stepper-container";
 import { OverlayStepperModule } from "./overlay-stepper.module";
 import { StepperRef } from "./refs";

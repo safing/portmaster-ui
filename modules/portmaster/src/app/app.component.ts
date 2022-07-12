@@ -10,7 +10,7 @@ import { fadeInAnimation, fadeOutAnimation } from './shared/animations';
 import { SfngDialogService } from '@safing/ui';
 import { ExitService } from './shared/exit-screen';
 import { SfngNetquerySearchOverlay } from './shared/netquery/search-overlay';
-import { OverlayStepper, StepperRef } from './shared/overlay-stepper';
+import { OverlayStepper, StepperRef } from '../../projects/safing/ui/src/lib/overlay-stepper';
 
 @Component({
   selector: 'app-root',
