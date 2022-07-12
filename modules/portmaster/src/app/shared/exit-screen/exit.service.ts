@@ -48,7 +48,7 @@ export class ExitService {
       })
 
 
-    merge<OverlayMessage, OverlayMessage>(
+    merge<OverlayMessage[]>(
       this.portapi.sub('runtime:modules/core/event/shutdown')
         .pipe(map(() => MessageShutdown)),
       this.portapi.sub('runtime:modules/core/event/restart')

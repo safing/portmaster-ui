@@ -128,7 +128,7 @@ export class GenericSettingComponent<S extends BaseSetting<any, any>> implements
   private _showHelp = false;
 
   /** Used internally to publish save events. */
-  private save = new Subject();
+  private save = new Subject<void>();
 
   /** Used internally for subscriptions to various changes */
   private subscription = Subscription.EMPTY;

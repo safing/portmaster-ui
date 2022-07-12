@@ -251,7 +251,7 @@ export class NotificationsService {
     // if it's a virtual notification we should let it handle the action
     // on it's own.
     if (!!this._virtualNotifications.get(payload.EventID)) {
-      return defer(() => {
+      return defer(async () => {
         const notif = this._virtualNotifications.get(payload.EventID!);
         if (!!notif) {
           notif.selectAction(action.ID);

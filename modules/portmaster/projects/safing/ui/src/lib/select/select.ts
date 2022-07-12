@@ -212,10 +212,10 @@ export class SfngSelectComponent<T> implements AfterViewInit, ControlValueAccess
   }
 
   @Output()
-  onClose = new EventEmitter();
+  onClose = new EventEmitter<void>();
 
   @Output()
-  onOpen = new EventEmitter();
+  onOpen = new EventEmitter<void>();
 
   trackItem(_: number, item: SelectOption) {
     return item.value;
