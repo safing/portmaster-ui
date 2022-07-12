@@ -8,7 +8,7 @@ import { AppProfile, ConfigService, ExpertiseLevel, GeoCoordinates, IntelEntity,
 import { getPinCoords, Pin, SPNStatus, UserProfile } from "src/app/services/spn.types";
 import { ActionIndicatorService } from "src/app/shared/action-indicator";
 import { fadeInListAnimation } from "src/app/shared/animations";
-import { DialogRef, DialogService } from "src/app/shared/dialog";
+import { SfngDialogRef, SfngDialogService } from "@safing/ui";
 import { ExpertiseService } from "src/app/shared/expertise/expertise.service";
 import { feature } from 'topojson-client';
 
@@ -153,10 +153,10 @@ export class SpnPageComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   /** accountDetailsDialogRef holds the reference to our account details dialog */
-  private accountDetailsDialogRef: DialogRef<any> | null = null;
+  private accountDetailsDialogRef: SfngDialogRef<any> | null = null;
 
   /** whatsNewDialogRef holds the reference to our what's new dialog */
-  private networkStatusDialogRef: DialogRef<any> | null = null;
+  private networkStatusDialogRef: SfngDialogRef<any> | null = null;
 
   /** flagDir holds the path to the flag assets */
   private readonly flagDir = '/assets/img/flags';
@@ -217,7 +217,7 @@ export class SpnPageComponent implements OnInit, OnDestroy, AfterViewInit {
     private netquery: Netquery,
     private expertiseService: ExpertiseService,
     private uai: ActionIndicatorService,
-    private dialog: DialogService,
+    private dialog: SfngDialogService,
     private viewRef: ViewContainerRef,
     private supportHub: SupportHubService,
     private router: Router,

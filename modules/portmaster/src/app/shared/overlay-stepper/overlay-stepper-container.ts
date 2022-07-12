@@ -1,7 +1,7 @@
 import { CdkPortalOutlet, ComponentPortal, ComponentType } from "@angular/cdk/portal";
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, ComponentRef, Inject, InjectionToken, Injector, isDevMode, OnDestroy, OnInit, ViewChild } from "@angular/core";
 import { Observable, Subject } from "rxjs";
-import { DialogRef, DIALOG_REF } from "../dialog";
+import { SfngDialogRef, SFNG_DIALOG_REF } from "@safing/ui";
 import { StepperControl, StepRef, STEP_REF } from "./refs";
 import { Step, StepperConfig } from "./step";
 import { trigger, animate, transition, style } from "@angular/animations";
@@ -91,7 +91,7 @@ export class OverlayStepperContainer implements OnInit, OnDestroy, StepperContro
 
   constructor(
     @Inject(STEP_CONFIG) public readonly config: StepperConfig,
-    @Inject(DIALOG_REF) public readonly dialogRef: DialogRef<void>,
+    @Inject(SFNG_DIALOG_REF) public readonly dialogRef: SfngDialogRef<void>,
     private injector: Injector,
     private cdr: ChangeDetectorRef
   ) { }

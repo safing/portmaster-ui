@@ -7,7 +7,7 @@ import { Notification, NotificationsService, NotificationType, UIStateService } 
 import { PortapiService } from './services/portapi.service';
 import { ActionIndicator, ActionIndicatorService } from './shared/action-indicator';
 import { fadeInAnimation, fadeOutAnimation } from './shared/animations';
-import { DialogService } from './shared/dialog';
+import { SfngDialogService } from '@safing/ui';
 import { ExitService } from './shared/exit-screen';
 import { SfngNetquerySearchOverlay } from './shared/netquery/search-overlay';
 import { OverlayStepper, StepperRef } from './shared/overlay-stepper';
@@ -58,7 +58,7 @@ export class AppComponent implements OnInit {
     private actionIndicatorService: ActionIndicatorService,
     private exitService: ExitService,
     private overlayStepper: OverlayStepper,
-    private dialog: DialogService,
+    private dialog: SfngDialogService,
     private overlay: Overlay,
     private stateService: UIStateService,
   ) {

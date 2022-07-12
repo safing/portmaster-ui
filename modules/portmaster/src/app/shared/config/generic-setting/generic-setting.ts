@@ -8,7 +8,7 @@ import { debounceTime } from 'rxjs/operators';
 import { applyQuickSetting, BaseSetting, ConfigService, ExpertiseLevelNumber, ExternalOptionHint, OptionType, QuickSetting, ReleaseLevel, SettingValueType, WellKnown } from 'src/app/services';
 import { PortapiService } from 'src/app/services/portapi.service';
 import { fadeInAnimation, fadeOutAnimation } from '../../animations';
-import { DialogRef, DialogService } from '../../dialog';
+import { SfngDialogRef, SfngDialogService } from '@safing/ui';
 import { ExpertiseService } from '../../expertise/expertise.service';
 
 export interface SaveSettingEvent<S extends BaseSetting<any, any> = any> {
@@ -43,7 +43,7 @@ export class GenericSettingComponent<S extends BaseSetting<any, any>> implements
 
   @ViewChild('helpTemplate', { read: TemplateRef, static: true })
   helpTemplate: TemplateRef<any> | null = null;
-  private helpDialogRef: DialogRef<any> | null = null;
+  private helpDialogRef: SfngDialogRef<any> | null = null;
 
   /**
    * Whether or not the component/setting is disabled and should
@@ -418,7 +418,7 @@ export class GenericSettingComponent<S extends BaseSetting<any, any>> implements
     private expertiseService: ExpertiseService,
     private configService: ConfigService,
     private portapi: PortapiService,
-    private dialog: DialogService,
+    private dialog: SfngDialogService,
     private changeDetectorRef: ChangeDetectorRef,
     private viewRef: ViewContainerRef,
   ) { }

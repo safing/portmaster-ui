@@ -18,7 +18,8 @@
 @import 'theme/_dialog.scss';
 @import 'theme/_table.scss';
 @import 'theme/_pill.scss';
-@import 'app/shared/select/_select.scss';
+
+@import 'safing/ui/theming';
 
 *[routerlink] {
   cursor: pointer;

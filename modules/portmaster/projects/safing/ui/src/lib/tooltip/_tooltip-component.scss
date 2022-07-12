@@ -1,0 +1,7 @@
+@layer components {
+  sfng-tooltip-container {
+    @apply relative block;
+
+    max-width: 16rem;
+  }
+}

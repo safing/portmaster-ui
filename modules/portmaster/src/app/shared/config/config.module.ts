@@ -10,10 +10,10 @@ import { ExpertiseModule } from "../expertise/expertise.module";
 import { SfngFocusModule } from "../focus";
 import { SfngMenuModule } from "../menu";
 import { SfngMultiSwitchModule } from "../multi-switch";
-import { SfngSelectModule } from "../select";
-import { TipUpModule } from "../tipup";
+import { SfngSelectModule } from "@safing/ui";
+import { SfngTipUpModule } from "@safing/ui";
 import { SfngToggleSwitchModule } from "../toggle-switch";
-import { SfngTooltipModule } from "../tooltip";
+import { SfngTooltipModule } from "@safing/ui";
 import { BasicSettingComponent } from "./basic-setting/basic-setting";
 import { ConfigSettingsViewComponent } from "./config-settings";
 import { FilterListComponent } from "./filter-lists";
@@ -34,7 +34,7 @@ import { SecuritySettingComponent } from "./security-setting/security-setting";
     SfngMultiSwitchModule,
     SfngFocusModule,
     SfngMenuModule,
-    TipUpModule,
+    SfngTipUpModule,
     FontAwesomeModule,
     MarkdownModule,
     RouterModule,

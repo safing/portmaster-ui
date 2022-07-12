@@ -1,11 +1,10 @@
-import { AnimationEvent } from '@angular/animations';
 import { OverlayRef } from '@angular/cdk/overlay';
-import { Component, HostBinding, HostListener, Inject, InjectionToken, NgZone } from '@angular/core';
+import { Component, Inject, InjectionToken } from '@angular/core';
+import { SfngDialogRef, SFNG_DIALOG_REF } from '@safing/ui';
 import { Observable, of } from 'rxjs';
 import { map, switchMap } from 'rxjs/operators';
 import { UIStateService } from 'src/app/services';
 import { fadeInAnimation, fadeOutAnimation } from '../animations';
-import { DialogRef, DIALOG_REF } from '../dialog';
 
 export const OVERLAYREF = new InjectionToken<OverlayRef>('OverlayRef');
 
@@ -19,7 +18,7 @@ export const OVERLAYREF = new InjectionToken<OverlayRef>('OverlayRef');
 })
 export class ExitScreenComponent {
   constructor(
-    @Inject(DIALOG_REF) private _dialogRef: DialogRef<any>,
+    @Inject(SFNG_DIALOG_REF) private _dialogRef: SfngDialogRef<any>,
     private stateService: UIStateService,
   ) { }
 
