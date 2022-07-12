@@ -90,4 +90,69 @@
   </div>
 </div>
 <div class="nav-lower-list">
+  <div class="link" (click)="settingsMenu.dropdown.toggle(settingsMenuTrigger)" cdkOverlayOrigin
+    #settingsMenuTrigger="cdkOverlayOrigin" [class.active]="settingsMenu.dropdown.isOpen">
+
+    <svg version="1.1" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" class="help"
+      xmlns:xlink="http://www.w3.org/1999/xlink">
+      <g stroke-linecap="round" stroke-width="1.5" stroke="currentColor" fill="none" stroke-linejoin="round">
+        <path d="M11.835,15l5,5c0.828,0.828 2.172,0.828 3,0v0c0.828,-0.828 0.828,-2.172 0,-3l-5,-5"></path>
+        <path
+          d="M20.916,5.847c0.024,0.023 0.042,0.053 0.051,0.085c0.47,1.567 0.106,3.33 -1.132,4.568c-1.251,1.251 -3.038,1.609 -4.617,1.117l-8.347,8.347c-0.813,0.813 -2.139,0.874 -2.98,0.09c-0.884,-0.823 -0.902,-2.207 -0.056,-3.054l8.383,-8.383c-0.492,-1.579 -0.134,-3.366 1.117,-4.617c1.238,-1.238 3.001,-1.602 4.568,-1.132c0.032,0.01 0.062,0.027 0.085,0.051l0.162,0.162c0.078,0.078 0.078,0.205 0,0.283l-2.635,2.636l2.32,2.32l2.636,-2.636c0.078,-0.078 0.205,-0.078 0.283,0l0.162,0.163Z">
+        </path>
+        <path
+          d="M2.933,4.293l0.674,2.023c0.136,0.409 0.518,0.684 0.949,0.684h2.279v-2.279c0,-0.43 -0.275,-0.813 -0.684,-0.949l-2.023,-0.674c-0.18,-0.06 -0.378,-0.013 -0.512,0.121l-0.562,0.562c-0.134,0.134 -0.181,0.332 -0.121,0.512Z">
+        </path>
+        <path d="M6.84,7l3.5,3.5"></path>
+      </g>
+    </svg>
+
+  </div>
+  <app-menu #settingsMenu offsetY="0" offsetX="10" overlayClass="rounded-t">
+    <div class="flex flex-col p-4 text-xxs">
+      <span class="text-secondary">
+        Version: <span class="text-primary">{{ versions?.Core?.Version }} </span>
+      </span>
+      <span class="text-secondary">
+        Release Channel:
+        <span class="uppercase text-primary"
+          [class.text-yellow-300]="versions?.Channel !== 'stable'">{{ versions?.Channel }}</span>
+      </span>
+    </div>
+
+    <app-menu-item (click)="downloadUpdates($event)">Download Updates</app-menu-item>
+    <app-menu-item (click)="shutdown($event)">Shut Down Portmaster</app-menu-item>
+    <app-menu-item (click)="reloadUI($event)">Reload UI</app-menu-item>
+    <app-menu-item (click)="clearDNSCache($event)">Clear DNS Cache</app-menu-item>
+    <app-menu-item (click)="openDataDir($event)">Open Data Directory</app-menu-item>
+    <app-menu-item (click)="openChangeLog()">View Changelog</app-menu-item>
+    <app-menu-item *appExpertiseLevel="'developer'" (click)="showIntro()">
+      Show Intro Screen
+    </app-menu-item>
+  </app-menu>
+
+  <!-- Power Menu -->
+  <div class="link" (click)="powerMenu.dropdown.toggle(powerMenuTrigger)" cdkOverlayOrigin
+    #powerMenuTrigger="cdkOverlayOrigin" [class.active]="powerMenu.dropdown.isOpen">
+
+    <svg version="1.1" viewBox="0 0 24 24" class="help" xmlns="http://www.w3.org/2000/svg"
+      xmlns:xlink="http://www.w3.org/1999/xlink">
+      <g fill="none">
+        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+          d="M18.364,5.63604c3.51472,3.51472 3.51472,9.2132 0,12.7279c-3.51472,3.51472 -9.2132,3.51472 -12.7279,0c-3.51472,-3.51472 -3.51472,-9.2132 -1.77636e-15,-12.7279c3.51472,-3.51472 9.2132,-3.51472 12.7279,-1.77636e-15">
+        </path>
+        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12,7v5">
+        </path>
+        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+          d="M15.534,8.466c1.952,1.952 1.952,5.117 0,7.069c-1.952,1.952 -5.117,1.952 -7.069,0c-1.952,-1.952 -1.952,-5.117 0,-7.069">
+        </path>
+      </g>
+    </svg>
+
+  </div>
+  <app-menu #powerMenu offsetY="0" offsetX="10" overlayClass="rounded-t">
+    <app-menu-item (click)="shutdownPortmaster()">Shutdown</app-menu-item>
+    <app-menu-item (click)="restartPortmaster()">Restart</app-menu-item>
+  </app-menu>
+
 </div>

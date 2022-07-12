@@ -1,13 +1,10 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { Subscription } from 'rxjs';
-import { AppComponent } from 'src/app/app.component';
-import { ConfigService, DebugAPI, Setting, StatusService, VersionStatus } from 'src/app/services';
-import { PortapiService } from 'src/app/services/portapi.service';
+import { ConfigService, Setting, StatusService, VersionStatus } from 'src/app/services';
 import { ActionIndicatorService } from 'src/app/shared/action-indicator';
 import { fadeInAnimation } from 'src/app/shared/animations';
 import { SaveSettingEvent } from 'src/app/shared/config/generic-setting/generic-setting';
-import { ExitService } from 'src/app/shared/exit-screen';
 
 @Component({
   templateUrl: './settings.html',
@@ -39,12 +36,8 @@ export class SettingsComponent implements OnInit, OnDestroy {
   constructor(
     public configService: ConfigService,
     public statusService: StatusService,
-    private portapi: PortapiService,
-    private debugAPI: DebugAPI,
     private actionIndicator: ActionIndicatorService,
     private route: ActivatedRoute,
-    private exitService: ExitService,
-    private appComponent: AppComponent,
   ) { }
 
   ngOnInit(): void {
@@ -137,108 +130,5 @@ export class SettingsComponent implements OnInit, OnDestroy {
       })
   }
 
-  /**
-   * @private
-   * Injects a ui/reload event and performs a complete
-   * reload of the window once the portmaster re-opened the
-   * UI bundle.
-   */
-  reloadUI(_: Event) {
-    this.portapi.reloadUI();
-  }
 
-  /**
-   * @private
-   * Clear the DNS name cache.
-   */
-  clearDNSCache(_: Event) {
-    this.portapi.clearDNSCache();
-  }
-
-  /**
-   * @private
-   * Trigger downloading of updates
-   *
-   * @param event - The mouse event
-   */
-  downloadUpdates(event: Event) {
-    this.portapi.checkForUpdates();
-  }
-
-  /**
-   * @private
-   * Trigger a shutdown of the portmaster-core service
-   */
-  shutdown(_: Event) {
-    this.exitService.shutdownPortmaster();
-  }
-
-  /**
-   * @private
-   * Trigger a restart of the portmaster-core service. Requires
-   * that portmaster has been started with a service-wrapper.
-   *
-   * @param event The mouse event
-   */
-  restart(event: Event) {
-    // prevent default and stop-propagation to avoid
-    // expanding the accordion body.
-    event.preventDefault();
-    event.stopPropagation();
-
-    this.portapi.restartPortmaster();
-  }
-
-  /**
-   * @private
-   * Opens the data-directory of the portmaster installation.
-   * Requires the application to run inside electron.
-   */
-  async openDataDir(event: Event) {
-    if (!!window.app) {
-      const dir = await window.app.getInstallDir()
-      await window.app.openExternal(dir);
-    }
-  }
-
-  openChangeLog() {
-    const url = "https://github.com/safing/portmaster/releases";
-    if (!!window.app) {
-      window.app.openExternal(url);
-      return;
-    }
-    window.open(url, '_blank');
-  }
-
-  showIntro() {
-    this.appComponent.showIntro()
-      .onClose
-      .subscribe(() => {
-        this.loadSettings();
-      })
-  }
-
-  copyDebugInfo(event: Event) {
-    // prevent default and stop-propagation to avoid
-    // expanding the accordion body.
-    event.preventDefault();
-    event.stopPropagation();
-
-    this.debugAPI.getCoreDebugInfo()
-      .subscribe(
-        async info => {
-          console.log(info);
-          // Copy to clip-board if supported
-          if (!!navigator.clipboard) {
-            await navigator.clipboard.writeText(info);
-            this.actionIndicator.success("Copied to Clipboard")
-          }
-
-        },
-        err => {
-          console.error(err);
-          this.actionIndicator.error('Failed loading debug data', err);
-        }
-      )
-  }
 }
