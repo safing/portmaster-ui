@@ -1,10 +1,20 @@
-<input [cdkTrapFocus]="false" [cdkTrapFocusAutoCapture]="true" cdkOverlayOrigin class="w-full rounded-tr-sm" type="text"
-  [(ngModel)]="textSearch" placeholder="Search for connections, press ENTER to apply"
-  (keydown)="onSearchKeyDown($event)" (blur)="onFocusLost($event)" (ngModelChange)="onSearchModelChange($event)"
-  #searchBar>
+<div class="flex flex-row items-center bg-gray-300 rounded-sm" cdkOverlayOrigin>
+  <div class="flex items-center p-2">
+    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-secondary" viewBox="0 0 20 20" fill="currentColor">
+      <path fill-rule="evenodd"
+        d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z"
+        clip-rule="evenodd" />
+    </svg>
+  </div>
+  <input [cdkTrapFocus]="false" [cdkTrapFocusAutoCapture]="true" class="w-full rounded-tr-sm" type="text"
+    [(ngModel)]="textSearch" placeholder="Search for connections, press ENTER to apply"
+    (keydown)="onSearchKeyDown($event)" (blur)="onFocusLost($event)" (ngModelChange)="onSearchModelChange($event)"
+    #searchBar>
+</div>
 
 
-<sfng-dropdown externalTrigger="true" #suggestionDropdown *ngIf="mode === 'default'; else: suggestionTemplate">
+<sfng-dropdown externalTrigger="true" #suggestionDropdown *ngIf="mode === 'default'; else: suggestionTemplate"
+  offsetY="0">
   <ng-container *ngTemplateOutlet="suggestionTemplate"></ng-container>
 </sfng-dropdown>
 
@@ -13,19 +23,18 @@
     <!-- fake option -->
   </div>
 
-  <div class="flex flex-col gap-4 justify-start items-start p-3 px-4 w-full" (mouseenter)="cancelDropdownClose()"
+  <div class="flex flex-col items-start justify-start w-full gap-4 p-3 px-4" (mouseenter)="cancelDropdownClose()"
     [@fadeInList]="suggestions.length" (mousemove)="resetKeyboardSelection()">
 
     <ng-container *ngFor="let sug of suggestions; trackBy: trackSuggestion">
-      <div class="flex flex-col gap-1 justify-start items-start self-stretch">
-        <h3 class="flex flex-row gap-2 items-center w-full text-xxs text-tertiary">
-          {{ labels[sug.field] || sug.field }}
-          <span class="inline-block flex-grow border-t border-gray-400"></span>
+      <div class="flex flex-col items-start self-stretch justify-start gap-1">
+        <h3 class="flex flex-row items-center w-full gap-2 text-xxs text-tertiary">
+          Filter by {{ labels[sug.field] || sug.field }}
         </h3>
         <ul class="self-stretch">
           <li *ngFor="let val of sug.values" (click)="applySuggestion(sug.field, val.value, $event, sug.start)"
             [sfng-netquery-suggestion]="val.value" [sfngSuggestion]="sug"
-            class="flex flex-row gap-2 justify-between px-2 py-1 w-full rounded-sm cursor-pointer hover:bg-gray-300">
+            class="flex flex-row justify-between w-full gap-2 px-2 py-1 rounded-sm cursor-pointer hover:bg-gray-300">
             <span class="text-primary">{{ val.display || (val.value === '' ? 'N/A' : val.value) }}</span>
             <span class="text-secondary">#{{ val.count }} connections</span>
           </li>
@@ -33,7 +42,7 @@
       </div>
     </ng-container>
 
-    <div class="flex flex-row gap-2 justify-start items-center w-full text-xs border-gray-400 text-primary" [@fadeIn]
+    <div class="flex flex-row items-center justify-start w-full gap-2 text-xs border-gray-400 text-primary" [@fadeIn]
       *ngIf="loading" [ngClass]="{'border-t pt-2': !!suggestions?.length}">
       <svg class="w-4 h-4 animate-spin text-secondary" xmlns="http://www.w3.org/2000/svg" fill="none"
         viewBox="0 0 24 24">
