@@ -13,6 +13,7 @@ import { FaIconLibrary, FontAwesomeModule } from '@fortawesome/angular-fontaweso
 import { faGithub } from '@fortawesome/free-brands-svg-icons';
 import { far } from '@fortawesome/free-regular-svg-icons';
 import { fas } from '@fortawesome/free-solid-svg-icons';
+import { SfngAccordionModule, SfngDialogModule, SfngDropDownModule, SfngPaginationModule, SfngSelectModule, SfngTipUpModule, SfngTooltipModule, TabModule, UiModule } from '@safing/ui';
 import { MarkdownModule } from 'ngx-markdown';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
@@ -27,14 +28,11 @@ import { SpnPageComponent } from './pages/spn';
 import { SupportPageComponent } from './pages/support';
 import { SupportFormComponent } from './pages/support/form';
 import { WidgetSettingsOutletComponent } from './pages/widget-settings-outlet/widget-settings-outlet';
-import { SfngAccordionModule } from './shared/accordion';
 import { ActionIndicatorModule } from './shared/action-indicator';
 import { SfngAppIconModule } from './shared/app-icon';
 import { ConfigModule } from './shared/config';
 import { CountIndicatorModule } from './shared/count-indicator';
 import { CountryFlagModule } from './shared/country-flag';
-import { DialogModule } from './shared/dialog';
-import { SfngDropDownModule } from './shared/dropdown/dropdown.module';
 import { ExitScreenComponent } from './shared/exit-screen/exit-screen';
 import { ExpertiseModule } from './shared/expertise/expertise.module';
 import { ExternalLinkDirective } from './shared/external-link.directive';
@@ -46,14 +44,9 @@ import { SfngMultiSwitchModule } from './shared/multi-switch';
 import { NetqueryModule } from './shared/netquery';
 import { NotificationComponent } from './shared/notification/notification';
 import { OverlayStepperModule } from './shared/overlay-stepper';
-import { SfngPaginationModule } from './shared/pagination';
 import { CommonPipesModule } from './shared/pipes';
-import { SfngSelectModule } from './shared/select';
-import { TabModule } from './shared/tabs/tabs.module';
 import { PlaceholderComponent } from './shared/text-placeholder';
-import { TipUpModule } from './shared/tipup';
 import { SfngToggleSwitchModule } from './shared/toggle-switch';
-import { SfngTooltipModule } from './shared/tooltip';
 import { MarkdownWidgetComponent, MarkdownWidgetSettingsComponent } from './widgets/markdown-widget';
 import { NetworkActivityWidget } from './widgets/network-activity-widget';
 import { NotificationWidgetComponent, NotificationWidgetSettingsComponent } from './widgets/notification-widget';
@@ -61,6 +54,8 @@ import { PilotWidgetComponent } from './widgets/pilot-widget';
 import { PromptWidgetComponent } from './widgets/prompt-widget';
 import { StatusWidgetComponent, StatusWidgetSettingsComponent } from './widgets/status-widget';
 import { WIDGET_DEFINTIONS } from './widgets/widget.types';
+import MyYamlFile from 'js-yaml-loader!../i18n/helptexts.yaml';
+import { NotificationsService } from './services';
 
 @NgModule({
   declarations: [
@@ -111,10 +106,10 @@ import { WIDGET_DEFINTIONS } from './widgets/widget.types';
     ScrollingModule,
     SfngAccordionModule,
     TabModule,
-    TipUpModule,
+    SfngTipUpModule.forRoot(MyYamlFile, NotificationsService),
     SfngTooltipModule,
     ActionIndicatorModule,
-    DialogModule,
+    SfngDialogModule,
     OverlayStepperModule,
     IntroModule,
     SfngDropDownModule,
@@ -131,6 +126,7 @@ import { WIDGET_DEFINTIONS } from './widgets/widget.types';
     CountIndicatorModule,
     NetqueryModule,
     CommonPipesModule,
+    UiModule,
   ],
   providers: [
     {

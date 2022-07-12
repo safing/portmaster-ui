@@ -7,7 +7,7 @@ import { AppProfileService } from 'src/app/services/app-profile.service';
 import { ActionIndicatorService } from 'src/app/shared/action-indicator';
 import { fadeInAnimation, fadeOutAnimation } from 'src/app/shared/animations';
 import { SaveSettingEvent } from 'src/app/shared/config/generic-setting/generic-setting';
-import { DialogService } from 'src/app/shared/dialog';
+import { SfngDialogService } from '@safing/ui';
 import { SfngNetqueryViewer } from 'src/app/shared/netquery';
 
 @Component({
@@ -126,7 +126,7 @@ export class AppViewComponent implements OnInit, OnDestroy {
     private configService: ConfigService,
     private router: Router,
     private actionIndicator: ActionIndicatorService,
-    private dialog: DialogService,
+    private dialog: SfngDialogService,
     private debugAPI: DebugAPI,
   ) { }
 

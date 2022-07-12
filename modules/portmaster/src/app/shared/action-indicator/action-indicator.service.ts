@@ -2,7 +2,7 @@ import { Overlay, OverlayConfig, OverlayRef } from '@angular/cdk/overlay';
 import { ComponentPortal } from '@angular/cdk/portal';
 import { HttpErrorResponse, HttpResponse } from '@angular/common/http';
 import { Injectable, InjectionToken, Injector } from '@angular/core';
-import { BehaviorSubject, interval, Observer, PartialObserver, Subject } from 'rxjs';
+import { interval, PartialObserver, Subject } from 'rxjs';
 import { take, takeUntil } from 'rxjs/operators';
 import { IndicatorComponent } from './indicator';
 

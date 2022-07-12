@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, Inject } from "@angular/core";
 import { Router } from "@angular/router";
-import { DialogRef, DIALOG_REF } from "../../dialog";
+import { SfngDialogRef, SFNG_DIALOG_REF } from "@safing/ui";
 import { objKeys } from "../../utils";
 import { NetqueryHelper } from "../connection-helper.service";
 import { SfngSearchbarFields } from "../searchbar";
@@ -34,7 +34,7 @@ export class SfngNetquerySearchOverlay {
   fields: SfngSearchbarFields = {};
 
   constructor(
-    @Inject(DIALOG_REF) private dialogRef: DialogRef<any>,
+    @Inject(SFNG_DIALOG_REF) private dialogRef: SfngDialogRef<any>,
     private router: Router,
   ) { }
 

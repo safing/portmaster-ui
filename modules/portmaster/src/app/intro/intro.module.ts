@@ -3,9 +3,9 @@ import { CommonModule } from "@angular/common";
 import { NgModule } from "@angular/core";
 import { FormsModule } from "@angular/forms";
 import { ConfigModule } from "../shared/config";
-import { SfngDropDownModule } from "../shared/dropdown/dropdown.module";
+import { SfngDropDownModule } from "@safing/ui";
 import { StepperConfig } from "../shared/overlay-stepper";
-import { TipUpModule } from "../shared/tipup";
+import { SfngTipUpModule } from "@safing/ui";
 import { Step1WelcomeComponent } from "./step-1-welcome";
 import { Step2TrackersComponent } from "./step-2-trackers";
 import { Step3DNSComponent } from "./step-3-dns";
@@ -25,7 +25,7 @@ const steps = [
     FormsModule,
     SfngDropDownModule,
     ConfigModule,
-    TipUpModule,
+    SfngTipUpModule,
   ],
   declarations: steps
 })

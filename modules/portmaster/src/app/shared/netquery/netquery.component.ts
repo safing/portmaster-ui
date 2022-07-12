@@ -6,7 +6,7 @@ import { catchError, debounceTime, map, switchMap, takeUntil } from "rxjs/operat
 import { ChartResult, Condition, IPScope, Netquery, NetqueryConnection, PossilbeValue, Query, QueryResult, Select, Verdict } from "src/app/services";
 import { ActionIndicatorService } from "../action-indicator";
 import { ExpertiseService } from "../expertise";
-import { Datasource, DynamicItemsPaginator } from "../pagination";
+import { Datasource, DynamicItemsPaginator } from "@safing/ui";
 import { objKeys } from "../utils";
 import { NetqueryHelper } from "./connection-helper.service";
 import { SfngSearchbarFields } from "./searchbar";

@@ -1,32 +1,27 @@
+import { A11yModule } from "@angular/cdk/a11y";
+import { OverlayModule } from "@angular/cdk/overlay";
 import { CommonModule } from "@angular/common";
 import { NgModule } from "@angular/core";
 import { FormsModule } from "@angular/forms";
-import { SfngAccordionModule } from "../accordion";
-import { CanShowConnection, CanUseRulesPipe, ConnectionLocationPipe, IsBlockedConnectionPipe } from "./pipes";
+import { FontAwesomeModule } from "@fortawesome/angular-fontawesome";
+import { SfngAccordionModule, SfngDropDownModule, SfngPaginationModule, SfngSelectModule, SfngTooltipModule, SfngTipUpModule } from "@safing/ui";
+import { SfngAppIconModule } from "../app-icon";
 import { CountIndicatorModule } from "../count-indicator";
 import { CountryFlagModule } from "../country-flag";
-import { SfngDropDownModule } from "../dropdown/dropdown.module";
-import { SfngSelectModule } from "../select";
-import { SfngTooltipModule } from "../tooltip";
-import { SfngNetqueryConnectionRowComponent } from "./connection-row";
-import { SfngNetqueryViewer } from "./netquery.component";
-import { CommonPipesModule } from "../pipes";
-import { SfngMenuModule } from "../menu";
-import { SfngNetqueryLineChart } from "./line-chart/line-chart";
 import { ExpertiseModule } from "../expertise/expertise.module";
-import { SfngNetqueryTagbar } from "./tag-bar";
-import { OverlayModule } from "@angular/cdk/overlay";
-import { SfngNetquerySearchbar, SfngNetquerySuggestionDirective } from "./searchbar";
-import { SfngPaginationModule } from "../pagination";
-import { SfngNetquerySearchOverlay } from "./search-overlay";
 import { SfngFocusModule } from "../focus";
-import { A11yModule } from "@angular/cdk/a11y";
-import { SfngNetqueryScopeLabelComponent } from "./scope-label";
-import { SfngNetqueryConnectionDetailsComponent } from "./connection-details";
-import { FontAwesomeModule } from "@fortawesome/angular-fontawesome";
+import { SfngMenuModule } from "../menu";
+import { CommonPipesModule } from "../pipes";
 import { SfngNetqueryAddToFilterDirective } from "./add-to-filter";
-import { SfngAppIconModule } from "../app-icon";
-import { TipUpModule } from "../tipup";
+import { SfngNetqueryConnectionDetailsComponent } from "./connection-details";
+import { SfngNetqueryConnectionRowComponent } from "./connection-row";
+import { SfngNetqueryLineChart } from "./line-chart/line-chart";
+import { SfngNetqueryViewer } from "./netquery.component";
+import { CanShowConnection, CanUseRulesPipe, ConnectionLocationPipe, IsBlockedConnectionPipe } from "./pipes";
+import { SfngNetqueryScopeLabelComponent } from "./scope-label";
+import { SfngNetquerySearchOverlay } from "./search-overlay";
+import { SfngNetquerySearchbar, SfngNetquerySuggestionDirective } from "./searchbar";
+import { SfngNetqueryTagbar } from "./tag-bar";
 
 @NgModule({
   imports: [
@@ -41,7 +36,7 @@ import { TipUpModule } from "../tipup";
     SfngPaginationModule,
     SfngFocusModule,
     SfngAppIconModule,
-    TipUpModule,
+    SfngTipUpModule,
     A11yModule,
     ExpertiseModule,
     OverlayModule,

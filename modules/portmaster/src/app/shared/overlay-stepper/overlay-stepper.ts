@@ -1,5 +1,5 @@
 import { ComponentRef, Injectable, Injector } from "@angular/core";
-import { DialogService } from "../dialog";
+import { SfngDialogService } from "@safing/ui";
 import { OverlayStepperContainer, STEP_CONFIG } from "./overlay-stepper-container";
 import { OverlayStepperModule } from "./overlay-stepper.module";
 import { StepperRef } from "./refs";
@@ -9,7 +9,7 @@ import { StepperConfig } from "./step";
 export class OverlayStepper {
   constructor(
     private injector: Injector,
-    private dialog: DialogService,
+    private dialog: SfngDialogService,
   ) { }
 
   /**

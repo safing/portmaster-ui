@@ -1,5 +1,5 @@
-import { animate, AnimationEvent, state, style, transition, trigger } from '@angular/animations';
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, Host, HostBinding, HostListener, Inject, NgZone, OnDestroy, OnInit } from '@angular/core';
+import { animate, state, style, transition, trigger } from '@angular/animations';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, HostBinding, HostListener, Inject, OnInit } from '@angular/core';
 import { takeUntil } from 'rxjs/operators';
 import { ActionIndicatorRef, ACTION_REF } from './action-indicator.service';
 

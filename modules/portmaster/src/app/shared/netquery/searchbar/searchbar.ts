@@ -6,7 +6,7 @@ import { combineLatest, Observable, of, Subject } from "rxjs";
 import { catchError, debounceTime, map, switchMap, takeUntil } from "rxjs/operators";
 import { Condition, ExpertiseLevel, Netquery, NetqueryConnection } from "src/app/services";
 import { fadeInAnimation, fadeInListAnimation } from "../../animations";
-import { SfngDropdown } from "../../dropdown/dropdown";
+import { SfngDropdown } from "@safing/ui";
 import { ExpertiseService } from "../../expertise";
 import { objKeys } from "../../utils";
 import { NetqueryHelper } from "../connection-helper.service";

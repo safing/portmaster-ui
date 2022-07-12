@@ -1,8 +1,7 @@
 import { coerceBooleanProperty } from '@angular/cdk/coercion';
-import { CdkOverlayOrigin, ConnectedPosition, ScrollStrategy, ScrollStrategyOptions } from '@angular/cdk/overlay';
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, ContentChildren, ElementRef, EventEmitter, HostBinding, HostListener, Input, Output, QueryList, Renderer2, ViewChild, ViewEncapsulation } from '@angular/core';
-import { fadeInAnimation, fadeOutAnimation } from '../animations';
-import { SfngDropdown } from '../dropdown/dropdown';
+import { CdkOverlayOrigin } from '@angular/cdk/overlay';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, ContentChildren, EventEmitter, HostBinding, HostListener, Input, Output, QueryList, ViewChild } from '@angular/core';
+import { SfngDropdown } from '@safing/ui';
 
 @Component({
   selector: 'app-menu-trigger',

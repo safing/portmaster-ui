@@ -3,7 +3,7 @@ import { BehaviorSubject, merge, of } from 'rxjs';
 import { catchError, debounceTime, distinctUntilChanged, map, skip, switchMap, tap, timeout } from 'rxjs/operators';
 import { UIStateService } from 'src/app/services';
 import { PortapiService } from 'src/app/services/portapi.service';
-import { DialogService } from '../dialog';
+import { SfngDialogService } from '@safing/ui';
 import { ExitScreenComponent } from './exit-screen';
 
 const MessageConnecting = 'Connecting to Portmaster';
@@ -32,7 +32,7 @@ export class ExitService {
   constructor(
     private stateService: UIStateService,
     private portapi: PortapiService,
-    private dialog: DialogService
+    private dialog: SfngDialogService
   ) {
 
     this.portapi.connected$
