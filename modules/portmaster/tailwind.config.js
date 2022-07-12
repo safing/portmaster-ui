@@ -1,6 +1,9 @@
 module.exports = {
   mode: 'jit',
-  content: ['./src/**/*.{html,scss,ts}'],
+  content: [
+    './src/**/*.{html,scss,ts}',
+    './projects/safing/ui/**/*.{html,scss,ts}'
+  ],
   theme: {
     colors: {
       transparent: 'transparent',
