@@ -64,7 +64,6 @@
     "karma-jasmine": "~4.0.0",
     "karma-jasmine-html-reporter": "^1.5.0",
     "ng-packagr": "^12.1.1",
-    "ngx-build-plus": "^12.2.0",
     "ngx-ui-scroll": "^2.0.1",
     "postcss-import": "^14.0.2",
     "postcss-loader": "^6.1.1",
