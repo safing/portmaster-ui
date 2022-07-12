@@ -32,12 +32,18 @@
       <span>{{ conn.direction === 'inbound' ? ' Incoming' : ' Outgoing'}}</span>
     </span>
   </ng-template>
-
 </div>
 
 <div [class.text-tertiary]="!conn.country" class="flex flex-row items-center justify-start gap-1"
   [sfngAddToFilter]="!!conn.country ? 'country' : null" [sfngAddToFilterValue]="conn.country">
   {{ conn | connectionLocation }}
+</div>
+
+<div>
+  <span *ngIf="!!conn.__profile" class="flex flex-row items-center gap-1">
+    <app-icon [profile]="conn.__profile"></app-icon>
+    <span [sfngAddToFilter]="'profile'" [sfngAddToFilterValue]="conn.profile">{{ conn.__profile.Name }}</span>
+  </span>
 </div>
 
 <div class="flex flex-row items-center gap-2">
