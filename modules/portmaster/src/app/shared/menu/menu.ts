@@ -100,4 +100,13 @@ export class MenuComponent {
 
   @ViewChild(SfngDropdown, { static: true })
   dropdown!: SfngDropdown;
+
+  @Input()
+  offsetY?: string | number;
+
+  @Input()
+  offsetX?: string | number;
+
+  @Input()
+  overlayClass?: string;
 }
