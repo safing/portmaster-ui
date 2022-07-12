@@ -3,7 +3,7 @@ import { Inject, Injectable, Renderer2 } from '@angular/core';
 import { Router } from '@angular/router';
 import { BehaviorSubject, combineLatest, Observable, of, OperatorFunction, Subject } from 'rxjs';
 import { catchError, distinctUntilChanged, map, switchMap, takeUntil, tap } from 'rxjs/operators';
-import { AppProfile, AppProfileService, ConfigService, getAppSetting, NetqueryConnection, PossilbeValue, QueryResult, setAppSetting, Verdict } from 'src/app/services';
+import { AppProfile, AppProfileService, ConfigService, getAppSetting, IPScope, NetqueryConnection, PossilbeValue, QueryResult, setAppSetting, Verdict } from 'src/app/services';
 import { ActionIndicatorService } from '../action-indicator';
 import { deepClone } from '../utils';
 import { SfngSearchbarFields } from './searchbar';
@@ -67,7 +67,41 @@ export class NetqueryHelper {
       });
   }
 
-  transformValues(field: keyof NetqueryConnection): OperatorFunction<QueryResult[], (QueryResult & PossilbeValue)[]> {
+  decodePrettyValues(field: keyof NetqueryConnection, values: any[]): any[] {
+    if (field === 'verdict') {
+      return values.map(val => Verdict[val]).filter(value => value !== undefined);
+    }
+
+    if (field === 'scope') {
+      return values.map(val => IPScope[val]).filter(value => value !== undefined);
+    }
+
+    return values;
+  }
+
+  attachProfile(): OperatorFunction<QueryResult[], (QueryResult & { __profile?: AppProfile })[]> {
+    return source => combineLatest([
+      source,
+      this.appProfiles$,
+    ]).pipe(
+      map(([items, profiles]) => {
+        let lm = new Map<string, AppProfile>();
+        profiles.forEach(profile => {
+          lm.set(`${profile.Source}/${profile.ID}`, profile)
+        })
+
+        return items.map(item => {
+          if ('profile' in item) {
+            item.__profile = lm.get(item.profile!)
+          }
+
+          return item;
+        })
+      })
+    )
+  }
+
+  encodeToPossibleValues(field: keyof NetqueryConnection): OperatorFunction<QueryResult[], (QueryResult & PossilbeValue)[]> {
     return source => combineLatest([
       source,
       this.appProfiles$
@@ -81,16 +115,49 @@ export class NetqueryHelper {
           })
 
           return items.map((item: any) => {
-            const profile = lm.get(item[field])
+            const profile = lm.get(item.profile!)
             return {
-              Name: profile?.Name || `${item}`,
-              Value: item[field],
+              Name: profile?.Name || `${item.profile}`,
+              Value: item.profile!,
               Description: '',
+              __profile: profile || null,
               ...item,
             }
           })
         }
 
+        // convert verdict identifiers to their pretty name.
+        if (field === 'verdict') {
+          return items.map(item => {
+            if (Verdict[item.verdict!] === undefined) {
+              return null
+            }
+
+            return {
+              Name: Verdict[item.verdict!],
+              Value: item.verdict,
+              Description: '',
+            }
+          })
+        }
+
+        // convert the IP scope identifier to a pretty name
+        if (field === 'scope') {
+          return items.map(item => {
+            if (IPScope[item.scope!] === undefined) {
+              return null
+            }
+
+            return {
+              Name: IPScope[item.scope!],
+              Value: item.scope,
+              Description: '',
+            }
+          })
+        }
+
+        // the rest is just converted into the {@link PossibleValue} form
+        // by using the value as the "Name".
         return items.map(item => ({
           Name: `${item[field]}`,
           Value: item[field],
@@ -98,6 +165,11 @@ export class NetqueryHelper {
           ...item,
         }))
       }),
+      // finally, remove any values that have been mapped to null in the above stage.
+      // this may happen for values that are not valid for the given model field (i.e. using "Foobar" for "verdict")
+      map(results => {
+        return results.filter(val => !!val)
+      })
     )
   }
 

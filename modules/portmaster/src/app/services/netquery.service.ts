@@ -130,6 +130,10 @@ export interface NetqueryConnection {
     dns?: DNSContext;
     tls?: TLSContext;
   };
+
+  profile_name: string;
+  spn_used: boolean;
+  active: boolean;
 }
 
 export interface ChartResult {
