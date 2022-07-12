@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, Inject, OnInit } from "@angular/core";
 import { SfngDialogRef, SFNG_DIALOG_REF } from "../dialog";
-import { TipUpService } from "./tipup";
+import { SfngTipUpService } from "./tipup";
 import { ActionRunner, Button, SFNG_TIP_UP_ACTION_RUNNER, TipUp } from './translations';
 import { TIPUP_TOKEN } from "./utils";
 
@@ -9,7 +9,7 @@ import { TIPUP_TOKEN } from "./utils";
   templateUrl: './tipup.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class TipUpComponent implements OnInit, TipUp<any> {
+export class SfngTipUpComponent implements OnInit, TipUp<any> {
   title: string = 'N/A';
   content: string = 'N/A';
   nextKey?: string;
@@ -19,9 +19,9 @@ export class TipUpComponent implements OnInit, TipUp<any> {
 
   constructor(
     @Inject(TIPUP_TOKEN) public readonly token: string,
-    @Inject(SFNG_DIALOG_REF) private readonly dialogRef: SfngDialogRef<TipUpComponent>,
+    @Inject(SFNG_DIALOG_REF) private readonly dialogRef: SfngDialogRef<SfngTipUpComponent>,
     @Inject(SFNG_TIP_UP_ACTION_RUNNER) private runner: ActionRunner<any>,
-    private tipupService: TipUpService,
+    private tipupService: SfngTipUpService,
   ) { }
 
   ngOnInit() {

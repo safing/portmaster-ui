@@ -5,8 +5,8 @@
     Block Connections
   </span>
 
-  <app-toggle-switch *ngIf="currentValue !== 'ask'; else: promptingTemplate" [ngModel]="currentValue === 'block'"
-    (ngModelChange)="updateUseInternet($event)"></app-toggle-switch>
+  <sfng-toggle *ngIf="currentValue !== 'ask'; else: promptingTemplate" [ngModel]="currentValue === 'block'"
+    (ngModelChange)="updateUseInternet($event)"></sfng-toggle>
 
   <span class="absolute right-0 block w-2 h-2 bg-yellow-300 border border-gray-100 rounded opacity-75"
     style="top: 2px; transform: translateX(-2px)" *ngIf="interferingSettings.length > 0"></span>

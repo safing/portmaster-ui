@@ -1,9 +1,9 @@
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, OnDestroy, OnInit } from "@angular/core";
-import { of, Subject, throwError } from "rxjs";
-import { flatMap, mergeMap, takeUntil } from "rxjs/operators";
+import { Step } from "@safing/ui";
+import { of, Subject } from "rxjs";
+import { mergeMap, takeUntil } from "rxjs/operators";
 import { ConfigService, Setting } from "src/app/services";
 import { SaveSettingEvent } from "src/app/shared/config/generic-setting";
-import { Step } from "src/app/shared/overlay-stepper";
 
 @Component({
   templateUrl: './step-2-trackers.html',

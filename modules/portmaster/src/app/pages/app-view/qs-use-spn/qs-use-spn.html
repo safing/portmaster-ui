@@ -8,8 +8,8 @@
 
   <!-- Display some loading until we know the state of the SPN -->
   <ng-template [ngIf]="spnDisabled !== null" [ngIfElse]="loadingTemplate">
-    <app-toggle-switch [ngModel]="currentValue" (ngModelChange)="updateUseSpn($event)"
-      *ngIf="!spnDisabled; else: spnDisabledMessage"></app-toggle-switch>
+    <sfng-toggle [ngModel]="currentValue" (ngModelChange)="updateUseSpn($event)"
+      *ngIf="!spnDisabled; else: spnDisabledMessage"></sfng-toggle>
     <ng-template #spnDisabledMessage>
       <span routerLink="/spn" class="cursor-pointer text-tertiary hover:underline">
         Disabled

@@ -7,26 +7,26 @@ import { Button, TipUp, SFNG_TIP_UP_CONTENTS, HelpTexts } from './translations';
 import { Observable, of, Subject } from 'rxjs';
 import { debounce, debounceTime, filter, map, skip, take, timeout } from 'rxjs/operators';
 import { SfngDialogRef, SfngDialogService } from '../dialog';
-import { TipUpAnchorDirective } from './anchor';
+import { SfngTipUpAnchorDirective } from './anchor';
 import { deepCloneNode, extendStyles, matchElementSize, removeNode } from './clone-node';
 import { getCssSelector, synchronizeCssStyles } from './css-utils';
-import { TipUpComponent } from './tipup-component';
+import { SfngTipUpComponent } from './tipup-component';
 import { TipupPlacement, TIPUP_TOKEN } from './utils';
 
 @Directive({
   selector: '[tipUpTrigger]',
 })
-export class TipUpTriggerDirective implements OnDestroy {
+export class SfngTipUpTriggerDirective implements OnDestroy {
   constructor(
     public readonly elementRef: ElementRef,
     public dialog: SfngDialogService,
-    @Optional() @Inject(TipUpAnchorDirective) public anchor: TipUpAnchorDirective | ElementRef<any> | HTMLElement,
+    @Optional() @Inject(SfngTipUpAnchorDirective) public anchor: SfngTipUpAnchorDirective | ElementRef<any> | HTMLElement,
     @Inject(SFNG_TIP_UP_CONTENTS) private tipUpContents: HelpTexts<any>,
-    private tipupService: TipUpService,
+    private tipupService: SfngTipUpService,
     private cdr: ChangeDetectorRef,
   ) { }
 
-  private dialogRef: SfngDialogRef<TipUpComponent> | null = null;
+  private dialogRef: SfngDialogRef<SfngTipUpComponent> | null = null;
 
   /**
    * The helptext token used to search for the tip up defintion.
@@ -136,7 +136,7 @@ export class TipUpTriggerDirective implements OnDestroy {
     let placement: TipupPlacement | null = this.placement;
 
     if (!!this.anchor) {
-      if (this.anchor instanceof TipUpAnchorDirective) {
+      if (this.anchor instanceof SfngTipUpAnchorDirective) {
         anchorElement = this.anchor.elementRef;
         placement = this.anchor;
       } else {
@@ -204,7 +204,7 @@ export class TipUpTriggerDirective implements OnDestroy {
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class TipUpIconComponent implements TipupPlacement {
+export class SfngTipUpIconComponent implements TipupPlacement {
   @Input()
   key: string = '';
 
@@ -241,8 +241,8 @@ export class TipUpIconComponent implements TipupPlacement {
 @Injectable({
   providedIn: 'root'
 })
-export class TipUpService {
-  tipups = new Map<string, TipUpTriggerDirective>();
+export class SfngTipUpService {
+  tipups = new Map<string, SfngTipUpTriggerDirective>();
 
   private _onRegister = new Subject<string>();
   private _onUnregister = new Subject<string>();
@@ -283,7 +283,7 @@ export class TipUpService {
     this.renderer = rendererFactory.createRenderer(null, null)
   }
 
-  register(key: string, trigger: TipUpTriggerDirective) {
+  register(key: string, trigger: SfngTipUpTriggerDirective) {
     if (this.tipups.has(key)) {
       return;
     }
@@ -292,7 +292,7 @@ export class TipUpService {
     this._onRegister.next(key);
   }
 
-  deregister(key: string, trigger: TipUpTriggerDirective) {
+  deregister(key: string, trigger: SfngTipUpTriggerDirective) {
     if (this.tipups.get(key) === trigger) {
       this.tipups.delete(key);
       this._onUnregister.next(key);
@@ -303,14 +303,14 @@ export class TipUpService {
     return this.tipups.get(key)?.asTipUp() || null;
   }
 
-  private _latestTipUp: SfngDialogRef<TipUpComponent> | null = null;
+  private _latestTipUp: SfngDialogRef<SfngTipUpComponent> | null = null;
 
   createTipup(
     anchor: HTMLElement | ElementRef<any>,
     key: string,
-    origin?: TipUpTriggerDirective,
+    origin?: SfngTipUpTriggerDirective,
     opts: TipupPlacement | null = {},
-    injector?: Injector): SfngDialogRef<TipUpComponent> {
+    injector?: Injector): SfngDialogRef<SfngTipUpComponent> {
 
     const lastTipUp = this._latestTipUp
     let closePrevious = () => {
@@ -364,7 +364,7 @@ export class TipUpService {
     });
 
 
-    const newTipUp = this.dialog.create(TipUpComponent, {
+    const newTipUp = this.dialog.create(SfngTipUpComponent, {
       dragable: false,
       autoclose: true,
       backdrop: 'light',

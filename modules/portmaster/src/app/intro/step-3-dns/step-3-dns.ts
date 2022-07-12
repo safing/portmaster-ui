@@ -3,7 +3,7 @@ import { of, Subject } from "rxjs";
 import { mergeMap, takeUntil } from "rxjs/operators";
 import { Setting, ConfigService, QuickSetting, applyQuickSetting } from "src/app/services";
 import { SaveSettingEvent } from "src/app/shared/config/generic-setting";
-import { Step } from "src/app/shared/overlay-stepper";
+import { Step } from "@safing/ui";
 
 interface QuickSettingModel extends QuickSetting<any> {
   active: boolean;

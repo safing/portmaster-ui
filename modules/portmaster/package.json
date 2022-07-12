@@ -5,12 +5,12 @@
     "ng": "ng",
     "start": "npm install && ng serve --proxy-config ./proxy.json",
     "serve": "ng serve --proxy-config ./proxy.json",
-    "build:dev": "ng build",
+    "build:dev": "ng build @safing/ui && ng build",
     "test": "ng test",
     "lint": "ng lint",
     "e2e": "ng e2e",
     "zip-dist": "node pack.js",
-    "build": "NODE_ENV=production ng build --configuration production --base-href /ui/modules/portmaster/ --deploy-url /ui/modules/portmaster/"
+    "build": "NODE_ENV=production ng build --configuration production @safing/ui && NODE_ENV=production ng build --configuration production --base-href /ui/modules/portmaster/ --deploy-url /ui/modules/portmaster/"
   },
   "private": true,
   "dependencies": {

@@ -1,7 +1,7 @@
 import { CommonModule } from "@angular/common";
 import { NgModule } from "@angular/core";
 import { FormsModule } from "@angular/forms";
-import { ToggleSwitchComponent } from "./toggle-switch";
+import { SfngToggleSwitchComponent } from "./toggle-switch";
 
 @NgModule({
   imports: [
@@ -9,10 +9,10 @@ import { ToggleSwitchComponent } from "./toggle-switch";
     FormsModule,
   ],
   declarations: [
-    ToggleSwitchComponent,
+    SfngToggleSwitchComponent,
   ],
   exports: [
-    ToggleSwitchComponent,
+    SfngToggleSwitchComponent,
   ]
 })
 export class SfngToggleSwitchModule { }

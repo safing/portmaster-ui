@@ -50,9 +50,9 @@
       Toggle switch (On/Off)
     -->
     <ng-container *ngSwitchCase="'boolean'">
-      <app-toggle-switch id="check-{{setting.Key}}" name="check" [ngModel]="_value"
+      <sfng-toggle id="check-{{setting.Key}}" name="check" [ngModel]="_value"
         (ngModelChange)="setInternalValue($event); touched()" [disabled]="_disabled">
-      </app-toggle-switch>
+      </sfng-toggle>
     </ng-container>
 
     <!--

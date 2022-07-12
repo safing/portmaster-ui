@@ -13,7 +13,8 @@ import { FaIconLibrary, FontAwesomeModule } from '@fortawesome/angular-fontaweso
 import { faGithub } from '@fortawesome/free-brands-svg-icons';
 import { far } from '@fortawesome/free-regular-svg-icons';
 import { fas } from '@fortawesome/free-solid-svg-icons';
-import { SfngAccordionModule, SfngDialogModule, SfngDropDownModule, SfngPaginationModule, SfngSelectModule, SfngTipUpModule, SfngTooltipModule, TabModule, UiModule } from '@safing/ui';
+import { OverlayStepperModule, SfngAccordionModule, SfngDialogModule, SfngDropDownModule, SfngPaginationModule, SfngSelectModule, SfngTipUpModule, SfngToggleSwitchModule, SfngTooltipModule, TabModule, UiModule } from '@safing/ui';
+import MyYamlFile from 'js-yaml-loader!../i18n/helptexts.yaml';
 import { MarkdownModule } from 'ngx-markdown';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
@@ -28,6 +29,7 @@ import { SpnPageComponent } from './pages/spn';
 import { SupportPageComponent } from './pages/support';
 import { SupportFormComponent } from './pages/support/form';
 import { WidgetSettingsOutletComponent } from './pages/widget-settings-outlet/widget-settings-outlet';
+import { NotificationsService } from './services';
 import { ActionIndicatorModule } from './shared/action-indicator';
 import { SfngAppIconModule } from './shared/app-icon';
 import { ConfigModule } from './shared/config';
@@ -43,10 +45,8 @@ import { SfngMenuModule } from './shared/menu';
 import { SfngMultiSwitchModule } from './shared/multi-switch';
 import { NetqueryModule } from './shared/netquery';
 import { NotificationComponent } from './shared/notification/notification';
-import { OverlayStepperModule } from './shared/overlay-stepper';
 import { CommonPipesModule } from './shared/pipes';
 import { PlaceholderComponent } from './shared/text-placeholder';
-import { SfngToggleSwitchModule } from './shared/toggle-switch';
 import { MarkdownWidgetComponent, MarkdownWidgetSettingsComponent } from './widgets/markdown-widget';
 import { NetworkActivityWidget } from './widgets/network-activity-widget';
 import { NotificationWidgetComponent, NotificationWidgetSettingsComponent } from './widgets/notification-widget';
@@ -54,8 +54,6 @@ import { PilotWidgetComponent } from './widgets/pilot-widget';
 import { PromptWidgetComponent } from './widgets/prompt-widget';
 import { StatusWidgetComponent, StatusWidgetSettingsComponent } from './widgets/status-widget';
 import { WIDGET_DEFINTIONS } from './widgets/widget.types';
-import MyYamlFile from 'js-yaml-loader!../i18n/helptexts.yaml';
-import { NotificationsService } from './services';
 
 @NgModule({
   declarations: [

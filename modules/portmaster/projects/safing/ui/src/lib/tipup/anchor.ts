@@ -4,7 +4,7 @@ import { TipupPlacement } from "./utils";
 @Directive({
   selector: '[tipUpAnchor]',
 })
-export class TipUpAnchorDirective implements TipupPlacement {
+export class SfngTipUpAnchorDirective implements TipupPlacement {
   constructor(
     public readonly elementRef: ElementRef,
   ) { }
