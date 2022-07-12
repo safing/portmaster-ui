@@ -2,6 +2,7 @@ import { ChangeDetectionStrategy, Component, Inject } from "@angular/core";
 import { Router } from "@angular/router";
 import { DialogRef, DIALOG_REF } from "../../dialog";
 import { objKeys } from "../../utils";
+import { NetqueryHelper } from "../connection-helper.service";
 import { SfngSearchbarFields } from "../searchbar";
 import { connectionFieldTranslation } from "../utils";
 
@@ -9,6 +10,9 @@ import { connectionFieldTranslation } from "../utils";
   selector: 'sfng-netquery-search-overlay',
   templateUrl: './search-overlay.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
+  providers: [
+    NetqueryHelper,
+  ],
   styles: [
     `
     :host {
