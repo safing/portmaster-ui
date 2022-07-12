@@ -1,23 +1,22 @@
-import { ListKeyManager, ListKeyManagerOption } from "@angular/cdk/a11y";
-import { Directionality } from "@angular/cdk/bidi";
+import { ListKeyManager } from "@angular/cdk/a11y";
 import { CdkOverlayOrigin } from "@angular/cdk/overlay";
 import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, Directive, ElementRef, EventEmitter, forwardRef, HostBinding, HostListener, Input, OnDestroy, OnInit, Output, QueryList, TrackByFunction, ViewChild, ViewChildren } from "@angular/core";
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from "@angular/forms";
-import { timeHours } from "d3";
-import { Direct } from "protractor/built/driverProviders";
-import { combineLatest, forkJoin, Observable, of, Subject } from "rxjs";
-import { catchError, debounceTime, map, mergeMap, switchMap, takeUntil, tap } from "rxjs/operators";
+import { combineLatest, Observable, of, Subject } from "rxjs";
+import { catchError, debounceTime, map, switchMap, takeUntil } from "rxjs/operators";
 import { Condition, ExpertiseLevel, Netquery, NetqueryConnection } from "src/app/services";
-import { threadId } from "worker_threads";
 import { fadeInAnimation, fadeInListAnimation } from "../../animations";
 import { SfngDropdown } from "../../dropdown/dropdown";
 import { ExpertiseService } from "../../expertise";
 import { objKeys } from "../../utils";
 import { NetqueryHelper } from "../connection-helper.service";
-import { Parser } from "../textql";
+import { Parser, ParseResult } from "../textql";
 
 export type SfngSearchbarFields = {
   [key in keyof Partial<NetqueryConnection>]: any[];
+} & {
+  groupBy?: string[];
+  orderBy?: string[];
 }
 
 export type SfngSearchbarSuggestionValue<K extends keyof NetqueryConnection> = {
@@ -160,7 +159,6 @@ export class SfngNetquerySearchbar implements ControlValueAccessor, OnInit, OnDe
         switchMap(() => {
           let fields: (keyof NetqueryConnection)[] = [
             'profile',
-            'path',
             'domain',
             'as_owner',
             'remote_ip',
@@ -178,8 +176,16 @@ export class SfngNetquerySearchbar implements ControlValueAccessor, OnInit, OnDe
           }
 
           fields.forEach(field => {
+            let queryField = field;
+
+            // if we are searching the profiles we use the profile name
+            // rather than the profile_id for searching.
+            if (field === 'profile') {
+              queryField = 'profile_name';
+            }
+
             const query: Condition = {
-              [field]: {
+              [queryField]: {
                 $like: `%${!!parser.lastUnterminatedCondition ? parser.lastUnterminatedCondition.value : parseResult.textQuery}%`
               },
             }
@@ -206,11 +212,11 @@ export class SfngNetquerySearchbar implements ControlValueAccessor, OnInit, OnDe
                 field,
               ],
               page: 0,
-              pageSize: 5,
+              pageSize: 3,
               orderBy: [{ field: "count", desc: true }]
             })
               .pipe(
-                this.helper.transformValues(field),
+                this.helper.encodeToPossibleValues(field),
                 map(results => {
                   let val: SfngSearchbarSuggestion<typeof field> = {
                     field: field,
@@ -328,8 +334,17 @@ export class SfngNetquerySearchbar implements ControlValueAccessor, OnInit, OnDe
     const result = Parser.parse(this.textSearch);
     this.textSearch = result.textQuery;
 
-    if (Object.keys(result.conditions).length > 0) {
-      this.onFieldsParsed.next(result.conditions);
+    const keys = objKeys(result.conditions)
+    const meta = {
+      groupBy: result.groupBy || undefined,
+      orderBy: result.orderBy || undefined,
+    }
+    if (keys.length > 0 || meta.groupBy?.length || meta.orderBy?.length) {
+      let updatedConditions: ParseResult['conditions'] = {};
+      keys.forEach(key => {
+        updatedConditions[key] = this.helper.decodePrettyValues(key as keyof NetqueryConnection, result.conditions[key])
+      })
+      this.onFieldsParsed.next({ ...updatedConditions, ...meta });
     }
 
     this._onChange(this.textSearch);
