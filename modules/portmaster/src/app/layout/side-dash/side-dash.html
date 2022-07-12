@@ -1,5 +1,5 @@
 <div class="widget-list" cdkDropList cdkDragLockAxis="y" (cdkDropListDropped)="drop($event)">
-  <div class="widget" *ngFor="let widget of widgets; trackBy: widgetService.trackBy" cdkDrag tipUpAnchor>
+  <div class="widget" *ngFor="let widget of widgets; trackBy: trackBy" cdkDrag tipUpAnchor>
     <div class="buttons">
       <div class="dragable" cdkDragHandle>
         <svg xmlns="http://www.w3.org/2000/svg" data-name="Layer 2" viewBox="0 0 11.86 19.86">

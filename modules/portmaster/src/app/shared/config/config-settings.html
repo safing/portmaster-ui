@@ -1,7 +1,7 @@
 <!-- navigation for the settings -->
 <div class="settings-nav" *ngIf="!loading" [@fadeIn]>
   <ul>
-    <ng-container *ngFor="let subsys of subsystems; trackBy: statusService.trackSubsystem">
+    <ng-container *ngFor="let subsys of subsystems; trackBy: trackSubsystem">
       <ng-template [appExpertiseLevel]="subsys.minimumExpertise" [appExpertiseLevelData]="subsys"
         [appExpertiseLevelOverwrite]="mustShowSubsystem">
         <li [class.active]="activeSection === subsys.ConfigKeySpace" [class.separated]="subsys.ID === 'core'">
@@ -16,7 +16,8 @@
                 (click)="scrollTo(subsys.ConfigKeySpace + ':' + cat.name, cat)">
                 <span class="relative">
                   {{cat.name}}
-                  <span *ngIf="cat.hasUserDefinedValues && userSettingsMarker" class="user-defined-value category"></span>
+                  <span *ngIf="cat.hasUserDefinedValues && userSettingsMarker"
+                    class="user-defined-value category"></span>
                 </span>
               </li>
             </ng-container>
@@ -35,7 +36,7 @@
 
   <div class="w-full space-y-4" *ngIf="!loading">
     <!-- actual settings -->
-    <ng-container *ngFor="let subsys of subsystems; trackBy: statusService.trackSubsystem">
+    <ng-container *ngFor="let subsys of subsystems; trackBy: trackSubsystem">
 
       <ng-template [appExpertiseLevel]="subsys.minimumExpertise" [appExpertiseLevelData]="subsys"
         [appExpertiseLevelOverwrite]="mustShowSubsystem">

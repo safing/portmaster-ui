@@ -139,7 +139,7 @@ export class SpnPageComponent implements OnInit, OnDestroy, AfterViewInit {
   refreshing = false;
 
   /** trackIssue is used as a track-by function when rendering SPN issues. */
-  trackIssue: TrackByFunction<Issue> = (_: number, issue: Issue) => issue.url;
+  trackIssue: TrackByFunction<_Issue> = (_: number, issue: _Issue) => issue.url;
 
   /**
    * spnStatusTranslation translates the spn status to the text that is displayed

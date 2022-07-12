@@ -1,11 +1,10 @@
-import { Component, OnInit, ChangeDetectionStrategy, Inject, Injector, INJECTOR, ChangeDetectorRef, OnDestroy } from '@angular/core';
-import { WidgetService } from '../../widgets/widget.service';
-import { WidgetConfig, WidgetDefinition, WIDGET_DEFINTIONS, WIDGET_CONFIG, } from 'src/app/widgets/widget.types';
+import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
 import { ComponentPortal } from '@angular/cdk/portal';
-import { moveItemInArray, CdkDragDrop } from '@angular/cdk/drag-drop';
-import { combineLatest, forkJoin, Subscription } from 'rxjs';
-import { filter } from 'rxjs/operators';
+import { Component, Inject, Injector, INJECTOR, OnDestroy, OnInit, TrackByFunction } from '@angular/core';
+import { Subscription } from 'rxjs';
 import { ExpertiseService } from 'src/app/shared/expertise/expertise.service';
+import { WidgetConfig, WidgetDefinition, WIDGET_CONFIG, WIDGET_DEFINTIONS } from 'src/app/widgets/widget.types';
+import { WidgetService } from '../../widgets/widget.service';
 
 /**
  * WidgetPortal extends the normal widget configuration by adding
@@ -40,6 +39,8 @@ export class SideDashComponent implements OnInit, OnDestroy {
   get expertise() {
     return this.expertiseService.currentLevel;
   }
+
+  trackBy: TrackByFunction<WidgetPortal<any>> = this.widgetService.trackBy
 
   constructor(
     @Inject(WIDGET_DEFINTIONS) definitions: WidgetDefinition<any>[],
