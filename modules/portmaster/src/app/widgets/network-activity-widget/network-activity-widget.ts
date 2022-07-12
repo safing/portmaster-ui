@@ -3,6 +3,7 @@ import { BehaviorSubject, combineLatest, interval, Subject } from "rxjs";
 import { startWith, switchMap, takeUntil } from "rxjs/operators";
 import { ExpertiseLevel, Netquery } from "src/app/services";
 import { IProfileStats } from "src/app/services/netquery.service";
+import { moveInOutListAnimation } from "src/app/shared/animations";
 import { ExpertiseService } from "src/app/shared/expertise";
 
 @Component({
@@ -10,6 +11,9 @@ import { ExpertiseService } from "src/app/shared/expertise";
   templateUrl: './network-activity-widget.html',
   styleUrls: ['./network-activity-widget.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  animations: [
+    moveInOutListAnimation,
+  ]
 })
 export class NetworkActivityWidget implements OnInit, OnDestroy {
   private destroy$ = new Subject();
