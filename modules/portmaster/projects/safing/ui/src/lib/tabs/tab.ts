@@ -11,12 +11,12 @@ export const TAB_PORTAL = new InjectionToken<TemplatePortal>('TAB_PORTAL');
 export const TAB_ANIMATION_DIRECTION = new InjectionToken<'left' | 'right'>('TAB_ANIMATION_DIRECTION');
 
 /**
- * Structural directive (*appTabContent) to defined lazy-loaded tab content.
+ * Structural directive (*sfngTabContent) to defined lazy-loaded tab content.
  */
 @Directive({
-  selector: '[appTabContent]',
+  selector: '[sfngTabContent]',
 })
-export class TabContentDirective<T> {
+export class SfngTabContentDirective<T> {
   portal: TemplatePortal;
 
   constructor(
@@ -33,13 +33,13 @@ export class TabContentDirective<T> {
  * The content of the tab is lazy-loaded by using the TabContentDirective.
  */
 @Component({
-  selector: 'app-tab',
+  selector: 'sfng-tab',
   template: '<ng-content></ng-content>',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class TabComponent implements OnInit, ListKeyManagerOption {
-  @ContentChild(TabContentDirective, { static: false })
-  tabContent: TabContentDirective<any> | null = null;
+export class SfngTabComponent implements OnInit, ListKeyManagerOption {
+  @ContentChild(SfngTabContentDirective, { static: false })
+  tabContent: SfngTabContentDirective<any> | null = null;
 
   /** The ID of the tab used to programatically activate the tab. */
   @Input()

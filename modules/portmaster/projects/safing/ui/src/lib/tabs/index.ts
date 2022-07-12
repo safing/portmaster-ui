@@ -1,3 +1,4 @@
-export { TabGroupComponent } from './tab-group';
-export { TabComponent, TabContentDirective } from './tab';
-export { TabModule } from './tabs.module';
+export { SfngTabComponent as TabComponent, SfngTabContentDirective as TabContentDirective } from './tab';
+export { SfngTabGroupComponent as TabGroupComponent } from './tab-group';
+export { SfngTabModule as TabModule } from './tabs.module';
+

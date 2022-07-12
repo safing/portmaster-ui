@@ -1,10 +1,10 @@
-import { NgModule } from "@angular/core";
-import { TabGroupComponent } from "./tab-group";
-import { TabComponent, TabContentDirective, TabOutletComponent } from "./tab";
-import { CommonModule } from "@angular/common";
 import { PortalModule } from "@angular/cdk/portal";
+import { CommonModule } from "@angular/common";
+import { NgModule } from "@angular/core";
 import { BrowserAnimationsModule } from "@angular/platform-browser/animations";
 import { SfngTipUpModule } from "../tipup";
+import { SfngTabComponent, SfngTabContentDirective, TabOutletComponent } from "./tab";
+import { SfngTabGroupComponent } from "./tab-group";
 
 @NgModule({
   imports: [
@@ -14,15 +14,15 @@ import { SfngTipUpModule } from "../tipup";
     BrowserAnimationsModule
   ],
   declarations: [
-    TabContentDirective,
-    TabComponent,
-    TabGroupComponent,
+    SfngTabContentDirective,
+    SfngTabComponent,
+    SfngTabGroupComponent,
     TabOutletComponent,
   ],
   exports: [
-    TabContentDirective,
-    TabComponent,
-    TabGroupComponent
+    SfngTabContentDirective,
+    SfngTabComponent,
+    SfngTabGroupComponent
   ]
 })
-export class TabModule { }
+export class SfngTabModule { }
