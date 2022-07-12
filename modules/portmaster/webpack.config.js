@@ -1,5 +1,3 @@
-const path = require("path");
-
 // Uses ngx-build-plus to add tailwindcss support
 module.exports = {
   module: {
@@ -11,11 +9,12 @@ module.exports = {
           postcssOptions: {
             ident: 'postcss',
             syntax: 'postcss-scss',
-            plugins: [
-              'postcss-import',
-              'tailwindcss',
-              'autoprefixer',
-            ],
+            plugins: {
+              'postcss-import': {},
+              'tailwindcss/nesting': {},
+              tailwindcss: {},
+              autoprefixer: {},
+            }
           },
         },
       }

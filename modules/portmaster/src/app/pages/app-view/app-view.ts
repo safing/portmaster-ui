@@ -1,7 +1,6 @@
 import { ChangeDetectorRef, Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { start } from 'repl';
-import { BehaviorSubject, combineLatest, forkJoin, interval, Observable, of, Subscription } from 'rxjs';
+import { BehaviorSubject, combineLatest, interval, Observable, of, Subscription } from 'rxjs';
 import { distinctUntilChanged, map, mergeMap, startWith, switchMap } from 'rxjs/operators';
 import { AppProfile, ChartResult, ConfigService, DebugAPI, FlatConfigObject, flattenProfileConfig, IProfileStats, LayeredProfile, Netquery, SessionDataService, setAppSetting, Setting } from 'src/app/services';
 import { AppProfileService } from 'src/app/services/app-profile.service';
