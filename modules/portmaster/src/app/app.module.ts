@@ -29,7 +29,7 @@ import { SupportFormComponent } from './pages/support/form';
 import { WidgetSettingsOutletComponent } from './pages/widget-settings-outlet/widget-settings-outlet';
 import { SfngAccordionModule } from './shared/accordion';
 import { ActionIndicatorModule } from './shared/action-indicator';
-import { AppIconComponent } from './shared/app-icon';
+import { SfngAppIconModule } from './shared/app-icon';
 import { ConfigModule } from './shared/config';
 import { CountIndicatorModule } from './shared/count-indicator';
 import { CountryFlagModule } from './shared/country-flag';
@@ -86,7 +86,6 @@ import { WIDGET_DEFINTIONS } from './widgets/widget.types';
     QuickSettingUseSPNButtonComponent,
     AppOverviewComponent,
     PlaceholderComponent,
-    AppIconComponent,
     PromptWidgetComponent,
     LoadingComponent,
     ExternalLinkDirective,
@@ -125,6 +124,7 @@ import { WIDGET_DEFINTIONS } from './widgets/widget.types';
     SfngFocusModule,
     SfngToggleSwitchModule,
     SfngPaginationModule,
+    SfngAppIconModule,
     ExpertiseModule,
     ConfigModule,
     CountryFlagModule,
