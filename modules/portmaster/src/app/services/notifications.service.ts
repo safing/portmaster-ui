@@ -44,7 +44,8 @@ export class NotificationsService {
         if (a.Payload.Profile) {
           return this.router.navigate(['/app', ...a.Payload.Profile.split('/')], {
             queryParams: {
-              setting: a.Payload.Key
+              setting: a.Payload.Key,
+              tab: 'settings'
             }
           })
         }
