@@ -21,7 +21,7 @@
       <div class="prompt-container"
         [@moveInOutList]="(profile.showAll ? profile.prompts : profile.promptsLimited).length">
         <div class="prompt"
-          *ngFor="let prompt of (profile.showAll ? profile.prompts : profile.promptsLimited); trackBy: notifService.trackBy">
+          *ngFor="let prompt of (profile.showAll ? profile.prompts : profile.promptsLimited); trackBy: trackPrompts">
           <span class="entity">
             <ng-container *ngIf="!prompt.domain; else: domainView">
               {{ prompt.EventData?.Entity?.IP || 'N/A' }}

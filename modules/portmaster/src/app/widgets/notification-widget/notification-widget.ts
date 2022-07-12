@@ -1,12 +1,10 @@
-import { trigger, transition, style, animate } from '@angular/animations';
-import { moveItemInArray } from '@angular/cdk/drag-drop';
-import { not } from '@angular/compiler/src/output/output_ast';
-import { Component, OnInit, Inject, HostBinding, ElementRef, OnDestroy } from '@angular/core';
+import { animate, style, transition, trigger } from '@angular/animations';
+import { Component, ElementRef, HostBinding, Inject, OnDestroy, OnInit } from '@angular/core';
 import { Subscription } from 'rxjs';
-import { filter, map } from 'rxjs/operators';
-import { NotificationsService, NotificationType, Notification, Action } from 'src/app/services';
+import { map } from 'rxjs/operators';
+import { Action, Notification, NotificationsService, NotificationType } from 'src/app/services';
 import { moveInOutAnimation, moveInOutListAnimation } from 'src/app/shared/animations';
-import { WIDGET_CONFIG, WidgetConfig } from '../widget.types';
+import { WidgetConfig, WIDGET_CONFIG } from '../widget.types';
 
 export interface NotificationWidgetConfig {
   markdown: boolean;

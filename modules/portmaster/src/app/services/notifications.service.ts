@@ -1,12 +1,11 @@
-import { CDK_CONNECTED_OVERLAY_SCROLL_STRATEGY_PROVIDER } from '@angular/cdk/overlay/overlay-directives';
-import { HttpClient, HttpRequest, HttpResponse } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { Injectable, TrackByFunction } from '@angular/core';
 import { Router } from '@angular/router';
-import { BehaviorSubject, combineLatest, defer, Observable, PartialObserver, throwError } from 'rxjs';
-import { delay, filter, map, repeatWhen, multicast, refCount, share, toArray, tap, concatMap, take } from 'rxjs/operators';
+import { BehaviorSubject, combineLatest, defer, Observable, throwError } from 'rxjs';
+import { map, multicast, refCount, toArray } from 'rxjs/operators';
 import { environment } from 'src/environments/environment';
 import { ActionIndicatorService } from '../shared/action-indicator';
-import { Action, ActionHandler, BaseAction, NetqueryAction, Notification, NotificationState, NotificationType, OpenPageAction, OpenProfileAction, OpenSettingAction, OpenURLAction, PageIDs, WebhookAction } from './notifications.types';
+import { Action, ActionHandler, NetqueryAction, Notification, NotificationState, NotificationType, OpenPageAction, OpenProfileAction, OpenSettingAction, OpenURLAction, PageIDs, WebhookAction } from './notifications.types';
 import { PortapiService } from './portapi.service';
 import { RetryableOpts } from './portapi.types';
 import { VirtualNotification } from './virtual-notification';
