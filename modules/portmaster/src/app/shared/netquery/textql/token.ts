@@ -25,7 +25,9 @@ export enum TokenType {
   STRING = 'STRING',
   NUMBER = 'NUMBER',
   BOOL = 'BOOL',
-  NOT = 'NOT'
+  NOT = 'NOT',
+  GROUPBY = 'GROUPBY',
+  ORDERBY = 'ORDERBY'
 }
 
 export type TokenValue<T extends TokenType> =
@@ -33,6 +35,7 @@ export type TokenValue<T extends TokenType> =
   T extends TokenType.STRING ? string :
   T extends TokenType.BOOL ? boolean :
   T extends TokenType.NOT ? '!' :
+  T extends TokenType.GROUPBY ? 'string' :
   string;
 
 export interface Token<T extends TokenType> {

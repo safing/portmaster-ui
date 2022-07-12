@@ -72,7 +72,7 @@ export class Lexer {
     }
   }
 
-  private readIdent(): Token<TokenType.IDENT | TokenType.BOOL> {
+  private readIdent(): Token<TokenType.IDENT | TokenType.BOOL | TokenType.GROUPBY | TokenType.ORDERBY> {
     const start = this._input.pos;
 
     const id = this.readWhile(ch => isIdentChar(ch));
@@ -89,6 +89,22 @@ export class Lexer {
         type: TokenType.BOOL,
         literal: id,
         value: false,
+        start
+      }
+    }
+    if (id === 'groupby') {
+      return {
+        type: TokenType.GROUPBY,
+        literal: id,
+        value: id,
+        start
+      }
+    }
+    if (id === 'orderby') {
+      return {
+        type: TokenType.ORDERBY,
+        literal: id,
+        value: id,
         start
       }
     }
