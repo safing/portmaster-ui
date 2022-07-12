@@ -43,7 +43,6 @@ export class SfngSelectRenderedItemDirective implements ListKeyManagerOption {
 @Component({
   selector: 'sfng-select',
   templateUrl: './select.html',
-  styleUrls: ['./select.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
   providers: [
     {
@@ -177,7 +176,6 @@ export class SfngSelectComponent<T> implements AfterViewInit, ControlValueAccess
   minHeight: any;
 
   @Input()
-  @HostBinding('class.disabled')
   set disabled(v: any) {
     const disabled = coerceBooleanProperty(v);
     this.setDisabledState(disabled);

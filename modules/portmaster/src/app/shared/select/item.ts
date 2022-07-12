@@ -15,7 +15,6 @@ export interface SelectOption extends ListKeyManagerOption {
 @Component({
   selector: 'sfng-select-item',
   template: `<ng-content></ng-content>`,
-  styleUrls: ['./item.scss'],
 })
 export class SfngSelectItemComponent implements ListKeyManagerOption {
   @HostBinding('class.disabled')

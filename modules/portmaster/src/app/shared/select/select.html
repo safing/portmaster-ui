@@ -1,5 +1,5 @@
 <ng-template #customTriggerTemplate>
-  <button [class.active]="dropdown.isOpen" type="button">
+  <button [class.active]="dropdown.isOpen" type="button" class="sfng-select" [class.disabled]="disabled">
 
     <ng-template [ngIf]="mode !== 'multi' || (currentItems.length || 0) <= 1" [ngIfElse]="multiTemplate">
       <span *ngIf="!currentItems.length; else: itemTemplate">
@@ -36,7 +36,7 @@
 </ng-template>
 
 <!-- This template displays the overlay content and is connected to the button -->
-<sfng-dropdown #dropdown="sfngDropdown" [triggerTemplate]="customTriggerTemplate" class="w-full h-full"
+<sfng-dropdown #dropdown="sfngDropdown" [triggerTemplate]="customTriggerTemplate" overlayClass="sfng-select-dropdown"
   [disabled]="allItems.length === 0 && searchText === '' && disableWhenEmpty" [minWidth]="minWidth"
   [minHeight]="minHeight" (onOpen)="onDropdownOpen()" (onClose)="onDropdownClose()">
 
@@ -44,11 +44,10 @@
     class="w-full mb-2 rounded-t" [placeholder]="searchPlaceholder" [ngModel]="searchText"
     (ngModelChange)="onSearch($event)" (keydown)="onKeyDown($event)" (keydown.enter)="onEnter($event)">
 
-  <ul style="max-height: 12rem" class="relative py-1 overflow-auto" #scrollable>
+  <ul #scrollable>
     <li *ngFor="let item of items" (click)="selectItem(item)" [sfng-tooltip]="item.description || null"
-      class="flex flex-row items-center justify-start gap-1 px-1 transition duration-200 ease-in-out cursor-pointer hover:bg-gray-300"
       snfgTooltipPosition="left" [class.cursor-not-allowed]="item.disabled" #renderedItem
-      [sfngSelectRenderedListItem]="item">
+      [sfngSelectRenderedListItem]="item" class="pl-1 pr-5">
 
       <svg xmlns="http://www.w3.org/2000/svg" class="flex-grow-0 flex-shrink-0 w-4 h-4 transition-all duration-200"
         viewBox="0 0 20 20" fill="currentColor" [class.opacity-0]="!item.selected">
@@ -64,8 +63,7 @@
 
     <!-- fake item for "dynamic" values -->
     <li *ngIf="!!searchText && items.length === 0 && dynamicValues"
-      class="flex flex-row items-center justify-start gap-1 px-1 cursor-pointer hover:bg-gray-300"
-      (click)="selectItem({selected: false, value: searchText})">
+      (click)="selectItem({selected: false, value: searchText})" class="pl-1 pr-5">
       <sfng-select-item>
         <span>
           <span class="mx-2 text-tertiary">Add </span> {{ searchText }}
