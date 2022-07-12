@@ -1,13 +1,12 @@
-<div *ngFor="let cat of values; trackBy: trackValue"
-  class="flex flex-row gap-1 justify-start items-center pr-4 border-r border-gray-300">
-  <span class="text-tertiary">
-    {{labels[cat.key] || cat.key}}:
-  </span>
-
+<div *ngFor="let cat of values; trackBy: trackValue" class="flex flex-row items-center justify-start gap-1">
   <ng-container *ngFor="let val of cat.values; let index=index">
-    <div class="flex flex-row gap-1 justify-between items-center px-1 py-0.5 pr-0.5 bg-gray-300 rounded-sm">
+    <div class="flex flex-row gap-1 justify-between items-center pl-3 py-0.5 pr-0.5 bg-gray-500 rounded-full text-xxs">
       <span class="flex flex-row items-center" [sfng-tooltip]="val.Value">
-        <span class="inline-block overflow-hidden ml-1 overflow-ellipsis whitespace-nowrap text-primary"
+        <span class="text-secondary">
+          {{labels[cat.key] || cat.key}}:
+        </span>
+
+        <span class="inline-block ml-1 overflow-hidden overflow-ellipsis whitespace-nowrap text-primary"
           style="direction: rtl" [ngStyle]="{maxWidth: maxTagWidth}">
           <span style="direction: ltr; unicode-bidi: bidi-override;">
             {{ val.Name || (val.Value === '' ? 'N/A' : val) }}
