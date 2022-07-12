@@ -3,7 +3,9 @@ import { objKeys } from "../utils";
 
 export const connectionFieldTranslation: { [key: string]: string } = {
   domain: "Domain",
-  path: "Application",
+  profile: "App",
+  path: 'Binary Path',
+  scope: 'Scope',
   as_owner: "Provider",
   country: "Country",
   direction: 'Direction',
@@ -13,7 +15,11 @@ export const connectionFieldTranslation: { [key: string]: string } = {
   verdict: 'Verdict',
   encrypted: 'Encrypted',
   tunneled: 'Tunneled',
-  internal: 'Internal'
+  internal: 'Internal',
+  asn: 'ASN',
+  spn_used: 'SPN Active',
+  active: 'Active',
+  allowed: 'Allowed'
 }
 
 export function isMatcher(v: any | Matcher): v is Matcher {
