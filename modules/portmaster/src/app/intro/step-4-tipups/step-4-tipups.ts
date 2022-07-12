@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component } from "@angular/core";
-import { of } from "rxjs";
 import { Step } from "@safing/ui";
+import { of } from "rxjs";
 
 @Component({
   templateUrl: './step-4-tipups.html',

@@ -1,5 +1,5 @@
 import { coerceBooleanProperty } from '@angular/cdk/coercion';
-import { Component, OnInit, Input, Output, EventEmitter, HostBinding, TemplateRef, Optional, ChangeDetectionStrategy, TrackByFunction, ChangeDetectorRef } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, HostBinding, Input, OnInit, Optional, Output, TemplateRef, TrackByFunction } from '@angular/core';
 import { fadeInAnimation, fadeOutAnimation } from '../animations';
 import { SfngAccordionGroupComponent } from './accordion-group';
 

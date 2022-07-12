@@ -1,9 +1,9 @@
 import { Injectable } from '@angular/core';
+import { SfngDialogService } from '@safing/ui';
 import { BehaviorSubject, merge, of } from 'rxjs';
 import { catchError, debounceTime, distinctUntilChanged, map, skip, switchMap, tap, timeout } from 'rxjs/operators';
 import { UIStateService } from 'src/app/services';
 import { PortapiService } from 'src/app/services/portapi.service';
-import { SfngDialogService } from '@safing/ui';
 import { ExitScreenComponent } from './exit-screen';
 
 const MessageConnecting = 'Connecting to Portmaster';

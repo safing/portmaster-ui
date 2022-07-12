@@ -60,7 +60,7 @@
           <app-qs-use-spn [settings]="allSettings" (save)="saveSetting($event)">
           </app-qs-use-spn>
 
-          <app-tipup key="appSettings-QuickSettings"></app-tipup>
+          <sfng-tipup key="appSettings-QuickSettings"></sfng-tipup>
         </div>
       </div>
 
@@ -108,9 +108,9 @@
           <input type="text" [(ngModel)]="searchTerm" placeholder="Search Settings">
 
           <div tipUpAnchor="left" class="flex space-x-2 flex-rows">
-            <app-tipup key="appSettings-Filter"></app-tipup>
+            <sfng-tipup key="appSettings-Filter"></sfng-tipup>
             <sfng-select [ngModel]="viewSetting" (ngModelChange)="viewSettingChange.next($event)"
-              tipUpTrigger="appSettings-Filter" tipUpAnchor="left" tipUpPassive>
+              sfngTipUpTrigger="appSettings-Filter" tipUpAnchor="left" sfngTipUpPassive>
               <sfng-select-item *sfngSelectValue="'all'">
                 View All
               </sfng-select-item>
@@ -124,7 +124,7 @@
         <div class="flex items-center text-tertiary">
           <div class="inline-flex items-center" tipUpAnchor=>
             <span class="mr-3 text-xxs">App Specific Settings</span>
-            <app-tipup key="appSettings"></app-tipup>
+            <sfng-tipup key="appSettings"></sfng-tipup>
           </div>
         </div>
 

@@ -8,8 +8,8 @@
   <div class="flex flex-col flex-grow">
     <div class="flex flex-row items-center justify-start space-x-2 w-fit" *ngIf="showHeader">
       <h3 [innerHTML]="setting?.Name | safe:'html'" class="mb-0 name"></h3>
-      <app-tipup *ngIf="setting?.Description" [key]="setting!.Key" [text]="setting?.Description"
-        [buttons]="tipupButtons" [title]="setting?.Name"></app-tipup>
+      <sfng-tipup *ngIf="setting?.Description" [key]="setting!.Key" [text]="setting?.Description"
+        [buttons]="sfngTipUpButtons" [title]="setting?.Name"></sfng-tipup>
 
       <span *ngIf="changeAccepted || restartPending" (click)="restartNow()"
         class="px-1.5 py-0.5 border  rounded inline-flex justify-evenly items-center text-xxs mb-0.5" [ngClass]="{

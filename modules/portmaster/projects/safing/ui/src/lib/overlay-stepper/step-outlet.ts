@@ -1,6 +1,6 @@
-import { trigger, animate, transition, style } from "@angular/animations";
-import { CdkPortalOutlet, ComponentPortal, TemplatePortal } from "@angular/cdk/portal";
-import { Component, ChangeDetectionStrategy, AfterViewInit, ViewChild, Inject, ChangeDetectorRef, InjectionToken, ComponentRef } from "@angular/core";
+import { animate, style, transition, trigger } from "@angular/animations";
+import { CdkPortalOutlet, ComponentPortal } from "@angular/cdk/portal";
+import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, ComponentRef, Inject, InjectionToken, ViewChild } from "@angular/core";
 import { Step } from "./step";
 
 export const STEP_PORTAL = new InjectionToken<ComponentPortal<Step>>('STEP_PORTAL')

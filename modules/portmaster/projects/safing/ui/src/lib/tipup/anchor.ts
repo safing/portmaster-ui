@@ -1,10 +1,10 @@
 import { Directive, ElementRef, HostBinding, Input, isDevMode } from "@angular/core";
-import { TipupPlacement } from "./utils";
+import { SfngTipUpPlacement } from "./utils";
 
 @Directive({
   selector: '[tipUpAnchor]',
 })
-export class SfngTipUpAnchorDirective implements TipupPlacement {
+export class SfngTipUpAnchorDirective implements SfngTipUpPlacement {
   constructor(
     public readonly elementRef: ElementRef,
   ) { }

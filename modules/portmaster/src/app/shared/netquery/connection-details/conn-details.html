@@ -195,7 +195,7 @@
     <ng-template #noSPNTemplate>
       <span class="inline-flex items-center gap-2 text-secondary">
         This connection has not been routed through the Safing Privacy Network
-        <app-tipup key="spn"></app-tipup>
+        <sfng-tipup key="spn"></sfng-tipup>
       </span>
     </ng-template>
     <div class="meta" *ngIf="conn.extra_data?.tunnel as tunnel; else: noSPNTemplate">

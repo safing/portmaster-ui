@@ -2,9 +2,9 @@ import { ListKeyManager, ListKeyManagerOption } from '@angular/cdk/a11y';
 import { coerceBooleanProperty, coerceNumberProperty } from '@angular/cdk/coercion';
 import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, ContentChildren, Directive, ElementRef, EventEmitter, forwardRef, HostBinding, HostListener, Input, OnDestroy, Output, QueryList, TemplateRef, ViewChild, ViewChildren } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
-import { SfngDropdown } from '../dropdown';
 import { BehaviorSubject, combineLatest, Subject } from 'rxjs';
 import { startWith, takeUntil } from 'rxjs/operators';
+import { SfngDropdown } from '../dropdown';
 import { SelectOption, SfngSelectValueDirective } from './item';
 
 

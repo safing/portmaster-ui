@@ -3,7 +3,7 @@
     <div class="monitor-title">
       <h4>
         Network Activity
-        <app-tipup key="networkMonitor"></app-tipup>
+        <sfng-tipup key="networkMonitor"></sfng-tipup>
       </h4>
       <span>last 10 minutes</span>
     </div>
@@ -37,8 +37,8 @@
   <div class="overflow-auto rounded scrollable" [@moveInOutList]="profiles.length">
     <ng-container *ngFor="let data of profiles; trackBy: trackProfile">
       <li class="bg-gray-100 card-header" *appExpertiseLevel="data.size === 0 ? 'developer' : 'user'"
-        routerLink="/app/{{data.ID }}" routerLinkActive="active" tipUpTrigger="networkMonitor-App" tipUpAnchor
-        tipUpPassive>
+        routerLink="/app/{{data.ID }}" routerLinkActive="active" sfngTipUpTrigger="networkMonitor-App" tipUpAnchor
+        sfngTipUpPassive>
         <app-icon [profile]="data"></app-icon>
         <span class="card-title">{{ data.Name }} </span>
         <app-count-indicator [count]="data.size" [countAllowed]="data.countAllowed">
