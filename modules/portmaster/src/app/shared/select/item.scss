@@ -1,7 +1,0 @@
-:host {
-  @apply text-xxs w-full font-medium gap-3 text-primary flex flex-row items-center justify-start py-2;
-}
-
-:host(.disabled) {
-  @apply opacity-75 cursor-not-allowed;
-}
