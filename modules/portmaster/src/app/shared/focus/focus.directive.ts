@@ -6,10 +6,15 @@ import { Directive, ElementRef, Input, OnInit } from "@angular/core";
 })
 export class AutoFocusDirective implements OnInit {
   private _focus = true;
+  private _afterInit = false;
 
   @Input('autoFocus')
   set focus(v: any) {
     this._focus = coerceBooleanProperty(v) !== false;
+
+    if (this._afterInit && this.elementRef) {
+      this.elementRef.nativeElement.focus()
+    }
   }
 
   constructor(private elementRef: ElementRef) { }
@@ -20,5 +25,7 @@ export class AutoFocusDirective implements OnInit {
         this.elementRef.nativeElement.focus();
       }
     }, 100)
+
+    this._afterInit = true;
   }
 }
