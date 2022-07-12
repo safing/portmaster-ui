@@ -1,8 +1,12 @@
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, Input, OnDestroy, OnInit } from "@angular/core";
 import { interval, Subscription } from "rxjs";
 import { share, startWith } from "rxjs/operators";
-import { IPScope, NetqueryConnection, Verdict } from "src/app/services";
+import { AppProfile, AppProfileService, IPScope, NetqueryConnection, Verdict } from "src/app/services";
 import { NetqueryHelper } from "../connection-helper.service";
+
+interface ProfileAttachedConnection extends NetqueryConnection {
+  __profile?: AppProfile;
+}
 
 @Component({
   selector: 'sfng-netquery-connection-row',
@@ -17,11 +21,11 @@ export class SfngNetqueryConnectionRowComponent implements OnInit, OnDestroy {
   readonly verdicts = Verdict;
 
   @Input()
-  set conn(c: NetqueryConnection) {
+  set conn(c: ProfileAttachedConnection) {
     this._conn = c;
   }
   get conn() { return this._conn; }
-  _conn!: NetqueryConnection;
+  _conn!: ProfileAttachedConnection;
 
   @Input()
   activeRevision: number | undefined = 0;
