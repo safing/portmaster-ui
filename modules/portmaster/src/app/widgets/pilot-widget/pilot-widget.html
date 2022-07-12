@@ -39,8 +39,8 @@
   <div class="rate-header">
     <label style="white-space: nowrap; margin-right: 5px; opacity: 0.9; display: flex; width: 100%;">
       Network Rating
-      <app-tipup style="margin-left: 0.5rem; align-items: center;display: flex;" key="pilot-widget-NetworkRating">
-      </app-tipup>
+      <sfng-tipup style="margin-left: 0.5rem; align-items: center;display: flex;" key="pilot-widget-NetworkRating">
+      </sfng-tipup>
     </label>
     <sfng-select *appExpertiseLevel="'developer'" [ngModel]="mode" (ngModelChange)="updateMode($event)">
       <sfng-select-item *sfngSelectValue="'auto'">
@@ -64,7 +64,7 @@
         <span class="situation">
           {{opt.subText || ''}}
         </span>
-        <app-tipup style="margin-left: auto;" [key]="'pilot-widget-NetworkRating-' + opt.displayText"></app-tipup>
+        <sfng-tipup style="margin-left: auto;" [key]="'pilot-widget-NetworkRating-' + opt.displayText"></sfng-tipup>
       </div>
     </div>
   </ng-container>

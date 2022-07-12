@@ -1,5 +1,5 @@
-import { ComponentRef, InjectionToken } from "@angular/core";
-import { Observable, Subject } from "rxjs";
+import { InjectionToken } from "@angular/core";
+import { Observable } from "rxjs";
 import { take } from "rxjs/operators";
 import { OverlayStepperContainer } from "./overlay-stepper-container";
 

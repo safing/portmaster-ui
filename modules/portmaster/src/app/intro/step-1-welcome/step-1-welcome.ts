@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, Inject, TemplateRef, ViewChild } from "@angular/core";
-import { of } from "rxjs";
 import { Step, StepRef, STEP_REF } from "@safing/ui";
+import { of } from "rxjs";
 
 @Component({
   templateUrl: './step-1-welcome.html',

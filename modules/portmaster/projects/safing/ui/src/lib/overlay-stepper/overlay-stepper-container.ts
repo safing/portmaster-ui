@@ -1,10 +1,10 @@
+import { animate, style, transition, trigger } from "@angular/animations";
 import { CdkPortalOutlet, ComponentPortal, ComponentType } from "@angular/cdk/portal";
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, ComponentRef, Inject, InjectionToken, Injector, isDevMode, OnDestroy, OnInit, ViewChild } from "@angular/core";
-import { Observable, Subject } from "rxjs";
+import { Subject } from "rxjs";
 import { SfngDialogRef, SFNG_DIALOG_REF } from "../dialog";
 import { StepperControl, StepRef, STEP_REF } from "./refs";
 import { Step, StepperConfig } from "./step";
-import { trigger, animate, transition, style } from "@angular/animations";
 import { StepOutletComponent, STEP_ANIMATION_DIRECTION, STEP_PORTAL } from "./step-outlet";
 
 /**

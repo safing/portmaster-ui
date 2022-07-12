@@ -2,8 +2,7 @@ import { DragDropModule } from "@angular/cdk/drag-drop";
 import { CommonModule } from "@angular/common";
 import { NgModule } from "@angular/core";
 import { FormsModule } from "@angular/forms";
-import { SfngTipUpModule } from "@safing/ui";
-import { SfngTooltipModule } from "@safing/ui";
+import { SfngTipUpModule, SfngTooltipModule } from "@safing/ui";
 import { MultiSwitchComponent } from "./multi-switch";
 import { SwitchItemComponent } from "./switch-item";
 

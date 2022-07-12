@@ -89,7 +89,7 @@
       <div class="sfng-select-dropdown" *ngIf="model.value?.visible === 'combinedMenu'">
         <h3 class="flex items-center gap-2 px-3 py-2 mb-0 text-xxs text-secondary">
           <span>Filter by {{ model.value!.menuTitle || model.key }}</span>
-          <app-tipup [key]="model.value!.tipupKey" *ngIf="!!model.value!.tipupKey"></app-tipup>
+          <sfng-tipup [key]="model.value!.tipupKey" *ngIf="!!model.value!.tipupKey"></sfng-tipup>
         </h3>
         <ul>
           <li class="px-3" *ngFor="let value of model.value!.suggestions" [class.bg-gray-300]="value.selected">

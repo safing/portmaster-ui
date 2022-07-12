@@ -3,7 +3,6 @@ import { ConnectedPosition } from '@angular/cdk/overlay';
 import { _getShadowRoot } from '@angular/cdk/platform';
 import { DOCUMENT } from '@angular/common';
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, Directive, ElementRef, HostBinding, HostListener, Inject, Injectable, Injector, Input, NgZone, OnDestroy, Optional, Renderer2, RendererFactory2 } from '@angular/core';
-import { Button, TipUp, SFNG_TIP_UP_CONTENTS, HelpTexts } from './translations';
 import { Observable, of, Subject } from 'rxjs';
 import { debounce, debounceTime, filter, map, skip, take, timeout } from 'rxjs/operators';
 import { SfngDialogRef, SfngDialogService } from '../dialog';
@@ -11,12 +10,13 @@ import { SfngTipUpAnchorDirective } from './anchor';
 import { deepCloneNode, extendStyles, matchElementSize, removeNode } from './clone-node';
 import { getCssSelector, synchronizeCssStyles } from './css-utils';
 import { SfngTipUpComponent } from './tipup-component';
-import { TipupPlacement, TIPUP_TOKEN } from './utils';
+import { Button, HelpTexts, SFNG_TIP_UP_CONTENTS, TipUp } from './translations';
+import { SfngTipUpPlacement, TIPUP_TOKEN } from './utils';
 
 @Directive({
-  selector: '[tipUpTrigger]',
+  selector: '[sfngTipUpTrigger]',
 })
-export class SfngTipUpTriggerDirective implements OnDestroy {
+export class SfngsfngTipUpTriggerDirective implements OnDestroy {
   constructor(
     public readonly elementRef: ElementRef,
     public dialog: SfngDialogService,
@@ -31,7 +31,7 @@ export class SfngTipUpTriggerDirective implements OnDestroy {
   /**
    * The helptext token used to search for the tip up defintion.
    */
-  @Input('tipUpTrigger')
+  @Input('sfngTipUpTrigger')
   set textKey(s: string) {
     if (!!this._textKey) {
       this.tipupService.deregister(this._textKey, this);
@@ -47,18 +47,18 @@ export class SfngTipUpTriggerDirective implements OnDestroy {
    * will be loaded form helptexts.yaml.
    * This input property is mainly designed for programatic/dynamic tip-up generation
    */
-  @Input('tipUpText')
+  @Input('sfngTipUpText')
   text: string | undefined;
 
-  @Input('tipUpTitle')
+  @Input('sfngTipUpTitle')
   title: string | undefined;
 
-  @Input('tipUpButtons')
+  @Input('sfngTipUpButtons')
   buttons: Button<any>[] | undefined;
 
   /**
    * asTipUp returns a tip-up definition built from the input
-   * properties tipUpText and tipUpTitle. If none are set
+   * properties sfngTipUpText and sfngTipUpTitle. If none are set
    * then null is returned.
    */
   asTipUp(): TipUp<any> | null {
@@ -76,13 +76,13 @@ export class SfngTipUpTriggerDirective implements OnDestroy {
 
   /**
    * The default anchor for the tipup if non is provided via Dependency-Injection
-   * or using tipUpAnchorRef
+   * or using sfngTipUpAnchorRef
    */
-  @Input('tipUpDefaultAnchor')
+  @Input('sfngTipUpDefaultAnchor')
   defaultAnchor: ElementRef<any> | HTMLElement | null = null;
 
   /** Optionally overwrite the anchor element received via Dependency Injection */
-  @Input('tipUpAnchorRef')
+  @Input('sfngTipUpAnchorRef')
   set anchorRef(ref: ElementRef<any> | HTMLElement | null) {
     this.anchor = ref ?? this.anchor;
   }
@@ -97,22 +97,22 @@ export class SfngTipUpTriggerDirective implements OnDestroy {
   }
 
   /** Whether or not we're passive-only and thus do not handle click-events form the user */
-  @Input('tipUpPassive')
+  @Input('sfngTipUpPassive')
   set passive(v: any) {
     this._passive = coerceBooleanProperty(v ?? true);
   }
   get passive() { return this._passive; }
   private _passive = false;
 
-  @Input('tipUpOffset')
+  @Input('sfngTipUpOffset')
   set offset(v: any) {
     this._defaultOffset = coerceNumberProperty(v)
   }
   get offset() { return this._defaultOffset }
   private _defaultOffset = 20;
 
-  @Input('tipUpPlacement')
-  placement: TipupPlacement | null = null;
+  @Input('sfngTipUpPlacement')
+  placement: SfngTipUpPlacement | null = null;
 
   @HostListener('click', ['$event'])
   onClick(event?: MouseEvent): Promise<any> {
@@ -133,7 +133,7 @@ export class SfngTipUpTriggerDirective implements OnDestroy {
     }
 
     let anchorElement: ElementRef<any> | HTMLElement | null = this.defaultAnchor || this.elementRef;
-    let placement: TipupPlacement | null = this.placement;
+    let placement: SfngTipUpPlacement | null = this.placement;
 
     if (!!this.anchor) {
       if (this.anchor instanceof SfngTipUpAnchorDirective) {
@@ -170,17 +170,17 @@ export class SfngTipUpTriggerDirective implements OnDestroy {
 }
 
 @Component({
-  selector: 'app-tipup',
+  selector: 'sfng-tipup',
   template:
     `<svg viewBox="0 0 24 24"
     class="tipup"
-    [tipUpTrigger]="key"
-    [tipUpDefaultAnchor]="parent"
-    [tipUpPlacement]="placement"
-    [tipUpText]="text"
-    [tipUpTitle]="title"
-    [tipUpButtons]="buttons"
-    [tipUpAnchorRef]="anchor">
+    [sfngTipUpTrigger]="key"
+    [sfngTipUpDefaultAnchor]="parent"
+    [sfngTipUpPlacement]="placement"
+    [sfngTipUpText]="text"
+    [sfngTipUpTitle]="title"
+    [sfngTipUpButtons]="buttons"
+    [sfngTipUpAnchorRef]="anchor">
     <g fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" >
       <path stroke="#ffff" shape-rendering="geometricPrecision" d="M12 21v0c-4.971 0-9-4.029-9-9v0c0-4.971 4.029-9 9-9v0c4.971 0 9 4.029 9 9v0c0 4.971-4.029 9-9 9z"/>
       <path stroke="#ffff" shape-rendering="geometricPrecision" d="M12 17v-5h-1M11.749 8c-.138 0-.25.112-.249.25 0 .138.112.25.25.25s.25-.112.25-.25-.112-.25-.251-.25"/>
@@ -204,11 +204,11 @@ export class SfngTipUpTriggerDirective implements OnDestroy {
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class SfngTipUpIconComponent implements TipupPlacement {
+export class SfngTipUpIconComponent implements SfngTipUpPlacement {
   @Input()
   key: string = '';
 
-  // see TipUpTrigger tipUpText and tipUpTitle
+  // see sfngTipUpTrigger sfngTipUpText and sfngTipUpTitle
   @Input() text: string | undefined = undefined;
   @Input() title: string | undefined = undefined;
   @Input() buttons: Button<any>[] | undefined = undefined;
@@ -228,7 +228,7 @@ export class SfngTipUpIconComponent implements TipupPlacement {
 
   constructor(private elementRef: ElementRef<any>) { }
 
-  get placement(): TipupPlacement {
+  get placement(): SfngTipUpPlacement {
     return this
   }
 
@@ -242,7 +242,7 @@ export class SfngTipUpIconComponent implements TipupPlacement {
   providedIn: 'root'
 })
 export class SfngTipUpService {
-  tipups = new Map<string, SfngTipUpTriggerDirective>();
+  tipups = new Map<string, SfngsfngTipUpTriggerDirective>();
 
   private _onRegister = new Subject<string>();
   private _onUnregister = new Subject<string>();
@@ -283,7 +283,7 @@ export class SfngTipUpService {
     this.renderer = rendererFactory.createRenderer(null, null)
   }
 
-  register(key: string, trigger: SfngTipUpTriggerDirective) {
+  register(key: string, trigger: SfngsfngTipUpTriggerDirective) {
     if (this.tipups.has(key)) {
       return;
     }
@@ -292,7 +292,7 @@ export class SfngTipUpService {
     this._onRegister.next(key);
   }
 
-  deregister(key: string, trigger: SfngTipUpTriggerDirective) {
+  deregister(key: string, trigger: SfngsfngTipUpTriggerDirective) {
     if (this.tipups.get(key) === trigger) {
       this.tipups.delete(key);
       this._onUnregister.next(key);
@@ -308,8 +308,8 @@ export class SfngTipUpService {
   createTipup(
     anchor: HTMLElement | ElementRef<any>,
     key: string,
-    origin?: SfngTipUpTriggerDirective,
-    opts: TipupPlacement | null = {},
+    origin?: SfngsfngTipUpTriggerDirective,
+    opts: SfngTipUpPlacement | null = {},
     injector?: Injector): SfngDialogRef<SfngTipUpComponent> {
 
     const lastTipUp = this._latestTipUp
@@ -375,7 +375,7 @@ export class SfngTipUpService {
 
     const _preview = this._createPreview(anchor.nativeElement, _getShadowRoot(anchor.nativeElement));
 
-    // construct a CSS selector that targets the clicked origin (TipUpTriggerDirective) from within
+    // construct a CSS selector that targets the clicked origin (sfngTipUpTriggerDirective) from within
     // the anchor. We use that path to highlight the copy of the trigger-directive in the preview.
     if (!!origin) {
       const originSelector = getCssSelector(origin.elementRef.nativeElement, anchor.nativeElement);

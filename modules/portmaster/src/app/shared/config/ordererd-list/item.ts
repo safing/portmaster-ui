@@ -1,6 +1,5 @@
-import { Component, ChangeDetectionStrategy, Input, Output, EventEmitter, ChangeDetectorRef, OnInit } from '@angular/core';
 import { coerceBooleanProperty } from '@angular/cdk/coercion';
-import { THIS_EXPR } from '@angular/compiler/src/output/output_ast';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 
 @Component({
   selector: 'app-ordered-list-item',

@@ -2,13 +2,13 @@ import { coerceBooleanProperty } from '@angular/cdk/coercion';
 import { TemplatePortal } from '@angular/cdk/portal';
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, HostBinding, Input, OnDestroy, OnInit, Output, TemplateRef, ViewChild, ViewContainerRef } from '@angular/core';
 import { NgModel } from '@angular/forms';
+import { SfngDialogRef, SfngDialogService } from '@safing/ui';
 import { Button } from 'js-yaml-loader!../../../i18n/helptexts.yaml';
 import { Subject, Subscription } from 'rxjs';
 import { debounceTime } from 'rxjs/operators';
 import { applyQuickSetting, BaseSetting, ConfigService, ExpertiseLevelNumber, ExternalOptionHint, OptionType, QuickSetting, ReleaseLevel, SettingValueType, WellKnown } from 'src/app/services';
 import { PortapiService } from 'src/app/services/portapi.service';
 import { fadeInAnimation, fadeOutAnimation } from '../../animations';
-import { SfngDialogRef, SfngDialogService } from '@safing/ui';
 import { ExpertiseService } from '../../expertise/expertise.service';
 
 export interface SaveSettingEvent<S extends BaseSetting<any, any> = any> {
@@ -224,7 +224,7 @@ export class GenericSettingComponent<S extends BaseSetting<any, any>> implements
   }
 
   /** A list of buttons for the tip-up */
-  tipupButtons: Button[] = [];
+  sfngTipUpButtons: Button[] = [];
 
   /**
    * Unlock the setting if it is locked. Unlocking will
@@ -301,7 +301,7 @@ export class GenericSettingComponent<S extends BaseSetting<any, any>> implements
    */
   @Input()
   set setting(s: S | null) {
-    this.tipupButtons = [];
+    this.sfngTipUpButtons = [];
 
     this._setting = s;
     if (!s) {
@@ -310,7 +310,7 @@ export class GenericSettingComponent<S extends BaseSetting<any, any>> implements
     }
 
     if (this._setting?.Help) {
-      this.tipupButtons = [
+      this.sfngTipUpButtons = [
         {
           name: 'Show More',
           action: {
