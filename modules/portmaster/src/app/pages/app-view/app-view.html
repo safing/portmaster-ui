@@ -90,19 +90,19 @@
     </div>
   </div>
 
-  <app-tab-group class="flex flex-col flex-grow w-full p-4 px-12 overflow-hidden">
+  <sfng-tab-group class="flex flex-col flex-grow w-full p-4 px-12 overflow-hidden">
     <!-- Connections -->
-    <app-tab id="connections" title="Connections">
-      <div *appTabContent>
+    <sfng-tab id="connections" title="Connections">
+      <div *sfngTabContent>
         <sfng-netquery-viewer [filters]="['as_owner', 'country', 'domain']"
           [mergeFilter]="{profile: appProfile.Source + '/' + appProfile.ID}">
         </sfng-netquery-viewer>
       </div>
-    </app-tab>
+    </sfng-tab>
 
     <!-- App Settings -->
-    <app-tab id="settings" title="Settings">
-      <div *appTabContent class="py-4 overflow-auto" cdkScrollable>
+    <sfng-tab id="settings" title="Settings">
+      <div *sfngTabContent class="py-4 overflow-auto" cdkScrollable>
 
         <div class="flex flex-row items-center pr-2 mb-4 space-x-4">
           <input type="text" [(ngModel)]="searchTerm" placeholder="Search Settings">
@@ -157,11 +157,11 @@
           </div>
         </ng-template>
       </div>
-    </app-tab>
+    </sfng-tab>
 
     <!-- Details -->
-    <app-tab id="details" title="Details" [warning]="displayWarning">
-      <div *appTabContent class="py-4 space-y-8 overflow-auto" cdkScrollable>
+    <sfng-tab id="details" title="Details" [warning]="displayWarning">
+      <div *sfngTabContent class="py-4 space-y-8 overflow-auto" cdkScrollable>
 
         <div class="grid grid-cols-2 gap-4 text-primary text-xxs">
           <div class="flex flex-col justify-center p-4 bg-gray-200 rounded">
@@ -301,8 +301,8 @@
           <button class="block mt-2" (click)="copyDebugInfo()">Copy Debug Information</button>
         </div>
       </div>
-    </app-tab>
-  </app-tab-group>
+    </sfng-tab>
+  </sfng-tab-group>
 </ng-container>
 
 <app-settings-overview *ngIf="showOverview" class="p-4 px-12"></app-settings-overview>

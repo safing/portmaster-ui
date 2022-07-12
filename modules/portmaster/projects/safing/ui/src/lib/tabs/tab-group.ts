@@ -4,8 +4,7 @@ import { AfterContentInit, AfterViewInit, ChangeDetectionStrategy, ChangeDetecto
 import { ActivatedRoute, Router } from "@angular/router";
 import { Observable, Subject } from "rxjs";
 import { distinctUntilChanged, map, takeUntil } from "rxjs/operators";
-import { TabComponent } from "./tab";
-import { TabOutletComponent, TAB_ANIMATION_DIRECTION, TAB_PORTAL } from "./tab";
+import { SfngTabComponent, TabOutletComponent, TAB_ANIMATION_DIRECTION, TAB_PORTAL } from "./tab";
 
 /**
  * Tab group component for rendering a tab-style navigation with support for
@@ -16,30 +15,30 @@ import { TabOutletComponent, TAB_ANIMATION_DIRECTION, TAB_PORTAL } from "./tab";
  * keys (browser history) as well.
  *
  * Example:
- *  <app-tab-group>
+ *  <sfng-tab-group>
  *
- *    <app-tab id="tab1" title="Overview">
- *      <div *appTabContent>
+ *    <sfng-tab id="tab1" title="Overview">
+ *      <div *sfngTabContent>
  *        Some content
  *      </div>
- *    </app-tab>
+ *    </sfng-tab>
  *
- *    <app-tab id="tab2" title="Settings">
- *      <div *appTabContent>
+ *    <sfng-tab id="tab2" title="Settings">
+ *      <div *sfngTabContent>
  *        Some different content
  *      </div>
- *    </app-tab>
+ *    </sfng-tab>
  *
- *  </app-tab-group>
+ *  </sfng-tab-group>
  */
 @Component({
-  selector: 'app-tab-group',
+  selector: 'sfng-tab-group',
   templateUrl: './tab-group.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class TabGroupComponent implements AfterContentInit, AfterViewInit, OnInit, OnDestroy {
-  @ContentChildren(TabComponent)
-  tabs: QueryList<TabComponent> | null = null;
+export class SfngTabGroupComponent implements AfterContentInit, AfterViewInit, OnInit, OnDestroy {
+  @ContentChildren(SfngTabComponent)
+  tabs: QueryList<SfngTabComponent> | null = null;
 
   /** References to all tab header elements */
   @ViewChildren('tabHeader', { read: ElementRef })
@@ -67,7 +66,7 @@ export class TabGroupComponent implements AfterContentInit, AfterViewInit, OnIni
   activeTabIndex = -1;
 
   /** The key manager used to support keyboard navigation and type-ahead in the tab group */
-  private keymanager: ListKeyManager<TabComponent> | null = null;
+  private keymanager: ListKeyManager<SfngTabComponent> | null = null;
 
   /**
    * pendingTabIdx holds the id or the index of a tab that should be activated after the component

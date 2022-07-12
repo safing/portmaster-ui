@@ -1,16 +1,16 @@
 import { Overlay } from '@angular/cdk/overlay';
 import { ChangeDetectorRef, Component, HostListener, NgZone, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
+import { SfngDialogService } from '@safing/ui';
 import { debounceTime, filter, mergeMap, skip, startWith, take } from 'rxjs/operators';
+import { OverlayStepper, StepperRef } from '../../projects/safing/ui/src/lib/overlay-stepper';
 import { IntroModule } from './intro';
 import { Notification, NotificationsService, NotificationType, UIStateService } from './services';
 import { PortapiService } from './services/portapi.service';
 import { ActionIndicator, ActionIndicatorService } from './shared/action-indicator';
 import { fadeInAnimation, fadeOutAnimation } from './shared/animations';
-import { SfngDialogService } from '@safing/ui';
 import { ExitService } from './shared/exit-screen';
 import { SfngNetquerySearchOverlay } from './shared/netquery/search-overlay';
-import { OverlayStepper, StepperRef } from '../../projects/safing/ui/src/lib/overlay-stepper';
 
 @Component({
   selector: 'app-root',
