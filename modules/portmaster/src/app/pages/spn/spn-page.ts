@@ -1,10 +1,9 @@
 import { TemplatePortal } from "@angular/cdk/portal";
 import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, OnDestroy, OnInit, TemplateRef, TrackByFunction, ViewChild, ViewContainerRef } from "@angular/core";
 import { Router } from "@angular/router";
-import { profile } from "console";
 import { curveBasis, geoMercator, geoPath, interpolateString, json, line, pointer, select, Selection, zoom, zoomIdentity, ZoomTransform } from 'd3';
 import { BehaviorSubject, combineLatest, forkJoin, interval, Observable, of, Subject } from "rxjs";
-import { debounceTime, delay, distinctUntilChanged, finalize, map, mergeMap, startWith, switchMap, take, takeUntil, tap, withLatestFrom } from "rxjs/operators";
+import { debounceTime, delay, distinctUntilChanged, finalize, map, mergeMap, startWith, switchMap, take, takeUntil, tap } from "rxjs/operators";
 import { AppProfile, ConfigService, ExpertiseLevel, GeoCoordinates, IntelEntity, IProfileStats, Issue, Netquery, SPNService, SupportHubService, UnknownLocation } from "src/app/services";
 import { getPinCoords, Pin, SPNStatus, UserProfile } from "src/app/services/spn.types";
 import { ActionIndicatorService } from "src/app/shared/action-indicator";
