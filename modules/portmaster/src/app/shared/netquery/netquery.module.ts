@@ -25,6 +25,8 @@ import { SfngNetqueryScopeLabelComponent } from "./scope-label";
 import { SfngNetqueryConnectionDetailsComponent } from "./connection-details";
 import { FontAwesomeModule } from "@fortawesome/angular-fontawesome";
 import { SfngNetqueryAddToFilterDirective } from "./add-to-filter";
+import { SfngAppIconModule } from "../app-icon";
+import { TipUpModule } from "../tipup";
 
 @NgModule({
   imports: [
@@ -38,6 +40,8 @@ import { SfngNetqueryAddToFilterDirective } from "./add-to-filter";
     SfngMenuModule,
     SfngPaginationModule,
     SfngFocusModule,
+    SfngAppIconModule,
+    TipUpModule,
     A11yModule,
     ExpertiseModule,
     OverlayModule,
