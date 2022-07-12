@@ -189,41 +189,16 @@
     </span>
   </div>
 
+
   <div>
-    <span sfngAddToFilter="path" [sfngAddToFilterValue]="conn.path">
-      <span>Binary Path:</span>
-      <span>{{ conn.path }} </span>
-    </span>
-    <span>
-      <span>Reason:</span>
-      <span>
-        {{conn.extra_data?.reason?.Msg}}
+    <h3 class="text-primary text-xxs">SPN Tunnel</h3>
+    <ng-template #noSPNTemplate>
+      <span class="inline-flex items-center gap-2 text-secondary">
+        This connection has not been routed through the Safing Privacy Network
+        <app-tipup key="spn"></app-tipup>
       </span>
-    </span>
-    <span *ngIf="conn.extra_data?.reason?.OptionKey as option">
-      <span>Applied Setting:</span>
-      <span>
-        <span>{{ helper.settings[option] || '' }}&nbsp;</span>
-        <span class="de-emphasize" style="display: inline-block; text-align: left">&nbsp;from&nbsp;{{
-            !!conn.extra_data?.reason?.Profile ? "App" :
-            "Global" }} Settings</span>
-      </span>
-    </span>
-
-    <!-- FIXME
-      <span *ngIf="conn.profile_revision !== helper.profile?.currentProfileRevision">
-        <span>Notice:</span>
-        <span>
-          The settings used for this connection have been superseded.
-        </span>
-      </span>
-      -->
-  </div>
-
-
-  <ng-container *ngIf="conn.extra_data?.tunnel as tunnel">
-    <h3>SPN Tunnel</h3>
-    <div class="meta">
+    </ng-template>
+    <div class="meta" *ngIf="conn.extra_data?.tunnel as tunnel; else: noSPNTemplate">
       <div>
         <span>
           <span></span>
@@ -289,36 +264,68 @@
           </span>
         </span>
       </div>
-      <div *appExpertiseLevel="'developer'">
-        <span>
-          <span>Path Costs:</span>
+      <div *appExpertiseLevel="'developer'" class="flex flex-col items-start justify-start gap-1 mt-2">
+        <span class="flex flex-row items-center gap-2">
+          <span class="text-secondary">Path Costs:</span>
           <span>{{ tunnel.PathCost }}</span>
         </span>
-        <span>
-          <span>Routing Algorithm:</span>
+        <span class="flex flex-row items-center gap-2">
+          <span class="text-secondary">Routing Algorithm:</span>
           <span>{{ tunnel.RoutingAlg }}</span>
         </span>
       </div>
     </div>
-  </ng-container>
+  </div>
+
+
+  <div class="col-span-2">
+    <span sfngAddToFilter="path" [sfngAddToFilterValue]="conn.path">
+      <span>Binary Path:</span>
+      <span>{{ conn.path }} </span>
+    </span>
+    <span>
+      <span>Reason:</span>
+      <span>
+        {{conn.extra_data?.reason?.Msg}}
+      </span>
+    </span>
+    <span *ngIf="conn.extra_data?.reason?.OptionKey as option">
+      <span>Applied Setting:</span>
+      <span>
+        <span>{{ helper.settings[option] || '' }}&nbsp;</span>
+        <span class="de-emphasize" style="display: inline-block; text-align: left">&nbsp;from&nbsp;{{
+            !!conn.extra_data?.reason?.Profile ? "App" :
+            "Global" }} Settings</span>
+      </span>
+    </span>
+
+    <!-- FIXME
+      <span *ngIf="conn.profile_revision !== helper.profile?.currentProfileRevision">
+        <span>Notice:</span>
+        <span>
+          The settings used for this connection have been superseded.
+        </span>
+      </span>
+      -->
+  </div>
 </section>
 
 <div class="flex justify-end border-t border-gray-300 pt-0.5 mt-0.5" *ngIf="!!conn">
-  <button class="outline" *appExpertiseLevel="'expert'" (click)="helper.dumpConnection(conn)">Copy JSON</button>
-  <button class="outline" *ngIf="(conn | isBlocked); else blockAction"
+  <button class="btn-outline" *appExpertiseLevel="'expert'" (click)="helper.dumpConnection(conn)">Copy JSON</button>
+  <button class="btn-outline" *ngIf="(conn | isBlocked); else blockAction"
     (click)="helper.unblockAll(conn.domain || conn.remote_ip, conn)" [disabled]="!(conn | canUseRules)">
     Allow {{ conn.domain ? 'Domain' : 'IP'}}
   </button>
   <ng-template #blockAction>
-    <button class="outline" (click)="helper.blockAll(conn.domain || conn.remote_ip, conn)"
+    <button class="btn-outline" (click)="helper.blockAll(conn.domain || conn.remote_ip, conn)"
       [disabled]="!(conn | canUseRules)">
       Block {{ conn.domain ? 'Domain' : 'IP '}}
     </button>
   </ng-template>
-  <button class="outline" (click)="helper.redirectToSetting('', conn)" *ngIf="!!conn.extra_data?.reason?.OptionKey">
+  <button class="btn-outline" (click)="helper.redirectToSetting('', conn)" *ngIf="!!conn.extra_data?.reason?.OptionKey">
     App Setting
   </button>
-  <button class="outline" (click)="helper.redirectToSetting(conn.extra_data!.reason!.OptionKey, conn, true)"
+  <button class="btn-outline" (click)="helper.redirectToSetting(conn.extra_data!.reason!.OptionKey, conn, true)"
     *ngIf="!!conn.extra_data?.reason?.OptionKey">
     Global Setting
   </button>
