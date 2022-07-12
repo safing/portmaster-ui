@@ -9,6 +9,8 @@ export interface ParseResult {
     [key: string]: (any | { $ne: any })[];
   };
   textQuery: string;
+  groupBy?: string[];
+  orderBy?: string[];
 }
 
 export class Parser {
@@ -41,6 +43,7 @@ export class Parser {
 
   static aliases: { [key: string]: string } = {
     'provider': 'as_owner',
+    'app': 'profile'
   }
 
   /** parse is a shortcut for new Parser(input).process() */
@@ -50,9 +53,11 @@ export class Parser {
 
   /** Process the whole input stream and return the parsed result */
   process(): ParseResult {
-    let lastIdent: Token<TokenType.IDENT> | null = null;
+    let lastIdent: Token<TokenType.IDENT | TokenType.GROUPBY | TokenType.ORDERBY> | null = null;
     let hasColon = false;
     let not = false;
+    let groupBy: string[] = [];
+    let orderBy: string[] = [];
 
     while (true) {
       const tok = this.lexer.next()
@@ -73,12 +78,12 @@ export class Parser {
       // Since we allow the user to enter values without quotes the
       // lexer might wrongly declare a "string value" as an IDENT.
       // If we have the pattern <IDENT><COLON><IDENT> we re-classify
-      // the last IDENT as a VALUE
+      // the last IDENT as a STRING value
       if (!!lastIdent && hasColon && tok.type === TokenType.IDENT) {
         tok.type = TokenType.STRING;
       }
 
-      if (tok.type === TokenType.IDENT) {
+      if (tok.type === TokenType.IDENT || tok.type === TokenType.GROUPBY || tok.type === TokenType.ORDERBY) {
         // if we had an IDENT token before and got a new one now the
         // previous one is pushed to the remaining list
         if (!!lastIdent) {
@@ -119,6 +124,22 @@ export class Parser {
         // we have a colon now so proceed to the next token
         hasColon = true;
         not = false;
+
+        continue
+      }
+
+      if (lastIdent.type === TokenType.GROUPBY) {
+        groupBy.push(tok.literal)
+        lastIdent = null
+        hasColon = false
+
+        continue
+      }
+
+      if (lastIdent.type == TokenType.ORDERBY) {
+        orderBy.push(tok.literal)
+        lastIdent = null
+        hasColon = false
 
         continue
       }
@@ -172,6 +193,8 @@ export class Parser {
     }
 
     return {
+      groupBy: groupBy.length > 0 ? groupBy : undefined,
+      orderBy: orderBy.length > 0 ? orderBy : undefined,
       conditions: this.conditions,
       textQuery: this.remaining.filter(tok => !isWhitespace(tok)).join(" "),
     }
