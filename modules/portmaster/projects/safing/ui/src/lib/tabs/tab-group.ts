@@ -57,7 +57,7 @@ export class SfngTabGroupComponent implements AfterContentInit, AfterViewInit, O
   name = 'tab'
 
   private tabActivate$ = new Subject<string>();
-  private destroy$ = new Subject();
+  private destroy$ = new Subject<void>();
 
   /** onActivate fires when a tab has been activated. */
   get onActivate(): Observable<string> { return this.tabActivate$.asObservable() }

@@ -69,7 +69,7 @@ interface _Issue extends Issue {
   ]
 })
 export class SpnPageComponent implements OnInit, OnDestroy, AfterViewInit {
-  private destroy$ = new Subject();
+  private destroy$ = new Subject<void>();
 
   @ViewChild('map', { read: ElementRef, static: true })
   mapElement: ElementRef<HTMLDivElement> | null = null;
@@ -180,10 +180,10 @@ export class SpnPageComponent implements OnInit, OnDestroy, AfterViewInit {
   private activePins = new Set<string>();
 
   /** render$ emits when all map annotations (markers, lanes, ...) should be updated */
-  private render$ = new Subject();
+  private render$ = new Subject<void>();
 
   /** renderLines$ should emit when lines should be rendered. */
-  private renderLines$ = new Subject();
+  private renderLines$ = new Subject<void>();
 
   /** hoveredPin is set to the ID of the pin that is currently hovered */
   private hoveredPin: _PinModel | null = null;

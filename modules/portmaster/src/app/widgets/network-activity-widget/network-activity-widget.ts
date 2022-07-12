@@ -16,7 +16,7 @@ import { ExpertiseService } from "src/app/shared/expertise";
   ]
 })
 export class NetworkActivityWidget implements OnInit, OnDestroy {
-  private destroy$ = new Subject();
+  private destroy$ = new Subject<void>();
 
   /** @private All process-groups/profiles that are currently active. */
   profiles: IProfileStats[] = [];

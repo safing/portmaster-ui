@@ -97,10 +97,10 @@ interface LocalQueryResult extends QueryResult {
 })
 export class SfngNetqueryViewer implements OnInit, OnDestroy, AfterViewInit {
   /** @private Used to trigger a reload of the current filter */
-  private search$ = new Subject();
+  private search$ = new Subject<void>();
 
   /** @private Emits and completed when the component is destroyed */
-  private destroy$ = new Subject();
+  private destroy$ = new Subject<void>();
 
   /** @private Used to trigger an update of all displayed values in the tag-bar. */
   private updateTagBar$ = new BehaviorSubject<void>(undefined);
