@@ -43,6 +43,10 @@ export class SfngDropdown implements OnInit {
   }
   private _externalTrigger = false;
 
+  /** A list of classes to apply to the overlay element */
+  @Input()
+  overlayClass: string = '';
+
   /** Whether or not the drop-down is disabled. */
   @Input()
   set disabled(v: any) {
@@ -60,6 +64,14 @@ export class SfngDropdown implements OnInit {
   }
   get offsetY() { return this._offsetY }
   private _offsetY = 4;
+
+  /** The X-offset of the drop-down overlay */
+  @Input()
+  set offsetX(v: any) {
+    this._offsetX = coerceNumberProperty(v);
+  }
+  get offsetX() { return this._offsetX }
+  private _offsetX = 0;
 
   /** The scrollStrategy of the drop-down */
   @Input()
@@ -119,6 +131,12 @@ export class SfngDropdown implements OnInit {
       originX: 'end',
       originY: 'top',
       overlayX: 'end',
+      overlayY: 'bottom',
+    },
+    {
+      originX: 'end',
+      originY: 'bottom',
+      overlayX: 'start',
       overlayY: 'bottom',
     },
   ]

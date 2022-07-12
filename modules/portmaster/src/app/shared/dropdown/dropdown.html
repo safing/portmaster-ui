@@ -15,11 +15,12 @@
   </div>
 </ng-template>
 
-<ng-template cdkConnectedOverlay [cdkConnectedOverlayOffsetY]="offsetY" [cdkConnectedOverlayMinWidth]="minWidth"
-  [cdkConnectedOverlayMinHeight]="minHeight" [cdkConnectedOverlayOrigin]="trigger!" [cdkConnectedOverlayOpen]="isOpen"
-  (detach)="onOverlayClosed()" [cdkConnectedOverlayScrollStrategy]="scrollStrategy"
-  (overlayOutsideClick)="onOutsideClick($event)" [cdkConnectedOverlayPositions]="positions">
-  <div class="w-full overflow-hidden bg-gray-200 rounded-b shadow" [style.maxHeight]="maxHeight"
+<ng-template cdkConnectedOverlay [cdkConnectedOverlayOffsetY]="offsetY" [cdkConnectedOverlayOffsetX]="offsetX"
+  [cdkConnectedOverlayMinWidth]="minWidth" [cdkConnectedOverlayMinHeight]="minHeight"
+  [cdkConnectedOverlayOrigin]="trigger!" [cdkConnectedOverlayOpen]="isOpen" (detach)="onOverlayClosed()"
+  [cdkConnectedOverlayScrollStrategy]="scrollStrategy" (overlayOutsideClick)="onOutsideClick($event)"
+  [cdkConnectedOverlayPositions]="positions">
+  <div class="w-full overflow-hidden bg-gray-200 rounded-b shadow {{ overlayClass }}" [style.maxHeight]="maxHeight"
     [style.maxWidth]="maxWidth" [@fadeIn] [@fadeOut]>
     <ng-content></ng-content>
   </div>
