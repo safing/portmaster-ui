@@ -90,8 +90,11 @@
   </div>
 </div>
 <div class="nav-lower-list">
-  <div class="link" (click)="settingsMenu.dropdown.toggle(settingsMenuTrigger)" cdkOverlayOrigin
+  <div class="relative link" (click)="settingsMenu.dropdown.toggle(settingsMenuTrigger)" cdkOverlayOrigin
     #settingsMenuTrigger="cdkOverlayOrigin" [class.active]="settingsMenu.dropdown.isOpen">
+
+    <span *ngIf="versions?.Channel !== 'stable'"
+      class="absolute w-2 h-2 bg-yellow-300 rounded-full top-1 left-1"></span>
 
     <svg version="1.1" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" class="help"
       xmlns:xlink="http://www.w3.org/1999/xlink">
@@ -121,14 +124,15 @@
     </div>
 
     <app-menu-item (click)="downloadUpdates($event)">Download Updates</app-menu-item>
-    <app-menu-item (click)="shutdown($event)">Shut Down Portmaster</app-menu-item>
-    <app-menu-item (click)="reloadUI($event)">Reload UI</app-menu-item>
-    <app-menu-item (click)="clearDNSCache($event)">Clear DNS Cache</app-menu-item>
-    <app-menu-item (click)="openDataDir($event)">Open Data Directory</app-menu-item>
     <app-menu-item (click)="openChangeLog()">View Changelog</app-menu-item>
+    <app-menu-item (click)="reloadUI($event)">Reload UI</app-menu-item>
     <app-menu-item *appExpertiseLevel="'developer'" (click)="showIntro()">
       Show Intro Screen
     </app-menu-item>
+    <app-menu-item (click)="resetBroadcastState()">Reset Broadcast State</app-menu-item>
+    <app-menu-item (click)="clearDNSCache($event)">Clear DNS Cache</app-menu-item>
+    <app-menu-item (click)="copyDebugInfo($event)">Copy Debug Info</app-menu-item>
+    <app-menu-item (click)="openDataDir($event)">Open Data Directory</app-menu-item>
   </app-menu>
 
   <!-- Power Menu -->

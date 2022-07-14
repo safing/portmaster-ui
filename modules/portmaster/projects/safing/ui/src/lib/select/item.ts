@@ -2,10 +2,11 @@ import { ListKeyManagerOption } from '@angular/cdk/a11y';
 import { coerceBooleanProperty } from '@angular/cdk/coercion';
 import { Component, Directive, HostBinding, Input, Optional, TemplateRef } from '@angular/core';
 
-export interface SelectOption extends ListKeyManagerOption {
+export interface SelectOption<T = any> extends ListKeyManagerOption {
   value: any;
   selected: boolean;
 
+  data?: T;
   label?: string;
   description?: string;
   templateRef?: TemplateRef<any>;
@@ -32,12 +33,15 @@ export class SfngSelectItemComponent implements ListKeyManagerOption {
 @Directive({
   selector: '[sfngSelectValue]',
 })
-export class SfngSelectValueDirective implements SelectOption {
+export class SfngSelectValueDirective<T = any> implements SelectOption<T> {
   @Input('sfngSelectValue')
   value: any;
 
   @Input('sfngSelectValueLabel')
   label?: string;
+
+  @Input('sfngSelectValueData')
+  data?: T;
 
   @Input('sfngSelectValueDescription')
   description = '';

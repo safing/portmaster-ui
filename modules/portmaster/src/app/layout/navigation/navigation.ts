@@ -121,6 +121,10 @@ export class NavigationComponent {
     this.appComponent.showIntro()
   }
 
+  resetBroadcastState() {
+    this.portapi.resetBroadcastState();
+  }
+
   copyDebugInfo(event: Event) {
     // prevent default and stop-propagation to avoid
     // expanding the accordion body.

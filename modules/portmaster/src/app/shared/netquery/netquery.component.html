@@ -36,11 +36,11 @@
         allowSearch="true" searchItemThreshold="5" itemLimit="10"
         [searchPlaceholder]="'Search' + (keyTranslation[field.key] || field.key)" minWidth="400" minHeight="300"
         (ngModelChange)="performSearch()" (onOpen)="loadSuggestion(field.key)"
-        [dynamicValueTemplate]="dynamicValueTemplate">
+        [dynamicValueTemplate]="dynamicValueTemplate" [sortBy]="sortByCount">
         <ng-container *ngFor="let value of field.value?.suggestions; trackBy: trackSuggestion">
 
           <sfng-select-item
-            *sfngSelectValue="value.Value; label:value.Name || (value.Value === '' ? 'N/A' : value.Value)">
+            *sfngSelectValue="value.Value; data:value.count, label:value.Name || (value.Value === '' ? 'N/A' : value.Value)">
             <span *ngIf="field.key === 'country' && !!value.Name" [appCountryFlags]="value.Name"></span>
             <span class="flex-grow inline-block overflow-hidden overflow-ellipsis whitespace-nowrap"
               style="max-width: 20rem; direction: rtl;">
@@ -84,7 +84,7 @@
       </div>
     </button>
   </ng-template>
-  <sfng-dropdown #customDropdown [triggerTemplate]="selectTemplate" overlayClass="grid grid-cols-4 gap-1">
+  <sfng-dropdown #customDropdown [triggerTemplate]="selectTemplate" overlayClass="grid grid-cols-5 gap-1">
     <ng-container *ngFor="let model of (models | keyvalue)">
       <div class="sfng-select-dropdown" *ngIf="model.value?.visible === 'combinedMenu'">
         <h3 class="flex items-center gap-2 px-3 py-2 mb-0 text-xxs text-secondary">
@@ -138,7 +138,7 @@
   </sfng-select>
 </div>
 
-<div *appExpertiseLevel="'developer'">
+<div>
   <sfng-netquery-line-chart [data]="chartData" class="h-32 opacity-75"></sfng-netquery-line-chart>
 </div>
 
@@ -193,15 +193,13 @@
         </app-menu>
       </div>
 
-      <ng-container *appExpertiseLevel="'developer'">
-        <ng-container *ngIf="(data._chart | async) as chartData" class="relative">
-          <sfng-netquery-line-chart [data]="$any(chartData)" showAxis="false" margin="0"
-            class="absolute top-0 bottom-0 right-0 w-64 bg-gray-100 bg-opacity-25 border border-gray-400 border-opacity-25 rounded-r opacity-75 shadow-inner-xs">
-          </sfng-netquery-line-chart>
-        </ng-container>
-        <!-- placeholder for the chart -->
-        <div style="flex-basis: 14.5rem"></div>
+      <ng-container *ngIf="(data._chart | async) as chartData" class="relative">
+        <sfng-netquery-line-chart [data]="$any(chartData)" showAxis="false" margin="0"
+          class="absolute top-0 bottom-0 right-0 w-64 bg-gray-100 bg-opacity-25 border border-gray-400 border-opacity-25 rounded-r opacity-75 shadow-inner-xs">
+        </sfng-netquery-line-chart>
       </ng-container>
+      <!-- placeholder for the chart -->
+      <div style="flex-basis: 14.5rem"></div>
     </ng-template>
 
     <ng-template #connView>
@@ -216,7 +214,7 @@
     <span class="text-secondary">of {{totalConnCount}} total connections</span>
   </span>
 </div>
-<sfng-pagination *ngIf="!loading; else: loadingTemplate" [source]="paginator" class="flex flex-col flex-grow">
+<sfng-pagination *ngIf="!loading; else: loadingTemplate" [source]="paginator" class="flex flex-col">
   <ng-template [sfngPageContent]>
     <sfng-accordion-group class="flex flex-col gap-2 pr-4"
       *ngIf="!(paginator.pageLoading$ | async); else: loadingTemplate" [headerTemplate]="headerTemplate"

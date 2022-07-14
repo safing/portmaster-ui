@@ -1,8 +1,8 @@
 import { DOCUMENT } from '@angular/common';
 import { Inject, Injectable, Renderer2 } from '@angular/core';
 import { Router } from '@angular/router';
-import { BehaviorSubject, combineLatest, Observable, of, OperatorFunction, Subject } from 'rxjs';
-import { catchError, distinctUntilChanged, map, switchMap, takeUntil, tap } from 'rxjs/operators';
+import { BehaviorSubject, combineLatest, Observable, OperatorFunction, Subject } from 'rxjs';
+import { distinctUntilChanged, map, switchMap, takeUntil } from 'rxjs/operators';
 import { AppProfile, AppProfileService, ConfigService, getAppSetting, IPScope, NetqueryConnection, PossilbeValue, QueryResult, setAppSetting, Verdict } from 'src/app/services';
 import { ActionIndicatorService } from '../action-indicator';
 import { deepClone } from '../utils';
@@ -137,6 +137,7 @@ export class NetqueryHelper {
               Name: Verdict[item.verdict!],
               Value: item.verdict,
               Description: '',
+              ...item
             }
           })
         }
@@ -152,6 +153,18 @@ export class NetqueryHelper {
               Name: IPScope[item.scope!],
               Value: item.scope,
               Description: '',
+              ...item
+            }
+          })
+        }
+
+        if (field === 'allowed') {
+          return items.map(item => {
+            return {
+              Name: item.allowed ? 'Yes' : 'No',
+              Value: item.allowed,
+              Description: '',
+              ...item
             }
           })
         }

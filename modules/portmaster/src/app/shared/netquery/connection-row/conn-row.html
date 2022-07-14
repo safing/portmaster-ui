@@ -47,13 +47,9 @@
 </div>
 
 <div class="flex flex-row items-center gap-2">
-  <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 transform"
-    [ngClass]="{'rotate-180': conn.direction !== 'inbound', 'text-gray-600': !!conn.ended}" viewBox="0 0 20 20"
-    fill="currentColor">
-    <path fill-rule="evenodd"
-      d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-11a1 1 0 10-2 0v3.586L7.707 9.293a1 1 0 00-1.414 1.414l3 3a1 1 0 001.414 0l3-3a1 1 0 00-1.414-1.414L11 10.586V7z"
-      clip-rule="evenodd" />
-  </svg>
+  <fa-icon class="relative w-4 h-4 transform rotate-45 top-0.5" [ngClass]="{'text-gray-600': !!conn.ended}"
+    [icon]="conn.direction === 'inbound' ? 'arrow-down' : 'arrow-up'">
+  </fa-icon>
 
   <span *ngIf="conn.type === 'ip'; else dnsRequest" sfngAddToFilter="remote_ip" [sfngAddToFilterValue]="conn.remote_ip">
     {{ conn.remote_ip }} <span *ngIf="conn.remote_port" class="text-secondary">:{{ conn.remote_port }}</span>

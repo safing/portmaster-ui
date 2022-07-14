@@ -108,6 +108,15 @@ export class PortapiService {
       ))
   }
 
+  /** Reset the broadcast notifications state */
+  resetBroadcastState(): void {
+    this.http.post(`${environment.httpAPI}/v1/broadcasts/reset-state`, undefined, { observe: 'response', responseType: 'arraybuffer' })
+      .subscribe(this.uai.httpObserver(
+        'Broadcast State Cleared',
+        'Failed to Reset Broadcast State.',
+      ))
+  }
+
   /** Force the portmaster to check for updates */
   checkForUpdates(): void {
     this.http.post(`${environment.httpAPI}/v1/updates/check`, undefined, { observe: 'response', responseType: 'arraybuffer', reportProgress: false })

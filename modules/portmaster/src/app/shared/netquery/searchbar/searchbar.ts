@@ -1,4 +1,5 @@
 import { ListKeyManager } from "@angular/cdk/a11y";
+import { coerceBooleanProperty } from "@angular/cdk/coercion";
 import { CdkOverlayOrigin } from "@angular/cdk/overlay";
 import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, Directive, ElementRef, EventEmitter, forwardRef, HostBinding, HostListener, Input, OnDestroy, OnInit, Output, QueryList, TrackByFunction, ViewChild, ViewChildren } from "@angular/core";
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from "@angular/forms";
@@ -32,7 +33,8 @@ export type SfngSearchbarSuggestion<K extends keyof NetqueryConnection> = {
 }
 
 @Directive({
-  selector: '[sfng-netquery-suggestion]'
+  selector: '[sfng-netquery-suggestion]',
+  exportAs: 'sfngNetquerySuggestion'
 })
 export class SfngNetquerySuggestionDirective<K extends keyof NetqueryConnection> {
   constructor() { }
@@ -43,8 +45,13 @@ export class SfngNetquerySuggestionDirective<K extends keyof NetqueryConnection>
   @Input('sfng-netquery-suggestion')
   value?: SfngSearchbarSuggestionValue<K> | string;
 
-  @HostBinding('class.bg-gray-300')
-  active: boolean = false;
+  set active(v: any) {
+    this._active = coerceBooleanProperty(v);
+  }
+  get active() {
+    return this._active;
+  }
+  private _active: boolean = false;
 
   getLabel(): string {
     if (typeof this.value === 'string') {
@@ -163,6 +170,7 @@ export class SfngNetquerySearchbar implements ControlValueAccessor, OnInit, OnDe
             'as_owner',
             'remote_ip',
           ];
+          let limit = 3;
 
           const parser = new Parser(this.textSearch);
           const parseResult = parser.process();
@@ -173,6 +181,7 @@ export class SfngNetquerySearchbar implements ControlValueAccessor, OnInit, OnDe
           // FIXME(ppacher): confirm .type is an actually allowed field
           if (!!parser.lastUnterminatedCondition) {
             fields = [parser.lastUnterminatedCondition.type as keyof NetqueryConnection];
+            limit = 0;
           }
 
           fields.forEach(field => {
@@ -212,7 +221,7 @@ export class SfngNetquerySearchbar implements ControlValueAccessor, OnInit, OnDe
                 field,
               ],
               page: 0,
-              pageSize: 3,
+              pageSize: limit,
               orderBy: [{ field: "count", desc: true }]
             })
               .pipe(
