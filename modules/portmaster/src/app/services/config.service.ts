@@ -1,9 +1,9 @@
 import { Injectable, TrackByFunction } from '@angular/core';
+import { PortapiService } from '@safing/portmaster-api';
 import { BehaviorSubject, Observable } from 'rxjs';
-import { distinctUntilChanged, filter, map, multicast, refCount, share, toArray } from 'rxjs/operators';
+import { distinctUntilChanged, filter, map, multicast, refCount, toArray } from 'rxjs/operators';
 import { BoolSetting } from '.';
 import { BaseSetting, OptionType, Setting, SettingValueType } from './config.types';
-import { PortapiService } from './portapi.service';
 
 
 @Injectable({

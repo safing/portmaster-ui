@@ -1,12 +1,14 @@
 import { HttpClient } from '@angular/common/http';
-import { Injectable, isDevMode, NgZone } from '@angular/core';
+import { Inject, Injectable, InjectionToken, isDevMode, NgZone, Optional } from '@angular/core';
 import { BehaviorSubject, Observable, Observer, of } from 'rxjs';
 import { concatMap, delay, filter, map, retryWhen, takeWhile, tap } from 'rxjs/operators';
 import { WebSocketSubject } from 'rxjs/webSocket';
-import { environment } from '../../environments/environment';
-import { ActionIndicatorService } from '../shared/action-indicator';
 import { DataReply, deserializeMessage, InspectedActiveRequest, isCancellable, isDataReply, Record, ReplyMessage, Requestable, RequestMessage, RequestType, RetryableOpts, retryPipeline, serializeMessage, WatchOpts } from './portapi.types';
 import { WebsocketService } from './websocket.service';
+
+export const PORTMASTER_WS_API_ENDPOINT = new InjectionToken<string>('PortmasterWebsocketEndpoint');
+export const PORTMASTER_HTTP_API_ENDPOINT = new InjectionToken<string>('PortmasterHttpApiEndpoint')
+
 
 export const RECONNECT_INTERVAL = 2000;
 
@@ -17,9 +19,7 @@ interface PendingMethod {
   request: RequestMessage;
 }
 
-@Injectable({
-  providedIn: 'root'
-})
+@Injectable()
 export class PortapiService {
   /** The actual websocket connection, auto-(re)connects on subscription */
   private ws$: WebSocketSubject<ReplyMessage | RequestMessage> | null;
@@ -45,7 +45,8 @@ export class PortapiService {
     private websocketFactory: WebsocketService,
     private ngZone: NgZone,
     private http: HttpClient,
-    private uai: ActionIndicatorService,
+    @Inject(PORTMASTER_HTTP_API_ENDPOINT) @Optional() private httpEndpoint: string = 'http://localhost:817/api',
+    @Inject(PORTMASTER_WS_API_ENDPOINT) @Optional() private wsEndpoint: string = 'ws://localhost:817/api/database/v1',
   ) {
 
     // create a new websocket connection that will auto-connect
@@ -91,35 +92,42 @@ export class PortapiService {
   }
 
   /** Triggers a restart of the portmaster service */
-  restartPortmaster(): void {
-    this.http.post(`${environment.httpAPI}/v1/core/restart`, undefined, { observe: 'response', responseType: 'arraybuffer' })
+  restartPortmaster(): Observable<any> {
+    return this.http.post(`${this.httpEndpoint}/v1/core/restart`, undefined, { observe: 'response', responseType: 'arraybuffer' })
+    /*
       .subscribe(this.uai.httpObserver(
         'Restarting ...',
         'Failed to Restart',
       ))
+    */
   }
 
   /** Triggers a shutdown of the portmaster service */
-  shutdownPortmaster(): void {
-    this.http.post(`${environment.httpAPI}/v1/core/shutdown`, undefined, { observe: 'response', responseType: 'arraybuffer' })
+  shutdownPortmaster(): Observable<any> {
+    return this.http.post(`${this.httpEndpoint}/v1/core/shutdown`, undefined, { observe: 'response', responseType: 'arraybuffer' })
+    /*
       .subscribe(this.uai.httpObserver(
         'Shutting Down ...',
         'Failed to Shut Down',
       ))
+    */
   }
 
   /** Force the portmaster to check for updates */
-  checkForUpdates(): void {
-    this.http.post(`${environment.httpAPI}/v1/updates/check`, undefined, { observe: 'response', responseType: 'arraybuffer', reportProgress: false })
+  checkForUpdates(): Observable<any> {
+    return this.http.post(`${this.httpEndpoint}/v1/updates/check`, undefined, { observe: 'response', responseType: 'arraybuffer', reportProgress: false })
+    /*
       .subscribe(this.uai.httpObserver(
         'Downloading Updates ...',
         'Failed to Check for Updates',
       ))
+    */
   }
 
   /** Force a reload of the UI assets */
-  reloadUI(): void {
-    this.http.post(`${environment.httpAPI}/v1/ui/reload`, undefined, { observe: 'response', responseType: 'arraybuffer' })
+  reloadUI(): Observable<any> {
+    return this.http.post(`${this.httpEndpoint}/v1/ui/reload`, undefined, { observe: 'response', responseType: 'arraybuffer' })
+    /*
       .pipe(
         tap(() => {
           setTimeout(() => window.location.reload(), 1000)
@@ -129,11 +137,13 @@ export class PortapiService {
         'Reloading UI ...',
         'Failed to Reload UI',
       ))
+    */
   }
 
   /** Clear DNS cache */
-  clearDNSCache(): void {
-    this.http.post(`${environment.httpAPI}/v1/dns/clear`, undefined, { observe: 'response', responseType: 'arraybuffer' })
+  clearDNSCache(): Observable<any> {
+    return this.http.post(`${this.httpEndpoint}/v1/dns/clear`, undefined, { observe: 'response', responseType: 'arraybuffer' })
+    /*
       .subscribe(this.uai.httpObserver(
         'DNS Cache Cleared',
         'Failed to Clear DNS Cache.',
@@ -147,6 +157,7 @@ export class PortapiService {
         'Broadcast State Cleared',
         'Failed to Reset Broadcast State.',
       ))
+    */
   }
 
   /**
@@ -442,7 +453,7 @@ export class PortapiService {
         lastKey: '',
       }
 
-      if (isDevMode() || !environment.production) {
+      if (isDevMode()) {
         this.activeRequests.next({
           ...this.inspectActiveRequests(),
           [id]: inspected,
@@ -450,7 +461,7 @@ export class PortapiService {
       }
 
       let stream$: Observable<ReplyMessage<any>> = this.multiplex(request, unsub);
-      if (!environment.production || isDevMode()) {
+      if (isDevMode()) {
         // in development mode we log all replys for the different
         // methods. This also includes updates to subscriptions.
         stream$ = stream$.pipe(
@@ -537,7 +548,7 @@ export class PortapiService {
         }
       })
 
-      if (isDevMode() || !environment.production) {
+      if (isDevMode()) {
         // make sure we remove the "active" request when the subscription
         // goes down
         subscription.add(() => {
@@ -648,7 +659,7 @@ export class PortapiService {
    */
   private createWebsocket(): WebSocketSubject<ReplyMessage | RequestMessage> {
     return this.websocketFactory.createConnection<ReplyMessage | RequestMessage>({
-      url: environment.portAPI,
+      url: this.wsEndpoint,
       serializer: msg => {
         try {
           return serializeMessage(msg);

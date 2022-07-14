@@ -2,7 +2,7 @@ module.exports = {
   mode: 'jit',
   content: [
     './src/**/*.{html,scss,ts}',
-    './projects/safing/ui/**/*.{html,scss,ts}'
+    './projects/**/*.{html,scss,ts}'
   ],
   theme: {
     colors: {

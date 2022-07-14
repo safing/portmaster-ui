@@ -3,6 +3,9 @@
   "compileOnSave": false,
   "compilerOptions": {
     "paths": {
+      "@safing/portmaster-api": [
+        "dist-lib/safing/portmaster-api"
+      ],
       "@safing/ui": [
         "dist-lib/safing/ui"
       ]

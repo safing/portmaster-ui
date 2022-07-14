@@ -1,5 +1,5 @@
-import { Subscriber, OperatorFunction, Observer, Observable, MonoTypeOperatorFunction, iif, throwError, of, BehaviorSubject, ObservableInput, ObservedValueOf } from 'rxjs';
-import { retryWhen, concatMap, delay, multicast, refCount, tap } from 'rxjs/operators';
+import { BehaviorSubject, iif, MonoTypeOperatorFunction, Observable, of, Subscriber, throwError } from 'rxjs';
+import { concatMap, delay, multicast, refCount, retryWhen } from 'rxjs/operators';
 
 /**
 * ReplyType contains all possible message types of a reply.

@@ -1,7 +1,5 @@
-import { isDevMode } from '@angular/core';
+import { Record } from '@safing/portmaster-api';
 import { deepClone } from '../shared/utils';
-import { webSocket } from 'rxjs/webSocket';
-import { Record } from './portapi.types';
 
 /**
  * ExpertiseLevel defines all available expertise levels.

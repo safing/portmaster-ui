@@ -1,10 +1,10 @@
 import { HttpClient, HttpParams, HttpResponse } from "@angular/common/http";
 import { Injectable } from "@angular/core";
+import { PortapiService } from '@safing/portmaster-api';
 import { BehaviorSubject, Observable } from "rxjs";
 import { filter, multicast, refCount } from "rxjs/operators";
 import { environment } from "src/environments/environment";
 import { SPNStatus } from ".";
-import { PortapiService } from "./portapi.service";
 import { Pin, UserProfile } from "./spn.types";
 
 @Injectable({ providedIn: 'root' })
@@ -37,10 +37,10 @@ export class SPNService {
    * See https://developer.mozilla.org/en-US/docs/Web/API/btoa
    * and https://stackoverflow.com/questions/30106476/using-javascripts-atob-to-decode-base64-doesnt-properly-decode-utf-8-strings
    */
-   b64EncodeUnicode(str: string): string {
-      return window.btoa(encodeURIComponent(str).replace(/%([0-9A-F]{2})/g, function(match, p1) {
-          return String.fromCharCode(parseInt(p1, 16))
-      }))
+  b64EncodeUnicode(str: string): string {
+    return window.btoa(encodeURIComponent(str).replace(/%([0-9A-F]{2})/g, function (match, p1) {
+      return String.fromCharCode(parseInt(p1, 16))
+    }))
   }
 
   /**

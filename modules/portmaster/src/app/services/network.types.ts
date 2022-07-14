@@ -1,4 +1,4 @@
-import { Record } from './portapi.types';
+import { Record } from '@safing/portmaster-api';
 
 export enum Verdict {
   Undecided = 0,

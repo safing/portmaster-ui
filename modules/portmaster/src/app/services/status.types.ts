@@ -1,6 +1,6 @@
+import { Record } from '@safing/portmaster-api';
 import { ReleaseLevel } from './config.types';
 import { getEnumKey, SecurityLevel } from "./core.types";
-import { Record } from './portapi.types';
 
 export interface CaptivePortal {
   URL: string;

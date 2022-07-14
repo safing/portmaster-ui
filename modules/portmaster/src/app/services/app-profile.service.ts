@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
+import { PortapiService } from '@safing/portmaster-api';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { AppProfile, FlatConfigObject, flattenProfileConfig, LayeredProfile } from './app-profile.types';
-import { PortapiService } from './portapi.service';
 
 @Injectable({
   providedIn: 'root'

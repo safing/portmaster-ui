@@ -1,7 +1,7 @@
+import { RecordMeta } from '@safing/portmaster-api';
 import { BehaviorSubject } from 'rxjs';
 import { filter } from 'rxjs/operators';
 import { ActionHandler, Notification, NotificationState, NotificationType } from './notifications.types';
-import { RecordMeta } from './portapi.types';
 
 export class VirtualNotification<T> implements Notification<T> {
   readonly AvailableActions: ActionHandler<T>[];

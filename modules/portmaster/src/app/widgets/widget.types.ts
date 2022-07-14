@@ -1,5 +1,5 @@
-import { Type, InjectionToken, EventEmitter } from '@angular/core';
-import { Record } from '../services/portapi.types';
+import { EventEmitter, InjectionToken, Type } from '@angular/core';
+import { Record } from '@safing/portmaster-api';
 
 export interface WidgetConfig<T = any> extends Record {
   type: string;

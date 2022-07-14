@@ -1,9 +1,9 @@
 import { TestBed } from '@angular/core/testing';
+import { WebsocketService } from '@safing/portmaster-api';
+import { MockWebSocketSubject } from '@safing/portmaster-api/testing';
 import { PartialObserver } from 'rxjs';
 import { ConfigService } from './config.service';
-import { BoolSetting, ExpertiseLevel, ExternalOptionHint, OptionType, ReleaseLevel, Setting, ExpertiseLevelNumber } from './config.types';
-import { MockWebSocketSubject } from './portapi.service.spec';
-import { WebsocketService } from './websocket.service';
+import { BoolSetting, ExpertiseLevelNumber, ExternalOptionHint, OptionType, ReleaseLevel, Setting } from './config.types';
 
 describe('ConfigService', () => {
   let service: ConfigService;

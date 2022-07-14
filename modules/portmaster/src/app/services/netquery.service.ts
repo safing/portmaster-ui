@@ -1,12 +1,12 @@
 import { HttpClient } from "@angular/common/http";
 import { Injectable } from "@angular/core";
+import { PortapiService } from '@safing/portmaster-api';
 import { forkJoin, Observable } from "rxjs";
 import { map, mergeMap } from "rxjs/operators";
 import { environment as env } from '../../environments/environment';
 import { AppProfileService } from "./app-profile.service";
 import { AppProfile } from "./app-profile.types";
 import { DNSContext, IPScope, Reason, TLSContext, TunnelContext, Verdict } from "./network.types";
-import { PortapiService } from "./portapi.service";
 
 export interface FieldSelect {
   field: string;

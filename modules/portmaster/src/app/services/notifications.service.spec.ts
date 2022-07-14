@@ -1,9 +1,9 @@
 import { TestBed } from '@angular/core/testing';
-import { Notification, NotificationType } from './notifications.types';
+import { WebsocketService } from '@safing/portmaster-api';
+import { MockWebSocketSubject } from '@safing/portmaster-api/testing';
+import { PartialObserver } from 'rxjs';
 import { NotificationsService } from './notifications.service';
-import { MockWebSocketSubject } from './portapi.service.spec';
-import { WebsocketService } from './websocket.service';
-import { PartialObserver, noop } from 'rxjs';
+import { Notification, NotificationType } from './notifications.types';
 
 describe('NotificationsService', () => {
   let service: NotificationsService;

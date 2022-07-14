@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component } from '@angular/core';
+import { PortapiService } from '@safing/portmaster-api';
 import { AppComponent } from 'src/app/app.component';
 import { DebugAPI, StatusService, VersionStatus } from 'src/app/services';
-import { PortapiService } from 'src/app/services/portapi.service';
 import { ActionIndicatorService } from 'src/app/shared/action-indicator';
 import { ExitService } from 'src/app/shared/exit-screen';
 

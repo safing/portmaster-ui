@@ -1,8 +1,7 @@
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, forwardRef, HostListener, OnDestroy, OnInit } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
+import { PortapiService, Record } from '@safing/portmaster-api';
 import { Subscription } from 'rxjs';
-import { PortapiService } from 'src/app/services/portapi.service';
-import { Record } from 'src/app/services/portapi.types';
 import { moveInOutListAnimation } from '../../animations';
 
 interface Category {
