@@ -1,7 +1,7 @@
 import { coerceArray } from "@angular/cdk/coercion";
 import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, Input, OnDestroy, OnInit, QueryList, TemplateRef, TrackByFunction, ViewChildren } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
-import { Datasource, DynamicItemsPaginator } from "@safing/ui";
+import { Datasource, DynamicItemsPaginator, SelectOption } from "@safing/ui";
 import { BehaviorSubject, combineLatest, forkJoin, Observable, of, Subject } from "rxjs";
 import { catchError, debounceTime, map, switchMap, takeUntil } from "rxjs/operators";
 import { ChartResult, Condition, IPScope, Netquery, NetqueryConnection, PossilbeValue, Query, QueryResult, Select, Verdict } from "src/app/services";
@@ -198,16 +198,61 @@ export class SfngNetqueryViewer implements OnInit, OnDestroy, AfterViewInit {
     profile: {
       visible: true
     },
+    allowed: {
+      visible: true,
+    },
     path: {},
     internal: {},
-    allowed: {},
     type: {},
     tunneled: {},
     encrypted: {},
     scope: {
       visible: 'combinedMenu',
       menuTitle: 'Network Scope',
-      suggestions: enumToSuggestionValue(IPScope),
+      suggestions: [
+        {
+          Name: 'Invalid',
+          Value: IPScope.Invalid,
+          Description: '',
+          count: 0,
+        },
+        {
+          Name: 'Device Local',
+          Value: IPScope.HostLocal,
+          Description: '',
+          count: 0,
+        },
+        {
+          Name: 'Link Local Peer-to-Peer',
+          Value: IPScope.LinkLocal,
+          Description: '',
+          count: 0,
+        },
+        {
+          Name: 'LAN Peer-to-Peer',
+          Value: IPScope.SiteLocal,
+          Description: '',
+          count: 0,
+        },
+        {
+          Name: 'Internet Peer-to-Peer',
+          Value: IPScope.Global,
+          Description: '',
+          count: 0,
+        },
+        {
+          Name: 'LAN Multicast',
+          Value: IPScope.LocalMulticast,
+          Description: '',
+          count: 0,
+        },
+        {
+          Name: 'Internet Multicast',
+          Value: IPScope.GlobalMulitcast,
+          Description: '',
+          count: 0,
+        },
+      ]
     },
     verdict: {},
     started: {},
@@ -572,7 +617,7 @@ export class SfngNetqueryViewer implements OnInit, OnDestroy, AfterViewInit {
       groupBy: [
         field,
       ],
-      orderBy: [{ field: "count", desc: true }]
+      orderBy: [{ field: "count", desc: true }, { field, desc: true }]
     })
       .pipe(this.helper.encodeToPossibleValues(field))
       .subscribe(result => {
@@ -604,19 +649,37 @@ export class SfngNetqueryViewer implements OnInit, OnDestroy, AfterViewInit {
       })
   }
 
+  sortByCount(a: SelectOption, b: SelectOption) {
+    return b.data - a.data
+  }
+
   /** @private Callback for keyboard events on the search-input */
   onFieldsParsed(fields: SfngSearchbarFields) {
     const allowedKeys = new Set(objKeys(this.models));
 
     objKeys(fields).forEach(key => {
       if (key === 'groupBy') {
-        this.groupByKeys = fields.groupBy || this.groupByKeys;
+        this.groupByKeys = (fields.groupBy || this.groupByKeys)
+          .filter(val => {
+            if (!allowedKeys.has(val as any)) {
+              this.actionIndicator.error("Invalid search query", "Column " + val + " is not allowed for groupby")
+              return false;
+            }
+            return true;
+          })
 
         return;
       }
 
       if (key === 'orderBy') {
-        this.orderByKeys = fields.orderBy || this.orderByKeys;
+        this.orderByKeys = (fields.orderBy || this.orderByKeys)
+          .filter(val => {
+            if (!allowedKeys.has(val as any)) {
+              this.actionIndicator.error("Invalid search query", "Column " + val + " is not allowed for orderby")
+              return false;
+            }
+            return true;
+          })
 
         return;
       }
@@ -863,19 +926,6 @@ function initializeModels(models: { [key: string]: Partial<Model<any>> }): { [ke
   })
 
   return models as any;
-}
-
-function enumToSuggestionValue(val: any): Suggestion<any>[] {
-  return Object.keys(val)
-    .filter(key => isNaN(+key))
-    .map(key => {
-      return {
-        Name: key,
-        Value: val[key],
-        count: 0,
-        Description: '',
-      }
-    })
 }
 
 function booleanSuggestionValues(): Suggestion<any>[] {

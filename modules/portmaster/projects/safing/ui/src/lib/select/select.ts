@@ -14,6 +14,8 @@ type ModeInput = {
 }
 type SelectValue<T, S extends ModeInput> = S['mode'] extends 'single' ? T : T[];
 
+export type SortByFunc = (a: SelectOption, b: SelectOption) => number;
+
 @Directive({
   selector: '[sfngSelectRenderedListItem]'
 })
@@ -173,6 +175,32 @@ export class SfngSelectComponent<T> implements AfterViewInit, ControlValueAccess
   /** The minimum-width of the drop-down. See {@link SfngDropdown.minHeight} */
   @Input()
   minHeight: any;
+
+  /** Whether or not selected items should be sorted to the top */
+  @Input()
+  set sortValues(v: any) {
+    this._sortValues = coerceBooleanProperty(v);
+  }
+  get sortValues() {
+    if (this._sortValues === null) {
+      return this.mode === 'multi';
+    }
+    return this._sortValues;
+  }
+  private _sortValues: boolean | null = null;
+
+  /** The sort function to use. Defaults to sort by label/value */
+  @Input()
+  sortBy: SortByFunc = (a: SelectOption, b: SelectOption) => {
+    if ((a.label || a.value) < (b.label || b.value)) {
+      return 1;
+    }
+    if ((a.label || a.value) > (b.label || b.value)) {
+      return -1;
+    }
+
+    return 0;
+  }
 
   @Input()
   set disabled(v: any) {
@@ -424,24 +452,19 @@ export class SfngSelectComponent<T> implements AfterViewInit, ControlValueAccess
       this.currentItems.push(option);
     }
 
-    this.allItems.sort((a, b) => {
-      if (b.selected && !a.selected) {
-        return 1;
-      }
+    if (this.sortValues) {
+      this.allItems.sort((a, b) => {
+        if (b.selected && !a.selected) {
+          return 1;
+        }
 
-      if (a.selected && !b.selected) {
-        return -1;
-      }
+        if (a.selected && !b.selected) {
+          return -1;
+        }
 
-      if ((a.label || a.value) < (b.label || b.value)) {
-        return 1;
-      }
-      if ((a.label || a.value) > (b.label || b.value)) {
-        return -1;
-      }
-
-      return 0
-    })
+        return this.sortBy(a, b)
+      })
+    }
   }
 
   writeValue(value: SelectValue<T, this>): void {

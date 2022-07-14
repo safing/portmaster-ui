@@ -1,5 +1,5 @@
 import { coerceBooleanProperty, coerceNumberProperty } from '@angular/cdk/coercion';
-import { AfterViewInit, Component, ElementRef, Input, OnChanges, OnInit, SimpleChanges, ViewEncapsulation } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, Input, OnChanges, OnInit, SimpleChanges } from '@angular/core';
 import * as d3 from 'd3';
 import { Selection } from 'd3';
 import { ChartResult } from 'src/app/services';
@@ -14,7 +14,7 @@ import { timeAgo } from '../../pipes';
     }
     `
   ],
-  templateUrl: './line-chart.html',
+  template: '',
 })
 export class SfngNetqueryLineChart implements OnChanges, OnInit, AfterViewInit {
   @Input()

@@ -189,6 +189,36 @@
     </span>
   </div>
 
+  <div class="col-span-2">
+    <span sfngAddToFilter="path" [sfngAddToFilterValue]="conn.path">
+      <span>Binary Path:</span>
+      <span>{{ conn.path }} </span>
+    </span>
+    <span>
+      <span>Reason:</span>
+      <span>
+        {{conn.extra_data?.reason?.Msg}}
+      </span>
+    </span>
+    <span *ngIf="conn.extra_data?.reason?.OptionKey as option">
+      <span>Applied Setting:</span>
+      <span>
+        <span>{{ helper.settings[option] || '' }}&nbsp;</span>
+        <span class="de-emphasize" style="display: inline-block; text-align: left">&nbsp;from&nbsp;{{
+            !!conn.extra_data?.reason?.Profile ? "App" :
+            "Global" }} Settings</span>
+      </span>
+    </span>
+
+    <!-- FIXME
+      <span *ngIf="conn.profile_revision !== helper.profile?.currentProfileRevision">
+        <span>Notice:</span>
+        <span>
+          The settings used for this connection have been superseded.
+        </span>
+      </span>
+      -->
+  </div>
 
   <div>
     <h3 class="text-primary text-xxs">SPN Tunnel</h3>
@@ -278,36 +308,6 @@
   </div>
 
 
-  <div class="col-span-2">
-    <span sfngAddToFilter="path" [sfngAddToFilterValue]="conn.path">
-      <span>Binary Path:</span>
-      <span>{{ conn.path }} </span>
-    </span>
-    <span>
-      <span>Reason:</span>
-      <span>
-        {{conn.extra_data?.reason?.Msg}}
-      </span>
-    </span>
-    <span *ngIf="conn.extra_data?.reason?.OptionKey as option">
-      <span>Applied Setting:</span>
-      <span>
-        <span>{{ helper.settings[option] || '' }}&nbsp;</span>
-        <span class="de-emphasize" style="display: inline-block; text-align: left">&nbsp;from&nbsp;{{
-            !!conn.extra_data?.reason?.Profile ? "App" :
-            "Global" }} Settings</span>
-      </span>
-    </span>
-
-    <!-- FIXME
-      <span *ngIf="conn.profile_revision !== helper.profile?.currentProfileRevision">
-        <span>Notice:</span>
-        <span>
-          The settings used for this connection have been superseded.
-        </span>
-      </span>
-      -->
-  </div>
 </section>
 
 <div class="flex justify-end border-t border-gray-300 pt-0.5 mt-0.5" *ngIf="!!conn">

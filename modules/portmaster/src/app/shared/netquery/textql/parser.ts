@@ -43,7 +43,8 @@ export class Parser {
 
   static aliases: { [key: string]: string } = {
     'provider': 'as_owner',
-    'app': 'profile'
+    'app': 'profile',
+    'ip': 'remote_ip'
   }
 
   /** parse is a shortcut for new Parser(input).process() */
@@ -129,7 +130,7 @@ export class Parser {
       }
 
       if (lastIdent.type === TokenType.GROUPBY) {
-        groupBy.push(tok.literal)
+        groupBy.push(Parser.aliases[tok.literal] || tok.literal)
         lastIdent = null
         hasColon = false
 
@@ -137,7 +138,7 @@ export class Parser {
       }
 
       if (lastIdent.type == TokenType.ORDERBY) {
-        orderBy.push(tok.literal)
+        orderBy.push(Parser.aliases[tok.literal] || tok.literal)
         lastIdent = null
         hasColon = false
 
