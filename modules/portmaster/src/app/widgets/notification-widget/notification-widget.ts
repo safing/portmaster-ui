@@ -1,5 +1,5 @@
 import { animate, style, transition, trigger } from '@angular/animations';
-import { Component, ElementRef, HostBinding, Inject, OnDestroy, OnInit } from '@angular/core';
+import { Component, ElementRef, HostBinding, Inject, OnDestroy, OnInit, TrackByFunction } from '@angular/core';
 import { Subscription } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { Action, Notification, NotificationsService, NotificationType } from 'src/app/services';
@@ -73,6 +73,8 @@ export class NotificationWidgetComponent implements OnInit, OnDestroy {
 
   /** All active notifications. */
   notifications: _Notification<any>[] = [];
+
+  trackBy: TrackByFunction<_Notification> = this.notifsService.trackBy;
 
   constructor(
     public elementRef: ElementRef,
