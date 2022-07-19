@@ -1,5 +1,7 @@
-import { Component, HostBinding, HostListener } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
+import { BehaviorSubject, combineLatest, debounceTime, Subject, takeUntil } from 'rxjs';
+import { Issue, SupportHubService } from 'src/app/services';
 import { fadeInAnimation, fadeInListAnimation } from 'src/app/shared/animations';
 import { FuzzySearchService } from 'src/app/shared/fuzzySearch';
 import { SupportType, supportTypes } from './pages';
@@ -12,43 +14,73 @@ import { SupportType, supportTypes } from './pages';
     fadeInAnimation,
   ]
 })
-export class SupportPageComponent {
+export class SupportPageComponent implements OnInit, OnDestroy {
   // make supportTypes available in the page template.
   readonly supportTypes = supportTypes;
 
-  /** @private The current search term for the settings. */
+  private destroy$ = new Subject<void>();
+
+  /** @private The current search term for the FAQ entries. */
+  searchFaqs = new BehaviorSubject<string>('');
+
   searchTerm: string = '';
+
+  /** A list of all faq entries loaded from the Support Hub */
+  allFaqEntries: Issue<Date>[] = [];
+
+  /** A list of faq entries to show */
+  faqEntries: Issue<Date>[] = [];
 
   constructor(
     private router: Router,
     private searchService: FuzzySearchService,
+    private supportHub: SupportHubService,
   ) { }
 
-  search(searchTerm: string) {
-    this.searchTerm = searchTerm;
-    const allTypes: SupportType[] = [];
-    this.supportTypes.forEach(pages => pages.choices.forEach(choice => {
-      allTypes.push(choice);
-    }))
+  ngOnInit(): void {
+    combineLatest([
+      this.searchFaqs,
+      this.supportHub.loadIssues()
+    ])
+      .pipe(
+        takeUntil(this.destroy$),
+        debounceTime(200),
+      )
+      .subscribe(([searchTerm, allFaqEntries]) => {
+        this.allFaqEntries = allFaqEntries.filter(issue => issue.labels?.includes("faq"))
 
-    // Use fuzzy-search to limit the number of settings shown.
-    const filtered = this.searchService.searchList(supportTypes, searchTerm, {
-      ignoreLocation: true,
-      ignoreFieldNorm: true,
-      threshold: 0.1,
-      minMatchCharLength: 3,
-      keys: [
-        { name: ['choices', 'title'], weight: 3 },
-        { name: ['choices', 'shortHelp'], weight: 2 },
-        { name: ['choices', 'epilogue'], weight: 1 },
-        { name: ['choices', 'prologue'], weight: 1 },
-      ]
-    })
-    // The search service wraps the items in a search-result object.
-    // Unwrap them now.
-    let items = filtered
-      .map(res => res.item);
+        if (searchTerm === '') {
+          this.faqEntries = [
+            ...this.allFaqEntries
+          ]
 
+          return;
+        }
+
+        this.faqEntries = this.searchService.searchList(this.allFaqEntries, searchTerm, {
+          disableHighlight: true,
+          shouldSort: true,
+          isCaseSensitive: false,
+          minMatchCharLength: 3,
+          keys: [
+            'title',
+            'body',
+          ],
+        }).map(res => res.item)
+      })
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
+  openIssue(issue: Issue<any>) {
+    if (!!window.app) {
+      window.app.openExternal(issue.url);
+    } else {
+      window.open(issue.url, '_blank');
+    }
   }
 
   openPage(item: SupportType) {
