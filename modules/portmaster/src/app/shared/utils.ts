@@ -84,3 +84,7 @@ export function binaryInsert<T>(array: T[], what: T, sortFunc: (a: T, b: T) => n
   array.splice(idx, 0, what)
   return idx;
 }
+
+export function objKeys<T>(obj: T): (keyof T)[] {
+  return Object.keys(obj) as any;
+}

@@ -1,8 +1,7 @@
 import { CommonModule } from "@angular/common";
 import { NgModule } from "@angular/core";
 import { FormsModule } from "@angular/forms";
-import { SfngSelectModule } from "../select";
-import { TipUpModule } from "../tipup";
+import { SfngSelectModule, SfngTipUpModule } from "@safing/ui";
 import { ExpertiseDirective } from "./expertise-directive";
 import { ExpertiseComponent } from "./expertise-switch";
 
@@ -10,7 +9,7 @@ import { ExpertiseComponent } from "./expertise-switch";
   imports: [
     SfngSelectModule,
     CommonModule,
-    TipUpModule,
+    SfngTipUpModule,
     FormsModule,
   ],
   declarations: [

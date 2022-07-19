@@ -19,6 +19,8 @@
 @import 'theme/_table.scss';
 @import 'theme/_pill.scss';
 
+@import 'safing/ui/theming';
+
 *[routerlink] {
   cursor: pointer;
 }

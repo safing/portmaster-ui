@@ -1,13 +1,13 @@
 import { CdkScrollable } from '@angular/cdk/scrolling';
 import { Component, OnDestroy, OnInit, TrackByFunction, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
+import { ConfirmDialogConfig, SfngDialogService } from '@safing/ui';
 import { BehaviorSubject, Observable, of, Subject } from 'rxjs';
 import { debounceTime, mergeMap, takeUntil } from 'rxjs/operators';
 import { DebugAPI, SessionDataService, StatusService } from 'src/app/services';
 import { Issue, SupportHubService } from 'src/app/services/supporthub.service';
 import { ActionIndicatorService } from 'src/app/shared/action-indicator';
 import { fadeInAnimation, fadeInListAnimation, moveInOutAnimation } from 'src/app/shared/animations';
-import { ConfirmDialogConfig, DialogService } from 'src/app/shared/dialog';
 import { FuzzySearchService } from 'src/app/shared/fuzzySearch';
 import { SupportPage, supportTypes } from '../pages';
 
@@ -45,7 +45,7 @@ export class SupportFormComponent implements OnInit, OnDestroy {
     private uai: ActionIndicatorService,
     private debugapi: DebugAPI,
     private statusService: StatusService,
-    private dialog: DialogService,
+    private dialog: SfngDialogService,
     private supporthub: SupportHubService,
     private searchService: FuzzySearchService,
     private sessionService: SessionDataService,

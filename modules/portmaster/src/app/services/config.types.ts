@@ -167,13 +167,13 @@ export interface Annotations<T extends OptionValueType> {
   [key: string]: any;
 }
 
-export interface PossilbeValue {
+export interface PossilbeValue<T = any> {
   /** Name is the name of the value and should be displayed */
   Name: string;
   /** Description may hold an additional description of the value */
   Description: string;
   /** Value is the actual value expected by the portmaster */
-  Value: any;
+  Value: T;
 }
 
 export interface QuickSetting<T extends OptionValueType> {

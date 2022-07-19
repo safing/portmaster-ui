@@ -5,6 +5,6 @@
 </app-multi-switch>
 
 <ng-template #onOffToggle>
-  <app-toggle-switch [ngModel]="getLevel() === SecurityLevels.Normal" (ngModelChange)="setLevel($event)">
-  </app-toggle-switch>
+  <sfng-toggle [ngModel]="getLevel() === SecurityLevels.Normal" (ngModelChange)="setLevel($event)">
+  </sfng-toggle>
 </ng-template>

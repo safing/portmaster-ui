@@ -4,6 +4,7 @@
 /dist
 /tmp
 /out-tsc
+/dist-lib
 # Only exists if Bazel was run
 /bazel-out
 
@@ -32,6 +33,7 @@ speed-measure-plugin*.json
 .history/*
 
 # misc
+/.angular/cache
 /.sass-cache
 /connect.lock
 /coverage

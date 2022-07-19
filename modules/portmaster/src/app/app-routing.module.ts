@@ -1,18 +1,18 @@
 import { NgModule } from '@angular/core';
-import { Routes, RouterModule } from '@angular/router';
-import { SettingsComponent } from './pages/settings/settings';
-import { WidgetSettingsOutletComponent } from './pages/widget-settings-outlet/widget-settings-outlet';
-import { MonitorPageComponent } from './pages/monitor';
+import { RouterModule, Routes } from '@angular/router';
 import { AppViewComponent } from './pages/app-view';
+import { MonitorPageComponent } from './pages/monitor';
+import { SettingsComponent } from './pages/settings/settings';
+import { SpnPageComponent } from './pages/spn';
 import { SupportPageComponent } from './pages/support';
 import { SupportFormComponent } from './pages/support/form';
-import { SpnPageComponent } from './pages/spn';
+import { WidgetSettingsOutletComponent } from './pages/widget-settings-outlet/widget-settings-outlet';
 
 const routes: Routes = [
   {
     path: '',
     pathMatch: 'full',
-    redirectTo: 'monitor/profile/overview/overview'
+    redirectTo: 'monitor',
   },
   {
     path: 'settings',
@@ -33,11 +33,11 @@ const routes: Routes = [
   },
   {
     path: 'monitor',
-    redirectTo: 'monitor/profile/overview/overview',
+    component: MonitorPageComponent,
   },
   {
     path: 'monitor/profile/:source/:profile',
-    component: MonitorPageComponent,
+    redirectTo: 'monitor',
   },
   {
     path: 'widget/new',

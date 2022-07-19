@@ -17,7 +17,7 @@
   </ng-container>
 
   <ng-template #editValue>
-    <input type="text" autofocus [ngModel]="display" (ngModelChange)="setEntity($event)">
+    <input type="text" [ngModel]="display" (ngModelChange)="setEntity($event)">
   </ng-template>
 
   <div class="buttons" *ngIf="!readonly">

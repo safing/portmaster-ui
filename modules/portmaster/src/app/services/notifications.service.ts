@@ -1,12 +1,11 @@
-import { CDK_CONNECTED_OVERLAY_SCROLL_STRATEGY_PROVIDER } from '@angular/cdk/overlay/overlay-directives';
-import { HttpClient, HttpRequest, HttpResponse } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { Injectable, TrackByFunction } from '@angular/core';
 import { Router } from '@angular/router';
-import { BehaviorSubject, combineLatest, defer, Observable, PartialObserver, throwError } from 'rxjs';
-import { delay, filter, map, repeatWhen, multicast, refCount, share, toArray, tap, concatMap, take } from 'rxjs/operators';
+import { BehaviorSubject, combineLatest, defer, Observable, throwError } from 'rxjs';
+import { map, multicast, refCount, toArray } from 'rxjs/operators';
 import { environment } from 'src/environments/environment';
 import { ActionIndicatorService } from '../shared/action-indicator';
-import { Action, ActionHandler, BaseAction, Notification, NotificationState, NotificationType, OpenPageAction, OpenProfileAction, OpenSettingAction, OpenURLAction, PageIDs, WebhookAction } from './notifications.types';
+import { Action, ActionHandler, NetqueryAction, Notification, NotificationState, NotificationType, OpenPageAction, OpenProfileAction, OpenSettingAction, OpenURLAction, PageIDs, WebhookAction } from './notifications.types';
 import { PortapiService } from './portapi.service';
 import { RetryableOpts } from './portapi.types';
 import { VirtualNotification } from './virtual-notification';
@@ -44,7 +43,8 @@ export class NotificationsService {
         if (a.Payload.Profile) {
           return this.router.navigate(['/app', ...a.Payload.Profile.split('/')], {
             queryParams: {
-              setting: a.Payload.Key
+              setting: a.Payload.Key,
+              tab: 'settings'
             }
           })
         }
@@ -63,6 +63,13 @@ export class NotificationsService {
       },
       "ui": (a: ActionHandler<any>) => {
         return a.Run(a);
+      },
+      "netquery": (a: NetqueryAction) => {
+        return this.router.navigate(['/monitor'], {
+          queryParams: {
+            q: a.Payload,
+          }
+        })
       },
       "call-webhook": (a: WebhookAction) => {
         let method = a.Payload.Method;
@@ -244,7 +251,7 @@ export class NotificationsService {
     // if it's a virtual notification we should let it handle the action
     // on it's own.
     if (!!this._virtualNotifications.get(payload.EventID)) {
-      return defer(() => {
+      return defer(async () => {
         const notif = this._virtualNotifications.get(payload.EventID!);
         if (!!notif) {
           notif.selectAction(action.ID);
@@ -262,7 +269,7 @@ export class NotificationsService {
           const key = this.notificationPrefix + payload.EventID;
           await this.portapi.update(key, payload).toPromise();
         }
-      } catch (err) {
+      } catch (err: any) {
         const msg = this.actionIndicator.getErrorMessgae(err);
         this.actionIndicator.error('Internal Error', 'Failed to perform action: ' + msg)
       }

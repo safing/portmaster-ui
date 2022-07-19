@@ -326,3 +326,13 @@ networkRatingSwitch:
         Type: open-page
         Payload: settings
       nextKey: pilot-widget-NetworkRating
+
+spn:
+  title: Safing Privacy Network
+  content: |
+    The Safing Privacy Network (SPN) is a Portmaster Add-On that protects your identity
+    and Internet traffic from prying eyes. It spreads your connections over multiple server,
+    letting you access the Internet from many places at once in order to effectively hide
+    your tracks.
+  url: https://safing.io/spn/
+  urlText: Learn More

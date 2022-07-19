@@ -1,6 +1,6 @@
 <ng-container *ngIf="!showOverview && !!appProfile">
   <!-- Header -->
-  <div class="flex items-center justify-between text-xxs">
+  <div class="flex items-center justify-between p-4 px-12 text-xxs">
     <!-- Breadcrumbs -->
     <div class="flex items-center">
       <a class="text-secondary hover:text-primary" routerLink="/app/overview">Apps</a>
@@ -18,97 +18,99 @@
 
 
   <!-- Application Header -->
-  <div class="flex flex-row items-center w-full py-8">
-    <!-- Application metadata -->
-    <div class="flex flex-col items-start flex-grow space-y-5">
-      <!-- App Name & Icon -->
-      <h1 class="flex flex-row items-center mb-0 text-2xl text-primary">
-        <app-icon [profile]="appProfile" style="--app-icon-size: 3rem"></app-icon>
-        {{appProfile!.Name}}
-      </h1>
-
-      <!-- App Metadata -->
-      <div class="text-tertiary text-xxs">
-        <div class="space-x-2">
-          <span>Path:</span>
-          <span class="text-opacity-75 text-primary">
-            {{ applicationDirectory }}
-          </span>
-        </div>
-        <div class="space-x-2">
-          <span>Binary:</span>
-          <span class="text-opacity-75 text-primary">
-            {{ binaryName }}
-          </span>
-        </div>
-        <div class="space-x-2">
-          <span>Active Connections:</span>
-          <span class="text-opacity-75 text-primary">{{inspected?.processGroup?.countAliveConnections || 0}}</span>
-        </div>
-        <div class="space-x-2">
-          <span>SPN Exits:</span>
-          <span class="text-opacity-75 text-primary">{{inspected?.processGroup?.exitNodeCount || 0}}</span>
-        </div>
-      </div>
-
-      <!-- Quick Settings -->
-      <div class="flex flex-row space-x-3 text-xxs">
-        <app-qs-internet [settings]="allSettings" (save)="saveSetting($event)"></app-qs-internet>
-
-        <app-qs-use-spn [settings]="allSettings" (save)="saveSetting($event)"></app-qs-use-spn>
-
-        <app-tipup key="appSettings-QuickSettings"></app-tipup>
-      </div>
+  <div class="relative p-4 px-12">
+    <div class="absolute top-0 bottom-0 left-0 right-0 opacity-25">
+      <sfng-netquery-line-chart [data]="appChartData" showAxis="false" class="h-full"></sfng-netquery-line-chart>
     </div>
 
-    <!-- Statistics -->
-    <div class="flex flex-row items-center justify-end flex-grow pr-8 space-x-4"
-      *ngIf="!!inspected && inspected.processGroup.size > 0">
-      <div class="flex flex-col items-center justify-center w-32 h-24 bg-gray-300 rounded shadow">
-        <h2 class="p-0 m-0 text-xl text-primary">{{ (100 / inspected.processGroup.size) *
-          inspected.stats.countAccepted
-          | number:'1.0-1' }}%</h2>
-        <span class="text-secondary">Allowed</span>
+    <div class="relative z-10 flex flex-row items-center w-full py-8">
+      <!-- Application metadata -->
+      <div class="flex flex-col items-start flex-grow space-y-5">
+        <!-- App Name & Icon -->
+        <h1 class="flex flex-row items-center mb-0 text-2xl text-primary">
+          <app-icon [profile]="appProfile" style="--app-icon-size: 3rem"></app-icon>
+          {{appProfile!.Name}}
+        </h1>
+
+        <!-- App Metadata -->
+        <div class="text-tertiary text-xxs">
+          <div class="space-x-2">
+            <span>Path:</span>
+            <span class="text-opacity-75 text-primary">
+              {{ applicationDirectory }}
+            </span>
+          </div>
+          <div class="space-x-2">
+            <span>Binary:</span>
+            <span class="text-opacity-75 text-primary">
+              {{ binaryName }}
+            </span>
+          </div>
+          <div class="space-x-2">
+            <span>Active Connections:</span>
+            <span class="text-opacity-75 text-primary">{{stats?.countAliveConnections || 0}}</span>
+          </div>
+        </div>
+
+        <!-- Quick Settings -->
+        <div class="flex flex-row space-x-3 text-xxs">
+          <app-qs-internet [settings]="allSettings" (save)="saveSetting($event)">
+          </app-qs-internet>
+
+          <app-qs-use-spn [settings]="allSettings" (save)="saveSetting($event)">
+          </app-qs-use-spn>
+
+          <sfng-tipup key="appSettings-QuickSettings"></sfng-tipup>
+        </div>
       </div>
 
-      <div class="flex flex-col items-center justify-center w-32 h-24 bg-gray-400 rounded shadow">
-        <h2 class="p-0 m-0 text-xl text-primary">{{ inspected.processGroup.size | prettyCount }}</h2>
-        <span class="text-secondary">Connections</span>
-      </div>
+      <!-- Statistics -->
+      <div class="flex flex-row items-center justify-end flex-grow pr-8 space-x-4" *ngIf="!!stats && stats.size > 0">
+        <div
+          class="flex flex-col items-center justify-center w-32 h-24 bg-gray-300 border border-gray-300 rounded shadow bg-opacity-90">
+          <h2 class="p-0 m-0 text-xl text-primary">{{ (100 / stats!.size) *
+            stats!.countAllowed
+            | number:'1.0-1' }}%</h2>
+          <span class="text-secondary">Allowed</span>
+        </div>
 
-      <div class="flex flex-col items-center justify-center w-32 h-24 bg-gray-300 rounded shadow">
-        <h2 class="p-0 m-0 text-xl text-primary">{{ (100 / inspected.processGroup.size) * (inspected.processGroup.size
-          -
-          inspected.stats.countAccepted) | number:'1.0-1' }}%</h2>
-        <span class="text-secondary">Blocked</span>
+        <div
+          class="flex flex-col items-center justify-center w-32 h-24 bg-gray-400 bg-opacity-75 border border-gray-400 rounded shadow">
+          <h2 class="p-0 m-0 text-xl text-primary">{{ stats!.size | prettyCount }}</h2>
+          <span class="text-secondary">Connections</span>
+        </div>
+
+        <div
+          class="flex flex-col items-center justify-center w-32 h-24 bg-gray-300 bg-opacity-75 border border-gray-300 rounded shadow">
+          <h2 class="p-0 m-0 text-xl text-primary">{{ (100 / stats!.size) * (stats!.size
+            - stats!.countAllowed) | number:'1.0-1' }}%</h2>
+          <span class="text-secondary">Blocked</span>
+        </div>
       </div>
     </div>
   </div>
 
-  <app-tab-group class="flex flex-col flex-grow w-full overflow-hidden">
+  <sfng-tab-group class="flex flex-col flex-grow w-full p-4 px-12 overflow-hidden">
     <!-- Connections -->
-    <app-tab id="connections" title="Connections">
-      <div *appTabContent>
-        <app-connections-view [profile]="inspected" [@fadeIn]
-          [displayMode]="sessionDataService.get('monitor:displayMode', 'grouped')"
-          (displayModeChange)="sessionDataService.set('monitor:displayMode', $event)"
-          [liveMode]="sessionDataService.get('monitor:liveMode', false)"
-          (liveModeChange)="sessionDataService.set('monitor:liveMode', $event)">
-        </app-connections-view>
+    <sfng-tab id="connections" title="Connections">
+      <div *sfngTabContent>
+        <sfng-netquery-viewer [filters]="['as_owner', 'country', 'domain']"
+          [mergeFilter]="{profile: appProfile.Source + '/' + appProfile.ID}">
+        </sfng-netquery-viewer>
       </div>
-    </app-tab>
+    </sfng-tab>
 
     <!-- App Settings -->
-    <app-tab id="settings" title="Settings">
-      <div *appTabContent class="py-4 overflow-auto" cdkScrollable>
+    <sfng-tab id="settings" title="Settings">
+      <div *sfngTabContent class="py-4 overflow-auto" cdkScrollable>
 
         <div class="flex flex-row items-center pr-2 mb-4 space-x-4">
           <input type="text" [(ngModel)]="searchTerm" placeholder="Search Settings">
 
           <div tipUpAnchor="left" class="flex space-x-2 flex-rows">
-            <app-tipup key="appSettings-Filter"></app-tipup>
+            <sfng-tipup key="appSettings-Filter"></sfng-tipup>
             <sfng-select [ngModel]="viewSetting" (ngModelChange)="viewSettingChange.next($event)"
-              tipUpTrigger="appSettings-Filter" tipUpAnchor="left" tipUpPassive>
+              sfngTipUpTrigger="appSettings-Filter" tipUpAnchor="left" sfngTipUpPassive>
               <sfng-select-item *sfngSelectValue="'all'">
                 View All
               </sfng-select-item>
@@ -122,7 +124,7 @@
         <div class="flex items-center text-tertiary">
           <div class="inline-flex items-center" tipUpAnchor=>
             <span class="mr-3 text-xxs">App Specific Settings</span>
-            <app-tipup key="appSettings"></app-tipup>
+            <sfng-tipup key="appSettings"></sfng-tipup>
           </div>
         </div>
 
@@ -155,11 +157,11 @@
           </div>
         </ng-template>
       </div>
-    </app-tab>
+    </sfng-tab>
 
     <!-- Details -->
-    <app-tab id="details" title="Details" [warning]="displayWarning">
-      <div *appTabContent class="py-4 space-y-8 overflow-auto" cdkScrollable>
+    <sfng-tab id="details" title="Details" [warning]="displayWarning">
+      <div *sfngTabContent class="py-4 space-y-8 overflow-auto" cdkScrollable>
 
         <div class="grid grid-cols-2 gap-4 text-primary text-xxs">
           <div class="flex flex-col justify-center p-4 bg-gray-200 rounded">
@@ -204,13 +206,14 @@
             <div class="flex flex-col justify-center p-4 bg-gray-200 rounded">
               <p class="space-x-2">
                 <label class="text-secondary">Revision:</label>
-                <span>{{inspected?.currentProfileRevision}}</span>
+                <span>{{layeredProfile?.RevisionCounter}}</span>
               </p>
               <p class="space-x-2">
                 <label class="text-secondary">Layers:</label>
                 <span>
                   <ol class="inline-block">
-                    <li *ngFor="let layer of inspected?.layers" [routerLink]="['/', 'app'].concat(layer.split('/'))">
+                    <li *ngFor="let layer of layeredProfile?.LayerIDs"
+                      [routerLink]="['/', 'app'].concat(layer.split('/'))">
                       {{layer}}
                     </li>
                   </ol>
@@ -252,7 +255,8 @@
           <markdown emoji [data]="appProfile.Warning"
             class="self-stretch block w-auto h-auto p-4 ml-2 border-l text-secondary border-yellow">
           </markdown>
-          <span class="text-tertiary text-xxs" *ngIf="appProfile?.WarningLastUpdated">updated {{ appProfile.WarningLastUpdated | timeAgo }}</span>
+          <span class="text-tertiary text-xxs" *ngIf="appProfile?.WarningLastUpdated">updated
+            {{ appProfile.WarningLastUpdated | timeAgo }}</span>
         </div>
 
 
@@ -297,8 +301,8 @@
           <button class="block mt-2" (click)="copyDebugInfo()">Copy Debug Information</button>
         </div>
       </div>
-    </app-tab>
-  </app-tab-group>
+    </sfng-tab>
+  </sfng-tab-group>
 </ng-container>
 
-<app-settings-overview *ngIf="showOverview"></app-settings-overview>
+<app-settings-overview *ngIf="showOverview" class="p-4 px-12"></app-settings-overview>

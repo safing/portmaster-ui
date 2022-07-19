@@ -28,7 +28,7 @@
 
   <div class="buttons">
     <span>
-      <button type="button" [disabled]="!portal || !config || !dirty" (click)="saveWidget()">Save</button>
+      <button type="button" [disabled]="!config || !dirty" (click)="saveWidget()">Save</button>
       <button type="button" (click)="cancel()">Cancel</button>
     </span>
     <button type="button" *ngIf="isEdit" class="bg-info-red" (click)="deleteWidget()">Delete Widget</button>

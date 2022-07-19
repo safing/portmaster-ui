@@ -1,7 +1,7 @@
 import { OverlayModule } from "@angular/cdk/overlay";
 import { CommonModule } from "@angular/common";
 import { NgModule } from "@angular/core";
-import { SfngDropDownModule } from "../dropdown/dropdown.module";
+import { SfngDropDownModule } from "@safing/ui";
 import { MenuComponent, MenuGroupComponent, MenuItemComponent, MenuTriggerComponent } from "./menu";
 
 @NgModule({

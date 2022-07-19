@@ -1,5 +1,5 @@
-<app-tipup key="uiMode" placement="left" [anchor]="host"></app-tipup>
-<sfng-select [ngModel]="(currentLevel | async)" (ngModelChange)="selectLevel($event)">
+<sfng-tipup key="uiMode" placement="left" [anchor]="host"></sfng-tipup>
+<sfng-select [ngModel]="(currentLevel | async)" (ngModelChange)="selectLevel($event)" mode="single" sortItems="false">
   <sfng-select-item *sfngSelectValue="expertiseLevels.User">
     Simple Interface
   </sfng-select-item>

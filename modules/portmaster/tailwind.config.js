@@ -1,15 +1,10 @@
 module.exports = {
-  purge: ['./src/**/*.html', './src/**/*.ts'],
-  prefix: '',
-  important: false,
-  separator: ':',
+  mode: 'jit',
+  content: [
+    './src/**/*.{html,scss,ts}',
+    './projects/safing/ui/**/*.{html,scss,ts}'
+  ],
   theme: {
-    screens: {
-      sm: '640px',
-      md: '768px',
-      lg: '1024px',
-      xl: '1280px',
-    },
     colors: {
       transparent: 'transparent',
       current: 'currentColor',
@@ -77,6 +72,25 @@ module.exports = {
         yellow: 'var(--info-yellow)',
       },
     },
+    textColor: theme => {
+      return {
+        primary: theme('colors.white'),
+        secondary: theme('colors.gray.700'),
+        tertiary: theme('colors.gray.600'),
+
+        ...theme('colors'),
+      }
+    },
+    extend: {
+      boxShadow: {
+        xs: '0 0 0 1px rgba(0, 0, 0, 0.05)',
+        'inner-xs': 'inset 0 2px 4px 0 rgba(0, 0, 0, 0.16)',
+      },
+      fontSize: {
+        xxs: '0.7rem',
+      }
+    }
+    /*
     spacing: {
       px: '1px',
       '0': '0',
@@ -314,6 +328,7 @@ module.exports = {
       '25': '0.25',
       '50': '0.5',
       '75': '0.75',
+      '90': '0.9',
       '100': '1',
     },
     order: {
@@ -347,15 +362,6 @@ module.exports = {
       '0': '0',
       '1': '1',
       '2': '2',
-    },
-    textColor: theme => {
-      return {
-        primary: theme('colors.white'),
-        secondary: theme('colors.gray.700'),
-        tertiary: theme('colors.gray.600'),
-
-        ...theme('colors'),
-      }
     },
     textOpacity: theme => theme('opacity'),
     width: theme => ({
@@ -709,7 +715,7 @@ module.exports = {
     transitionDuration: ['responsive'],
     transitionDelay: ['responsive'],
     animation: ['responsive'],
+    */
   },
-  corePlugins: {},
   plugins: []
 }

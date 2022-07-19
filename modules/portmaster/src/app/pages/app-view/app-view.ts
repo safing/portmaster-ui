@@ -1,14 +1,14 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { ChangeDetectorRef, Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { BehaviorSubject, combineLatest, Observable, of, Subscription } from 'rxjs';
-import { delayWhen, distinctUntilChanged, filter, switchMap, withLatestFrom } from 'rxjs/operators';
-import { AppProfile, ConfigService, DebugAPI, FlatConfigObject, flattenProfileConfig, isDefaultValue, SessionDataService, setAppSetting, Setting } from 'src/app/services';
+import { SfngDialogService } from '@safing/ui';
+import { BehaviorSubject, combineLatest, interval, Observable, of, Subscription } from 'rxjs';
+import { distinctUntilChanged, map, mergeMap, startWith, switchMap } from 'rxjs/operators';
+import { AppProfile, ChartResult, ConfigService, DebugAPI, FlatConfigObject, flattenProfileConfig, IProfileStats, LayeredProfile, Netquery, SessionDataService, setAppSetting, Setting } from 'src/app/services';
 import { AppProfileService } from 'src/app/services/app-profile.service';
-import { ConnTracker, InspectedProfile } from 'src/app/services/connection-tracker.service';
 import { ActionIndicatorService } from 'src/app/shared/action-indicator';
 import { fadeInAnimation, fadeOutAnimation } from 'src/app/shared/animations';
 import { SaveSettingEvent } from 'src/app/shared/config/generic-setting/generic-setting';
-import { DialogService } from 'src/app/shared/dialog';
+import { SfngNetqueryViewer } from 'src/app/shared/netquery';
 
 @Component({
   templateUrl: './app-view.html',
@@ -19,8 +19,17 @@ import { DialogService } from 'src/app/shared/dialog';
   ]
 })
 export class AppViewComponent implements OnInit, OnDestroy {
+  @ViewChild(SfngNetqueryViewer)
+  netqueryViewer?: SfngNetqueryViewer;
+
   /** subscription to our update-process observable */
   private subscription = Subscription.EMPTY;
+
+  /**
+   * @private
+   * The current chart data
+   */
+  appChartData: ChartResult[] = [];
 
   /**
    * @private
@@ -84,6 +93,18 @@ export class AppViewComponent implements OnInit, OnDestroy {
    */
   displayWarning = false;
 
+  /**
+   * @private
+   * The current profile statistics
+   */
+  stats: IProfileStats | null = null;
+
+  /**
+   * @private
+   * The internal, layered profile if the app is active
+   */
+  layeredProfile: LayeredProfile | null = null;
+
   /** Used to track whether we are already initialized */
   private _loading = true;
 
@@ -96,32 +117,16 @@ export class AppViewComponent implements OnInit, OnDestroy {
     return this.viewSettingChange.getValue();
   };
 
-  /**
-   * @private
-   * True if the currently selected app profile is running and has
-   * network connections.
-   */
-  get isActive() {
-    return this.connTrack.inspected !== null;
-  }
-
-  /**
-   * @private
-   * The inspected application profile, if any.
-   */
-  get inspected(): InspectedProfile | null {
-    return this.connTrack.inspected;
-  }
-
   constructor(
     public sessionDataService: SessionDataService,
     private profileService: AppProfileService,
     private route: ActivatedRoute,
-    private connTrack: ConnTracker,
+    private netquery: Netquery,
+    private cdr: ChangeDetectorRef,
     private configService: ConfigService,
     private router: Router,
     private actionIndicator: ActionIndicatorService,
-    private dialog: DialogService,
+    private dialog: SfngDialogService,
     private debugAPI: DebugAPI,
   ) { }
 
@@ -169,8 +174,8 @@ export class AppViewComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     // watch the route parameters and start watching the referenced
-    // application profile.
-    const profileStream: Observable<AppProfile | null>
+    // application profile, it's layer profile and polling the stats.
+    const profileStream: Observable<[AppProfile, LayeredProfile | null, IProfileStats | null] | null>
       = this.route.paramMap
         .pipe(
           switchMap(params => {
@@ -184,13 +189,28 @@ export class AppViewComponent implements OnInit, OnDestroy {
             }
             this._loading = true;
 
+            this.appChartData = [];
+            this.appProfile = null;
+            this.stats = null;
+
             // Start watching the application profile.
             // switchMap will unsubscribe automatically if
             // we start watching a different profile.
-            return this.profileService.watchAppProfile(source, id);
+            return combineLatest([
+              this.profileService.watchAppProfile(source, id),
+              this.profileService.watchLayeredProfile(source, id)
+                .pipe(startWith(null)),
+              interval(10000)
+                .pipe(
+                  startWith(-1),
+                  mergeMap(() => this.netquery.getProfileStats({
+                    profile: `${source}/${id}`,
+                  }).pipe(map(result => result?.[0]))),
+                  startWith(null),
+                )
+            ])
           })
         );
-
 
     this.subscription =
       combineLatest([
@@ -200,16 +220,37 @@ export class AppViewComponent implements OnInit, OnDestroy {
         this.configService.query(""),         // get ALL settings (once, only the defintion is of intereset)
         this.viewSettingChange.pipe(          // watch the current "settings-view" setting, but only if it changes
           distinctUntilChanged(),
-        )
+        ),
       ])
         .subscribe(async ([profile, queryMap, global, allSettings, viewSetting]) => {
-          this.appProfile = profile;
+          if (!!profile) {
+            this.netquery.activeConnectionChart({
+              profile: profile![0].Source + "/" + profile![0].ID,
+            })
+              .subscribe(data => {
+                this.appChartData = data;
+                this.cdr.markForCheck();
+              })
+
+            this.appProfile = profile[0] || null;
+            this.layeredProfile = profile[1] || null;
+            this.stats = profile[2] || null;
+          } else {
+            this.appProfile = null;
+            this.layeredProfile = null;
+            this.stats = null;
+          }
+
           this.displayWarning = false;
 
           if (this.appProfile?.WarningLastUpdated) {
             const now = new Date().getTime()
             const diff = now - new Date(this.appProfile.WarningLastUpdated).getTime()
             this.displayWarning = diff < 1000 * 60 * 60 * 24 * 7;
+          }
+
+          if (!!this.netqueryViewer && this._loading) {
+            this.netqueryViewer.performSearch();
           }
 
           this._loading = false;
@@ -239,8 +280,8 @@ export class AppViewComponent implements OnInit, OnDestroy {
 
           // if we have a profile flatten it's configuration map to something
           // more useful.
-          if (!!profile) {
-            profileConfig = flattenProfileConfig(profile!.Config);
+          if (!!this.appProfile) {
+            profileConfig = flattenProfileConfig(this.appProfile.Config);
           }
 
           // if we should highlight a setting make sure to switch the
@@ -263,10 +304,7 @@ export class AppViewComponent implements OnInit, OnDestroy {
             }
           }
 
-          if (!!profile) {
-            // Tell the connection track to start watching the current profile.
-            this.connTrack.inspect(profile.ID);
-
+          if (!!this.appProfile) {
             // filter the settings and remove all settings that are not
             // profile specific (i.e. not part of the global config). Also
             // update the current settings value (from the app profile) and
@@ -293,12 +331,9 @@ export class AppViewComponent implements OnInit, OnDestroy {
                 return isModified;
               });
             this.allSettings = [...allSettings];
-
-          } else {
-            // there's no profile to view so tell the connection-tracker
-            // to stop watching the previous one.
-            this.connTrack.clearInspection();
           }
+
+          this.cdr.markForCheck();
         });
   }
 
@@ -325,7 +360,6 @@ export class AppViewComponent implements OnInit, OnDestroy {
 
   ngOnDestroy() {
     this.subscription.unsubscribe();
-    this.connTrack.clearInspection();
   }
 
   /**

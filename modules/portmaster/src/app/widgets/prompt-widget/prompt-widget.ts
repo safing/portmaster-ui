@@ -1,5 +1,4 @@
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, HostBinding, OnDestroy, OnInit } from '@angular/core';
-import { parse } from 'psl';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, HostBinding, OnDestroy, OnInit, TrackByFunction } from '@angular/core';
 import { combineLatest, forkJoin, Observable, Subscription } from 'rxjs';
 import { map, switchMap } from 'rxjs/operators';
 import { Action, AppProfile, AppProfileService, ConnectionPrompt, NotificationsService, NotificationType } from 'src/app/services';
@@ -54,6 +53,8 @@ export class PromptWidgetComponent implements OnInit, OnDestroy {
     private profileService: AppProfileService,
     public notifService: NotificationsService,
   ) { }
+
+  trackPrompts: TrackByFunction<ExtendedConnectionPrompt> = this.notifService.trackBy;
 
   ngOnInit() {
     // filter the stream of all notifications to only emit

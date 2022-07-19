@@ -42,11 +42,24 @@ export class AppProfileService {
   /**
    * Load an application profile.
    *
+   * @param sourceAndId The full profile ID including source
+   */
+  getAppProfile(sourceAndId: string): Observable<AppProfile>;
+
+  /**
+   * Load an application profile.
+   *
    * @param source The source of the profile
    * @param id The ID of the profile
    */
-  getAppProfile(source: string, id: string): Observable<AppProfile> {
-    const key = `core:profiles/${source}/${id}`;
+  getAppProfile(source: string, id: string): Observable<AppProfile>;
+
+  getAppProfile(sourceOrSourceAndID: string, id?: string): Observable<AppProfile> {
+    let source = sourceOrSourceAndID;
+    if (id !== undefined) {
+      source += "/" + id
+    }
+    const key = `core:profiles/${source}`
     return this.getAppProfileFromKey(key);
   }
 
@@ -102,6 +115,26 @@ export class AppProfileService {
     return this.portapi.watchAll<AppProfile>('core:profiles/')
   }
 
+  watchLayeredProfile(source: string, id: string): Observable<LayeredProfile>;
+
+  /**
+   * Watches the layered runtime profile for a given application
+   * profile.
+   *
+   * @param profile The app profile
+   */
+  watchLayeredProfile(profile: AppProfile): Observable<LayeredProfile>;
+
+  watchLayeredProfile(profileOrSource: string | AppProfile, id?: string): Observable<LayeredProfile> {
+    if (typeof profileOrSource == "object") {
+      id = profileOrSource.ID;
+      profileOrSource = profileOrSource.Source;
+    }
+
+    const key = `runtime:layeredProfile/${profileOrSource}/${id}`;
+    return this.portapi.watch<LayeredProfile>(key);
+  }
+
   /**
    * Loads the layered runtime profile for a given application
    * profile.
@@ -110,7 +143,6 @@ export class AppProfileService {
    */
   getLayeredProfile(profile: AppProfile): Observable<LayeredProfile> {
     const key = `runtime:layeredProfile/${profile.Source}/${profile.ID}`;
-    console.log(key);
     return this.portapi.get<LayeredProfile>(key);
   }
 

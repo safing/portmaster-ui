@@ -13,6 +13,8 @@ import { FaIconLibrary, FontAwesomeModule } from '@fortawesome/angular-fontaweso
 import { faGithub } from '@fortawesome/free-brands-svg-icons';
 import { far } from '@fortawesome/free-regular-svg-icons';
 import { fas } from '@fortawesome/free-solid-svg-icons';
+import { OverlayStepperModule, SfngAccordionModule, SfngDialogModule, SfngDropDownModule, SfngPaginationModule, SfngSelectModule, SfngTipUpModule, SfngToggleSwitchModule, SfngTooltipModule, TabModule, UiModule } from '@safing/ui';
+import MyYamlFile from 'js-yaml-loader!../i18n/helptexts.yaml';
 import { MarkdownModule } from 'ngx-markdown';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
@@ -21,22 +23,18 @@ import { NavigationComponent } from './layout/navigation/navigation';
 import { SideDashComponent } from './layout/side-dash/side-dash';
 import { AppOverviewComponent, AppViewComponent, QuickSettingInternetButtonComponent } from './pages/app-view';
 import { QuickSettingUseSPNButtonComponent } from './pages/app-view/qs-use-spn/qs-use-spn';
-import { MonitorApplicationViewComponent, MonitorPageComponent, NetworkOverviewComponent } from './pages/monitor';
+import { MonitorPageComponent } from './pages/monitor';
 import { SettingsComponent } from './pages/settings/settings';
 import { SpnPageComponent } from './pages/spn';
 import { SupportPageComponent } from './pages/support';
 import { SupportFormComponent } from './pages/support/form';
 import { WidgetSettingsOutletComponent } from './pages/widget-settings-outlet/widget-settings-outlet';
-import { SfngAccordionModule } from './shared/accordion';
+import { NotificationsService } from './services';
 import { ActionIndicatorModule } from './shared/action-indicator';
-import { AppIconComponent } from './shared/app-icon';
+import { SfngAppIconModule } from './shared/app-icon';
 import { ConfigModule } from './shared/config';
-import { CanShowConnection as CanShowConnectionPipe, CanUseRulesPipe, ConnectionExpertisePipe, ConnectionLocationPipe, ConnectionsViewComponent, IsBlockedConnectionPipe, ScopeGroupContentComponent, UngroupedConnectionContentComponent, UngroupedConnectionRowComponent } from './shared/connections-view';
-import { CountIndicatorComponent } from './shared/count-indicator/count-indicator';
-import { PrettyCountPipe } from './shared/count.pipe';
-import { CountryFlagDirective } from './shared/country-flag/country-flag';
-import { DialogModule } from './shared/dialog';
-import { SfngDropDownModule } from './shared/dropdown/dropdown.module';
+import { CountIndicatorModule } from './shared/count-indicator';
+import { CountryFlagModule } from './shared/country-flag';
 import { ExitScreenComponent } from './shared/exit-screen/exit-screen';
 import { ExpertiseModule } from './shared/expertise/expertise.module';
 import { ExternalLinkDirective } from './shared/external-link.directive';
@@ -45,19 +43,12 @@ import { FuzzySearchPipe } from './shared/fuzzySearch';
 import { LoadingComponent } from './shared/loading';
 import { SfngMenuModule } from './shared/menu';
 import { SfngMultiSwitchModule } from './shared/multi-switch';
+import { NetqueryModule } from './shared/netquery';
 import { NotificationComponent } from './shared/notification/notification';
-import { OverlayStepperModule } from './shared/overlay-stepper';
-import { PaginationContentDirective, PaginationWrapperComponent } from './shared/pagination';
-import { ProfileStatisticsComponent } from './shared/profile-stats';
-import { ScopeLabelComponent } from './shared/scope-label';
-import { SfngSelectModule } from './shared/select';
-import { TabModule } from './shared/tabs/tabs.module';
+import { CommonPipesModule } from './shared/pipes';
 import { PlaceholderComponent } from './shared/text-placeholder';
-import { TimeAgoPipe } from './shared/time-ago.pipe';
-import { TipUpModule } from './shared/tipup';
-import { SfngToggleSwitchModule } from './shared/toggle-switch';
-import { SfngTooltipModule } from './shared/tooltip';
 import { MarkdownWidgetComponent, MarkdownWidgetSettingsComponent } from './widgets/markdown-widget';
+import { NetworkActivityWidget } from './widgets/network-activity-widget';
 import { NotificationWidgetComponent, NotificationWidgetSettingsComponent } from './widgets/notification-widget';
 import { PilotWidgetComponent } from './widgets/pilot-widget';
 import { PromptWidgetComponent } from './widgets/prompt-widget';
@@ -72,7 +63,6 @@ import { WIDGET_DEFINTIONS } from './widgets/widget.types';
     MonitorPageComponent,
     SideDashComponent,
     NavigationComponent,
-    ConnectionsViewComponent,
     WidgetSettingsOutletComponent,
     StatusWidgetComponent,
     StatusWidgetSettingsComponent,
@@ -80,41 +70,23 @@ import { WIDGET_DEFINTIONS } from './widgets/widget.types';
     StatusWidgetComponent,
     StatusWidgetSettingsComponent,
     MarkdownWidgetSettingsComponent,
-    ProfileStatisticsComponent,
     MarkdownWidgetComponent,
     NotificationWidgetSettingsComponent,
     NotificationWidgetComponent,
     FuzzySearchPipe,
-    TimeAgoPipe,
-    MonitorApplicationViewComponent,
-    CountIndicatorComponent,
     AppViewComponent,
     QuickSettingInternetButtonComponent,
     QuickSettingUseSPNButtonComponent,
-    CountryFlagDirective,
     AppOverviewComponent,
     PlaceholderComponent,
-    AppIconComponent,
-    NetworkOverviewComponent,
     PromptWidgetComponent,
     LoadingComponent,
     ExternalLinkDirective,
-    ScopeLabelComponent,
-    ScopeGroupContentComponent,
-    UngroupedConnectionContentComponent,
-    UngroupedConnectionRowComponent,
-    ConnectionExpertisePipe,
-    ConnectionLocationPipe,
-    PrettyCountPipe,
-    CanUseRulesPipe,
-    CanShowConnectionPipe,
-    IsBlockedConnectionPipe,
     ExitScreenComponent,
     SupportPageComponent,
     SupportFormComponent,
-    PaginationWrapperComponent,
-    PaginationContentDirective,
     SpnPageComponent,
+    NetworkActivityWidget,
   ],
   imports: [
     BrowserModule,
@@ -132,10 +104,10 @@ import { WIDGET_DEFINTIONS } from './widgets/widget.types';
     ScrollingModule,
     SfngAccordionModule,
     TabModule,
-    TipUpModule,
+    SfngTipUpModule.forRoot(MyYamlFile, NotificationsService),
     SfngTooltipModule,
     ActionIndicatorModule,
-    DialogModule,
+    SfngDialogModule,
     OverlayStepperModule,
     IntroModule,
     SfngDropDownModule,
@@ -144,8 +116,15 @@ import { WIDGET_DEFINTIONS } from './widgets/widget.types';
     SfngMenuModule,
     SfngFocusModule,
     SfngToggleSwitchModule,
+    SfngPaginationModule,
+    SfngAppIconModule,
     ExpertiseModule,
     ConfigModule,
+    CountryFlagModule,
+    CountIndicatorModule,
+    NetqueryModule,
+    CommonPipesModule,
+    UiModule,
   ],
   providers: [
     {
@@ -197,6 +176,15 @@ import { WIDGET_DEFINTIONS } from './widgets/widget.types';
         widgetComponent: PromptWidgetComponent,
       },
       multi: true,
+    },
+    {
+      provide: WIDGET_DEFINTIONS,
+      useValue: {
+        type: 'network-scout',
+        name: 'Network Scout',
+        widgetComponent: NetworkActivityWidget
+      },
+      multi: true
     }
   ],
   bootstrap: [AppComponent]

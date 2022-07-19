@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component } from "@angular/core";
+import { Step } from "@safing/ui";
 import { of } from "rxjs";
-import { Step } from "src/app/shared/overlay-stepper";
 
 @Component({
   templateUrl: './step-4-tipups.html',

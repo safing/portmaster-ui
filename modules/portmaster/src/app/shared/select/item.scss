@@ -1,8 +1,0 @@
-:host {
-  @apply text-xxs font-medium text-primary;
-
-}
-
-:host(.disabled) {
-  @apply opacity-75 cursor-not-allowed;
-}

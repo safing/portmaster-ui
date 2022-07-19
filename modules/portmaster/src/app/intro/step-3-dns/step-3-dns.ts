@@ -1,9 +1,9 @@
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef } from "@angular/core";
+import { Step } from "@safing/ui";
 import { of, Subject } from "rxjs";
 import { mergeMap, takeUntil } from "rxjs/operators";
-import { Setting, ConfigService, QuickSetting, applyQuickSetting } from "src/app/services";
+import { applyQuickSetting, ConfigService, QuickSetting, Setting } from "src/app/services";
 import { SaveSettingEvent } from "src/app/shared/config/generic-setting";
-import { Step } from "src/app/shared/overlay-stepper";
 
 interface QuickSettingModel extends QuickSetting<any> {
   active: boolean;
