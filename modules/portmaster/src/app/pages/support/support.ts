@@ -47,7 +47,15 @@ export class SupportPageComponent implements OnInit, OnDestroy {
         debounceTime(200),
       )
       .subscribe(([searchTerm, allFaqEntries]) => {
-        this.allFaqEntries = allFaqEntries.filter(issue => issue.labels?.includes("faq"))
+        this.allFaqEntries = allFaqEntries
+          .filter(issue => issue.labels?.includes("faq"))
+          .map(issue => {
+            return {
+              ...issue,
+
+              title: issue.title.replace("FAQ: ", "")
+            }
+          })
 
         if (searchTerm === '') {
           this.faqEntries = [
