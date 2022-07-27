@@ -1,28 +1,31 @@
-import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+import { Inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { environment as env } from '../../environments/environment';
+import { PORTMASTER_HTTP_API_ENDPOINT } from './portapi.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class DebugAPI {
-  constructor(private http: HttpClient) { }
+  constructor(
+    private http: HttpClient,
+    @Inject(PORTMASTER_HTTP_API_ENDPOINT) private httpAPI: string,
+  ) { }
 
   ping(): Observable<string> {
-    return this.http.get(`${env.httpAPI}/v1/ping`, {
+    return this.http.get(`${this.httpAPI}/v1/ping`, {
       responseType: 'text'
     })
   }
 
   getStack(): Observable<string> {
-    return this.http.get(`${env.httpAPI}/v1/debug/stack`, {
+    return this.http.get(`${this.httpAPI}/v1/debug/stack`, {
       responseType: 'text'
     })
   }
 
   getDebugInfo(style = 'github'): Observable<string> {
-    return this.http.get(`${env.httpAPI}/v1/debug/info`, {
+    return this.http.get(`${this.httpAPI}/v1/debug/info`, {
       params: {
         style,
       },
@@ -31,7 +34,7 @@ export class DebugAPI {
   }
 
   getCoreDebugInfo(style = 'github'): Observable<string> {
-    return this.http.get(`${env.httpAPI}/v1/debug/core`, {
+    return this.http.get(`${this.httpAPI}/v1/debug/core`, {
       params: {
         style,
       },
@@ -40,7 +43,7 @@ export class DebugAPI {
   }
 
   getProfileDebugInfo(source: string, id: string, style = 'github'): Observable<string> {
-    return this.http.get(`${env.httpAPI}/v1/debug/network`, {
+    return this.http.get(`${this.httpAPI}/v1/debug/network`, {
       params: {
         profile: `${source}/${id}`,
         style,

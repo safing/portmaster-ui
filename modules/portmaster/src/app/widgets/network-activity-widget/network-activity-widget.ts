@@ -1,8 +1,7 @@
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnDestroy, OnInit } from "@angular/core";
+import { ExpertiseLevel, IProfileStats, Netquery } from "@safing/portmaster-api";
 import { BehaviorSubject, combineLatest, interval, Subject } from "rxjs";
 import { startWith, switchMap, takeUntil } from "rxjs/operators";
-import { ExpertiseLevel, Netquery } from "src/app/services";
-import { IProfileStats } from "src/app/services/netquery.service";
 import { moveInOutListAnimation } from "src/app/shared/animations";
 import { ExpertiseService } from "src/app/shared/expertise";
 

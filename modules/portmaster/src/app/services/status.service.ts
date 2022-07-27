@@ -1,8 +1,7 @@
 import { Injectable, TrackByFunction } from '@angular/core';
-import { PortapiService, RetryableOpts, WatchOpts } from '@safing/portmaster-api';
+import { PortapiService, RetryableOpts, SecurityLevel, trackById, WatchOpts } from '@safing/portmaster-api';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { delay, filter, map, multicast, refCount, repeatWhen, toArray } from 'rxjs/operators';
-import { SecurityLevel, trackById } from './core.types';
 import { CoreStatus, Subsystem, VersionStatus } from './status.types';
 
 @Injectable({

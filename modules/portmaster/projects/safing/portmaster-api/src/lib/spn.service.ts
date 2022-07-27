@@ -1,11 +1,9 @@
 import { HttpClient, HttpParams, HttpResponse } from "@angular/common/http";
-import { Injectable } from "@angular/core";
-import { PortapiService } from '@safing/portmaster-api';
+import { Inject, Injectable } from "@angular/core";
 import { BehaviorSubject, Observable } from "rxjs";
 import { filter, multicast, refCount } from "rxjs/operators";
-import { environment } from "src/environments/environment";
-import { SPNStatus } from ".";
-import { Pin, UserProfile } from "./spn.types";
+import { PortapiService, PORTMASTER_HTTP_API_ENDPOINT } from './portapi.service';
+import { Pin, SPNStatus, UserProfile } from "./spn.types";
 
 @Injectable({ providedIn: 'root' })
 export class SPNService {
@@ -16,6 +14,7 @@ export class SPNService {
   constructor(
     private portapi: PortapiService,
     private http: HttpClient,
+    @Inject(PORTMASTER_HTTP_API_ENDPOINT) private httpAPI: string,
   ) {
     this.status$ = this.portapi.watch<SPNStatus>('runtime:spn/status')
       .pipe(
@@ -47,7 +46,7 @@ export class SPNService {
    *  Logs into the SPN user account
    */
   login({ username, password }: { username: string, password: string }): Observable<HttpResponse<string>> {
-    return this.http.post(`${environment.httpAPI}/v1/spn/account/login`, undefined, {
+    return this.http.post(`${this.httpAPI}/v1/spn/account/login`, undefined, {
       headers: {
         Authorization: `Basic ${this.b64EncodeUnicode(username + ':' + password)}`
       },
@@ -66,7 +65,7 @@ export class SPNService {
     if (!!purge) {
       params.set("purge", "true")
     }
-    return this.http.delete(`${environment.httpAPI}/v1/spn/account/logout`, {
+    return this.http.delete(`${this.httpAPI}/v1/spn/account/logout`, {
       params,
       responseType: 'text',
       observe: 'response'
@@ -84,7 +83,7 @@ export class SPNService {
     if (!!refresh) {
       params = params.set("refresh", true)
     }
-    return this.http.get<UserProfile>(`${environment.httpAPI}/v1/spn/account/user/profile`, {
+    return this.http.get<UserProfile>(`${this.httpAPI}/v1/spn/account/user/profile`, {
       params
     });
   }

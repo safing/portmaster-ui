@@ -1,12 +1,11 @@
 import { HttpClient } from "@angular/common/http";
-import { Injectable } from "@angular/core";
-import { PortapiService } from '@safing/portmaster-api';
+import { Inject, Injectable } from "@angular/core";
 import { forkJoin, Observable } from "rxjs";
 import { map, mergeMap } from "rxjs/operators";
-import { environment as env } from '../../environments/environment';
 import { AppProfileService } from "./app-profile.service";
 import { AppProfile } from "./app-profile.types";
 import { DNSContext, IPScope, Reason, TLSContext, TunnelContext, Verdict } from "./network.types";
+import { PortapiService, PORTMASTER_HTTP_API_ENDPOINT } from "./portapi.service";
 
 export interface FieldSelect {
   field: string;
@@ -163,15 +162,16 @@ export class Netquery {
     private http: HttpClient,
     private profileService: AppProfileService,
     private portapi: PortapiService,
+    @Inject(PORTMASTER_HTTP_API_ENDPOINT) private httpAPI: string,
   ) { }
 
   query(query: Query): Observable<QueryResult[]> {
-    return this.http.post<{ results: QueryResult[] }>(`${env.httpAPI}/v1/netquery/query`, query)
+    return this.http.post<{ results: QueryResult[] }>(`${this.httpAPI}/v1/netquery/query`, query)
       .pipe(map(res => res.results || []));
   }
 
   activeConnectionChart(cond: Condition, textSearch?: TextSearch): Observable<ChartResult[]> {
-    return this.http.post<{ results: ChartResult[] }>(`${env.httpAPI}/v1/netquery/charts/connection-active`, {
+    return this.http.post<{ results: ChartResult[] }>(`${this.httpAPI}/v1/netquery/charts/connection-active`, {
       query: cond,
       textSearch,
     })

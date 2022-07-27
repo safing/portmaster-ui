@@ -1,6 +1,4 @@
-import { Record } from '@safing/portmaster-api';
-import { getEnumKey } from './core.types';
-import { IntelEntity } from './network.types';
+import { getEnumKey, IntelEntity, Record } from '@safing/portmaster-api';
 
 /**
  * BaseAction defines a user selectable action and can

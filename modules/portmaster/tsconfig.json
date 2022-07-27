@@ -30,6 +30,7 @@
     ],
     "types": [
       "./src/electron-app.d.ts",
+      "chrome"
     ]
   },
   "angularCompilerOptions": {

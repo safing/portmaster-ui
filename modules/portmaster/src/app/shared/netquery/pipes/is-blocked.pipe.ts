@@ -1,5 +1,5 @@
 import { Pipe, PipeTransform } from '@angular/core';
-import { IsDenied, NetqueryConnection } from 'src/app/services';
+import { IsDenied, NetqueryConnection } from '@safing/portmaster-api';
 
 @Pipe({
   name: "isBlocked",

@@ -1,5 +1,5 @@
 import { Pipe, PipeTransform } from '@angular/core';
-import { IsGlobalScope, IsLANScope, IsLocalhost, NetqueryConnection } from 'src/app/services';
+import { IsGlobalScope, IsLANScope, IsLocalhost, NetqueryConnection } from '@safing/portmaster-api';
 
 @Pipe({
   name: 'connectionLocation',

@@ -2,7 +2,7 @@ import { ListKeyManagerOption } from '@angular/cdk/a11y';
 import { coerceBooleanProperty } from '@angular/cdk/coercion';
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, forwardRef, HostListener, Input, OnChanges, SimpleChanges } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
-import { IntSetting, parseSupportedValues, SecurityLevel } from 'src/app/services';
+import { IntSetting, parseSupportedValues, SecurityLevel } from '@safing/portmaster-api';
 
 class SecuritySetting implements ListKeyManagerOption {
   constructor(

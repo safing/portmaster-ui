@@ -251,7 +251,7 @@ export function retryPipeline<T>({ retryDelay, maxRetries }: RetryableOpts = {})
         // conditional observable seletion, throwError if i > maxRetries
         // or a retryDelay otherwise
         () => i > (maxRetries || Infinity),
-        throwError(e),
+        throwError(() => e),
         of(e).pipe(delay(retryDelay || 1000))
       )
     )

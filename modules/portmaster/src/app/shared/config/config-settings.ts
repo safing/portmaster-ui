@@ -1,9 +1,10 @@
 import { coerceBooleanProperty } from '@angular/cdk/coercion';
 import { ScrollDispatcher } from '@angular/cdk/overlay';
 import { AfterViewInit, ChangeDetectorRef, Component, ElementRef, EventEmitter, Input, OnDestroy, OnInit, Output, QueryList, TrackByFunction, ViewChildren } from '@angular/core';
+import { ConfigService, ExpertiseLevelNumber, releaseLevelFromName, Setting } from '@safing/portmaster-api';
 import { BehaviorSubject, combineLatest, Subscription } from 'rxjs';
 import { debounceTime } from 'rxjs/operators';
-import { ConfigService, ExpertiseLevelNumber, releaseLevelFromName, Setting, StatusService, Subsystem } from 'src/app/services';
+import { StatusService, Subsystem } from 'src/app/services';
 import { fadeInAnimation, fadeInListAnimation, fadeOutAnimation } from 'src/app/shared/animations';
 import { FuzzySearchService } from 'src/app/shared/fuzzySearch';
 import { ExpertiseLevelOverwrite } from '../expertise/expertise-directive';

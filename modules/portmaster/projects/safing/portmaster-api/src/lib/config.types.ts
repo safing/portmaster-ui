@@ -1,5 +1,5 @@
-import { Record } from '@safing/portmaster-api';
-import { deepClone } from '../shared/utils';
+import { Record } from './portapi.types';
+import { deepClone } from './utils';
 
 /**
  * ExpertiseLevel defines all available expertise levels.

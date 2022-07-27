@@ -1,4 +1,4 @@
-import { Condition, Matcher } from "src/app/services";
+import { Condition, Matcher } from "@safing/portmaster-api";
 import { objKeys } from "../utils";
 
 export const connectionFieldTranslation: { [key: string]: string } = {

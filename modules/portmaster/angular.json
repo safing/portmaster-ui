@@ -130,6 +130,15 @@
               "devServerTarget": "portmaster:serve:production"
             }
           }
+        },
+        "lint": {
+          "builder": "@angular-eslint/builder:lint",
+          "options": {
+            "lintFilePatterns": [
+              "src/**/*.ts",
+              "src/**/*.html"
+            ]
+          }
         }
       }
     },
@@ -161,6 +170,15 @@
             "tsConfig": "projects/safing/ui/tsconfig.spec.json",
             "karmaConfig": "projects/safing/ui/karma.conf.js"
           }
+        },
+        "lint": {
+          "builder": "@angular-eslint/builder:lint",
+          "options": {
+            "lintFilePatterns": [
+              "projects/safing/ui/**/*.ts",
+              "projects/safing/ui/**/*.html"
+            ]
+          }
         }
       }
     },
@@ -176,9 +194,12 @@
       "prefix": "app",
       "architect": {
         "build": {
-          "builder": "@angular-devkit/build-angular:browser",
+          "builder": "@angular-builders/custom-webpack:browser",
           "options": {
-            "outputPath": "dist/portmaster-chrome-extension",
+            "customWebpackConfig": {
+              "path": "./browser-extension.config.ts"
+            },
+            "outputPath": "dist-extension",
             "index": "projects/portmaster-chrome-extension/src/index.html",
             "main": "projects/portmaster-chrome-extension/src/main.ts",
             "polyfills": "projects/portmaster-chrome-extension/src/polyfills.ts",
@@ -220,9 +241,12 @@
                   "with": "projects/portmaster-chrome-extension/src/environments/environment.prod.ts"
                 }
               ],
-              "outputHashing": "all"
+              "outputHashing": "none"
             },
             "development": {
+              "customWebpackConfig": {
+                "path": "./browser-extension-dev.config.ts"
+              },
               "buildOptimizer": false,
               "optimization": false,
               "vendorChunk": true,

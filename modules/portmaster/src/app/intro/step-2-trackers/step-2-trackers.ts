@@ -1,8 +1,8 @@
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, OnDestroy, OnInit } from "@angular/core";
+import { ConfigService, Setting } from "@safing/portmaster-api";
 import { Step } from "@safing/ui";
 import { of, Subject } from "rxjs";
 import { mergeMap, takeUntil } from "rxjs/operators";
-import { ConfigService, Setting } from "src/app/services";
 import { SaveSettingEvent } from "src/app/shared/config/generic-setting";
 
 @Component({

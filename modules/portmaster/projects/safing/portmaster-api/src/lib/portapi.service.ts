@@ -1,5 +1,5 @@
 import { HttpClient } from '@angular/common/http';
-import { Inject, Injectable, InjectionToken, isDevMode, NgZone, Optional } from '@angular/core';
+import { Inject, Injectable, InjectionToken, isDevMode, NgZone } from '@angular/core';
 import { BehaviorSubject, Observable, Observer, of } from 'rxjs';
 import { concatMap, delay, filter, map, retryWhen, takeWhile, tap } from 'rxjs/operators';
 import { WebSocketSubject } from 'rxjs/webSocket';
@@ -45,8 +45,8 @@ export class PortapiService {
     private websocketFactory: WebsocketService,
     private ngZone: NgZone,
     private http: HttpClient,
-    @Inject(PORTMASTER_HTTP_API_ENDPOINT) @Optional() private httpEndpoint: string = 'http://localhost:817/api',
-    @Inject(PORTMASTER_WS_API_ENDPOINT) @Optional() private wsEndpoint: string = 'ws://localhost:817/api/database/v1',
+    @Inject(PORTMASTER_HTTP_API_ENDPOINT) private httpEndpoint: string,
+    @Inject(PORTMASTER_WS_API_ENDPOINT) private wsEndpoint: string,
   ) {
 
     // create a new websocket connection that will auto-connect
@@ -148,15 +148,17 @@ export class PortapiService {
         'DNS Cache Cleared',
         'Failed to Clear DNS Cache.',
       ))
+    */
   }
 
   /** Reset the broadcast notifications state */
   resetBroadcastState(): void {
-    this.http.post(`${environment.httpAPI}/v1/broadcasts/reset-state`, undefined, { observe: 'response', responseType: 'arraybuffer' })
-      .subscribe(this.uai.httpObserver(
-        'Broadcast State Cleared',
-        'Failed to Reset Broadcast State.',
-      ))
+    this.http.post(`${this.httpEndpoint}/v1/broadcasts/reset-state`, undefined, { observe: 'response', responseType: 'arraybuffer' })
+    /*
+    .subscribe(this.uai.httpObserver(
+      'Broadcast State Cleared',
+      'Failed to Reset Broadcast State.',
+    ))
     */
   }
 

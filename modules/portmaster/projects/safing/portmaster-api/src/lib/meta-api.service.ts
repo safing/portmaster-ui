@@ -64,7 +64,7 @@ export class MetaAPI {
       .set("read", read)
       .set("write", write)
 
-    return this.http.get<AuthKeyResponse>(`${this.httpEndpoint}/v1/app/profile`, { params })
+    return this.http.get<AuthKeyResponse>(`${this.httpEndpoint}/v1/app/auth`, { params })
   }
 
   login(bearer: string): Observable<boolean>;

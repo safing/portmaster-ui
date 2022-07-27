@@ -1,5 +1,5 @@
-import { Record } from '@safing/portmaster-api';
-import { GeoCoordinates, IntelEntity } from ".";
+import { GeoCoordinates, IntelEntity } from './network.types';
+import { Record } from './portapi.types';
 
 export interface SPNStatus extends Record {
   Status: 'failed' | 'disabled' | 'connecting' | 'connected';

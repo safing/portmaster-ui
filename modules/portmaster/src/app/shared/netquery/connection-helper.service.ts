@@ -1,11 +1,10 @@
 import { DOCUMENT } from '@angular/common';
 import { Inject, Injectable, Renderer2 } from '@angular/core';
 import { Router } from '@angular/router';
+import { AppProfile, AppProfileService, ConfigService, deepClone, getAppSetting, IPScope, NetqueryConnection, PossilbeValue, QueryResult, setAppSetting, Verdict } from '@safing/portmaster-api';
 import { BehaviorSubject, combineLatest, Observable, OperatorFunction, Subject } from 'rxjs';
 import { distinctUntilChanged, map, switchMap, takeUntil } from 'rxjs/operators';
-import { AppProfile, AppProfileService, ConfigService, getAppSetting, IPScope, NetqueryConnection, PossilbeValue, QueryResult, setAppSetting, Verdict } from 'src/app/services';
 import { ActionIndicatorService } from '../action-indicator';
-import { deepClone } from '../utils';
 import { SfngSearchbarFields } from './searchbar';
 
 @Injectable()

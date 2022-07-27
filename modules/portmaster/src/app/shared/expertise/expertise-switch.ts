@@ -1,6 +1,6 @@
-import { Component, ElementRef, OnInit } from '@angular/core';
+import { Component, ElementRef } from '@angular/core';
+import { ExpertiseLevel } from '@safing/portmaster-api';
 import { ExpertiseService } from './expertise.service';
-import { ExpertiseLevel } from 'src/app/services';
 
 @Component({
   selector: 'app-expertise',

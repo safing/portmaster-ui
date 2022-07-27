@@ -1,6 +1,6 @@
-import { Record } from '@safing/portmaster-api';
 import { BaseSetting, OptionValueType, SettingValueType } from './config.types';
 import { SecurityLevel } from './core.types';
+import { Record } from './portapi.types';
 
 export interface ConfigMap {
   [key: string]: ConfigObject;

@@ -1,6 +1,7 @@
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, Inject, OnInit } from '@angular/core';
+import { ConfigService, SecurityLevel, SPNService } from '@safing/portmaster-api';
 import { combineLatest } from 'rxjs';
-import { ConfigService, FailureStatus, SecurityLevel, SPNService, StatusService, Subsystem } from 'src/app/services';
+import { FailureStatus, StatusService, Subsystem } from 'src/app/services';
 import { WidgetConfig, WIDGET_CONFIG } from '../widget.types';
 
 interface SecurityOption {

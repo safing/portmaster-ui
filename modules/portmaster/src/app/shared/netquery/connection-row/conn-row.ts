@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, Input, OnDestroy, OnInit } from "@angular/core";
+import { AppProfile, IPScope, NetqueryConnection, Verdict } from "@safing/portmaster-api";
 import { interval, Subscription } from "rxjs";
 import { share, startWith } from "rxjs/operators";
-import { AppProfile, AppProfileService, IPScope, NetqueryConnection, Verdict } from "src/app/services";
 import { NetqueryHelper } from "../connection-helper.service";
 
 interface ProfileAttachedConnection extends NetqueryConnection {

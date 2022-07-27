@@ -1,7 +1,7 @@
 import { coerceBooleanProperty, coerceCssPixelValue } from '@angular/cdk/coercion';
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, forwardRef, HostBinding, Input } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
-import { PossilbeValue } from 'src/app/services';
+import { PossilbeValue } from '@safing/portmaster-api';
 import { fadeInListAnimation } from '../../animations';
 import { NetqueryHelper } from '../connection-helper.service';
 

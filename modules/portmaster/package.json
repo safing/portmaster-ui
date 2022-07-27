@@ -4,13 +4,17 @@
   "scripts": {
     "ng": "ng",
     "start": "npm install && ng serve --proxy-config ./proxy.json",
-    "serve": "ng serve --proxy-config ./proxy.json",
-    "build:dev": "ng build @safing/ui && ng build",
+    "build-libs": "NODE_ENV=production ng build --configuration production @safing/ui && NODE_ENV=production ng build --configuration production @safing/portmaster-api",
+    "build-libs:dev": "ng build --configuration development @safing/ui && ng build --configuration development @safing/portmaster-api",
+    "serve": "npm run build-libs:dev && ng serve --proxy-config ./proxy.json",
+    "build:dev": "npm run build-libs:dev && ng build",
     "test": "ng test",
     "lint": "ng lint",
     "e2e": "ng e2e",
     "zip-dist": "node pack.js",
-    "build": "NODE_ENV=production ng build --configuration production @safing/ui && NODE_ENV=production ng build --configuration production --base-href /ui/modules/portmaster/ --deploy-url /ui/modules/portmaster/"
+    "chrome-extension": "NODE_ENV=production ng build --configuration production portmaster-chrome-extension",
+    "chrome-extension:dev": "ng build --configuration development portmaster-chrome-extension --watch",
+    "build": "npm run build-libs && NODE_ENV=production ng build --configuration production --base-href /ui/modules/portmaster/ --deploy-url /ui/modules/portmaster/"
   },
   "private": true,
   "dependencies": {
@@ -43,10 +47,17 @@
     "zone.js": "^0.11.6"
   },
   "devDependencies": {
+    "@angular-builders/custom-webpack": "^14.0.0",
     "@angular-devkit/build-angular": "^14.0.5",
+    "@angular-eslint/builder": "14.0.2",
+    "@angular-eslint/eslint-plugin": "14.0.2",
+    "@angular-eslint/eslint-plugin-template": "14.0.2",
+    "@angular-eslint/schematics": "14.0.2",
+    "@angular-eslint/template-parser": "14.0.2",
     "@angular/cli": "^14.0.5",
     "@angular/compiler-cli": "^14.0.5",
     "@fullhuman/postcss-purgecss": "^4.1.3",
+    "@types/chrome": "^0.0.193",
     "@types/d3": "^7.4.0",
     "@types/jasmine": "^4.0.3",
     "@types/jasminewd2": "~2.0.10",
@@ -54,7 +65,10 @@
     "@types/psl": "^1.1.0",
     "@types/topojson-client": "^3.1.1",
     "@types/topojson-simplify": "^3.0.1",
+    "@typescript-eslint/eslint-plugin": "5.29.0",
+    "@typescript-eslint/parser": "5.29.0",
     "codelyzer": "^6.0.2",
+    "eslint": "^8.18.0",
     "jasmine-core": "^4.2.0",
     "jasmine-spec-reporter": "^7.0.0",
     "js-yaml-loader": "^1.2.2",
@@ -73,6 +87,7 @@
     "tslint": "~6.1.0",
     "typescript": "~4.7.4",
     "webpack-bundle-analyzer": "^4.5.0",
+    "webpack-ext-reloader": "^1.1.9",
     "zip-a-folder": "^1.1.5"
   }
 }
