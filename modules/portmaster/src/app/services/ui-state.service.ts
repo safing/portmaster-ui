@@ -1,8 +1,7 @@
 import { Injectable } from "@angular/core";
+import { PortapiService, Record } from '@safing/portmaster-api';
 import { Observable, of } from "rxjs";
 import { catchError } from "rxjs/operators";
-import { PortapiService } from "./portapi.service";
-import { Record } from './portapi.types';
 
 export interface UIState extends Record {
   hideExitScreen?: boolean;

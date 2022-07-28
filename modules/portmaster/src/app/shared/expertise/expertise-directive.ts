@@ -1,6 +1,6 @@
 import { Directive, EmbeddedViewRef, Input, isDevMode, OnDestroy, OnInit, TemplateRef, ViewContainerRef } from '@angular/core';
+import { ExpertiseLevelNumber } from '@safing/portmaster-api';
 import { Subscription } from 'rxjs';
-import { ExpertiseLevelNumber } from 'src/app/services';
 import { ExpertiseService } from './expertise.service';
 
 // ExpertiseLevelOverwrite may be called to display a DOM node decorated

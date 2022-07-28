@@ -1,13 +1,12 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable, TrackByFunction } from '@angular/core';
 import { Router } from '@angular/router';
+import { PortapiService, RetryableOpts } from '@safing/portmaster-api';
 import { BehaviorSubject, combineLatest, defer, Observable, throwError } from 'rxjs';
 import { map, multicast, refCount, toArray } from 'rxjs/operators';
 import { environment } from 'src/environments/environment';
 import { ActionIndicatorService } from '../shared/action-indicator';
 import { Action, ActionHandler, NetqueryAction, Notification, NotificationState, NotificationType, OpenPageAction, OpenProfileAction, OpenSettingAction, OpenURLAction, PageIDs, WebhookAction } from './notifications.types';
-import { PortapiService } from './portapi.service';
-import { RetryableOpts } from './portapi.types';
 import { VirtualNotification } from './virtual-notification';
 
 @Injectable({

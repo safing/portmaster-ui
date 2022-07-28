@@ -1,5 +1,5 @@
 import { Pipe, PipeTransform } from "@angular/core";
-import { ExpertiseLevel, NetqueryConnection } from "src/app/services";
+import { ExpertiseLevel, NetqueryConnection } from "@safing/portmaster-api";
 
 
 @Pipe({

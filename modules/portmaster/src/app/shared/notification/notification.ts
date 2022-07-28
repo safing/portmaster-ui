@@ -1,6 +1,6 @@
 import { coerceBooleanProperty } from '@angular/cdk/coercion';
-import { Component, OnInit, OnDestroy, Input, ChangeDetectionStrategy, Output, EventEmitter, HostBinding } from '@angular/core';
-import { Notification, NotificationState, getNotificationTypeString, NotificationsService, Action } from '../../services';
+import { ChangeDetectionStrategy, Component, EventEmitter, HostBinding, Input, OnInit, Output } from '@angular/core';
+import { Action, getNotificationTypeString, Notification, NotificationsService, NotificationState } from '../../services';
 
 @Component({
   selector: 'app-notification',

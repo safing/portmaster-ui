@@ -13,6 +13,7 @@ import { FaIconLibrary, FontAwesomeModule } from '@fortawesome/angular-fontaweso
 import { faGithub } from '@fortawesome/free-brands-svg-icons';
 import { far } from '@fortawesome/free-regular-svg-icons';
 import { fas } from '@fortawesome/free-solid-svg-icons';
+import { PortmasterAPIModule } from '@safing/portmaster-api';
 import { OverlayStepperModule, SfngAccordionModule, SfngDialogModule, SfngDropDownModule, SfngPaginationModule, SfngSelectModule, SfngTipUpModule, SfngToggleSwitchModule, SfngTooltipModule, TabModule, UiModule } from '@safing/ui';
 import MyYamlFile from 'js-yaml-loader!../i18n/helptexts.yaml';
 import { MarkdownModule } from 'ngx-markdown';
@@ -125,6 +126,7 @@ import { WIDGET_DEFINTIONS } from './widgets/widget.types';
     NetqueryModule,
     CommonPipesModule,
     UiModule,
+    PortmasterAPIModule.forRoot(),
   ],
   providers: [
     {

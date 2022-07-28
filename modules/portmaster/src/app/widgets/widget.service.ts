@@ -1,9 +1,8 @@
 import { Injectable, TrackByFunction } from '@angular/core';
-import { PortapiService } from '../services/portapi.service';
-import { combineLatest, Observable, of, throwError } from 'rxjs';
+import { PortapiService, Record } from '@safing/portmaster-api';
+import { combineLatest, Observable, throwError } from 'rxjs';
+import { catchError, map } from 'rxjs/operators';
 import { WidgetConfig } from './widget.types';
-import { catchError, map, startWith, tap } from 'rxjs/operators';
-import { Record } from '../services/portapi.types';
 
 export interface WidgetOrder extends Record {
   order: string[];

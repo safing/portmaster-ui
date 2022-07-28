@@ -1,11 +1,11 @@
 import { Overlay } from '@angular/cdk/overlay';
 import { ChangeDetectorRef, Component, HostListener, NgZone, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
+import { PortapiService } from '@safing/portmaster-api';
 import { OverlayStepper, SfngDialogService, StepperRef } from '@safing/ui';
 import { debounceTime, filter, mergeMap, skip, startWith, take } from 'rxjs/operators';
 import { IntroModule } from './intro';
 import { Notification, NotificationsService, NotificationType, UIStateService } from './services';
-import { PortapiService } from './services/portapi.service';
 import { ActionIndicator, ActionIndicatorService } from './shared/action-indicator';
 import { fadeInAnimation, fadeOutAnimation } from './shared/animations';
 import { ExitService } from './shared/exit-screen';

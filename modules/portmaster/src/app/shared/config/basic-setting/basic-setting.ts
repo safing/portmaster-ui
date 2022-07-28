@@ -2,7 +2,7 @@ import { coerceBooleanProperty } from '@angular/cdk/coercion';
 import { DOCUMENT } from '@angular/common';
 import { AfterViewChecked, ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, EventEmitter, forwardRef, Inject, Input, Output, ViewChild } from '@angular/core';
 import { AbstractControl, ControlValueAccessor, NgModel, NG_VALIDATORS, NG_VALUE_ACCESSOR, ValidationErrors, Validator } from '@angular/forms';
-import { BaseSetting, ExternalOptionHint, parseSupportedValues, SettingValueType, WellKnown } from 'src/app/services';
+import { BaseSetting, ExternalOptionHint, parseSupportedValues, SettingValueType, WellKnown } from '@safing/portmaster-api';
 
 @Component({
   selector: 'app-basic-setting',

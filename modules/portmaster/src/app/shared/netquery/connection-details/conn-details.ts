@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, Input, OnChanges, OnDestroy, OnInit, SimpleChanges } from "@angular/core";
+import { IPProtocol, IPScope, IsDenied, IsDNSRequest, NetqueryConnection, Verdict } from "@safing/portmaster-api";
 import { Subscription } from "rxjs";
-import { IPProtocol, IPScope, IsDenied, IsDNSRequest, NetqueryConnection, Verdict } from "src/app/services";
 import { NetqueryHelper } from "../connection-helper.service";
 
 @Component({

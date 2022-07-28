@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, Input, OnChanges, OnDestroy, OnInit, Output, SimpleChanges } from "@angular/core";
+import { BoolSetting, ConfigService, getActualValue, Setting } from "@safing/portmaster-api";
 import { Subject } from "rxjs";
 import { takeUntil } from "rxjs/operators";
-import { BoolSetting, ConfigService, getActualValue, Setting } from "src/app/services";
 import { SaveSettingEvent } from "src/app/shared/config/generic-setting/generic-setting";
 
 const interferingSettingsWhenOn = [
@@ -32,7 +32,7 @@ export class QuickSettingUseSPNButtonComponent implements OnInit, OnDestroy, OnC
   constructor(
     private configService: ConfigService,
     private cdr: ChangeDetectorRef
-  ) {}
+  ) { }
 
   ngOnChanges(changes: SimpleChanges): void {
     if ('settings' in changes) {

@@ -1,10 +1,10 @@
 import { ChangeDetectorRef, Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
+import { AppProfile, AppProfileService, ChartResult, ConfigService, DebugAPI, FlatConfigObject, flattenProfileConfig, IProfileStats, LayeredProfile, Netquery, setAppSetting, Setting } from '@safing/portmaster-api';
 import { SfngDialogService } from '@safing/ui';
 import { BehaviorSubject, combineLatest, interval, Observable, of, Subscription } from 'rxjs';
 import { distinctUntilChanged, map, mergeMap, startWith, switchMap } from 'rxjs/operators';
-import { AppProfile, ChartResult, ConfigService, DebugAPI, FlatConfigObject, flattenProfileConfig, IProfileStats, LayeredProfile, Netquery, SessionDataService, setAppSetting, Setting } from 'src/app/services';
-import { AppProfileService } from 'src/app/services/app-profile.service';
+import { SessionDataService } from 'src/app/services';
 import { ActionIndicatorService } from 'src/app/shared/action-indicator';
 import { fadeInAnimation, fadeOutAnimation } from 'src/app/shared/animations';
 import { SaveSettingEvent } from 'src/app/shared/config/generic-setting/generic-setting';

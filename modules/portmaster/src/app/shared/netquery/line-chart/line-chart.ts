@@ -1,8 +1,8 @@
 import { coerceBooleanProperty, coerceNumberProperty } from '@angular/cdk/coercion';
 import { AfterViewInit, Component, ElementRef, Input, OnChanges, OnInit, SimpleChanges } from '@angular/core';
+import { ChartResult } from '@safing/portmaster-api';
 import * as d3 from 'd3';
 import { Selection } from 'd3';
-import { ChartResult } from 'src/app/services';
 import { timeAgo } from '../../pipes';
 
 @Component({

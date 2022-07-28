@@ -3,7 +3,7 @@
 // and cannot be "fixed" by creating a new allow/deny
 
 import { Pipe, PipeTransform } from "@angular/core";
-import { Connection, IsDenied, NetqueryConnection } from "src/app/services";
+import { IsDenied, NetqueryConnection } from "@safing/portmaster-api";
 
 // rule.
 let optionKeys = new Set([

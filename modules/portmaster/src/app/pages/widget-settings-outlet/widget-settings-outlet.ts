@@ -1,11 +1,11 @@
 import { CdkPortalOutletAttachedRef, ComponentPortal } from '@angular/cdk/portal';
 import { ChangeDetectorRef, Component, Inject, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { Observable, of, Subscription } from 'rxjs';
+import { deepClone } from '@safing/portmaster-api';
+import { Subscription } from 'rxjs';
+import { switchMap, take } from 'rxjs/operators';
 import { WidgetService } from '../../widgets/widget.service';
 import { WidgetDefinition, WidgetFactory, WIDGET_DEFINTIONS } from '../../widgets/widget.types';
-import { deepClone } from '../../shared/utils';
-import { map, switchMap, switchMapTo, take, throwIfEmpty } from 'rxjs/operators';
 
 @Component({
   selector: 'app-settings-outlet',

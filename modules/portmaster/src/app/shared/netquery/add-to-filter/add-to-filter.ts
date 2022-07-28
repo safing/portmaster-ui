@@ -1,6 +1,6 @@
 import { ChangeDetectorRef, Directive, HostBinding, HostListener, Input, OnDestroy, OnInit } from "@angular/core";
+import { NetqueryConnection } from "@safing/portmaster-api";
 import { Subscription } from "rxjs";
-import { NetqueryConnection } from "src/app/services";
 import { NetqueryHelper } from "../connection-helper.service";
 
 @Directive({

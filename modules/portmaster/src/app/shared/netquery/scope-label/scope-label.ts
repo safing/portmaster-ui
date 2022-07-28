@@ -1,7 +1,6 @@
 import { ChangeDetectionStrategy, Component, Input, OnChanges, SimpleChanges } from '@angular/core';
+import { ScopeTranslation } from '@safing/portmaster-api';
 import { parseDomain } from '../../utils';
-import { ScopeTranslation } from 'src/app/services';
-import { coerceBooleanProperty } from '@angular/cdk/coercion';
 
 @Component({
   selector: 'sfng-netquery-scope-label',

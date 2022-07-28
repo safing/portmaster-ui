@@ -1,7 +1,7 @@
-import { ChangeDetectorRef, Injectable } from '@angular/core';
+import { Injectable } from '@angular/core';
+import { ConfigService, ExpertiseLevel, StringSetting } from '@safing/portmaster-api';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { delay, distinctUntilChanged, map, repeatWhen, share } from 'rxjs/operators';
-import { ConfigService, ExpertiseLevel, StringSetting } from '../../services';
 
 @Injectable({
   providedIn: 'root'

@@ -1,7 +1,8 @@
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, HostBinding, OnDestroy, OnInit, TrackByFunction } from '@angular/core';
+import { AppProfile, AppProfileService } from '@safing/portmaster-api';
 import { combineLatest, forkJoin, Observable, Subscription } from 'rxjs';
 import { map, switchMap } from 'rxjs/operators';
-import { Action, AppProfile, AppProfileService, ConnectionPrompt, NotificationsService, NotificationType } from 'src/app/services';
+import { Action, ConnectionPrompt, NotificationsService, NotificationType } from 'src/app/services';
 import { moveInOutAnimation, moveInOutListAnimation } from 'src/app/shared/animations';
 import { ParsedDomain, parseDomain } from 'src/app/shared/utils';
 

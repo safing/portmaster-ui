@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, HostBinding, Input } from '@angular/core';
 import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
+import { AppProfileService } from '@safing/portmaster-api';
 import { switchMap } from 'rxjs/operators';
-import { AppProfileService } from '../../services';
 
 // Interface that must be satisfied for the profile-input
 // of app-icon.

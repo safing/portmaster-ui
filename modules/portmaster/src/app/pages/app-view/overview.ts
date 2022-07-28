@@ -1,7 +1,7 @@
 import { ChangeDetectorRef, Component, OnDestroy, OnInit, TrackByFunction } from '@angular/core';
+import { AppProfile, AppProfileService, Netquery, trackById } from '@safing/portmaster-api';
 import { BehaviorSubject, combineLatest, Subscription } from 'rxjs';
-import { debounceTime, map, startWith } from 'rxjs/operators';
-import { AppProfile, AppProfileService, Netquery, trackById } from 'src/app/services';
+import { debounceTime, startWith } from 'rxjs/operators';
 import { fadeInAnimation, fadeInListAnimation, moveInOutListAnimation } from 'src/app/shared/animations';
 import { FuzzySearchService } from 'src/app/shared/fuzzySearch';
 

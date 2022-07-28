@@ -2,12 +2,11 @@ import { coerceBooleanProperty } from '@angular/cdk/coercion';
 import { TemplatePortal } from '@angular/cdk/portal';
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, HostBinding, Input, OnDestroy, OnInit, Output, TemplateRef, ViewChild, ViewContainerRef } from '@angular/core';
 import { NgModel } from '@angular/forms';
+import { applyQuickSetting, BaseSetting, ConfigService, ExpertiseLevelNumber, ExternalOptionHint, OptionType, PortapiService, QuickSetting, ReleaseLevel, SettingValueType, WellKnown } from '@safing/portmaster-api';
 import { SfngDialogRef, SfngDialogService } from '@safing/ui';
 import { Button } from 'js-yaml-loader!../../../i18n/helptexts.yaml';
 import { Subject, Subscription } from 'rxjs';
 import { debounceTime } from 'rxjs/operators';
-import { applyQuickSetting, BaseSetting, ConfigService, ExpertiseLevelNumber, ExternalOptionHint, OptionType, QuickSetting, ReleaseLevel, SettingValueType, WellKnown } from 'src/app/services';
-import { PortapiService } from 'src/app/services/portapi.service';
 import { fadeInAnimation, fadeOutAnimation } from '../../animations';
 import { ExpertiseService } from '../../expertise/expertise.service';
 

@@ -1,8 +1,8 @@
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef } from "@angular/core";
+import { applyQuickSetting, ConfigService, QuickSetting, Setting } from "@safing/portmaster-api";
 import { Step } from "@safing/ui";
 import { of, Subject } from "rxjs";
 import { mergeMap, takeUntil } from "rxjs/operators";
-import { applyQuickSetting, ConfigService, QuickSetting, Setting } from "src/app/services";
 import { SaveSettingEvent } from "src/app/shared/config/generic-setting";
 
 interface QuickSettingModel extends QuickSetting<any> {

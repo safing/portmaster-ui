@@ -1,7 +1,4 @@
-import { getEnumKey } from './core.types';
-import { IntelEntity } from './network.types';
-import { Record } from './portapi.types';
-import { VirtualNotification } from './virtual-notification';
+import { getEnumKey, IntelEntity, Record } from '@safing/portmaster-api';
 
 /**
  * BaseAction defines a user selectable action and can

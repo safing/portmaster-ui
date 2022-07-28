@@ -1,6 +1,6 @@
-import { Injectable } from '@angular/core'
-import Fuse from 'fuse.js'
-import { deepClone } from '../utils';
+import { Injectable } from '@angular/core';
+import { deepClone } from '@safing/portmaster-api';
+import Fuse from 'fuse.js';
 
 export type FuseResult<T> = Fuse.FuseResult<T & {
   highlighted?: string;

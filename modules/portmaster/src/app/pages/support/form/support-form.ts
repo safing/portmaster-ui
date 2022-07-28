@@ -1,10 +1,11 @@
 import { CdkScrollable } from '@angular/cdk/scrolling';
 import { Component, OnDestroy, OnInit, TrackByFunction, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
+import { DebugAPI } from '@safing/portmaster-api';
 import { ConfirmDialogConfig, SfngDialogService } from '@safing/ui';
 import { BehaviorSubject, Observable, of, Subject } from 'rxjs';
 import { debounceTime, mergeMap, takeUntil } from 'rxjs/operators';
-import { DebugAPI, SessionDataService, StatusService } from 'src/app/services';
+import { SessionDataService, StatusService } from 'src/app/services';
 import { Issue, SupportHubService } from 'src/app/services/supporthub.service';
 import { ActionIndicatorService } from 'src/app/shared/action-indicator';
 import { fadeInAnimation, fadeInListAnimation, moveInOutAnimation } from 'src/app/shared/animations';
