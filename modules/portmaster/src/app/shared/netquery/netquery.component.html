@@ -84,7 +84,7 @@
       </div>
     </button>
   </ng-template>
-  <sfng-dropdown #customDropdown [triggerTemplate]="selectTemplate" overlayClass="grid grid-cols-5 gap-1">
+  <sfng-dropdown #customDropdown [triggerTemplate]="selectTemplate" overlayClass="grid grid-cols-4 gap-1">
     <ng-container *ngFor="let model of (models | keyvalue)">
       <div class="sfng-select-dropdown" *ngIf="model.value?.visible === 'combinedMenu'">
         <h3 class="flex items-center gap-2 px-3 py-2 mb-0 text-xxs text-secondary">

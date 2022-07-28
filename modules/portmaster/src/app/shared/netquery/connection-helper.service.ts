@@ -5,7 +5,19 @@ import { AppProfile, AppProfileService, ConfigService, deepClone, getAppSetting,
 import { BehaviorSubject, combineLatest, Observable, OperatorFunction, Subject } from 'rxjs';
 import { distinctUntilChanged, map, switchMap, takeUntil } from 'rxjs/operators';
 import { ActionIndicatorService } from '../action-indicator';
+import { objKeys } from '../utils';
 import { SfngSearchbarFields } from './searchbar';
+
+export const IPScopeNames: { [key in IPScope]: string } = {
+  [IPScope.Invalid]: "Invalid",
+  [IPScope.Undefined]: "Undefined",
+  [IPScope.HostLocal]: "Device Local",
+  [IPScope.LinkLocal]: "Link Local",
+  [IPScope.SiteLocal]: "LAN",
+  [IPScope.Global]: "Internet",
+  [IPScope.LocalMulticast]: "LAN Multicast",
+  [IPScope.GlobalMulitcast]: "Internet Multicast"
+}
 
 @Injectable()
 export class NetqueryHelper {
@@ -72,7 +84,17 @@ export class NetqueryHelper {
     }
 
     if (field === 'scope') {
-      return values.map(val => IPScope[val]).filter(value => value !== undefined);
+      return values.map(val => {
+        // check if it's a value of the IPScope enum
+        const scopeValue = IPScope[val];
+        if (!!scopeValue) {
+          return scopeValue;
+        }
+
+        // otherwise check if it's pretty name of the scope translation
+        val = `${val}`.toLocaleLowerCase();
+        return objKeys(IPScopeNames).find(scope => IPScopeNames[scope].toLocaleLowerCase() === val)
+      }).filter(value => value !== undefined);
     }
 
     return values;
@@ -149,7 +171,7 @@ export class NetqueryHelper {
             }
 
             return {
-              Name: IPScope[item.scope!],
+              Name: IPScopeNames[item.scope!],
               Value: item.scope,
               Description: '',
               ...item

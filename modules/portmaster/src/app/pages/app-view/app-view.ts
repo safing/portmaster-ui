@@ -1,6 +1,6 @@
 import { ChangeDetectorRef, Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { AppProfile, AppProfileService, ChartResult, ConfigService, DebugAPI, FlatConfigObject, flattenProfileConfig, IProfileStats, LayeredProfile, Netquery, setAppSetting, Setting } from '@safing/portmaster-api';
+import { AppProfile, AppProfileService, ChartResult, Condition, ConfigService, DebugAPI, ExpertiseLevel, FlatConfigObject, flattenProfileConfig, IProfileStats, LayeredProfile, Netquery, setAppSetting, Setting } from '@safing/portmaster-api';
 import { SfngDialogService } from '@safing/ui';
 import { BehaviorSubject, combineLatest, interval, Observable, of, Subscription } from 'rxjs';
 import { distinctUntilChanged, map, mergeMap, startWith, switchMap } from 'rxjs/operators';
@@ -8,6 +8,7 @@ import { SessionDataService } from 'src/app/services';
 import { ActionIndicatorService } from 'src/app/shared/action-indicator';
 import { fadeInAnimation, fadeOutAnimation } from 'src/app/shared/animations';
 import { SaveSettingEvent } from 'src/app/shared/config/generic-setting/generic-setting';
+import { ExpertiseService } from 'src/app/shared/expertise';
 import { SfngNetqueryViewer } from 'src/app/shared/netquery';
 
 @Component({
@@ -128,6 +129,7 @@ export class AppViewComponent implements OnInit, OnDestroy {
     private actionIndicator: ActionIndicatorService,
     private dialog: SfngDialogService,
     private debugAPI: DebugAPI,
+    private expertiseService: ExpertiseService,
   ) { }
 
   /**
@@ -224,9 +226,18 @@ export class AppViewComponent implements OnInit, OnDestroy {
       ])
         .subscribe(async ([profile, queryMap, global, allSettings, viewSetting]) => {
           if (!!profile) {
-            this.netquery.activeConnectionChart({
+            const query: Condition = {
               profile: profile![0].Source + "/" + profile![0].ID,
-            })
+            }
+
+            // ignore internal connections if the user is not in developer mode.
+            if (this.expertiseService.currentLevel !== ExpertiseLevel.Developer) {
+              query.internal = {
+                $eq: false,
+              };
+            }
+
+            this.netquery.activeConnectionChart(query)
               .subscribe(data => {
                 this.appChartData = data;
                 this.cdr.markForCheck();
