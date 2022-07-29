@@ -1,7 +1,8 @@
+import { ConnectedPosition } from '@angular/cdk/overlay';
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component } from '@angular/core';
 import { DebugAPI, PortapiService } from '@safing/portmaster-api';
 import { AppComponent } from 'src/app/app.component';
-import { StatusService, VersionStatus } from 'src/app/services';
+import { NotificationsService, NotificationType, StatusService, VersionStatus } from 'src/app/services';
 import { ActionIndicatorService } from 'src/app/shared/action-indicator';
 import { ExitService } from 'src/app/shared/exit-screen';
 
@@ -18,6 +19,12 @@ export class NavigationComponent {
   /** @private The available and selected resource versions. */
   versions: VersionStatus | null = null;
 
+  /** Whether or not we have new, unseen notifications */
+  hasNewNotifications = false;
+
+  /** Whether or not we have new, unseen prompts */
+  hasNewPrompts = false;
+
   constructor(
     private portapi: PortapiService,
     private exitService: ExitService,
@@ -25,8 +32,18 @@ export class NavigationComponent {
     private appComponent: AppComponent,
     private debugAPI: DebugAPI,
     private actionIndicator: ActionIndicatorService,
+    private notificationService: NotificationsService,
     private cdr: ChangeDetectorRef
   ) { }
+
+  dropDownPositions: ConnectedPosition[] = [
+    {
+      originX: 'end',
+      originY: 'top',
+      overlayX: 'start',
+      overlayY: 'top'
+    }
+  ]
 
   ngOnInit() {
     this.statusService.getVersions()
@@ -34,6 +51,21 @@ export class NavigationComponent {
         this.versions = versions;
         this.cdr.markForCheck();
       });
+
+    this.notificationService.new$
+      .subscribe(notif => {
+        if (notif.some(n => n.Type === NotificationType.Prompt && n.EventID.startsWith("filter:prompt"))) {
+          this.hasNewPrompts = true;
+        } else {
+          this.hasNewPrompts = false;
+        }
+
+        if (notif.some(n => !n.EventID.startsWith("filter:prompt"))) {
+          this.hasNewNotifications = true;
+        } else {
+          this.hasNewNotifications = false;
+        }
+      })
   }
 
   shutdownPortmaster() {

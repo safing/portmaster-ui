@@ -45,14 +45,14 @@ import { LoadingComponent } from './shared/loading';
 import { SfngMenuModule } from './shared/menu';
 import { SfngMultiSwitchModule } from './shared/multi-switch';
 import { NetqueryModule } from './shared/netquery';
+import { NotificationListComponent } from './shared/notification-list/notification-list.component';
 import { NotificationComponent } from './shared/notification/notification';
 import { CommonPipesModule } from './shared/pipes';
+import { PromptListComponent } from './shared/prompt-list/prompt-list.component';
 import { PlaceholderComponent } from './shared/text-placeholder';
 import { MarkdownWidgetComponent, MarkdownWidgetSettingsComponent } from './widgets/markdown-widget';
 import { NetworkActivityWidget } from './widgets/network-activity-widget';
-import { NotificationWidgetComponent, NotificationWidgetSettingsComponent } from './widgets/notification-widget';
 import { PilotWidgetComponent } from './widgets/pilot-widget';
-import { PromptWidgetComponent } from './widgets/prompt-widget';
 import { StatusWidgetComponent, StatusWidgetSettingsComponent } from './widgets/status-widget';
 import { WIDGET_DEFINTIONS } from './widgets/widget.types';
 
@@ -72,15 +72,14 @@ import { WIDGET_DEFINTIONS } from './widgets/widget.types';
     StatusWidgetSettingsComponent,
     MarkdownWidgetSettingsComponent,
     MarkdownWidgetComponent,
-    NotificationWidgetSettingsComponent,
-    NotificationWidgetComponent,
+    NotificationListComponent,
+    PromptListComponent,
     FuzzySearchPipe,
     AppViewComponent,
     QuickSettingInternetButtonComponent,
     QuickSettingUseSPNButtonComponent,
     AppOverviewComponent,
     PlaceholderComponent,
-    PromptWidgetComponent,
     LoadingComponent,
     ExternalLinkDirective,
     ExitScreenComponent,
@@ -157,25 +156,6 @@ import { WIDGET_DEFINTIONS } from './widgets/widget.types';
         widgetComponent: PilotWidgetComponent,
         disableCustom: true,
         tipUpKey: "pilot-widget"
-      },
-      multi: true,
-    },
-    {
-      provide: WIDGET_DEFINTIONS,
-      useValue: {
-        type: 'notification-widget',
-        name: 'Notifications',
-        widgetComponent: NotificationWidgetComponent,
-        //settingsComponent: NotificationWidgetSettingsComponent,
-      },
-      multi: true,
-    },
-    {
-      provide: WIDGET_DEFINTIONS,
-      useValue: {
-        type: 'prompt-widget',
-        name: 'Prompts',
-        widgetComponent: PromptWidgetComponent,
       },
       multi: true,
     },
