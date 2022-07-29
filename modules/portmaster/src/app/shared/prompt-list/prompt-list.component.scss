@@ -52,7 +52,7 @@ app-menu-item.item-seperator {
 }
 
 .no-prompts {
-  @apply text-tertiary;
+  @apply text-tertiary flex-grow;
   width: 100%;
   display: flex;
   justify-content: center;

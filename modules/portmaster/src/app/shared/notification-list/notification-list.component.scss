@@ -213,6 +213,7 @@ div.placeholder {
 div.placeholder {
   @apply font-medium;
   @apply text-tertiary;
+  @apply flex-grow;
   position: relative;
   display: flex;
   flex-direction: column;
