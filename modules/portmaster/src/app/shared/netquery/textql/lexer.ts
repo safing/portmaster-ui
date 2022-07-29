@@ -76,7 +76,7 @@ export class Lexer {
     const start = this._input.pos;
 
     const id = this.readWhile(ch => isIdentChar(ch));
-    if (id === 'true') {
+    if (id === 'true' || id === 'yes') {
       return {
         type: TokenType.BOOL,
         literal: id,
@@ -84,7 +84,7 @@ export class Lexer {
         start
       }
     }
-    if (id === 'false') {
+    if (id === 'false' || id === 'no') {
       return {
         type: TokenType.BOOL,
         literal: id,

@@ -1,5 +1,5 @@
 import { coerceBooleanProperty, coerceNumberProperty } from '@angular/cdk/coercion';
-import { AfterViewInit, Component, ElementRef, Input, OnChanges, OnInit, SimpleChanges } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, HostListener, Input, OnChanges, OnInit, SimpleChanges } from '@angular/core';
 import { ChartResult } from '@safing/portmaster-api';
 import * as d3 from 'd3';
 import { Selection } from 'd3';
@@ -57,20 +57,12 @@ export class SfngNetqueryLineChart implements OnChanges, OnInit, AfterViewInit {
   }
 
   ngAfterViewInit(): void {
-    if (!!this.svg) {
-      this.svg.remove();
-    }
-    this.initializeChart();
-    this.drawChart();
+    this.redraw();
   }
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes.hasOwnProperty('data') && this.data) {
-      if (!!this.svg) {
-        this.svg.remove();
-      }
-      this.initializeChart();
-      this.drawChart();
+      this.redraw();
     }
   }
 
@@ -79,6 +71,31 @@ export class SfngNetqueryLineChart implements OnChanges, OnInit, AfterViewInit {
       return 16;
     }
     return 0;
+  }
+
+  // handle resizing of the browser/electron window by redrawing the line-chart
+  // in the next animation frame.
+  // We'll debounce that whole thing as long as the user is still resizing the
+  // window so we don't redraw to often.
+  private requestedAnimationFrame: any;
+  @HostListener('window:resize', ['$event'])
+  onWindowResize() {
+    if (!!this.requestedAnimationFrame) {
+      cancelAnimationFrame(this.requestedAnimationFrame);
+    }
+
+    this.requestedAnimationFrame = requestAnimationFrame(() => {
+      this.redraw();
+      this.requestedAnimationFrame = undefined;
+    })
+  }
+
+  private redraw(event?: Event) {
+    if (!!this.svg) {
+      this.svg.remove();
+    }
+    this.initializeChart();
+    this.drawChart();
   }
 
   private initializeChart(): void {

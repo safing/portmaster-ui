@@ -120,6 +120,7 @@ export class SfngDropdown implements OnInit {
   @Output()
   onClose = new EventEmitter<void>();
 
+  @Input()
   positions: ConnectedPosition[] = [
     {
       originX: 'end',

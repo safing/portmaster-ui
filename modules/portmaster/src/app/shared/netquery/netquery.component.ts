@@ -8,7 +8,7 @@ import { catchError, debounceTime, map, switchMap, takeUntil } from "rxjs/operat
 import { ActionIndicatorService } from "../action-indicator";
 import { ExpertiseService } from "../expertise";
 import { objKeys } from "../utils";
-import { NetqueryHelper } from "./connection-helper.service";
+import { IPScopeNames, NetqueryHelper } from "./connection-helper.service";
 import { SfngSearchbarFields } from "./searchbar";
 import { SfngTagbarValue } from "./tag-bar";
 import { Parser } from "./textql";
@@ -209,50 +209,17 @@ export class SfngNetqueryViewer implements OnInit, OnDestroy, AfterViewInit {
     scope: {
       visible: 'combinedMenu',
       menuTitle: 'Network Scope',
-      suggestions: [
-        {
-          Name: 'Invalid',
-          Value: IPScope.Invalid,
-          Description: '',
-          count: 0,
-        },
-        {
-          Name: 'Device Local',
-          Value: IPScope.HostLocal,
-          Description: '',
-          count: 0,
-        },
-        {
-          Name: 'Link Local Peer-to-Peer',
-          Value: IPScope.LinkLocal,
-          Description: '',
-          count: 0,
-        },
-        {
-          Name: 'LAN Peer-to-Peer',
-          Value: IPScope.SiteLocal,
-          Description: '',
-          count: 0,
-        },
-        {
-          Name: 'Internet Peer-to-Peer',
-          Value: IPScope.Global,
-          Description: '',
-          count: 0,
-        },
-        {
-          Name: 'LAN Multicast',
-          Value: IPScope.LocalMulticast,
-          Description: '',
-          count: 0,
-        },
-        {
-          Name: 'Internet Multicast',
-          Value: IPScope.GlobalMulitcast,
-          Description: '',
-          count: 0,
-        },
-      ]
+      suggestions: objKeys(IPScopeNames)
+        .sort()
+        .filter(key => key !== IPScope.Undefined)
+        .map(scope => {
+          return {
+            Name: IPScopeNames[scope],
+            Value: scope,
+            count: 0,
+            Description: ''
+          }
+        })
     },
     verdict: {},
     started: {},
