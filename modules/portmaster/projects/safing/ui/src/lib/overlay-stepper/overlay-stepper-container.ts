@@ -18,7 +18,9 @@ export const STEP_CONFIG = new InjectionToken<StepperConfig>('StepperConfig');
   styles: [
     `
     :host {
-      @apply flex flex-col relative;
+      position: relative;
+      display: flex;
+      flex-direction: column;
       width: 600px;
     }
     `
