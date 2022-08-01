@@ -295,13 +295,18 @@ export class SfngNetqueryViewer implements OnInit, OnDestroy, AfterViewInit {
 
                 return {
                   ...r,
-                  _chart: this.groupByKeys.length > 0 ? this.getGroupChart(grpFilter) : null,
-                  _group: this.groupByKeys.length > 0 ? this.lazyLoadGroup(grpFilter) : null,
+                  _chart: !!this.groupByKeys.length ? this.getGroupChart(grpFilter) : null,
+                  _group: !!this.groupByKeys.length ? this.lazyLoadGroup(grpFilter) : null,
                 }
               });
             })
           );
       }
+    }
+
+    // set the default group-by filter if non has been given so far
+    if (this.groupByKeys.length === 0) {
+      this.groupByKeys = ['profile']
     }
 
     // create a new paginator that will use the datasource from above.
@@ -780,7 +785,7 @@ export class SfngNetqueryViewer implements OnInit, OnDestroy, AfterViewInit {
     }
 
     let select: (Select | string)[] | undefined = undefined;
-    if (this.groupByKeys.length > 0) {
+    if (!!this.groupByKeys.length) {
       // we always want to show the total and the number of allowed connections
       // per group so we need to add those to the select part of the query
       select = [
