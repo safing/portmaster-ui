@@ -1,7 +1,7 @@
 import { coerceArray } from "@angular/cdk/coercion";
 import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, Input, OnDestroy, OnInit, QueryList, TemplateRef, TrackByFunction, ViewChildren } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
-import { ChartResult, Condition, IPScope, Netquery, NetqueryConnection, PossilbeValue, Query, QueryResult, Select, Verdict } from "@safing/portmaster-api";
+import { ChartResult, Condition, IPScope, Netquery, NetqueryConnection, OrderBy, PossilbeValue, Query, QueryResult, Select, Verdict } from "@safing/portmaster-api";
 import { Datasource, DynamicItemsPaginator, SelectOption } from "@safing/ui";
 import { BehaviorSubject, combineLatest, forkJoin, Observable, of, Subject } from "rxjs";
 import { catchError, debounceTime, map, switchMap, takeUntil } from "rxjs/operators";
@@ -810,11 +810,25 @@ export class SfngNetqueryViewer implements OnInit, OnDestroy, AfterViewInit {
 
     let normalizedQuery = mergeConditions(query, this.mergeFilter || {})
 
+    let orderBy: string[] | OrderBy[] = this.orderByKeys;
+    if (!orderBy || orderBy.length === 0) {
+      orderBy = [
+        {
+          field: 'started',
+          desc: true,
+        },
+        {
+          field: 'ended',
+          desc: true,
+        }
+      ]
+    }
+
     return {
       select: select,
       query: normalizedQuery,
       groupBy: this.groupByKeys,
-      orderBy: this.orderByKeys,
+      orderBy: orderBy,
       textSearch,
     }
   }
