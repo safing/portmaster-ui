@@ -11,6 +11,7 @@
   min-height: calc(var(--slot-size) * 5);
   max-height: calc(var(--slot-size) * 7);
   @apply w-80;
+  @apply bg-gray-300;
 
   &>* {
     /* do not allow to shrink  */
