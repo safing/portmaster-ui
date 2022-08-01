@@ -46,8 +46,8 @@
 
   <ul #scrollable>
     <li *ngFor="let item of items" (click)="selectItem(item)" [sfng-tooltip]="item.description || null"
-      snfgTooltipPosition="left" [class.cursor-not-allowed]="item.disabled" #renderedItem
-      [sfngSelectRenderedListItem]="item" class="pl-1 pr-5">
+      snfgTooltipPosition="left" [class.disabled]="item.disabled" #renderedItem [sfngSelectRenderedListItem]="item"
+      class="pl-1 pr-5">
 
       <svg xmlns="http://www.w3.org/2000/svg" class="flex-grow-0 flex-shrink-0 w-4 h-4 transition-all duration-200"
         viewBox="0 0 20 20" fill="currentColor" [class.opacity-0]="!item.selected">
