@@ -37,8 +37,12 @@
         [searchPlaceholder]="'Search' + (keyTranslation[field.key] || field.key)" minWidth="400" minHeight="300"
         (ngModelChange)="performSearch()" (onOpen)="loadSuggestion(field.key)"
         [dynamicValueTemplate]="dynamicValueTemplate" [sortBy]="sortByCount">
-        <ng-container *ngFor="let value of field.value?.suggestions; trackBy: trackSuggestion">
+        <ng-container *ngIf="field.value?.loading">
+          <sfng-select-item *sfngSelectValue="null; disabled: true" class="text-secondary">Loading ...
+          </sfng-select-item>
+        </ng-container>
 
+        <ng-container *ngFor="let value of field.value?.suggestions; trackBy: trackSuggestion">
           <sfng-select-item
             *sfngSelectValue="value.Value; data:value.count, label:value.Name || (value.Value === '' ? 'N/A' : value.Value)">
             <span *ngIf="field.key === 'country' && !!value.Name" [appCountryFlags]="value.Name"></span>
