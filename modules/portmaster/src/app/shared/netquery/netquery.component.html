@@ -233,6 +233,10 @@
               *ngIf="(result._group | async) as connsPaginator; else: loadingTemplate" [headerTemplate]="headerTemplate"
               singleMode="false">
 
+              <div class="flex flex-row items-center p-2 text-secondary" *ngIf="connsPaginator.total === 0">
+                All connections ended more than 10 minutes ago and have been removed.
+              </div>
+
               <sfng-pagination [source]="connsPaginator" class="flex flex-col flex-grow gap-2">
                 <ng-template [sfngPageContent]>
                   <sfng-accordion *ngFor="let conn of (connsPaginator.pageItems$ | async)" [data]="conn" #subAccordion>
