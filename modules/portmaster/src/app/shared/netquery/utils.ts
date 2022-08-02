@@ -14,10 +14,9 @@ export const connectionFieldTranslation: { [key: string]: string } = {
   remote_ip: 'Remote IP',
   verdict: 'Verdict',
   encrypted: 'Encrypted',
-  tunneled: 'Tunneled',
   internal: 'Internal',
   asn: 'ASN',
-  spn_used: 'SPN Active',
+  tunneled: 'SPN Active',
   active: 'Active',
   allowed: 'Allowed'
 }

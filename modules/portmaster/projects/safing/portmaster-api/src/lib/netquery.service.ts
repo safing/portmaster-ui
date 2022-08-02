@@ -131,7 +131,6 @@ export interface NetqueryConnection {
   };
 
   profile_name: string;
-  spn_used: boolean;
   active: boolean;
 }
 
