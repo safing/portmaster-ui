@@ -274,6 +274,10 @@ export class NetqueryHelper {
       profile = reason.Profile;
     }
 
+    if (profile.startsWith("core:profiles/")) {
+      profile = profile.replace("core:profiles/", "")
+    }
+
     this.router.navigate(
       ['/', 'app', ...profile.split("/")], {
       queryParams: {

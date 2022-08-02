@@ -47,6 +47,15 @@
       @apply py-2;
       @apply flex flex-row items-center justify-start gap-1 transition duration-200 ease-in-out cursor-pointer hover:bg-gray-300;
     }
+
+    li:not(.disabled) {
+      @apply hover:bg-gray-300;
+    }
+
+    li.disabled {
+      @apply cursor-not-allowed;
+    }
+
   }
 }
 

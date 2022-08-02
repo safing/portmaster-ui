@@ -14,6 +14,7 @@
     </span>
   </div>
 
-  <sfng-netquery-viewer></sfng-netquery-viewer>
+  <sfng-netquery-viewer [filterPreset]="session.get('monitor/global-filter')"
+    (filterChange)="session.set('monitor/global-filter', $event)"></sfng-netquery-viewer>
 
 </div>

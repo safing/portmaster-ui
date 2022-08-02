@@ -15,7 +15,9 @@
 
 <sfng-dropdown externalTrigger="true" #suggestionDropdown *ngIf="mode === 'default'; else: suggestionTemplate"
   offsetY="0">
-  <ng-container *ngTemplateOutlet="suggestionTemplate"></ng-container>
+  <div class="bg-gray-300">
+    <ng-container *ngTemplateOutlet="suggestionTemplate"></ng-container>
+  </div>
 </sfng-dropdown>
 
 <ng-template #suggestionTemplate>
@@ -44,7 +46,7 @@
     </ng-container>
 
     <div class="flex flex-row items-center justify-start w-full gap-2 text-xs border-gray-400 text-primary" [@fadeIn]
-      *ngIf="loading" [ngClass]="{'border-t pt-2': !!suggestions?.length}">
+      *ngIf="loading" [ngClass]="{'border-t pt-2': !!suggestions.length}">
       <svg class="w-4 h-4 animate-spin text-secondary" xmlns="http://www.w3.org/2000/svg" fill="none"
         viewBox="0 0 24 24">
         <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>

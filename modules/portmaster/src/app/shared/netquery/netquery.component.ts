@@ -1,7 +1,7 @@
 import { coerceArray } from "@angular/cdk/coercion";
-import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, Input, OnDestroy, OnInit, QueryList, TemplateRef, TrackByFunction, ViewChildren } from "@angular/core";
+import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, Input, OnDestroy, OnInit, Output, QueryList, TemplateRef, TrackByFunction, ViewChildren } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
-import { ChartResult, Condition, IPScope, Netquery, NetqueryConnection, PossilbeValue, Query, QueryResult, Select, Verdict } from "@safing/portmaster-api";
+import { ChartResult, Condition, IPScope, Netquery, NetqueryConnection, OrderBy, PossilbeValue, Query, QueryResult, Select, Verdict } from "@safing/portmaster-api";
 import { Datasource, DynamicItemsPaginator, SelectOption } from "@safing/ui";
 import { BehaviorSubject, combineLatest, forkJoin, Observable, of, Subject } from "rxjs";
 import { catchError, debounceTime, map, switchMap, takeUntil } from "rxjs/operators";
@@ -24,6 +24,7 @@ interface Model<T> {
   searchValues: any[];
   visible: boolean | 'combinedMenu';
   menuTitle?: string;
+  loading: boolean;
   tipupKey?: string;
 }
 
@@ -182,6 +183,13 @@ export class SfngNetqueryViewer implements OnInit, OnDestroy, AfterViewInit {
   @Input()
   mergeFilter: Condition | null = null;
 
+  /** The filter preset that will be used if no filter is configured otherwise */
+  @Input()
+  filterPreset: string | null = null;
+
+  @Output()
+  filterChange: EventEmitter<string> = new EventEmitter();
+
   /** @private Holds the value displayed in the tag-bar */
   tagbarValues: SfngTagbarValue[] = [];
 
@@ -295,8 +303,8 @@ export class SfngNetqueryViewer implements OnInit, OnDestroy, AfterViewInit {
 
                 return {
                   ...r,
-                  _chart: this.groupByKeys.length > 0 ? this.getGroupChart(grpFilter) : null,
-                  _group: this.groupByKeys.length > 0 ? this.lazyLoadGroup(grpFilter) : null,
+                  _chart: !!this.groupByKeys.length ? this.getGroupChart(grpFilter) : null,
+                  _group: !!this.groupByKeys.length ? this.lazyLoadGroup(grpFilter) : null,
                 }
               });
             })
@@ -351,7 +359,7 @@ export class SfngNetqueryViewer implements OnInit, OnDestroy, AfterViewInit {
                 })
               ),
 
-            totalConnCount: this.netquery.query({ select: { $count: { field: '*', as: 'totalConnCount' } } })
+            totalConnCount: this.netquery.query({ select: { $count: { field: '*', as: 'totalConnCount' } }, query: this.mergeFilter || {} })
           })
         }),
       )
@@ -370,6 +378,10 @@ export class SfngNetqueryViewer implements OnInit, OnDestroy, AfterViewInit {
         if (!this.skipUrlUpdate) {
           this.skipNextRouteUpdate = true;
 
+          const queryText = this.getQueryString();
+
+          this.filterChange.next(queryText);
+
           // note that since we only update the query parameters and stay on
           // the current route this component will not get re-created but will
           // rather receive an update on the queryParamMap (see below).
@@ -377,7 +389,7 @@ export class SfngNetqueryViewer implements OnInit, OnDestroy, AfterViewInit {
             relativeTo: this.route,
             queryParams: {
               ...this.route.snapshot.queryParams,
-              q: this.getQueryString(),
+              q: queryText,
             }
           })
         }
@@ -498,6 +510,26 @@ export class SfngNetqueryViewer implements OnInit, OnDestroy, AfterViewInit {
 
         this.cdr.markForCheck();
       })
+
+    // handle any filter preset
+    //
+    if (!!this.filterPreset) {
+      try {
+        const result = Parser.parse(this.filterPreset);
+        this.onFieldsParsed({
+          ...result.conditions,
+          groupBy: result.groupBy,
+          orderBy: result.orderBy,
+        });
+      } catch (err) {
+        console.error(err);
+      }
+    } else {
+      // set the default group-by filter if non has been given so far
+      if (this.groupByKeys.length === 0 && this.models.profile!.visible) {
+        this.groupByKeys = ['profile']
+      }
+    }
   }
 
   ngAfterViewInit(): void {
@@ -570,6 +602,8 @@ export class SfngNetqueryViewer implements OnInit, OnDestroy, AfterViewInit {
   loadSuggestion<T extends keyof NetqueryConnection>(field: T) {
     const search = this.getQuery([field]);
 
+    this.models[field]!.loading = !this.models[field]!.suggestions?.length;
+
     this.netquery.query({
       select: [
         field,
@@ -588,6 +622,8 @@ export class SfngNetqueryViewer implements OnInit, OnDestroy, AfterViewInit {
     })
       .pipe(this.helper.encodeToPossibleValues(field))
       .subscribe(result => {
+        this.models[field]!.loading = false;
+
         // create a set that we can use to lookup if a value
         // is currently selected.
         // This is needed to ensure selected values are sorted to the top.
@@ -780,7 +816,7 @@ export class SfngNetqueryViewer implements OnInit, OnDestroy, AfterViewInit {
     }
 
     let select: (Select | string)[] | undefined = undefined;
-    if (this.groupByKeys.length > 0) {
+    if (!!this.groupByKeys.length) {
       // we always want to show the total and the number of allowed connections
       // per group so we need to add those to the select part of the query
       select = [
@@ -810,11 +846,25 @@ export class SfngNetqueryViewer implements OnInit, OnDestroy, AfterViewInit {
 
     let normalizedQuery = mergeConditions(query, this.mergeFilter || {})
 
+    let orderBy: string[] | OrderBy[] = this.orderByKeys;
+    if (!orderBy || orderBy.length === 0) {
+      orderBy = [
+        {
+          field: 'started',
+          desc: true,
+        },
+        {
+          field: 'ended',
+          desc: true,
+        }
+      ]
+    }
+
     return {
       select: select,
       query: normalizedQuery,
       groupBy: this.groupByKeys,
-      orderBy: this.orderByKeys,
+      orderBy: orderBy,
       textSearch,
     }
   }
@@ -888,6 +938,7 @@ function initializeModels(models: { [key: string]: Partial<Model<any>> }): { [ke
       suggestions: [],
       searchValues: [],
       visible: false,
+      loading: false,
       ...models[key],
     }
   })
