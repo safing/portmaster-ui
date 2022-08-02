@@ -204,7 +204,6 @@ export class SfngNetqueryViewer implements OnInit, OnDestroy, AfterViewInit {
     path: {},
     internal: {},
     type: {},
-    tunneled: {},
     encrypted: {},
     scope: {
       visible: 'combinedMenu',
@@ -254,7 +253,7 @@ export class SfngNetqueryViewer implements OnInit, OnDestroy, AfterViewInit {
       menuTitle: 'Active',
       suggestions: booleanSuggestionValues(),
     },
-    spn_used: {
+    tunneled: {
       visible: 'combinedMenu',
       menuTitle: 'SPN',
       suggestions: booleanSuggestionValues(),
