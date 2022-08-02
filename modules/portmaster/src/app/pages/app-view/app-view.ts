@@ -214,6 +214,9 @@ export class AppViewComponent implements OnInit, OnDestroy {
           })
         );
 
+    // used to track changes to the object identity of the global configuration
+    let prevousGlobal: FlatConfigObject = {};
+
     this.subscription =
       combineLatest([
         profileStream,                        // emits the current app profile everytime it changes
@@ -225,6 +228,8 @@ export class AppViewComponent implements OnInit, OnDestroy {
         ),
       ])
         .subscribe(async ([profile, queryMap, global, allSettings, viewSetting]) => {
+          const previousProfile = this.appProfile;
+
           if (!!profile) {
             const query: Condition = {
               profile: profile![0].Source + "/" + profile![0].ID,
@@ -315,7 +320,20 @@ export class AppViewComponent implements OnInit, OnDestroy {
             }
           }
 
-          if (!!this.appProfile) {
+          // check if we got new values for the profile or the settings. In both cases, we need to update the
+          // profile settings displayed as there might be new values to show.
+          const profileChanged = (previousProfile !== this.appProfile);
+          const settingsChanged = (allSettings !== this.allSettings);
+          const globalChanged = (global !== prevousGlobal);
+
+          const settingsNeedUpdate = profileChanged || settingsChanged || globalChanged;
+
+          // save the current global config object so we can compare for identity changes
+          // the next time we're executed
+          prevousGlobal = global;
+
+          if (!!this.appProfile && settingsNeedUpdate) {
+
             // filter the settings and remove all settings that are not
             // profile specific (i.e. not part of the global config). Also
             // update the current settings value (from the app profile) and
@@ -341,7 +359,8 @@ export class AppViewComponent implements OnInit, OnDestroy {
                 }
                 return isModified;
               });
-            this.allSettings = [...allSettings];
+
+            this.allSettings = allSettings;
           }
 
           this.cdr.markForCheck();
