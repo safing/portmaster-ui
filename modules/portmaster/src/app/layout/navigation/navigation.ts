@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component } from '@angular/core';
 import { DebugAPI, PortapiService } from '@safing/portmaster-api';
+import { tap } from 'rxjs/operators';
 import { AppComponent } from 'src/app/app.component';
 import { StatusService, VersionStatus } from 'src/app/services';
 import { ActionIndicatorService } from 'src/app/shared/action-indicator';
@@ -36,14 +37,6 @@ export class NavigationComponent {
       });
   }
 
-  shutdownPortmaster() {
-    this.exitService.shutdownPortmaster();
-  }
-
-  restartPortmaster() {
-    this.portapi.restartPortmaster();
-  }
-
   /**
    * @private
    * Injects a ui/reload event and performs a complete
@@ -51,7 +44,16 @@ export class NavigationComponent {
    * UI bundle.
    */
   reloadUI(_: Event) {
-    this.portapi.reloadUI();
+    this.portapi.reloadUI()
+      .pipe(
+        tap(() => {
+          setTimeout(() => window.location.reload(), 1000)
+        })
+      )
+      .subscribe(this.actionIndicator.httpObserver(
+        'Reloading UI ...',
+        'Failed to Reload UI',
+      ))
   }
 
   /**
@@ -59,7 +61,11 @@ export class NavigationComponent {
    * Clear the DNS name cache.
    */
   clearDNSCache(_: Event) {
-    this.portapi.clearDNSCache();
+    this.portapi.clearDNSCache()
+      .subscribe(this.actionIndicator.httpObserver(
+        'DNS Cache Cleared',
+        'Failed to Clear DNS Cache.',
+      ))
   }
 
   /**
@@ -69,7 +75,11 @@ export class NavigationComponent {
    * @param event - The mouse event
    */
   downloadUpdates(event: Event) {
-    this.portapi.checkForUpdates();
+    this.portapi.checkForUpdates()
+      .subscribe(this.actionIndicator.httpObserver(
+        'Downloading Updates ...',
+        'Failed to Check for Updates',
+      ))
   }
 
   /**
@@ -93,7 +103,11 @@ export class NavigationComponent {
     event.preventDefault();
     event.stopPropagation();
 
-    this.portapi.restartPortmaster();
+    this.portapi.restartPortmaster()
+      .subscribe(this.actionIndicator.httpObserver(
+        'Restarting ...',
+        'Failed to Restart',
+      ))
   }
 
   /**
@@ -122,7 +136,11 @@ export class NavigationComponent {
   }
 
   resetBroadcastState() {
-    this.portapi.resetBroadcastState();
+    this.portapi.resetBroadcastState()
+      .subscribe(this.actionIndicator.httpObserver(
+        'Broadcast State Cleared',
+        'Failed to Reset Broadcast State.',
+      ))
   }
 
   copyDebugInfo(event: Event) {

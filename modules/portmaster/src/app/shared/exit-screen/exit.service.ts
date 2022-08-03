@@ -4,6 +4,7 @@ import { SfngDialogService } from '@safing/ui';
 import { BehaviorSubject, merge, of } from 'rxjs';
 import { catchError, debounceTime, distinctUntilChanged, map, skip, switchMap, tap, timeout } from 'rxjs/operators';
 import { UIStateService } from 'src/app/services';
+import { ActionIndicatorService } from '../action-indicator';
 import { ExitScreenComponent } from './exit-screen';
 
 const MessageConnecting = 'Connecting to Portmaster';
@@ -32,7 +33,8 @@ export class ExitService {
   constructor(
     private stateService: UIStateService,
     private portapi: PortapiService,
-    private dialog: SfngDialogService
+    private dialog: SfngDialogService,
+    private uai: ActionIndicatorService,
   ) {
 
     this.portapi.connected$
@@ -111,6 +113,12 @@ export class ExitService {
         }
       ]
     })
-      .onAction('shutdown', () => this.portapi.shutdownPortmaster())
+      .onAction('shutdown', () => {
+        this.portapi.shutdownPortmaster()
+          .subscribe(this.uai.httpObserver(
+            'Shutting Down ...',
+            'Failed to Shut Down',
+          ))
+      })
   }
 }
