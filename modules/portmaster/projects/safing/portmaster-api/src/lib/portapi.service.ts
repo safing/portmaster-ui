@@ -94,72 +94,31 @@ export class PortapiService {
   /** Triggers a restart of the portmaster service */
   restartPortmaster(): Observable<any> {
     return this.http.post(`${this.httpEndpoint}/v1/core/restart`, undefined, { observe: 'response', responseType: 'arraybuffer' })
-    /*
-      .subscribe(this.uai.httpObserver(
-        'Restarting ...',
-        'Failed to Restart',
-      ))
-    */
   }
 
   /** Triggers a shutdown of the portmaster service */
   shutdownPortmaster(): Observable<any> {
     return this.http.post(`${this.httpEndpoint}/v1/core/shutdown`, undefined, { observe: 'response', responseType: 'arraybuffer' })
-    /*
-      .subscribe(this.uai.httpObserver(
-        'Shutting Down ...',
-        'Failed to Shut Down',
-      ))
-    */
   }
 
   /** Force the portmaster to check for updates */
   checkForUpdates(): Observable<any> {
     return this.http.post(`${this.httpEndpoint}/v1/updates/check`, undefined, { observe: 'response', responseType: 'arraybuffer', reportProgress: false })
-    /*
-      .subscribe(this.uai.httpObserver(
-        'Downloading Updates ...',
-        'Failed to Check for Updates',
-      ))
-    */
   }
 
   /** Force a reload of the UI assets */
   reloadUI(): Observable<any> {
     return this.http.post(`${this.httpEndpoint}/v1/ui/reload`, undefined, { observe: 'response', responseType: 'arraybuffer' })
-    /*
-      .pipe(
-        tap(() => {
-          setTimeout(() => window.location.reload(), 1000)
-        })
-      )
-      .subscribe(this.uai.httpObserver(
-        'Reloading UI ...',
-        'Failed to Reload UI',
-      ))
-    */
   }
 
   /** Clear DNS cache */
   clearDNSCache(): Observable<any> {
     return this.http.post(`${this.httpEndpoint}/v1/dns/clear`, undefined, { observe: 'response', responseType: 'arraybuffer' })
-    /*
-      .subscribe(this.uai.httpObserver(
-        'DNS Cache Cleared',
-        'Failed to Clear DNS Cache.',
-      ))
-    */
   }
 
   /** Reset the broadcast notifications state */
-  resetBroadcastState(): void {
-    this.http.post(`${this.httpEndpoint}/v1/broadcasts/reset-state`, undefined, { observe: 'response', responseType: 'arraybuffer' })
-    /*
-    .subscribe(this.uai.httpObserver(
-      'Broadcast State Cleared',
-      'Failed to Reset Broadcast State.',
-    ))
-    */
+  resetBroadcastState(): Observable<any> {
+    return this.http.post(`${this.httpEndpoint}/v1/broadcasts/reset-state`, undefined, { observe: 'response', responseType: 'arraybuffer' })
   }
 
   /**

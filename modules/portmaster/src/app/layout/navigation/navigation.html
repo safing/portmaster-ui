@@ -155,8 +155,8 @@
 
   </div>
   <app-menu #powerMenu offsetY="0" offsetX="10" overlayClass="rounded-t">
-    <app-menu-item (click)="shutdownPortmaster()">Shutdown</app-menu-item>
-    <app-menu-item (click)="restartPortmaster()">Restart</app-menu-item>
+    <app-menu-item (click)="shutdown($event)">Shutdown</app-menu-item>
+    <app-menu-item (click)="restart($event)">Restart</app-menu-item>
   </app-menu>
 
 </div>
