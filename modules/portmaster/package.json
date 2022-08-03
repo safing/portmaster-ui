@@ -1,9 +1,9 @@
 {
   "name": "portmaster",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "scripts": {
     "ng": "ng",
-    "start": "npm install && ng serve --proxy-config ./proxy.json",
+    "start": "npm install && npm run build-libs:dev && ng serve --proxy-config ./proxy.json",
     "build-libs": "NODE_ENV=production ng build --configuration production @safing/ui && NODE_ENV=production ng build --configuration production @safing/portmaster-api",
     "build-libs:dev": "ng build --configuration development @safing/ui && ng build --configuration development @safing/portmaster-api",
     "serve": "npm run build-libs:dev && ng serve --proxy-config ./proxy.json",
