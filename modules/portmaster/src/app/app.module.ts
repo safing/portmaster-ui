@@ -17,6 +17,7 @@ import { PortmasterAPIModule } from '@safing/portmaster-api';
 import { OverlayStepperModule, SfngAccordionModule, SfngDialogModule, SfngDropDownModule, SfngPaginationModule, SfngSelectModule, SfngTipUpModule, SfngToggleSwitchModule, SfngTooltipModule, TabModule, UiModule } from '@safing/ui';
 import MyYamlFile from 'js-yaml-loader!../i18n/helptexts.yaml';
 import { MarkdownModule } from 'ngx-markdown';
+import { environment } from 'src/environments/environment';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { IntroModule } from './intro';
@@ -126,7 +127,10 @@ import { WIDGET_DEFINTIONS } from './widgets/widget.types';
     NetqueryModule,
     CommonPipesModule,
     UiModule,
-    PortmasterAPIModule.forRoot(),
+    PortmasterAPIModule.forRoot({
+      httpAPI: environment.httpAPI,
+      websocketAPI: environment.portAPI,
+    }),
   ],
   providers: [
     {
