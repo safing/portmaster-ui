@@ -23,10 +23,10 @@ export class PortmasterAPIModule {
    */
   static forRoot(cfg: ModuleConfig = {}): ModuleWithProviders<PortmasterAPIModule> {
     if (cfg.httpAPI === undefined) {
-      cfg.httpAPI = 'http://localhost:817/api';
+      cfg.httpAPI = `http://${window.location.host}/api`;
     }
     if (cfg.websocketAPI === undefined) {
-      cfg.websocketAPI = 'ws://localhost:817/api/database/v1';
+      cfg.websocketAPI = `ws://${window.location.host}/api/database/v1`;
     }
 
     return {
