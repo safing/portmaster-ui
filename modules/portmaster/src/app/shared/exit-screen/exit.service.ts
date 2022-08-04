@@ -50,11 +50,15 @@ export class ExitService {
       })
 
 
+    let restartInProgress = false;
     merge<OverlayMessage[]>(
       this.portapi.sub('runtime:modules/core/event/shutdown')
         .pipe(map(() => MessageShutdown)),
       this.portapi.sub('runtime:modules/core/event/restart')
-        .pipe(map(() => MessageRestart)),
+        .pipe(
+          tap(() => restartInProgress = true),
+          map(() => MessageRestart)
+        ),
     )
       .pipe(
         tap(msg => this._showOverlay.next(msg)),
@@ -63,11 +67,25 @@ export class ExitService {
         skip(1),
         debounceTime(1000), // make sure we display the "shutdown" overlay for at least a second
       )
-      .subscribe(msg => {
+      .subscribe(connected => {
         if (this._showOverlay.getValue() === MessageShutdown && !!window.app) {
           setTimeout(() => {
             window.app.exitApp();
           }, 1000)
+        }
+
+        if (connected && restartInProgress) {
+          restartInProgress = false;
+          this.portapi.reloadUI()
+            .pipe(
+              tap(() => {
+                setTimeout(() => window.location.reload(), 1000)
+              })
+            )
+            .subscribe(this.uai.httpObserver(
+              'Reloading UI ...',
+              'Failed to Reload UI',
+            ))
         }
       })
 
