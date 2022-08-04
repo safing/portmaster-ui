@@ -295,7 +295,9 @@ export class SfngNetqueryViewer implements OnInit, OnDestroy, AfterViewInit {
             this.helper.attachProfile(),
             map(results => {
               return (results || []).map(r => {
-                const grpFilter: Condition = {};
+                const grpFilter: Condition = {
+                  ...query.query,
+                };
                 this.groupByKeys.forEach(key => {
                   grpFilter[key] = r[key];
                 })
@@ -583,13 +585,7 @@ export class SfngNetqueryViewer implements OnInit, OnDestroy, AfterViewInit {
   // Returns an observable that loads the current active connection chart using the
   // current page query but only for the condition of the displayed group.
   getGroupChart(groupFilter: Condition): Observable<ChartResult[]> {
-    const query = this.getQuery().query || {};
-
-    Object.keys(groupFilter).forEach(key => {
-      query[key] = [groupFilter[key] as any];
-    });
-
-    return this.netquery.activeConnectionChart(query);
+    return this.netquery.activeConnectionChart(groupFilter);
   }
 
   // loadSuggestion loads possible values for a given connection field
