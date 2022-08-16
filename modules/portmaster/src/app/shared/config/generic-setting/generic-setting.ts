@@ -7,6 +7,7 @@ import { SfngDialogRef, SfngDialogService } from '@safing/ui';
 import { Button } from 'js-yaml-loader!../../../i18n/helptexts.yaml';
 import { Subject, Subscription } from 'rxjs';
 import { debounceTime } from 'rxjs/operators';
+import { ActionIndicatorService } from '../../action-indicator';
 import { fadeInAnimation, fadeOutAnimation } from '../../animations';
 import { ExpertiseService } from '../../expertise/expertise.service';
 
@@ -419,6 +420,7 @@ export class GenericSettingComponent<S extends BaseSetting<any, any>> implements
     private portapi: PortapiService,
     private dialog: SfngDialogService,
     private changeDetectorRef: ChangeDetectorRef,
+    private actionIndicator: ActionIndicatorService,
     private viewRef: ViewContainerRef,
   ) { }
 
@@ -500,7 +502,13 @@ export class GenericSettingComponent<S extends BaseSetting<any, any>> implements
         }
       ]
     })
-      .onAction('restart', () => this.portapi.restartPortmaster())
+      .onAction('restart', () =>
+        this.portapi.restartPortmaster()
+          .subscribe(this.actionIndicator.httpObserver(
+            'Restarting ...',
+            'Failed to Restart',
+          ))
+      )
       .onAction('no', () => {
         this._changeAccepted = false;
         this.changeDetectorRef.markForCheck();
