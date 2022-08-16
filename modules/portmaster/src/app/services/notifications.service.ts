@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable, TrackByFunction } from '@angular/core';
-import { Router } from '@angular/router';
+import { Params, Router } from '@angular/router';
 import { PortapiService, RetryableOpts } from '@safing/portmaster-api';
 import { BehaviorSubject, combineLatest, defer, Observable, throwError } from 'rxjs';
 import { map, multicast, refCount, toArray } from 'rxjs/operators';
@@ -54,9 +54,22 @@ export class NotificationsService {
         })
       },
       "open-page": (a: OpenPageAction) => {
-        const url = PageIDs[a.Payload];
+        let pageID: keyof typeof PageIDs | null = null;
+        let queryParams: Params | null = null;
+
+        if (typeof a.Payload === 'string') {
+          pageID = a.Payload;
+          queryParams = {};
+        } else {
+          pageID = a.Payload.id;
+          queryParams = a.Payload.query;
+        }
+
+        const url = PageIDs[pageID];
         if (!!url) {
-          return this.router.navigateByUrl(url);
+          return this.router.navigate([url], {
+            queryParams,
+          })
         }
         return Promise.reject('not yet supported');
       },

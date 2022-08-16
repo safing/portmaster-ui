@@ -28,7 +28,12 @@ export interface OpenURLAction extends BaseAction {
 
 export interface OpenPageAction extends BaseAction {
   Type: 'open-page';
-  Payload: keyof typeof PageIDs;
+  Payload: keyof typeof PageIDs | {
+    id: keyof typeof PageIDs,
+    query: {
+      [key: string]: string,
+    }
+  };
 }
 
 export interface NetqueryAction extends BaseAction {
