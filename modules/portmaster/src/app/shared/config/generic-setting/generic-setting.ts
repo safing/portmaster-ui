@@ -140,7 +140,7 @@ export class GenericSettingComponent<S extends BaseSetting<any, any>> implements
   get rejected() {
     return this._rejected;
   }
-  private _rejected = false;
+  private _rejected = null;
 
   @HostBinding('class.saved')
   get changeAccepted() {
@@ -458,6 +458,7 @@ export class GenericSettingComponent<S extends BaseSetting<any, any>> implements
   abortChange() {
     this._currentValue = this._savedValue;
     this._touched = true;
+    this._rejected = null;
   }
 
   /**
@@ -524,7 +525,7 @@ export class GenericSettingComponent<S extends BaseSetting<any, any>> implements
 
     let wasReset = this.wasReset;
     this.wasReset = false;
-    this._rejected = false;
+    this._rejected = null;
     this._changeAccepted = false;
     if (!!this._saveInterval) {
       clearTimeout(this._saveInterval);
@@ -536,7 +537,7 @@ export class GenericSettingComponent<S extends BaseSetting<any, any>> implements
       value: this._setting!.Value,
       rejected: (err: any) => {
         this._setting!['Value'] = value;
-        this._rejected = true;
+        this._rejected = err;
         this.changeDetectorRef.markForCheck();
       },
       accepted: () => {
@@ -570,7 +571,7 @@ export class GenericSettingComponent<S extends BaseSetting<any, any>> implements
     this._touched = true;
 
     this._changeAccepted = false;
-    this._rejected = false;
+    this._rejected = null;
     if (!!this._saveInterval) {
       clearTimeout(this._saveInterval);
     }
