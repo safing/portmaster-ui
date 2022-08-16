@@ -54,8 +54,6 @@ export class NotificationsService {
         })
       },
       "open-page": (a: OpenPageAction) => {
-        debugger;
-
         let pageID: keyof typeof PageIDs | null = null;
         let queryParams: Params | null = null;
 
