@@ -370,7 +370,7 @@ export class NetqueryHelper {
       key = 'filter/serviceEndpoints'
     }
 
-    this.profileService.getAppProfileFromKey(conn.profile)
+    this.profileService.getAppProfile(conn.profile)
       .pipe(
         switchMap(profile => {
           let rules = getAppSetting<string[]>(profile.Config, key) || [];
