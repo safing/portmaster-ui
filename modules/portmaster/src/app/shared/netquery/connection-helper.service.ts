@@ -361,7 +361,7 @@ export class NetqueryHelper {
    * @param add  Whether or not to create or delete the rule.
    */
   private updateRules(newRule: string, add: boolean, conn: NetqueryConnection) {
-    if (!conn.extra_data?.reason?.Profile) {
+    if (!conn.profile) {
       return
     }
 
@@ -381,7 +381,7 @@ export class NetqueryHelper {
           }
 
           const newProfile = deepClone(profile);
-          setAppSetting(newProfile.Config, 'filter/endpoints', rules);
+          setAppSetting(newProfile.Config, key, rules);
 
           return this.profileService.saveProfile(newProfile)
         })
