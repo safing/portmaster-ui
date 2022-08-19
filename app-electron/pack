@@ -98,7 +98,7 @@ function build {
   # Pack it up.
   cd dist/$outdir
   echo "resetting $tmpfile ..."
-  rm "$tmpfile"
+  rm -f "$tmpfile"
   echo "zipping $(pwd) into $tmpfile ..."
   zip -r -9 -db "$tmpfile" .
   if [[ $? -ne 0 ]]; then
