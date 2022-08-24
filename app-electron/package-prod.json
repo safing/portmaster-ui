@@ -2,7 +2,7 @@
   "name": "portmaster-app",
   "appId": "io.safing.portmaster",
   "artifactName": "${name}-${version}.${ext}",
-  "version": "0.2.3",
+  "version": "0.2.4",
   "productName": "Portmaster",
   "description": "Portmaster Privacy App",
   "author": "Safing ICS Technologies GmbH",
@@ -10,9 +10,9 @@
   "repository": "https://github.com/safing/portmaster-ui",
   "license": "GPL-3.0-or-later",
   "dependencies": {
-    "axios": "^0.21.1",
+    "axios": "^0.27.2",
+    "electron-window-state": "^5.0.3",
     "hasbin": "^1.2.3",
-    "sudo-prompt": "^9.2.1",
-    "electron-window-state": "^5.0.3"
+    "sudo-prompt": "^9.2.1"
   }
 }
