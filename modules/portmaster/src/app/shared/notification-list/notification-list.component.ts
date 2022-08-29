@@ -1,10 +1,9 @@
 import { animate, style, transition, trigger } from '@angular/animations';
-import { Component, ElementRef, HostBinding, Inject, OnDestroy, OnInit, TrackByFunction } from '@angular/core';
+import { Component, ElementRef, HostBinding, OnDestroy, OnInit, TrackByFunction } from '@angular/core';
 import { Subscription } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { Action, Notification, NotificationsService, NotificationType } from 'src/app/services';
 import { moveInOutAnimation, moveInOutListAnimation } from 'src/app/shared/animations';
-import { WidgetConfig, WIDGET_CONFIG } from '../widget.types';
 
 export interface NotificationWidgetConfig {
   markdown: boolean;
@@ -15,10 +14,10 @@ interface _Notification<T = any> extends Notification<T> {
 }
 
 @Component({
-  templateUrl: './notification-widget.html',
+  selector: 'sfng-notification-list',
+  templateUrl: './notification-list.component.html',
   styleUrls: [
-    '../widget.scss',
-    './notification-widget.scss'
+    './notification-list.component.scss'
   ],
   animations: [
     trigger(
@@ -38,7 +37,7 @@ interface _Notification<T = any> extends Notification<T> {
     moveInOutListAnimation
   ]
 })
-export class NotificationWidgetComponent implements OnInit, OnDestroy {
+export class NotificationListComponent implements OnInit, OnDestroy {
   readonly types = NotificationType;
 
   /** Used to set a fixed height when a notification is expanded. */
@@ -78,7 +77,6 @@ export class NotificationWidgetComponent implements OnInit, OnDestroy {
 
   constructor(
     public elementRef: ElementRef,
-    @Inject(WIDGET_CONFIG) public config: WidgetConfig<NotificationWidgetConfig>,
     public notifsService: NotificationsService,
   ) { }
 

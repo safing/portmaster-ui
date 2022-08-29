@@ -1,5 +1,6 @@
 <div class="logo" routerLink="monitor">
-  <svg [class.connected]="(connected$ | async)" data-name="Layer 1" viewBox="0 0 128 128" class="spin reverse">
+  <svg [class.connected]="(connected$ | async)" data-name="Layer 1" viewBox="0 0 128 128"
+    class="spin reverse logo-image">
     <g data-name="Main" fill-rule="evenodd">
       <path shape-rendering="geometricPrecision" fill="#fff" class="inner"
         d="M176.11 36.73l-5-8.61a41.53 41.53 0 00-14.73 57.22l8.55-5.12a31.58 31.58 0 0111.19-43.49z"
@@ -9,14 +10,14 @@
         transform="translate(-127.99 .01)" style="isolation:isolate" opacity=".8"></path>
     </g>
   </svg>
-  <svg [class.connected]="(connected$ | async)" data-name="Layer 1" viewBox="0 0 128 128" class="spin">
+  <svg [class.connected]="(connected$ | async)" data-name="Layer 1" viewBox="0 0 128 128" class="spin logo-image">
     <g data-name="Main" fill-rule="evenodd">
       <path shape-rendering="geometricPrecision" fill="#fff" class="inner reverse"
         d="M197 83a19.66 19.66 0 01-19.25-32.57l-4.5-4.27A25.87 25.87 0 00198.59 89z" transform="translate(-127.99 .01)"
         style="isolation:isolate" opacity=".6"></path>
     </g>
   </svg>
-  <svg [class.connected]="(connected$ | async)" data-name="Layer 1" viewBox="0 0 128 128">
+  <svg [class.connected]="(connected$ | async)" data-name="Layer 1" viewBox="0 0 128 128" class="logo-image">
     <g data-name="Main" fill-rule="evenodd">
       <path shape-rendering="geometricPrecision" fill="#fff"
         d="M192 112.64A48.64 48.64 0 11240.64 64 48.64 48.64 0 01192 112.64zM256 64a64 64 0 10-64 64 64 64 0 0064-64z"
@@ -27,6 +28,45 @@
   <div class="first-tipup">
     <sfng-tipup key="intro"></sfng-tipup>
   </div>
+
+  <div class="pt-1 mt-3 border-t border-gray-400 nav-list">
+
+    <!-- The notification drop-down -->
+    <div class="relative link" cdkOverlayOrigin #notifOrigin="cdkOverlayOrigin"
+      (click)="notificationDropDown.toggle(notifOrigin)" [class.active]="notificationDropDown.isOpen">
+
+      <span *ngIf="hasNewNotifications" class="absolute w-1.5 h-1.5 bg-green-300 rounded-full top-1.5 right-1.5"></span>
+
+      <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"
+        stroke-width="2">
+        <path stroke-linecap="round" stroke-linejoin="round"
+          d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+      </svg>
+    </div>
+    <sfng-dropdown [positions]="dropDownPositions" externalTrigger="true" #notificationDropDown offsetY="0" offsetX="10"
+      overlayClass="rounded-t">
+      <sfng-notification-list></sfng-notification-list>
+    </sfng-dropdown>
+
+    <!-- The prompt list drop-down -->
+    <div class="relative link" cdkOverlayOrigin #promptOrigin="cdkOverlayOrigin"
+      (click)="promptDropDown.toggle(promptOrigin)" [class.active]="promptDropDown.isOpen">
+
+      <span *ngIf="hasNewPrompts" class="absolute w-1.5 h-1.5 bg-yellow-300 rounded-full top-1.5 right-1.5"></span>
+
+      <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"
+        stroke-width="2">
+        <path stroke-linecap="round" stroke-linejoin="round"
+          d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+      </svg>
+    </div>
+    <sfng-dropdown [positions]="dropDownPositions" externalTrigger="true" #promptDropDown offsetY="0" offsetX="10"
+      overlayClass="rounded-t">
+      <sfng-prompt-list></sfng-prompt-list>
+    </sfng-dropdown>
+
+  </div>
+
 </div>
 
 <div class="nav-list">
@@ -94,7 +134,7 @@
     #settingsMenuTrigger="cdkOverlayOrigin" [class.active]="settingsMenu.dropdown.isOpen">
 
     <span *ngIf="versions?.Channel !== 'stable'"
-      class="absolute w-2 h-2 bg-yellow-300 rounded-full top-1 left-1"></span>
+      class="absolute w-1.5 h-1.5 bg-yellow-300 rounded-full top-1.5 right-1.5"></span>
 
     <svg version="1.1" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" class="help"
       xmlns:xlink="http://www.w3.org/1999/xlink">
@@ -131,8 +171,8 @@
     </app-menu-item>
     <app-menu-item (click)="resetBroadcastState()">Reset Broadcast State</app-menu-item>
     <app-menu-item (click)="clearDNSCache($event)">Clear DNS Cache</app-menu-item>
-    <app-menu-item (click)="copyDebugInfo($event)">Copy Debug Info</app-menu-item>
     <app-menu-item (click)="openDataDir($event)">Open Data Directory</app-menu-item>
+    <app-menu-item (click)="copyDebugInfo($event)">Copy Debug Info</app-menu-item>
   </app-menu>
 
   <!-- Power Menu -->

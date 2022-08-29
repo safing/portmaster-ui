@@ -17,13 +17,16 @@
     &:active {
       outline: none;
     }
+
+    .logo-image {
+      width: 100%;
+      position: absolute;
+      top: 0;
+      left: 0;
+    }
   }
 
   svg {
-    width: 100%;
-    position: absolute;
-    top: 0;
-    left: 0;
 
     &:not(.connected) {
       animation-timing-function: cubic-bezier(0.445, 0.05, 0.55, 0.95);

@@ -1,4 +1,4 @@
-<div class="scrollable" [@moveInOutList]="profiles.length">
+<div class="flex flex-col scrollable" [@moveInOutList]="profiles.length">
   <div class="group" *ngFor="let profile of profiles; trackBy: trackProfile">
     <div class="group-header">
       <app-icon [profile]="profile"></app-icon>

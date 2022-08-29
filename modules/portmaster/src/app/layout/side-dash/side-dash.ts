@@ -70,13 +70,20 @@ export class SideDashComponent implements OnInit, OnDestroy {
               return existing;
             }
 
+            // don't break if the user has a widget configured that does not exist
+            // any more.
+            if (this.widgetTemplates[w.type] === undefined) {
+              return null as any as WidgetPortal<any>;
+            }
+
             const injector = this.createInjector(w);
             return {
               ...w,
               definition: this.widgetTemplates[w.type],
               portal: new ComponentPortal(this.widgetTemplates[w.type].widgetComponent, null, injector),
             }
-          });
+          })
+          .filter(widget => widget !== null)
 
         this.widgets = widgetsWithMeta;
       });

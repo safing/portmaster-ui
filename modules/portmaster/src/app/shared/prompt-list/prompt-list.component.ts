@@ -23,10 +23,10 @@ interface ProfilePrompts extends AppProfile {
 const PromptLimit = 3;
 
 @Component({
-  templateUrl: './prompt-widget.html',
+  selector: 'sfng-prompt-list',
+  templateUrl: './prompt-list.component.html',
   styleUrls: [
-    '../widget.scss',
-    './prompt-widget.scss'
+    './prompt-list.component.scss'
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   animations: [
@@ -34,7 +34,7 @@ const PromptLimit = 3;
     moveInOutListAnimation
   ]
 })
-export class PromptWidgetComponent implements OnInit, OnDestroy {
+export class PromptListComponent implements OnInit, OnDestroy {
   profiles: ProfilePrompts[] = [];
 
   /**
