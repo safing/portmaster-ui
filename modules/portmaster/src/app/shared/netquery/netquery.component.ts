@@ -1,10 +1,11 @@
 import { coerceArray } from "@angular/cdk/coercion";
-import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, Input, OnDestroy, OnInit, Output, QueryList, TemplateRef, TrackByFunction, ViewChildren } from "@angular/core";
+import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, EventEmitter, Input, OnDestroy, OnInit, Output, QueryList, Renderer2, TemplateRef, TrackByFunction, ViewChildren } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
 import { ChartResult, Condition, IPScope, Netquery, NetqueryConnection, OrderBy, PossilbeValue, Query, QueryResult, Select, Verdict } from "@safing/portmaster-api";
 import { Datasource, DynamicItemsPaginator, SelectOption } from "@safing/ui";
 import { BehaviorSubject, combineLatest, forkJoin, Observable, of, Subject } from "rxjs";
 import { catchError, debounceTime, map, switchMap, takeUntil } from "rxjs/operators";
+import { AppComponent } from "src/app/app.component";
 import { ActionIndicatorService } from "../action-indicator";
 import { ExpertiseService } from "../expertise";
 import { objKeys } from "../utils";
@@ -151,6 +152,11 @@ export class SfngNetqueryViewer implements OnInit, OnDestroy, AfterViewInit {
     private actionIndicator: ActionIndicatorService,
     private route: ActivatedRoute,
     private router: Router,
+    private elementRef: ElementRef,
+    // we need access to the app-component here so we get notified when the size of the
+    // content viewport changes either due to resize or the side-dash being opened/closed.
+    private app: AppComponent,
+    private renderer2: Renderer2,
   ) { }
 
   @Input()
@@ -279,6 +285,32 @@ export class SfngNetqueryViewer implements OnInit, OnDestroy, AfterViewInit {
   orderByKeys: string[] = [];
 
   ngOnInit(): void {
+    const maxWidthBreakpoints = [
+      500,
+      700,
+      900,
+      1100,
+    ]
+
+    // prepare our breakpoint listeners and add the classes to our main element
+    this.app.onContentSizeChange$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(() => {
+        const rect = (this.elementRef.nativeElement as HTMLElement).getBoundingClientRect();
+
+        let breakpoint = 0;
+        maxWidthBreakpoints.forEach(bp => {
+          this.renderer2.removeClass(this.elementRef.nativeElement, `max-width-${bp}`)
+          if (rect.width > bp) {
+            breakpoint = bp;
+          }
+        })
+
+        if (breakpoint !== 0) {
+          this.renderer2.addClass(this.elementRef.nativeElement, `max-width-${breakpoint}`)
+        }
+      })
+
     // Prepare the datasource that is used to initialize the DynamicItemPaginator.
     // It basically has a "view" function that executes the current page query
     // but with page-number and page-size applied.
@@ -423,7 +455,11 @@ export class SfngNetqueryViewer implements OnInit, OnDestroy, AfterViewInit {
 
           const result = Parser.parse(query!)
 
-          this.onFieldsParsed(result.conditions);
+          this.onFieldsParsed({
+            ...result.conditions,
+            groupBy: result.groupBy,
+            orderBy: result.orderBy,
+          });
           this.textSearch = result.textQuery;
         }
 
@@ -659,6 +695,12 @@ export class SfngNetqueryViewer implements OnInit, OnDestroy, AfterViewInit {
       if (key === 'groupBy') {
         this.groupByKeys = (fields.groupBy || this.groupByKeys)
           .filter(val => {
+            // an empty value is just filtered out without an error as this is the only
+            // way to specify "I don't want grouping" via the filter
+            if (val === '') {
+              return false;
+            }
+
             if (!allowedKeys.has(val as any)) {
               this.actionIndicator.error("Invalid search query", "Column " + val + " is not allowed for groupby")
               return false;

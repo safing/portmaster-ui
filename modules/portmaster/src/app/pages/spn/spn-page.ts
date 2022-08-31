@@ -1,15 +1,14 @@
-import { TemplatePortal } from "@angular/cdk/portal";
 import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, OnDestroy, OnInit, TemplateRef, TrackByFunction, ViewChild, ViewContainerRef } from "@angular/core";
-import { Router } from "@angular/router";
+import { ActivatedRoute, Router } from "@angular/router";
 import { AppProfile, ConfigService, ExpertiseLevel, GeoCoordinates, getPinCoords, IntelEntity, IProfileStats, Netquery, Pin, SPNService, SPNStatus, UnknownLocation, UserProfile } from "@safing/portmaster-api";
-import { SfngDialogRef, SfngDialogService } from "@safing/ui";
+import { SfngDialogService } from "@safing/ui";
 import { curveBasis, geoMercator, geoPath, interpolateString, json, line, pointer, select, Selection, zoom, zoomIdentity, ZoomTransform } from 'd3';
 import { BehaviorSubject, combineLatest, forkJoin, interval, Observable, of, Subject } from "rxjs";
-import { debounceTime, delay, distinctUntilChanged, finalize, map, mergeMap, startWith, switchMap, take, takeUntil, tap } from "rxjs/operators";
-import { Issue, SupportHubService } from "src/app/services";
+import { catchError, debounceTime, distinctUntilChanged, filter, map, mergeMap, share, startWith, switchMap, takeUntil, withLatestFrom } from "rxjs/operators";
 import { ActionIndicatorService } from "src/app/shared/action-indicator";
-import { fadeInListAnimation } from "src/app/shared/animations";
+import { fadeInAnimation, fadeInListAnimation, fadeOutAnimation } from "src/app/shared/animations";
 import { ExpertiseService } from "src/app/shared/expertise/expertise.service";
+import { SPNAccountDetailsComponent } from "src/app/shared/spn-account-details";
 import { feature } from 'topojson-client';
 
 const markerSize = 5;
@@ -50,15 +49,6 @@ interface _ProcessGroupModel {
 
 type Line = [_PinModel, _PinModel];
 
-/** The name of the SPN repository used to filter SPN support hub issues. */
-const SPNRepository = "spn";
-
-/** A set of issue labels that are eligible to be displayed */
-const SPNTagSet = new Set<string>(["network status"])
-
-interface _Issue extends Issue {
-  expanded: boolean;
-}
 
 @Component({
   templateUrl: './spn-page.html',
@@ -66,6 +56,8 @@ interface _Issue extends Issue {
   changeDetection: ChangeDetectionStrategy.OnPush,
   animations: [
     fadeInListAnimation,
+    fadeInAnimation,
+    fadeOutAnimation
   ]
 })
 export class SpnPageComponent implements OnInit, OnDestroy, AfterViewInit {
@@ -77,17 +69,8 @@ export class SpnPageComponent implements OnInit, OnDestroy, AfterViewInit {
   @ViewChild('accountDetails', { read: TemplateRef, static: true })
   accountDetails: TemplateRef<any> | null = null;
 
-  @ViewChild('networkStatusDialog', { read: TemplateRef, static: true })
-  networkStatusDialog: TemplateRef<any> | null = null;
-
   /** currentUser holds the current SPN user profile if any */
   currentUser: UserProfile | null = null;
-
-  /** loginModel holds login information */
-  loginModel = {
-    username: '',
-    password: '',
-  }
 
   /**
    * activeSince holds the pre-formatted duration since the SPN is active
@@ -132,14 +115,8 @@ export class SpnPageComponent implements OnInit, OnDestroy, AfterViewInit {
   /** Status is the current SPN status */
   spnStatus: SPNStatus | null = null;
 
-  /** spnIssues holds github issues from the SPN repository */
-  spnIssues: _Issue[] = [];
-
-  /** Whether or not we're currently refreshing the user profile from the customer agent */
-  refreshing = false;
-
-  /** trackIssue is used as a track-by function when rendering SPN issues. */
-  trackIssue: TrackByFunction<_Issue> = (_: number, issue: _Issue) => issue.url;
+  /** Whether or not we are still waiting for all data in order to satisfy a "show process/pin" request by query-params */
+  loading = true;
 
   /**
    * spnStatusTranslation translates the spn status to the text that is displayed
@@ -151,12 +128,6 @@ export class SpnPageComponent implements OnInit, OnDestroy, AfterViewInit {
     disabled: 'Disabled',
     failed: 'Failure'
   }
-
-  /** accountDetailsDialogRef holds the reference to our account details dialog */
-  private accountDetailsDialogRef: SfngDialogRef<any> | null = null;
-
-  /** whatsNewDialogRef holds the reference to our what's new dialog */
-  private networkStatusDialogRef: SfngDialogRef<any> | null = null;
 
   /** flagDir holds the path to the flag assets */
   private readonly flagDir = '/assets/img/flags';
@@ -219,8 +190,8 @@ export class SpnPageComponent implements OnInit, OnDestroy, AfterViewInit {
     private uai: ActionIndicatorService,
     private dialog: SfngDialogService,
     private viewRef: ViewContainerRef,
-    private supportHub: SupportHubService,
     private router: Router,
+    private route: ActivatedRoute,
     private cdr: ChangeDetectorRef
   ) {
     const exitNodes$ = interval(5000)
@@ -279,7 +250,8 @@ export class SpnPageComponent implements OnInit, OnDestroy, AfterViewInit {
           this.exitNodeStats$.next(stats);
 
           return Array.from(processMap.values())
-        })
+        }),
+        share()
       )
 
     this.activeProfiles$ = combineLatest([
@@ -296,50 +268,32 @@ export class SpnPageComponent implements OnInit, OnDestroy, AfterViewInit {
                 .filter(pin => !!pin),
             } as any
           })
-        })
+        }),
+        share()
       );
   }
 
+  openAccountDetails() {
+    this.dialog.create(SPNAccountDetailsComponent, {
+      autoclose: true,
+      backdrop: 'light'
+    })
+  }
+
   ngOnInit() {
-    interval(5 * 60 * 1000)
-      .pipe(
-        startWith(-1),
-        takeUntil(this.destroy$),
-        switchMap(() => this.supportHub.loadIssues()),
-        map(issues => {
-          return issues
-            .filter(issue => issue.repository === SPNRepository && issue.labels?.some(l => {
-              return SPNTagSet.has(l);
-            }))
-            .reverse()
-        })
-      )
-      .subscribe(issues => {
-        let spnIssues: _Issue[] = issues
-          .map(i => {
-            const existing = this.spnIssues.find(existing => existing.url === i.url);
-            return {
-              ...i,
-              expanded: existing !== undefined ? existing.expanded : false
-            }
-          })
-        this.spnIssues = spnIssues;
-        this.cdr.markForCheck();
-      })
+    const pinsReady = new Subject<void>();
 
     this.spnService
       .watchProfile()
       .pipe(
-        takeUntil(this.destroy$)
+        takeUntil(this.destroy$),
+        catchError(() => of(null))
       )
-      .subscribe((user: UserProfile) => {
-        if (user.state === '') {
-          this.currentUser = null;
-          if (!!this.accountDetailsDialogRef) {
-            this.accountDetailsDialogRef.close();
-          }
+      .subscribe((user: UserProfile | null) => {
+        if (user?.state !== '') {
+          this.currentUser = user || null;
         } else {
-          this.currentUser = user;
+          this.currentUser = null;
         }
 
         this.cdr.markForCheck();
@@ -381,7 +335,6 @@ export class SpnPageComponent implements OnInit, OnDestroy, AfterViewInit {
         debounceTime(5),
       )
 
-
     combineLatest([
       pinUpdates$,
       this.exitNodeStats$,
@@ -404,7 +357,7 @@ export class SpnPageComponent implements OnInit, OnDestroy, AfterViewInit {
             preferredLocation: getPinCoords(p) || UnknownLocation,
             preferredEntity: (p.EntityV4 || p.EntityV6)!, // there must always be one entity
             countProcesses: 0,
-            collapsed: existing.get(p.ID) ? existing.get(p.ID)!.collapsed : false,
+            collapsed: existing.get(p.ID) ? existing.get(p.ID)!.collapsed : true,
             route: [],
           })
         })
@@ -440,138 +393,38 @@ export class SpnPageComponent implements OnInit, OnDestroy, AfterViewInit {
           this.countRoutedAliveConnections += p.countAliveConnections;
         }
 
+        pinsReady.next();
+
         // emit the new pin map. to any other subscribers.
         this.pins$.next(lm);
       })
-  }
 
-  /**
-   * Opens the "what's new" dialog showing network status
-   * issues from GH
-   *
-   * @private - template only
-   */
-  openNetworkStatusDialog() {
-    if (!this.networkStatusDialog) {
-      return;
-    }
-
-    if (!!this.networkStatusDialogRef) {
-      return;
-    }
-
-    const portal = new TemplatePortal(this.networkStatusDialog, this.viewRef);
-    this.networkStatusDialogRef = this.dialog.create(portal, {
-      autoclose: true,
-      backdrop: 'light',
-    })
-    this.networkStatusDialogRef.onClose
-      .pipe(take(1))
-      .subscribe(() => this.networkStatusDialogRef = null);
-  }
-
-  /**
-   * Close the What's new dialog if it's currently displayed
-   *
-   * @private - template only
-   */
-  closeNetworkStatusDialog() {
-    if (!this.networkStatusDialogRef) {
-      return;
-    }
-    this.networkStatusDialogRef.close();
-  }
-
-  /**
-   * Force a refresh of the local user account
-   *
-   * @private - template only
-   */
-  refreshAccount() {
-    this.refreshing = true;
-    this.spnService.userProfile(true)
+    combineLatest([
+      this.route.queryParamMap,
+      pinsReady.pipe(
+        filter(() => this.loading)
+      ),
+    ])
       .pipe(
-        delay(1000),
-        tap(() => {
-          this.refreshing = false;
-          this.cdr.markForCheck();
-        }),
-      )
-      .subscribe()
-  }
+        withLatestFrom(
+          this.activeProfiles$,
+          this.pins$,
+        ),
+        takeUntil(this.destroy$)
+      ).subscribe(([[params, _], profiles, pins]) => {
+        const app = params.get("app")
+        if (!!app) {
+          const profile = profiles.find(p => `${p.profile.Source}/${p.profile.ID}` === app);
+          if (!!profile) {
+            const pinID = params.get("pin")
+            const pin = pinID ? pins.get(pinID) : undefined;
+            this.selectGroup(profile, pin)
+          }
+        }
 
-  /**
-   * Log into the safing account for SPN usage
-   *
-   * @private - template only
-   */
-  login() {
-    if (!this.loginModel.username || !this.loginModel.password) {
-      return;
-    }
-
-    this.spnService.login(this.loginModel)
-      .pipe(finalize(() => {
-        this.loginModel.password = '';
-      }))
-      .subscribe(this.uai.httpObserver('SPN Login', 'SPN Login'))
-  }
-
-  /**
-   * Logout of your safing account
-   *
-   * @private - template only
-   */
-  logout() {
-    this.spnService.logout()
-      .subscribe(this.uai.httpObserver('SPN Logout', 'SPN Logout'))
-  }
-
-  /**
-   * Show the account details dialog
-   *
-   * @private - template only
-   */
-  showAccountDetails() {
-    if (!this.accountDetails) {
-      return;
-    }
-
-    if (!!this.accountDetailsDialogRef) {
-      return;
-    }
-
-    const portal = new TemplatePortal(this.accountDetails, this.viewRef);
-    this.accountDetailsDialogRef = this.dialog.create(portal, {
-      autoclose: true,
-      backdrop: 'light',
-    });
-    this.accountDetailsDialogRef.onClose.subscribe(() => this.accountDetailsDialogRef = null);
-  }
-
-  /**
-   * Clsoe the account details dialog
-   *
-   * @private - template only
-   */
-  closeDialog() {
-    if (!this.accountDetailsDialogRef) {
-      return;
-    }
-    this.accountDetailsDialogRef.close();
-  }
-
-  /**
-   * Open a github issue in a new tab/window
-   *
-   * @private - template only
-   */
-  openIssue(issue: Issue) {
-    if (!!window.app) {
-      window.app.openExternal(issue.url);
-      return;
-    }
-    window.open(issue.url, '__blank')
+        // we're done with everything now.
+        this.loading = false;
+      })
   }
 
   /**
@@ -1017,6 +870,11 @@ export class SpnPageComponent implements OnInit, OnDestroy, AfterViewInit {
       this.pins$,
     ])
       .subscribe(async ([pinIDs, pins]) => {
+        // remove the query parameters from the current route so
+        // clicking the SPN icon in the side dash will work as expected.
+        if (!this.loading) {
+          this.router.navigate(['/spn'], { skipLocationChange: true })
+        }
 
         this.selectedProcessGroup = '';
         this.selectedPins = null;
@@ -1219,6 +1077,7 @@ export class SpnPageComponent implements OnInit, OnDestroy, AfterViewInit {
   private updateHubData(sel: Selection<any, _PinModel, any, any>) {
     sel.attr('hub-id', d => d.ID)
       .attr('is-exit', d => d.isExit)
+      .attr('is-selected', d => this.selectedPinIDs?.has(d.ID) || false)
       .attr('in-use', d => this.activePins.has(d.ID) || d.isExit)
       .attr('is-home', d => d.HopDistance === 1)
   }

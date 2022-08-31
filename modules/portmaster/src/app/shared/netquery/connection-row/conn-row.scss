@@ -12,3 +12,25 @@
 
   --app-icon-size: 20px;
 }
+
+:host-context(.max-width-700) {
+
+  [name="reason-extra"],
+  [name="reason-source"] {
+    display: none;
+  }
+}
+
+:host-context(.max-width-500) {
+  :host {
+    grid-template-columns:
+      2fr 4rem 1fr 2rem;
+    ;
+  }
+
+  [name="reason"],
+  [name="location"],
+  [name="time"] {
+    display: none;
+  }
+}

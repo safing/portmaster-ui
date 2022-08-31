@@ -1,17 +1,23 @@
 import { ConnectedPosition } from '@angular/cdk/overlay';
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, Output } from '@angular/core';
 import { DebugAPI, PortapiService } from '@safing/portmaster-api';
 import { tap } from 'rxjs/operators';
 import { AppComponent } from 'src/app/app.component';
 import { NotificationsService, NotificationType, StatusService, VersionStatus } from 'src/app/services';
 import { ActionIndicatorService } from 'src/app/shared/action-indicator';
+import { fadeInAnimation, fadeOutAnimation } from 'src/app/shared/animations';
 import { ExitService } from 'src/app/shared/exit-screen';
 
 @Component({
   selector: 'app-navigation',
   templateUrl: './navigation.html',
   styleUrls: ['./navigation.scss'],
+  exportAs: 'navigation',
   changeDetection: ChangeDetectionStrategy.OnPush,
+  animations: [
+    fadeInAnimation,
+    fadeOutAnimation,
+  ]
 })
 export class NavigationComponent {
   /** Emits the current portapi connection state on changes. */
@@ -23,8 +29,17 @@ export class NavigationComponent {
   /** Whether or not we have new, unseen notifications */
   hasNewNotifications = false;
 
+  /** The color to use for the notifcation-available hint (dot) */
+  notificationColor: string = 'bg-green-300';
+
   /** Whether or not we have new, unseen prompts */
   hasNewPrompts = false;
+
+  @Output()
+  sideDashChange = new EventEmitter<'collapsed' | 'expanded' | 'force-overlay'>();
+
+  /** Whether or not the side dash should be expanded or collapsed */
+  sideDashStatus: 'collapsed' | 'expanded' = 'expanded';
 
   constructor(
     private portapi: PortapiService,
@@ -47,6 +62,22 @@ export class NavigationComponent {
   ]
 
   ngOnInit() {
+    const mql = window.matchMedia('(max-width: 1200px)');
+
+    if (mql.matches) {
+      this.sideDashStatus = 'collapsed';
+      this.sideDashChange.next(this.sideDashStatus);
+    }
+
+    mql.addEventListener('change', () => {
+      if (mql.matches) {
+        this.sideDashStatus = 'collapsed';
+      } else {
+        this.sideDashStatus = 'expanded';
+      }
+      this.sideDashChange.next(this.sideDashStatus);
+    })
+
     this.statusService.getVersions()
       .subscribe(versions => {
         this.versions = versions;
@@ -66,7 +97,35 @@ export class NavigationComponent {
         } else {
           this.hasNewNotifications = false;
         }
+
+        if (notif.some(n => n.Type === NotificationType.Error)) {
+          this.notificationColor = 'bg-red-300';
+        } else
+          if (notif.some(n => n.Type === NotificationType.Warning)) {
+            this.notificationColor = 'bg-yellow-300';
+          } else {
+            this.notificationColor = 'bg-green-300';
+          }
+
+        this.cdr.markForCheck();
       })
+  }
+
+  toggleSideDash(event: MouseEvent) {
+    let notify: 'expanded' | 'collapsed' | 'force-overlay' = this.sideDashStatus;
+
+    if (this.sideDashStatus === 'collapsed') {
+      this.sideDashStatus = 'expanded';
+      notify = 'expanded';
+      if (event.shiftKey) {
+        notify = 'force-overlay'
+      }
+    } else {
+      this.sideDashStatus = 'collapsed';
+      notify = 'collapsed'
+    }
+
+    this.sideDashChange.next(notify);
   }
 
   /**
@@ -85,6 +144,15 @@ export class NavigationComponent {
       .subscribe(this.actionIndicator.httpObserver(
         'Reloading UI ...',
         'Failed to Reload UI',
+      ))
+  }
+
+  /** Re-initialize the SPN */
+  reinitSPN(_: Event) {
+    this.portapi.reinitSPN()
+      .subscribe(this.actionIndicator.httpObserver(
+        'Re-initialized SPN',
+        'Failed to re-initialize the SPN'
       ))
   }
 

@@ -6,7 +6,6 @@ import { SettingsComponent } from './pages/settings/settings';
 import { SpnPageComponent } from './pages/spn';
 import { SupportPageComponent } from './pages/support';
 import { SupportFormComponent } from './pages/support/form';
-import { WidgetSettingsOutletComponent } from './pages/widget-settings-outlet/widget-settings-outlet';
 
 const routes: Routes = [
   {
@@ -38,14 +37,6 @@ const routes: Routes = [
   {
     path: 'monitor/profile/:source/:profile',
     redirectTo: 'monitor',
-  },
-  {
-    path: 'widget/new',
-    component: WidgetSettingsOutletComponent,
-  },
-  {
-    path: 'widget/edit/:widgetId',
-    component: WidgetSettingsOutletComponent,
   },
   {
     path: 'support',

@@ -144,12 +144,18 @@ export interface QueryResult extends Partial<NetqueryConnection> {
   [key: string]: any;
 }
 
+export interface Identities {
+  exit_node: string;
+  count: number;
+}
+
 export interface IProfileStats {
   ID: string;
   Name: string;
 
   size: number;
   empty: boolean;
+  identities: Identities[];
   countAllowed: number;
   countUnpermitted: number;
   countAliveConnections: number;
@@ -261,8 +267,24 @@ export class Netquery {
           'profile',
         ],
         query: query,
-      })
+      }),
 
+      identities: this.query({
+        select: [
+          'profile',
+          'exit_node',
+          { $count: { field: '*', as: 'totalCount' } }
+        ],
+        groupBy: [
+          'profile',
+          'exit_node',
+        ],
+        query: {
+          exit_node: {
+            $ne: "",
+          }
+        },
+      })
     }).pipe(
       map(result => {
         let statsMap = new Map<string, IProfileStats>();
@@ -275,6 +297,7 @@ export class Netquery {
             countAllowed: 0,
             countUnpermitted: 0,
             empty: true,
+            identities: [],
             size: 0
           };
 
@@ -304,6 +327,21 @@ export class Netquery {
           let stats = statsMap.get(res.profile!)!;
 
           stats.countAliveConnections = res.totalCount - res.countEnded;
+        })
+
+        result.identities?.forEach(res => {
+          let stats = statsMap.get(res.profile!)!;
+
+          let ident = stats.identities.find(value => value.exit_node === res.exit_node)
+          if (!ident) {
+            ident = {
+              count: 0,
+              exit_node: res.exit_node!,
+            }
+            stats.identities.push(ident);
+          }
+
+          ident.count += res.totalCount;
         })
 
         return Array.from(statsMap.values())

@@ -3,7 +3,7 @@ import { Inject, Injectable, InjectionToken, isDevMode, NgZone } from '@angular/
 import { BehaviorSubject, Observable, Observer, of } from 'rxjs';
 import { concatMap, delay, filter, map, retryWhen, takeWhile, tap } from 'rxjs/operators';
 import { WebSocketSubject } from 'rxjs/webSocket';
-import { DataReply, deserializeMessage, InspectedActiveRequest, isCancellable, isDataReply, Record, ReplyMessage, Requestable, RequestMessage, RequestType, RetryableOpts, retryPipeline, serializeMessage, WatchOpts } from './portapi.types';
+import { DataReply, deserializeMessage, DoneReply, InspectedActiveRequest, isCancellable, isDataReply, Record, ReplyMessage, Requestable, RequestMessage, RequestType, RetryableOpts, retryPipeline, serializeMessage, WatchOpts } from './portapi.types';
 import { WebsocketService } from './websocket.service';
 
 export const PORTMASTER_WS_API_ENDPOINT = new InjectionToken<string>('PortmasterWebsocketEndpoint');
@@ -121,6 +121,11 @@ export class PortapiService {
     return this.http.post(`${this.httpEndpoint}/v1/broadcasts/reset-state`, undefined, { observe: 'response', responseType: 'arraybuffer' })
   }
 
+  /** Re-initialize the SPN */
+  reinitSPN(): Observable<any> {
+    return this.http.post(`${this.httpEndpoint}/v1/spn/reinit`, undefined, { observe: 'response', responseType: 'arraybuffer' })
+  }
+
   /**
    * Injects an event into a module to trigger certain backend
    * behavior.
@@ -207,8 +212,10 @@ export class PortapiService {
    * @param query The query use to subscribe.
    * @todo(ppacher): check what a ok/done message mean here.
    */
-  qsub<T extends Record>(query: string, opts: RetryableOpts = {}): Observable<DataReply<T>> {
-    return this.request('qsub', { query })
+  qsub<T extends Record>(query: string, opts?: RetryableOpts): Observable<DataReply<T>>;
+  qsub<T extends Record>(query: string, opts: RetryableOpts, _: { forwardDone: true }): Observable<DataReply<T> | DoneReply>;
+  qsub<T extends Record>(query: string, opts: RetryableOpts = {}, { forwardDone }: { forwardDone?: true } = {}): Observable<DataReply<T>> {
+    return this.request('qsub', { query }, { forwardDone })
       .pipe(retryPipeline(opts))
   }
 
@@ -278,16 +285,25 @@ export class PortapiService {
    *        giving up. Defaults to Infinity
    * @param opts.ingoreNew Whether or not `new` notifications
    *        will be ignored. Defaults to false
+   * @param forwardDone: Whether or not the "done" message should be forwarded
    */
-  watch<T extends Record>(key: string, opts: WatchOpts = {}): Observable<T> {
-    return this.qsub<T>(key, opts)
+  watch<T extends Record>(key: string, opts?: WatchOpts): Observable<T>;
+  watch<T extends Record>(key: string, opts: WatchOpts, _: { forwardDone: true }): Observable<T | DoneReply>;
+  watch<T extends Record>(key: string, opts: WatchOpts = {}, { forwardDone }: { forwardDone?: boolean } = {}): Observable<T | DoneReply> {
+    return this.qsub<T>(key, opts, { forwardDone } as any)
       .pipe(
-        filter(reply => reply.key === key),
+        filter(reply => reply.type !== 'done' || forwardDone === true),
+        filter(reply => reply.type === 'done' || reply.key === key),
         takeWhile(reply => reply.type !== 'del'),
         filter(reply => {
           return !opts.ingoreNew || reply.type !== 'new'
         }),
-        map(reply => reply.data),
+        map(reply => {
+          if (reply.type === 'done') {
+            return reply;
+          }
+          return reply.data;
+        }),
       );
   }
 

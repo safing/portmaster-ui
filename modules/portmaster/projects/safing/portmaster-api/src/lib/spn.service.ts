@@ -1,7 +1,7 @@
 import { HttpClient, HttpParams, HttpResponse } from "@angular/common/http";
 import { Inject, Injectable } from "@angular/core";
 import { BehaviorSubject, Observable } from "rxjs";
-import { filter, multicast, refCount } from "rxjs/operators";
+import { filter, map, multicast, refCount } from "rxjs/operators";
 import { PortapiService, PORTMASTER_HTTP_API_ENDPOINT } from './portapi.service';
 import { Pin, SPNStatus, UserProfile } from "./spn.types";
 
@@ -89,9 +89,29 @@ export class SPNService {
   }
 
   /**
-   * Watches the user profile
+   * Watches the user profile. It will emit null if there is no profile available yet.
    */
-  watchProfile(): Observable<UserProfile> {
-    return this.portapi.watch<UserProfile>('core:spn/account/user');
+  watchProfile(): Observable<UserProfile | null> {
+    let hasSent = false;
+    return this.portapi.watch<UserProfile>('core:spn/account/user', {}, { forwardDone: true })
+      .pipe(
+        filter(result => {
+          if ('type' in result && result.type === 'done') {
+            if (hasSent) {
+              return false;
+            }
+          }
+
+          return true
+        }),
+        map(result => {
+          hasSent = true;
+          if ('type' in result) {
+            return null;
+          }
+
+          return result;
+        })
+      );
   }
 }

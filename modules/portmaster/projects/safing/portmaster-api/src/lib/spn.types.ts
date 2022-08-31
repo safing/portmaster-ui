@@ -22,6 +22,7 @@ export interface Pin extends Record {
     [key: string]: Lane,
   };
   Route: string[] | null;
+  VerifiedOwner: string;
 }
 
 export interface Lane {

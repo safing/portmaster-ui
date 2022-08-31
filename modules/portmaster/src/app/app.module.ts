@@ -30,7 +30,6 @@ import { SettingsComponent } from './pages/settings/settings';
 import { SpnPageComponent } from './pages/spn';
 import { SupportPageComponent } from './pages/support';
 import { SupportFormComponent } from './pages/support/form';
-import { WidgetSettingsOutletComponent } from './pages/widget-settings-outlet/widget-settings-outlet';
 import { NotificationsService } from './services';
 import { ActionIndicatorModule } from './shared/action-indicator';
 import { SfngAppIconModule } from './shared/app-icon';
@@ -46,16 +45,18 @@ import { LoadingComponent } from './shared/loading';
 import { SfngMenuModule } from './shared/menu';
 import { SfngMultiSwitchModule } from './shared/multi-switch';
 import { NetqueryModule } from './shared/netquery';
+import { NetworkScoutComponent } from './shared/network-scout';
 import { NotificationListComponent } from './shared/notification-list/notification-list.component';
 import { NotificationComponent } from './shared/notification/notification';
 import { CommonPipesModule } from './shared/pipes';
 import { PromptListComponent } from './shared/prompt-list/prompt-list.component';
+import { SecurityLockComponent } from './shared/security-lock';
+import { SPNAccountDetailsComponent } from './shared/spn-account-details';
+import { SPNLoginComponent } from './shared/spn-login';
+import { SPNNetworkStatusComponent } from './shared/spn-network-status';
+import { SPNStatusComponent } from './shared/spn-status';
+import { PilotWidgetComponent } from './shared/status-pilot';
 import { PlaceholderComponent } from './shared/text-placeholder';
-import { MarkdownWidgetComponent, MarkdownWidgetSettingsComponent } from './widgets/markdown-widget';
-import { NetworkActivityWidget } from './widgets/network-activity-widget';
-import { PilotWidgetComponent } from './widgets/pilot-widget';
-import { StatusWidgetComponent, StatusWidgetSettingsComponent } from './widgets/status-widget';
-import { WIDGET_DEFINTIONS } from './widgets/widget.types';
 
 @NgModule({
   declarations: [
@@ -65,14 +66,7 @@ import { WIDGET_DEFINTIONS } from './widgets/widget.types';
     MonitorPageComponent,
     SideDashComponent,
     NavigationComponent,
-    WidgetSettingsOutletComponent,
-    StatusWidgetComponent,
-    StatusWidgetSettingsComponent,
     PilotWidgetComponent,
-    StatusWidgetComponent,
-    StatusWidgetSettingsComponent,
-    MarkdownWidgetSettingsComponent,
-    MarkdownWidgetComponent,
     NotificationListComponent,
     PromptListComponent,
     FuzzySearchPipe,
@@ -87,7 +81,12 @@ import { WIDGET_DEFINTIONS } from './widgets/widget.types';
     SupportPageComponent,
     SupportFormComponent,
     SpnPageComponent,
-    NetworkActivityWidget,
+    SecurityLockComponent,
+    SPNStatusComponent,
+    SPNLoginComponent,
+    SPNNetworkStatusComponent,
+    SPNAccountDetailsComponent,
+    NetworkScoutComponent,
   ],
   imports: [
     BrowserModule,
@@ -130,48 +129,6 @@ import { WIDGET_DEFINTIONS } from './widgets/widget.types';
       httpAPI: environment.httpAPI,
       websocketAPI: environment.portAPI,
     }),
-  ],
-  providers: [
-    {
-      provide: WIDGET_DEFINTIONS,
-      useValue: {
-        type: 'status-widget',
-        name: 'Demo',
-        settingsComponent: StatusWidgetSettingsComponent,
-        widgetComponent: StatusWidgetComponent,
-      },
-      multi: true,
-    },
-    {
-      provide: WIDGET_DEFINTIONS,
-      useValue: {
-        type: 'markdown-widget',
-        name: 'Markdown',
-        settingsComponent: MarkdownWidgetSettingsComponent,
-        widgetComponent: MarkdownWidgetComponent,
-      },
-      multi: true,
-    },
-    {
-      provide: WIDGET_DEFINTIONS,
-      useValue: {
-        type: 'pilot-widget',
-        name: 'Pilot',
-        widgetComponent: PilotWidgetComponent,
-        disableCustom: true,
-        tipUpKey: "pilot-widget"
-      },
-      multi: true,
-    },
-    {
-      provide: WIDGET_DEFINTIONS,
-      useValue: {
-        type: 'network-scout',
-        name: 'Network Scout',
-        widgetComponent: NetworkActivityWidget
-      },
-      multi: true
-    }
   ],
   bootstrap: [AppComponent]
 })

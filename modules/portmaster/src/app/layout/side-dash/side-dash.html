@@ -1,31 +1,28 @@
-<div class="widget-list" cdkDropList cdkDragLockAxis="y" (cdkDropListDropped)="drop($event)">
-  <div class="widget" *ngFor="let widget of widgets; trackBy: trackBy" cdkDrag tipUpAnchor>
-    <div class="buttons">
-      <div class="dragable" cdkDragHandle>
-        <svg xmlns="http://www.w3.org/2000/svg" data-name="Layer 2" viewBox="0 0 11.86 19.86">
-          <circle cx="1.93" cy="1.93" r="1.93" />
-          <circle cx="9.93" cy="1.93" r="1.93" />
-          <circle cx="1.93" cy="9.93" r="1.93" />
-          <circle cx="9.93" cy="9.93" r="1.93" />
-          <circle cx="1.93" cy="17.93" r="1.93" />
-          <circle cx="9.93" cy="17.93" r="1.93" />
-        </svg>
-      </div>
-      <sfng-tipup style="padding-bottom: .25rem; margin-left: 1px;" *ngIf="!!widget.definition.tipUpKey"
-        [key]="widget.definition.tipUpKey"></sfng-tipup>
-      <fa-icon class="edit-icon" *ngIf="!!widget.definition.settingsComponent || expertise === 'developer'" icon="pen"
-        routerLink="/widget/edit/{{widget.key}}"></fa-icon>
-    </div>
-    <ng-container [cdkPortalOutlet]="widget.portal"></ng-container>
+<div class="relative flex flex-row w-full gap-2 px-2 justify-evenly">
+  <app-status-pilot class="block w-32"></app-status-pilot>
+  <div class="h-full border-l-2 border-gray-300"></div>
+  <app-spn-status class="block w-64" (loginRequired)="spnLoginRequired = $event"></app-spn-status>
 
+  <div class="absolute top-0 right-0 flex flex-row gap-2 pr-4">
+    <span (click)="openNetworkStatus()"
+      class="block p-1.5 bg-gray-400 rounded cursor-pointer text-primary hover:bg-gray-300 hover:text-primary">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
+        class="w-5 h-5">
+        <path stroke-linecap="round" stroke-linejoin="round"
+          d="M12 7.5h1.5m-1.5 3h1.5m-7.5 3h7.5m-7.5 3h7.5m3-9h3.375c.621 0 1.125.504 1.125 1.125V18a2.25 2.25 0 01-2.25 2.25M16.5 7.5V18a2.25 2.25 0 002.25 2.25M16.5 7.5V4.875c0-.621-.504-1.125-1.125-1.125H4.125C3.504 3.75 3 4.254 3 4.875V18a2.25 2.25 0 002.25 2.25h13.5M6 7.5h3v3H6v-3z" />
+      </svg>
+    </span>
+
+    <span (click)="openAccountDetails()"
+      class="block p-1.5 bg-gray-400 rounded cursor-pointer text-primary hover:bg-gray-300 hover:text-primary">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
+        class="w-5 h-5">
+        <path stroke-linecap="round" stroke-linejoin="round"
+          d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
+      </svg>
+    </span>
   </div>
 </div>
 
-<div class="new-widget widget no-wd" *appExpertiseLevel="'developer'" routerLink="/widget/new" tipUpAnchor>
-  <fa-icon icon="plus-circle" [inverse]="false"></fa-icon>
-  <span class="secondary-text">Add widget</span>
-
-  <div class="buttons">
-    <sfng-tipup key="myKey"></sfng-tipup>
-  </div>
-</div>
+<app-spn-login *ngIf="spnLoginRequired" class="mt-8"></app-spn-login>
+<app-network-scout *ngIf="!spnLoginRequired" class="flex-grow mt-8 overflow-auto"></app-network-scout>

@@ -1,0 +1,14 @@
+:host {
+  display: block;
+  width: 100%;
+}
+
+.custom-form-input {
+  background: none;
+  @apply border-0 border-b border-buttons-light text-secondary font-medium px-0;
+
+  &:active,
+  &:focus {
+    background: none;
+  }
+}
