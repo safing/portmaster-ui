@@ -15,7 +15,7 @@
 <ng-template #defaultButtonTemplate>
   <div class="flex flex-row justify-between">
     <button class="w-32 py-2" (click)="goBack()">Go Back</button>
-    <button class="w-32 py-2 bg-blue hover:bg-blue hover:bg-opacity-75 active:shadow-inner"
+    <button class="custom w-32 py-2 bg-blue hover:bg-blue hover:bg-opacity-75 active:shadow-inner"
       [disabled]="!(currentStep?.validChange | async)" (click)="next()">
       {{ currentStep?.nextButtonLabel ||  (!isLast ? 'Next' : 'Finish') }}</button>
   </div>

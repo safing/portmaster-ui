@@ -1,41 +1,66 @@
-<div class="logo" routerLink="monitor">
-  <svg [class.connected]="(connected$ | async)" data-name="Layer 1" viewBox="0 0 128 128"
-    class="spin reverse logo-image">
-    <g data-name="Main" fill-rule="evenodd">
-      <path shape-rendering="geometricPrecision" fill="#fff" class="inner"
-        d="M176.11 36.73l-5-8.61a41.53 41.53 0 00-14.73 57.22l8.55-5.12a31.58 31.58 0 0111.19-43.49z"
-        transform="translate(-127.99 .01)" style="isolation:isolate" opacity=".8"></path>
-      <path shape-rendering="geometricPrecision" fill="#fff" class="inner"
-        d="M222.36 72.63a31.55 31.55 0 01-45 19.35l-4.62 8.84a41.54 41.54 0 0059.17-25.46z"
-        transform="translate(-127.99 .01)" style="isolation:isolate" opacity=".8"></path>
-    </g>
-  </svg>
-  <svg [class.connected]="(connected$ | async)" data-name="Layer 1" viewBox="0 0 128 128" class="spin logo-image">
-    <g data-name="Main" fill-rule="evenodd">
-      <path shape-rendering="geometricPrecision" fill="#fff" class="inner reverse"
-        d="M197 83a19.66 19.66 0 01-19.25-32.57l-4.5-4.27A25.87 25.87 0 00198.59 89z" transform="translate(-127.99 .01)"
-        style="isolation:isolate" opacity=".6"></path>
-    </g>
-  </svg>
-  <svg [class.connected]="(connected$ | async)" data-name="Layer 1" viewBox="0 0 128 128" class="logo-image">
-    <g data-name="Main" fill-rule="evenodd">
-      <path shape-rendering="geometricPrecision" fill="#fff"
-        d="M192 112.64A48.64 48.64 0 11240.64 64 48.64 48.64 0 01192 112.64zM256 64a64 64 0 10-64 64 64 64 0 0064-64z"
-        transform="translate(-127.99 .1)"></path>
-    </g>
-  </svg>
+<div class="flex flex-col items-center gap-1">
+  <div class="relative w-16 h-16">
 
-  <div class="first-tipup">
+    <app-security-lock [@fadeIn] [@fadeOut] mode="small" class="absolute w-16 h-16"
+      *ngIf="sideDashStatus === 'collapsed'">
+    </app-security-lock>
+
+    <div class="absolute flex flex-col items-center justify-center w-16 h-16 outline-none" routerLink="monitor"
+      [@fadeIn] [@fadeOut] *ngIf="sideDashStatus === 'expanded'">
+      <div class="relative">
+
+        <svg [class.connected]="(connected$ | async)" data-name="Layer 1" viewBox="0 0 128 128"
+          class="spin reverse logo-image">
+          <g data-name="Main" fill-rule="evenodd">
+            <path shape-rendering="geometricPrecision" fill="#fff" class="inner"
+              d="M176.11 36.73l-5-8.61a41.53 41.53 0 00-14.73 57.22l8.55-5.12a31.58 31.58 0 0111.19-43.49z"
+              transform="translate(-127.99 .01)" style="isolation:isolate" opacity=".8"></path>
+            <path shape-rendering="geometricPrecision" fill="#fff" class="inner"
+              d="M222.36 72.63a31.55 31.55 0 01-45 19.35l-4.62 8.84a41.54 41.54 0 0059.17-25.46z"
+              transform="translate(-127.99 .01)" style="isolation:isolate" opacity=".8"></path>
+          </g>
+        </svg>
+        <svg [class.connected]="(connected$ | async)" data-name="Layer 1" viewBox="0 0 128 128" class="spin logo-image">
+          <g data-name="Main" fill-rule="evenodd">
+            <path shape-rendering="geometricPrecision" fill="#fff" class="inner reverse"
+              d="M197 83a19.66 19.66 0 01-19.25-32.57l-4.5-4.27A25.87 25.87 0 00198.59 89z"
+              transform="translate(-127.99 .01)" style="isolation:isolate" opacity=".6"></path>
+          </g>
+        </svg>
+        <svg [class.connected]="(connected$ | async)" data-name="Layer 1" viewBox="0 0 128 128" class="logo-image">
+          <g data-name="Main" fill-rule="evenodd">
+            <path shape-rendering="geometricPrecision" fill="#fff"
+              d="M192 112.64A48.64 48.64 0 11240.64 64 48.64 48.64 0 01192 112.64zM256 64a64 64 0 10-64 64 64 64 0 0064-64z"
+              transform="translate(-127.99 .1)"></path>
+          </g>
+        </svg>
+      </div>
+    </div>
+  </div>
+
+  <div class="flex justify-center">
     <sfng-tipup key="intro"></sfng-tipup>
   </div>
 
-  <div class="pt-1 mt-3 border-t border-gray-400 nav-list">
+  <div class="nav-list">
+    <div class="relative link" (click)="toggleSideDash($event)">
+      <svg [class.-rotate-180]="sideDashStatus === 'collapsed'" [class.bg-gray-400]="sideDashStatus === 'collapsed'"
+        xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"
+        class="w-5 h-5 transition-all duration-200 rounded">
+        <path fill-rule="evenodd"
+          d="M7.21 14.77a.75.75 0 01.02-1.06L11.168 10 7.23 6.29a.75.75 0 111.04-1.08l4.5 4.25a.75.75 0 010 1.08l-4.5 4.25a.75.75 0 01-1.06-.02z"
+          clip-rule="evenodd" />
+      </svg>
+    </div>
+  </div>
 
+  <div class="pt-1 border-t border-gray-400 nav-list">
     <!-- The notification drop-down -->
     <div class="relative link" cdkOverlayOrigin #notifOrigin="cdkOverlayOrigin"
       (click)="notificationDropDown.toggle(notifOrigin)" [class.active]="notificationDropDown.isOpen">
 
-      <span *ngIf="hasNewNotifications" class="absolute w-1.5 h-1.5 bg-green-300 rounded-full top-1.5 right-1.5"></span>
+      <span *ngIf="hasNewNotifications"
+        class="absolute w-1.5 h-1.5 {{ notificationColor }} rounded-full top-1.5 right-1.5"></span>
 
       <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"
         stroke-width="2">
@@ -64,10 +89,9 @@
       overlayClass="rounded-t">
       <sfng-prompt-list></sfng-prompt-list>
     </sfng-dropdown>
-
   </div>
-
 </div>
+
 
 <div class="nav-list">
   <!-- Monitor -->
@@ -169,6 +193,7 @@
     <app-menu-item *appExpertiseLevel="'developer'" (click)="showIntro()">
       Show Intro Screen
     </app-menu-item>
+    <app-menu-item (click)="reinitSPN($event)">Re-Initialize SPN</app-menu-item>
     <app-menu-item (click)="resetBroadcastState()">Reset Broadcast State</app-menu-item>
     <app-menu-item (click)="clearDNSCache($event)">Clear DNS Cache</app-menu-item>
     <app-menu-item (click)="openDataDir($event)">Open Data Directory</app-menu-item>

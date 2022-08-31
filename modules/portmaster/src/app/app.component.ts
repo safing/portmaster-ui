@@ -3,7 +3,8 @@ import { ChangeDetectorRef, Component, HostListener, NgZone, OnInit } from '@ang
 import { Router } from '@angular/router';
 import { PortapiService } from '@safing/portmaster-api';
 import { OverlayStepper, SfngDialogService, StepperRef } from '@safing/ui';
-import { debounceTime, filter, mergeMap, skip, startWith, take } from 'rxjs/operators';
+import { BehaviorSubject, combineLatest, Subject } from 'rxjs';
+import { debounceTime, filter, map, mergeMap, skip, startWith, take } from 'rxjs/operators';
 import { IntroModule } from './intro';
 import { Notification, NotificationsService, NotificationType, UIStateService } from './services';
 import { ActionIndicator, ActionIndicatorService } from './shared/action-indicator';
@@ -27,7 +28,39 @@ export class AppComponent implements OnInit {
   );
   title = 'portmaster';
 
+  /** The current status of the side dash as emitted by the navigation component */
+  sideDashStatus: 'collapsed' | 'expanded' = 'expanded';
+
+  /** Whether or not the side-dash is in overlay mode */
+  sideDashOverlay = false;
+
+  /** The MQL to watch for screen size changes. */
+  private mql!: MediaQueryList;
+
+  /** Emits when the side-dash is opened or closed in non-overlay mode */
+  private sideDashOpen = new BehaviorSubject<boolean>(false);
+
+  /** Used to emit when the window size changed */
+  private windowResizeChange = new Subject<void>();
+
+  get sideDashOpen$() { return this.sideDashOpen.asObservable() }
+
   get showOverlay$() { return this.exitService.showOverlay$ }
+
+  get onContentSizeChange$() {
+    return combineLatest([
+      this.windowResizeChange,
+      this.sideDashOpen,
+    ]).pipe(
+      debounceTime(100),
+      map(([_, sideDashOpen]) => sideDashOpen)
+    )
+  }
+
+  @HostListener('window:resize')
+  onWindowResize() {
+    this.windowResizeChange.next();
+  }
 
   @HostListener('document:keydown', ['$event'])
   onKeyDown(event: KeyboardEvent) {
@@ -138,6 +171,23 @@ export class AppComponent implements OnInit {
     }
   }
 
+  onSideDashChange(state: 'expanded' | 'collapsed' | 'force-overlay') {
+    if (state === 'force-overlay') {
+      state = 'expanded';
+      if (!this.sideDashOverlay) {
+        this.sideDashOverlay = true;
+      }
+    } else {
+      this.sideDashOverlay = this.mql.matches;
+    }
+
+    this.sideDashStatus = state;
+
+    if (!this.sideDashOverlay) {
+      this.sideDashOpen.next(this.sideDashStatus === 'expanded')
+    }
+  }
+
   ngOnInit() {
     // force a reload of the current route if we reconnected to
     // portmaster. This ensures we'll refresh any data that's currently
@@ -160,6 +210,17 @@ export class AppComponent implements OnInit {
           this.showIntro();
         }
       })
+
+    this.mql = window.matchMedia('(max-width: 1200px)');
+    this.sideDashOverlay = this.mql.matches;
+
+    this.mql.addEventListener('change', () => {
+      this.sideDashOverlay = this.mql.matches;
+
+      if (!this.sideDashOverlay) {
+        this.sideDashOpen.next(this.sideDashStatus === 'expanded')
+      }
+    })
   }
 
   showIntro(): StepperRef {

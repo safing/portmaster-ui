@@ -8,26 +8,12 @@
   align-items: center;
   user-select: none;
 
-  div.logo {
-    position: relative;
-    width: 1.53rem;
-    @apply mt-6;
-
-    &,
-    &:active {
-      outline: none;
-    }
-
-    .logo-image {
-      width: 100%;
-      position: absolute;
-      top: 0;
-      left: 0;
-    }
+  .logo-image {
+    @apply w-6 -top-3 -left-3 absolute;
+    position: absolute;
   }
 
   svg {
-
     &:not(.connected) {
       animation-timing-function: cubic-bezier(0.445, 0.05, 0.55, 0.95);
 
@@ -35,12 +21,6 @@
         fill: theme('colors.info.red');
       }
     }
-  }
-
-  div.first-tipup {
-    margin-top: 2.5rem;
-    display: flex;
-    justify-content: center;
   }
 
   div.nav-list {

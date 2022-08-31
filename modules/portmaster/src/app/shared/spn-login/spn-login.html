@@ -1,0 +1,36 @@
+<!-- login View -->
+<div class="w-full px-5">
+  <h2 class="w-full text-center">SPN Account Login</h2>
+
+  <a class="inline-block w-full mb-4 text-xs font-medium text-center text-tertiary" href="https://safing.io/spn"
+    target="_blank">
+    Unlock the <u>powerful VPN alternative</u>
+  </a>
+
+  <form (ngSubmit)="login()">
+    <div class="flex flex-col items-stretch mt-4 space-y-6">
+      <div class="flex flex-col justify-items-start">
+        <label for="username" class="font-semibold text-primary">Username</label>
+        <input type="text" name="username" placeholder="Your username" autocomplete="off" class="custom-form-input"
+          [(ngModel)]="username">
+      </div>
+
+      <div class="flex flex-col justify-items-start">
+        <label for="password" class="font-semibold text-primary">Password</label>
+        <input type="password" name="password" placeholder="Enter your strong password" autocomplete="off"
+          class="custom-form-input" [(ngModel)]="password">
+      </div>
+
+      <div>
+        <button
+          class="relative w-full p-2 bg-opacity-75 rounded-full custom text-primary bg-blue hover:bg-blue bg-opacity-702"
+          [disabled]="!username || !password" type="submit">
+          SIGN IN
+        </button>
+        <div class="w-full mt-6 text-xs font-semibold text-center text-tertiary">
+          <span>Have no account? <a class="underline" href="https://account.safing.io">Sign Up</a></span>
+        </div>
+      </div>
+    </div>
+  </form>
+</div>

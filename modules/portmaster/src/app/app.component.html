@@ -1,6 +1,13 @@
-<app-navigation></app-navigation>
+<app-navigation #navigation (sideDashChange)="onSideDashChange($event)" class="relative block bg-background">
+</app-navigation>
 
-<app-side-dash class="sidebar"></app-side-dash>
+<div *ngIf="sideDashStatus === 'expanded' && sideDashOverlay" (click)="navigation.toggleSideDash($event)" [@fadeIn]
+  [@fadeOut] class="absolute top-0 bottom-0 right-0 left-16 dialog-screen-backdrop-light" style="z-index: 100"></div>
+
+<app-side-dash class="flex-shrink-0" style="z-index: 100"
+  [ngClass]="{'absolute top-0 left-16 bg-gray-1002 h-full shadow-2xl': sideDashOverlay, 'relative': !sideDashOverlay}"
+  *ngIf="sideDashStatus === 'expanded'" [@fadeIn] [@fadeOut]>
+</app-side-dash>
 
 <div class="main">
   <router-outlet></router-outlet>

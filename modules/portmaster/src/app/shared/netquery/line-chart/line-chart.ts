@@ -20,6 +20,13 @@ export class SfngNetqueryLineChart implements OnChanges, OnInit, AfterViewInit {
   @Input()
   data: ChartResult[] = [];
 
+  @Input()
+  set hideBlocked(v: any) {
+    this._hideBlockedConnections = coerceBooleanProperty(v);
+  }
+  get hideBlocked() { return this._hideBlockedConnections; }
+  private _hideBlockedConnections = false;
+
   private width = 700;
   private height = 250;
 
@@ -29,6 +36,19 @@ export class SfngNetqueryLineChart implements OnChanges, OnInit, AfterViewInit {
   }
   get margin() { return this._margin; }
   private _margin = 0;
+
+  @Input()
+  activeConnectionColor = 'text-green-300';
+
+  @Input()
+  blockedConnectionColor = 'text-red-300';
+
+  @Input()
+  activeConnectionAreaColor = 'text-green-100';
+
+  @Input()
+  blockedConnectionAreaColor = 'text-red-100';
+
 
   svg!: Selection<any, any, any, any>;
   svgInner!: any;
@@ -121,12 +141,12 @@ export class SfngNetqueryLineChart implements OnChanges, OnInit, AfterViewInit {
     this.svgInner
       .append('path')
       .attr("fill", "currentColor")
-      .attr("class", "active-area text-green-100")
+      .attr("class", "active-area " + this.activeConnectionAreaColor)
 
     this.svgInner
       .append('path')
       .attr("fill", "currentColor")
-      .attr("class", "blocked-area text-red-100")
+      .attr("class", "blocked-area " + this.blockedConnectionAreaColor)
 
     this.activeConnGroup = this.svgInner
       .append('g')
@@ -135,16 +155,18 @@ export class SfngNetqueryLineChart implements OnChanges, OnInit, AfterViewInit {
       .style('fill', 'none')
       .style('stroke', 'currentColor')
       .style('stroke-width', '1')
-      .attr('class', 'text-green-300')
+      .attr('class', this.activeConnectionColor)
 
-    this.blockedConnGroup = this.svgInner
-      .append('g')
-      .append('path')
-      .attr('id', 'blocked-line')
-      .style('fill', 'none')
-      .style('stroke', 'currentColor')
-      .style('stroke-width', '1')
-      .attr("class", "text-red-300")
+    if (!this._hideBlockedConnections) {
+      this.blockedConnGroup = this.svgInner
+        .append('g')
+        .append('path')
+        .attr('id', 'blocked-line')
+        .style('fill', 'none')
+        .style('stroke', 'currentColor')
+        .style('stroke-width', '1')
+        .attr("class", this.blockedConnectionColor)
+    }
 
     if (this.showAxis) {
       this.yAxis = this.svgInner
@@ -205,24 +227,24 @@ export class SfngNetqueryLineChart implements OnChanges, OnInit, AfterViewInit {
       this.yScale(d.value + d.countBlocked),
     ]);
 
-    const blockedConnPoints: [number, number][] = this.data.map(d => [
-      this.xScale(new Date(d.timestamp * 1000)),
-      this.yScale(d.countBlocked),
-    ]);
-
-    this.blockedConnGroup.attr('d', line(blockedConnPoints))
-
     this.svgInner.selectAll('.active-area')
       .data([activeConnPoints])
       .attr('d', area(activeConnPoints))
 
-    this.svgInner.selectAll('.blocked-area')
-      .data([blockedConnPoints])
-      .attr('d', area(blockedConnPoints))
+    if (!this.hideBlocked) {
+      const blockedConnPoints: [number, number][] = this.data.map(d => [
+        this.xScale(new Date(d.timestamp * 1000)),
+        this.yScale(d.countBlocked),
+      ]);
+      this.blockedConnGroup.attr('d', line(blockedConnPoints))
 
-    this.blockedConnGroup.attr('d', line(blockedConnPoints));
+      this.svgInner.selectAll('.blocked-area')
+        .data([blockedConnPoints])
+        .attr('d', area(blockedConnPoints))
+
+      this.blockedConnGroup.attr('d', line(blockedConnPoints));
+    }
 
     this.activeConnGroup.attr('d', line(activeConnPoints))
-
   }
 }
