@@ -2,331 +2,255 @@ package main
 
 import (
 	"fmt"
-	"io"
-	"net"
 	"os/exec"
 	"path/filepath"
 	"runtime"
 	"strings"
 	"sync"
+	"unsafe"
 
-	"github.com/Microsoft/go-winio"
+	"github.com/safing/portbase/info"
 	"github.com/safing/portbase/log"
-	"github.com/safing/portbase/utils/osdetail"
-	"golang.org/x/text/encoding/unicode"
-)
 
-var (
-	notifierPath                  string
-	notifierPathMutex             sync.Mutex
-	notificationsEnabledForThisOS bool // Are Notifications even enabled? (not on Windows Versions < 8); no locking done since only written in init()
+	"golang.org/x/sys/windows"
 )
 
 const (
-	pipeName          = "\\\\.\\pipe\\portmasterNotifierToast"
-	appID             = "io.safing.portmaster"
-	notificationTitle = "Portmaster"
+	appName     = "Portmaster"
+	company     = "Safing ICS Technologies GmbH"
+	productName = "Portmaster"
+	subProduct  = "notifier"
 )
 
-type actionCallback struct {
-	action string
-	button string // actionCallback.button is NOT garanteed to exist in the Callback. Therefore make sure to handle empty String
-	id     string
+// WinNotify holds the DLL handle.
+type NotifierLib struct {
+	sync.RWMutex
+
+	dll *windows.DLL
+
+	initialize         *windows.Proc
+	isInitialized      *windows.Proc
+	createNotification *windows.Proc
+	addButton          *windows.Proc
+	setImage           *windows.Proc
+	showNotification   *windows.Proc
+	hideNotification   *windows.Proc
+	setCallback        *windows.Proc
 }
 
-type cmdArgs []string
+var (
+	lib            *NotifierLib
+	notifsByID     = make(map[uint64]*Notification)
+	notifsByIDLock sync.Mutex
+)
 
 func init() {
-	var err error
+	new := &NotifierLib{}
 
-	notificationsEnabledForThisOS, err = osdetail.IsAtLeastWindowsVersion("8")
+	// get dll path
+	dllPath, err := getPath("notifier-winnotify")
 	if err != nil {
-		log.Errorf("failed to obtain and compare Windows-Version: %s", err)
-		notificationsEnabledForThisOS = true
+		log.Errorf("notify: failed to get path to notifier-winnotify dll %q", err)
+		return
 	}
+	// load dll
+	new.dll, err = windows.LoadDLL(dllPath)
+	if err != nil {
+		log.Errorf("notify: failed to load notifier-winnotify dll %q", err)
+		return
+	}
+
+	// load functions
+	new.initialize, err = new.dll.FindProc("PortmasterToastInitialize")
+	if err != nil {
+		log.Errorf("notify: PortmasterToastInitialize not found %q", err)
+		return
+	}
+
+	new.isInitialized, err = new.dll.FindProc("PortmasterToastIsInitialized")
+	if err != nil {
+		log.Errorf("notify: PortmasterToastIsInitialized not found %q", err)
+		return
+	}
+
+	new.createNotification, err = new.dll.FindProc("PortmasterToastCreateNotification")
+	if err != nil {
+		log.Errorf("notify: PortmasterToastCreateNotification not found %q", err)
+		return
+	}
+
+	new.addButton, err = new.dll.FindProc("PortmasterToastAddButton")
+	if err != nil {
+		log.Errorf("notify: PortmasterToastAddButton not found %q", err)
+		return
+	}
+
+	new.setImage, err = new.dll.FindProc("PortmasterToastSetImage")
+	if err != nil {
+		log.Errorf("notify: PortmasterToastSetImage not found %q", err)
+		return
+	}
+
+	new.showNotification, err = new.dll.FindProc("PortmasterToastShow")
+	if err != nil {
+		log.Errorf("notify: PortmasterToastShow not found %q", err)
+		return
+	}
+
+	new.setCallback, err = new.dll.FindProc("PortmasterActivatedCallback")
+	if err != nil {
+		log.Errorf("notify: PortmasterActivatedCallback not found %q", err)
+		return
+	}
+
+	new.hideNotification, err = new.dll.FindProc("PortmasterToastHide")
+	if err != nil {
+		log.Errorf("notify: PortmasterToastHide not found %q", err)
+		return
+	}
+
+	lib = new
 }
 
 // API called functions:
 
-func actionListener() {
-	initNotifierPath()
-	go notificationListener()
-}
-
 // Show shows the notification.
 func (n *Notification) Show() {
-	log.Debugf("showing notification: %+v", n)
-
-	if !notificationsEnabledForThisOS {
-		log.Warningf("showing notifications is not implemented on Windows Versions < 8.")
+	if lib == nil {
+		log.Error("notify: library not properly loaded")
 		return
 	}
 
-	iconLocation, err := ensureAppIcon()
-	if err != nil {
-		log.Warningf("notify: failed to write icon: %s", err)
+	if !isInitialized() {
+		initialize()
 	}
 
-	// beeing very safe while building the Snoretoast-Arguments because malformed arguments sometimes install the SnoreToast default shortcut, see https://bugs.kde.org/show_bug.cgi?id=410622
-	args := make(cmdArgs, 0, 10)
-	if err := verifySnoreToastArgumentSyntax(n.GUID); err != nil {
-		log.Errorf("failed verifiying the GUID when building the SnoreToast-Command: %s", err)
-		return
-	}
-	args.addKeyVal("-id", n.GUID, false)
-	if err := args.addKeyVal("-t", notificationTitle, true); err != nil {
-		log.Errorf("failed adding Title when building SnoreToast-Command: %s Notification: %+v", err, n)
-		return
-	}
-	if err := args.addKeyVal("-m", n.Message, true); err != nil {
-		log.Errorf("failed adding Message when building SnoreToast-Command: %s Notification: %+v", err, n)
-		return
-	}
-	args.addKeyVal("-b", n.buildSnoreToastButtonArgument(), false)
-	if err := verifySnoreToastArgumentSyntax(appID); err != nil {
-		log.Errorf("failed verifying the appID when building the SnoreToast-Command: %s", err)
-		return
-	}
-	args.addKeyVal("-appID", appID, false)
-	args.addKeyVal("-p", iconLocation, false)
-	if err := verifySnoreToastArgumentSyntax(pipeName); err != nil {
-		log.Errorf("failed verifying the pipeName when building the SnoreToast-Command: %s", err)
-		return
-	}
-	args.addKeyVal("-pipeName", pipeName, false)
+	lib.Lock()
+	defer lib.Unlock()
 
-	go runSnoreToastCmd(exec.Command(notifierPath, args...))
+	title, _ := windows.UTF16PtrFromString(n.Title)
+	message, _ := windows.UTF16PtrFromString(n.Message)
+	titleP := unsafe.Pointer(title)
+	messageP := unsafe.Pointer(message)
+	if lib != nil {
+		// Create new notification object
+		notificationPtr, _, err := lib.createNotification.Call(uintptr(titleP), uintptr(messageP))
+		if notificationPtr == 0 {
+			log.Errorf("notify: failed to create notification: %q", err)
+		}
+
+		// Set Portmaster icon.
+		iconLocation, err := ensureAppIcon()
+		if err != nil {
+			log.Warningf("notify: failed to write icon: %s", err)
+		}
+		iconPathUTF, _ := windows.UTF16PtrFromString(iconLocation)
+		iconPathP := unsafe.Pointer(iconPathUTF)
+		_, _, _ = lib.setImage.Call(notificationPtr, uintptr(iconPathP))
+
+		// Set all the required actions
+		for _, action := range n.AvailableActions {
+			textUTF, _ := windows.UTF16PtrFromString(action.Text)
+			textP := unsafe.Pointer(textUTF)
+			_, _, _ = lib.addButton.Call(notificationPtr, uintptr(textP))
+		}
+
+		// Show notification and delete c notification object
+		rc, _, err := lib.showNotification.Call(notificationPtr)
+		if int64(rc) == -1 {
+			log.Errorf("notify: failed to show notification: %q", err)
+		}
+
+		// Link system id to the notification object
+		notifsByIDLock.Lock()
+		defer notifsByIDLock.Unlock()
+		notifsByID[uint64(rc)] = n
+	}
 }
 
 // Cancel cancels the notification.
 func (n *Notification) Cancel() {
-	if n == nil || n.GUID == "" || !notificationsEnabledForThisOS {
+	if lib == nil {
+		log.Errorf("notify: notification library not properly loaded")
 		return
 	}
 
-	args := make(cmdArgs, 0, 4)
-	if err := args.addKeyVal("-close", n.GUID, true); err != nil {
-		log.Errorf("failed adding ID of Notification when building SnoreToast-Close-Command: %s Notification: %+v", err, n)
-		return
-	}
-	if err := args.addKeyVal("-appID", appID, true); err != nil {
-		log.Errorf("failed adding appID when building SnoreToast-Close-Command: %s Notification: %+v", err, n)
-		return
-	}
+	lib.Lock()
+	defer lib.Unlock()
 
-	go runSnoreToastCmd(exec.Command(notifierPath, args...))
+	// Ignore errors
+	_, _, _ = lib.hideNotification.Call(uintptr(n.systemID))
 }
 
-// internal functions:
-
-func initNotifierPath() {
-	notifierPathMutex.Lock()
-	defer notifierPathMutex.Unlock()
-
-	if notifierPath == "" {
-		var err error
-		notifierPath, err = getPath("notifier-snoretoast")
-
-		if err != nil {
-			log.Errorf("failed obtaining SnoreToast-Path: %s %s", err, notifierPath)
-			return
-		}
-	}
+func actionListener() {
+	// Block until notified
+	<-mainCtx.Done()
 }
 
-func notificationListener() {
-	log.Debugf("starting Callback-Pipe for SnoreToast: %s", pipeName)
-	l, err := winio.ListenPipe(pipeName, nil)
-	if err != nil {
-		log.Errorf("failed to start Pipe for SnoreToast: %s", err)
-		return
-	}
-	defer l.Close()
+// portmasterNotificationCallback is a callback from the c library
+func portmasterNotificationCallback(id uint64, actionIndex int) uintptr {
+	// Lock for notification map
+	notifsByIDLock.Lock()
+	defer notifsByIDLock.Unlock()
 
-	for {
-		conn, err := l.Accept()
-		if err != nil {
-			log.Errorf("failed to accept namedPipe-connection (for receiving Callbacks from SnoreToast): %s", err)
-			continue
-		}
-		go handlePipeMessage(conn)
-	}
+	// Get notified object
+	notification := notifsByID[id]
+
+	// Set selected action
+	actionID := notification.AvailableActions[actionIndex].ID
+	notification.SelectAction(actionID)
+
+	delete(notifsByID, id)
+	return 0
 }
 
-func handlePipeMessage(conn net.Conn) {
-	data := parseSnoreToastActionCallback(readWideStringAsUnicode(conn))
-	log.Debugf("handling PipeMessage: %+v", data)
-
-	if data.action == "timedout" {
-		return
+func initialize() bool {
+	if lib == nil {
+		log.Errorf("notify: notification library not properly loaded")
+		return false
 	}
 
-	notificationsLock.Lock()
-	var n *Notification
-	for _, elem := range notifications {
-		if elem.GUID == data.id {
-			n = elem
-			break
-		}
-	}
-	notificationsLock.Unlock()
-	if n == nil {
-		return
-	}
-	n.Lock()
-	defer n.Unlock()
+	lib.Lock()
+	defer lib.Unlock()
 
-	switch data.action {
-	case "dismissed": // do nothing
-	case "clicked": // like dismissed: do nothing
-	case "buttonClicked":
-		for _, actions := range n.AvailableActions {
-			if actions.Text == data.button {
-				n.SelectAction(actions.ID)
-				return
-			}
-		}
+	// Initialize all necessary string for the notification meta data
+	appNameUTF, _ := windows.UTF16PtrFromString(appName)
+	companyUTF, _ := windows.UTF16PtrFromString(company)
+	productNameUTF, _ := windows.UTF16PtrFromString(productName)
+	subProductUTF, _ := windows.UTF16PtrFromString(subProduct)
+	versionInfoUTF, _ := windows.UTF16PtrFromString(info.Version())
 
-		log.Warningf("failed to handle button click: button %s is reported to have been clicked but is no registered button. Available options: %+v", data.button, n.AvailableActions)
-	default:
-		log.Debugf("failed to handle SnoreToast-Action %s: not implemented yet", data.action)
+	// we need them as unsafe pointers
+	appNameP := unsafe.Pointer(appNameUTF)
+	companyP := unsafe.Pointer(companyUTF)
+	productNameP := unsafe.Pointer(productNameUTF)
+	subProductP := unsafe.Pointer(subProductUTF)
+	versionInfoP := unsafe.Pointer(versionInfoUTF)
+
+	// Initialize notifications
+	rc, _, err := lib.initialize.Call(uintptr(appNameP), uintptr(companyP), uintptr(productNameP), uintptr(subProductP), uintptr(versionInfoP))
+	if rc != 1 {
+		log.Errorf("notify: failed to initialize notification library %q", err)
+		return false
 	}
+
+	// Initialize action callback
+	callback := windows.NewCallback(portmasterNotificationCallback)
+	rc, _, err = lib.setCallback.Call(callback)
+
+	if rc != 1 {
+		log.Errorf("notify: failed to initialize notification library %q", err)
+		return false
+	}
+
+	return true
 }
 
-// Snoretoast helper-Functions:
-
-// Verifies that the Argument contians no Semicolon which would be difficult (in some cases impossible) to parse in a Pipe-Response
-func verifySnoreToastArgumentSyntax(arg string) error {
-	if strings.Contains(arg, ";") {
-		return fmt.Errorf("the SnoreToast-Argument %s would contain a semicolon which would screw up the pipe responses", arg)
-	}
-	return nil
-}
-
-func parseSnoreToastActionCallback(in string) actionCallback {
-	ret := actionCallback{}
-
-	for _, elem := range strings.Split(in, ";") {
-		if elem == "" {
-			continue
-		}
-
-		elemSplit := strings.SplitN(elem, "=", 2)
-		if len(elemSplit) != 2 {
-			log.Warningf("failing to parse snoretoast-Response %s into Key=Value-Pair; Response: %s", elem, in)
-			continue
-		}
-
-		switch elemSplit[0] {
-		case "action":
-			ret.action = elemSplit[1]
-		case "button":
-			ret.button = elemSplit[1]
-		case "notificationId":
-			ret.id = elemSplit[1]
-		case "version", "pipe": // not needed: do nothing
-		default:
-			log.Infof("failed to parse key %s from SnoreToast-Response into struct: receivedkey is unknown to Portmaster (%s)", elemSplit[0], elem)
-		}
-	}
-
-	if ret.action == "" {
-		log.Errorf("missing attribute action in SnoreToast Response: %s", in)
-	}
-
-	if ret.id == "" {
-		log.Errorf("missing attribute id in SnoreToast Response: %s", in)
-	}
-
-	return ret
-}
-
-func (n *Notification) buildSnoreToastButtonArgument() string {
-	n.Lock()
-	defer n.Unlock()
-
-	temp := make([]string, 0, len(n.AvailableActions))
-	for _, action := range n.AvailableActions {
-		if !action.IsSupported() {
-			continue
-		}
-
-		if err := verifySnoreToastArgumentSyntax(action.Text); err != nil {
-			log.Errorf("failed to build SnoreToast Button-Argument: failed to validate Text for %+v: %s", action, err)
-			continue
-		}
-
-		if action.Text != "" {
-			temp = append(temp, action.Text)
-		}
-	}
-	return strings.Join(temp, ";")
-}
-
-func runSnoreToastCmd(cmd *exec.Cmd) {
-	exit, err := execCmd(cmd)
-
-	switch exit {
-	case 0, 1, 2, 3, 4, 5: // do nothing
-	default:
-		log.Errorf("executing %+v failed: %s", cmd.Args, err)
-	}
-}
-
-// Generel helper-Functions:
-
-func (list *cmdArgs) addKeyVal(key, val string, required bool) error {
-	if val == "" {
-		if required {
-			return fmt.Errorf("required value for %s is empty", key)
-		}
-		return nil
-	}
-
-	*list = append(*list, key, val)
-
-	return nil
-}
-
-func execCmd(cmd *exec.Cmd) (exitCode int, err error) {
-	log.Debugf("running command: %+v", cmd.Args)
-
-	err = cmd.Run()
-	exitCode = cmd.ProcessState.ExitCode()
-
-	return
-}
-
-func readWideStringAsUnicode(conn net.Conn) string {
-	defer conn.Close()
-
-	var bufferslice []byte
-
-readloop:
-	for {
-		buffer := make([]byte, 512)
-
-		n, err := conn.Read(buffer)
-		switch err {
-		case nil:
-			// do nothing
-		case io.EOF:
-			break readloop
-		default:
-			log.Warningf("failed to read from pipe: %s", err)
-			return ""
-		}
-		bufferslice = append(bufferslice, buffer[:n]...)
-	}
-
-	dec := unicode.UTF16(unicode.LittleEndian, unicode.UseBOM).NewDecoder()
-	out, err := dec.Bytes(bufferslice)
-	if err != nil {
-		log.Warningf("failed to convert wstr to str: %s", err)
-		return ""
-	}
-
-	return string(out)
+func isInitialized() bool {
+	lib.Lock()
+	defer lib.Unlock()
+	rc, _, _ := lib.isInitialized.Call()
+	return rc == 1
 }
 
 func getPath(module string) (string, error) {

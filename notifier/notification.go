@@ -60,7 +60,7 @@ type Notification struct {
 	Category string
 	// Message is the default message shown to the user if no localized version
 	// of the notification is available. Note that the message should already
-	// have any paramerized values replaced.
+	// have any parametrized values replaced.
 	Message string
 	// ShowOnSystem specifies if the notification should be also shown on the
 	// operating system. Notifications shown on the operating system level are

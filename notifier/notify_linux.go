@@ -32,7 +32,7 @@ func handleActions(ctx context.Context, actions chan notify.Signal) {
 		case <-ctx.Done():
 			return
 		case sig := <-actions:
-			log.Tracef("notify: recevied signal: %+v", sig)
+			log.Tracef("notify: received signal: %+v", sig)
 			if sig.ActionKey != "" {
 				// get notification by system ID
 				notifsByIDLock.Lock()
