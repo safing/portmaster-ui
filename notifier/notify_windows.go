@@ -2,10 +2,8 @@ package main
 
 import (
 	"fmt"
-	"os/exec"
 	"path/filepath"
 	"runtime"
-	"strings"
 	"sync"
 	"unsafe"
 
@@ -44,19 +42,19 @@ var (
 	notifsByIDLock sync.Mutex
 )
 
-func init() {
+func loadDLL() {
 	new := &NotifierLib{}
 
 	// get dll path
-	dllPath, err := getPath("notifier-winnotify")
+	dllPath, err := getDllPath()
 	if err != nil {
-		log.Errorf("notify: failed to get path to notifier-winnotify dll %q", err)
+		log.Errorf("notify: failed to get path to notifier-wintoast dll %q", err)
 		return
 	}
 	// load dll
 	new.dll, err = windows.LoadDLL(dllPath)
 	if err != nil {
-		log.Errorf("notify: failed to load notifier-winnotify dll %q", err)
+		log.Errorf("notify: failed to load notifier-wintoast dll %q", err)
 		return
 	}
 
@@ -97,7 +95,7 @@ func init() {
 		return
 	}
 
-	new.setCallback, err = new.dll.FindProc("PortmasterActivatedCallback")
+	new.setCallback, err = new.dll.FindProc("PortmasterToastActivatedCallback")
 	if err != nil {
 		log.Errorf("notify: PortmasterActivatedCallback not found %q", err)
 		return
@@ -122,7 +120,7 @@ func (n *Notification) Show() {
 	}
 
 	if !isInitialized() {
-		initialize()
+		log.Error("notify: not initialized")
 	}
 
 	lib.Lock()
@@ -175,6 +173,10 @@ func (n *Notification) Cancel() {
 		return
 	}
 
+	if !isInitialized() {
+		log.Error("notify: not initialized")
+	}
+
 	lib.Lock()
 	defer lib.Unlock()
 
@@ -183,6 +185,8 @@ func (n *Notification) Cancel() {
 }
 
 func actionListener() {
+	loadDLL()
+	initialize()
 	// Block until notified
 	<-mainCtx.Done()
 }
@@ -253,24 +257,14 @@ func isInitialized() bool {
 	return rc == 1
 }
 
-func getPath(module string) (string, error) {
+func getDllPath() (string, error) {
 	// build path to app
 	if dataDir == "" {
-		return "", fmt.Errorf("failed to get Path for %s: dataDir is empty", module)
+		return "", fmt.Errorf("dataDir is empty")
 	}
 
-	pmStartPath := filepath.Join(dataDir, "portmaster-start")
-	if runtime.GOOS == "windows" {
-		pmStartPath += ".exe"
-	}
+	// TODO: add versioning support
+	dllPath := filepath.Join(dataDir, "updates", runtime.GOOS+"_"+runtime.GOARCH, "notifier", "portmaster-wintoast.dll")
 
-	// get path
-	cmd := exec.Command(pmStartPath, "show", module, "--data", dataDir)
-	ret, err := cmd.Output()
-
-	if err != nil {
-		err = fmt.Errorf("failed to execute command: %s", err)
-	}
-
-	return strings.TrimSpace(string(ret)), err
+	return dllPath, nil
 }

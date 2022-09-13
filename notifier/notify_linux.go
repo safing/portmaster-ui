@@ -9,7 +9,7 @@ import (
 )
 
 var (
-	capabilites notify.Capabilities
+	capabilities notify.Capabilities
 
 	notifsByID     = make(map[uint32]*Notification)
 	notifsByIDLock sync.Mutex
@@ -17,7 +17,7 @@ var (
 
 func init() {
 	var err error
-	capabilites, err = notify.GetCapabilities()
+	capabilities, err = notify.GetCapabilities()
 	if err != nil {
 		log.Errorf("failed to get notification system capabilities: %s", err)
 	}
@@ -84,7 +84,7 @@ func (n *Notification) Show() {
 	// The actions send a request message back to the notification client
 	// when invoked.
 	// sysN.Actions []string
-	if capabilites.Actions {
+	if capabilities.Actions {
 		sysN.Actions = make([]string, 0, len(n.AvailableActions)*2)
 		for _, action := range n.AvailableActions {
 			if action.IsSupported() {
