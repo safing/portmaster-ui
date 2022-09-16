@@ -134,6 +134,11 @@ func (n *Notification) Show() {
 		log.Error("notify: not initialized")
 	}
 
+	// Lock notification
+	n.Lock()
+	defer n.Unlock()
+
+	// Lock library
 	lib.Lock()
 	defer lib.Unlock()
 
@@ -191,6 +196,11 @@ func (n *Notification) Cancel() {
 		log.Error("notify: not initialized")
 	}
 
+	// Lock notification
+	n.RLock()
+	defer n.RUnlock()
+
+	// Lock library
 	lib.Lock()
 	defer lib.Unlock()
 

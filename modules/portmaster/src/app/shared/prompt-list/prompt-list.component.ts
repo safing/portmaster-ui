@@ -11,7 +11,7 @@ import { ParsedDomain, parseDomain } from 'src/app/shared/utils';
 interface ExtendedConnectionPrompt extends ConnectionPrompt, ParsedDomain { }
 
 // ProfilePrompts extends an application profile with prompt
-// information mainly used for paginagtion.
+// information mainly used for pagination.
 interface ProfilePrompts extends AppProfile {
   promptsLimited: ExtendedConnectionPrompt[];
   prompts: ExtendedConnectionPrompt[];

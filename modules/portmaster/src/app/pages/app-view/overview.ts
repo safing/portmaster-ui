@@ -51,7 +51,7 @@ export class AppOverviewComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     // watch all profiles and re-emit (debounced) when the user
-    // enters or chanages the search-text.
+    // enters or changes the search-text.
     this.subscription = combineLatest([
       this.profileService.watchProfiles(),
       this.onSearch.pipe(debounceTime(100), startWith('')),
@@ -61,7 +61,7 @@ export class AppOverviewComponent implements OnInit, OnDestroy {
         ([profiles, searchTerm, activeProfiles]) => {
           this.loading = false;
 
-          // find all profiles that match the search term. For searchTerm="" thsi
+          // find all profiles that match the search term. For searchTerm="" this
           // will return all profiles.
           const filtered = this.searchService.searchList(profiles, searchTerm, {
             ignoreLocation: true,
@@ -76,7 +76,7 @@ export class AppOverviewComponent implements OnInit, OnDestroy {
           this.runningProfiles = [];
           this.recentlyEdited = [];
 
-          // calcualte the threshold for "recently-used" (1 week).
+          // calculate the threshold for "recently-used" (1 week).
           const recentlyUsedThreshold = new Date().valueOf() / 1000 - (60 * 60 * 24 * 7);
 
           // flatten the filtered profiles, sort them by name and group them into

@@ -14,7 +14,7 @@ export enum ModuleStatus {
 }
 
 /**
- * Returns a string represetnation of the module status.
+ * Returns a string representation of the module status.
  *
  * @param stat The module status to translate
  */

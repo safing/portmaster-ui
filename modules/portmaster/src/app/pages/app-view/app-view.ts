@@ -40,7 +40,7 @@ export class AppViewComponent implements OnInit, OnDestroy {
 
   /**
    * @private
-   * Whether or not the overview componet should be rendered.
+   * Whether or not the overview component should be rendered.
    */
   get showOverview() {
     return this.appProfile == null && !this._loading
@@ -222,7 +222,7 @@ export class AppViewComponent implements OnInit, OnDestroy {
         profileStream,                        // emits the current app profile everytime it changes
         this.route.queryParamMap,             // for changes to the settings= query parameter
         this.profileService.globalConfig(),   // for changes to ghe global profile
-        this.configService.query(""),         // get ALL settings (once, only the defintion is of intereset)
+        this.configService.query(""),         // get ALL settings (once, only the definition is of interest)
         this.viewSettingChange.pipe(          // watch the current "settings-view" setting, but only if it changes
           distinctUntilChanged(),
         ),
