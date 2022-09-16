@@ -8,10 +8,12 @@ import (
 	"github.com/safing/portbase/log"
 )
 
+type NotificationID uint32
+
 var (
 	capabilities notify.Capabilities
 
-	notifsByID     = make(map[uint32]*Notification)
+	notifsByID     = make(map[NotificationID]*Notification)
 	notifsByIDLock sync.Mutex
 )
 
@@ -43,6 +45,9 @@ func handleActions(ctx context.Context, actions chan notify.Signal) {
 				if ok {
 					n.SelectAction(sig.ActionKey)
 				}
+			} else {
+				// Global action invoked, start the app
+				launchApp()
 			}
 		}
 	}

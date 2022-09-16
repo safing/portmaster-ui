@@ -87,8 +87,8 @@ type Notification struct {
 	// based on the user selection.
 	SelectedActionID string
 
-	// systemID holds the ID returned by the dbus interface on Linux.
-	systemID uint32
+	// systemID holds the ID returned by the dbus interface on Linux or by WinToast library on Windows.
+	systemID NotificationID
 }
 
 // Action describes an action that can be taken for a notification.

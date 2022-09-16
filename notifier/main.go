@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"errors"
 	"flag"
 	"fmt"
 	"os"
@@ -17,9 +18,13 @@ import (
 	"github.com/tevino/abool"
 
 	"github.com/safing/portbase/api/client"
+	"github.com/safing/portbase/dataroot"
 	"github.com/safing/portbase/info"
 	"github.com/safing/portbase/log"
 	"github.com/safing/portbase/modules"
+	"github.com/safing/portbase/updater"
+	"github.com/safing/portbase/utils"
+	"github.com/safing/portmaster/updates/helper"
 )
 
 var (
@@ -34,6 +39,17 @@ var (
 
 	mainCtx, cancelMainCtx = context.WithCancel(context.Background())
 	mainWg                 = &sync.WaitGroup{}
+
+	dataRoot *utils.DirStructure
+	// Create registry.
+	registry = &updater.ResourceRegistry{
+		Name: "updates",
+		UpdateURLs: []string{
+			"https://updates.safing.io",
+		},
+		DevMode: false,
+		Online:  true, // is disabled later based on command
+	}
 )
 
 func init() {
@@ -90,6 +106,13 @@ func main() {
 	err = log.Start()
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "failed to start logging: %s\n", err)
+		os.Exit(1)
+	}
+
+	// load registry
+	err = configureRegistry(true)
+	if err != nil {
+		log.Errorf("failed to load registry: %s\n", err)
 		os.Exit(1)
 	}
 
@@ -182,4 +205,84 @@ func detectDataDir() string {
 		return filepath.Clean(strings.TrimSuffix(binDir, identifierDir))
 	}
 	return ""
+}
+
+func configureRegistry(mustLoadIndex bool) error {
+	// If dataDir is not set, check the environment variable.
+	if dataDir == "" {
+		dataDir = os.Getenv("PORTMASTER_DATA")
+	}
+
+	// If it's still empty, try to auto-detect it.
+	if dataDir == "" {
+		dataDir = detectInstallationDir()
+	}
+
+	// Finally, if it's still empty, the user must provide it.
+	if dataDir == "" {
+		return errors.New("please set the data directory using --data=/path/to/data/dir")
+	}
+
+	// Remove left over quotes.
+	dataDir = strings.Trim(dataDir, `\"`)
+	// Initialize data root.
+	err := dataroot.Initialize(dataDir, 0o0755)
+	if err != nil {
+		return fmt.Errorf("failed to initialize data root: %w", err)
+	}
+	dataRoot = dataroot.Root()
+
+	// Initialize registry.
+	err = registry.Initialize(dataRoot.ChildDir("updates", 0o0755))
+	if err != nil {
+		return err
+	}
+
+	return updateRegistryIndex(mustLoadIndex)
+}
+
+func detectInstallationDir() string {
+	exePath, err := filepath.Abs(os.Args[0])
+	if err != nil {
+		return ""
+	}
+
+	parent := filepath.Dir(exePath)
+	stableJSONFile := filepath.Join(parent, "updates", "stable.json")
+	stat, err := os.Stat(stableJSONFile)
+	if err != nil {
+		return ""
+	}
+
+	if stat.IsDir() {
+		return ""
+	}
+
+	return parent
+}
+
+func updateRegistryIndex(mustLoadIndex bool) error {
+	// Set indexes based on the release channel.
+	warning := helper.SetIndexes(registry, "", false)
+	if warning != nil {
+		log.Warningf("%q", warning)
+	}
+
+	// Load indexes from disk or network, if needed and desired.
+	err := registry.LoadIndexes(context.Background())
+	if err != nil {
+		log.Warningf("error loading indexes %q", warning)
+		if mustLoadIndex {
+			return err
+		}
+	}
+
+	// Load versions from disk to know which others we have and which are available.
+	err = registry.ScanStorage("")
+	if err != nil {
+		log.Warningf("error during storage scan: %q\n", err)
+	}
+
+	registry.SelectVersions()
+	return nil
 }
