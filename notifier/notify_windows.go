@@ -236,6 +236,9 @@ func portmasterNotificationActivatedCallback(id NotificationID, actionIndex int3
 	// Get notified object
 	notification := notifsByID[id]
 
+	notification.Lock()
+	defer notification.Unlock()
+
 	// Set selected action
 	actionID := notification.AvailableActions[actionIndex].ID
 	notification.SelectAction(actionID)
