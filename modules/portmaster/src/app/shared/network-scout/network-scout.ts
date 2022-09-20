@@ -1,7 +1,8 @@
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnDestroy, OnInit, TrackByFunction } from "@angular/core";
-import { BoolSetting, ConfigService, IProfileStats, Netquery, Pin, SPNService } from "@safing/portmaster-api";
+import { BoolSetting, Condition, ConfigService, ExpertiseLevel, IProfileStats, Netquery, Pin, SPNService } from "@safing/portmaster-api";
 import { combineLatest, debounceTime, forkJoin, interval, startWith, Subject, switchMap, takeUntil } from "rxjs";
 import { fadeInListAnimation } from "../animations";
+import { ExpertiseService } from './../expertise/expertise.service';
 
 interface _Pin extends Pin {
   count: number;
@@ -60,7 +61,8 @@ export class NetworkScoutComponent implements OnInit, OnDestroy {
     private netquery: Netquery,
     private spn: SPNService,
     private configService: ConfigService,
-    private cdr: ChangeDetectorRef
+    private expertise: ExpertiseService,
+    private cdr: ChangeDetectorRef,
   ) { }
 
   searchProfiles(term: string) {
@@ -94,14 +96,20 @@ export class NetworkScoutComponent implements OnInit, OnDestroy {
 
   expandAll() {
     this.expandCollapseState = 'expand';
-    this.allProfiles.forEach(profile => profile.expanded = profile.identities.length > 1)
+    this.allProfiles.forEach(profile => profile.expanded = profile.identities.length > 0)
+    this.searchProfiles(this.searchTerm)
     this.userChangedState.next();
+
+    this.cdr.markForCheck()
   }
 
   collapseAll() {
     this.expandCollapseState = 'collapse';
     this.allProfiles.forEach(profile => profile.expanded = false)
+    this.searchProfiles(this.searchTerm)
     this.userChangedState.next();
+
+    this.cdr.markForCheck()
   }
 
   ngOnInit(): void {
@@ -123,13 +131,24 @@ export class NetworkScoutComponent implements OnInit, OnDestroy {
       });
 
     combineLatest([
-      interval(5000)
+      combineLatest([
+        interval(5000),
+        this.expertise.change,
+      ])
         .pipe(
           startWith(-1),
-          switchMap(() => forkJoin({
-            stats: this.netquery.getProfileStats(),
-          }))
+          switchMap(() => {
+            let query: Condition = {};
+            if (this.expertise.currentLevel !== ExpertiseLevel.Developer) {
+              query["internal"] = { $eq: false }
+            }
+
+            return forkJoin({
+              stats: this.netquery.getProfileStats(query),
+            })
+          })
         ),
+
       this.spn.watchPins()
         .pipe(
           debounceTime(100),
