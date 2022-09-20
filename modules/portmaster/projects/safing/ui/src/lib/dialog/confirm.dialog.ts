@@ -22,7 +22,6 @@ export const CONFIRM_DIALOG_CONFIG = new InjectionToken<ConfirmDialogConfig>('Co
 
 @Component({
   templateUrl: './confirm.dialog.html',
-  styleUrls: ['./confirm.dialog.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SfngConfirmDialogComponent {
