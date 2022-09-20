@@ -1,4 +1,5 @@
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnDestroy, OnInit } from "@angular/core";
+import { coerceBooleanProperty } from "@angular/cdk/coercion";
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, Input, OnDestroy, OnInit } from "@angular/core";
 import { SPNService, UserProfile } from "@safing/portmaster-api";
 import { catchError, finalize, of, Subject, takeUntil } from "rxjs";
 import { ActionIndicatorService } from "../action-indicator";
@@ -20,6 +21,13 @@ export class SPNLoginComponent implements OnInit, OnDestroy {
 
   /** The value of the password text box */
   password: string = '';
+
+  @Input()
+  set forcedLogout(v: any) {
+    this._forcedLogout = coerceBooleanProperty(v);
+  }
+  get forcedLogout() { return this._forcedLogout }
+  private _forcedLogout = false;
 
   constructor(
     private spnService: SPNService,

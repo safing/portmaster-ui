@@ -24,7 +24,7 @@ export class SPNAccountDetailsComponent implements OnInit, OnDestroy {
     private spnService: SPNService,
     private cdr: ChangeDetectorRef,
     private uai: ActionIndicatorService,
-    @Inject(SFNG_DIALOG_REF) @Optional() private dialogRef: SfngDialogRef<any>,
+    @Inject(SFNG_DIALOG_REF) @Optional() public dialogRef: SfngDialogRef<any>,
   ) { }
 
   /**

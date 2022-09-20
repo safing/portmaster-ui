@@ -1,11 +1,5 @@
-<ng-container *ngIf="!!currentUser && currentUser.state !== ''">
+<ng-container *ngIf="!!currentUser && currentUser.state !== '' && currentUser.state !== 'loggedout'">
   <h1 class="mb-4 text-xl">Account Details</h1>
-
-  <div *ngIf="currentUser?.state === 'loggedout'" class="w-full px-4 py-2 mb-4 text-center rounded bg-info-red">
-    You have been logged out by the account server.
-    <br />
-    Please check <a class="underline text-primary" href="https://account.safing.io">your account</a>.
-  </div>
 
   <table class="mb-4">
     <tr>
@@ -44,6 +38,9 @@
   </table>
 
   <div class="flex items-end justify-end w-full space-x-2">
+    <button *ngIf="dialogRef" (click)="dialogRef.close()" class="">Close</button>
+    <div class="flex-grow"></div>
+
     <button (click)="logout()" class="bg-info-red">Logout</button>
     <button (click)="refreshAccount()" style="width: 70px">
       <ng-container *ngIf="!refreshing; else: loading">
@@ -56,4 +53,6 @@
   </div>
 </ng-container>
 
-<app-spn-login *ngIf="!loadingProfile && (currentUser === null || currentUser.state === '')"></app-spn-login>
+<app-spn-login
+  *ngIf="!loadingProfile && (currentUser === null || currentUser.state === '' || currentUser.state === 'loggedout')"
+  [forcedLogout]="currentUser?.state === 'loggedout'"></app-spn-login>
