@@ -439,6 +439,10 @@ export class SfngSelectComponent<T> implements AfterViewInit, ControlValueAccess
       const val = values[i];
       let option: SelectOption | undefined = this.userProvidedItems?.find(item => item.value === val);
       if (!option) {
+        if (!this._dynamicValues) {
+          continue
+        }
+
         option = {
           selected: true,
           value: val,
