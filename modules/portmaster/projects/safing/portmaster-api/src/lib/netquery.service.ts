@@ -92,7 +92,7 @@ export interface Query {
 
 export interface NetqueryConnection {
   id: string;
-  allowed: boolean;
+  allowed: boolean | null;
   profile: string;
   path: string;
   type: 'dns' | 'ip';
@@ -280,18 +280,19 @@ export class Netquery {
           'exit_node',
         ],
         query: {
+          ...query,
           exit_node: {
             $ne: "",
-          }
+          },
         },
       })
     }).pipe(
       map(result => {
         let statsMap = new Map<string, IProfileStats>();
-        result.verdicts?.forEach((res: any) => {
-          const id = res.profile;
+
+        const getOrCreate = (id: string) => {
           let stats = statsMap.get(id) || {
-            ID: res.profile,
+            ID: id,
             Name: 'TODO',
             countAliveConnections: 0,
             countAllowed: 0,
@@ -300,6 +301,12 @@ export class Netquery {
             identities: [],
             size: 0
           };
+
+          statsMap.set(id, stats);
+          return stats;
+        }
+        result.verdicts?.forEach(res => {
+          const stats = getOrCreate(res.profile!);
 
           switch (res.verdict) {
             case Verdict.Accept:
@@ -319,18 +326,17 @@ export class Netquery {
               break;
           }
 
-          statsMap.set(id, stats);
           stats.empty = stats.size == 0;
         })
 
         result.conns?.forEach(res => {
-          let stats = statsMap.get(res.profile!)!;
+          const stats = getOrCreate(res.profile!);
 
           stats.countAliveConnections = res.totalCount - res.countEnded;
         })
 
         result.identities?.forEach(res => {
-          let stats = statsMap.get(res.profile!)!;
+          const stats = getOrCreate(res.profile!);
 
           let ident = stats.identities.find(value => value.exit_node === res.exit_node)
           if (!ident) {
