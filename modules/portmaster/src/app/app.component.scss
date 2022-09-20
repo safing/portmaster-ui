@@ -1,6 +1,7 @@
 :host {
   display: flex;
   @apply bg-background;
+  @apply h-screen overflow-hidden;
 
   &>* {
     flex-shrink: 0;

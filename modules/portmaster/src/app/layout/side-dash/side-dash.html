@@ -1,4 +1,4 @@
-<div class="relative flex flex-row w-full gap-2 px-2 justify-evenly">
+<div class="relative flex flex-row w-full gap-2 px-2 pb-8 justify-evenly">
   <app-status-pilot class="block w-32"></app-status-pilot>
   <div class="h-full border-l-2 border-gray-300"></div>
   <app-spn-status class="block w-64" (loginRequired)="spnLoginRequired = $event"></app-spn-status>
@@ -24,5 +24,5 @@
   </div>
 </div>
 
-<app-spn-login *ngIf="spnLoginRequired" class="mt-8"></app-spn-login>
-<app-network-scout *ngIf="!spnLoginRequired" class="flex-grow mt-8 overflow-auto"></app-network-scout>
+<app-spn-login *ngIf="spnLoginRequired"></app-spn-login>
+<app-network-scout *ngIf="!spnLoginRequired" class="flex-grow overflow-auto"></app-network-scout>
