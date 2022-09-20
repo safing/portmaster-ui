@@ -1,5 +1,5 @@
 import { coerceBooleanProperty } from '@angular/cdk/coercion';
-import { ChangeDetectionStrategy, Component, EventEmitter, HostBinding, Input, OnInit, Output } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, HostBinding, Input, OnInit, Output } from '@angular/core';
 import { fadeInAnimation, fadeOutAnimation } from '../../animations';
 
 @Component({
@@ -42,6 +42,19 @@ export class RuleListItemComponent implements OnInit {
   @Output()
   valueChange = new EventEmitter<string>();
 
+  /** Whether or not the rule list item is selected */
+  @Input()
+  set selected(v: any) {
+    this._selected = coerceBooleanProperty(v)
+  }
+  get selected() {
+    return this._selected;
+  }
+  private _selected = false;
+
+  @Output()
+  selectedChange = new EventEmitter<boolean>();
+
   /**
    * Whether or not the component is in edit mode.
    * Supports two-way-bindings on ([edit])
@@ -82,8 +95,8 @@ export class RuleListItemComponent implements OnInit {
   @Output()
   delete = new EventEmitter<void>();
 
-  /** @private Whether or not this rule is a "Allow" rule */
-  isAllow = false;
+  /** @private Whether or not this rule is a "Allow" rule - we default to allow since this is what most rules are used for */
+  isAllow = true;
 
   /** @private Whether or not this rule is a "Deny" rule */
   isBlock = false;
@@ -101,6 +114,8 @@ export class RuleListItemComponent implements OnInit {
     }
     return '';
   }
+
+  constructor(private cdr: ChangeDetectorRef) { }
 
   ngOnInit() {
     // new entries always start in edit mode
@@ -129,6 +144,13 @@ export class RuleListItemComponent implements OnInit {
 
     this._edit = !this._edit;
     this.editChange.next(this._edit);
+  }
+
+  toggleSelection() {
+    this.selected = !this.selected;
+    this.selectedChange.next(this.selected);
+
+    this.cdr.markForCheck();
   }
 
   /**

@@ -1,7 +1,9 @@
 import { coerceBooleanProperty } from '@angular/cdk/coercion';
 import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, forwardRef, HostBinding, HostListener, Input } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, forwardRef, HostBinding, HostListener, Input, QueryList, ViewChildren } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
+import { SfngDialogService } from '@safing/ui';
+import { RuleListItemComponent } from './list-item';
 
 @Component({
   selector: 'app-rule-list',
@@ -20,6 +22,12 @@ export class RuleListComponent implements ControlValueAccessor {
   /** Add the host element into the tab-sequence */
   @HostBinding('tabindex')
   readonly tabindex = 0;
+
+  @ViewChildren(RuleListItemComponent)
+  renderedRules!: QueryList<RuleListItemComponent>;
+
+  /** A list of selected rule indexes */
+  selectedItems: number[] = [];
 
   /**
    * @private
@@ -54,7 +62,10 @@ export class RuleListComponent implements ControlValueAccessor {
    */
   entries: string[] = [];
 
-  constructor(private changeDetector: ChangeDetectorRef) { }
+  constructor(
+    private changeDetector: ChangeDetectorRef,
+    private dialog: SfngDialogService
+  ) { }
 
   /**
    * @private
@@ -118,6 +129,58 @@ export class RuleListComponent implements ControlValueAccessor {
     this.entries = value;
 
     this.changeDetector.markForCheck();
+  }
+
+  /** Toggles selection of a rule item */
+  selectItem(index: number, selected: boolean) {
+    if (selected && !this.selectedItems.includes(index)) {
+      this.selectedItems = [
+        ...this.selectedItems,
+        index,
+      ]
+
+      return;
+    }
+
+    if (!selected && this.selectedItems.includes(index)) {
+      this.selectedItems = this.selectedItems.filter(idx => idx !== index)
+
+      return;
+    }
+  }
+
+  /** Removes all selected items after displaying a confirmation dialog. */
+  removeSelectedItems() {
+    this.dialog.confirm({
+      buttons: [
+        {
+          id: 'abort',
+          text: 'Cancel',
+          class: 'outline'
+        },
+        {
+          id: 'delete',
+          text: 'Delete Rules',
+          class: 'danger'
+        }
+      ],
+      canCancel: true,
+      caption: 'Caution',
+      header: 'Rule Deletion',
+      message: 'Do you want to delete the selected rules'
+    })
+      .onAction('delete', () => {
+        this.entries = this.entries.filter((_, idx: number) => !this.selectedItems.includes(idx))
+        this.abortSelection();
+        this.onChange(this.entries);
+      })
+
+  }
+
+  /** Aborts the current selection */
+  abortSelection() {
+    this.selectedItems.forEach(itemIdx => this.renderedRules.get(itemIdx)?.toggleSelection())
+    this.selectedItems = [];
   }
 
   /** @private onChange callback registered by ngModel and form controls */
