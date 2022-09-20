@@ -68,8 +68,9 @@
       <fa-icon class="absolute top-0 right-0 mt-2 mr-3 text-xs cursor-pointer text-tertiary hover:text-secondary"
         icon="times" (click)="clearSelection(pin.ID)"></fa-icon>
 
-      <fa-icon class="absolute top-0 right-0 mt-2 mr-8 text-xs cursor-pointer text-tertiary hover:text-secondary"
-        [icon]="pin.collapsed ? 'chevron-up' : 'chevron-down'" (click)="pin.collapsed = !pin.collapsed">
+      <fa-icon
+        class="absolute top-0 right-0 mt-2 mr-8 text-xs transition-all duration-200 ease-in-out cursor-pointer text-tertiary hover:text-secondary"
+        icon="chevron-down" (click)="pin.collapsed = !pin.collapsed" [class.rotate-180]="!pin.collapsed">
       </fa-icon>
 
       <span class="text-tertiary block pt-2.5 px-2.5 pb-1 text-xxs">
