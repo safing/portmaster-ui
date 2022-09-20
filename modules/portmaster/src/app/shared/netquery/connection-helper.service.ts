@@ -1,7 +1,7 @@
 import { DOCUMENT } from '@angular/common';
 import { Inject, Injectable, Renderer2 } from '@angular/core';
 import { Router } from '@angular/router';
-import { AppProfile, AppProfileService, ConfigService, deepClone, getAppSetting, IPScope, NetqueryConnection, PossilbeValue, QueryResult, setAppSetting, Verdict } from '@safing/portmaster-api';
+import { AppProfile, AppProfileService, ConfigService, deepClone, flattenProfileConfig, getAppSetting, IPScope, NetqueryConnection, PossilbeValue, QueryResult, setAppSetting, Verdict } from '@safing/portmaster-api';
 import { BehaviorSubject, combineLatest, Observable, OperatorFunction, Subject } from 'rxjs';
 import { distinctUntilChanged, map, switchMap, takeUntil } from 'rxjs/operators';
 import { ActionIndicatorService } from '../action-indicator';
@@ -19,6 +19,10 @@ export const IPScopeNames: { [key in IPScope]: string } = {
   [IPScope.GlobalMulitcast]: "Internet Multicast"
 }
 
+export interface LocalAppProfile extends AppProfile {
+  FlatConfig: { [key: string]: any }
+}
+
 @Injectable()
 export class NetqueryHelper {
   readonly settings: { [key: string]: string } = {};
@@ -28,7 +32,7 @@ export class NetqueryHelper {
   private onShiftKey$ = new BehaviorSubject<boolean>(false);
   private addToFilter$ = new Subject<SfngSearchbarFields>();
   private destroy$ = new Subject<void>();
-  private appProfiles$ = new BehaviorSubject<AppProfile[]>([]);
+  private appProfiles$ = new BehaviorSubject<LocalAppProfile[]>([]);
 
   readonly onShiftKey: Observable<boolean>;
 
@@ -74,7 +78,12 @@ export class NetqueryHelper {
     this.profileService.watchProfiles()
       .pipe(takeUntil(this.destroy$))
       .subscribe(profiles => {
-        this.appProfiles$.next(profiles || [])
+        this.appProfiles$.next((profiles || []).map(p => {
+          return {
+            ...p,
+            FlatConfig: flattenProfileConfig(p.Config),
+          }
+        }))
       });
   }
 
@@ -97,16 +106,36 @@ export class NetqueryHelper {
       }).filter(value => value !== undefined);
     }
 
+    if (field === 'allowed') {
+      return values.map(val => {
+        if (typeof val !== 'string') {
+          return val
+        }
+
+        switch (val.toLocaleLowerCase()) {
+          case 'yes':
+            return true
+          case 'no':
+            return false
+          case 'n/a':
+          case 'null':
+            return null
+          default:
+            return val
+        }
+      })
+    }
+
     return values;
   }
 
-  attachProfile(): OperatorFunction<QueryResult[], (QueryResult & { __profile?: AppProfile })[]> {
+  attachProfile(): OperatorFunction<QueryResult[], (QueryResult & { __profile?: LocalAppProfile })[]> {
     return source => combineLatest([
       source,
       this.appProfiles$,
     ]).pipe(
       map(([items, profiles]) => {
-        let lm = new Map<string, AppProfile>();
+        let lm = new Map<string, LocalAppProfile>();
         profiles.forEach(profile => {
           lm.set(`${profile.Source}/${profile.ID}`, profile)
         })
@@ -180,14 +209,20 @@ export class NetqueryHelper {
         }
 
         if (field === 'allowed') {
-          return items.map(item => {
-            return {
-              Name: item.allowed ? 'Yes' : 'No',
-              Value: item.allowed,
-              Description: '',
-              ...item
-            }
-          })
+          return items
+            // we remove any "null" value from allowed here as it may happen for a really short
+            // period of time and there's no reason to actually filter for them because
+            // from showing a "null" value to the user clicking it the connection will have been
+            // verdicted and thus no results will show up for "null".
+            .filter(item => typeof item.allowed === 'boolean')
+            .map(item => {
+              return {
+                Name: item.allowed ? 'Yes' : 'No',
+                Value: item.allowed,
+                Description: '',
+                ...item
+              }
+            })
         }
 
         // the rest is just converted into the {@link PossibleValue} form
