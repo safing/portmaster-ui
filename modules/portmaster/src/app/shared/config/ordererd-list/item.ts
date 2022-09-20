@@ -63,6 +63,8 @@ export class OrderedListItemComponent implements OnInit {
     }
 
     if (this._value !== this._savedValue) {
+      this._value = this._value.trim()
+
       this.valueChange.next(this.value);
       this._savedValue = this._value;
     }
