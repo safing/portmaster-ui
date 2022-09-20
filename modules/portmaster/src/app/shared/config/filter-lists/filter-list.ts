@@ -39,6 +39,7 @@ interface TreeNode {
   parent?: TreeNode;
   website?: string;
   license?: string;
+  hasSelectedChildren: boolean;
 }
 
 @Component({
@@ -147,6 +148,7 @@ export class FilterListComponent implements OnInit, OnDestroy, ControlValueAcces
         children: [],
         expanded: this.lookupMap.get(category.id)?.expanded || false, // keep it expanded if the user did not change anything.
         selected: false,
+        hasSelectedChildren: false,
       };
 
       lm.set(category.id, tn)
@@ -191,6 +193,7 @@ export class FilterListComponent implements OnInit, OnDestroy, ControlValueAcces
         parent: category,
         website: source.website,
         license: source.license,
+        hasSelectedChildren: false
       }
 
       // Add the source to the lookup-map
@@ -212,6 +215,7 @@ export class FilterListComponent implements OnInit, OnDestroy, ControlValueAcces
       let parent = tn.parent;
       while (!!parent) {
         parent.expanded = true;
+        parent.hasSelectedChildren = true;
         parent = parent.parent;
       }
     });
