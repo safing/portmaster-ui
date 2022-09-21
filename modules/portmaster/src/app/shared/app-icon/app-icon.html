@@ -1,4 +1,4 @@
 <span *ngIf="!src">
   {{letter}}
 </span>
-<img [attr.src]="src" *ngIf="!!src">
+<img [attr.src]="src" *ngIf="!!src" loading="lazy">

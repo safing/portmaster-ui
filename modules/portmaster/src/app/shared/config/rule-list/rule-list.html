@@ -6,12 +6,12 @@
       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l4-4 4 4m0 6l-4 4-4-4" />
     </svg>
     <app-rule-list-item [symbolMap]="symbolMap" [readonly]="readonly" [value]="entry"
-      (valueChange)="updateValue(index, $event)" (delete)="deleteEntry(index)">
+      (valueChange)="updateValue(index, $event)" (selectedChange)="selectItem(index, $event)">
     </app-rule-list-item>
   </div>
 </div>
 
-<div class="button-list">
+<div class="button-list" *ngIf="selectedItems.length === 0">
   <div class="dotted" *ngIf="!entries?.length && readonly">
     No entries available
   </div>
@@ -23,4 +23,22 @@
     </svg>
     <span>Add Rule</span>
   </button>
+</div>
+
+<div class="flex justify-end button-list" *ngIf="selectedItems.length > 0">
+  <span>
+    <app-menu-trigger [menu]="selectionMenu" [useContent]="true">
+      {{ selectedItems.length }} Rule{{ selectedItems.length > 1 ? 's' : ''}} selected
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5">
+        <path fill-rule="evenodd"
+          d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z"
+          clip-rule="evenodd" />
+      </svg>
+    </app-menu-trigger>
+  </span>
+
+  <app-menu #selectionMenu>
+    <app-menu-item (click)="removeSelectedItems()">Remove Rules</app-menu-item>
+    <app-menu-item (click)="abortSelection()">Abort</app-menu-item>
+  </app-menu>
 </div>

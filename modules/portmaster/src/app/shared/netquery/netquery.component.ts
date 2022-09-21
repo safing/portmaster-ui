@@ -4,12 +4,13 @@ import { ActivatedRoute, Router } from "@angular/router";
 import { ChartResult, Condition, IPScope, Netquery, NetqueryConnection, OrderBy, PossilbeValue, Query, QueryResult, Select, Verdict } from "@safing/portmaster-api";
 import { Datasource, DynamicItemsPaginator, SelectOption } from "@safing/ui";
 import { BehaviorSubject, combineLatest, forkJoin, Observable, of, Subject } from "rxjs";
-import { catchError, debounceTime, map, switchMap, takeUntil } from "rxjs/operators";
+import { catchError, debounceTime, filter, map, skip, switchMap, take, takeUntil } from "rxjs/operators";
 import { AppComponent } from "src/app/app.component";
 import { ActionIndicatorService } from "../action-indicator";
 import { ExpertiseService } from "../expertise";
 import { objKeys } from "../utils";
-import { IPScopeNames, NetqueryHelper } from "./connection-helper.service";
+import { fadeInAnimation } from './../animations';
+import { IPScopeNames, LocalAppProfile, NetqueryHelper } from "./connection-helper.service";
 import { SfngSearchbarFields } from "./searchbar";
 import { SfngTagbarValue } from "./tag-bar";
 import { Parser } from "./textql";
@@ -59,6 +60,7 @@ const orderByKeys: (keyof Partial<NetqueryConnection>)[] = [
 interface LocalQueryResult extends QueryResult {
   _chart: Observable<ChartResult[]> | null;
   _group: Observable<DynamicItemsPaginator<NetqueryConnection>> | null;
+  __profile?: LocalAppProfile;
 }
 
 /**
@@ -79,6 +81,7 @@ interface LocalQueryResult extends QueryResult {
  */
 
 @Component({
+  // eslint-disable-next-line @angular-eslint/component-selector
   selector: 'sfng-netquery-viewer',
   templateUrl: './netquery.component.html',
   providers: [
@@ -95,8 +98,12 @@ interface LocalQueryResult extends QueryResult {
     }
     `
   ],
+  animations: [
+    fadeInAnimation
+  ],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
+// eslint-disable-next-line @angular-eslint/component-class-suffix
 export class SfngNetqueryViewer implements OnInit, OnDestroy, AfterViewInit {
   /** @private Used to trigger a reload of the current filter */
   private search$ = new Subject<void>();
@@ -357,7 +364,8 @@ export class SfngNetqueryViewer implements OnInit, OnDestroy, AfterViewInit {
         debounceTime(1000),
         switchMap(() => {
           this.loading = true;
-          this.cdr.markForCheck();
+          this.chartData = [];
+          this.cdr.detectChanges();
 
           const query = this.getQuery();
 
@@ -365,18 +373,7 @@ export class SfngNetqueryViewer implements OnInit, OnDestroy, AfterViewInit {
           // as well the the total connection count without any filters here. The actual results are
           // loaded by the DynamicItemsPaginator using the "view" function defined above.
           return forkJoin({
-            chart: this.netquery.activeConnectionChart(query.query!)
-              .pipe(
-                catchError(err => {
-                  this.actionIndicator.error(
-                    'Internal Error',
-                    'Failed to load chart: ' + this.actionIndicator.getErrorMessgae(err)
-                  );
-
-                  return of([] as ChartResult[]);
-                }),
-              ),
-
+            query: of(query),
             totalCount: this.netquery.query({
               ...query,
               select: { $count: { field: '*', as: 'totalCount' } },
@@ -397,7 +394,26 @@ export class SfngNetqueryViewer implements OnInit, OnDestroy, AfterViewInit {
         }),
       )
       .subscribe(result => {
-        this.chartData = result.chart;
+        this.paginator.pageLoading$
+          .pipe(
+            skip(1),
+            takeUntil(this.search$), // skip loading the chart if the user trigger a subsequent search
+            filter(loading => !loading),
+            take(1),
+            switchMap(() => this.netquery.activeConnectionChart(result.query.query!)),
+            catchError(err => {
+              this.actionIndicator.error(
+                'Internal Error',
+                'Failed to load chart: ' + this.actionIndicator.getErrorMessgae(err)
+              );
+
+              return of([] as ChartResult[]);
+            }),
+          )
+          .subscribe(chart => {
+            this.chartData = chart;
+            this.cdr.markForCheck();
+          })
 
         // reset the paginator with the new total result count and
         // open the first page.
@@ -423,7 +439,7 @@ export class SfngNetqueryViewer implements OnInit, OnDestroy, AfterViewInit {
             queryParams: {
               ...this.route.snapshot.queryParams,
               q: queryText,
-            }
+            },
           })
         }
         this.skipUrlUpdate = false;
@@ -560,11 +576,6 @@ export class SfngNetqueryViewer implements OnInit, OnDestroy, AfterViewInit {
         });
       } catch (err) {
         console.error(err);
-      }
-    } else {
-      // set the default group-by filter if non has been given so far
-      if (this.groupByKeys.length === 0 && this.models.profile!.visible) {
-        this.groupByKeys = ['profile']
       }
     }
   }

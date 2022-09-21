@@ -142,11 +142,14 @@
   </sfng-select>
 </div>
 
-<div>
-  <sfng-netquery-line-chart [data]="chartData" class="h-32 opacity-75">
+<div class="relative flex-shrink-0 h-32">
+  <sfng-netquery-line-chart [data]="chartData" class="h-32 opacity-75" *ngIf="chartData.length > 0" [@fadeIn]>
   </sfng-netquery-line-chart>
+  <div class="absolute top-0 bottom-0 left-0 right-0 flex items-center justify-center text-secondary"
+    *ngIf="loading || chartData.length === 0">
+    Loading Chart
+  </div>
 </div>
-
 
 <ng-template #headerTemplate let-data let-active="active">
   <div class="relative flex flex-row items-center w-full gap-3 px-3 bg-gray-200"
@@ -222,7 +225,7 @@
 <sfng-pagination *ngIf="!loading; else: loadingTemplate" [source]="paginator" class="flex flex-col">
   <ng-template [sfngPageContent]>
     <sfng-accordion-group class="flex flex-col gap-2 pr-4"
-      *ngIf="!(paginator.pageLoading$ | async); else: loadingTemplate" [headerTemplate]="headerTemplate"
+      *ngIf="(paginator.pageLoading$ | async) === false; else: loadingTemplate" [headerTemplate]="headerTemplate"
       singleMode="false">
       <sfng-accordion [data]="result" #accordion *ngFor="let result of (paginator.pageItems$ | async)">
         <div *ngIf="accordion.active" class="p-3 bg-opacity-75 border-gray-300 rounded-b-sm"

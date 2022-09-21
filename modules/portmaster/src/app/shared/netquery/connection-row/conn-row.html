@@ -1,5 +1,6 @@
 <div class="flex flex-row items-center gap-2" name="first">
-  <span class="verdict" [class.outdated]="isOutdated" [ngClass]="helper.getVerdictClass(conn)"></span>
+  <span class="verdict" [class.outdated]="isOutdated" [ngClass]="helper.getVerdictClass(conn)"
+    [sfng-tooltip]="conn.extra_data?.reason?.Msg || null"></span>
 
   <ng-container *ngIf="conn.domain as domain; else scopeTranslation">
     <sfng-netquery-scope-label name="domain" [scope]="conn.domain"

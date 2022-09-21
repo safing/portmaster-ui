@@ -7,6 +7,12 @@
     Unlock the <u>powerful VPN alternative</u>
   </a>
 
+  <div *ngIf="forcedLogout" class="w-full px-4 py-2 mb-4 text-center rounded bg-info-red">
+    You have been logged out by the account server.
+    <br />
+    Please check <a class="underline text-primary" href="https://account.safing.io">your account</a>.
+  </div>
+
   <form (ngSubmit)="login()">
     <div class="flex flex-col items-stretch mt-4 space-y-6">
       <div class="flex flex-col justify-items-start">

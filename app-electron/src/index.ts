@@ -1,12 +1,12 @@
 import { app, BrowserWindow, nativeTheme } from "electron";
 import * as windowStateKeeper from "electron-window-state";
-import * as path from "path";
 import * as fs from "fs";
+import * as path from "path";
+import { AppAPI } from "./api";
 import { dataDirectory } from "./datadir";
+import { serveIPC } from "./ipc";
 import { WebUILoader } from "./loader";
 import { startNotifier } from "./notifier";
-import { AppAPI } from "./api";
-import { serveIPC } from "./ipc";
 
 // Define mainWindow.
 let mainWindow: BrowserWindow = null;

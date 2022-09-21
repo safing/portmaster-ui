@@ -2,11 +2,13 @@
 
   <ng-template #treeNode let-node>
     <div class="node">
-      <div class="head">
+      <div class="relative head">
+        <span *ngIf="node.hasSelectedChildren"
+          class="relative block w-1 h-1 rounded-full -left-2.5 -mr-1 -top-0.5 bg-blue"></span>
         <input type="checkbox" [ngModel]="node.selected" (ngModelChange)="updateNode(node, $event)">
 
         <label>
-          <span class="name">
+          <span class="flex flex-row items-center gap-2 name">
             {{node.name}}
             <span class="id">({{ node.id }})</span>
           </span>

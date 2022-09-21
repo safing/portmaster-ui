@@ -1,4 +1,4 @@
-<div class="content-wrapper">
+<div class="sfng-confirm-dialog">
   <caption *ngIf="config.caption">{{config.caption}}</caption>
   <svg xmlns="http://www.w3.org/2000/svg" *ngIf="config.canCancel" class="close-icon h-5 w-5" viewBox="0 0 20 20"
     fill="currentColor" (click)="select()">
@@ -17,6 +17,6 @@
 
   <div class="actions" *ngIf="!!config.buttons">
     <button *ngFor="let button of config.buttons" (click)="select(button.id)" type="button"
-      class="{{button.class}}">{{button.text}}</button>
+      class="action-button {{button.class}}">{{button.text}}</button>
   </div>
 </div>

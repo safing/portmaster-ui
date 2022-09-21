@@ -37,6 +37,6 @@ export class WindowsServiceControl implements ServiceManager {
     }
 
     async stopService(u: Unit): Promise<void> {
-        await execAsRoot(`sc.exe start ${WindowsServiceControl.unitTranslation[u]}`)
+        await execAsRoot(`sc.exe stop ${WindowsServiceControl.unitTranslation[u]}`)
     }
 }
