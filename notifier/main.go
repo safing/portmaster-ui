@@ -247,8 +247,8 @@ func detectInstallationDir() string {
 		return ""
 	}
 
-	parent := filepath.Dir(exePath)
-	stableJSONFile := filepath.Join(parent, "updates", "stable.json")
+	parent := filepath.Dir(exePath)                                    // parent should be "...\updates\windows_amd64\notifier"
+	stableJSONFile := filepath.Join(parent, "..", "..", "stable.json") // "...\updates\stable.json"
 	stat, err := os.Stat(stableJSONFile)
 	if err != nil {
 		return ""
