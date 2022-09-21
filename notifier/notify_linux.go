@@ -38,7 +38,7 @@ func handleActions(ctx context.Context, actions chan notify.Signal) {
 			if sig.ActionKey != "" {
 				// get notification by system ID
 				notifsByIDLock.Lock()
-				n, ok := notifsByID[sig.ID]
+				n, ok := notifsByID[NotificationID(sig.ID)]
 				notifsByIDLock.Unlock()
 
 				// send action
@@ -75,7 +75,7 @@ func (n *Notification) Show() {
 	sysN.AppName = "Portmaster"
 
 	// The optional notification ID that this notification replaces.
-	sysN.ReplacesID = n.systemID
+	sysN.ReplacesID = uint32(n.systemID)
 
 	// The optional program icon of the calling application.
 	// sysN.AppIcon string
@@ -121,12 +121,12 @@ func (n *Notification) Show() {
 	}
 
 	notifsByIDLock.Lock()
-	notifsByID[newID] = n
+	notifsByID[NotificationID(newID)] = n
 	notifsByIDLock.Unlock()
 
 	n.Lock()
 	defer n.Unlock()
-	n.systemID = newID
+	n.systemID = NotificationID(newID)
 }
 
 // Cancel cancels the notification.
@@ -136,7 +136,7 @@ func (n *Notification) Cancel() {
 
 	// TODO: could a ID of 0 be valid?
 	if n.systemID != 0 {
-		err := notify.CloseNotification(n.systemID)
+		err := notify.CloseNotification(uint32(n.systemID))
 		if err != nil {
 			log.Warningf("notify: failed to close notification %s/%d", n.EventID, n.systemID)
 		}
