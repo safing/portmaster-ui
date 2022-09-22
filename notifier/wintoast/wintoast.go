@@ -7,8 +7,6 @@ import (
 	"sync"
 	"unsafe"
 
-	"github.com/safing/portbase/info"
-
 	"github.com/tevino/abool"
 
 	"golang.org/x/sys/windows"
@@ -115,7 +113,7 @@ func New(dllPath string) (*WinToast, error) {
 	return libraryObject, nil
 }
 
-func (lib *WinToast) Initialize(appName, company, productName, subProduct, version string) error {
+func (lib *WinToast) Initialize(appName, aumi string) error {
 	if lib == nil {
 		return fmt.Errorf("wintoast: lib object was nil")
 	}
@@ -125,30 +123,24 @@ func (lib *WinToast) Initialize(appName, company, productName, subProduct, versi
 
 	// Initialize all necessary string for the notification meta data
 	appNameUTF, _ := windows.UTF16PtrFromString(appName)
-	companyUTF, _ := windows.UTF16PtrFromString(company)
-	productNameUTF, _ := windows.UTF16PtrFromString(productName)
-	subProductUTF, _ := windows.UTF16PtrFromString(subProduct)
-	versionInfoUTF, _ := windows.UTF16PtrFromString(info.Version())
+	aumiUTF, _ := windows.UTF16PtrFromString(aumi)
 
 	// They are needed as unsafe pointers
 	appNameP := unsafe.Pointer(appNameUTF)
-	companyP := unsafe.Pointer(companyUTF)
-	productNameP := unsafe.Pointer(productNameUTF)
-	subProductP := unsafe.Pointer(subProductUTF)
-	versionInfoP := unsafe.Pointer(versionInfoUTF)
+	aumiP := unsafe.Pointer(aumiUTF)
 
 	// Initialize notifications
-	rc, _, err := lib.initialize.Call(uintptr(appNameP), uintptr(companyP), uintptr(productNameP), uintptr(subProductP), uintptr(versionInfoP))
-	if rc != 1 {
+	rc, _, err := lib.initialize.Call(uintptr(appNameP), uintptr(aumiP))
+	if rc != 0 {
 		return fmt.Errorf("wintoast: failed to initialize library rc = %d, %w", rc, err)
 	}
 
 	// Check if if the initialization was successfully
-	rc, _, err = lib.isInitialized.Call()
+	rc, _, _ = lib.isInitialized.Call()
 	if rc == 1 {
 		lib.initialized.Set()
 	} else {
-		return fmt.Errorf("wintoast: initialized flag was not set: rc = %d, %w", rc, err)
+		return fmt.Errorf("wintoast: initialized flag was not set: rc = %d", rc)
 	}
 
 	return nil

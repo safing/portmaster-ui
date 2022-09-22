@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"sync"
 
-	"github.com/safing/portbase/info"
 	"github.com/safing/portbase/log"
 	"github.com/safing/portmaster-ui/notifier/wintoast"
 	"github.com/safing/portmaster/updates/helper"
@@ -13,10 +12,8 @@ import (
 type NotificationID int64
 
 const (
-	appName     = "Portmaster"
-	company     = "Safing ICS Technologies GmbH"
-	productName = "Portmaster"
-	subProduct  = "notifier"
+	appName        = "Portmaster"
+	appUserModelID = "7F00FB48-65D5-4BA8-A35B-F194DA7E1A51"
 )
 
 const (
@@ -51,7 +48,7 @@ func getLib() *wintoast.WinToast {
 		}
 
 		// Initialize. This will create or update application shortcut. C:\Users\<user>\AppData\Roaming\Microsoft\Windows\Start Menu\Programs
-		err = newLib.Initialize(appName, company, productName, subProduct, info.GetInfo().Version)
+		err = newLib.Initialize(appName, appUserModelID)
 		if err != nil {
 			log.Errorf("notify: failed to load library: %s", err)
 			return
@@ -87,22 +84,11 @@ func (n *Notification) Show() {
 	// Make sure memory is freed when done
 	defer builder.Delete()
 
-	// Set Portmaster icon.
-	iconLocation, err := ensureAppIcon()
-	if err == nil {
-		err = builder.SetImage(iconLocation)
-		if err != nil {
-			log.Warningf("notify: failed set icon: %s", err)
-		}
-	} else {
-		log.Warningf("notify: failed to write icon: %s", err)
-	}
+	// if needed set notification icon
+	// _ = builder.SetImage(iconLocation)
 
-	// Set default sound.
-	err = builder.SetSound(SoundDefault, SoundPathDefault)
-	if err != nil {
-		log.Warningf("notify: failed to set sound: %s", err)
-	}
+	// Leaving the default value for the sound
+	// _ = builder.SetSound(SoundDefault, SoundPathDefault)
 
 	// Set all the required actions.
 	for _, action := range n.AvailableActions {
