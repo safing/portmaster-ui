@@ -32,11 +32,12 @@
       </ng-container>
     </ng-container>
 
-    <sfng-toggle [ngModel]="spnEnabled" (ngModelChange)="setSPNEnabled($event)" *ngIf="profile !== null"></sfng-toggle>
+    <sfng-toggle [ngModel]="spnEnabled" (ngModelChange)="setSPNEnabled($event)"
+      *ngIf="profile !== null && profile.state !== ''"></sfng-toggle>
 
-    <div *ngIf="profile === null">
+    <div *ngIf="profile === null || profile.state === ''">
       <button class="px-3 py-1.5 uppercase rounded outline-none text-xxs custom bg-blue hover:bg-blue bg-opacity-70"
-        [routerLink]="['/spn']">
+        (click)="openOrLogin()">
         Upgrade
       </button>
     </div>

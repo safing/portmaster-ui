@@ -1,4 +1,4 @@
-<div class="relative flex flex-row mb-2 border-b outline-none border-secondary" tabindex="0"
+<div *ngIf="!customHeader" class="relative flex flex-row mb-2 border-b outline-none border-secondary" tabindex="0"
   (keydown)="onKeydown($event)">
 
   <!-- Tab Group Header -->
@@ -21,4 +21,4 @@
   <div class="absolute top-0 left-0 border-t border-white opacity-0" #activeTabBar></div>
 </div>
 
-<ng-tempalte cdkPortalOutlet></ng-tempalte>
+<ng-container cdkPortalOutlet></ng-container>

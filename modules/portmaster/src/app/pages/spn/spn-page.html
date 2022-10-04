@@ -36,28 +36,28 @@
   [class.w-full]="currentUser === null || !spnStatus || spnStatus.Status === 'disabled'">
 
   <div
-    class="z-10 flex flex-col items-center justify-center flex-grow h-full backdrop-filter backdrop-blur-sm custom-background"
+    class="z-10 flex flex-col items-center justify-center flex-grow h-full bg-white bg-opacity-90 backdrop-filter backdrop-blur-sm"
     *ngIf="!currentUser || spnStatus?.Status === 'disabled'">
-    <img src="/assets/img/spn-login.png" width="250">
-    <h1 class="mt-4 text-4xl text-primary">Be Everywhere at Once</h1>
-    <h2 class="text-base text-center text-secondary">
-      Spread your connections across the globe instead of re-routing your connections to only one server.
-      <br>
-      <br>
-      Re-route all your connections through our multi-hop network to decouple your identity from the
-      destination.
-      <br>
-      With onion-encryption, no single party knows who you are and where you are going to.
-    </h2>
-    <button (click)="openAccountDetails()" *ngIf="!currentUser || currentUser.state === ''"
-      class="px-5 py-2 font-medium uppercase rounded-full bg-blue bg-opacity-70 hover:bg-blue text-primary">
-      Login
-    </button>
 
-    <button (click)="toggleSPN()" *ngIf="spnStatus?.Status === 'disabled' && !!currentUser"
-      class="px-5 py-2 font-medium uppercase rounded-full bg-blue bg-opacity-70 hover:bg-blue text-primary">
-      Enable the SPN
-    </button>
+    <spn-feature-carousel class="w-full p-10 mb-6 overflow-visible h-1/2">
+    </spn-feature-carousel>
+
+    <div class="flex flex-col items-center justify-center gap-4">
+      <button (click)="openAccountDetails()" *ngIf="!currentUser || currentUser.state === ''"
+        class="w-56 px-5 py-2 font-medium uppercase rounded-full bg-blue bg-opacity-90 hover:bg-blue text-primary">
+        Login
+      </button>
+
+      <button (click)="toggleSPN()" *ngIf="spnStatus?.Status === 'disabled' && !!currentUser"
+        class="w-56 px-5 py-2 font-medium text-white uppercase rounded-full bg-blue bg-opacity-90 hover:bg-blue">
+        Enable the SPN
+      </button>
+
+      <a href="https://safing.io/spn/"
+        class="w-56 px-5 py-2 font-medium text-center text-white uppercase rounded-full bg-background bg-opacity-90 hover:bg-background">
+        Pricing
+      </a>
+    </div>
   </div>
 
   <!-- selected node pane -->
@@ -230,6 +230,5 @@ pin.HopDistance === 1
   <app-expertise></app-expertise>
 </div>
 <div class="relative flex-grow h-full">
-
-  <div #map id="map" class="w-full h-full"></div>
+  <div #map id="map" class="w-full h-full" [class.disabled]="!currentUser || spnStatus?.Status === 'disabled'"></div>
 </div>

@@ -28,7 +28,7 @@ export type SfngSearchbarSuggestionValue<K extends keyof NetqueryConnection> = {
 
 export type SfngSearchbarSuggestion<K extends keyof NetqueryConnection> = {
   start?: number;
-  field: K;
+  field: K | '_textsearch';
   values: SfngSearchbarSuggestionValue<K>[];
 }
 
@@ -336,7 +336,6 @@ export class SfngNetquerySearchbar implements ControlValueAccessor, OnInit, OnDe
 
   onFocusLost(event: FocusEvent) {
     this._onTouched();
-    this.triggerDropdownClose$.next(true)
   }
 
   private parseAndEmit() {
@@ -359,7 +358,15 @@ export class SfngNetquerySearchbar implements ControlValueAccessor, OnInit, OnDe
     this._onChange(this.textSearch);
   }
 
-  applySuggestion(field: keyof NetqueryConnection, val: any, event: { shiftKey: boolean }, start?: number) {
+  applySuggestion(field: keyof NetqueryConnection | '_textsearch', val: any, event: { shiftKey: boolean }, start?: number) {
+    // this is a full-text search so just emit the value, close the dropdown and we're done
+    if (field === '_textsearch') {
+      this._onChange(this.textSearch);
+      this.suggestionDropDown?.close();
+
+      return
+    }
+
     if (start !== undefined) {
       this.textSearch = this.textSearch.slice(0, start)
     } else if (!event.shiftKey) {

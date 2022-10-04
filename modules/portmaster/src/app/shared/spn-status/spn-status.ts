@@ -1,7 +1,10 @@
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, OnDestroy, OnInit, Output } from "@angular/core";
+import { ActivatedRoute, Router } from '@angular/router';
 import { BoolSetting, ChartResult, ConfigService, Netquery, SPNService, SPNStatus, UserProfile } from "@safing/portmaster-api";
+import { SfngDialogService } from '@safing/ui';
 import { catchError, forkJoin, interval, of, startWith, Subject, switchMap, takeUntil } from "rxjs";
 import { fadeInAnimation, fadeOutAnimation } from "../animations";
+import { SPNAccountDetailsComponent } from '../spn-account-details';
 
 @Component({
   selector: 'app-spn-status',
@@ -45,6 +48,9 @@ export class SPNStatusComponent implements OnInit, OnDestroy {
     private spnService: SPNService,
     private netquery: Netquery,
     private cdr: ChangeDetectorRef,
+    private router: Router,
+    private activeRoute: ActivatedRoute,
+    private dialog: SfngDialogService
   ) { }
 
   ngOnInit(): void {
@@ -107,6 +113,19 @@ export class SPNStatusComponent implements OnInit, OnDestroy {
 
         this.cdr.markForCheck();
       })
+  }
+
+  openOrLogin() {
+    if (this.activeRoute.snapshot.firstChild?.url[0]?.path === "spn") {
+      this.dialog.create(SPNAccountDetailsComponent, {
+        autoclose: true,
+        backdrop: 'light'
+      })
+
+      return
+    }
+
+    this.router.navigate(['/spn'])
   }
 
   ngOnDestroy(): void {
