@@ -8,8 +8,8 @@
   align-items: center;
   overflow-x: hidden;
   overflow-y: auto;
-  min-height: calc(var(--slot-size) * 5);
-  max-height: calc(var(--slot-size) * 7);
+  min-height: calc(var(--slot-size) * 6);
+  max-height: calc(var(--slot-size) * 10);
   @apply w-80;
   @apply bg-gray-300;
 

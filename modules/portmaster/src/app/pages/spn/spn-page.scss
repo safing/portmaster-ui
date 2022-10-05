@@ -2,10 +2,6 @@
   @apply flex flex-row w-full h-full justify-items-stretch items-stretch relative;
 }
 
-.custom-background {
-  background-color: #12121380;
-}
-
 .text-info-red {
   color: theme("colors.info.red");
 }
@@ -159,6 +155,10 @@ table tr:nth-child(odd) {
           fill: #252525;
           stroke: #111111;
           stroke-width: .5px;
+
+          transition: all;
+          transition-duration: 500ms;
+          transition-timing-function: ease-in-out;
         }
       }
 
@@ -213,6 +213,18 @@ table tr:nth-child(odd) {
 
         &[in-use=true] {
           stroke: theme('colors.info.blue');
+        }
+      }
+    }
+
+    &.disabled {
+      @apply bg-white;
+
+      #world-group {
+        path {
+          fill: #000000;
+          stroke: #111111;
+          stroke-width: .5px;
         }
       }
     }

@@ -2,7 +2,7 @@ import { animate, style, transition, trigger } from "@angular/animations";
 import { ListKeyManagerOption } from "@angular/cdk/a11y";
 import { coerceBooleanProperty } from "@angular/cdk/coercion";
 import { CdkPortalOutlet, TemplatePortal } from "@angular/cdk/portal";
-import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, ContentChild, Directive, Inject, InjectionToken, Input, OnInit, TemplateRef, ViewChild, ViewContainerRef } from "@angular/core";
+import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, ContentChild, Directive, Inject, InjectionToken, Input, TemplateRef, ViewChild, ViewContainerRef } from "@angular/core";
 
 /** TAB_PORTAL is the injection token used to inject the TabContentDirective portal into TabOutletComponent */
 export const TAB_PORTAL = new InjectionToken<TemplatePortal>('TAB_PORTAL');
@@ -37,7 +37,7 @@ export class SfngTabContentDirective<T> {
   template: '<ng-content></ng-content>',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class SfngTabComponent implements OnInit, ListKeyManagerOption {
+export class SfngTabComponent implements ListKeyManagerOption {
   @ContentChild(SfngTabContentDirective, { static: false })
   tabContent: SfngTabContentDirective<any> | null = null;
 
@@ -72,10 +72,6 @@ export class SfngTabComponent implements OnInit, ListKeyManagerOption {
 
   /** getLabel is used by the list key manager to support type-ahead */
   getLabel() { return this.title }
-
-  ngOnInit(): void {
-
-  }
 }
 
 /**
@@ -83,8 +79,9 @@ export class SfngTabComponent implements OnInit, ListKeyManagerOption {
  * move animations.
  */
 @Component({
+  selector: 'sfng-tab-outlet',
   template: `
-    <div [@moveInOut]="{value: _appAnimate, params: {in: in, out: out}}" class="flex flex-col overflow-auto">
+    <div [@moveInOut]="{value: _appAnimate, params: {in: in, out: out}}" class="flex flex-col overflow-auto {{ outletClass }}">
       <ng-template [cdkPortalOutlet]="portal"></ng-template>
     </div>
   `,
@@ -125,6 +122,9 @@ export class SfngTabComponent implements OnInit, ListKeyManagerOption {
 })
 export class TabOutletComponent implements AfterViewInit {
   _appAnimate = false;
+
+  @Input()
+  outletClass = ''
 
   get in() {
     return this._animateDirection == 'left' ? '100%' : '-100%'

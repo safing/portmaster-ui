@@ -1,4 +1,5 @@
 import { ListKeyManager } from "@angular/cdk/a11y";
+import { coerceBooleanProperty } from '@angular/cdk/coercion';
 import { CdkPortalOutlet, ComponentPortal, TemplatePortal } from "@angular/cdk/portal";
 import { AfterContentInit, AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, ComponentRef, ContentChildren, ElementRef, Injector, Input, OnDestroy, OnInit, QueryList, ViewChild, ViewChildren } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
@@ -56,6 +57,17 @@ export class SfngTabGroupComponent implements AfterContentInit, AfterViewInit, O
   @Input()
   name = 'tab'
 
+  @Input()
+  outletClass = '';
+
+  /** Whether or not the default tab header should be rendered */
+  @Input()
+  set customHeader(v: any) {
+    this._customHeader = coerceBooleanProperty(v)
+  }
+  get customHeader() { return this._customHeader }
+  private _customHeader = false;
+
   private tabActivate$ = new Subject<string>();
   private destroy$ = new Subject<void>();
 
@@ -67,6 +79,9 @@ export class SfngTabGroupComponent implements AfterContentInit, AfterViewInit, O
 
   /** The key manager used to support keyboard navigation and type-ahead in the tab group */
   private keymanager: ListKeyManager<SfngTabComponent> | null = null;
+
+  /** Used to force the animation direction when calling activateTab. */
+  private forceAnimationDirection: 'left' | 'right' | null = null;
 
   /**
    * pendingTabIdx holds the id or the index of a tab that should be activated after the component
@@ -123,12 +138,18 @@ export class SfngTabGroupComponent implements AfterContentInit, AfterViewInit, O
         const activeTab = this.tabs!.get(change);
         if (!!activeTab && !!activeTab.tabContent) {
           const prevIdx = this.activeTabIndex;
-          const animationDirection = prevIdx < change ? 'left' : 'right';
+
+          let animationDirection: 'left' | 'right' = prevIdx < change ? 'left' : 'right';
+          if (this.forceAnimationDirection !== null) {
+            animationDirection = this.forceAnimationDirection;
+            this.forceAnimationDirection = null;
+          }
 
           if (this.portalOutlet?.attachedRef) {
             // we know for sure that attachedRef is a ComponentRef of TabOutletComponent
             const ref = (this.portalOutlet.attachedRef as ComponentRef<TabOutletComponent>)
             ref.instance._animateDirection = animationDirection;
+            ref.instance.outletClass = this.outletClass;
             ref.changeDetectorRef.detectChanges();
           }
 
@@ -182,7 +203,11 @@ export class SfngTabGroupComponent implements AfterContentInit, AfterViewInit, O
    *
    * @param idx The index of the new tab.
    */
-  activateTab(idx: number) {
+  activateTab(idx: number, forceDirection?: 'left' | 'right') {
+    if (forceDirection !== undefined) {
+      this.forceAnimationDirection = forceDirection;
+    }
+
     this.keymanager?.setActiveItem(idx);
   }
 

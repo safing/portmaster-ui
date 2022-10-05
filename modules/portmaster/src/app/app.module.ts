@@ -28,6 +28,7 @@ import { QuickSettingUseSPNButtonComponent } from './pages/app-view/qs-use-spn/q
 import { MonitorPageComponent } from './pages/monitor';
 import { SettingsComponent } from './pages/settings/settings';
 import { SpnPageComponent } from './pages/spn';
+import { SPNFeatureCarouselComponent } from './pages/spn/spn-feature-carousel';
 import { SupportPageComponent } from './pages/support';
 import { SupportFormComponent } from './pages/support/form';
 import { NotificationsService } from './services';
@@ -86,6 +87,7 @@ import { PlaceholderComponent } from './shared/text-placeholder';
     SPNLoginComponent,
     SPNNetworkStatusComponent,
     SPNAccountDetailsComponent,
+    SPNFeatureCarouselComponent,
     NetworkScoutComponent,
   ],
   imports: [
