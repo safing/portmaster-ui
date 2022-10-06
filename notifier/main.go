@@ -48,7 +48,7 @@ var (
 			"https://updates.safing.io",
 		},
 		DevMode: false,
-		Online:  true, // is disabled later based on command
+		Online:  false, // disable download of resources (this is job for the core).
 	}
 )
 
@@ -108,9 +108,6 @@ func main() {
 		fmt.Fprintf(os.Stderr, "failed to start logging: %s\n", err)
 		os.Exit(1)
 	}
-
-	// disable download of resources (this is job for the core).
-	registry.Online = false
 
 	// load registry
 	err = configureRegistry(true)
