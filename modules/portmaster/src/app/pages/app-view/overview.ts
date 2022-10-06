@@ -1,9 +1,11 @@
 import { ChangeDetectorRef, Component, OnDestroy, OnInit, TrackByFunction } from '@angular/core';
 import { AppProfile, AppProfileService, Netquery, trackById } from '@safing/portmaster-api';
+import { SfngDialogService } from '@safing/ui';
 import { BehaviorSubject, combineLatest, Subscription } from 'rxjs';
-import { debounceTime, startWith } from 'rxjs/operators';
+import { debounceTime, filter, startWith } from 'rxjs/operators';
 import { fadeInAnimation, fadeInListAnimation, moveInOutListAnimation } from 'src/app/shared/animations';
 import { FuzzySearchService } from 'src/app/shared/fuzzySearch';
+import { EditProfileDialog } from './../../shared/edit-profile-dialog/edit-profile-dialog';
 
 @Component({
   selector: 'app-settings-overview',
@@ -47,6 +49,7 @@ export class AppOverviewComponent implements OnInit, OnDestroy {
     private changeDetector: ChangeDetectorRef,
     private searchService: FuzzySearchService,
     private netquery: Netquery,
+    private dialog: SfngDialogService,
   ) { }
 
   ngOnInit() {
@@ -55,7 +58,7 @@ export class AppOverviewComponent implements OnInit, OnDestroy {
     this.subscription = combineLatest([
       this.profileService.watchProfiles(),
       this.onSearch.pipe(debounceTime(100), startWith('')),
-      this.netquery.getActiveProfileIDs(),
+      this.netquery.getActiveProfileIDs().pipe(startWith([] as string[])),
     ])
       .subscribe(
         ([profiles, searchTerm, activeProfiles]) => {
@@ -68,7 +71,7 @@ export class AppOverviewComponent implements OnInit, OnDestroy {
             ignoreFieldNorm: true,
             threshold: 0.1,
             minMatchCharLength: 3,
-            keys: ['Name', 'LinkedPath']
+            keys: ['Name', 'PresentationPath']
           });
 
           // Prepare new, empty lists for our groups
@@ -124,6 +127,26 @@ export class AppOverviewComponent implements OnInit, OnDestroy {
   searchApps(term: string) {
     this.searchTerm = term;
     this.onSearch.next(term);
+  }
+
+  /**
+   * @private
+   *
+   * Opens the create profile dialog
+   */
+  createProfile() {
+    const ref = this.dialog.create(EditProfileDialog, {
+      backdrop: true,
+      autoclose: false,
+    })
+
+    ref.onClose
+      .pipe(filter(action => action === 'saved'))
+      .subscribe(() => {
+        // reset the search and reload to make sure the new
+        // profile shows up
+        this.searchApps('');
+      })
   }
 
   ngOnDestroy() {

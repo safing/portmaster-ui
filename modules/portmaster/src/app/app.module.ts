@@ -6,7 +6,7 @@ import { CdkTableModule } from '@angular/cdk/table';
 import { CommonModule } from '@angular/common';
 import { HttpClientModule } from '@angular/common/http';
 import { NgModule } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { FaIconLibrary, FontAwesomeModule } from '@fortawesome/angular-fontawesome';
@@ -37,6 +37,7 @@ import { SfngAppIconModule } from './shared/app-icon';
 import { ConfigModule } from './shared/config';
 import { CountIndicatorModule } from './shared/count-indicator';
 import { CountryFlagModule } from './shared/country-flag';
+import { EditProfileDialog } from './shared/edit-profile-dialog';
 import { ExitScreenComponent } from './shared/exit-screen/exit-screen';
 import { ExpertiseModule } from './shared/expertise/expertise.module';
 import { ExternalLinkDirective } from './shared/external-link.directive';
@@ -89,12 +90,14 @@ import { PlaceholderComponent } from './shared/text-placeholder';
     SPNAccountDetailsComponent,
     SPNFeatureCarouselComponent,
     NetworkScoutComponent,
+    EditProfileDialog,
   ],
   imports: [
     BrowserModule,
     CommonModule,
     BrowserAnimationsModule,
     FormsModule,
+    ReactiveFormsModule,
     AppRoutingModule,
     FontAwesomeModule,
     OverlayModule,

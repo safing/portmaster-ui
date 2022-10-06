@@ -22,9 +22,30 @@ export interface LayeredProfile extends Record {
   RevisionCounter: number;
 }
 
+export enum FingerprintType {
+  Tag = "tag",
+  Env = "env",
+  Path = "path"
+}
+
+export enum FingerpringOperation {
+  Equal = "equals",
+  Prefix = "prefix",
+  Regex = "regex",
+}
+
+export interface Fingerprint {
+  Type: FingerprintType;
+  Key: string;
+  Operation: FingerpringOperation;
+  Value: string;
+}
+
 export interface AppProfile extends Record {
   ID: string;
-  LinkedPath: string;
+  LinkedPath: string; // deprecated
+  PresentationPath: string;
+  Fingerprints: Fingerprint[];
   Created: number;
   LastEdited: number;
   Config: ConfigMap;
@@ -33,6 +54,7 @@ export interface AppProfile extends Record {
   WarningLastUpdated: string;
   Homepage: string;
   Icon: string;
+  IconType: 'blob' | 'database' | 'path' | '';
   Name: string;
   Internal: boolean;
   SecurityLevel: SecurityLevel;

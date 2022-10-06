@@ -22,6 +22,16 @@ export interface BaseDialogConfig {
    * overlay will be centered on the screen
    */
   positionStrategy?: PositionStrategy;
+
+  /**
+   * Optional data for the dialog that is available either via the
+   * SfngDialogRef for ComponentPortals as an $implicit context value
+   * for TemplatePortals.
+   *
+   * Note, for template portals, data is only set as an $implicit context
+   * value if it is not yet set in the portal!
+   */
+  data?: any;
 }
 
 export interface ComponentPortalConfig {
@@ -81,12 +91,21 @@ export class SfngDialogService {
     }
 
     // create the dialog ref
-    const dialogRef = new SfngDialogRef<T>(overlayref, containerRef.instance);
+    const dialogRef = new SfngDialogRef<T>(overlayref, containerRef.instance, opts.data);
 
     // prepare the content portal and attach it to the container
     let result: any;
     if (target instanceof TemplatePortal) {
-      result = containerRef.instance.attachTemplatePortal(target)
+      let r = containerRef.instance.attachTemplatePortal(target)
+
+      if (!!r.context && typeof r.context === 'object' && !('$implicit' in r.context)) {
+        r.context = {
+          $implicit: opts.data,
+          ...r.context,
+        }
+      }
+
+      result = r
     } else {
       const contentPortal = new ComponentPortal(target, null, Injector.create({
         providers: [

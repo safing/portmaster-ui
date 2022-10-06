@@ -1,6 +1,7 @@
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, HostBinding, Input, SkipSelf } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, HostBinding, Input, OnDestroy, SkipSelf } from '@angular/core';
 import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
-import { AppProfileService } from '@safing/portmaster-api';
+import { AppProfileService, PortapiService, Record } from '@safing/portmaster-api';
+import { map, of, Subscription } from 'rxjs';
 import { switchMap } from 'rxjs/operators';
 
 // Interface that must be satisfied for the profile-input
@@ -29,7 +30,9 @@ const iconsToIngore = [
   styleUrls: ['./app-icon.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class AppIconComponent {
+export class AppIconComponent implements OnDestroy {
+  private sub = Subscription.EMPTY;
+
   /** @private The data-URL for the app-icon if available */
   src: SafeUrl | string = ''
 
@@ -57,6 +60,7 @@ export class AppIconComponent {
   constructor(
     private profileService: AppProfileService,
     private changeDetectorRef: ChangeDetectorRef,
+    private portapi: PortapiService,
     // @HostBinding() is not evaluated in our change-detection run but rather
     // checked by the parent component during updateRenderer.
     // Since we want the background color to change immediately after we set the
@@ -93,7 +97,6 @@ export class AppIconComponent {
 
       this.tryGetSystemIcon(p);
     } else {
-      this.letter = '';
       this.color = 'var(--text-tertiary)';
     }
 
@@ -106,34 +109,59 @@ export class AppIconComponent {
    * Requires the app to be running in the electron wrapper.
    */
   private tryGetSystemIcon(p: IDandName) {
-    if (!!window.app) {
-      let id = p.ID;
-      if (id.startsWith("local/")) {
-        let [_, ...parts] = id.split("/")
-        id = parts.join("/")
-      }
-
-      this.profileService.getAppProfile('local', id)
-        .pipe(
-          switchMap(profile => window.app.getFileIcon(profile.LinkedPath))
-        )
-        .subscribe(
-          icon => {
-            if (iconsToIngore.some(i => i === icon)) {
-              icon = "";
-            }
-            if (icon !== '') {
-              this.src = this.sanitzier.bypassSecurityTrustUrl(icon);
-              this.color = 'unset';
-            } else {
-              this.src = '';
-            }
-            this.changeDetectorRef.detectChanges();
-            this.parentCdr.markForCheck();
-          },
-          console.error
-        );
+    let id = p.ID;
+    if (id.startsWith("local/")) {
+      let [_, ...parts] = id.split("/")
+      id = parts.join("/")
     }
+
+    this.sub.unsubscribe();
+
+    this.sub = this.profileService.watchAppProfile('local', id)
+      .pipe(
+        switchMap(profile => {
+          if (!!profile.Icon && profile.IconType) {
+            switch (profile.IconType) {
+              case 'blob':
+                return of(profile.Icon)
+              case 'database':
+                return this.portapi.get<Record & { iconData: string }>(profile.Icon)
+                  .pipe(map(result => {
+                    return result.iconData
+                  }))
+              default:
+                console.error(`Icon type ${profile.IconType} not yet supported`)
+            }
+          }
+
+          if (!!window.app) {
+            return window.app.getFileIcon(profile.PresentationPath);
+          }
+
+          return of('')
+        })
+      )
+      .subscribe({
+        next: icon => {
+          if (iconsToIngore.some(i => i === icon)) {
+            icon = "";
+          }
+          if (icon !== '') {
+            this.src = this.sanitzier.bypassSecurityTrustUrl(icon);
+            this.color = 'unset';
+          } else {
+            this.src = '';
+            this.color = this.color === 'unset' ? 'var(--text-tertiary)' : this.color;
+          }
+          this.changeDetectorRef.detectChanges();
+          this.parentCdr.markForCheck();
+        },
+        error: err => console.error(err)
+      });
+  }
+
+  ngOnDestroy(): void {
+    this.sub.unsubscribe();
   }
 }
 

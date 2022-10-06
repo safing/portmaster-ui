@@ -10,6 +10,7 @@ import { fadeInAnimation, fadeOutAnimation } from 'src/app/shared/animations';
 import { SaveSettingEvent } from 'src/app/shared/config/generic-setting/generic-setting';
 import { ExpertiseService } from 'src/app/shared/expertise';
 import { SfngNetqueryViewer } from 'src/app/shared/netquery';
+import { EditProfileDialog } from './../../shared/edit-profile-dialog/edit-profile-dialog';
 
 @Component({
   templateUrl: './app-view.html',
@@ -174,6 +175,21 @@ export class AppViewComponent implements OnInit, OnDestroy {
       })
   }
 
+  editProfile() {
+    if (!this.appProfile) {
+      return;
+    }
+
+    this.dialog.create(EditProfileDialog, {
+      backdrop: true,
+      autoclose: false,
+      data: `${this.appProfile.Source}/${this.appProfile.ID}`,
+    }).onAction('deleted', () => {
+      // navigate to the app overview if it has been deleted.
+      this.router.navigate(['/app/'])
+    })
+  }
+
   ngOnInit() {
     // watch the route parameters and start watching the referenced
     // application profile, it's layer profile and polling the stats.
@@ -271,17 +287,17 @@ export class AppViewComponent implements OnInit, OnDestroy {
 
           this._loading = false;
 
-          if (!!this.appProfile?.LinkedPath) {
+          if (!!this.appProfile?.PresentationPath) {
             let parts: string[] = [];
             let sep = '/'
-            if (this.appProfile.LinkedPath[0] === '/') {
+            if (this.appProfile.PresentationPath[0] === '/') {
               // linux, darwin, bsd ...
               sep = '/'
             } else {
               // windows ...
               sep = '\\'
             }
-            parts = this.appProfile.LinkedPath.split(sep)
+            parts = this.appProfile.PresentationPath.split(sep)
 
             this.binaryName = parts.pop()!;
             this.applicationDirectory = parts.join(sep)

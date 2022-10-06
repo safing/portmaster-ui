@@ -8,6 +8,9 @@
     All Apps
     <sfng-tipup key="appsTitle"></sfng-tipup>
   </h1>
+  <div class="flex-grow"></div>
+  <button (click)="createProfile()" class="text-white bg-blue hover:bg-blue hover:bg-opacity-90">Create
+    Profile</button>
 </div>
 
 <div class="scrollable" [@fadeInList]="total">
@@ -46,7 +49,7 @@
         <span class="card-title">
           <span [innerHTML]="profile?.Name | safe:'html'"></span>
           <span class="card-sub-title" *appExpertiseLevel="'expert'"
-            [innerHTML]="profile?.LinkedPath | safe:'html'"></span>
+            [innerHTML]="profile?.PresentationPath | safe:'html'"></span>
         </span>
       </div>
     </ng-container>
