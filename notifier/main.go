@@ -109,10 +109,13 @@ func main() {
 		os.Exit(1)
 	}
 
+	// disable download of resources (this is job for the core).
+	registry.Online = false
+
 	// load registry
 	err = configureRegistry(true)
 	if err != nil {
-		log.Errorf("failed to load registry: %s\n", err)
+		fmt.Fprintf(os.Stderr, "failed to load registry: %s\n", err)
 		os.Exit(1)
 	}
 
