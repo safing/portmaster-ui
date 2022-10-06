@@ -13,7 +13,7 @@ type NotificationID int64
 
 const (
 	appName        = "Portmaster"
-	appUserModelID = "7F00FB48-65D5-4BA8-A35B-F194DA7E1A51"
+	appUserModelID = "io.safing.portmaster"
 )
 
 const (
