@@ -80,9 +80,9 @@ func New(dllPath string) (*WinToast, error) {
 		return nil, fmt.Errorf("winnotifiy: PortmasterToastSetImage not found %w", err)
 	}
 
-	libraryObject.setSound, err = libraryObject.dll.FindProc("PortmasterToastSetNotificationSound")
+	libraryObject.setSound, err = libraryObject.dll.FindProc("PortmasterToastSetSound")
 	if err != nil {
-		return nil, fmt.Errorf("winnotifiy: PortmasterToastSetNotificationSound not found %w", err)
+		return nil, fmt.Errorf("winnotifiy: PortmasterToastSetSound not found %w", err)
 	}
 
 	libraryObject.showNotification, err = libraryObject.dll.FindProc("PortmasterToastShow")

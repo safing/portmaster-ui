@@ -108,6 +108,8 @@ func (n *Notification) Show() {
 
 	// Link system id to the notification object
 	notificationsByIDs.Store(NotificationID(id), n)
+
+	log.Debugf("notify: showing notification %q: %d", n.Title, n.systemID)
 }
 
 // Cancel cancels the notification.
@@ -120,6 +122,7 @@ func (n *Notification) Cancel() {
 	_ = getLib().HideNotification(int64(n.systemID))
 
 	notificationsByIDs.Delete(n.systemID)
+	log.Debugf("notify: notification canceled %q: %d", n.Title, n.systemID)
 }
 
 func notificationActivatedCallback(id int64, actionIndex int32) {
@@ -127,6 +130,7 @@ func notificationActivatedCallback(id int64, actionIndex int32) {
 		// The user clicked on the notification (not a button), open the portmaster and delete
 		launchApp()
 		notificationsByIDs.Delete(NotificationID(id))
+		log.Debugf("notify: notification clicked %d", id)
 		return
 	}
 
@@ -146,12 +150,15 @@ func notificationActivatedCallback(id int64, actionIndex int32) {
 	// Set selected action
 	actionID := notification.AvailableActions[actionIndex].ID
 	notification.SelectAction(actionID)
+
+	log.Debugf("notify: notification button cliecked %d button id: %d", id, actionIndex)
 }
 
 func notificationDismissedCallback(id int64, reason int32) {
 	// Failure or user dismissed the notification
 	if reason == 0 {
 		notificationsByIDs.Delete(NotificationID(id))
+		log.Debugf("notify: notification dissmissed %d", id)
 	}
 }
 
