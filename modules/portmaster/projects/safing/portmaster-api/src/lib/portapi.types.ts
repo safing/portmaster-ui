@@ -45,6 +45,29 @@ export interface RecordMeta {
   Key: string;
 }
 
+
+export interface Process extends Record {
+  Name: string;
+  UserID: number;
+  UserName: string;
+  UserHome: string;
+  Pid: number;
+  ParentPid: number;
+  Path: string;
+  ExecName: string;
+  Cwd: string;
+  CmdLine: string;
+  Env: {
+    [key: string]: string,
+  };
+  Tags: {
+    Key: string;
+    Value: string;
+  }[],
+  MatchingPath: string;
+  PrimaryProfileID: string;
+}
+
 // Record describes the base record structure of all API resources.
 export interface Record {
   _meta?: RecordMeta;

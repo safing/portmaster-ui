@@ -1,6 +1,8 @@
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, Input, OnChanges, OnDestroy, OnInit, SimpleChanges } from "@angular/core";
-import { IPProtocol, IPScope, IsDenied, IsDNSRequest, NetqueryConnection, Verdict } from "@safing/portmaster-api";
+import { IPProtocol, IPScope, IsDenied, IsDNSRequest, NetqueryConnection, PortapiService, Process, Verdict } from "@safing/portmaster-api";
+import { SfngDialogService } from '@safing/ui';
 import { Subscription } from "rxjs";
+import { ProcessDetailsDialogComponent } from '../../process-details-dialog';
 import { NetqueryHelper } from "../connection-helper.service";
 
 @Component({
@@ -13,6 +15,8 @@ export class SfngNetqueryConnectionDetailsComponent implements OnInit, OnDestroy
   @Input()
   conn: NetqueryConnection | null = null;
 
+  process: Process | null = null;
+
   readonly IsDNS = IsDNSRequest;
   readonly verdict = Verdict;
   readonly Protocols = IPProtocol;
@@ -24,11 +28,29 @@ export class SfngNetqueryConnectionDetailsComponent implements OnInit, OnDestroy
   ngOnChanges(changes: SimpleChanges) {
     if (!!changes?.conn) {
       this.updateConnectionNotice();
+
+      if (this.conn?.extra_data?.pid !== undefined) {
+        this.portapi.get<Process>(`network:tree/${this.conn.extra_data.pid}`)
+          .subscribe({
+            next: p => {
+              this.process = p;
+              this.changeDetectorRef.markForCheck();
+            },
+            error: () => {
+              this.process = null; // the process does not exist anymore
+              this.changeDetectorRef.markForCheck();
+            }
+          })
+      } else {
+        this.process = null;
+      }
     }
   }
 
   constructor(
     public helper: NetqueryHelper,
+    private portapi: PortapiService,
+    private dialog: SfngDialogService,
     private changeDetectorRef: ChangeDetectorRef,
   ) { }
 
@@ -37,10 +59,20 @@ export class SfngNetqueryConnectionDetailsComponent implements OnInit, OnDestroy
       this.updateConnectionNotice();
       this.changeDetectorRef.markForCheck();
     })
+
+
   }
 
   ngOnDestroy() {
     this._subscription.unsubscribe();
+  }
+
+  openProcessDetails() {
+    this.dialog.create(ProcessDetailsDialogComponent, {
+      data: this.process,
+      backdrop: true,
+      autoclose: true,
+    })
   }
 
   private updateConnectionNotice() {

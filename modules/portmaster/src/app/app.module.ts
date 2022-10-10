@@ -51,6 +51,7 @@ import { NetworkScoutComponent } from './shared/network-scout';
 import { NotificationListComponent } from './shared/notification-list/notification-list.component';
 import { NotificationComponent } from './shared/notification/notification';
 import { CommonPipesModule } from './shared/pipes';
+import { ProcessDetailsDialogComponent } from './shared/process-details-dialog';
 import { PromptListComponent } from './shared/prompt-list/prompt-list.component';
 import { SecurityLockComponent } from './shared/security-lock';
 import { SPNAccountDetailsComponent } from './shared/spn-account-details';
@@ -91,6 +92,7 @@ import { PlaceholderComponent } from './shared/text-placeholder';
     SPNFeatureCarouselComponent,
     NetworkScoutComponent,
     EditProfileDialog,
+    ProcessDetailsDialogComponent,
   ],
   imports: [
     BrowserModule,

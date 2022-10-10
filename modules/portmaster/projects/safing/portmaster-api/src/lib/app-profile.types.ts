@@ -24,6 +24,7 @@ export interface LayeredProfile extends Record {
 
 export enum FingerprintType {
   Tag = "tag",
+  Cmdline = "cmdline",
   Env = "env",
   Path = "path"
 }
@@ -39,6 +40,12 @@ export interface Fingerprint {
   Key: string;
   Operation: FingerpringOperation;
   Value: string;
+}
+
+export interface TagDescription {
+  ID: string;
+  Name: string;
+  Description: string;
 }
 
 export interface AppProfile extends Record {

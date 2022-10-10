@@ -1,0 +1,74 @@
+import { KeyValue } from '@angular/common';
+import { ChangeDetectionStrategy, Component, Inject } from '@angular/core';
+import { AppProfile, FingerpringOperation, Fingerprint, FingerprintType, Process } from '@safing/portmaster-api';
+import { SfngDialogRef, SfngDialogService, SFNG_DIALOG_REF } from '@safing/ui';
+import { EditProfileDialog } from '../edit-profile-dialog';
+
+@Component({
+  selector: 'app-process-details',
+  templateUrl: './process-details-dialog.html',
+  styleUrls: ['./process-details-dialog.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
+})
+export class ProcessDetailsDialogComponent {
+  process: (Process & { ID: string });
+
+  constructor(
+    @Inject(SFNG_DIALOG_REF) private dialogRef: SfngDialogRef<any, any, Process>,
+    private dialog: SfngDialogService,
+  ) {
+    this.process = {
+      ...this.dialogRef.data,
+      ID: this.dialogRef.data.PrimaryProfileID,
+    }
+  }
+
+  close() {
+    this.dialogRef.close();
+  }
+
+  createProfileForPath() {
+    this.createProfileWithFingerprint({
+      Type: FingerprintType.Path,
+      Key: '',
+      Value: this.process.MatchingPath || this.process.Path,
+      Operation: FingerpringOperation.Equal,
+    })
+  }
+
+  createProfileForCmdline() {
+    this.createProfileWithFingerprint({
+      Type: FingerprintType.Cmdline,
+      Key: '',
+      Value: this.process.CmdLine,
+      Operation: FingerpringOperation.Equal,
+    })
+  }
+
+  createProfileForEnv(env: KeyValue<string, string>) {
+    const fp: Fingerprint = {
+      Type: FingerprintType.Env,
+      Key: env.key,
+      Value: env.value,
+      Operation: FingerpringOperation.Equal,
+    }
+
+    this.createProfileWithFingerprint(fp)
+  }
+
+  private createProfileWithFingerprint(fp: Fingerprint) {
+    let profilePreset: Partial<AppProfile> = {
+      Fingerprints: [
+        fp
+      ]
+    };
+
+    this.dialog.create(EditProfileDialog, {
+      data: profilePreset,
+      backdrop: true,
+      autoclose: false,
+    })
+
+    this.dialogRef.close();
+  }
+}

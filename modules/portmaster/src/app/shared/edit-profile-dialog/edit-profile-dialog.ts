@@ -1,11 +1,9 @@
 import { CdkDragDrop, moveItemInArray } from "@angular/cdk/drag-drop";
 import { ChangeDetectorRef, Component, Inject, OnDestroy, OnInit, TrackByFunction } from "@angular/core";
-import { AppProfile, AppProfileService, Fingerprint, PortapiService, Record } from '@safing/portmaster-api';
+import { AppProfile, AppProfileService, FingerpringOperation, Fingerprint, FingerprintType, mergeDeep, PortapiService, Record, TagDescription } from '@safing/portmaster-api';
 import { SfngDialogRef, SfngDialogService, SFNG_DIALOG_REF } from '@safing/ui';
-import { mergeDeep } from "projects/safing/portmaster-api/src/public-api";
 import { Observable, of, Subject, switchMap, takeUntil } from 'rxjs';
 import { ActionIndicatorService } from 'src/app/shared/action-indicator';
-import { FingerpringOperation, FingerprintType } from './../../../../projects/safing/portmaster-api/src/lib/app-profile.types';
 
 @Component({
   templateUrl: './edit-profile-dialog.html',
@@ -38,11 +36,12 @@ export class EditProfileDialog implements OnInit, OnDestroy {
 
   fingerPrintTypes = FingerprintType;
   fingerPrintOperations = FingerpringOperation;
+  processTags: TagDescription[] = [];
 
   trackFingerPrint: TrackByFunction<Fingerprint> = (_: number, fp: Fingerprint) => `${fp.Type}-${fp.Key}-${fp.Operation}-${fp.Value}`;
 
   constructor(
-    @Inject(SFNG_DIALOG_REF) private dialgoRef: SfngDialogRef<EditProfileDialog, any, string | null>,
+    @Inject(SFNG_DIALOG_REF) private dialgoRef: SfngDialogRef<EditProfileDialog, any, string | null | AppProfile>,
     private profileService: AppProfileService,
     private portapi: PortapiService,
     private actionIndicator: ActionIndicatorService,
@@ -51,6 +50,12 @@ export class EditProfileDialog implements OnInit, OnDestroy {
   ) { }
 
   ngOnInit(): void {
+    this.profileService.tagDescriptions()
+      .subscribe(result => {
+        this.processTags = result;
+        this.cdr.markForCheck();
+      });
+
     this.profileService.watchProfiles()
       .pipe(takeUntil(this.destory$))
       .subscribe(profiles => {
@@ -58,33 +63,42 @@ export class EditProfileDialog implements OnInit, OnDestroy {
         this.cdr.markForCheck();
       });
 
-    if (!!this.dialgoRef.data) {
+    if (!!this.dialgoRef.data && typeof this.dialgoRef.data === 'string') {
       this.isEditMode = true;
       this.profileService.getAppProfile(this.dialgoRef.data)
         .subscribe(profile => {
           this.profile = profile;
-
-          // get the current icon of the profile
-          switch (profile.IconType) {
-            case 'blob':
-              this.iconBase64 = profile.Icon;
-              break;
-
-            case 'database':
-              this.portapi.get<Record & { iconData: string }>(profile.Icon)
-                .subscribe(data => {
-                  this.iconBase64 = data.iconData;
-                  this.cdr.markForCheck();
-                })
-              break;
-
-            default:
-              console.error(`Unsupported icon type ${profile.IconType}`)
-          }
-
-          this.cdr.markForCheck();
+          this.loadIcon();
         });
+    } else if (!!this.dialgoRef.data && typeof this.dialgoRef.data === 'object') {
+      this.profile = this.dialgoRef.data;
+      this.loadIcon();
     }
+  }
+
+  private loadIcon() {
+    if (!this.profile.Icon) {
+      return;
+    }
+
+    // get the current icon of the profile
+    switch (this.profile.IconType) {
+      case 'blob':
+        this.iconBase64 = this.profile.Icon;
+        break;
+
+      case 'database':
+        this.portapi.get<Record & { iconData: string }>(this.profile.Icon)
+          .subscribe(data => {
+            this.iconBase64 = data.iconData;
+            this.cdr.markForCheck();
+          })
+        break;
+
+      default:
+        console.error(`Unsupported icon type ${this.profile.IconType}`)
+    }
+    this.cdr.markForCheck();
   }
 
   ngOnDestroy() {
@@ -165,8 +179,12 @@ export class EditProfileDialog implements OnInit, OnDestroy {
   }
 
   save() {
-    if (this.profile.ID === '') {
+    if (!this.profile.ID) {
       this.profile.ID = this.uuidv4()
+    }
+
+    if (!this.profile.Source) {
+      this.profile.Source = 'local'
     }
 
     let updateIcon: Observable<any> = of(undefined);

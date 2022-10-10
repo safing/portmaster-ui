@@ -8,7 +8,7 @@ import { switchMap } from 'rxjs/operators';
 // of app-icon.
 export interface IDandName {
   // ID of the profile.
-  ID: string;
+  ID?: string;
   // Name of the profile.
   Name: string;
 }
@@ -74,8 +74,8 @@ export class AppIconComponent implements OnDestroy {
     const p = this.profile;
     if (!!p) {
       let idx = 0;
-      for (let i = 0; i < p.ID.length; i++) {
-        idx += p.ID.charCodeAt(i);
+      for (let i = 0; i < (p.ID || p.Name).length; i++) {
+        idx += (p.ID || p.Name).charCodeAt(i);
       }
 
       if (p.Name !== "") {
@@ -110,6 +110,11 @@ export class AppIconComponent implements OnDestroy {
    */
   private tryGetSystemIcon(p: IDandName) {
     let id = p.ID;
+
+    if (!id) {
+      return;
+    }
+
     if (id.startsWith("local/")) {
       let [_, ...parts] = id.split("/")
       id = parts.join("/")

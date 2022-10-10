@@ -151,7 +151,7 @@ broadcast-info:
   title: Broadcast Notifications
   content: |
     Broadcast Notifications are public messages downloaded by the Portmaster when checking for updates.
-    
+
     The Portmaster then locally decides which messages should be displayed.
   url: https://github.com/safing/portmaster/issues/703
   urlText: Learn More
@@ -181,7 +181,7 @@ broadcast-info:
 ### Network Monitor Page
 
 networkMonitor:
-  title: Network Monitor
+  title: Network Activity
   content: |
     Oversee everything happening on your device.
 
@@ -213,7 +213,7 @@ networkMonitor:
 #     allowed and blocked in the app.
 
 networkMonitor-App-Focus-connection-history:
-  title: Connection History
+  title: Network Activity
   content: |
     Monitor connections as they happen. Click on any connection to view details and to take action.
     <br /><br />
@@ -237,12 +237,6 @@ networkMonitor-App-Focus-connection-history:
     If the circle is full, your _current_ settings allowed or blocked the connection.<br />
     If the circle is empty, _previous_ settings allowed or blocked the connection.
     Your current settings could decide differently.
-  nextKey: networkMonitor-App-Focus-connection-history-filter
-
-networkMonitor-App-Focus-connection-history-filter:
-  title: Connections Filter
-  content: |
-    Switch between different views and filter connections by type.
 
 ########################
 ### Global Settings Page
@@ -316,26 +310,6 @@ support-page-related-issues:
 #########################
 ### Configuration Options
 
-networkRatingSwitch:
-  title: Network Rating Switch
-  content: |
-    Choose in which environment(s) this setting should be enabled.
-
-    Easily configure settings for different environments. When changing the "Network Rating" in the top left all settings will immediately adjust to your preferences.
-
-    - **Off**: This setting is completely turned off and is never enabled
-    - **Danger**: This setting is only enabled when you set your Network Rating to "Danger"
-    - **Untrusted**: This setting is both enabled in the "Danger" _AND_ in the "Untrusted" environment
-    - **Trusted**: This setting is active all the time, in all three Network Ratings
-
-    <small>_Note: Not all settings can be fully turned "Off" in order to provide a protective baseline for the "Danger" environment_</small>
-  buttons:
-    - name: Learn how to Change Your Network Rating
-      action:
-        Type: open-page
-        Payload: settings
-      nextKey: pilot-widget-NetworkRating
-
 spn:
   title: Safing Privacy Network
   content: |
@@ -345,3 +319,9 @@ spn:
     your tracks.
   url: https://safing.io/spn/
   urlText: Learn More
+
+###########################
+# Process Matching and Fingerprints
+process-tags:
+  title: Process Tags
+  content: Tags holds special metadata of processes and are gathered by Portmaster. You can use these tags in fingerprints to better match processes, which would otherwise be a lot more difficult or impossible to match correctly.

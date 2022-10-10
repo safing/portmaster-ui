@@ -46,7 +46,7 @@ export class SfngAccordionGroupComponent implements OnDestroy {
       this.accordions.forEach(a => a.active = false);
     }
   }
-  get disabled() { return this._disabled; }
+  get disabled(): boolean { return this._disabled; }
   private _disabled = false;
 
   /** A list of subscriptions to the activeChange output of the registered accordion-components */

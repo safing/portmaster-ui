@@ -8,7 +8,6 @@
 <form #profileForm="ngForm">
 
   <sfng-tab-group customHeader="false" linkRouter="false">
-
     <sfng-tab title="General">
       <div *sfngTabContent class="tab-content">
         <span class="py-2 text-secondary">
@@ -18,7 +17,7 @@
 
         <div class="input" *appExpertiseLevel="'developer'">
           <label>ID</label>
-          <input type="text" name="id" pattern="[a-zA-Z0-9\-\.]*" [(ngModel)]="profile.ID"
+          <input type="text" name="id" pattern="[a-zA-Z0-9\-\._]*" [(ngModel)]="profile.ID"
             placeholder="A unique identifier for profile. Leave empty to generate a random one.">
         </div>
 
@@ -80,9 +79,15 @@
             <span class="absolute bottom-0 right-0 block w-2 border-b border-gray-500"></span>
 
             <sfng-select [(ngModel)]="fp.Type" [ngModelOptions]="{standalone: true}">
-              <sfng-select-item *sfngSelectValue="fingerPrintTypes.Path">Path</sfng-select-item>
-              <sfng-select-item *sfngSelectValue="fingerPrintTypes.Tag">Tag</sfng-select-item>
-              <sfng-select-item *sfngSelectValue="fingerPrintTypes.Env">Env</sfng-select-item>
+              <sfng-select-item *sfngSelectValue="fingerPrintTypes.Tag; label: 'Tag'">
+                Tag
+                <sfng-tipup key="process-tags"></sfng-tipup>
+              </sfng-select-item>
+              <sfng-select-item *sfngSelectValue="fingerPrintTypes.Cmdline; label: 'Command Line'">Command Line
+              </sfng-select-item>
+              <sfng-select-item *sfngSelectValue="fingerPrintTypes.Env; label: 'Environment'">Environment
+              </sfng-select-item>
+              <sfng-select-item *sfngSelectValue="fingerPrintTypes.Path; label: 'Path'">Path</sfng-select-item>
             </sfng-select>
 
             <input type="text" [(ngModel)]="fp.Key" placeholder="Key" [ngModelOptions]="{standalone: true}"
@@ -90,13 +95,9 @@
 
             <sfng-select [(ngModel)]="fp.Key" placeholder="Key" [ngModelOptions]="{standalone: true}"
               *ngIf="fp.Type === 'tag'">
-              <sfng-select-item *sfngSelectValue="'app-image-path'; label: 'AppImage'">AppImage</sfng-select-item>
-              <sfng-select-item *sfngSelectValue="'ip'; label: 'Network'">Network</sfng-select-item>
-              <sfng-select-item *sfngSelectValue="'svchost'; label: 'SVCHOST'">SVCHOST</sfng-select-item>
-              <sfng-select-item *sfngSelectValue="'winstore-app-name'; label: 'Windows Store App Name'">Windows Store
-                App Name</sfng-select-item>
-              <sfng-select-item *sfngSelectValue="'winstore-publisher-id'; label: 'Windows Store Publisher'">Windows
-                Store Publisher</sfng-select-item>
+              <ng-container *ngFor="let tag of processTags">
+                <sfng-select-item *sfngSelectValue="tag.ID; label: tag.Name">{{ tag.Name }}</sfng-select-item>
+              </ng-container>
             </sfng-select>
 
             <sfng-select [(ngModel)]="fp.Operation" [ngModelOptions]="{standalone: true}">
@@ -158,9 +159,9 @@
             </button>
           </div>
         </div>
-        <span class="block text-center text-secondary text-xxs">
+        <span class="block text-center break-normal text-secondary text-xxs">
           Settings will be copied from all specified profiles in order with settings from higher profiles taking
-          precedence.
+          precedence. <br />
           Existing settings may be overwritten.
         </span>
       </div>

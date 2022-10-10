@@ -119,6 +119,11 @@ export class AppViewComponent implements OnInit, OnDestroy {
     return this.viewSettingChange.getValue();
   };
 
+  /** A lookup map from tag ID to tag Name */
+  tagNames: {
+    [tagID: string]: string
+  } = {}
+
   constructor(
     public sessionDataService: SessionDataService,
     private profileService: AppProfileService,
@@ -191,6 +196,14 @@ export class AppViewComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
+    this.profileService.tagDescriptions()
+      .subscribe(tags => {
+        tags.forEach(t => {
+          this.tagNames[t.ID] = t.Name
+          this.cdr.markForCheck();
+        })
+      })
+
     // watch the route parameters and start watching the referenced
     // application profile, it's layer profile and polling the stats.
     const profileStream: Observable<[AppProfile, LayeredProfile | null, IProfileStats | null] | null>

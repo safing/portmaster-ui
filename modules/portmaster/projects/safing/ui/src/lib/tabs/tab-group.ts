@@ -200,13 +200,12 @@ export class SfngTabGroupComponent implements AfterContentInit, AfterViewInit, O
         this.pendingTabIdx = null;
       }
     }
-
-    this.tabHeaders?.changes
-      .subscribe(() => this.repositionTabBar())
   }
 
   ngAfterViewInit(): void {
     this.repositionTabBar();
+    this.tabHeaders?.changes.subscribe(() => this.repositionTabBar())
+    setTimeout(() => this.repositionTabBar(), 250)
   }
 
   ngOnDestroy() {
