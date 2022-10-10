@@ -8,16 +8,18 @@ import (
 	"github.com/safing/portbase/log"
 )
 
-var (
-	capabilites notify.Capabilities
+type NotificationID uint32
 
-	notifsByID     = make(map[uint32]*Notification)
+var (
+	capabilities notify.Capabilities
+
+	notifsByID     = make(map[NotificationID]*Notification)
 	notifsByIDLock sync.Mutex
 )
 
 func init() {
 	var err error
-	capabilites, err = notify.GetCapabilities()
+	capabilities, err = notify.GetCapabilities()
 	if err != nil {
 		log.Errorf("failed to get notification system capabilities: %s", err)
 	}
@@ -32,17 +34,20 @@ func handleActions(ctx context.Context, actions chan notify.Signal) {
 		case <-ctx.Done():
 			return
 		case sig := <-actions:
-			log.Tracef("notify: recevied signal: %+v", sig)
+			log.Tracef("notify: received signal: %+v", sig)
 			if sig.ActionKey != "" {
 				// get notification by system ID
 				notifsByIDLock.Lock()
-				n, ok := notifsByID[sig.ID]
+				n, ok := notifsByID[NotificationID(sig.ID)]
 				notifsByIDLock.Unlock()
 
 				// send action
 				if ok {
 					n.SelectAction(sig.ActionKey)
 				}
+			} else {
+				// Global action invoked, start the app
+				launchApp()
 			}
 		}
 	}
@@ -70,7 +75,7 @@ func (n *Notification) Show() {
 	sysN.AppName = "Portmaster"
 
 	// The optional notification ID that this notification replaces.
-	sysN.ReplacesID = n.systemID
+	sysN.ReplacesID = uint32(n.systemID)
 
 	// The optional program icon of the calling application.
 	// sysN.AppIcon string
@@ -84,7 +89,7 @@ func (n *Notification) Show() {
 	// The actions send a request message back to the notification client
 	// when invoked.
 	// sysN.Actions []string
-	if capabilites.Actions {
+	if capabilities.Actions {
 		sysN.Actions = make([]string, 0, len(n.AvailableActions)*2)
 		for _, action := range n.AvailableActions {
 			if action.IsSupported() {
@@ -116,12 +121,12 @@ func (n *Notification) Show() {
 	}
 
 	notifsByIDLock.Lock()
-	notifsByID[newID] = n
+	notifsByID[NotificationID(newID)] = n
 	notifsByIDLock.Unlock()
 
 	n.Lock()
 	defer n.Unlock()
-	n.systemID = newID
+	n.systemID = NotificationID(newID)
 }
 
 // Cancel cancels the notification.
@@ -131,7 +136,7 @@ func (n *Notification) Cancel() {
 
 	// TODO: could a ID of 0 be valid?
 	if n.systemID != 0 {
-		err := notify.CloseNotification(n.systemID)
+		err := notify.CloseNotification(uint32(n.systemID))
 		if err != nil {
 			log.Warningf("notify: failed to close notification %s/%d", n.EventID, n.systemID)
 		}
