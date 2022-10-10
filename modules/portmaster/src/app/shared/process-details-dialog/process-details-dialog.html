@@ -30,7 +30,7 @@
           </tr>
           <tr *appExpertiseLevel="'expert'">
             <th>Parent Process ID</th>
-            <td>{{ process.ParentPid }}</td>
+            <td (click)="openParent()">{{ process.ParentPid }}</td>
             <td></td>
           </tr>
           <tr>
