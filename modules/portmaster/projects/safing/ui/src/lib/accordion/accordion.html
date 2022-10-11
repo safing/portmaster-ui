@@ -1,4 +1,4 @@
-<div [class.active]="active" class="cursor-pointer" (click)="toggle($event)">
+<div [class.active]="active" [class.cursor-pointer]="!group || !group.disabled" (click)="toggle($event)">
   <ng-container *ngTemplateOutlet="headerTemplate; context: {$implicit: data, active: active}"></ng-container>
 </div>
 

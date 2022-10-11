@@ -38,6 +38,17 @@ export class SfngAccordionGroupComponent implements OnDestroy {
   get singleMode() { return this._singleMode }
   private _singleMode = false;
 
+  /** Whether or not the accordion is disabled and does not allow expanding */
+  @Input()
+  set disabled(v: any) {
+    this._disabled = coerceBooleanProperty(v);
+    if (this._disabled) {
+      this.accordions.forEach(a => a.active = false);
+    }
+  }
+  get disabled(): boolean { return this._disabled; }
+  private _disabled = false;
+
   /** A list of subscriptions to the activeChange output of the registered accordion-components */
   private subscriptions: Subscription[] = [];
 
@@ -58,6 +69,10 @@ export class SfngAccordionGroupComponent implements OnDestroy {
     // Subscribe to the activeChange output of the registered
     // accordion and call toggle() for each event emitted.
     this.subscriptions.push(a.activeChange.subscribe(() => {
+      if (this.disabled) {
+        return;
+      }
+
       this.toggle(a);
     }))
   }

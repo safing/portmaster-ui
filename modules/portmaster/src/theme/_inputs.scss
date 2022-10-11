@@ -25,11 +25,11 @@ select {
   }
 }
 
-.ng-invalid {
 
-  input,
-  textarea,
-  select {
-    @apply border-red text-red;
+input,
+textarea,
+select {
+  .ng-invalid {
+    @apply border-red;
   }
 }

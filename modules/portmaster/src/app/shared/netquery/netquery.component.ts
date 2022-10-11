@@ -249,6 +249,7 @@ export class SfngNetqueryViewer implements OnInit, OnDestroy, AfterViewInit {
     remote_port: {},
     local_ip: {},
     local_port: {},
+    ip_protocol: {},
     direction: {
       visible: 'combinedMenu',
       menuTitle: 'Direction',

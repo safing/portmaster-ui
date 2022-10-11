@@ -1,14 +1,19 @@
-import { Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
-import { AppProfile, FlatConfigObject, flattenProfileConfig, LayeredProfile } from './app-profile.types';
-import { PortapiService } from './portapi.service';
+import { AppProfile, FlatConfigObject, flattenProfileConfig, LayeredProfile, TagDescription } from './app-profile.types';
+import { PortapiService, PORTMASTER_HTTP_API_ENDPOINT } from './portapi.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AppProfileService {
-  constructor(private portapi: PortapiService) { }
+  constructor(
+    private portapi: PortapiService,
+    private http: HttpClient,
+    @Inject(PORTMASTER_HTTP_API_ENDPOINT) private httpAPI: string,
+  ) { }
 
   /**
    * Returns the database key of a profile.
@@ -80,6 +85,12 @@ export class AppProfileService {
       .pipe(
         map(profile => flattenProfileConfig(profile.Config)),
       )
+  }
+
+  /** Returns all possible process tags. */
+  tagDescriptions(): Observable<TagDescription[]> {
+    return this.http.get<{ Tags: TagDescription[] }>(`${this.httpAPI}/v1/process/tags`)
+      .pipe(map(result => result.Tags))
   }
 
   /**

@@ -46,7 +46,7 @@ export class SfngTabGroupComponent implements AfterContentInit, AfterViewInit, O
   tabHeaders: QueryList<ElementRef<HTMLDivElement>> | null = null;
 
   /** Reference to the active tab bar element */
-  @ViewChild('activeTabBar', { read: ElementRef, static: true })
+  @ViewChild('activeTabBar', { read: ElementRef, static: false })
   activeTabBar: ElementRef<HTMLDivElement> | null = null;
 
   /** Reference to the portal outlet that we will use to render a TabOutletComponent. */
@@ -59,6 +59,14 @@ export class SfngTabGroupComponent implements AfterContentInit, AfterViewInit, O
 
   @Input()
   outletClass = '';
+
+  /** Whether or not the current tab should be syncronized with the angular router using a query parameter */
+  @Input()
+  set linkRouter(v: any) {
+    this._linkRouter = coerceBooleanProperty(v)
+  }
+  get linkRouter() { return this._linkRouter }
+  private _linkRouter = true;
 
   /** Whether or not the default tab header should be rendered */
   @Input()
@@ -113,6 +121,10 @@ export class SfngTabGroupComponent implements AfterContentInit, AfterViewInit, O
         distinctUntilChanged(),
       )
       .subscribe(newIdx => {
+        if (!this._linkRouter) {
+          return;
+        }
+
         if (!!this.keymanager && !!this.tabs) {
           const actualIndex = this.getIndex(newIdx);
           if (actualIndex !== null) {
@@ -163,12 +175,14 @@ export class SfngTabGroupComponent implements AfterContentInit, AfterViewInit, O
           this.portalOutlet?.attach(newOutletPortal);
           this.repositionTabBar();
 
-          this.router.navigate([], {
-            queryParams: {
-              ...this.route.snapshot.queryParams,
-              [this.name]: this.activeTabIndex,
-            }
-          })
+          if (this._linkRouter) {
+            this.router.navigate([], {
+              queryParams: {
+                ...this.route.snapshot.queryParams,
+                [this.name]: this.activeTabIndex,
+              }
+            })
+          }
           this.cdr.markForCheck();
         }
       });
@@ -190,6 +204,8 @@ export class SfngTabGroupComponent implements AfterContentInit, AfterViewInit, O
 
   ngAfterViewInit(): void {
     this.repositionTabBar();
+    this.tabHeaders?.changes.subscribe(() => this.repositionTabBar())
+    setTimeout(() => this.repositionTabBar(), 250)
   }
 
   ngOnDestroy() {

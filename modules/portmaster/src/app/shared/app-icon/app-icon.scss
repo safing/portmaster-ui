@@ -16,6 +16,7 @@ span,
 img {
   @apply text-primary;
   @apply font-medium;
+  @apply rounded-full;
   text-shadow: rgba(0, 0, 0, .8) 0px 0px 1px;
 
   font-size: calc(var(--app-icon-size, 25px) / 6 * 4);

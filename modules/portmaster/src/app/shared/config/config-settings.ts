@@ -96,6 +96,10 @@ export class ConfigSettingsViewComponent implements OnInit, OnDestroy, AfterView
     if (s.Key === this.highlightKey) {
       return true;
     }
+    // the user is searching for settings so make sure we even show advanced or developer settings
+    if (this.onSearch.getValue() !== '') {
+      return true;
+    }
     if (s.Value === undefined) {
       // no value set
       return false;

@@ -17,11 +17,6 @@
       </span>
     </span>
 
-    <span *appExpertiseLevel="'expert'">
-      <span>Process ID:</span>
-      <span>{{ conn.extra_data?.pid || 'N/A' }}</span>
-    </span>
-
     <span *appExpertiseLevel="'developer'" sfngAddToFilter="profile_revision"
       [sfngAddToFilterValue]="conn.profile_revision">
       <span>Profile Revision:</span>
@@ -310,6 +305,8 @@
 </section>
 
 <div class="flex justify-end border-t border-gray-300 pt-0.5 mt-0.5" *ngIf="!!conn">
+  <button *ngIf="!!process" (click)="openProcessDetails()" class="btn-outline">Process
+    Details</button>
   <button class="btn-outline" *appExpertiseLevel="'expert'" (click)="helper.dumpConnection(conn)">Copy JSON</button>
   <button class="btn-outline" *ngIf="(conn | isBlocked); else blockAction"
     (click)="helper.unblockAll(conn.domain || conn.remote_ip, conn)" [disabled]="!(conn | canUseRules)">

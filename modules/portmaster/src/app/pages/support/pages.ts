@@ -129,6 +129,12 @@ export const supportTypes: PageSections[] = [
     choices: [
       {
         type: 'link',
+        title: 'Settings Handbook',
+        url: 'https://docs.safing.io/portmaster/settings',
+        shortHelp: 'A reference document of all Portmaster settings'
+      },
+      {
+        type: 'link',
         title: 'What\'s Next?',
         url: 'https://safing.io/next',
         shortHelp: 'View what Safing is currently working on.',

@@ -38,6 +38,9 @@ export class NetworkScoutComponent implements OnInit, OnDestroy {
   /** Defines if new elements should be expanded or collapsed */
   expandCollapseState: 'expand' | 'collapse' = 'expand';
 
+  /** Whether or not the SPN is enabled */
+  spnEnabled = false;
+
   /**
    * Emits when the user clicks the "expand all" or "collapse all" buttons.
    * Once the user did that we stop updating the default state depending on whether the
@@ -128,6 +131,8 @@ export class NetworkScoutComponent implements OnInit, OnDestroy {
         } else {
           this.expandCollapseState = 'collapse'
         }
+
+        this.spnEnabled = enabled;
       });
 
     combineLatest([

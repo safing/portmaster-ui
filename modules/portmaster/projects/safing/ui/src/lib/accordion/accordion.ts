@@ -66,12 +66,16 @@ export class SfngAccordionComponent<T = any> implements OnInit {
    * @param event The mouse event.
    */
   toggle(event?: Event) {
+    if (!!this.group && this.group.disabled) {
+      return;
+    }
+
     event?.preventDefault();
     this.activeChange.emit(!this.active);
   }
 
   constructor(
     public cdr: ChangeDetectorRef,
-    @Optional() private group: SfngAccordionGroupComponent,
+    @Optional() public group: SfngAccordionGroupComponent,
   ) { }
 }

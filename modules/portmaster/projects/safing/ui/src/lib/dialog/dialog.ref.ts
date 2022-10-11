@@ -6,10 +6,11 @@ import { SfngDialogContainer, SfngDialogState } from "./dialog.container";
 
 export const SFNG_DIALOG_REF = new InjectionToken<SfngDialogRef<any>>('SfngDialogRef');
 
-export class SfngDialogRef<T, R = any> {
+export class SfngDialogRef<T, R = any, D = any> {
   constructor(
     private _overlayRef: OverlayRef,
     private container: SfngDialogContainer<T>,
+    public readonly data: D,
   ) {
     this.container.onStateChange
       .pipe(
@@ -27,6 +28,7 @@ export class SfngDialogRef<T, R = any> {
   get onStateChange(): Observable<SfngDialogState> {
     return this.container.onStateChange;
   }
+
 
   /**
    * @returns The overlayref that holds the dialog container.
