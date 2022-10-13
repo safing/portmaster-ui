@@ -11,11 +11,6 @@ import (
 
 // Security Level constants
 const (
-	SecurityLevelAutoDetect uint8 = 0
-	SecurityLevelTrusted    uint8 = 1
-	SecurityLevelUntrusted  uint8 = 2
-	SecurityLevelDanger     uint8 = 4
-
 	systemStatusKey         = "runtime:system/status"
 	selectSecurityStatusKey = "runtime:system/security-level"
 )
@@ -51,21 +46,6 @@ func updateStatus(s *SystemStatus) {
 	defer systemStatusCacheLock.Unlock()
 
 	systemStatusCache = s
-}
-
-func fmtSecurityLevel(level uint8) string {
-	switch level {
-	case SecurityLevelAutoDetect:
-		return "AutoDetect"
-	case SecurityLevelTrusted:
-		return "Trusted"
-	case SecurityLevelUntrusted:
-		return "Untrusted"
-	case SecurityLevelDanger:
-		return "Danger"
-	default:
-		return "Unknown"
-	}
 }
 
 func statusClient() {
