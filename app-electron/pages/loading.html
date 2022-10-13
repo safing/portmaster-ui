@@ -140,7 +140,7 @@
     <script>
         function handleStatusUpdate(status) {
             let showStartButton = false;
-            let text = 'Connecting to Portmaster ...';
+            let text = 'Waiting for Portmaster Core Service...';
 
             if (status.serviceManager === 'unsupported') {
                 text = 'Your service manager is not supported. <br />Please start the Portmaster Core Service manually.';
