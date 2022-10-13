@@ -12,9 +12,7 @@ type NotificationID uint32
 
 var (
 	capabilities notify.Capabilities
-
-	notifsByID     = make(map[NotificationID]*Notification)
-	notifsByIDLock sync.Mutex
+	notifsByID   sync.Map
 )
 
 func init() {
@@ -34,20 +32,25 @@ func handleActions(ctx context.Context, actions chan notify.Signal) {
 		case <-ctx.Done():
 			return
 		case sig := <-actions:
-			log.Tracef("notify: received signal: %+v", sig)
-			if sig.ActionKey != "" {
-				// get notification by system ID
-				notifsByIDLock.Lock()
-				n, ok := notifsByID[NotificationID(sig.ID)]
-				notifsByIDLock.Unlock()
+			// get notification by system ID
+			n, ok := notifsByID.LoadAndDelete(NotificationID(sig.ID))
 
-				// send action
-				if ok {
-					n.SelectAction(sig.ActionKey)
+			if ok {
+				notification := n.(*Notification)
+
+				log.Tracef("notify: received signal: %+v", sig)
+				if sig.ActionKey != "" {
+					// send action
+					if ok {
+						notification.Lock()
+						notification.SelectAction(sig.ActionKey)
+						notification.Unlock()
+					}
+				} else if sig.CloseReason == notify.NotClosed {
+					log.Tracef("notify: notification clicked: %+v", sig)
+					// Global action invoked, start the app
+					launchApp()
 				}
-			} else {
-				// Global action invoked, start the app
-				launchApp()
 			}
 		}
 	}
@@ -120,9 +123,7 @@ func (n *Notification) Show() {
 		return
 	}
 
-	notifsByIDLock.Lock()
-	notifsByID[NotificationID(newID)] = n
-	notifsByIDLock.Unlock()
+	notifsByID.Store(NotificationID(newID), n)
 
 	n.Lock()
 	defer n.Unlock()
@@ -140,9 +141,6 @@ func (n *Notification) Cancel() {
 		if err != nil {
 			log.Warningf("notify: failed to close notification %s/%d", n.EventID, n.systemID)
 		}
-
-		notifsByIDLock.Lock()
-		delete(notifsByID, n.systemID)
-		notifsByIDLock.Unlock()
+		notifsByID.Delete(n.systemID)
 	}
 }
