@@ -27,30 +27,38 @@ func handleActions(ctx context.Context, actions chan notify.Signal) {
 	mainWg.Add(1)
 	defer mainWg.Done()
 
+listenForNotifications:
 	for {
 		select {
 		case <-ctx.Done():
 			return
 		case sig := <-actions:
+			if sig.Name != "org.freedesktop.Notifications.ActionInvoked" {
+				// we don't care for anything else (dismissed, closed)
+				continue listenForNotifications
+			}
+
 			// get notification by system ID
 			n, ok := notifsByID.LoadAndDelete(NotificationID(sig.ID))
 
-			if ok {
-				notification := n.(*Notification)
+			if !ok {
+				continue listenForNotifications
+			}
 
-				log.Tracef("notify: received signal: %+v", sig)
-				if sig.ActionKey != "" {
-					// send action
-					if ok {
-						notification.Lock()
-						notification.SelectAction(sig.ActionKey)
-						notification.Unlock()
-					}
-				} else if sig.CloseReason == notify.NotClosed {
-					log.Tracef("notify: notification clicked: %+v", sig)
-					// Global action invoked, start the app
-					launchApp()
+			notification := n.(*Notification)
+
+			log.Tracef("notify: received signal: %+v", sig)
+			if sig.ActionKey != "" {
+				// send action
+				if ok {
+					notification.Lock()
+					notification.SelectAction(sig.ActionKey)
+					notification.Unlock()
 				}
+			} else {
+				log.Tracef("notify: notification clicked: %+v", sig)
+				// Global action invoked, start the app
+				launchApp()
 			}
 		}
 	}
