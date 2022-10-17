@@ -181,7 +181,7 @@ export class AppIconComponent implements OnDestroy {
             }
           }
 
-          if (!!window.app) {
+          if (!!window.app && !!profile.PresentationPath) {
             return window.app.getFileIcon(profile.PresentationPath);
           }
 
