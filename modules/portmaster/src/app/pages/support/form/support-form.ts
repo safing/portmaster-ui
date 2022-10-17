@@ -262,7 +262,7 @@ export class SupportFormComponent implements OnInit, OnDestroy {
       header: 'How should we stay in touch?',
       message: 'Please enter your email address so we can write back and forth until the issue is concluded.',
       inputModel: '',
-      inputPlaceholder: 'Email',
+      inputPlaceholder: 'Optional Email',
       inputType: 'text',
       buttons: [
         { id: '', class: 'outline', text: 'Cancel' },
