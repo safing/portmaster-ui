@@ -52,7 +52,7 @@
                 {{ value.Name || 'N/A' }}
               </span>
             </span>
-            <span class="pr-3 text-xxs text-tertiary">
+            <span class="pr-3 text-xxs text-tertiary whitespace-nowrap">
               #{{ value.count }} connections
             </span>
           </sfng-select-item>
@@ -88,10 +88,10 @@
       </div>
     </button>
   </ng-template>
-  <sfng-dropdown #customDropdown [triggerTemplate]="selectTemplate" overlayClass="grid grid-cols-4 gap-1">
-    <ng-container *ngFor="let model of (models | keyvalue)">
-      <div class="sfng-select-dropdown" *ngIf="model.value?.visible === 'combinedMenu'">
-        <h3 class="flex items-center gap-2 px-3 py-2 mb-0 text-xxs text-secondary">
+  <sfng-dropdown #customDropdown [triggerTemplate]="selectTemplate" overlayClass="grid grid-cols-4">
+    <ng-container *ngFor="let model of (models | keyvalue | combinedMenu); let last=last">
+      <div class="border-gray-400 sfng-select-dropdown" [class.border-r]="!last">
+        <h3 class="flex items-center gap-2 px-3 py-0.5 mb-0 border-b border-gray-300 text-xxs text-secondary">
           <span>Filter by {{ model.value!.menuTitle || model.key }}</span>
           <sfng-tipup [key]="model.value!.tipupKey" *ngIf="!!model.value!.tipupKey"></sfng-tipup>
         </h3>
@@ -198,6 +198,9 @@
         <app-menu-trigger [menu]="groupedMenu"></app-menu-trigger>
         <app-menu #groupedMenu>
           <app-menu-item (onActivate)="useAsFilter(data)">Use as filter</app-menu-item>
+          <app-menu-item *ngIf="data.__profile"
+            (onActivate)="router.navigate(['/app', data.__profile.Source, data.__profile.ID])">App Settings
+          </app-menu-item>
         </app-menu>
       </div>
 

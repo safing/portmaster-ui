@@ -13,6 +13,7 @@ import { SfngFocusModule } from "../focus";
 import { SfngMenuModule } from "../menu";
 import { CommonPipesModule } from "../pipes";
 import { SfngNetqueryAddToFilterDirective } from "./add-to-filter";
+import { CombinedMenuPipe } from "./combined-menu.pipe";
 import { SfngNetqueryConnectionDetailsComponent } from "./connection-details";
 import { SfngNetqueryConnectionRowComponent } from "./connection-row";
 import { SfngNetqueryLineChart } from "./line-chart/line-chart";
@@ -65,6 +66,7 @@ import { SfngNetqueryTagbar } from "./tag-bar";
     IsBlockedConnectionPipe,
     CanUseRulesPipe,
     CanShowConnection,
+    CombinedMenuPipe,
   ]
 })
 export class NetqueryModule { }
