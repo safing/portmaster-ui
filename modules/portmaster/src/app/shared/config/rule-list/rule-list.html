@@ -6,7 +6,8 @@
       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l4-4 4 4m0 6l-4 4-4-4" />
     </svg>
     <app-rule-list-item [symbolMap]="symbolMap" [readonly]="readonly" [value]="entry"
-      (valueChange)="updateValue(index, $event)" (selectedChange)="selectItem(index, $event)">
+      (valueChange)="updateValue(index, $event)" (selectedChange)="selectItem(index, $event)"
+      (delete)="deleteEntry(index)">
     </app-rule-list-item>
   </div>
 </div>
@@ -16,7 +17,8 @@
     No entries available
   </div>
 
-  <button class="new-entry dotted" (click)="addEntry()" *ngIf="!readonly">
+  <button class="new-entry dotted" (click)="addEntry()"
+    *ngIf="!readonly && (entries.length === 0 || entries[entries.length-1] !== '')">
     <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 20 20" fill="currentColor">
       <path fill-rule="evenodd"
         d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clip-rule="evenodd" />
