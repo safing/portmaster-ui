@@ -17,7 +17,7 @@ import { fadeInAnimation, fadeOutAnimation } from '../animations';
   changeDetection: ChangeDetectionStrategy.OnPush,
   animations: [fadeInAnimation, fadeOutAnimation],
 })
-export class SfngDropdown implements OnInit {
+export class SfngDropdownComponent implements OnInit {
   /** The trigger origin used to open the drop-down */
   @ViewChild('trigger', { read: CdkOverlayOrigin })
   trigger: CdkOverlayOrigin | null = null;
@@ -114,11 +114,11 @@ export class SfngDropdown implements OnInit {
 
   /** Emits whenever the drop-down is opened */
   @Output()
-  onOpen = new EventEmitter<void>();
+  opened = new EventEmitter<void>();
 
   /** Emits whenever the drop-down is closed. */
   @Output()
-  onClose = new EventEmitter<void>();
+  closed = new EventEmitter<void>();
 
   @Input()
   positions: ConnectedPosition[] = [
@@ -171,7 +171,7 @@ export class SfngDropdown implements OnInit {
   }
 
   onOverlayClosed() {
-    this.onClose.next();
+    this.closed.next();
   }
 
   close() {
@@ -210,7 +210,7 @@ export class SfngDropdown implements OnInit {
 
     }
     this.isOpen = true;
-    this.onOpen.next();
+    this.opened.next();
     this.changeDetectorRef.markForCheck();
   }
 }

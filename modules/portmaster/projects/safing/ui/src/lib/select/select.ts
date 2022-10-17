@@ -4,7 +4,7 @@ import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, C
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { BehaviorSubject, combineLatest, Subject } from 'rxjs';
 import { startWith, takeUntil } from 'rxjs/operators';
-import { SfngDropdown } from '../dropdown';
+import { SfngDropdownComponent } from '../dropdown';
 import { SelectOption, SfngSelectValueDirective } from './item';
 
 
@@ -63,8 +63,8 @@ export class SfngSelectComponent<T> implements AfterViewInit, ControlValueAccess
   /** the key manager used for keyboard support */
   private keyManager!: ListKeyManager<SfngSelectRenderedItemDirective>;
 
-  @ViewChild(SfngDropdown, { static: true })
-  dropdown!: SfngDropdown;
+  @ViewChild(SfngDropdownComponent, { static: true })
+  dropdown!: SfngDropdownComponent;
 
   /** A reference to the cdk-scrollable directive that's placed on the item list */
   @ViewChild('scrollable', { read: ElementRef })
@@ -168,11 +168,11 @@ export class SfngSelectComponent<T> implements AfterViewInit, ControlValueAccess
   @Input()
   dynamicValueTemplate?: TemplateRef<any>;
 
-  /** The minimum-width of the drop-down. See {@link SfngDropdown.minWidth} */
+  /** The minimum-width of the drop-down. See {@link SfngDropdownComponent.minWidth} */
   @Input()
   minWidth: any;
 
-  /** The minimum-width of the drop-down. See {@link SfngDropdown.minHeight} */
+  /** The minimum-width of the drop-down. See {@link SfngDropdownComponent.minHeight} */
   @Input()
   minHeight: any;
 
@@ -240,10 +240,10 @@ export class SfngSelectComponent<T> implements AfterViewInit, ControlValueAccess
   }
 
   @Output()
-  onClose = new EventEmitter<void>();
+  closed = new EventEmitter<void>();
 
   @Output()
-  onOpen = new EventEmitter<void>();
+  opened = new EventEmitter<void>();
 
   trackItem(_: number, item: SelectOption) {
     return item.value;
@@ -361,9 +361,9 @@ export class SfngSelectComponent<T> implements AfterViewInit, ControlValueAccess
   /** @private - called when the internal dropdown opens */
   onDropdownOpen() {
     // emit the open event on this component as well
-    this.onOpen.next();
+    this.opened.next();
 
-    // reset the search. We do that onOpen instead of onClose
+    // reset the search. We do that when opened instead of closed
     // to avoid flickering when the component height increases
     // during the "close" animation
     this.onSearch('');
@@ -372,7 +372,7 @@ export class SfngSelectComponent<T> implements AfterViewInit, ControlValueAccess
 
   /** @private - called when the internal dropdown closes */
   onDropdownClose() {
-    this.onClose.next();
+    this.closed.next();
   }
 
   onSearch(text: string) {

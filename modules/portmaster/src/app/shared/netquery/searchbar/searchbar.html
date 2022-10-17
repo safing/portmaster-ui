@@ -22,7 +22,7 @@
 
 <ng-template #suggestionTemplate>
   <ul class="self-stretch p-2" *ngIf="!!textSearch">
-    <li (click)="applySuggestion('_textsearch', null, $event)" [sfng-netquery-suggestion]="textSearch"
+    <li (click)="applySuggestion('_textsearch', null, $event)" [sfngNetquerySuggestion]="textSearch"
       [sfngSuggestion]="{field: '_textsearch', values: []}" #suggestion="sfngNetquerySuggestion"
       class="flex flex-row justify-between w-full gap-2 px-2 py-1 rounded-sm cursor-pointer hover:bg-gray-400"
       [ngClass]="{'bg-gray-400': suggestion.active}">
@@ -41,7 +41,7 @@
         </h3>
         <ul class="self-stretch">
           <li *ngFor="let val of sug.values" (click)="applySuggestion(sug.field, val.value, $event, sug.start)"
-            [sfng-netquery-suggestion]="val.value" [sfngSuggestion]="sug" #suggestion="sfngNetquerySuggestion"
+            [sfngNetquerySuggestion]="val.value" [sfngSuggestion]="sug" #suggestion="sfngNetquerySuggestion"
             class="flex flex-row justify-between w-full gap-2 px-2 py-1 rounded-sm cursor-pointer hover:bg-gray-400"
             [ngClass]="{'bg-gray-400': suggestion.active}">
             <span class="text-primary">{{ val.display || (val.value === '' ? 'N/A' : val.value) }}</span>

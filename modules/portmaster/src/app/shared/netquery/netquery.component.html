@@ -21,7 +21,7 @@
 
 <div class="flex flex-row items-center w-full gap-2">
   <sfng-netquery-searchbar [(ngModel)]="textSearch" (ngModelChange)="performSearch()" class="block w-full"
-    [labels]="keyTranslation" (onFieldsParsed)="onFieldsParsed($event)"></sfng-netquery-searchbar>
+    [labels]="keyTranslation" (fieldsParsed)="onFieldsParsed($event)"></sfng-netquery-searchbar>
   <button type="button" class="h-full rounded-r-sm btn" (click)="performSearch()">Reload</button>
 </div>
 
@@ -35,7 +35,7 @@
         [placeholder]="keyTranslation[field.key] || field.key" [(ngModel)]="field.value!.searchValues"
         allowSearch="true" searchItemThreshold="5" itemLimit="10"
         [searchPlaceholder]="'Search' + (keyTranslation[field.key] || field.key)" minWidth="400" minHeight="300"
-        (ngModelChange)="performSearch()" (onOpen)="loadSuggestion(field.key)"
+        (ngModelChange)="performSearch()" (opened)="loadSuggestion(field.key)"
         [dynamicValueTemplate]="dynamicValueTemplate" [sortBy]="sortByCount">
         <ng-container *ngIf="field.value?.loading">
           <sfng-select-item *sfngSelectValue="null; disabled: true" class="text-secondary">Loading ...
@@ -197,9 +197,9 @@
       <div>
         <app-menu-trigger [menu]="groupedMenu"></app-menu-trigger>
         <app-menu #groupedMenu>
-          <app-menu-item (onActivate)="useAsFilter(data)">Use as filter</app-menu-item>
+          <app-menu-item (activate)="useAsFilter(data)">Use as filter</app-menu-item>
           <app-menu-item *ngIf="data.__profile"
-            (onActivate)="router.navigate(['/app', data.__profile.Source, data.__profile.ID])">App Settings
+            (activate)="router.navigate(['/app', data.__profile.Source, data.__profile.ID])">App Settings
           </app-menu-item>
         </app-menu>
       </div>

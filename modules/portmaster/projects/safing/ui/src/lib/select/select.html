@@ -38,7 +38,7 @@
 <!-- This template displays the overlay content and is connected to the button -->
 <sfng-dropdown #dropdown="sfngDropdown" [triggerTemplate]="customTriggerTemplate" overlayClass="sfng-select-dropdown"
   [disabled]="allItems.length === 0 && searchText === '' && disableWhenEmpty" [minWidth]="minWidth"
-  [minHeight]="minHeight" (onOpen)="onDropdownOpen()" (onClose)="onDropdownClose()">
+  [minHeight]="minHeight" (opened)="onDropdownOpen()" (closed)="onDropdownClose()">
 
   <input *ngIf="allowSearch && (userProvidedItems?.length || 0) >= searchItemThreshold" type="text"
     class="w-full mb-2 rounded-t" [placeholder]="searchPlaceholder" [ngModel]="searchText"

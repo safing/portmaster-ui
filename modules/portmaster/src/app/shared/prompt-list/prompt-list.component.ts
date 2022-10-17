@@ -23,7 +23,7 @@ interface ProfilePrompts extends AppProfile {
 const PromptLimit = 3;
 
 @Component({
-  selector: 'sfng-prompt-list',
+  selector: 'app-prompt-list',
   templateUrl: './prompt-list.component.html',
   styleUrls: [
     './prompt-list.component.scss'

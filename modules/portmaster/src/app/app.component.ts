@@ -10,7 +10,7 @@ import { NotificationsService, UIStateService } from './services';
 import { ActionIndicatorService } from './shared/action-indicator';
 import { fadeInAnimation, fadeOutAnimation } from './shared/animations';
 import { ExitService } from './shared/exit-screen';
-import { SfngNetquerySearchOverlay } from './shared/netquery/search-overlay';
+import { SfngNetquerySearchOverlayComponent } from './shared/netquery/search-overlay';
 
 @Component({
   selector: 'app-root',
@@ -66,7 +66,7 @@ export class AppComponent implements OnInit {
   onKeyDown(event: KeyboardEvent) {
     if (event.key === ' ' && event.ctrlKey) {
       this.dialog.create(
-        SfngNetquerySearchOverlay,
+        SfngNetquerySearchOverlayComponent,
         {
           positionStrategy: this.overlay
             .position()

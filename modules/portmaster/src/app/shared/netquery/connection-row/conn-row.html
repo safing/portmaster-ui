@@ -107,11 +107,11 @@
   <app-menu-trigger [menu]="ungroupedConnectionMenu"></app-menu-trigger>
   <app-menu #ungroupedConnectionMenu>
     <ng-container *ngIf="conn.extra_data?.reason as reason">
-      <app-menu-item (onActivate)="helper.redirectToSetting('', conn)" *ngIf="!!reason.OptionKey">
+      <app-menu-item (activate)="helper.redirectToSetting('', conn)" *ngIf="!!reason.OptionKey">
         App Setting
       </app-menu-item>
 
-      <app-menu-item (onActivate)="helper.redirectToSetting('', conn, true)" *ngIf="!!reason.OptionKey">
+      <app-menu-item (activate)="helper.redirectToSetting('', conn, true)" *ngIf="!!reason.OptionKey">
         Global Setting
       </app-menu-item>
     </ng-container>
@@ -119,12 +119,12 @@
     <app-menu-group class="separator"></app-menu-group>
 
     <app-menu-item *ngIf="(conn | isBlocked); else blockAction"
-      (onActivate)="helper.unblockAll(conn.domain || conn.remote_ip, conn)" [disabled]="!(conn | canUseRules)">
+      (activate)="helper.unblockAll(conn.domain || conn.remote_ip, conn)" [disabled]="!(conn | canUseRules)">
       Allow {{ conn.domain ? 'Domain' : 'IP'}}
     </app-menu-item>
 
     <ng-template #blockAction>
-      <app-menu-item (onActivate)="helper.blockAll(conn.domain || conn.remote_ip, conn)"
+      <app-menu-item (activate)="helper.blockAll(conn.domain || conn.remote_ip, conn)"
         [disabled]="!(conn | canUseRules)">
         Block {{ conn.domain ? 'Domain' : 'IP '}}
       </app-menu-item>

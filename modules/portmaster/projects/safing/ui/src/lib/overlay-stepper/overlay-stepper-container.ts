@@ -50,14 +50,14 @@ export const STEP_CONFIG = new InjectionToken<StepperConfig>('StepperConfig');
       ]
     )]
 })
-export class OverlayStepperContainer implements OnInit, OnDestroy, StepperControl {
+export class OverlayStepperContainerComponent implements OnInit, OnDestroy, StepperControl {
   /** Used to keep cache the stepRef instances. See documentation for {@class StepRef} */
   private stepRefCache = new Map<number, StepRef>();
 
   /** Used to emit when the stepper finished. This is always folled by emitting on onClose$ */
   private onFinish$ = new Subject<void>();
 
-  /** Emits when the stepper finished - also see {@link OverlayStepperContainer.onClose}*/
+  /** Emits when the stepper finished - also see {@link OverlayStepperContainerComponent.onClose}*/
   get onFinish() {
     return this.onFinish$.asObservable();
   }

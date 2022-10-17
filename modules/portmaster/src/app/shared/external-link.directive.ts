@@ -1,17 +1,15 @@
+import { isPlatformBrowser } from '@angular/common';
 import {
   Directive,
-  HostBinding,
-  PLATFORM_ID,
-  Inject,
-  Input,
-  HostListener
+  HostBinding, HostListener, Inject,
+  Input, OnChanges, PLATFORM_ID
 } from '@angular/core';
-import { isPlatformBrowser } from '@angular/common';
 
 @Directive({
+  // eslint-disable-next-line @angular-eslint/directive-selector
   selector: 'a[href]'
 })
-export class ExternalLinkDirective {
+export class ExternalLinkDirective implements OnChanges {
   @HostBinding('attr.rel')
   relAttr = '';
 

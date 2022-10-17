@@ -26,7 +26,7 @@ import { connectionFieldTranslation } from "../utils";
     `
   ]
 })
-export class SfngNetquerySearchOverlay {
+export class SfngNetquerySearchOverlayComponent {
   keyTranslation = connectionFieldTranslation;
 
   textSearch = '';

@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef } from "@angular/core";
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, OnDestroy, OnInit } from "@angular/core";
 import { applyQuickSetting, ConfigService, QuickSetting, Setting } from "@safing/portmaster-api";
 import { Step } from "@safing/ui";
 import { of, Subject } from "rxjs";
@@ -14,7 +14,7 @@ interface QuickSettingModel extends QuickSetting<any> {
   styleUrls: ['../step.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class Step3DNSComponent implements Step {
+export class Step3DNSComponent implements Step, OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
 
   validChange = of(true)

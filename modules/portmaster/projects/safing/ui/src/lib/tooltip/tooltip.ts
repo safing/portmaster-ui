@@ -1,3 +1,4 @@
+/* eslint-disable @angular-eslint/no-input-rename */
 import { coerceNumberProperty } from "@angular/cdk/coercion";
 import { ConnectedPosition, Overlay, OverlayRef, PositionStrategy } from "@angular/cdk/overlay";
 import { ComponentPortal } from "@angular/cdk/portal";

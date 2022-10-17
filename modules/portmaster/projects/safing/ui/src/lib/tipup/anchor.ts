@@ -2,7 +2,7 @@ import { Directive, ElementRef, HostBinding, Input, isDevMode } from "@angular/c
 import { SfngTipUpPlacement } from "./utils";
 
 @Directive({
-  selector: '[tipUpAnchor]',
+  selector: '[sfngTipUpAnchor]',
 })
 export class SfngTipUpAnchorDirective implements SfngTipUpPlacement {
   constructor(
@@ -15,12 +15,12 @@ export class SfngTipUpAnchorDirective implements SfngTipUpPlacement {
   @HostBinding('class.active-tipup-anchor')
   isActiveAnchor = false;
 
-  @Input('tipUpAnchor')
-  set position(posSpec: string | undefined) {
+  @Input()
+  set sfngTipUpAnchor(posSpec: string | undefined) {
     const parts = (posSpec || '').split(';')
     if (parts.length > 2) {
       if (isDevMode()) {
-        throw new Error(`Invalid value "${posSpec}" for [tipUpAnchor]`);
+        throw new Error(`Invalid value "${posSpec}" for [sfngTipUpAnchor]`);
       }
       return;
     }

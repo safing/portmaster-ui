@@ -1,5 +1,5 @@
 import { ConnectedPosition } from '@angular/cdk/overlay';
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, Output } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, OnInit, Output } from '@angular/core';
 import { DebugAPI, PortapiService } from '@safing/portmaster-api';
 import { tap } from 'rxjs/operators';
 import { AppComponent } from 'src/app/app.component';
@@ -19,7 +19,7 @@ import { ExitService } from 'src/app/shared/exit-screen';
     fadeOutAnimation,
   ]
 })
-export class NavigationComponent {
+export class NavigationComponent implements OnInit {
   /** Emits the current portapi connection state on changes. */
   readonly connected$ = this.portapi.connected$;
 

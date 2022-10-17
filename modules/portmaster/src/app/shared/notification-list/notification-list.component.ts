@@ -14,7 +14,7 @@ interface _Notification<T = any> extends Notification<T> {
 }
 
 @Component({
-  selector: 'sfng-notification-list',
+  selector: 'app-notification-list',
   templateUrl: './notification-list.component.html',
   styleUrls: [
     './notification-list.component.scss'

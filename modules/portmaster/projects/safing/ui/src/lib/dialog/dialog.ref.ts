@@ -2,14 +2,14 @@ import { OverlayRef } from "@angular/cdk/overlay";
 import { InjectionToken } from "@angular/core";
 import { Observable, PartialObserver, Subject } from "rxjs";
 import { filter, take } from "rxjs/operators";
-import { SfngDialogContainer, SfngDialogState } from "./dialog.container";
+import { SfngDialogContainerComponent, SfngDialogState } from "./dialog.container";
 
 export const SFNG_DIALOG_REF = new InjectionToken<SfngDialogRef<any>>('SfngDialogRef');
 
 export class SfngDialogRef<T, R = any, D = any> {
   constructor(
     private _overlayRef: OverlayRef,
-    private container: SfngDialogContainer<T>,
+    private container: SfngDialogContainerComponent<T>,
     public readonly data: D,
   ) {
     this.container.onStateChange

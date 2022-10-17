@@ -16,13 +16,13 @@ import { SfngNetqueryAddToFilterDirective } from "./add-to-filter";
 import { CombinedMenuPipe } from "./combined-menu.pipe";
 import { SfngNetqueryConnectionDetailsComponent } from "./connection-details";
 import { SfngNetqueryConnectionRowComponent } from "./connection-row";
-import { SfngNetqueryLineChart } from "./line-chart/line-chart";
+import { SfngNetqueryLineChartComponent } from "./line-chart/line-chart";
 import { SfngNetqueryViewer } from "./netquery.component";
 import { CanShowConnection, CanUseRulesPipe, ConnectionLocationPipe, IsBlockedConnectionPipe } from "./pipes";
 import { SfngNetqueryScopeLabelComponent } from "./scope-label";
-import { SfngNetquerySearchOverlay } from "./search-overlay";
-import { SfngNetquerySearchbar, SfngNetquerySuggestionDirective } from "./searchbar";
-import { SfngNetqueryTagbar } from "./tag-bar";
+import { SfngNetquerySearchOverlayComponent } from "./search-overlay";
+import { SfngNetquerySearchbarComponent, SfngNetquerySuggestionDirective } from "./searchbar";
+import { SfngNetqueryTagbarComponent } from "./tag-bar";
 
 @NgModule({
   imports: [
@@ -47,17 +47,17 @@ import { SfngNetqueryTagbar } from "./tag-bar";
   ],
   exports: [
     SfngNetqueryViewer,
-    SfngNetqueryLineChart,
-    SfngNetquerySearchOverlay,
+    SfngNetqueryLineChartComponent,
+    SfngNetquerySearchOverlayComponent,
     SfngNetqueryScopeLabelComponent,
   ],
   declarations: [
     SfngNetqueryViewer,
     SfngNetqueryConnectionRowComponent,
-    SfngNetqueryLineChart,
-    SfngNetqueryTagbar,
-    SfngNetquerySearchbar,
-    SfngNetquerySearchOverlay,
+    SfngNetqueryLineChartComponent,
+    SfngNetqueryTagbarComponent,
+    SfngNetquerySearchbarComponent,
+    SfngNetquerySearchOverlayComponent,
     SfngNetquerySuggestionDirective,
     SfngNetqueryScopeLabelComponent,
     SfngNetqueryConnectionDetailsComponent,

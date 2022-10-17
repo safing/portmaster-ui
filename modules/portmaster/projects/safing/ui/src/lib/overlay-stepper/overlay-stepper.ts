@@ -1,6 +1,6 @@
 import { ComponentRef, Injectable, Injector } from "@angular/core";
 import { SfngDialogService } from "../dialog";
-import { OverlayStepperContainer, STEP_CONFIG } from "./overlay-stepper-container";
+import { OverlayStepperContainerComponent, STEP_CONFIG } from "./overlay-stepper-container";
 import { OverlayStepperModule } from "./overlay-stepper.module";
 import { StepperRef } from "./refs";
 import { StepperConfig } from "./step";
@@ -24,14 +24,14 @@ export class OverlayStepper {
     // that holds a reference to the StepperConfig.
     const injector = this.createInjector(config);
 
-    const dialogRef = this.dialog.create(OverlayStepperContainer, {
+    const dialogRef = this.dialog.create(OverlayStepperContainerComponent, {
       injector: injector,
       autoclose: false,
       backdrop: 'light',
       dragable: false,
     })
 
-    const containerComponentRef = dialogRef.contentRef() as ComponentRef<OverlayStepperContainer>;
+    const containerComponentRef = dialogRef.contentRef() as ComponentRef<OverlayStepperContainerComponent>;
 
     return new StepperRef(containerComponentRef.instance);
   }

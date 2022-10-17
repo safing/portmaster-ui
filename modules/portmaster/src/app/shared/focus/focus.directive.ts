@@ -2,6 +2,7 @@ import { coerceBooleanProperty } from "@angular/cdk/coercion";
 import { Directive, ElementRef, Input, OnInit } from "@angular/core";
 
 @Directive({
+  // eslint-disable-next-line @angular-eslint/directive-selector
   selector: '[autoFocus]',
 })
 export class AutoFocusDirective implements OnInit {

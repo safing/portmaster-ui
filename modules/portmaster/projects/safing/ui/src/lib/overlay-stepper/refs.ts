@@ -1,7 +1,7 @@
 import { InjectionToken } from "@angular/core";
 import { Observable } from "rxjs";
 import { take } from "rxjs/operators";
-import { OverlayStepperContainer } from "./overlay-stepper-container";
+import { OverlayStepperContainerComponent } from "./overlay-stepper-container";
 
 /**
  * STEP_REF is the injection token that is used to provide a reference to the
@@ -51,7 +51,7 @@ export class StepRef<T = any> implements StepperControl {
 
   constructor(
     private currentStepIndex: number,
-    private stepContainerRef: OverlayStepperContainer,
+    private stepContainerRef: OverlayStepperContainerComponent,
   ) {
     this.stepContainerRef.onFinish
       .pipe(take(1))
@@ -119,7 +119,7 @@ export class StepRef<T = any> implements StepperControl {
 
 
 export class StepperRef implements StepperControl {
-  constructor(private stepContainerRef: OverlayStepperContainer) { }
+  constructor(private stepContainerRef: OverlayStepperContainerComponent) { }
 
   next(): Promise<void> {
     return this.stepContainerRef.next();
