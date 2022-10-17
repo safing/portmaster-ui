@@ -38,13 +38,13 @@
 
         <!-- App Metadata -->
         <div class="text-tertiary text-xxs">
-          <div class="space-x-2">
+          <div class="space-x-2" *ngIf="!!applicationDirectory">
             <span>Path:</span>
             <span class="text-opacity-75 text-primary">
               {{ applicationDirectory }}
             </span>
           </div>
-          <div class="space-x-2">
+          <div class="space-x-2" *ngIf="!!binaryName">
             <span>Binary:</span>
             <span class="text-opacity-75 text-primary">
               {{ binaryName }}
