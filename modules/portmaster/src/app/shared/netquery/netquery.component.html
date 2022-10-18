@@ -21,7 +21,7 @@
 
 <div class="flex flex-row items-center w-full gap-2">
   <sfng-netquery-searchbar [(ngModel)]="textSearch" (ngModelChange)="performSearch()" class="block w-full"
-    [labels]="keyTranslation" (onFieldsParsed)="onFieldsParsed($event)"></sfng-netquery-searchbar>
+    [labels]="keyTranslation" (fieldsParsed)="onFieldsParsed($event)"></sfng-netquery-searchbar>
   <button type="button" class="h-full rounded-r-sm btn" (click)="performSearch()">Reload</button>
 </div>
 
@@ -35,7 +35,7 @@
         [placeholder]="keyTranslation[field.key] || field.key" [(ngModel)]="field.value!.searchValues"
         allowSearch="true" searchItemThreshold="5" itemLimit="10"
         [searchPlaceholder]="'Search' + (keyTranslation[field.key] || field.key)" minWidth="400" minHeight="300"
-        (ngModelChange)="performSearch()" (onOpen)="loadSuggestion(field.key)"
+        (ngModelChange)="performSearch()" (opened)="loadSuggestion(field.key)"
         [dynamicValueTemplate]="dynamicValueTemplate" [sortBy]="sortByCount">
         <ng-container *ngIf="field.value?.loading">
           <sfng-select-item *sfngSelectValue="null; disabled: true" class="text-secondary">Loading ...
@@ -52,7 +52,7 @@
                 {{ value.Name || 'N/A' }}
               </span>
             </span>
-            <span class="pr-3 text-xxs text-tertiary">
+            <span class="pr-3 text-xxs text-tertiary whitespace-nowrap">
               #{{ value.count }} connections
             </span>
           </sfng-select-item>
@@ -88,10 +88,10 @@
       </div>
     </button>
   </ng-template>
-  <sfng-dropdown #customDropdown [triggerTemplate]="selectTemplate" overlayClass="grid grid-cols-4 gap-1">
-    <ng-container *ngFor="let model of (models | keyvalue)">
-      <div class="sfng-select-dropdown" *ngIf="model.value?.visible === 'combinedMenu'">
-        <h3 class="flex items-center gap-2 px-3 py-2 mb-0 text-xxs text-secondary">
+  <sfng-dropdown #customDropdown [triggerTemplate]="selectTemplate" overlayClass="grid grid-cols-4">
+    <ng-container *ngFor="let model of (models | keyvalue | combinedMenu); let last=last">
+      <div class="border-gray-400 sfng-select-dropdown" [class.border-r]="!last">
+        <h3 class="flex items-center gap-2 px-3 py-0.5 mb-0 border-b border-gray-300 text-xxs text-secondary">
           <span>Filter by {{ model.value!.menuTitle || model.key }}</span>
           <sfng-tipup [key]="model.value!.tipupKey" *ngIf="!!model.value!.tipupKey"></sfng-tipup>
         </h3>
@@ -197,7 +197,10 @@
       <div>
         <app-menu-trigger [menu]="groupedMenu"></app-menu-trigger>
         <app-menu #groupedMenu>
-          <app-menu-item (onActivate)="useAsFilter(data)">Use as filter</app-menu-item>
+          <app-menu-item (activate)="useAsFilter(data)">Use as filter</app-menu-item>
+          <app-menu-item *ngIf="data.__profile"
+            (activate)="router.navigate(['/app', data.__profile.Source, data.__profile.ID])">App Settings
+          </app-menu-item>
         </app-menu>
       </div>
 

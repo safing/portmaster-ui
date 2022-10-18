@@ -67,7 +67,7 @@
                   *appExpertiseLevel="setting.ExpertiseLevel; data: setting; overwrite: mustShowSetting">
 
                   <app-generic-setting [class.highlighted]="highlightKey === setting.Key" [setting]="setting"
-                    [attr.id]="setting.Key" [resetLabelText]="resetLabelText" (onSave)="saveSetting($event, setting)"
+                    [attr.id]="setting.Key" [resetLabelText]="resetLabelText" (save)="saveSetting($event, setting)"
                     [lockDefaults]="lockDefaults" [displayStackable]="displayStackable">
                   </app-generic-setting>
 
@@ -86,7 +86,7 @@
       <div class="category">
         <ng-container *ngFor="let setting of others; trackBy: configService.trackBy">
           <app-generic-setting *appExpertiseLevel="setting.ExpertiseLevel; data: setting; overwrite: mustShowSetting"
-            [setting]="setting" [resetLabelText]="resetLabelText" (onSave)="saveSetting($event, setting)"
+            [setting]="setting" [resetLabelText]="resetLabelText" (save)="saveSetting($event, setting)"
             [lockDefaults]="lockDefaults" [displayStackable]="displayStackable">
           </app-generic-setting>
         </ng-container>

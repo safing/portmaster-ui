@@ -1,5 +1,5 @@
 import { coerceBooleanProperty } from '@angular/cdk/coercion';
-import { ChangeDetectionStrategy, Component, EventEmitter, HostBinding, Input, OnInit, Output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, EventEmitter, HostBinding, Input, Output } from '@angular/core';
 import { Action, getNotificationTypeString, Notification, NotificationsService, NotificationState } from '../../services';
 
 @Component({
@@ -8,7 +8,7 @@ import { Action, getNotificationTypeString, Notification, NotificationsService, 
   styleUrls: ['./notification.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class NotificationComponent implements OnInit {
+export class NotificationComponent {
   /**
    * The host tag of the notification component has the notification type
    * and the notification state as a class name set.
@@ -52,10 +52,6 @@ export class NotificationComponent implements OnInit {
   actionExecuted: EventEmitter<Action> = new EventEmitter();
 
   constructor(private notifService: NotificationsService) { }
-
-  ngOnInit(): void {
-
-  }
 
   execute(n: Notification<any>, action: Action) {
     this.notifService.execute(n, action)

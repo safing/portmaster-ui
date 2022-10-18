@@ -1,12 +1,12 @@
-import { AfterContentChecked, ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, HostBinding, Input, Renderer2 } from '@angular/core';
+import { AfterContentChecked, ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, Input } from '@angular/core';
 
 @Component({
   selector: 'app-text-placeholder',
   template: `
-    <span class="text-placeholder" *ngIf="showLoader">
+    <span class="text-placeholder" *ngIf="loading">
       <div class="background" [style.width]="width" ></div>
     </span>
-    <ng-content *ngIf="mode === 'auto' || !showLoader"></ng-content>
+    <ng-content *ngIf="mode === 'auto' || !loading"></ng-content>
   `,
   styleUrls: ['./placeholder.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -39,8 +39,8 @@ export class PlaceholderComponent implements AfterContentChecked {
   @Input()
   mode: 'auto' | 'input' = 'auto';
 
-  @Input('loading')
-  showLoader = true;
+  @Input()
+  loading = true;
 
   constructor(
     private elementRef: ElementRef,
@@ -53,8 +53,8 @@ export class PlaceholderComponent implements AfterContentChecked {
     }
 
     const show = this.elementRef.nativeElement.innerText === '';
-    if (this.showLoader != show) {
-      this.showLoader = show;
+    if (this.loading != show) {
+      this.loading = show;
       this.changeDetector.detectChanges();
     }
   }

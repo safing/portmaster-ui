@@ -1,7 +1,7 @@
 import { coerceBooleanProperty } from '@angular/cdk/coercion';
 import { CdkOverlayOrigin } from '@angular/cdk/overlay';
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, ContentChildren, EventEmitter, HostBinding, HostListener, Input, Output, QueryList, ViewChild } from '@angular/core';
-import { SfngDropdown } from '@safing/ui';
+import { SfngDropdownComponent } from '@safing/ui';
 
 @Component({
   selector: 'app-menu-trigger',
@@ -64,17 +64,17 @@ export class MenuItemComponent {
     if (this.disabled) {
       return;
     }
-    this.onActivate.next(event);
+    this.activate.next(event);
     this.menu.dropdown.close();
   }
 
   /**
-   * onActivate fires when the menu item is clicked.
-   * Use onActivate rather than (click)="" if you want
+   * activate fires when the menu item is clicked.
+   * Use activate rather than (click)="" if you want
    * [disabled] to be considered.
    */
   @Output()
-  onActivate = new EventEmitter<MouseEvent>();
+  activate = new EventEmitter<MouseEvent>();
 
   constructor(private menu: MenuComponent) { }
 }
@@ -97,8 +97,8 @@ export class MenuComponent {
   @ContentChildren(MenuItemComponent)
   items: QueryList<MenuItemComponent> | null = null;
 
-  @ViewChild(SfngDropdown, { static: true })
-  dropdown!: SfngDropdown;
+  @ViewChild(SfngDropdownComponent, { static: true })
+  dropdown!: SfngDropdownComponent;
 
   @Input()
   offsetY?: string | number;

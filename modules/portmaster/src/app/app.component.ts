@@ -1,16 +1,16 @@
 import { Overlay } from '@angular/cdk/overlay';
 import { ChangeDetectorRef, Component, HostListener, NgZone, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
+import { Params, Router } from '@angular/router';
 import { PortapiService } from '@safing/portmaster-api';
 import { OverlayStepper, SfngDialogService, StepperRef } from '@safing/ui';
 import { BehaviorSubject, combineLatest, Subject } from 'rxjs';
 import { debounceTime, filter, map, mergeMap, skip, startWith, take } from 'rxjs/operators';
 import { IntroModule } from './intro';
-import { Notification, NotificationsService, NotificationType, UIStateService } from './services';
-import { ActionIndicator, ActionIndicatorService } from './shared/action-indicator';
+import { NotificationsService, UIStateService } from './services';
+import { ActionIndicatorService } from './shared/action-indicator';
 import { fadeInAnimation, fadeOutAnimation } from './shared/animations';
 import { ExitService } from './shared/exit-screen';
-import { SfngNetquerySearchOverlay } from './shared/netquery/search-overlay';
+import { SfngNetquerySearchOverlayComponent } from './shared/netquery/search-overlay';
 
 @Component({
   selector: 'app-root',
@@ -66,7 +66,7 @@ export class AppComponent implements OnInit {
   onKeyDown(event: KeyboardEvent) {
     if (event.key === ' ' && event.ctrlKey) {
       this.dialog.create(
-        SfngNetquerySearchOverlay,
+        SfngNetquerySearchOverlayComponent,
         {
           positionStrategy: this.overlay
             .position()
@@ -94,81 +94,7 @@ export class AppComponent implements OnInit {
     private overlay: Overlay,
     private stateService: UIStateService,
   ) {
-    (window as any).fakeNotification = () => {
-      this.ngZone.run(() => {
-        this.notificationService.create(
-          `random-id-${Math.random()}`,
-          'A **fake** message for testing notifications.<br> :rocket:',
-          NotificationType.Info,
-          {
-            Title: 'Fake Message',
-            Category: 'Testing',
-            AvailableActions: [
-              {
-                ID: 'a1',
-                Text: 'Got it',
-                Type: '',
-              },
-              {
-                ID: 'a2',
-                Text: 'Go away',
-                Type: '',
-              }
-            ]
-          }
-        ).subscribe();
-      })
-    }
-
-    (window as any).createNotification = (notif: Partial<Notification>) => {
-      this.ngZone.run(() => {
-        notif.EventID = notif.EventID || `random-id-${Math.random()}`;
-        notif.Type = notif.Type || NotificationType.Info;
-
-        this.notificationService.create(notif).subscribe();
-      })
-    }
-
-    (window as any).fakePrompt = (what: string, profileId: string = '_unidentified') => {
-      this.ngZone.run(() => {
-
-        this.notificationService.create(`filter:prompt-${Math.random()}`,
-          what,
-          NotificationType.Prompt,
-          {
-            Title: what,
-            EventData: {
-              Profile: {
-                Source: "local",
-                ID: profileId,
-              },
-              Entity: {
-                Domain: what,
-              }
-            },
-            AvailableActions: [
-              {
-                ID: 'allow-domain-all',
-                Text: 'Allow',
-                Type: ''
-              },
-              {
-                ID: 'block-domain-all',
-                Text: 'Block',
-                Type: ''
-              }
-            ]
-          }).subscribe()
-      })
-    }
-
     (window as any).portapi = portapi;
-
-    (window as any).fakeActionIndicator = (msg: ActionIndicator) => {
-      this.ngZone.run(() => {
-        this.actionIndicatorService.create(msg);
-      })
-    }
   }
 
   onSideDashChange(state: 'expanded' | 'collapsed' | 'force-overlay') {
@@ -198,9 +124,20 @@ export class AppComponent implements OnInit {
         skip(1),
       )
       .subscribe(async () => {
-        const current = this.router.url;
+        const location = new URL(window.location.toString());
+
+        const params: Params = {}
+        location.searchParams.forEach((value, key) => {
+          params[key] = [
+            ...(params[key] || []),
+            value,
+          ]
+        })
+
         await this.router.navigateByUrl('/', { skipLocationChange: true })
-        this.router.navigate([current]);
+        this.router.navigate([location.pathname], {
+          queryParams: params,
+        });
       })
 
     this.stateService.uiState()

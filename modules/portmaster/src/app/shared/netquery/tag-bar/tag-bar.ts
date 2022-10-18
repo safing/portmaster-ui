@@ -24,7 +24,7 @@ export interface SfngTagbarValue {
   providers: [
     {
       provide: NG_VALUE_ACCESSOR,
-      useExisting: forwardRef(() => SfngNetqueryTagbar),
+      useExisting: forwardRef(() => SfngNetqueryTagbarComponent),
       multi: true
     }
   ],
@@ -32,7 +32,7 @@ export interface SfngTagbarValue {
     fadeInListAnimation
   ]
 })
-export class SfngNetqueryTagbar implements ControlValueAccessor {
+export class SfngNetqueryTagbarComponent implements ControlValueAccessor {
   @HostBinding('@fadeInList')
   get itemsLength() {
     return this.values?.length || 0;

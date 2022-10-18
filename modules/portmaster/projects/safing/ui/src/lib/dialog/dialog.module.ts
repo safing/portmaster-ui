@@ -5,7 +5,7 @@ import { CommonModule } from "@angular/common";
 import { NgModule } from "@angular/core";
 import { FormsModule } from "@angular/forms";
 import { SfngConfirmDialogComponent } from "./confirm.dialog";
-import { SfngDialogContainer } from "./dialog.container";
+import { SfngDialogContainerComponent } from "./dialog.container";
 
 @NgModule({
   imports: [
@@ -16,7 +16,7 @@ import { SfngDialogContainer } from "./dialog.container";
     FormsModule,
   ],
   declarations: [
-    SfngDialogContainer,
+    SfngDialogContainerComponent,
     SfngConfirmDialogComponent,
   ]
 })

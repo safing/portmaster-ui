@@ -103,7 +103,7 @@ export class GenericSettingComponent<S extends BaseSetting<any, any>> implements
 
   /** Emits an event whenever the setting should be saved. */
   @Output()
-  onSave = new EventEmitter<SaveSettingEvent<S>>();
+  save = new EventEmitter<SaveSettingEvent<S>>();
 
   /** Wether or not stackable values should be displayed. */
   @Input()
@@ -128,7 +128,7 @@ export class GenericSettingComponent<S extends BaseSetting<any, any>> implements
   private _showHelp = false;
 
   /** Used internally to publish save events. */
-  private save = new Subject<void>();
+  private triggerSave = new Subject<void>();
 
   /** Used internally for subscriptions to various changes */
   private subscription = Subscription.EMPTY;
@@ -449,7 +449,7 @@ export class GenericSettingComponent<S extends BaseSetting<any, any>> implements
     this._currentValue = this.defaultValue;
     this.wasReset = true;
 
-    this.save.next();
+    this.triggerSave.next();
   }
 
   /**
@@ -539,7 +539,7 @@ export class GenericSettingComponent<S extends BaseSetting<any, any>> implements
       clearTimeout(this._saveInterval);
     }
 
-    this.onSave.next({
+    this.save.next({
       key: this.setting!.Key,
       isDefault: isDefault,
       value: this._setting!.Value,
@@ -587,7 +587,7 @@ export class GenericSettingComponent<S extends BaseSetting<any, any>> implements
     if (save) {
 
       this._currentValue = value;
-      this.save.next();
+      this.triggerSave.next();
     } else {
       this._basicSettingsValueCache = value;
     }

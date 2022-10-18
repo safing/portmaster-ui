@@ -16,7 +16,7 @@ import { timeAgo } from '../../pipes';
   ],
   template: '',
 })
-export class SfngNetqueryLineChart implements OnChanges, OnInit, AfterViewInit {
+export class SfngNetqueryLineChartComponent implements OnChanges, OnInit, AfterViewInit {
   @Input()
   data: ChartResult[] = [];
 

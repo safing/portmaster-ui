@@ -18,6 +18,9 @@ export class SfngAccordionComponent<T = any> implements OnInit {
   @Input()
   title: string = '';
 
+  /** A reference to the component provided via the template context */
+  component = this;
+
   /**
    * The data the accordion component is used for. This is passed as an $implicit context
    * to the header template.

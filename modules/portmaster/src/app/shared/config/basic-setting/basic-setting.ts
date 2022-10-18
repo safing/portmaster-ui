@@ -56,7 +56,7 @@ export class BasicSettingComponent<S extends BaseSetting<any, any>> implements C
 
   /** Emits when the user activates focus on this component */
   @Output()
-  onBlur = new EventEmitter<void>();
+  blured = new EventEmitter<void>();
 
   /** @private The ngModel in our view used to display the value */
   @ViewChild(NgModel)
@@ -262,7 +262,7 @@ export class BasicSettingComponent<S extends BaseSetting<any, any>> implements C
    */
   touched() {
     this._onTouch();
-    this.onBlur.next();
+    this.blured.next();
   }
 
   /**

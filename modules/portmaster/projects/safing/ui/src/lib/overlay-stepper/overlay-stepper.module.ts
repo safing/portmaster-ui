@@ -3,7 +3,7 @@ import { PortalModule } from "@angular/cdk/portal";
 import { CommonModule } from "@angular/common";
 import { NgModule } from "@angular/core";
 import { SfngDialogModule } from "../dialog";
-import { OverlayStepperContainer } from "./overlay-stepper-container";
+import { OverlayStepperContainerComponent } from "./overlay-stepper-container";
 import { StepOutletComponent } from "./step-outlet";
 
 @NgModule({
@@ -14,7 +14,7 @@ import { StepOutletComponent } from "./step-outlet";
     SfngDialogModule,
   ],
   declarations: [
-    OverlayStepperContainer,
+    OverlayStepperContainerComponent,
     StepOutletComponent,
   ]
 })

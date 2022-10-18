@@ -18,7 +18,7 @@ export type SfngDialogState = 'opening' | 'open' | 'closing' | 'closed';
   `,
   animations: [dialogAnimation]
 })
-export class SfngDialogContainer<T> {
+export class SfngDialogContainerComponent<T> {
   onStateChange = new Subject<SfngDialogState>();
 
   ref: ComponentRef<T> | EmbeddedViewRef<T> | null = null;

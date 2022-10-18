@@ -10,8 +10,8 @@ export class CountryFlagDirective implements AfterViewInit {
   @HostBinding('style.text-shadow')
   textShadow = 'rgba(255, 255, 255, .5) 0px 0px 1px';
 
-  @Input('appCountryFlags')
-  code: string = '';
+  @Input()
+  appCountryFlags: string = '';
 
   constructor(
     private el: ElementRef,
@@ -24,10 +24,10 @@ export class CountryFlagDirective implements AfterViewInit {
 
   private update() {
     const span = this.el.nativeElement as HTMLSpanElement;
-    const flag = this.toUnicodeFlag(this.code);
+    const flag = this.toUnicodeFlag(this.appCountryFlags);
     this.renderer.setAttribute(span, 'data-before', flag);
 
-    span.innerHTML = `<img style="display: inline" src="${this.flagDir}/${this.code.toLocaleUpperCase()}.png">`;
+    span.innerHTML = `<img style="display: inline" src="${this.flagDir}/${this.appCountryFlags.toLocaleUpperCase()}.png">`;
   }
 
   private toUnicodeFlag(code: string) {

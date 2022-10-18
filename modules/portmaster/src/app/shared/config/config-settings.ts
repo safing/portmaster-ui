@@ -116,7 +116,7 @@ export class ConfigSettingsViewComponent implements OnInit, OnDestroy, AfterView
   }
 
   @Output()
-  onSave = new EventEmitter<SaveSettingEvent>();
+  save = new EventEmitter<SaveSettingEvent>();
 
   private onSearch = new BehaviorSubject<string>('');
   private onSettingsChange = new BehaviorSubject<Setting[]>([]);
@@ -136,7 +136,7 @@ export class ConfigSettingsViewComponent implements OnInit, OnDestroy, AfterView
   ) { }
 
   saveSetting(event: SaveSettingEvent, s: Setting) {
-    this.onSave.next(event);
+    this.save.next(event);
     const subsys = this.subsystems.find(subsys => s.Key === subsys.ToggleOptionKey)
     if (!!subsys) {
       // trigger a reload of the page as we now might need to show more

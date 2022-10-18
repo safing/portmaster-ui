@@ -1,12 +1,12 @@
-<div class="flex flex-row items-center bg-gray-300 rounded-sm" cdkOverlayOrigin>
-  <div class="flex items-center p-2">
+<div class="relative flex flex-row items-center bg-gray-300 rounded-sm" cdkOverlayOrigin>
+  <div class="absolute top-0 -mt-0.5 left-0 flex items-center p-2">
     <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-secondary" viewBox="0 0 20 20" fill="currentColor">
       <path fill-rule="evenodd"
         d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z"
         clip-rule="evenodd" />
     </svg>
   </div>
-  <input [cdkTrapFocus]="false" [cdkTrapFocusAutoCapture]="true" class="w-full rounded-tr-sm" type="text"
+  <input [cdkTrapFocus]="false" [cdkTrapFocusAutoCapture]="true" class="w-full !pl-7 rounded-tr-sm" type="text"
     [(ngModel)]="textSearch" placeholder="Search for connections, press ENTER to apply"
     (keydown)="onSearchKeyDown($event)" (blur)="onFocusLost($event)" (ngModelChange)="onSearchModelChange($event)"
     #searchBar>
@@ -22,7 +22,7 @@
 
 <ng-template #suggestionTemplate>
   <ul class="self-stretch p-2" *ngIf="!!textSearch">
-    <li (click)="applySuggestion('_textsearch', null, $event)" [sfng-netquery-suggestion]="textSearch"
+    <li (click)="applySuggestion('_textsearch', null, $event)" [sfngNetquerySuggestion]="textSearch"
       [sfngSuggestion]="{field: '_textsearch', values: []}" #suggestion="sfngNetquerySuggestion"
       class="flex flex-row justify-between w-full gap-2 px-2 py-1 rounded-sm cursor-pointer hover:bg-gray-400"
       [ngClass]="{'bg-gray-400': suggestion.active}">
@@ -41,7 +41,7 @@
         </h3>
         <ul class="self-stretch">
           <li *ngFor="let val of sug.values" (click)="applySuggestion(sug.field, val.value, $event, sug.start)"
-            [sfng-netquery-suggestion]="val.value" [sfngSuggestion]="sug" #suggestion="sfngNetquerySuggestion"
+            [sfngNetquerySuggestion]="val.value" [sfngSuggestion]="sug" #suggestion="sfngNetquerySuggestion"
             class="flex flex-row justify-between w-full gap-2 px-2 py-1 rounded-sm cursor-pointer hover:bg-gray-400"
             [ngClass]="{'bg-gray-400': suggestion.active}">
             <span class="text-primary">{{ val.display || (val.value === '' ? 'N/A' : val.value) }}</span>

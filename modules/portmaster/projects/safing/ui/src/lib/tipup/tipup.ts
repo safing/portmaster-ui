@@ -1,3 +1,4 @@
+/* eslint-disable @angular-eslint/no-input-rename */
 import { coerceBooleanProperty, coerceNumberProperty } from '@angular/cdk/coercion';
 import { ConnectedPosition } from '@angular/cdk/overlay';
 import { _getShadowRoot } from '@angular/cdk/platform';

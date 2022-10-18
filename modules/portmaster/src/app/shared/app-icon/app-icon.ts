@@ -9,6 +9,10 @@ import { switchMap } from 'rxjs/operators';
 export interface IDandName {
   // ID of the profile.
   ID?: string;
+
+  // Source is the source of the profile.
+  Source?: string;
+
   // Name of the profile.
   Name: string;
 }
@@ -22,6 +26,11 @@ const iconsToIngore = [
   "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACgAAAAoCAYAAACM/rhtAAABqUlEQVRYhe2XP2rDMBSHfymhU0dDD5BbJOQCgUDmEv+7Q6FDoUOgQ6F3cJxC50Agt+nSrD5BBr8OqVyrtfWkl8ShoG+SjJE+/95DwoDH4/nf9NTg+eWVLinym8eH+x4AXF1i8/FoiPFoaBwr+p3bAfjc7dixQhNMw7szatmTvb1XY00wCILOZYjIONcEi6JoXSgIAlw/fYhF9ouBsxzQ0IPrzRaz6QTrzbZ6NptOqvHtTR8EQklAWQIl4WdOQEkEqsaHefm9b5Zl7IfEcWwWVDJ1Ke0rHeXqmaRpeljDIrlWQQ5XufreNglGUWQW5EoslQOAJEm0uagHuRJL5YgIy+Wycc06bIIcEjmFStCUnPGYASxKLJQDYJVgGIZmQZsSS+SAv0eIKblWQQ6pHBEhz3N2fTZBrsQSOYVK0JQc24N2JXaXA2CV4Hw+NwtySOUA/QixvU1kPSiQIyKsViv2vaMTlMgpoihik2N7kEMqB6AxwXpiVlfduSAi7Qix7cGL/DS5XHWdC7rIAY4l3i8GTk1+zLsKpwS7lnMS7ErOeMzU/0c9Ho/nNHwBdUH2gB9vJRsAAAAASUVORK5CYII=",
   "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAByElEQVRYhe1WQUoDQRCsmSh4CAreo3/w4CdE8JirLzCKGhRERPBqfISQx3j0BcaDJxHNRWS7PWRmtmdmJ9mNiSuYOmyYbOiqruoeAizw36G6p0e3WulOHeTE1NO/Qb6zu1f4qZXuqLPuMV9d38xbQyEuL86ha2EWWJKHfr+P4XAIAGg2m2i32wCA7fsXPH9kABjMgHkADP87cW6tNvCwvzG2biRAvpAYvH+54mCAmUcvmI0Yq4nM74DBG02sGwlIgqigS/ZEgdkcrSAuVbpUBEyjTiP7JSkDzKZrdo+xdSMBKas4y4K8befSiVxcLnR83UhACtYBV9TOgbBbOX4TF2YZQZY5Yi9/MYwkXQjy/3EEtjp7LgQzAeOUVSo0zCACcgOnwjUEC2LE7kxApS0AGFRgP4vZ8M5VBaQjoNGKuQ20Q2ney8Gr0H0kIAU7hK4zYiPCJxtFZYRMIyAdAQWrFgyicMSfj4oCkheRmQFyIoq2IRcy9T2QhNmCfN/FVcwMBSWu4XlsQUZe5tZmZW0HBXGU4o4FpCJorS3j6fXTEOVdUrgNApvrK9UFpPB4vlWq2DSo/S+Z6p4c9rRuHNRBTsR3dfAu8LfwDdGgu25Uax8RAAAAAElFTkSuQmCC",
   "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAByUlEQVRYhe1WQUoDQRCs2UTwEBS8R//gwU+I4DFXX2AENRgQEcGr8RFCHuPRFxgPnkQ0F9Ht9rAzsz0zO8luTFzB1GHDZENXdVX3EGCJ/w7VO+3eJKrZrYOc+GuQ/Ab57t5+4Weiml111jvmy6vrRWsoxMV5H0ktzAJNeRgOhxiPxwCAVquFTqcDANi5e8bTewqAwQzoB8BwvxPn9loD9webE+sGAuQLidHbpy0OBpg5e8GsxRhNpH8HjF5pat1AQBREBV2yIwrM+mgEcanSpSJgyjoN7JekDDDrrtk+JtYNBMSs4jT18jadSydycbnQyXUDATEYB2xRMwfCbmX5dVyYZwRpaomd/MUwknTBy//HEZjq7LjgzQS0U0ap0DCHCMgOnPLXECyIEbozBZW2AGBQgf0sZsM5VxUQj4CyFbMbaIZSv5eDV6H7QEAMZghtZ8RahEuWRaWFzCIgHgF5q+YNonDEnY+KAqIXkZ4BsiKKtiEXMvM9EIXegnzfxVXMDAUlruFFbEFKTubGZmVsB3lxlOIOBcQiaK+v4PHlQxPlXZK/DQJbG6vVBcTw0N8uVWwW1P6XTPVOjgZJ0jisg5yIb+vgXeJv4RvrxrtwzfCUqAAAAABJRU5ErkJggg==",
+]
+
+const profilesToIgnore = [
+  "local/_unidentified",
+  "local/_unsolicited"
 ]
 
 @Component({
@@ -50,6 +59,9 @@ export class AppIconComponent implements OnDestroy {
   get profile() { return this._profile; }
   private _profile: IDandName | null = null;
 
+  /** isIgnoredProfile is set to true if the profile is part of profilesToIgnore */
+  isIgnoredProfile = false;
+
   /** If not icon is available, this holds the first - uppercased - letter of the app - name */
   letter: string = '';
 
@@ -72,11 +84,16 @@ export class AppIconComponent implements OnDestroy {
   /** Updates the view of the app-icon and tries to find the actual application icon */
   private updateView() {
     const p = this.profile;
-    if (!!p) {
+    const sourceAndId = this.getIDAndSource()
+
+    if (!!p && sourceAndId !== null) {
       let idx = 0;
       for (let i = 0; i < (p.ID || p.Name).length; i++) {
         idx += (p.ID || p.Name).charCodeAt(i);
       }
+
+      const combinedID = `${sourceAndId[0]}/${sourceAndId[1]}`
+      this.isIgnoredProfile = profilesToIgnore.includes(combinedID);
 
       if (p.Name !== "") {
         if (p.Name[0] === '<') {
@@ -93,10 +110,15 @@ export class AppIconComponent implements OnDestroy {
         this.letter = '?';
       }
 
-      this.color = AppColors[idx % AppColors.length];
+      if (!this.isIgnoredProfile) {
+        this.color = AppColors[idx % AppColors.length];
+      } else {
+        this.color = 'transparent';
+      }
 
       this.tryGetSystemIcon(p);
     } else {
+      this.isIgnoredProfile = false;
       this.color = 'var(--text-tertiary)';
     }
 
@@ -104,25 +126,45 @@ export class AppIconComponent implements OnDestroy {
     this.parentCdr.markForCheck();
   }
 
+  getIDAndSource(): [string, string] | null {
+    if (!this.profile) {
+      return null;
+    }
+
+    let id = this.profile.ID;
+    if (!id) {
+      return null;
+    }
+
+    // if there's a source ID only holds the profile ID
+    if (!!this.profile.Source) {
+      return [this.profile.Source, id]
+    }
+
+    // otherwise, ID likely contains the source
+    let [source, ...rest] = id.split("/")
+    if (rest.length > 0) {
+      return [source, rest.join('/')]
+    }
+
+    // id does not contain a forward-slash so we
+    // assume the source is local
+    return ['local', id]
+  }
+
   /**
    * Tries to get the application icon form the system.
    * Requires the app to be running in the electron wrapper.
    */
   private tryGetSystemIcon(p: IDandName) {
-    let id = p.ID;
-
-    if (!id) {
+    const sourceAndId = this.getIDAndSource()
+    if (sourceAndId === null) {
       return;
-    }
-
-    if (id.startsWith("local/")) {
-      let [_, ...parts] = id.split("/")
-      id = parts.join("/")
     }
 
     this.sub.unsubscribe();
 
-    this.sub = this.profileService.watchAppProfile('local', id)
+    this.sub = this.profileService.watchAppProfile(sourceAndId[0], sourceAndId[1])
       .pipe(
         switchMap(profile => {
           if (!!profile.Icon && profile.IconType) {
@@ -139,7 +181,7 @@ export class AppIconComponent implements OnDestroy {
             }
           }
 
-          if (!!window.app) {
+          if (!!window.app && !!profile.PresentationPath) {
             return window.app.getFileIcon(profile.PresentationPath);
           }
 

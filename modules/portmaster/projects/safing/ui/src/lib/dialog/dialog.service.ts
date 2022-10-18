@@ -3,7 +3,7 @@ import { ComponentPortal, ComponentType, TemplatePortal } from '@angular/cdk/por
 import { EmbeddedViewRef, Injectable, Injector } from '@angular/core';
 import { filter, take, takeUntil } from 'rxjs/operators';
 import { ConfirmDialogConfig, CONFIRM_DIALOG_CONFIG, SfngConfirmDialogComponent } from './confirm.dialog';
-import { SfngDialogContainer } from './dialog.container';
+import { SfngDialogContainerComponent } from './dialog.container';
 import { SfngDialogModule } from './dialog.module';
 import { SfngDialogRef, SFNG_DIALOG_REF } from './dialog.ref';
 
@@ -79,8 +79,8 @@ export class SfngDialogService {
 
     // create our dialog container and attach it to the
     // overlay.
-    const containerPortal = new ComponentPortal<SfngDialogContainer<T>>(
-      SfngDialogContainer,
+    const containerPortal = new ComponentPortal<SfngDialogContainerComponent<T>>(
+      SfngDialogContainerComponent,
       undefined,
       this.injector,
     )

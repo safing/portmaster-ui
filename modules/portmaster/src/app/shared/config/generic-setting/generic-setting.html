@@ -37,7 +37,7 @@
     </div>
 
     <span class="flex flex-row items-center justify-start space-x-2"
-      *ngIf="setting?.ReleaseLevel != releaseLevel.Stable || setting?.ExpertiseLevel !== expertise.user">
+      *ngIf="setting?.ReleaseLevel !== releaseLevel.Stable || setting?.ExpertiseLevel !== expertise.user">
 
       <span class="inline-block px-1.5 py-0.5 bg-gray-400 rounded text-xxs text-secondary"
         *appExpertiseLevel="'developer'">{{setting?.Key}}</span>
@@ -80,7 +80,7 @@
   <ng-container [ngSwitch]="externalOptType(setting)">
     <!-- Security Level Switches -->
     <app-security-setting *ngSwitchCase="optionHint.SecurityLevel" [disabled]="disabled"
-      class="w-full mt-2 xl:mt-0 xl:w-auto" [onOffMode]="!(networkRatingEnabled$ | async)" [setting]="_setting"
+      class="w-full mt-2 xl:mt-0 xl:w-auto" [onOffMode]="(networkRatingEnabled$ | async) === false" [setting]="_setting"
       [ngModel]="_currentValue" (ngModelChange)="updateValue($event, true)">
     </app-security-setting>
 
@@ -119,7 +119,7 @@
     <!-- Default if no display hint is given -->
     <ng-container *ngSwitchDefault>
       <!-- basic string array with fixed order on optional stacking -->
-      <ng-container *ngIf="setting?.OptType == optionType.StringArray; else: basicSetting">
+      <ng-container *ngIf="setting?.OptType === optionType.StringArray; else: basicSetting">
         <app-ordered-list class="w-full mt-4" fixedOrder="true" [ngModel]="_currentValue"
           (ngModelChange)="updateValue($event, true)" [readonly]="disabled">
         </app-ordered-list>
@@ -136,7 +136,7 @@
         <!-- basic inputs -->
         <app-basic-setting class="block" [setting]="_setting" [disabled]="disabled" [ngModel]="_currentValue"
           (ngModelChange)="updateValue($event)"
-          (onBlur)="updateValue(_basicSettingsValueCache!, _currentValue !== _basicSettingsValueCache)">
+          (blured)="updateValue(_basicSettingsValueCache!, _currentValue !== _basicSettingsValueCache)">
         </app-basic-setting>
       </ng-template>
     </ng-container>

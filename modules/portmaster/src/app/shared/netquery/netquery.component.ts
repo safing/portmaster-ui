@@ -158,7 +158,7 @@ export class SfngNetqueryViewer implements OnInit, OnDestroy, AfterViewInit {
     private cdr: ChangeDetectorRef,
     private actionIndicator: ActionIndicatorService,
     private route: ActivatedRoute,
-    private router: Router,
+    public router: Router,
     private elementRef: ElementRef,
     // we need access to the app-component here so we get notified when the size of the
     // content viewport changes either due to resize or the side-dash being opened/closed.

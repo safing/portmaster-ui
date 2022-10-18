@@ -4,7 +4,7 @@ import { CdkOverlayOrigin } from "@angular/cdk/overlay";
 import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, Directive, ElementRef, EventEmitter, forwardRef, HostBinding, HostListener, Input, OnDestroy, OnInit, Output, QueryList, TrackByFunction, ViewChild, ViewChildren } from "@angular/core";
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from "@angular/forms";
 import { Condition, ExpertiseLevel, Netquery, NetqueryConnection } from "@safing/portmaster-api";
-import { SfngDropdown } from "@safing/ui";
+import { SfngDropdownComponent } from "@safing/ui";
 import { combineLatest, Observable, of, Subject } from "rxjs";
 import { catchError, debounceTime, map, switchMap, takeUntil } from "rxjs/operators";
 import { fadeInAnimation, fadeInListAnimation } from "../../animations";
@@ -33,17 +33,17 @@ export type SfngSearchbarSuggestion<K extends keyof NetqueryConnection> = {
 }
 
 @Directive({
-  selector: '[sfng-netquery-suggestion]',
+  selector: '[sfngNetquerySuggestion]',
   exportAs: 'sfngNetquerySuggestion'
 })
 export class SfngNetquerySuggestionDirective<K extends keyof NetqueryConnection> {
   constructor() { }
 
-  @Input(`sfngSuggestion`)
-  sug?: SfngSearchbarSuggestion<K>;
+  @Input()
+  sfngSuggestion?: SfngSearchbarSuggestion<K>;
 
-  @Input('sfng-netquery-suggestion')
-  value?: SfngSearchbarSuggestionValue<K> | string;
+  @Input()
+  sfngNetquerySuggestion?: SfngSearchbarSuggestionValue<K> | string;
 
   set active(v: any) {
     this._active = coerceBooleanProperty(v);
@@ -54,10 +54,10 @@ export class SfngNetquerySuggestionDirective<K extends keyof NetqueryConnection>
   private _active: boolean = false;
 
   getLabel(): string {
-    if (typeof this.value === 'string') {
-      return this.value;
+    if (typeof this.sfngNetquerySuggestion === 'string') {
+      return this.sfngNetquerySuggestion;
     }
-    return '' + this.value?.value;
+    return '' + this.sfngNetquerySuggestion?.value;
   }
 }
 
@@ -72,12 +72,12 @@ export class SfngNetquerySuggestionDirective<K extends keyof NetqueryConnection>
   providers: [
     {
       provide: NG_VALUE_ACCESSOR,
-      useExisting: forwardRef(() => SfngNetquerySearchbar),
+      useExisting: forwardRef(() => SfngNetquerySearchbarComponent),
       multi: true,
     }
   ]
 })
-export class SfngNetquerySearchbar implements ControlValueAccessor, OnInit, OnDestroy, AfterViewInit {
+export class SfngNetquerySearchbarComponent implements ControlValueAccessor, OnInit, OnDestroy, AfterViewInit {
   private loadSuggestions$ = new Subject<void>();
   private triggerDropdownClose$ = new Subject<boolean>();
   private keyManager!: ListKeyManager<SfngNetquerySuggestionDirective<any>>;
@@ -89,8 +89,8 @@ export class SfngNetquerySearchbar implements ControlValueAccessor, OnInit, OnDe
   @ViewChild(CdkOverlayOrigin, { static: true })
   searchBoxOverlayOrigin!: CdkOverlayOrigin;
 
-  @ViewChild(SfngDropdown)
-  suggestionDropDown?: SfngDropdown;
+  @ViewChild(SfngDropdownComponent)
+  suggestionDropDown?: SfngDropdownComponent;
 
   @ViewChild('searchBar', { static: true, read: ElementRef })
   searchBar!: ElementRef;
@@ -99,7 +99,7 @@ export class SfngNetquerySearchbar implements ControlValueAccessor, OnInit, OnDe
   suggestionValues!: QueryList<SfngNetquerySuggestionDirective<any>>;
 
   @Output()
-  onFieldsParsed = new EventEmitter<SfngSearchbarFields>();
+  fieldsParsed = new EventEmitter<SfngSearchbarFields>();
 
   @Input()
   labels: { [key: string]: string } = {}
@@ -319,7 +319,7 @@ export class SfngNetquerySearchbar implements ControlValueAccessor, OnInit, OnDe
       const selectedSuggestion = this.suggestionValues.toArray().findIndex(val => val.active);
       if (selectedSuggestion > 0) { // we must skip 0 here as well as that's the dummy element
         const sug = this.suggestionValues.get(selectedSuggestion);
-        this.applySuggestion(sug?.sug?.field, sug?.value, event, sug?.sug?.start)
+        this.applySuggestion(sug?.sfngSuggestion?.field, sug?.sfngNetquerySuggestion, event, sug?.sfngSuggestion?.start)
 
         return;
       }
@@ -352,7 +352,7 @@ export class SfngNetquerySearchbar implements ControlValueAccessor, OnInit, OnDe
       keys.forEach(key => {
         updatedConditions[key] = this.helper.decodePrettyValues(key as keyof NetqueryConnection, result.conditions[key])
       })
-      this.onFieldsParsed.next({ ...updatedConditions, ...meta });
+      this.fieldsParsed.next({ ...updatedConditions, ...meta });
     }
 
     this._onChange(this.textSearch);
@@ -400,7 +400,7 @@ export class SfngNetquerySearchbar implements ControlValueAccessor, OnInit, OnDe
     }
 
     // directly emit the new value and reset the text search
-    this.onFieldsParsed.next({
+    this.fieldsParsed.next({
       [field]: [val]
     })
 

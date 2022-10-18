@@ -1,7 +1,7 @@
 import { OverlayModule } from "@angular/cdk/overlay";
 import { CommonModule } from "@angular/common";
 import { NgModule } from "@angular/core";
-import { SfngDropdown } from "./dropdown";
+import { SfngDropdownComponent } from "./dropdown";
 
 @NgModule({
   imports: [
@@ -9,10 +9,10 @@ import { SfngDropdown } from "./dropdown";
     OverlayModule,
   ],
   declarations: [
-    SfngDropdown,
+    SfngDropdownComponent,
   ],
   exports: [
-    SfngDropdown,
+    SfngDropdownComponent,
   ]
 })
 export class SfngDropDownModule { }

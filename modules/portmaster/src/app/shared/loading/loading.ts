@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, HostBinding, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, HostBinding } from '@angular/core';
 
 @Component({
   selector: 'app-loading',
@@ -6,13 +6,9 @@ import { ChangeDetectionStrategy, ChangeDetectorRef, Component, HostBinding, OnI
   styleUrls: ['./loading.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class LoadingComponent implements OnInit {
+export class LoadingComponent {
   @HostBinding('class.animate')
   _animate = true;
-
-
-  ngOnInit() {
-  }
 
   constructor(private changeDetectorRef: ChangeDetectorRef) { }
 }

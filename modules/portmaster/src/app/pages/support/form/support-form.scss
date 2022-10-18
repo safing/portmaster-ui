@@ -1,23 +1,23 @@
 :host {
-  width         : 100%;
-  display       : flex;
-  flex-grow     : 1;
+  width: 100%;
+  display: flex;
+  flex-grow: 1;
   flex-direction: column;
-  height        : 100%;
+  height: 100%;
 }
 
 .scroll-container {
-  overflow       : auto;
-  margin-right   : 1rem;
-  display        : flex;
-  flex-direction : row;
+  overflow: auto;
+  margin-right: 1rem;
+  display: flex;
+  flex-direction: row;
   justify-content: center;
-  flex-grow      : 1;
+  flex-grow: 1;
 
   @apply p-8;
 
   h3 {
-    opacity  : .9;
+    opacity: .9;
     font-size: 0.95rem;
   }
 }
@@ -32,8 +32,8 @@
 }
 
 .issue-list {
-  min-width  : 350px;
-  max-width  : 450px;
+  width: 400px;
+
   margin-left: 2rem;
 
   &,
@@ -52,10 +52,10 @@
       word-break: keep-all;
     }
 
-    display       : flex;
+    display : flex;
     flex-direction: column;
-    position      : relative;
-    cursor        : pointer;
+    position : relative;
+    cursor : pointer;
 
     &:not(:last-child) {
       margin-bottom: 0.5rem;
@@ -64,7 +64,7 @@
     .meta {
       @apply text-tertiary;
       @apply font-normal;
-      opacity  : .7;
+      opacity: .7;
       font-size: 95%;
     }
 
@@ -74,9 +74,9 @@
 
     fa-icon {
       position: absolute;
-      right   : calc((2rem - 12px) / 2);
-      top     : calc(50% - 8px); // actually the half height is 6px but that looks off for the icon we're using
-      opacity : .3;
+      right: calc((2rem - 12px) / 2);
+      top: calc(50% - 8px); // actually the half height is 6px but that looks off for the icon we're using
+      opacity: .3;
     }
   }
 }
@@ -86,14 +86,14 @@ p.prologue {
 }
 
 .page-title {
-  margin-top   : 20px;
+  margin-top: 20px;
   margin-bottom: 40px;
-  position     : relative;
+  position: relative;
   border-bottom: 1px solid rgba(255, 255, 255, .2);
 
   h1 {
-    position        : absolute;
-    top             : -1rem;
+    position: absolute;
+    top: -1rem;
     background-color: var(--background);
     @apply pr-8;
   }
@@ -148,12 +148,12 @@ button {
 }
 
 .debug-header {
-  height         : 32px;
-  display        : flex;
-  flex-direction : row;
+  height: 32px;
+  display: flex;
+  flex-direction: row;
   justify-content: space-between;
-  align-items    : center;
-  position       : relative;
+  align-items: center;
+  position: relative;
   @apply bg-cards-primary;
   @apply rounded-t;
   top: 2px;
@@ -194,21 +194,21 @@ section {
 
 .input-wrapper {
   position: relative;
-  display : flex;
+  display: flex;
 }
 
 .copy-button {
-  user-select    : none;
-  position       : absolute;
-  top            : 1px;
-  right          : 0px;
-  width          : 4rem;
-  height         : 31px;
-  display        : flex;
-  flex-direction : column;
+  user-select: none;
+  position: absolute;
+  top: 1px;
+  right: 0px;
+  width: 4rem;
+  height: 31px;
+  display: flex;
+  flex-direction: column;
   justify-content: center;
-  align-items    : center;
-  cursor         : pointer;
+  align-items: center;
+  cursor: pointer;
   @apply bg-buttons-dark;
   @apply rounded-sm;
   opacity: .5;
@@ -226,20 +226,20 @@ section {
   @apply p-2;
   @apply px-4;
   @apply rounded-sm;
-  color         : rgba(255, 255, 255, .6);
-  font-size     : 0.7rem;
-  position      : relative;
-  width         : 100%;
-  display       : flex;
+  color: rgba(255, 255, 255, .6);
+  font-size: 0.7rem;
+  position: relative;
+  width: 100%;
+  display: flex;
   flex-direction: column;
 }
 
 .gh-author {
   @apply mt-8;
-  display        : flex;
-  flex-direction : row;
+  display: flex;
+  flex-direction: row;
   justify-content: flex-start;
-  align-items    : flex-start;
+  align-items: flex-start;
 
   .input-wrapper {
     padding-top: 2px;
