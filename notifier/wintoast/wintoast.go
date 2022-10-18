@@ -113,7 +113,7 @@ func New(dllPath string) (*WinToast, error) {
 	return libraryObject, nil
 }
 
-func (lib *WinToast) Initialize(appName, aumi string) error {
+func (lib *WinToast) Initialize(appName, aumi, originalShortcutPath string) error {
 	if lib == nil {
 		return fmt.Errorf("wintoast: lib object was nil")
 	}
@@ -124,13 +124,15 @@ func (lib *WinToast) Initialize(appName, aumi string) error {
 	// Initialize all necessary string for the notification meta data
 	appNameUTF, _ := windows.UTF16PtrFromString(appName)
 	aumiUTF, _ := windows.UTF16PtrFromString(aumi)
+	linkUTF, _ := windows.UTF16PtrFromString(originalShortcutPath)
 
 	// They are needed as unsafe pointers
 	appNameP := unsafe.Pointer(appNameUTF)
 	aumiP := unsafe.Pointer(aumiUTF)
+	linkP := unsafe.Pointer(linkUTF)
 
 	// Initialize notifications
-	rc, _, err := lib.initialize.Call(uintptr(appNameP), uintptr(aumiP))
+	rc, _, err := lib.initialize.Call(uintptr(appNameP), uintptr(aumiP), uintptr(linkP))
 	if rc != 0 {
 		return fmt.Errorf("wintoast: failed to initialize library rc = %d, %w", rc, err)
 	}

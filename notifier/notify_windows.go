@@ -12,8 +12,9 @@ import (
 type NotificationID int64
 
 const (
-	appName        = "Portmaster"
-	appUserModelID = "io.safing.portmaster"
+	appName              = "Portmaster"
+	appUserModelID       = "io.safing.portmaster.2"
+	originalShortcutPath = "C:\\ProgramData\\Microsoft\\Windows\\Start Menu\\Programs\\Portmaster\\Portmaster.lnk"
 )
 
 const (
@@ -48,7 +49,8 @@ func getLib() *wintoast.WinToast {
 		}
 
 		// Initialize. This will create or update application shortcut. C:\Users\<user>\AppData\Roaming\Microsoft\Windows\Start Menu\Programs
-		err = newLib.Initialize(appName, appUserModelID)
+		// and it will be of the originalShortcutPath with no CLSID and different AUMI
+		err = newLib.Initialize(appName, appUserModelID, originalShortcutPath)
 		if err != nil {
 			log.Errorf("notify: failed to load library: %s", err)
 			return
@@ -177,5 +179,6 @@ func getDllPath() (string, error) {
 }
 
 func actionListener() {
-	// Used in the linux implementation
+	// initialize the library
+	_ = getLib()
 }
