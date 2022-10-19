@@ -83,7 +83,6 @@ table tr:nth-child(odd) {
 }
 
 
-/** TODO(ppacher): same as in ungrouped-connection-content -> make shared */
 .tunnel-path {
   position: relative;
 
@@ -142,7 +141,6 @@ table tr:nth-child(odd) {
     }
   }
 }
-
 
 /** We need ::ng-deep here because the map and SVG parts are created using D3 and thus live outside
     the view-encapsulation of the component */
@@ -205,7 +203,6 @@ table tr:nth-child(odd) {
 
       path.lane {
         stroke: rgba(151, 151, 151, 0.5);
-        /*transition: stroke 250ms 0s cubic-bezier(0.175, 0.885, 0.32, 1.275);*/
 
         &[in-use=true] {
           stroke: theme('colors.info.blue');
