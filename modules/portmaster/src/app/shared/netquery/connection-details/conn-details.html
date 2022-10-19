@@ -214,7 +214,7 @@
       -->
   </div>
 
-  <div class="col-span-2">
+  <div class="col-span-2" *ngIf="conn.scope === scopes.Global">
     <h3 class="text-primary text-xxs">SPN Tunnel</h3>
     <ng-template #noSPNTemplate>
       <span class="inline-flex items-center gap-2 text-secondary">
