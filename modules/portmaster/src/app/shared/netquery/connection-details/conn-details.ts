@@ -59,8 +59,6 @@ export class SfngNetqueryConnectionDetailsComponent implements OnInit, OnDestroy
       this.updateConnectionNotice();
       this.changeDetectorRef.markForCheck();
     })
-
-
   }
 
   ngOnDestroy() {
