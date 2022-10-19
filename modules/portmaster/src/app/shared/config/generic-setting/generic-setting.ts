@@ -425,7 +425,7 @@ export class GenericSettingComponent<S extends BaseSetting<any, any>> implements
   ) { }
 
   ngOnInit() {
-    this.subscription = this.save.pipe(
+    this.subscription = this.triggerSave.pipe(
       debounceTime(500),
     ).subscribe(() => this.emitSaveRequest())
   }
