@@ -139,7 +139,7 @@ func updateTray() {
 
 	case !connected.IsSet():
 		newIconID = icons.RedID
-		newStatusMsg = "Connecting to Portmaster"
+		newStatusMsg = "Waiting for Portmaster Core Service"
 
 	case failureID == FailureError:
 		newIconID = icons.RedID
