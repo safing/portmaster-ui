@@ -166,7 +166,8 @@
             if (message === '') {
                 errorBox.classList.add('hidden');
             } else {
-                errorBox.innerText = msg.message;
+                console.error(err.toString());
+                errorBox.innerText = message;
                 errorBox.classList.remove('hidden');
             }
         }
