@@ -43,6 +43,15 @@ export class ConfigSettingsViewComponent implements OnInit, OnDestroy, AfterView
   resetLabelText = 'Reset to system default';
 
   @Input()
+  set compactView(v: any) {
+    this._compactView = coerceBooleanProperty(v);
+  }
+  get compactView() {
+    return this._compactView
+  }
+  private _compactView = false;
+
+  @Input()
   set lockDefaults(v: any) {
     this._lockDefaults = coerceBooleanProperty(v);
   }

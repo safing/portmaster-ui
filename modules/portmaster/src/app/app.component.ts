@@ -1,10 +1,10 @@
 import { Overlay } from '@angular/cdk/overlay';
-import { ChangeDetectorRef, Component, HostListener, NgZone, OnInit } from '@angular/core';
+import { AfterViewInit, ChangeDetectorRef, Component, ElementRef, HostListener, NgZone, OnInit, Renderer2, ViewChild } from '@angular/core';
 import { Params, Router } from '@angular/router';
 import { PortapiService } from '@safing/portmaster-api';
 import { OverlayStepper, SfngDialogService, StepperRef } from '@safing/ui';
-import { BehaviorSubject, combineLatest, Subject } from 'rxjs';
-import { debounceTime, filter, map, mergeMap, skip, startWith, take } from 'rxjs/operators';
+import { BehaviorSubject, merge, Subject } from 'rxjs';
+import { debounceTime, filter, mergeMap, skip, startWith, take } from 'rxjs/operators';
 import { IntroModule } from './intro';
 import { NotificationsService, UIStateService } from './services';
 import { ActionIndicatorService } from './shared/action-indicator';
@@ -21,7 +21,7 @@ import { SfngNetquerySearchOverlayComponent } from './shared/netquery/search-ove
     fadeOutAnimation,
   ]
 })
-export class AppComponent implements OnInit {
+export class AppComponent implements OnInit, AfterViewInit {
   readonly connected = this.portapi.connected$.pipe(
     debounceTime(250),
     startWith(false)
@@ -41,21 +41,25 @@ export class AppComponent implements OnInit {
   private sideDashOpen = new BehaviorSubject<boolean>(false);
 
   /** Used to emit when the window size changed */
-  private windowResizeChange = new Subject<void>();
+  windowResizeChange = new Subject<void>();
 
   get sideDashOpen$() { return this.sideDashOpen.asObservable() }
 
   get showOverlay$() { return this.exitService.showOverlay$ }
 
   get onContentSizeChange$() {
-    return combineLatest([
+    return merge(
       this.windowResizeChange,
-      this.sideDashOpen,
-    ]).pipe(
-      debounceTime(100),
-      map(([_, sideDashOpen]) => sideDashOpen)
+      this.sideDashOpen$
     )
+      .pipe(
+        startWith(undefined),
+        debounceTime(100),
+      )
   }
+
+  @ViewChild('mainContent', { read: ElementRef, static: true })
+  mainContent!: ElementRef<HTMLDivElement>;
 
   @HostListener('window:resize')
   onWindowResize() {
@@ -93,6 +97,7 @@ export class AppComponent implements OnInit {
     private dialog: SfngDialogService,
     private overlay: Overlay,
     private stateService: UIStateService,
+    private renderer2: Renderer2,
   ) {
     (window as any).portapi = portapi;
   }
@@ -115,6 +120,38 @@ export class AppComponent implements OnInit {
   }
 
   ngOnInit() {
+    // default breakpoints used by tailwindcss
+    const minContentWithBp = [
+      640,  // sfng-sm:
+      768,  // sfng-md:
+      1024, // sfng-lg:
+      1280, // sfng-xl:
+      1536  // sfng-2xl:
+    ]
+
+    // prepare our breakpoint listeners and add the classes to our main element
+    merge(
+      this.windowResizeChange,
+      this.sideDashOpen$
+    )
+      .pipe(
+        startWith(undefined),
+        debounceTime(100),
+      )
+      .subscribe(() => {
+        const rect = (this.mainContent.nativeElement as HTMLElement).getBoundingClientRect();
+
+        minContentWithBp.forEach((bp, idx) => {
+          if (rect.width >= bp) {
+            this.renderer2.addClass(this.mainContent.nativeElement, `min-width-${bp}px`)
+          } else {
+            this.renderer2.removeClass(this.mainContent.nativeElement, `min-width-${bp}px`)
+          }
+        })
+
+        this.changeDetectorRef.markForCheck();
+      })
+
     // force a reload of the current route if we reconnected to
     // portmaster. This ensures we'll refresh any data that's currently
     // displayed.
@@ -158,6 +195,10 @@ export class AppComponent implements OnInit {
         this.sideDashOpen.next(this.sideDashStatus === 'expanded')
       }
     })
+  }
+
+  ngAfterViewInit(): void {
+    this.sideDashOpen.next(this.sideDashStatus !== 'collapsed')
   }
 
   showIntro(): StepperRef {

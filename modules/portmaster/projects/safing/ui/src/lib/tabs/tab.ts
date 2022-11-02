@@ -2,13 +2,16 @@ import { animate, style, transition, trigger } from "@angular/animations";
 import { ListKeyManagerOption } from "@angular/cdk/a11y";
 import { coerceBooleanProperty } from "@angular/cdk/coercion";
 import { CdkPortalOutlet, TemplatePortal } from "@angular/cdk/portal";
-import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, ContentChild, Directive, Inject, InjectionToken, Input, TemplateRef, ViewChild, ViewContainerRef } from "@angular/core";
+import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, ContentChild, Directive, EventEmitter, Inject, InjectionToken, Input, Output, TemplateRef, ViewChild, ViewContainerRef } from "@angular/core";
 
 /** TAB_PORTAL is the injection token used to inject the TabContentDirective portal into TabOutletComponent */
 export const TAB_PORTAL = new InjectionToken<TemplatePortal>('TAB_PORTAL');
 
 /** TAB_ANIMATION_DIRECTION is the injection token used to control the :enter animation origin of TabOutletComponent */
 export const TAB_ANIMATION_DIRECTION = new InjectionToken<'left' | 'right'>('TAB_ANIMATION_DIRECTION');
+
+/** TAB_SCROLL_HANDLER is called by the SfngTabOutletComponent when a scroll event occurs. */
+export const TAB_SCROLL_HANDLER = new InjectionToken<(_: Event) => void>('TAB_SCROLL_HANDLER')
 
 /**
  * Structural directive (*sfngTabContent) to defined lazy-loaded tab content.
@@ -60,6 +63,10 @@ export class SfngTabComponent implements ListKeyManagerOption {
   get warning() { return this._warning }
   private _warning = false;
 
+  /** Emits when the tab content is scrolled */
+  @Output()
+  tabContentScroll = new EventEmitter<Event>();
+
   /** Whether or not the tab is currently disabled. */
   @Input()
   set disabled(v: any) {
@@ -74,6 +81,7 @@ export class SfngTabComponent implements ListKeyManagerOption {
   getLabel() { return this.title }
 }
 
+
 /**
  * A simple wrapper component around CdkPortalOutlet to add nice
  * move animations.
@@ -81,7 +89,7 @@ export class SfngTabComponent implements ListKeyManagerOption {
 @Component({
   selector: 'sfng-tab-outlet',
   template: `
-    <div [@moveInOut]="{value: _appAnimate, params: {in: in, out: out}}" class="flex flex-col overflow-auto {{ outletClass }}">
+    <div [@moveInOut]="{value: _appAnimate, params: {in: in, out: out}}" class="flex flex-col overflow-auto {{ outletClass }}" (scroll)="onTabContentScroll($event)">
       <ng-template [cdkPortalOutlet]="portal"></ng-template>
     </div>
   `,
@@ -133,12 +141,19 @@ export class TabOutletComponent implements AfterViewInit {
     return this._animateDirection == 'left' ? '-100%' : '100%'
   }
 
+  onTabContentScroll(event: Event) {
+    if (!!this.scrollHandler) {
+      this.scrollHandler(event)
+    }
+  }
+
   @ViewChild(CdkPortalOutlet, { static: true })
   portalOutlet!: CdkPortalOutlet;
 
   constructor(
     @Inject(TAB_PORTAL) public portal: TemplatePortal<any>,
     @Inject(TAB_ANIMATION_DIRECTION) public _animateDirection: 'left' | 'right',
+    @Inject(TAB_SCROLL_HANDLER) public scrollHandler: (_: Event) => void,
     private cdr: ChangeDetectorRef
   ) { }
 

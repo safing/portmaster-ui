@@ -2,7 +2,7 @@ import { coerceBooleanProperty } from '@angular/cdk/coercion';
 import { DOCUMENT } from '@angular/common';
 import { AfterViewChecked, ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, EventEmitter, forwardRef, Inject, Input, Output, ViewChild } from '@angular/core';
 import { AbstractControl, ControlValueAccessor, NgModel, NG_VALIDATORS, NG_VALUE_ACCESSOR, ValidationErrors, Validator } from '@angular/forms';
-import { BaseSetting, ExternalOptionHint, parseSupportedValues, SettingValueType, WellKnown } from '@safing/portmaster-api';
+import { BaseSetting, ExternalOptionHint, OptionType, parseSupportedValues, SettingValueType, WellKnown } from '@safing/portmaster-api';
 
 @Component({
   selector: 'app-basic-setting',
@@ -229,6 +229,22 @@ export class BasicSettingComponent<S extends BaseSetting<any, any>> implements C
    * @param v The new value to write
    */
   writeValue(v: SettingValueType<S>) {
+    // the following is a super ugly work-around for the migration
+    // from security-settings to booleans.
+    //
+    // In order to not mess and hide an actual portmaster issue
+    // we only convert v to a boolean if it's a number value.
+    // In all other cases we don't mangle it.
+    //
+    // TODO(ppacher): Remove in v1.5
+    // BOM
+    if (this.setting?.OptType === OptionType.Bool) {
+      if (typeof v === 'number') {
+        (v as any) = !!v
+      }
+    }
+    // EOM
+
     let t = typeof v;
     this._type = t;
 

@@ -18,16 +18,17 @@
 
 
   <!-- Application Header -->
-  <div class="relative p-4 px-12">
-    <div class="absolute top-0 bottom-0 left-0 right-0 opacity-25">
-      <sfng-netquery-line-chart [data]="appChartData" showAxis="false" class="h-full"></sfng-netquery-line-chart>
+  <div class="relative px-12 transition-all duration-200" [class.p-4]="!collapseHeader">
+    <div class="absolute top-0 bottom-0 left-0 right-0 opacity-25" *ngIf="!collapseHeader">
+      <sfng-netquery-line-chart [data]="appChartData" showAxis="false" class="h-full">
+      </sfng-netquery-line-chart>
     </div>
 
-    <div class="relative z-10 flex flex-row items-center w-full py-8">
+    <div class="relative z-10 flex flex-row items-center w-full" [class.py-8]="!collapseHeader">
       <!-- Application metadata -->
       <div class="flex flex-col items-start flex-grow space-y-5">
         <!-- App Name & Icon -->
-        <h1 class="flex flex-row items-center mb-0 text-2xl text-primary">
+        <h1 class="flex flex-row items-center mb-0 text-2xl text-primary whitespace-nowrap">
           <app-icon [profile]="appProfile" style="--app-icon-size: 3rem"></app-icon>
           <div class="flex flex-col">
             <span>{{appProfile!.Name}}</span>
@@ -37,7 +38,7 @@
         </h1>
 
         <!-- App Metadata -->
-        <div class="text-tertiary text-xxs">
+        <div class="text-tertiary text-xxs" *ngIf="!collapseHeader" [@fadeIn] [@fadeOut]>
           <div class="space-x-2" *ngIf="!!applicationDirectory">
             <span>Path:</span>
             <span class="text-opacity-75 text-primary">
@@ -57,7 +58,8 @@
         </div>
 
         <!-- Quick Settings -->
-        <div class="flex flex-row space-x-3 text-xxs">
+        <div class="flex flex-row flex-wrap gap-2 text-xxs whitespace-nowrap" *ngIf="!collapseHeader" [@fadeIn]
+          [@fadeOut]>
           <app-qs-internet [settings]="allSettings" (save)="saveSetting($event)">
           </app-qs-internet>
 
@@ -69,28 +71,43 @@
       </div>
 
       <!-- Statistics -->
-      <div class="flex flex-row items-center justify-end flex-grow pr-8 space-x-4" *ngIf="!!stats && stats.size > 0">
-        <div
-          class="flex flex-col items-center justify-center w-32 h-24 bg-gray-300 border border-gray-300 rounded shadow bg-opacity-90">
-          <h2 class="p-0 m-0 text-xl text-primary">{{ (100 / stats!.size) *
+      <div class="flex flex-row flex-wrap items-center justify-end flex-grow gap-4 pr-8"
+        *ngIf="!!stats && stats.size > 0">
+        <div [ngClass]="{
+            'h-20 sfng-lg:w-32 sfng-lg:h-24': !collapseHeader
+          }"
+          class="flex flex-col items-center justify-center w-24 px-4 py-1 transition-all duration-200 bg-gray-300 border border-gray-300 rounded shadow bg-opacity-90">
+          <h2 class="p-0 m-0 text-lg sfng-lg:text-xl text-primary">{{ (100 / stats!.size) *
             stats!.countAllowed
             | number:'1.0-1' }}%</h2>
           <span class="text-secondary">Allowed</span>
         </div>
 
-        <div
-          class="flex flex-col items-center justify-center w-32 h-24 bg-gray-400 bg-opacity-75 border border-gray-400 rounded shadow">
-          <h2 class="p-0 m-0 text-xl text-primary">{{ stats!.size | prettyCount }}</h2>
+        <div [ngClass]="{
+            'h-20 sfng-lg:w-32 sfng-lg:h-24': !collapseHeader
+          }"
+          class="flex flex-col items-center justify-center w-24 px-4 py-1 transition-all duration-200 bg-gray-400 bg-opacity-75 border border-gray-400 rounded shadow">
+          <h2 class="p-0 m-0 text-lg sfng-lg:text-xl text-primary">{{ stats!.size | prettyCount }}</h2>
           <span class="text-secondary">Connections</span>
         </div>
 
-        <div
-          class="flex flex-col items-center justify-center w-32 h-24 bg-gray-300 bg-opacity-75 border border-gray-300 rounded shadow">
-          <h2 class="p-0 m-0 text-xl text-primary">{{ (100 / stats!.size) * (stats!.size
+        <div [ngClass]="{
+            'h-20 sfng-lg:w-32 sfng-lg:h-24': !collapseHeader
+          }"
+          class="flex flex-col items-center justify-center w-24 px-4 py-1 transition-all duration-200 bg-gray-300 bg-opacity-75 border border-gray-300 rounded shadow">
+          <h2 class="p-0 m-0 text-lg sfng-lg:text-xl text-primary">{{ (100 / stats!.size) * (stats!.size
             - stats!.countAllowed) | number:'1.0-1' }}%</h2>
           <span class="text-secondary">Blocked</span>
         </div>
       </div>
+    </div>
+
+    <div class="absolute bottom-0 z-10 cursor-pointer right-10 hover:text-primary text-secondary"
+      (click)="collapseHeader = !collapseHeader">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
+        class="w-6 h-6 transition-all duration-200" [class.rotate-180]="collapseHeader">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 15.75l7.5-7.5 7.5 7.5" />
+      </svg>
     </div>
   </div>
 
@@ -143,7 +160,7 @@
         </div>
 
         <ng-container *ngIf="settings.length > 0; else: noSettingsTemplate">
-          <app-settings-view [searchTerm]="searchTerm" [availableSettings]="settings"
+          <app-settings-view [searchTerm]="searchTerm" [availableSettings]="settings" compactView="true"
             [highlightKey]="highlightSettingKey" userSettingsMarker="true" (save)="saveSetting($event)"
             resetLabelText="Use global setting" lockDefaults="true" displayStackable="true">
           </app-settings-view>

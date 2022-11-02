@@ -124,6 +124,8 @@ export class AppViewComponent implements OnInit, OnDestroy {
     [tagID: string]: string
   } = {}
 
+  collapseHeader = false;
+
   constructor(
     public sessionDataService: SessionDataService,
     private profileService: AppProfileService,

@@ -25,7 +25,7 @@
   <button type="button" class="h-full rounded-r-sm btn" (click)="performSearch()">Reload</button>
 </div>
 
-<div class="flex flex-row items-center w-full gap-3">
+<div class="flex flex-row flex-wrap items-center w-full gap-3">
   <!--
     Search / Suggestion boxes for most-commonly used filters
   -->
@@ -117,29 +117,31 @@
 
   <div class="flex-grow"></div>
 
-  <!--
-    Group-By selection
-  -->
-  <sfng-select mode="multi" itemName="Group By" placeholder="Group By" allowSearch="false" [(ngModel)]="groupByKeys"
-    (ngModelChange)="performSearch()">
-    <ng-container *ngFor="let value of allowedGroupBy">
-      <sfng-select-item *sfngSelectValue="value">
-        {{ keyTranslation[value] || value }}
-      </sfng-select-item>
-    </ng-container>
-  </sfng-select>
+  <div class="flex flex-row items-center gap-3">
+    <!--
+      Group-By selection
+    -->
+    <sfng-select mode="multi" itemName="Group By" placeholder="Group By" allowSearch="false" [(ngModel)]="groupByKeys"
+      (ngModelChange)="performSearch()">
+      <ng-container *ngFor="let value of allowedGroupBy">
+        <sfng-select-item *sfngSelectValue="value">
+          {{ keyTranslation[value] || value }}
+        </sfng-select-item>
+      </ng-container>
+    </sfng-select>
 
-  <!--
-    Order-By selection
-  -->
-  <sfng-select mode="multi" itemName="Sort" placeholder="Sort" allowSearch="false" [(ngModel)]="orderByKeys"
-    (ngModelChange)="performSearch()">
-    <ng-container *ngFor="let value of allowedOrderBy">
-      <sfng-select-item *sfngSelectValue="value">
-        {{ keyTranslation[value] || value }}
-      </sfng-select-item>
-    </ng-container>
-  </sfng-select>
+    <!--
+      Order-By selection
+    -->
+    <sfng-select mode="multi" itemName="Sort" placeholder="Sort" allowSearch="false" [(ngModel)]="orderByKeys"
+      (ngModelChange)="performSearch()">
+      <ng-container *ngFor="let value of allowedOrderBy">
+        <sfng-select-item *sfngSelectValue="value">
+          {{ keyTranslation[value] || value }}
+        </sfng-select-item>
+      </ng-container>
+    </sfng-select>
+  </div>
 </div>
 
 <div class="relative flex-shrink-0 h-32">
@@ -224,7 +226,15 @@
   <span class="text-xxs text-primary" *ngIf="!loading">{{ totalResultCount }} Results
     <span class="text-secondary">of {{totalConnCount}} total connections</span>
   </span>
+  <span class="flex-grow"></span>
+  <span class="pr-3 text-xxs text-secondary" [ngClass]="{
+    'text-yellow-300': ((lastReloadTicker|async)||0) > 60,
+    'text-red-300': ((lastReloadTicker|async)||0) > 600
+  }">
+    Last Reload: {{ lastReload | timeAgo:(lastReloadTicker|async) }}
+  </span>
 </div>
+
 <sfng-pagination *ngIf="!loading; else: loadingTemplate" [source]="paginator" class="flex flex-col">
   <ng-template [sfngPageContent]>
     <sfng-accordion-group class="flex flex-col gap-2 pr-4"

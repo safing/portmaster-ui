@@ -1,5 +1,5 @@
 <div class="flex flex-row items-center gap-2" name="first">
-  <span class="verdict" [class.outdated]="isOutdated" [ngClass]="helper.getVerdictClass(conn)"
+  <span class="flex-shrink-0 verdict" [class.outdated]="isOutdated" [ngClass]="helper.getVerdictClass(conn)"
     [sfng-tooltip]="conn.extra_data?.reason?.Msg || null"></span>
 
   <ng-container *ngIf="conn.domain as domain; else scopeTranslation">
@@ -17,7 +17,8 @@
   </svg>
 
   <ng-template #scopeTranslation>
-    <span sfngAddToFilter="scope" [sfngAddToFilterValue]="conn.scope" name="scope">
+    <span sfngAddToFilter="scope" [sfngAddToFilterValue]="conn.scope" name="scope"
+      class="overflow-hidden text-ellipsis">
       <ng-container [ngSwitch]="conn.scope">
         <span *ngSwitchCase="scopes.Global">Internet Peer-to-Peer</span>
         <span *ngSwitchCase="scopes.GlobalMulitcast">Internet Multicast</span>
@@ -36,8 +37,8 @@
   </ng-template>
 </div>
 
-<div [class.text-tertiary]="!conn.country" class="flex flex-row items-center justify-start gap-1" name="location"
-  [sfngAddToFilter]="!!conn.country ? 'country' : null" [sfngAddToFilterValue]="conn.country">
+<div [class.text-tertiary]="!conn.country" class="flex-row items-center justify-start hidden gap-1 sfng-md:flex"
+  name="location" [sfngAddToFilter]="!!conn.country ? 'country' : null" [sfngAddToFilterValue]="conn.country">
   {{ conn | connectionLocation }}
 </div>
 
@@ -63,23 +64,23 @@
   </ng-template>
 </div>
 
-<div name="time" class="text-secondary" [sfng-tooltip]="'Started ' + (conn.started | timeAgo:timeAgoTicker)">
+<div class="hidden sfng-md:block text-secondary" [sfng-tooltip]="'Started ' + (conn.started | timeAgo:timeAgoTicker)">
   <ng-container *ngIf="!!conn.ended">
-    <span>ended&nbsp;&nbsp;</span>
+    <span class="hidden sfng-xl:inline">ended&nbsp;&nbsp;</span>
     {{ conn.ended | timeAgo:timeAgoTicker }}
   </ng-container>
 
   <ng-container *ngIf="!conn.ended">
-    <span>started&nbsp;&nbsp;</span>
+    <span class="hidden sfng-xl:inline">started&nbsp;&nbsp;</span>
     {{ conn.started | timeAgo:timeAgoTicker }}
   </ng-container>
 </div>
 
-<div name="reason" class="flex flex-row items-center justify-start gap-2">
+<div name="reason" class="flex-row items-center justify-start hidden gap-2 sfng-lg:flex">
   <ng-container *ngIf="conn.extra_data?.reason as reason">
     <ng-container *ngIf="reason.OptionKey">
-      <span name="reason-extra" class="text-tertiary">applied</span>
-      <span name="reason-key" class="text-primary">{{ helper.settings[reason.OptionKey] || '' }}</span>
+      <span class="hidden sfng-2xl:inline text-tertiary">applied</span>
+      <span class="text-primary">{{ helper.settings[reason.OptionKey] || '' }}</span>
 
       <svg viewBox="0 0 24 24" class="w-4 h-4" *ngIf="!reason.Profile" sfng-tooltip="from Global Settings">
         <g fill="none" stroke-linecap="round" stroke="currentColor" stroke-linejoin="round" stroke-width="2">
@@ -98,7 +99,7 @@
           d="M19 9h-3a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h3a2 2 0 0 1 2 2v2a2 2 0 0 1-2 2ZM5 3h3a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2ZM5 15h3a2 2 0 0 1 2 2v2a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-2a2 2 0 0 1 2-2Z" />
       </svg>
 
-      <span name="reason-extra" class="text-secondary">{{ reason.Profile ? 'App' : 'Global' }}</span>
+      <span class="hidden sfng-xl:inline text-secondary">{{ reason.Profile ? 'App' : 'Global' }}</span>
     </ng-container>
   </ng-container>
 </div>

@@ -1,11 +1,17 @@
 import { ListKeyManager } from "@angular/cdk/a11y";
 import { coerceBooleanProperty } from '@angular/cdk/coercion';
-import { CdkPortalOutlet, ComponentPortal, TemplatePortal } from "@angular/cdk/portal";
-import { AfterContentInit, AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, ComponentRef, ContentChildren, ElementRef, Injector, Input, OnDestroy, OnInit, QueryList, ViewChild, ViewChildren } from "@angular/core";
+import { CdkPortalOutlet, ComponentPortal } from "@angular/cdk/portal";
+import { AfterContentInit, AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, ComponentRef, ContentChildren, ElementRef, EventEmitter, Injector, Input, OnDestroy, OnInit, Output, QueryList, ViewChild, ViewChildren } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
 import { Observable, Subject } from "rxjs";
 import { distinctUntilChanged, map, takeUntil } from "rxjs/operators";
-import { SfngTabComponent, TabOutletComponent, TAB_ANIMATION_DIRECTION, TAB_PORTAL } from "./tab";
+import { SfngTabComponent, TabOutletComponent, TAB_ANIMATION_DIRECTION, TAB_PORTAL, TAB_SCROLL_HANDLER } from "./tab";
+
+export interface SfngTabContentScrollEvent {
+  event?: Event;
+  scrollTop: number;
+  previousScrollTop: number;
+}
 
 /**
  * Tab group component for rendering a tab-style navigation with support for
@@ -53,12 +59,17 @@ export class SfngTabGroupComponent implements AfterContentInit, AfterViewInit, O
   @ViewChild(CdkPortalOutlet, { static: true })
   portalOutlet: CdkPortalOutlet | null = null;
 
+  @Output()
+  tabContentScroll = new EventEmitter<SfngTabContentScrollEvent>();
+
   /** The name of the tab group. Used to update the currently active tab in the route */
   @Input()
   name = 'tab'
 
   @Input()
   outletClass = '';
+
+  private scrollTop: number = 0;
 
   /** Whether or not the current tab should be syncronized with the angular router using a query parameter */
   @Input()
@@ -167,12 +178,18 @@ export class SfngTabGroupComponent implements AfterContentInit, AfterViewInit, O
 
           this.portalOutlet?.detach();
 
-          const newOutletPortal = this.createTabOutlet(activeTab.tabContent.portal, animationDirection);
+          const newOutletPortal = this.createTabOutlet(activeTab, animationDirection);
           this.activeTabIndex = change;
+          this.tabContentScroll.next({
+            scrollTop: 0,
+            previousScrollTop: this.scrollTop,
+          })
 
+          this.scrollTop = 0;
 
           this.tabActivate$.next(activeTab.id);
           this.portalOutlet?.attach(newOutletPortal);
+
           this.repositionTabBar();
 
           if (this._linkRouter) {
@@ -276,16 +293,31 @@ export class SfngTabGroupComponent implements AfterContentInit, AfterViewInit, O
     })
   }
 
-  private createTabOutlet(contentPortal: TemplatePortal<any>, animationDir: 'left' | 'right'): ComponentPortal<TabOutletComponent> {
+  private createTabOutlet(tab: SfngTabComponent, animationDir: 'left' | 'right'): ComponentPortal<TabOutletComponent> {
     const injector = Injector.create({
       providers: [
         {
           provide: TAB_PORTAL,
-          useValue: contentPortal,
+          useValue: tab.tabContent!.portal,
         },
         {
           provide: TAB_ANIMATION_DIRECTION,
           useValue: animationDir,
+        },
+        {
+          provide: TAB_SCROLL_HANDLER,
+          useValue: (e: Event) => {
+            const newScrollTop = (e.target as HTMLElement).scrollTop;
+
+            tab.tabContentScroll.next(e);
+            this.tabContentScroll.next({
+              event: e,
+              scrollTop: newScrollTop,
+              previousScrollTop: this.scrollTop,
+            });
+
+            this.scrollTop = newScrollTop;
+          }
         },
       ],
       parent: this.injector,
