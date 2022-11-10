@@ -27,6 +27,10 @@ export class StatusPilotComponent implements OnInit {
 
   mode: 'auto' | 'manual' = 'auto';
 
+  get activeLevelText() {
+    return this.options.find(opt => opt.level === this.activeLevel)?.displayText || '';
+  }
+
   readonly options: SecurityOption[] = [
     {
       level: SecurityLevel.Normal,

@@ -6,10 +6,11 @@
 
 <app-side-dash class="flex-shrink-0" style="z-index: 100"
   [ngClass]="{'absolute top-0 left-16 bg-gray-1002 h-full shadow-2xl': sideDashOverlay, 'relative': !sideDashOverlay}"
-  *ngIf="sideDashStatus === 'expanded'" [@fadeIn] [@fadeOut]>
+  *ngIf="sideDashStatus === 'expanded'" [@fadeIn] (@fadeIn.done)="windowResizeChange.next()" [@fadeOut]
+  (@fadeOut.done)="windowResizeChange.next()">
 </app-side-dash>
 
-<div class="main">
+<div class="main" #mainContent>
   <router-outlet></router-outlet>
 </div>
 

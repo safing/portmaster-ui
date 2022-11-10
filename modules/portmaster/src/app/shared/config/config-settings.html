@@ -1,5 +1,6 @@
 <!-- navigation for the settings -->
-<div class="settings-nav" *ngIf="!loading" [@fadeIn]>
+<div class="settings-nav hidden sfng-md:block" *ngIf="!loading" [@fadeIn]
+  [ngClass]="{'w-48 pl-12': !compactView, 'w-36 pl-3': compactView}">
   <ul>
     <ng-container *ngFor="let subsys of subsystems; trackBy: trackSubsystem">
       <ng-template [appExpertiseLevel]="subsys.minimumExpertise" [appExpertiseLevelData]="subsys"

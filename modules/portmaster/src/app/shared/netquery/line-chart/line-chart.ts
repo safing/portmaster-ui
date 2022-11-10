@@ -1,8 +1,10 @@
 import { coerceBooleanProperty, coerceNumberProperty } from '@angular/cdk/coercion';
-import { AfterViewInit, Component, ElementRef, HostListener, Input, OnChanges, OnInit, SimpleChanges } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, Input, OnChanges, OnDestroy, OnInit, SimpleChanges } from '@angular/core';
 import { ChartResult } from '@safing/portmaster-api';
 import * as d3 from 'd3';
 import { Selection } from 'd3';
+import { Subject, takeUntil } from 'rxjs';
+import { AppComponent } from 'src/app/app.component';
 import { timeAgo } from '../../pipes';
 
 @Component({
@@ -16,7 +18,9 @@ import { timeAgo } from '../../pipes';
   ],
   template: '',
 })
-export class SfngNetqueryLineChartComponent implements OnChanges, OnInit, AfterViewInit {
+export class SfngNetqueryLineChartComponent implements OnChanges, OnInit, AfterViewInit, OnDestroy {
+  private destroy$ = new Subject<void>();
+
   @Input()
   data: ChartResult[] = [];
 
@@ -68,12 +72,25 @@ export class SfngNetqueryLineChartComponent implements OnChanges, OnInit, AfterV
   }
   private _showAxis = true;
 
-  constructor(public chartElem: ElementRef) {
-  }
+  constructor(
+    public chartElem: ElementRef,
+    private app: AppComponent
+  ) { }
 
+  private requestedAnimationFrame: any;
   ngOnInit() {
-    // remove event listener when done
-    window.addEventListener('resize', () => this.drawChart());
+    this.app.onContentSizeChange$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(() => {
+        if (!!this.requestedAnimationFrame) {
+          cancelAnimationFrame(this.requestedAnimationFrame);
+        }
+
+        this.requestedAnimationFrame = requestAnimationFrame(() => {
+          this.redraw();
+          this.requestedAnimationFrame = undefined;
+        })
+      })
   }
 
   ngAfterViewInit(): void {
@@ -86,6 +103,10 @@ export class SfngNetqueryLineChartComponent implements OnChanges, OnInit, AfterV
     }
   }
 
+  ngOnDestroy(): void {
+    this.destroy$.next();
+  }
+
   get yMargin() {
     if (this.showAxis) {
       return 16;
@@ -93,35 +114,25 @@ export class SfngNetqueryLineChartComponent implements OnChanges, OnInit, AfterV
     return 0;
   }
 
-  // handle resizing of the browser/electron window by redrawing the line-chart
-  // in the next animation frame.
-  // We'll debounce that whole thing as long as the user is still resizing the
-  // window so we don't redraw to often.
-  private requestedAnimationFrame: any;
-  @HostListener('window:resize', ['$event'])
-  onWindowResize() {
-    if (!!this.requestedAnimationFrame) {
-      cancelAnimationFrame(this.requestedAnimationFrame);
-    }
-
-    this.requestedAnimationFrame = requestAnimationFrame(() => {
-      this.redraw();
-      this.requestedAnimationFrame = undefined;
-    })
-  }
-
   private redraw(event?: Event) {
     if (!!this.svg) {
       this.svg.remove();
     }
+
     this.initializeChart();
     this.drawChart();
   }
 
   private initializeChart(): void {
+    this.width = this.chartElem.nativeElement.getBoundingClientRect().width;
+    this.height = this.chartElem.nativeElement.getBoundingClientRect().height;
+
     this.svg = d3
       .select(this.chartElem.nativeElement)
       .append('svg')
+
+    this.svg.attr('width', this.width);
+    this.svg.attr('height', this.height);
 
     this.svgInner = this.svg
       .append('g')
@@ -185,10 +196,6 @@ export class SfngNetqueryLineChartComponent implements OnChanges, OnInit, AfterV
   }
 
   private drawChart(): void {
-    this.width = this.chartElem.nativeElement.getBoundingClientRect().width;
-    this.height = this.chartElem.nativeElement.getBoundingClientRect().height;
-    this.svg.attr('width', this.width);
-    this.svg.attr('height', this.height);
 
     this.xScale.range([0, this.width - this.yMargin]);
 

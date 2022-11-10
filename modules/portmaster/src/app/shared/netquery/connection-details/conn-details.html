@@ -1,4 +1,4 @@
-<section class="grid w-full grid-cols-3 gap-4" *ngIf="conn">
+<section *ngIf="conn">
   <div>
     <span sfngAddToFilter="started" [sfngAddToFilterValue]="conn.started">
       <span>Started:</span>
@@ -183,7 +183,7 @@
     </span>
   </div>
 
-  <div>
+  <div class="col-span-2">
     <span sfngAddToFilter="path" [sfngAddToFilterValue]="conn.path">
       <span>Binary Path:</span>
       <span class="break-normal whitespace-normal">{{ conn.path }} </span>
@@ -214,7 +214,7 @@
       -->
   </div>
 
-  <div class="col-span-2" *ngIf="conn.scope === scopes.Global">
+  <div *ngIf="conn.scope === scopes.Global">
     <h3 class="text-primary text-xxs">SPN Tunnel</h3>
     <ng-template #noSPNTemplate>
       <span class="inline-flex items-center gap-2 text-secondary">

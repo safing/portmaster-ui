@@ -1,11 +1,10 @@
 import { coerceArray } from "@angular/cdk/coercion";
-import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, EventEmitter, Input, OnDestroy, OnInit, Output, QueryList, Renderer2, TemplateRef, TrackByFunction, ViewChildren } from "@angular/core";
+import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, Input, OnDestroy, OnInit, Output, QueryList, TemplateRef, TrackByFunction, ViewChildren } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
 import { ChartResult, Condition, IPScope, Netquery, NetqueryConnection, OrderBy, PossilbeValue, Query, QueryResult, Select, Verdict } from "@safing/portmaster-api";
 import { Datasource, DynamicItemsPaginator, SelectOption } from "@safing/ui";
-import { BehaviorSubject, combineLatest, forkJoin, Observable, of, Subject } from "rxjs";
-import { catchError, debounceTime, filter, map, skip, switchMap, take, takeUntil } from "rxjs/operators";
-import { AppComponent } from "src/app/app.component";
+import { BehaviorSubject, combineLatest, forkJoin, interval, Observable, of, Subject } from "rxjs";
+import { catchError, debounceTime, filter, map, share, skip, switchMap, take, takeUntil } from "rxjs/operators";
 import { ActionIndicatorService } from "../action-indicator";
 import { ExpertiseService } from "../expertise";
 import { objKeys } from "../utils";
@@ -151,6 +150,17 @@ export class SfngNetqueryViewer implements OnInit, OnDestroy, AfterViewInit {
   /** @private The index of the pro-tip that is currently rendered. */
   proTipIdx = 0;
 
+  /** @private The last time the connections were loaded */
+  lastReload: Date = new Date();
+
+  /** @private Used to refresh the "Last reload xxx ago" message */
+  lastReloadTicker = interval(2000)
+    .pipe(
+      takeUntil(this.destroy$),
+      map(() => Math.floor((new Date()).getTime() - this.lastReload.getTime()) / 1000),
+      share()
+    )
+
   constructor(
     private netquery: Netquery,
     private helper: NetqueryHelper,
@@ -159,11 +169,6 @@ export class SfngNetqueryViewer implements OnInit, OnDestroy, AfterViewInit {
     private actionIndicator: ActionIndicatorService,
     private route: ActivatedRoute,
     public router: Router,
-    private elementRef: ElementRef,
-    // we need access to the app-component here so we get notified when the size of the
-    // content viewport changes either due to resize or the side-dash being opened/closed.
-    private app: AppComponent,
-    private renderer2: Renderer2,
   ) { }
 
   @Input()
@@ -293,32 +298,6 @@ export class SfngNetqueryViewer implements OnInit, OnDestroy, AfterViewInit {
   orderByKeys: string[] = [];
 
   ngOnInit(): void {
-    const maxWidthBreakpoints = [
-      500,
-      700,
-      900,
-      1100,
-    ]
-
-    // prepare our breakpoint listeners and add the classes to our main element
-    this.app.onContentSizeChange$
-      .pipe(takeUntil(this.destroy$))
-      .subscribe(() => {
-        const rect = (this.elementRef.nativeElement as HTMLElement).getBoundingClientRect();
-
-        let breakpoint = 0;
-        maxWidthBreakpoints.forEach(bp => {
-          this.renderer2.removeClass(this.elementRef.nativeElement, `max-width-${bp}`)
-          if (rect.width > bp) {
-            breakpoint = bp;
-          }
-        })
-
-        if (breakpoint !== 0) {
-          this.renderer2.addClass(this.elementRef.nativeElement, `max-width-${breakpoint}`)
-        }
-      })
-
     // Prepare the datasource that is used to initialize the DynamicItemPaginator.
     // It basically has a "view" function that executes the current page query
     // but with page-number and page-size applied.
@@ -772,6 +751,7 @@ export class SfngNetqueryViewer implements OnInit, OnDestroy, AfterViewInit {
   /** @private Query the portmaster service for connections matching the current settings */
   performSearch() {
     this.loading = true;
+    this.lastReload = new Date();
     this.paginator.clear()
     this.search$.next();
     this.updateTagbarValues();
