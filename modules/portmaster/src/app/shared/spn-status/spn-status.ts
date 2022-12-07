@@ -33,15 +33,10 @@ export class SPNStatusComponent implements OnInit, OnDestroy {
   /** The current status of the SPN module */
   spnStatus: SPNStatus | null = null;
 
-  /** Returns whether or not the SPN user login is required */
-  get spnLoginRequired() {
-    return this.spnEnabled && (this.profile === null || !this.profile.state);
+  /** Returns whether or not the current package has the SPN feature */
+  get packageHasSPN() {
+    return this.profile?.current_plan?.feature_ids?.includes('spn')
   }
-
-  private _previousLoginRequired = false;
-
-  @Output()
-  loginRequired = new EventEmitter<boolean>();
 
   constructor(
     private configService: ConfigService,
@@ -62,7 +57,6 @@ export class SPNStatusComponent implements OnInit, OnDestroy {
       )
       .subscribe(profile => {
         this.profile = profile || null;
-        this.updateLoginRequired()
 
         this.cdr.markForCheck();
       });
@@ -71,7 +65,6 @@ export class SPNStatusComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe(status => {
         this.spnStatus = status;
-        this.updateLoginRequired()
 
         this.cdr.markForCheck();
       })
@@ -80,7 +73,6 @@ export class SPNStatusComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe(value => {
         this.spnEnabled = value;
-        this.updateLoginRequired();
 
         // If the user disabled the SPN clear the connection chart
         // as well.
@@ -136,12 +128,5 @@ export class SPNStatusComponent implements OnInit, OnDestroy {
   setSPNEnabled(v: boolean) {
     this.configService.save(`spn/enable`, v)
       .subscribe();
-  }
-
-  private updateLoginRequired() {
-    if (this._previousLoginRequired != this.spnLoginRequired) {
-      this._previousLoginRequired = this.spnLoginRequired;
-      this.loginRequired.next(this.spnLoginRequired);
-    }
   }
 }
