@@ -53,7 +53,18 @@ export interface Plan {
   amount: number;
   months: number;
   renewable: boolean;
+  feature_ids: string[];
 }
+
+export interface View {
+    Message           : string;
+    ShowAccountData   : boolean;
+    ShowAccountButton : boolean;
+    ShowLoginButton   : boolean;
+    ShowRefreshButton : boolean;
+    ShowLogoutButton  : boolean;
+}
+
 export interface UserProfile extends Record {
   username: string;
   state: string;
@@ -62,5 +73,7 @@ export interface UserProfile extends Record {
   subscription: Subscription | null;
   current_plan: Plan | null;
   next_plan: Plan | null;
+	view: View | null;
+	LastNotifiedOfEnd?: string;
   LoggedInAt?: string;
 }

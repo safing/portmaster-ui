@@ -48,7 +48,7 @@
         Login
       </button>
 
-      <button (click)="toggleSPN()" *ngIf="spnStatus?.Status === 'disabled' && !!currentUser"
+      <button (click)="toggleSPN()" *ngIf="currentUser?.current_plan?.feature_ids?.includes('spn')"
         class="w-56 px-5 py-2 font-medium text-white uppercase rounded-full bg-blue bg-opacity-90 hover:bg-blue">
         Enable the SPN
       </button>

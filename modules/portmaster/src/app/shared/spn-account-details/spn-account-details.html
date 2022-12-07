@@ -1,39 +1,44 @@
 <ng-container *ngIf="!!currentUser && currentUser.state !== '' && currentUser.state !== 'loggedout'">
   <h1 class="mb-4 text-xl">Account Details</h1>
 
-  <table class="mb-4">
+  <!-- TODO: update to fit style -->
+  <div *ngIf="currentUser.view?.Message" class="flex bg-yellow-100 rounded-lg p-4 mb-4 text-sm text-yellow-700 font-medium" role="alert">
+    <svg class="w-5 h-5 inline mr-3" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path></svg>
+    <div>
+      {{ currentUser.view?.Message }}
+    </div>
+  </div>
+
+  <table *ngIf="currentUser.view?.ShowAccountData" class="mb-4">
+    <tr>
+      <th>Package</th>
+      <td>{{ currentUser.current_plan?.name }}</td>
+    </tr>
+    <tr>
+      <th>Package Runs Until</th>
+      <td>{{ currentUser.subscription?.ends_at | date:'medium' }}</td>
+    </tr>
+
     <tr>
       <th>Username</th>
       <td>{{ currentUser.username }} </td>
     </tr>
     <tr>
-      <th>Balance</th>
-      <td>{{ currentUser.balance / 100 | currency:'EUR' }} </td>
-    </tr>
-    <tr>
-      <th>Current Plan</th>
-      <td>{{ currentUser.current_plan?.name }}</td>
-    </tr>
-    <tr>
-      <th>Subscription ends at</th>
-      <td>{{ currentUser.subscription?.ends_at | date:'medium' }}</td>
-    </tr>
-
-    <tr>
       <th>Device Name</th>
       <td>{{ currentUser.device?.name }}</td>
     </tr>
+
     <tr *appExpertiseLevel="'developer'">
       <th>Device ID</th>
       <td>{{currentUser.device?.id}}</td>
     </tr>
-    <tr>
-      <th>Logged in since</th>
-      <td>{{ currentUser.LoggedInAt | date:'medium' }} </td>
-    </tr>
     <tr *appExpertiseLevel="'developer'">
       <th>Account State</th>
       <td>{{ currentUser.state }} </td>
+    </tr>
+    <tr *appExpertiseLevel="'developer'">
+      <th>Logged in Since</th>
+      <td>{{ currentUser.LoggedInAt | date:'medium' }} </td>
     </tr>
   </table>
 
@@ -41,8 +46,13 @@
     <button *ngIf="dialogRef" (click)="dialogRef.close()" class="">Close</button>
     <div class="flex-grow"></div>
 
-    <button (click)="logout()" class="bg-info-red">Logout</button>
-    <button (click)="refreshAccount()" style="width: 70px">
+    <a *ngIf="currentUser.view?.ShowAccountButton" href="https://account.safing.io/?source=Portmaster"
+      class="flex flex-row items-center self-stretch justify-center gap-1 px-2 bg-gray-300 rounded hover:bg-gray-200 text-blue whitespace-nowrap">
+      Open Account Page
+    </a>
+
+    <button *ngIf="currentUser.view?.ShowLogoutButton || currentUser.view?.ShowLoginButton" (click)="logout()" class="bg-info-red">Logout</button>
+    <button *ngIf="currentUser.view?.ShowRefreshButton" (click)="refreshAccount()" style="width: 70px">
       <ng-container *ngIf="!refreshing; else: loading">
         Refresh
       </ng-container>
