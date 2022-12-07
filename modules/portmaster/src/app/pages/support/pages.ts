@@ -118,7 +118,7 @@ export const supportTypes: PageSections[] = [
       {
         type: 'link',
         title: '📘 Open Portmaster Docs',
-        url: 'https://docs.safing.io/',
+        url: 'https://docs.safing.io/?source=Portmaster',
         shortHelp: 'View the Settings Handbook, get help with DNS Configuration and check VPN Compatibility.',
       },
     ],
@@ -130,19 +130,19 @@ export const supportTypes: PageSections[] = [
       {
         type: 'link',
         title: 'Settings Handbook',
-        url: 'https://docs.safing.io/portmaster/settings',
+        url: 'https://docs.safing.io/portmaster/settings?source=Portmaster',
         shortHelp: 'A reference document of all Portmaster settings'
       },
       {
         type: 'link',
         title: 'What\'s Next?',
-        url: 'https://safing.io/next',
+        url: 'https://safing.io/next?source=Portmaster',
         shortHelp: 'View what Safing is currently working on.',
       },
       {
         type: 'link',
         title: 'Safing Blog',
-        url: 'https://safing.io/blog',
+        url: 'https://safing.io/blog?source=Portmaster',
         shortHelp: 'Visit the Safing Blog and the monthly progress updates.',
       },
       {

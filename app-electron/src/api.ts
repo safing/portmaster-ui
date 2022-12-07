@@ -14,18 +14,18 @@ export class AppAPI {
     private readonly iconCache = new Map<string, string>();
 
     /**
-     * Whether we are currently exitting the application.
+     * Whether we are currently exiting the application.
      * Required to avoid an endless loop win on('close')
      * below.
      */
-    private exitting = false;
+    private exiting = false;
 
     constructor(
         private win: BrowserWindow,
         private loader: WebUILoader,
     ) {
         win.on('close', event => {
-            if (this.exitting) {
+            if (this.exiting) {
                 return;
             }
 
@@ -64,7 +64,7 @@ export class AppAPI {
 
     @Remote('exitApp')
     async exitApp() {
-        this.exitting = true;
+        this.exiting = true;
         this.win.close();
     }
 
