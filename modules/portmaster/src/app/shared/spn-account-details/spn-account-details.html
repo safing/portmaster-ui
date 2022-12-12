@@ -9,7 +9,7 @@
     </div>
   </div>
 
-  <table *ngIf="currentUser.view?.ShowAccountData" class="mb-4">
+  <table *ngIf="!currentUser.view || currentUser.view?.ShowAccountData" class="mb-4">
     <tr>
       <th>Package</th>
       <td>{{ currentUser.current_plan?.name }}</td>
@@ -43,16 +43,17 @@
   </table>
 
   <div class="flex items-end justify-end w-full space-x-2">
+    <!-- Always show all buttons, no matter what the view says here. -->
     <button *ngIf="dialogRef" (click)="dialogRef.close()" class="">Close</button>
     <div class="flex-grow"></div>
 
-    <a *ngIf="currentUser.view?.ShowAccountButton" href="https://account.safing.io/?source=Portmaster"
+    <a href="https://account.safing.io/?source=Portmaster"
       class="flex flex-row items-center self-stretch justify-center gap-1 px-2 bg-gray-300 rounded hover:bg-gray-200 text-blue whitespace-nowrap">
       Open Account Page
     </a>
 
-    <button *ngIf="currentUser.view?.ShowLogoutButton || currentUser.view?.ShowLoginButton" (click)="logout()" class="bg-info-red">Logout</button>
-    <button *ngIf="currentUser.view?.ShowRefreshButton" (click)="refreshAccount()" style="width: 70px">
+    <button (click)="logout()" class="bg-info-red">Logout</button>
+    <button (click)="refreshAccount()" style="width: 70px">
       <ng-container *ngIf="!refreshing; else: loading">
         Refresh
       </ng-container>

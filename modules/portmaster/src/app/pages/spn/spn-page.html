@@ -43,7 +43,7 @@
     </spn-feature-carousel>
 
     <div class="flex flex-col items-center justify-center gap-4">
-      <button (click)="openAccountDetails()" *ngIf="!currentUser || currentUser.state === ''"
+      <button (click)="openAccountDetails()" *ngIf="!currentUser?.current_plan?.feature_ids?.includes('spn')"
         class="w-56 px-5 py-2 font-medium uppercase rounded-full bg-blue bg-opacity-90 hover:bg-blue text-primary">
         Login
       </button>
