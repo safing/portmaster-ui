@@ -8,7 +8,7 @@ require (
 	github.com/safing/portbase v0.16.0
 	github.com/safing/portmaster v0.9.7
 	github.com/tevino/abool v1.2.0
-	golang.org/x/image v0.0.0-20220902085622-e7cb96979f69
+	golang.org/x/image v0.5.0
 	golang.org/x/sys v0.0.0-20221006211917-84dc82d7e875
 )
 
