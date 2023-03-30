@@ -45,7 +45,9 @@ export interface Device {
 
 export interface Subscription {
   ends_at: string;
-  state: string;
+  state: 'manual' | 'active' | 'cancelled';
+  next_billing_date: string;
+  payment_provider: string;
 }
 
 export interface Plan {
