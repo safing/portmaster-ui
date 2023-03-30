@@ -59,7 +59,7 @@ export class ProcessDetailsDialogComponent {
 
   openParent() {
     if (!!this.process.ParentPid) {
-      this.portapi.get<Process>(`network:tree/${this.process.ParentPid}`)
+      this.portapi.get<Process>(`network:tree/${this.process.ParentPid}-${this.process.ParentCreatedAt}`)
         .subscribe(process => {
           this.process = {
             ...process,

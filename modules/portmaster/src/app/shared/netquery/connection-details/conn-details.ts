@@ -30,7 +30,7 @@ export class SfngNetqueryConnectionDetailsComponent implements OnInit, OnDestroy
       this.updateConnectionNotice();
 
       if (this.conn?.extra_data?.pid !== undefined) {
-        this.portapi.get<Process>(`network:tree/${this.conn.extra_data.pid}`)
+        this.portapi.get<Process>(`network:tree/${this.conn.extra_data.pid}-${this.conn.extra_data.processCreatedAt}`)
           .subscribe({
             next: p => {
               this.process = p;

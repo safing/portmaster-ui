@@ -9,17 +9,43 @@
     </div>
   </div>
 
-  <table *ngIf="!currentUser.view || currentUser.view?.ShowAccountData" class="mb-4">
-    <tr>
-      <th>Package</th>
-      <td>{{ currentUser.current_plan?.name }}</td>
-    </tr>
-    <tr>
-      <th>Package Runs Until</th>
-      <td>{{ currentUser.subscription?.ends_at | date:'medium' }}</td>
-    </tr>
+  <table *ngIf="!currentUser.view || currentUser.view?.ShowAccountData" class="table-auto m-6">
+    <ng-container *ngIf="currentUser.subscription">
+      <ng-container *ngIf="currentUser.subscription.state === 'manual'; else: subscription">
+        <tr>
+          <th>Your Package</th>
+          <td>{{ currentUser.current_plan?.name }}</td>
+        </tr>
+        <tr *ngIf="currentUser.subscription.ends_at">
+          <th>Access Until</th>
+          <td>{{ currentUser.subscription.ends_at | date:'medium' }}</td>
+        </tr>
+      </ng-container>
+      <ng-template #subscription>
+        <tr>
+          <th>Your Subscription</th>
+          <td>{{ currentUser.current_plan?.name }}</td>
+        </tr>
+        <tr>
+          <th>Status</th>
+          <td class="capitalize">{{ currentUser.subscription.state }}</td>
+        </tr>
+        <tr *ngIf="currentUser.subscription.state === 'active'">
+          <th>Next Payment Date</th>
+          <td>
+            {{ currentUser.subscription.next_billing_date | date:'medium' }}
+            via
+            {{ currentUser.subscription.payment_provider }}
+          </td>
+        </tr>
+        <tr *ngIf="currentUser.subscription.state === 'cancelled'">
+          <th>Access Paid Until</th>
+          <td>{{ currentUser.subscription.ends_at | date:'medium' }}</td>
+        </tr>
+      </ng-template>
+    </ng-container>
 
-    <tr>
+    <tr class="table-section-start">
       <th>Username</th>
       <td>{{ currentUser.username }} </td>
     </tr>
@@ -28,18 +54,24 @@
       <td>{{ currentUser.device?.name }}</td>
     </tr>
 
-    <tr *appExpertiseLevel="'developer'">
-      <th>Device ID</th>
-      <td>{{currentUser.device?.id}}</td>
-    </tr>
-    <tr *appExpertiseLevel="'developer'">
-      <th>Account State</th>
-      <td>{{ currentUser.state }} </td>
-    </tr>
-    <tr *appExpertiseLevel="'developer'">
-      <th>Logged in Since</th>
-      <td>{{ currentUser.LoggedInAt | date:'medium' }} </td>
-    </tr>
+    <ng-container *appExpertiseLevel="'developer'">
+      <tr class="table-section-start">
+        <th>Account State</th>
+        <td>{{ currentUser.state }} </td>
+      </tr>
+      <tr>
+        <th>Features</th>
+        <td>{{ currentUser.current_plan?.feature_ids?.join(", ") }} </td>
+      </tr>
+      <tr>
+        <th>Device ID</th>
+        <td>{{currentUser.device?.id}}</td>
+      </tr>
+      <tr>
+        <th>Logged in Since</th>
+        <td>{{ currentUser.LoggedInAt | date:'medium' }} </td>
+      </tr>
+    </ng-container>
   </table>
 
   <div class="flex items-end justify-end w-full space-x-2">
