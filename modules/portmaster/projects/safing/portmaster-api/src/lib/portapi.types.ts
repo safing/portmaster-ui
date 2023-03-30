@@ -52,7 +52,9 @@ export interface Process extends Record {
   UserName: string;
   UserHome: string;
   Pid: number;
+  CreatedAt: number;
   ParentPid: number;
+  ParentCreatedAt: number;
   Path: string;
   ExecName: string;
   Cwd: string;

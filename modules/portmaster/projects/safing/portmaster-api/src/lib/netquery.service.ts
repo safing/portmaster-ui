@@ -121,6 +121,7 @@ export interface NetqueryConnection {
   exit_node?: string;
   extra_data?: {
     pid?: number;
+    processCreatedAt?: number;
     cname?: string[];
     blockedByLists?: string[];
     blockedEntities?: string[];
