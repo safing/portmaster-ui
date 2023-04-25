@@ -415,10 +415,6 @@ export class GenericSettingComponent<S extends BaseSetting<any, any>> implements
     return this.expertiseService.change;
   }
 
-  get currentExpertiseLevel() {
-    return this.expertiseService.currentLevel;
-  }
-
   constructor(
     private expertiseService: ExpertiseService,
     private configService: ConfigService,
