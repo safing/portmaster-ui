@@ -10,7 +10,12 @@
     </svg>
     <span class="text-xxs uppercase text-secondary absolute right-1.5 top-2 font-light">{{allProfiles.length}}
       Apps</span>
-  </div>
+    </div>
+    <sfng-select [(ngModel)]="displayOrder" (ngModelChange)="refreshScout($event)" class="relative auto" itemName="Sort" placeholder="Sort" allowSearch="false">
+      <ng-container *ngFor="let sort of SortMethods | keyvalue" >
+        <sfng-select-item *sfngSelectValue="sort.value">{{ sort.value }}</sfng-select-item>
+      </ng-container>
+    </sfng-select>
 
   <ng-container *ngIf="spnEnabled">
     <svg *ngIf="expandCollapseState === 'expand'" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
