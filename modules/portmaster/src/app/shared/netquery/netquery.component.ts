@@ -161,6 +161,8 @@ export class SfngNetqueryViewer implements OnInit, OnDestroy, AfterViewInit {
       share()
     )
 
+  autoRefresh = setInterval(() => this.performSearch(), 5000)
+
   constructor(
     private netquery: Netquery,
     private helper: NetqueryHelper,
@@ -344,7 +346,6 @@ export class SfngNetqueryViewer implements OnInit, OnDestroy, AfterViewInit {
         debounceTime(1000),
         switchMap(() => {
           this.loading = true;
-          this.chartData = [];
           this.cdr.detectChanges();
 
           const query = this.getQuery();
@@ -391,6 +392,11 @@ export class SfngNetqueryViewer implements OnInit, OnDestroy, AfterViewInit {
             }),
           )
           .subscribe(chart => {
+            // Ugly workaround.
+            // Arrays with the length of 61 have false data in the last entry
+            if (chart.length === 61) {
+              chart.splice(-1, 1)
+            }
             this.chartData = chart;
             this.cdr.markForCheck();
           })
@@ -570,6 +576,7 @@ export class SfngNetqueryViewer implements OnInit, OnDestroy, AfterViewInit {
     this.destroy$.complete();
     this.search$.complete();
     this.helper.dispose();
+    clearInterval(this.autoRefresh);
   }
 
   // lazyLoadGroup returns an observable that will emit a DynamicItemsPaginator once subscribed.
@@ -750,9 +757,6 @@ export class SfngNetqueryViewer implements OnInit, OnDestroy, AfterViewInit {
 
   /** @private Query the portmaster service for connections matching the current settings */
   performSearch() {
-    this.loading = true;
-    this.lastReload = new Date();
-    this.paginator.clear()
     this.search$.next();
     this.updateTagbarValues();
   }

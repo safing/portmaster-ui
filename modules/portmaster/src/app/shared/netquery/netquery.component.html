@@ -22,7 +22,6 @@
 <div class="flex flex-row items-center w-full gap-2">
   <sfng-netquery-searchbar [(ngModel)]="textSearch" (ngModelChange)="performSearch()" class="block w-full"
     [labels]="keyTranslation" (fieldsParsed)="onFieldsParsed($event)"></sfng-netquery-searchbar>
-  <button type="button" class="h-full rounded-r-sm btn" (click)="performSearch()">Reload</button>
 </div>
 
 <div class="flex flex-row flex-wrap items-center w-full gap-3">
@@ -147,10 +146,6 @@
 <div class="relative flex-shrink-0 h-32">
   <sfng-netquery-line-chart [data]="chartData" class="h-32 opacity-75" *ngIf="chartData.length > 0" [@fadeIn]>
   </sfng-netquery-line-chart>
-  <div class="absolute top-0 bottom-0 left-0 right-0 flex items-center justify-center text-secondary"
-    *ngIf="loading || chartData.length === 0">
-    Loading Chart
-  </div>
 </div>
 
 <ng-template #headerTemplate let-data let-active="active">
@@ -223,23 +218,15 @@
 </ng-template>
 
 <div class="flex flex-row items-center justify-start gap-3 mt-3">
-  <span class="text-xxs text-primary" *ngIf="!loading">{{ totalResultCount }} Results
+  <span class="text-xxs text-primary">{{ totalResultCount }} Results
     <span class="text-secondary">of {{totalConnCount}} total connections</span>
   </span>
   <span class="flex-grow"></span>
-  <span class="pr-3 text-xxs text-secondary" [ngClass]="{
-    'text-yellow-300': ((lastReloadTicker|async)||0) > 60,
-    'text-red-300': ((lastReloadTicker|async)||0) > 600
-  }">
-    Last Reload: {{ lastReload | timeAgo:(lastReloadTicker|async) }}
-  </span>
 </div>
 
-<sfng-pagination *ngIf="!loading; else: loadingTemplate" [source]="paginator" class="flex flex-col">
+<sfng-pagination [source]="paginator" class="flex flex-col">
   <ng-template [sfngPageContent]>
-    <sfng-accordion-group class="flex flex-col gap-2 pr-4"
-      *ngIf="(paginator.pageLoading$ | async) === false; else: loadingTemplate" [headerTemplate]="headerTemplate"
-      singleMode="false">
+    <sfng-accordion-group class="flex flex-col gap-2 pr-4" [headerTemplate]="headerTemplate" singleMode="false">
       <sfng-accordion [data]="result" #accordion *ngFor="let result of (paginator.pageItems$ | async)">
         <div *ngIf="accordion.active" class="p-3 bg-opacity-75 border-gray-300 rounded-b-sm"
           [ngClass]="{'bg-gray-300 border-t': !result._group}">
@@ -247,7 +234,7 @@
           <!-- nested accordion for connections inside a group -->
           <ng-container *ngIf="result._group !== null; else: connectionDetails">
             <sfng-accordion-group class="flex flex-col gap-2 ml-4"
-              *ngIf="(result._group | async) as connsPaginator; else: loadingTemplate" [headerTemplate]="headerTemplate"
+              *ngIf="(result._group | async) as connsPaginator" [headerTemplate]="headerTemplate"
               singleMode="false">
 
               <div class="flex flex-row items-center p-2 text-secondary" *ngIf="connsPaginator.total === 0">
