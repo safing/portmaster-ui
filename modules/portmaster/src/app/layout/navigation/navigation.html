@@ -130,56 +130,9 @@
       </g>
     </svg>
   </div>
-
-  <!-- Global Settings -->
-  <div sfng-tooltip="Global Settings" sfngTooltipDelay="1000" snfgTooltipPosition="right" routerLinkActive="active"
-    routerLink="settings" class="link" sfngTipUpTrigger="navSettings" sfngTipUpPassive>
-    <svg viewBox="0 0 24 24" class="settings">
-      <g fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="2">
-        <path shape-rendering="geometricPrecision"
-          d="M13.7678 10.2322c.976311.976311.976311 2.55922 0 3.53553-.976311.976311-2.55922.976311-3.53553 0-.976311-.976311-.976311-2.55922 0-3.53553.976311-.976311 2.55922-.976311 3.53553 0" />
-        <path shape-rendering="geometricPrecision"
-          d="M14.849 4.12l.583.194c.534.178.895.678.895 1.241v.837c0 .712.568 1.293 1.28 1.308l.838.018c.485.01.925.289 1.142.723l.275.55c.252.504.153 1.112-.245 1.51l-.592.592c-.503.503-.512 1.316-.02 1.83l.58.606c.336.351.45.858.296 1.319l-.194.583c-.178.534-.678.895-1.241.895h-.837c-.712 0-1.293.568-1.308 1.28l-.018.838c-.01.485-.289.925-.723 1.142l-.55.275c-.504.252-1.112.153-1.51-.245l-.592-.592c-.503-.503-1.316-.512-1.83-.02l-.606.58c-.351.336-.858.45-1.319.296l-.583-.194c-.534-.178-.895-.678-.895-1.241v-.837c0-.712-.568-1.293-1.28-1.308l-.838-.018c-.485-.01-.925-.289-1.142-.723l-.275-.55c-.252-.504-.153-1.112.245-1.51l.592-.592c.503-.503.512-1.316.02-1.83l-.58-.606c-.337-.352-.451-.86-.297-1.32l.194-.583c.178-.534.678-.895 1.241-.895h.837c.712 0 1.293-.568 1.308-1.28l.018-.838c.012-.485.29-.925.724-1.142l.55-.275c.504-.252 1.112-.153 1.51.245l.592.592c.503.503 1.316.512 1.83.02l.606-.58c.351-.335.859-.449 1.319-.295z" />
-      </g>
-    </svg>
-  </div>
-
-  <div class="w-full border-t border-gray-400"></div>
-
-  <div sfng-tooltip="Get Support" sfngTooltipDelay="1000" snfgTooltipPosition="right" routerLink="support"
-    routerLinkActive="active" class="link" sfngTipUpTrigger="navSupport" sfngTipUpPassive>
-    <svg viewBox="0 0 24 24" class="help">
-      <g fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="2">
-        <path shape-rendering="geometricPrecision"
-          d="M12 21v0c-4.971 0-9-4.029-9-9v0c0-4.971 4.029-9 9-9v0c4.971 0 9 4.029 9 9v0c0 4.971-4.029 9-9 9z" />
-        <path shape-rendering="geometricPrecision"
-          d="M12 13.25V13c0-.817.505-1.26 1.011-1.6.494-.333.989-.767.989-1.567 0-1.105-.895-2-2-2s-2 .895-2 2M11.999 16c-.138 0-.25.112-.249.25 0 .138.112.25.25.25s.25-.112.25-.25-.112-.25-.251-.25" />
-      </g>
-    </svg>
-  </div>
 </div>
+
 <div class="nav-lower-list">
-  <div class="relative link" (click)="settingsMenu.dropdown.toggle(settingsMenuTrigger)" cdkOverlayOrigin
-    #settingsMenuTrigger="cdkOverlayOrigin" [class.active]="settingsMenu.dropdown.isOpen">
-
-    <span *ngIf="versions?.Channel !== 'stable'"
-      class="absolute w-1.5 h-1.5 bg-yellow-300 rounded-full top-1.5 right-1.5"></span>
-
-    <svg version="1.1" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" class="help"
-      xmlns:xlink="http://www.w3.org/1999/xlink">
-      <g stroke-linecap="round" stroke-width="1.5" stroke="currentColor" fill="none" stroke-linejoin="round">
-        <path d="M11.835,15l5,5c0.828,0.828 2.172,0.828 3,0v0c0.828,-0.828 0.828,-2.172 0,-3l-5,-5"></path>
-        <path
-          d="M20.916,5.847c0.024,0.023 0.042,0.053 0.051,0.085c0.47,1.567 0.106,3.33 -1.132,4.568c-1.251,1.251 -3.038,1.609 -4.617,1.117l-8.347,8.347c-0.813,0.813 -2.139,0.874 -2.98,0.09c-0.884,-0.823 -0.902,-2.207 -0.056,-3.054l8.383,-8.383c-0.492,-1.579 -0.134,-3.366 1.117,-4.617c1.238,-1.238 3.001,-1.602 4.568,-1.132c0.032,0.01 0.062,0.027 0.085,0.051l0.162,0.162c0.078,0.078 0.078,0.205 0,0.283l-2.635,2.636l2.32,2.32l2.636,-2.636c0.078,-0.078 0.205,-0.078 0.283,0l0.162,0.163Z">
-        </path>
-        <path
-          d="M2.933,4.293l0.674,2.023c0.136,0.409 0.518,0.684 0.949,0.684h2.279v-2.279c0,-0.43 -0.275,-0.813 -0.684,-0.949l-2.023,-0.674c-0.18,-0.06 -0.378,-0.013 -0.512,0.121l-0.562,0.562c-0.134,0.134 -0.181,0.332 -0.121,0.512Z">
-        </path>
-        <path d="M6.84,7l3.5,3.5"></path>
-      </g>
-    </svg>
-
-  </div>
   <app-menu #settingsMenu offsetY="0" offsetX="10" overlayClass="rounded-t">
     <div class="flex flex-col p-4 text-xxs">
       <span class="text-secondary">
@@ -204,6 +157,35 @@
     <app-menu-item (click)="openDataDir($event)">Open Data Directory</app-menu-item>
     <app-menu-item (click)="copyDebugInfo($event)">Copy Debug Info</app-menu-item>
   </app-menu>
+
+  <!-- Support Button -->
+  <div sfng-tooltip="Get Support" sfngTooltipDelay="1000" snfgTooltipPosition="right" routerLink="support"
+    routerLinkActive="active" class="link" sfngTipUpTrigger="navSupport" sfngTipUpPassive>
+    <svg viewBox="0 0 24 24" class="help">
+      <g fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="2">
+        <path shape-rendering="geometricPrecision"
+          d="M12 21v0c-4.971 0-9-4.029-9-9v0c0-4.971 4.029-9 9-9v0c4.971 0 9 4.029 9 9v0c0 4.971-4.029 9-9 9z" />
+        <path shape-rendering="geometricPrecision"
+          d="M12 13.25V13c0-.817.505-1.26 1.011-1.6.494-.333.989-.767.989-1.567 0-1.105-.895-2-2-2s-2 .895-2 2M11.999 16c-.138 0-.25.112-.249.25 0 .138.112.25.25.25s.25-.112.25-.25-.112-.25-.251-.25" />
+      </g>
+    </svg>
+  </div>
+
+  <div class="w-full border-t border-gray-400"></div>
+
+  <!-- Global Settings -->
+  <div (contextmenu)="settingsMenu.dropdown.toggle(settingsMenuTrigger)" sfng-tooltip="Global Settings" sfngTooltipDelay="1000" snfgTooltipPosition="right" routerLinkActive="active"
+    routerLink="settings" class="link" sfngTipUpTrigger="navSettings" sfngTipUpPassive cdkOverlayOrigin
+    #settingsMenuTrigger="cdkOverlayOrigin" [class.active]="settingsMenu.dropdown.isOpen">
+    <svg viewBox="0 0 24 24" class="settings">
+      <g fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="2">
+        <path shape-rendering="geometricPrecision"
+        d="M13.7678 10.2322c.976311.976311.976311 2.55922 0 3.53553-.976311.976311-2.55922.976311-3.53553 0-.976311-.976311-.976311-2.55922 0-3.53553.976311-.976311 2.55922-.976311 3.53553 0" />
+        <path shape-rendering="geometricPrecision"
+        d="M14.849 4.12l.583.194c.534.178.895.678.895 1.241v.837c0 .712.568 1.293 1.28 1.308l.838.018c.485.01.925.289 1.142.723l.275.55c.252.504.153 1.112-.245 1.51l-.592.592c-.503.503-.512 1.316-.02 1.83l.58.606c.336.351.45.858.296 1.319l-.194.583c-.178.534-.678.895-1.241.895h-.837c-.712 0-1.293.568-1.308 1.28l-.018.838c-.01.485-.289.925-.723 1.142l-.55.275c-.504.252-1.112.153-1.51-.245l-.592-.592c-.503-.503-1.316-.512-1.83-.02l-.606.58c-.351.336-.858.45-1.319.296l-.583-.194c-.534-.178-.895-.678-.895-1.241v-.837c0-.712-.568-1.293-1.28-1.308l-.838-.018c-.485-.01-.925-.289-1.142-.723l-.275-.55c-.252-.504-.153-1.112.245-1.51l.592-.592c.503-.503.512-1.316.02-1.83l-.58-.606c-.337-.352-.451-.86-.297-1.32l.194-.583c.178-.534.678-.895 1.241-.895h.837c.712 0 1.293-.568 1.308-1.28l.018-.838c.012-.485.29-.925.724-1.142l.55-.275c.504-.252 1.112-.153 1.51.245l.592.592c.503.503 1.316.512 1.83.02l.606-.58c.351-.335.859-.449 1.319-.295z" />
+      </g>
+    </svg>
+  </div>
 
   <!-- Power Menu -->
   <div class="link" (click)="powerMenu.dropdown.toggle(powerMenuTrigger)" cdkOverlayOrigin
