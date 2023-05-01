@@ -161,7 +161,18 @@ export class SfngNetqueryViewer implements OnInit, OnDestroy, AfterViewInit {
       share()
     )
 
-  autoRefresh = setInterval(() => this.performSearch(), 5000)
+  /** @private Used to keep track of the current auto-refresh state */
+  autoRefreshEnabled = true;
+
+  /** @private  This is what will show on the Auto-Refresh toggle button*/
+  refreshState = "⏸";
+
+  /** @private Auto Refresh Time */
+  POLL_TIME = 5000;
+
+  /** @private Auto Refresh Handle */
+  autoRefresh = setInterval(() => this.performSearch(), this.POLL_TIME)
+
 
   constructor(
     private netquery: Netquery,
@@ -614,6 +625,27 @@ export class SfngNetqueryViewer implements OnInit, OnDestroy, AfterViewInit {
           observer.next(paginator)
         })
     })
+  }
+
+  toggleAutoRefresh() {
+    if (!this.autoRefreshEnabled) {
+      this.startAutoRefresh();
+    } else {
+      this.stopAutoRefresh();
+    }
+  }
+
+  startAutoRefresh() {
+    this.autoRefreshEnabled = true;
+    this.refreshState = "⏸";
+    this.performSearch();
+    this.autoRefresh = setInterval(() => this.performSearch(), this.POLL_TIME);
+  }
+
+  stopAutoRefresh() {
+    this.autoRefreshEnabled = false;
+    this.refreshState = "⏵";
+    clearInterval(this.autoRefresh);
   }
 
   // Returns an observable that loads the current active connection chart using the
