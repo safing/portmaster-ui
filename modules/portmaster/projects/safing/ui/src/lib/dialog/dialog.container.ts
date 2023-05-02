@@ -1,4 +1,5 @@
 import { AnimationEvent } from '@angular/animations';
+import { CdkDrag } from '@angular/cdk/drag-drop';
 import { CdkPortalOutlet, ComponentPortal, Portal, TemplatePortal } from '@angular/cdk/portal';
 import { ChangeDetectorRef, Component, ComponentRef, EmbeddedViewRef, HostBinding, HostListener, InjectionToken, Input, ViewChild } from '@angular/core';
 import { Subject } from 'rxjs';
@@ -24,7 +25,7 @@ export class SfngDialogContainerComponent<T> {
   ref: ComponentRef<T> | EmbeddedViewRef<T> | null = null;
 
   constructor(
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
   ) { }
 
   @HostBinding('@dialogContainer')
@@ -32,6 +33,9 @@ export class SfngDialogContainerComponent<T> {
 
   @ViewChild(CdkPortalOutlet, { static: true })
   _portalOutlet: CdkPortalOutlet | null = null;
+
+  @ViewChild(CdkDrag, { static: true })
+  drag!: CdkDrag;
 
   attachComponentPortal(portal: ComponentPortal<T>): ComponentRef<T> {
     this.ref = this._portalOutlet!.attachComponentPortal(portal)
