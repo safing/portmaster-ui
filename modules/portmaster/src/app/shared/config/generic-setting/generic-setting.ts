@@ -2,7 +2,7 @@ import { coerceBooleanProperty } from '@angular/cdk/coercion';
 import { TemplatePortal } from '@angular/cdk/portal';
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, HostBinding, Input, OnDestroy, OnInit, Output, TemplateRef, ViewChild, ViewContainerRef } from '@angular/core';
 import { NgModel } from '@angular/forms';
-import { applyQuickSetting, BaseSetting, ConfigService, ExpertiseLevelNumber, ExternalOptionHint, OptionType, PortapiService, QuickSetting, ReleaseLevel, SettingValueType, WellKnown } from '@safing/portmaster-api';
+import { applyQuickSetting, BaseSetting, ConfigService, ExpertiseLevel, ExpertiseLevelNumber, ExternalOptionHint, OptionType, PortapiService, QuickSetting, ReleaseLevel, SettingValueType, WellKnown } from '@safing/portmaster-api';
 import { SfngDialogRef, SfngDialogService } from '@safing/ui';
 import { Button } from 'js-yaml-loader!../../../i18n/helptexts.yaml';
 import { Subject, Subscription } from 'rxjs';
@@ -36,6 +36,7 @@ export class GenericSettingComponent<S extends BaseSetting<any, any>> implements
   //
 
   readonly optionHint = ExternalOptionHint;
+  readonly expertiseNames = ExpertiseLevel
   readonly expertise = ExpertiseLevelNumber;
   readonly optionType = OptionType;
   readonly releaseLevel = ReleaseLevel;

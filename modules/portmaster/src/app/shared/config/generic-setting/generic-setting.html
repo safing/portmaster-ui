@@ -37,7 +37,9 @@
     </div>
 
     <span class="flex flex-row items-center justify-start space-x-2"
-      *ngIf="setting?.ReleaseLevel !== releaseLevel.Stable || setting?.ExpertiseLevel !== expertise.user">
+      *ngIf="setting?.ReleaseLevel !== releaseLevel.Stable ||
+        setting?.ExpertiseLevel !== expertise.user ||
+        (expertiseLevel|async) === expertiseNames.Developer">
 
       <span class="inline-block px-1.5 py-0.5 bg-gray-400 rounded text-xxs text-secondary"
         *appExpertiseLevel="'developer'">{{setting?.Key}}</span>
