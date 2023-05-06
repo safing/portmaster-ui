@@ -1,8 +1,8 @@
 import { coerceArray } from "@angular/cdk/coercion";
-import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, Input, OnDestroy, OnInit, Output, QueryList, TemplateRef, TrackByFunction, ViewChildren } from "@angular/core";
+import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, Input, OnDestroy, OnInit, Output, QueryList, TemplateRef, TrackByFunction, ViewChild, ViewChildren } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
 import { ChartResult, Condition, IPScope, Netquery, NetqueryConnection, OrderBy, PossilbeValue, Query, QueryResult, Select, Verdict } from "@safing/portmaster-api";
-import { Datasource, DynamicItemsPaginator, SelectOption } from "@safing/ui";
+import { Datasource, DynamicItemsPaginator, SelectOption, SfngAccordionGroupComponent } from "@safing/ui";
 import { BehaviorSubject, combineLatest, forkJoin, interval, Observable, of, Subject } from "rxjs";
 import { catchError, debounceTime, filter, map, share, skip, switchMap, take, takeUntil } from "rxjs/operators";
 import { ActionIndicatorService } from "../action-indicator";
@@ -104,6 +104,7 @@ interface LocalQueryResult extends QueryResult {
 })
 // eslint-disable-next-line @angular-eslint/component-class-suffix
 export class SfngNetqueryViewer implements OnInit, OnDestroy, AfterViewInit {
+  @ViewChild('accordionGroup') accordionGroup!: SfngAccordionGroupComponent;
   /** @private Used to trigger a reload of the current filter */
   private search$ = new Subject<void>();
 
@@ -575,6 +576,7 @@ export class SfngNetqueryViewer implements OnInit, OnDestroy, AfterViewInit {
         console.error(err);
       }
     }
+    this.performSearch();
   }
 
   ngAfterViewInit(): void {
@@ -583,6 +585,7 @@ export class SfngNetqueryViewer implements OnInit, OnDestroy, AfterViewInit {
   }
 
   ngOnDestroy() {
+    this.paginator.clear();
     this.destroy$.next();
     this.destroy$.complete();
     this.search$.complete();
@@ -789,6 +792,13 @@ export class SfngNetqueryViewer implements OnInit, OnDestroy, AfterViewInit {
 
   /** @private Query the portmaster service for connections matching the current settings */
   performSearch() {
+    // Prevents a memory leak.
+    if (typeof this.accordionGroup?.accordions !== 'undefined') {
+      for (let accordion of this.accordionGroup.accordions) {
+        this.accordionGroup.unregister(accordion);
+      }
+    }
+
     this.search$.next();
     this.updateTagbarValues();
   }

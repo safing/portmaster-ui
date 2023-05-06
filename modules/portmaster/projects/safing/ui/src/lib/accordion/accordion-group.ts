@@ -77,6 +77,22 @@ export class SfngAccordionGroupComponent implements OnDestroy {
     }))
   }
 
+  /**
+   * Unregisters a accordion component
+   *
+   * @param a The accordion component to unregister
+   */
+  unregister(a: SfngAccordionComponent) {
+    const index = this.accordions.indexOf(a);
+    if (index === -1) return;
+
+    const subscription = this.subscriptions[index];
+
+    subscription.unsubscribe();
+    this.accordions = this.accordions.splice(index, 1);
+    this.subscriptions = this.subscriptions.splice(index, 1);
+  }
+
   ngOnDestroy() {
     this.subscriptions.forEach(s => s.unsubscribe());
     this.subscriptions = [];
