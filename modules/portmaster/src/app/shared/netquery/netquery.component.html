@@ -22,9 +22,19 @@
 <div class="flex flex-row items-center w-full gap-2">
   <sfng-netquery-searchbar [(ngModel)]="textSearch" (ngModelChange)="performSearch()" class="block w-full"
     [labels]="keyTranslation" (fieldsParsed)="onFieldsParsed($event)"></sfng-netquery-searchbar>
-  <button type="button" class="h-full rounded-r-sm btn h2" (click)="toggleAutoRefresh()" style="font-size: large;">
-    {{refreshState}}
-  </button>
+
+  <div class="flex flex-row">
+    <button (click)="toggleAutoRefresh()" style="font-size: large;">
+      {{refreshState}}
+    </button>
+    <sfng-select mode="single" placeholder="5s" [(ngModel)]="POLL_TIME" (ngModelChange)="handlePollingChange($event)">
+      <ng-container *ngFor="let pollTime of pollOptions | keyvalue: sortByValueAsc">
+        <sfng-select-item *sfngSelectValue="pollTime.value">
+          {{pollTime.key}}
+        </sfng-select-item>
+      </ng-container>
+    </sfng-select>
+  </div>
 </div>
 
 <div class="flex flex-row flex-wrap items-center w-full gap-3">
@@ -230,7 +240,7 @@
 <sfng-pagination [source]="paginator" class="flex flex-col">
   <ng-template [sfngPageContent]>
     <sfng-accordion-group class="flex flex-col gap-2 pr-4" [headerTemplate]="headerTemplate" singleMode="false" #accordionGroup>
-      <sfng-accordion [data]="result" #accordion *ngFor="let result of (paginator.pageItems$ | async)">
+      <sfng-accordion [data]="result" #accordion (activeChange)="handleAccordionOpen($event)" *ngFor="let result of (paginator.pageItems$ | async)">
         <div *ngIf="accordion.active" class="p-3 bg-opacity-75 border-gray-300 rounded-b-sm"
           [ngClass]="{'bg-gray-300 border-t': !result._group}">
 

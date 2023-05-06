@@ -14,6 +14,7 @@ import { SfngSearchbarFields } from "./searchbar";
 import { SfngTagbarValue } from "./tag-bar";
 import { Parser } from "./textql";
 import { connectionFieldTranslation, mergeConditions } from "./utils";
+import { KeyValue } from "@angular/common";
 
 interface Suggestion<T = any> extends PossilbeValue<T> {
   count: number;
@@ -173,6 +174,16 @@ export class SfngNetqueryViewer implements OnInit, OnDestroy, AfterViewInit {
 
   /** @private Auto Refresh Handle */
   autoRefresh = setInterval(() => this.performSearch(), this.POLL_TIME)
+
+  /** @private Pre-Set Polling options */
+  pollOptions = {
+    "5s": 5 * 1000,
+    "10s": 10 * 1000,
+    "30s": 30 * 1000,
+    "1m": 60 * 1000,
+    "5m": 60 * 1000 * 5,
+    "10m": 60 * 1000 * 10,
+  }
 
 
   constructor(
@@ -630,7 +641,7 @@ export class SfngNetqueryViewer implements OnInit, OnDestroy, AfterViewInit {
     })
   }
 
-  toggleAutoRefresh() {
+  toggleAutoRefresh(): void {
     if (!this.autoRefreshEnabled) {
       this.startAutoRefresh();
     } else {
@@ -638,17 +649,27 @@ export class SfngNetqueryViewer implements OnInit, OnDestroy, AfterViewInit {
     }
   }
 
-  startAutoRefresh() {
+  startAutoRefresh(): void {
     this.autoRefreshEnabled = true;
     this.refreshState = "⏸";
     this.performSearch();
     this.autoRefresh = setInterval(() => this.performSearch(), this.POLL_TIME);
   }
 
-  stopAutoRefresh() {
+  stopAutoRefresh(): void {
     this.autoRefreshEnabled = false;
     this.refreshState = "⏵";
     clearInterval(this.autoRefresh);
+  }
+
+  handlePollingChange(newPollTime: number): void {
+    clearInterval(this.autoRefresh);
+    this.POLL_TIME = newPollTime;
+    this.startAutoRefresh();
+  }
+
+  handleAccordionOpen(isOpen: boolean): void {
+    isOpen ? this.stopAutoRefresh() : this.startAutoRefresh();
   }
 
   // Returns an observable that loads the current active connection chart using the
@@ -718,6 +739,10 @@ export class SfngNetqueryViewer implements OnInit, OnDestroy, AfterViewInit {
 
   sortByCount(a: SelectOption, b: SelectOption) {
     return b.data - a.data
+  }
+
+  sortByValueAsc(a: KeyValue<string, number>, b:  KeyValue<string, number>) {
+    return a.value - b.value
   }
 
   /** @private Callback for keyboard events on the search-input */
