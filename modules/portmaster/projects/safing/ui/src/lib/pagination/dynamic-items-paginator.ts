@@ -1,4 +1,3 @@
-
 import { BehaviorSubject, Observable } from "rxjs";
 import { clipPage, Pagination } from "./pagination";
 
@@ -32,7 +31,7 @@ export class DynamicItemsPaginator<T> implements Pagination<T> {
 
   reset(newTotal: number) {
     this._total = Math.ceil(newTotal / this.pageSize);
-    this.openPage(1);
+    this.openPage(this._pageNumber$.value);
   }
 
   /** Clear resets the current total and emits an empty item set. */
