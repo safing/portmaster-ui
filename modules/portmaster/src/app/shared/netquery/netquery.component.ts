@@ -152,17 +152,6 @@ export class SfngNetqueryViewer implements OnInit, OnDestroy, AfterViewInit {
   /** @private The index of the pro-tip that is currently rendered. */
   proTipIdx = 0;
 
-  /** @private The last time the connections were loaded */
-  lastReload: Date = new Date();
-
-  /** @private Used to refresh the "Last reload xxx ago" message */
-  lastReloadTicker = interval(2000)
-    .pipe(
-      takeUntil(this.destroy$),
-      map(() => Math.floor((new Date()).getTime() - this.lastReload.getTime()) / 1000),
-      share()
-    )
-
   /** @private Used to keep track of the current auto-refresh state */
   autoRefreshEnabled = true;
 
@@ -175,7 +164,7 @@ export class SfngNetqueryViewer implements OnInit, OnDestroy, AfterViewInit {
   /** @private Auto Refresh Handle */
   autoRefresh = setInterval(() => this.performSearch(), this.POLL_TIME)
 
-  /** @private Pre-Set Polling options */
+  /** @private Preset Polling options up to 10 minutes */
   pollOptions = {
     "5s": 5 * 1000,
     "10s": 10 * 1000,
