@@ -71,6 +71,6 @@ export function binaryInsert<T>(array: T[], what: T, sortFunc: (a: T, b: T) => n
   return idx;
 }
 
-export function objKeys<T>(obj: T): (keyof T)[] {
+export function objKeys<T extends object>(obj: T): (keyof T)[] {
   return Object.keys(obj) as any;
 }

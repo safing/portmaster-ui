@@ -62,7 +62,7 @@ export class SessionDataService {
     this.set(id, copy);
   }
 
-  restore<M, K extends keyof M>(id: string, model: M) {
+  restore<M extends object, K extends keyof M>(id: string, model: M) {
     let copy: Partial<M> | null = this.get(id);
     if (copy === null) {
       return;
