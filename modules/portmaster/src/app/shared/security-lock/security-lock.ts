@@ -1,6 +1,6 @@
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, Input, OnDestroy, OnInit } from "@angular/core";
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, DestroyRef, Input, OnInit, inject } from "@angular/core";
 import { SecurityLevel } from "@safing/portmaster-api";
-import { combineLatest, Subject } from "rxjs";
+import { combineLatest } from "rxjs";
 import { FailureStatus, StatusService, Subsystem } from "src/app/services";
 import { fadeInAnimation, fadeOutAnimation } from "../animations";
 
@@ -21,8 +21,8 @@ interface SecurityOption {
     fadeOutAnimation
   ]
 })
-export class SecurityLockComponent implements OnInit, OnDestroy {
-  private destroy$ = new Subject<void>();
+export class SecurityLockComponent implements OnInit {
+  private destroyRef = inject(DestroyRef);
 
   lockLevel: SecurityOption | null = null;
 
@@ -93,10 +93,5 @@ export class SecurityLockComponent implements OnInit, OnDestroy {
 
         this.cdr.markForCheck();
       });
-  }
-
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
   }
 }

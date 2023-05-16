@@ -1,8 +1,8 @@
 import { DOCUMENT } from '@angular/common';
 import { Inject, Injectable, Renderer2 } from '@angular/core';
 import { Router } from '@angular/router';
-import { AppProfile, AppProfileService, ConfigService, deepClone, flattenProfileConfig, getAppSetting, IPScope, NetqueryConnection, Pin, PossilbeValue, QueryResult, setAppSetting, SPNService, Verdict } from '@safing/portmaster-api';
-import { BehaviorSubject, combineLatest, Observable, OperatorFunction, Subject } from 'rxjs';
+import { AppProfile, AppProfileService, ConfigService, IPScope, NetqueryConnection, Pin, PossilbeValue, QueryResult, SPNService, Verdict, deepClone, flattenProfileConfig, getAppSetting, setAppSetting } from '@safing/portmaster-api';
+import { BehaviorSubject, Observable, OperatorFunction, Subject, combineLatest } from 'rxjs';
 import { distinctUntilChanged, map, switchMap, takeUntil } from 'rxjs/operators';
 import { ActionIndicatorService } from '../action-indicator';
 import { objKeys } from '../utils';

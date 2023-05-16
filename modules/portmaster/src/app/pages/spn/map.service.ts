@@ -1,6 +1,6 @@
-import { Injectable } from '@angular/core';
-import { AppProfile, GeoCoordinates, getPinCoords, IntelEntity, Netquery, Pin, SPNService, UnknownLocation } from '@safing/portmaster-api';
-import { BehaviorSubject, combineLatest, debounceTime, interval, Observable, of, startWith, switchMap } from 'rxjs';
+import { Injectable, isDevMode } from '@angular/core';
+import { AppProfile, GeoCoordinates, IntelEntity, Netquery, Pin, SPNService, UnknownLocation, getPinCoords } from '@safing/portmaster-api';
+import { BehaviorSubject, Observable, combineLatest, debounceTime, interval, of, startWith, switchMap } from 'rxjs';
 import { distinctUntilChanged, filter, map, share } from 'rxjs/operators';
 import { SPNStatus } from './../../../../projects/safing/portmaster-api/src/lib/spn.types';
 
@@ -138,7 +138,9 @@ export class MapService {
               pinMap.set(pin.ID, newPinModel);
 
               hasChanges = true;
-              console.log(`[DEBUG] Pin ${pin.ID} has changed`)
+              if (isDevMode()) {
+                console.log(`[DEBUG] Pin ${pin.ID} has changed`)
+              }
             }
           })
 
@@ -147,12 +149,16 @@ export class MapService {
               // this pin has been removed
               pinMap.delete(key)
               hasChanges = true;
-              console.log(`[DEBUG] Pin ${key} has been removed`)
+              if (isDevMode()) {
+                console.log(`[DEBUG] Pin ${key} has been removed`)
+              }
             }
           }
 
           if (hasChanges) {
-            console.log(`[DEBUG] Received pin updates`)
+            if (isDevMode()) {
+              console.log(`[DEBUG] Received pin updates`)
+            }
             pinResult = Array.from(pinMap.values());
           }
 

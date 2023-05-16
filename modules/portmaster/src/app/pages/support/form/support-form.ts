@@ -1,10 +1,11 @@
 import { CdkScrollable } from '@angular/cdk/scrolling';
-import { Component, OnDestroy, OnInit, TrackByFunction, ViewChild } from '@angular/core';
+import { Component, DestroyRef, OnInit, TrackByFunction, ViewChild, inject } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
 import { DebugAPI } from '@safing/portmaster-api';
 import { ConfirmDialogConfig, SfngDialogService } from '@safing/ui';
-import { BehaviorSubject, Observable, of, Subject } from 'rxjs';
-import { debounceTime, mergeMap, takeUntil } from 'rxjs/operators';
+import { BehaviorSubject, Observable, of } from 'rxjs';
+import { debounceTime, mergeMap } from 'rxjs/operators';
 import { SessionDataService, StatusService } from 'src/app/services';
 import { Issue, SupportHubService } from 'src/app/services/supporthub.service';
 import { ActionIndicatorService } from 'src/app/shared/action-indicator';
@@ -17,8 +18,8 @@ import { SupportPage, supportTypes } from '../pages';
   styleUrls: ['./support-form.scss'],
   animations: [fadeInAnimation, moveInOutAnimation, fadeInListAnimation]
 })
-export class SupportFormComponent implements OnInit, OnDestroy {
-  private destroy$ = new Subject<void>();
+export class SupportFormComponent implements OnInit {
+  private destroyRef = inject(DestroyRef);
   private search$ = new BehaviorSubject<string>('');
   page: SupportPage | null = null;
 
@@ -60,7 +61,7 @@ export class SupportFormComponent implements OnInit, OnDestroy {
     })
 
     this.search$.pipe(
-      takeUntil(this.destroy$),
+      takeUntilDestroyed(this.destroyRef),
       debounceTime(200),
     )
       .subscribe((text) => {
@@ -83,7 +84,7 @@ export class SupportFormComponent implements OnInit, OnDestroy {
       })
 
     this.route.paramMap
-      .pipe(takeUntil(this.destroy$))
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(params => {
         const id = params.get("id")
         for (let pIdx = 0; pIdx < supportTypes.length; pIdx++) {
@@ -135,11 +136,6 @@ export class SupportFormComponent implements OnInit, OnDestroy {
   searchIssues(text: string) {
     this.onModelChange();
     this.search$.next(text);
-  }
-
-  ngOnDestroy() {
-    this.destroy$.next();
-    this.destroy$.complete();
   }
 
   copyToClipboard(what: string) {

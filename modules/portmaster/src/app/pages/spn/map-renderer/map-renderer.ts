@@ -1,6 +1,7 @@
-import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, EventEmitter, Input, OnDestroy, Output } from '@angular/core';
-import { geoMercator, geoPath, GeoPath, GeoPermissibleObjects, GeoProjection, interpolateString, json, Line as D3Line, line, pointer, select, Selection, zoom, zoomIdentity, ZoomTransform } from 'd3';
-import { BehaviorSubject, Subject, takeUntil } from 'rxjs';
+import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, DestroyRef, ElementRef, EventEmitter, Input, OnDestroy, Output, inject } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { Line as D3Line, GeoPath, GeoPermissibleObjects, GeoProjection, Selection, ZoomTransform, geoMercator, geoPath, interpolateString, json, line, pointer, select, zoom, zoomIdentity } from 'd3';
+import { BehaviorSubject } from 'rxjs';
 import { feature } from 'topojson-client';
 import { MapPin } from '../map.service';
 
@@ -43,7 +44,7 @@ export class MapRendererComponent implements AfterViewInit, OnDestroy {
   static readonly MarkerSize = 4;
   static readonly LineAnimationDuration = 200;
 
-  private destroy$ = new Subject<void>();
+  private destroyRef = inject(DestroyRef);
   private renderPaths$ = new BehaviorSubject<Path[]>([]);
   private renderPins$ = new BehaviorSubject<MapPin[]>([]);
   private highlightedPins = new Set<string>();
@@ -117,18 +118,15 @@ export class MapRendererComponent implements AfterViewInit, OnDestroy {
     await this.renderWorld();
 
     this.renderPins$
-      .pipe(takeUntil(this.destroy$))
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(pins => this.renderPins(pins));
 
     this.renderPaths$
-      .pipe(takeUntil(this.destroy$))
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(paths => this.renderPaths(paths));
   }
 
   ngOnDestroy() {
-    this.destroy$.next();
-    this.destroy$.complete();
-
     if (!this.svg) {
       return;
     }

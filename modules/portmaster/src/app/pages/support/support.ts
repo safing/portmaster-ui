@@ -1,6 +1,7 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, DestroyRef, OnInit, inject } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Router } from '@angular/router';
-import { BehaviorSubject, combineLatest, debounceTime, Subject, takeUntil } from 'rxjs';
+import { BehaviorSubject, combineLatest, debounceTime } from 'rxjs';
 import { Issue, SupportHubService } from 'src/app/services';
 import { fadeInAnimation, fadeInListAnimation } from 'src/app/shared/animations';
 import { FuzzySearchService } from 'src/app/shared/fuzzySearch';
@@ -14,11 +15,11 @@ import { SupportType, supportTypes } from './pages';
     fadeInAnimation,
   ]
 })
-export class SupportPageComponent implements OnInit, OnDestroy {
+export class SupportPageComponent implements OnInit {
   // make supportTypes available in the page template.
   readonly supportTypes = supportTypes;
 
-  private destroy$ = new Subject<void>();
+  private destroyRef = inject(DestroyRef);
 
   /** @private The current search term for the FAQ entries. */
   searchFaqs = new BehaviorSubject<string>('');
@@ -43,7 +44,7 @@ export class SupportPageComponent implements OnInit, OnDestroy {
       this.supportHub.loadIssues()
     ])
       .pipe(
-        takeUntil(this.destroy$),
+        takeUntilDestroyed(this.destroyRef),
         debounceTime(200),
       )
       .subscribe(([searchTerm, allFaqEntries]) => {
@@ -76,11 +77,6 @@ export class SupportPageComponent implements OnInit, OnDestroy {
           ],
         }).map(res => res.item)
       })
-  }
-
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
   }
 
   openIssue(issue: Issue<any>) {

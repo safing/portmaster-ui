@@ -1,8 +1,9 @@
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, OnDestroy, OnInit } from "@angular/core";
-import { applyQuickSetting, ConfigService, QuickSetting, Setting } from "@safing/portmaster-api";
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, DestroyRef, ElementRef, OnInit, inject } from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
+import { ConfigService, QuickSetting, Setting, applyQuickSetting } from "@safing/portmaster-api";
 import { Step } from "@safing/ui";
-import { of, Subject } from "rxjs";
-import { mergeMap, takeUntil } from "rxjs/operators";
+import { of } from "rxjs";
+import { mergeMap } from "rxjs/operators";
 import { SaveSettingEvent } from "src/app/shared/config/generic-setting";
 
 interface QuickSettingModel extends QuickSetting<any> {
@@ -14,8 +15,8 @@ interface QuickSettingModel extends QuickSetting<any> {
   styleUrls: ['../step.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class Step3DNSComponent implements Step, OnInit, OnDestroy {
-  private destroy$ = new Subject<void>();
+export class Step3DNSComponent implements Step, OnInit {
+  private destroyRef = inject(DestroyRef);
 
   validChange = of(true)
 
@@ -60,7 +61,7 @@ export class Step3DNSComponent implements Step, OnInit, OnDestroy {
           this.quickSettings = this.getQuickSettings();
           return this.configService.watch(setting.Key)
         }),
-        takeUntil(this.destroy$),
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe(value => {
         this.setting!.Value = value;
@@ -87,11 +88,6 @@ export class Step3DNSComponent implements Step, OnInit, OnDestroy {
 
         this.cdr.markForCheck();
       });
-  }
-
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
   }
 
   saveSetting(event: SaveSettingEvent) {

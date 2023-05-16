@@ -2,11 +2,12 @@ import { coerceElement } from "@angular/cdk/coercion";
 import { Overlay, OverlayContainer } from "@angular/cdk/overlay";
 import { ComponentPortal } from '@angular/cdk/portal';
 import { HttpClient } from '@angular/common/http';
-import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, ComponentRef, ElementRef, Inject, Injectable, InjectionToken, Injector, OnDestroy, OnInit, QueryList, TemplateRef, ViewChild, ViewChildren } from "@angular/core";
+import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, ComponentRef, DestroyRef, ElementRef, Inject, Injectable, InjectionToken, Injector, OnDestroy, OnInit, QueryList, TemplateRef, ViewChild, ViewChildren, inject } from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { ActivatedRoute, ParamMap, Router } from "@angular/router";
-import { AppProfile, ConfigService, Connection, GeoCoordinates, Netquery, PortapiService, PORTMASTER_HTTP_API_ENDPOINT, SPNService, SPNStatus, UserProfile } from "@safing/portmaster-api";
+import { AppProfile, ConfigService, Connection, GeoCoordinates, Netquery, PORTMASTER_HTTP_API_ENDPOINT, PortapiService, SPNService, SPNStatus, UserProfile } from "@safing/portmaster-api";
 import { SfngDialogService } from "@safing/ui";
-import { combineLatest, interval, Observable, of, Subject, Subscription } from "rxjs";
+import { Observable, Subscription, combineLatest, interval, of } from "rxjs";
 import { catchError, debounceTime, map, mergeMap, share, startWith, switchMap, take, takeUntil, withLatestFrom } from "rxjs/operators";
 import { fadeInAnimation, fadeInListAnimation, fadeOutAnimation } from "src/app/shared/animations";
 import { ExpertiseService } from "src/app/shared/expertise/expertise.service";
@@ -59,7 +60,7 @@ class MapOverlayContainer {
   ]
 })
 export class SpnPageComponent implements OnInit, OnDestroy, AfterViewInit {
-  private destroy$ = new Subject<void>();
+  private destroyRef = inject(DestroyRef);
 
   private countryDebounceTimer: any | null = null;
 
@@ -152,7 +153,7 @@ export class SpnPageComponent implements OnInit, OnDestroy, AfterViewInit {
     interval(10000)
       .pipe(
         startWith(-1),
-        takeUntil(this.destroy$),
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe(() => {
         this.proTipTemplate = this.proTipTemplates.get(Math.floor(Math.random() * this.proTipTemplates.length)) || null;
@@ -175,7 +176,7 @@ export class SpnPageComponent implements OnInit, OnDestroy, AfterViewInit {
     this.spnService
       .watchProfile()
       .pipe(
-        takeUntil(this.destroy$),
+        takeUntilDestroyed(this.destroyRef),
         catchError(() => of(null))
       )
       .subscribe((user: UserProfile | null) => {
@@ -196,7 +197,7 @@ export class SpnPageComponent implements OnInit, OnDestroy, AfterViewInit {
       this.activeProfiles$,
     ])
       .pipe(
-        takeUntil(this.destroy$),
+        takeUntilDestroyed(this.destroyRef),
       ).subscribe(([params, pins, profiles]) => {
         if (params !== previousQueryMap) {
           const app = params.get("app")
@@ -234,7 +235,7 @@ export class SpnPageComponent implements OnInit, OnDestroy, AfterViewInit {
     this.liveModeSubscription = this.portapi.watchAll<Connection>("network:tree")
       .pipe(
         withLatestFrom(this.mapService.pinsMap$),
-        takeUntil(this.destroy$),
+        takeUntilDestroyed(this.destroyRef),
         debounceTime(100),
       )
       .subscribe(([connections, mapPins]) => {
@@ -344,9 +345,6 @@ export class SpnPageComponent implements OnInit, OnDestroy, AfterViewInit {
 
   ngOnDestroy() {
     this.openedCountryDetails.forEach(cmp => cmp.dialogRef!.close());
-
-    this.destroy$.next();
-    this.destroy$.complete();
   }
 
   onZoomAndPan() {

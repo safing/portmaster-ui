@@ -1,6 +1,7 @@
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnDestroy, OnInit, TrackByFunction } from "@angular/core";
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, DestroyRef, OnInit, TrackByFunction, inject } from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { BoolSetting, Condition, ConfigService, ExpertiseLevel, IProfileStats, Netquery, Pin, SPNService } from "@safing/portmaster-api";
-import { combineLatest, debounceTime, forkJoin, interval, startWith, Subject, switchMap, takeUntil } from "rxjs";
+import { Subject, combineLatest, debounceTime, forkJoin, interval, startWith, switchMap, takeUntil } from "rxjs";
 import { fadeInListAnimation } from "../animations";
 import { ExpertiseService } from './../expertise/expertise.service';
 
@@ -23,8 +24,8 @@ interface _Profile extends IProfileStats {
     fadeInListAnimation,
   ]
 })
-export class NetworkScoutComponent implements OnInit, OnDestroy {
-  private destroy$ = new Subject<void>();
+export class NetworkScoutComponent implements OnInit {
+  private destroyRef = inject(DestroyRef);
 
   /** Used to trigger a debounced search from the template */
   triggerSearch = new Subject<string>();
@@ -118,7 +119,7 @@ export class NetworkScoutComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.configService.watch<BoolSetting>('spn/enable')
       .pipe(
-        takeUntil(this.destroy$),
+        takeUntilDestroyed(this.destroyRef),
         takeUntil(this.userChangedState),
       )
       .subscribe(enabled => {
@@ -166,7 +167,7 @@ export class NetworkScoutComponent implements OnInit, OnDestroy {
         ),
     ])
       .pipe(
-        takeUntil(this.destroy$),
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe(([res, pins, searchTerm]) => {
         // create a lookup map for the the SPN map pins
@@ -206,10 +207,5 @@ export class NetworkScoutComponent implements OnInit, OnDestroy {
 
         this.cdr.markForCheck();
       })
-  }
-
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
   }
 }
