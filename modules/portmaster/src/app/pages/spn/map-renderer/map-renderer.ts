@@ -160,6 +160,7 @@ export class MapRendererComponent implements AfterViewInit, OnDestroy {
       .attrTween('stroke-dasharray', tweenDashEnter)
 
     renderedPaths.exit()
+      .interrupt("enter-lane")
       .transition("leave-lane")
       .duration(200)
       .attrTween('stroke-dasharray', tweenDashExit)

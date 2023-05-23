@@ -3,6 +3,7 @@ import { Subscription } from 'rxjs';
 import { MapService } from './../map.service';
 
 @Component({
+  // eslint-disable-next-line @angular-eslint/component-selector
   selector: 'spn-map-legend',
   templateUrl: './map-legend.html',
   changeDetection: ChangeDetectionStrategy.OnPush,

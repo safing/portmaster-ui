@@ -1,9 +1,9 @@
 import { ConnectedPosition } from '@angular/cdk/overlay';
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, OnInit, Output } from '@angular/core';
-import { DebugAPI, PortapiService } from '@safing/portmaster-api';
+import { ConfigService, DebugAPI, PortapiService, SPNService, StringSetting } from '@safing/portmaster-api';
 import { tap } from 'rxjs/operators';
 import { AppComponent } from 'src/app/app.component';
-import { NotificationsService, NotificationType, StatusService, VersionStatus } from 'src/app/services';
+import { NotificationType, NotificationsService, StatusService, VersionStatus } from 'src/app/services';
 import { ActionIndicatorService } from 'src/app/shared/action-indicator';
 import { fadeInAnimation, fadeOutAnimation } from 'src/app/shared/animations';
 import { ExitService } from 'src/app/shared/exit-screen';
@@ -35,6 +35,9 @@ export class NavigationComponent implements OnInit {
   /** Whether or not we have new, unseen prompts */
   hasNewPrompts = false;
 
+  /** Whether or not prompting is globally enabled. */
+  globalPromptingEnabled = false;
+
   @Output()
   sideDashChange = new EventEmitter<'collapsed' | 'expanded' | 'force-overlay'>();
 
@@ -45,10 +48,12 @@ export class NavigationComponent implements OnInit {
     private portapi: PortapiService,
     private exitService: ExitService,
     private statusService: StatusService,
+    private configService: ConfigService,
     private appComponent: AppComponent,
     private debugAPI: DebugAPI,
     private actionIndicator: ActionIndicatorService,
     private notificationService: NotificationsService,
+    private spnService: SPNService,
     private cdr: ChangeDetectorRef
   ) { }
 
@@ -83,6 +88,12 @@ export class NavigationComponent implements OnInit {
         this.versions = versions;
         this.cdr.markForCheck();
       });
+
+    this.configService.watch<StringSetting>('filter/defaultAction')
+      .subscribe(defaultAction => {
+        this.globalPromptingEnabled = defaultAction === 'ask';
+        this.cdr.markForCheck();
+      })
 
     this.notificationService.new$
       .subscribe(notif => {
@@ -153,6 +164,15 @@ export class NavigationComponent implements OnInit {
       .subscribe(this.actionIndicator.httpObserver(
         'Re-initialized SPN',
         'Failed to re-initialize the SPN'
+      ))
+  }
+
+  /** Logs the user out of the SPN completely by purgin the user profile from the local storage */
+  logoutCompletely(_: Event) {
+    this.spnService.logout(true)
+      .subscribe(this.actionIndicator.httpObserver(
+        'Logout',
+        'You have been logged out of the SPN completely.'
       ))
   }
 

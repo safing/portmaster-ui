@@ -2,6 +2,7 @@ import { coerceBooleanProperty } from '@angular/cdk/coercion';
 import { ChangeDetectionStrategy, Component, Input } from "@angular/core";
 
 @Component({
+  // eslint-disable-next-line @angular-eslint/component-selector
   selector: 'spn-node-icon',
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './node-icon.html',

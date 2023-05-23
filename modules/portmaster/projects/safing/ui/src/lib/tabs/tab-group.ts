@@ -1,11 +1,12 @@
 import { ListKeyManager } from "@angular/cdk/a11y";
 import { coerceBooleanProperty } from '@angular/cdk/coercion';
 import { CdkPortalOutlet, ComponentPortal } from "@angular/cdk/portal";
-import { AfterContentInit, AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, ComponentRef, ContentChildren, ElementRef, EventEmitter, Injector, Input, OnDestroy, OnInit, Output, QueryList, ViewChild, ViewChildren } from "@angular/core";
+import { AfterContentInit, AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, ComponentRef, ContentChildren, DestroyRef, ElementRef, EventEmitter, Injector, Input, OnInit, Output, QueryList, ViewChild, ViewChildren, inject } from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { ActivatedRoute, Router } from "@angular/router";
 import { Observable, Subject } from "rxjs";
-import { distinctUntilChanged, map, takeUntil } from "rxjs/operators";
-import { SfngTabComponent, TabOutletComponent, TAB_ANIMATION_DIRECTION, TAB_PORTAL, TAB_SCROLL_HANDLER } from "./tab";
+import { distinctUntilChanged, map } from "rxjs/operators";
+import { SfngTabComponent, TAB_ANIMATION_DIRECTION, TAB_PORTAL, TAB_SCROLL_HANDLER, TabOutletComponent } from "./tab";
 
 export interface SfngTabContentScrollEvent {
   event?: Event;
@@ -43,7 +44,7 @@ export interface SfngTabContentScrollEvent {
   templateUrl: './tab-group.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class SfngTabGroupComponent implements AfterContentInit, AfterViewInit, OnInit, OnDestroy {
+export class SfngTabGroupComponent implements AfterContentInit, AfterViewInit, OnInit {
   @ContentChildren(SfngTabComponent)
   tabs: QueryList<SfngTabComponent> | null = null;
 
@@ -88,7 +89,7 @@ export class SfngTabGroupComponent implements AfterContentInit, AfterViewInit, O
   private _customHeader = false;
 
   private tabActivate$ = new Subject<string>();
-  private destroy$ = new Subject<void>();
+  private destroyRef = inject(DestroyRef);
 
   /** onActivate fires when a tab has been activated. */
   get onActivate(): Observable<string> { return this.tabActivate$.asObservable() }
@@ -127,7 +128,7 @@ export class SfngTabGroupComponent implements AfterContentInit, AfterViewInit, O
   ngOnInit(): void {
     this.route.queryParamMap
       .pipe(
-        takeUntil(this.destroy$),
+        takeUntilDestroyed(this.destroyRef),
         map(params => params.get(this.name)),
         distinctUntilChanged(),
       )
@@ -156,7 +157,7 @@ export class SfngTabGroupComponent implements AfterContentInit, AfterViewInit, O
       .withWrap()
 
     this.keymanager.change
-      .pipe(takeUntil(this.destroy$))
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(change => {
         const activeTab = this.tabs!.get(change);
         if (!!activeTab && !!activeTab.tabContent) {
@@ -223,11 +224,6 @@ export class SfngTabGroupComponent implements AfterContentInit, AfterViewInit, O
     this.repositionTabBar();
     this.tabHeaders?.changes.subscribe(() => this.repositionTabBar())
     setTimeout(() => this.repositionTabBar(), 250)
-  }
-
-  ngOnDestroy() {
-    this.destroy$.next();
-    this.destroy$.complete();
   }
 
   /**

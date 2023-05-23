@@ -101,9 +101,9 @@
   <!-- Tab that displays all apps that exit in this country -->
   <sfng-tab id="profiles" title="Apps">
     <div *sfngTabContent>
-      <span class="inline-block p-2 mb-2 text-tertiary">The following Apps have connections that are routed throught the
+      <span class="inline-block p-2 mb-2 text-tertiary">The following Apps have connections that are routed through the
         SPN and use an
-        exit node in {{ countryName }}({{ countryCode }}):</span>
+        exit node in {{ countryName }} ({{ countryCode }}):</span>
       <table class="w-full custom ">
         <tbody>
           <tr *ngFor="let app of profiles; trackBy: trackProfile"

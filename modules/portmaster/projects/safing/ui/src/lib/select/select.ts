@@ -1,9 +1,10 @@
 import { ListKeyManager, ListKeyManagerOption } from '@angular/cdk/a11y';
 import { coerceBooleanProperty, coerceNumberProperty } from '@angular/cdk/coercion';
-import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, ContentChildren, Directive, ElementRef, EventEmitter, forwardRef, HostBinding, HostListener, Input, OnDestroy, Output, QueryList, TemplateRef, ViewChild, ViewChildren } from '@angular/core';
+import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, ContentChildren, DestroyRef, Directive, ElementRef, EventEmitter, HostBinding, HostListener, Input, OnDestroy, Output, QueryList, TemplateRef, ViewChild, ViewChildren, forwardRef, inject } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
-import { BehaviorSubject, combineLatest, Subject } from 'rxjs';
-import { startWith, takeUntil } from 'rxjs/operators';
+import { BehaviorSubject, combineLatest } from 'rxjs';
+import { startWith } from 'rxjs/operators';
 import { SfngDropdownComponent } from '../dropdown';
 import { SelectOption, SfngSelectValueDirective } from './item';
 
@@ -58,7 +59,7 @@ export class SfngSelectComponent<T> implements AfterViewInit, ControlValueAccess
   private search$ = new BehaviorSubject('');
 
   /** emits and completes when the component is destroyed. */
-  private destroy$ = new Subject<void>();
+  private destroyRef = inject(DestroyRef);
 
   /** the key manager used for keyboard support */
   private keyManager!: ListKeyManager<SfngSelectRenderedItemDirective>;
@@ -264,9 +265,7 @@ export class SfngSelectComponent<T> implements AfterViewInit, ControlValueAccess
       .withTypeAhead();
 
     this.keyManager.change
-      .pipe(
-        takeUntil(this.destroy$)
-      )
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(itemIdx => {
         this.renderedItems.forEach(item => {
           item.focused = false;
@@ -307,7 +306,7 @@ export class SfngSelectComponent<T> implements AfterViewInit, ControlValueAccess
         .pipe(startWith(undefined)),
       this.search$
     ])
-      .pipe(takeUntil(this.destroy$))
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(
         ([_, search]) => {
           this.updateItems();
@@ -349,8 +348,6 @@ export class SfngSelectComponent<T> implements AfterViewInit, ControlValueAccess
 
   ngOnDestroy(): void {
     this.search$.complete();
-    this.destroy$.next();
-    this.destroy$.complete();
   }
 
   @HostListener('blur')

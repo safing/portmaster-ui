@@ -4,6 +4,7 @@ import { takeWhile } from 'rxjs/operators';
 import { MapPin, MapService } from './../map.service';
 
 @Component({
+  // eslint-disable-next-line @angular-eslint/component-selector
   selector: 'spn-map-country-overlay',
   templateUrl: './country-overlay.html',
   changeDetection: ChangeDetectionStrategy.OnPush,

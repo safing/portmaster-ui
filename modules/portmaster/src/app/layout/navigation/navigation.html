@@ -75,7 +75,8 @@
 
     <!-- The prompt list drop-down -->
     <div class="relative link" cdkOverlayOrigin #promptOrigin="cdkOverlayOrigin"
-      (click)="promptDropDown.toggle(promptOrigin)" [class.active]="promptDropDown.isOpen">
+      *ngIf="hasNewPrompts || globalPromptingEnabled" (click)="promptDropDown.toggle(promptOrigin)"
+      [class.active]="promptDropDown.isOpen">
 
       <span *ngIf="hasNewPrompts" class="absolute w-1.5 h-1.5 bg-yellow-300 rounded-full top-1.5 right-1.5"></span>
 
@@ -199,6 +200,7 @@
       Show Intro Screen
     </app-menu-item>
     <app-menu-item (click)="reinitSPN($event)">Re-Initialize SPN</app-menu-item>
+    <app-menu-item (click)="logoutCompletely($event)">Logout Completely</app-menu-item>
     <app-menu-item (click)="resetBroadcastState()">Reset Broadcast State</app-menu-item>
     <app-menu-item (click)="clearDNSCache($event)">Clear DNS Cache</app-menu-item>
     <app-menu-item (click)="openDataDir($event)">Open Data Directory</app-menu-item>

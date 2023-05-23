@@ -66,10 +66,12 @@
 
     polygon {
       stroke: #039af4;
+      fill: #0376bb;
     }
 
     circle {
       stroke: #30ae20;
+      fill: #239215;
     }
   }
 
@@ -147,7 +149,6 @@
     }
 
     path.selected {
-      // FIXME(ppacher): move to TOP
       stroke: var(--map-country-border-color-selected);
     }
   }
