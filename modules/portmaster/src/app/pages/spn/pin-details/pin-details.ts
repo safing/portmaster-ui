@@ -1,6 +1,7 @@
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, Inject, Input, OnChanges, OnDestroy, OnInit, Optional, SimpleChanges } from '@angular/core';
-import { SfngDialogRef, SFNG_DIALOG_REF } from '@safing/ui';
-import { map, Subscription } from 'rxjs';
+import { Netquery } from '@safing/portmaster-api';
+import { SFNG_DIALOG_REF, SfngDialogRef } from '@safing/ui';
+import { Subscription, forkJoin, map, of, switchMap } from 'rxjs';
 import { LaneModel } from '../pin-list/pin-list';
 import { MapPin, MapService } from './../map.service';
 
@@ -19,8 +20,12 @@ export class PinDetailsComponent implements OnInit, OnChanges, OnDestroy {
   /** Holds all pins this pin has a active connection to */
   connectedPins: LaneModel[] = [];
 
+  /** The number of connections that exit at this pin */
+  exitConnectionCount: number = 0;
+
   constructor(
     private mapService: MapService,
+    private netquery: Netquery,
     private cdr: ChangeDetectorRef,
     @Optional() @Inject(SFNG_DIALOG_REF) public dialogRef?: SfngDialogRef<PinDetailsComponent, never, string>,
   ) { }
@@ -38,13 +43,26 @@ export class PinDetailsComponent implements OnInit, OnChanges, OnDestroy {
       .pipe(
         map(pins => {
           return [pins.find(p => p.pin.ID === this.mapPinID), pins] as [MapPin, MapPin[]];
-        })
+        }),
+        switchMap(([pin, allPins]) => forkJoin({
+          pin: of(pin),
+          allPins: of(allPins),
+          exitConnections: this.netquery.query({
+            select: [
+              { $count: { field: '*', as: 'totalCount', } },
+            ],
+            query: {
+              exit_node: pin.pin.ID,
+            },
+            groupBy: ['exit_node']
+          })
+        }))
       )
-      .subscribe(([pin, allPins]) => {
-        this.pin = pin || null;
+      .subscribe((result) => {
+        this.pin = result.pin || null;
 
         const lm = new Map<string, MapPin>();
-        allPins.forEach(pin => lm.set(pin.pin.ID, pin))
+        result.allPins.forEach(pin => lm.set(pin.pin.ID, pin))
 
         const connectedTo = this.pin?.pin.ConnectedTo || {};
         this.connectedPins = Object.keys(connectedTo)
@@ -55,6 +73,8 @@ export class PinDetailsComponent implements OnInit, OnChanges, OnDestroy {
               mapPin: pin,
             }
           });
+
+        this.exitConnectionCount = result.exitConnections[0].totalCount;
 
         this.cdr.markForCheck();
       })
