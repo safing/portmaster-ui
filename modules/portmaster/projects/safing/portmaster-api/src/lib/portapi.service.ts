@@ -75,7 +75,13 @@ export class PortapiService {
         msg => {
           const observer = this._streams$.get(msg.id);
           if (!observer) {
-            console.warn(`Received message for unknown request id ${msg.id} (type=${msg.type})`, msg);
+            // it's expected that we receive done messages from time to time here
+            // as portmaster sends a "done" message after we "cancel" a subscription
+            // and we already remove the observer from _streams$ if the subscription
+            // is unsubscribed. So just hide that warning message for "done"
+            if (msg.type !== 'done') {
+              console.warn(`Received message for unknown request id ${msg.id} (type=${msg.type})`, msg);
+            }
             return;
           }
 

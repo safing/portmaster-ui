@@ -1,8 +1,8 @@
 import { DOCUMENT } from '@angular/common';
 import { Inject, Injectable, Renderer2 } from '@angular/core';
 import { Router } from '@angular/router';
-import { AppProfile, AppProfileService, ConfigService, deepClone, flattenProfileConfig, getAppSetting, IPScope, NetqueryConnection, PossilbeValue, QueryResult, setAppSetting, Verdict } from '@safing/portmaster-api';
-import { BehaviorSubject, combineLatest, Observable, OperatorFunction, Subject } from 'rxjs';
+import { AppProfile, AppProfileService, ConfigService, IPScope, NetqueryConnection, Pin, PossilbeValue, QueryResult, SPNService, Verdict, deepClone, flattenProfileConfig, getAppSetting, setAppSetting } from '@safing/portmaster-api';
+import { BehaviorSubject, Observable, OperatorFunction, Subject, combineLatest } from 'rxjs';
 import { distinctUntilChanged, map, switchMap, takeUntil } from 'rxjs/operators';
 import { ActionIndicatorService } from '../action-indicator';
 import { objKeys } from '../utils';
@@ -33,6 +33,7 @@ export class NetqueryHelper {
   private addToFilter$ = new Subject<SfngSearchbarFields>();
   private destroy$ = new Subject<void>();
   private appProfiles$ = new BehaviorSubject<LocalAppProfile[]>([]);
+  private spnMapPins$ = new BehaviorSubject<Pin[]>([]);
 
   readonly onShiftKey: Observable<boolean>;
 
@@ -42,6 +43,7 @@ export class NetqueryHelper {
     private configService: ConfigService,
     private actionIndicator: ActionIndicatorService,
     private renderer: Renderer2,
+    private spnService: SPNService,
     @Inject(DOCUMENT) private document: Document,
   ) {
     const cleanupKeyDown = this.renderer.listen(this.document, 'keydown', (event: KeyboardEvent) => {
@@ -85,6 +87,12 @@ export class NetqueryHelper {
           }
         }))
       });
+
+    this.spnService.watchPins()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(pins => {
+        this.spnMapPins$.next(pins);
+      })
   }
 
   decodePrettyValues(field: keyof NetqueryConnection, values: any[]): any[] {
@@ -126,6 +134,14 @@ export class NetqueryHelper {
       })
     }
 
+    if (field === 'exit_node') {
+      const lm = new Map<string, Pin>();
+      this.spnMapPins$.getValue()
+        .forEach(pin => lm.set(pin.Name, pin));
+
+      return values.map(val => lm.get(val)?.ID || val)
+    }
+
     return values;
   }
 
@@ -154,9 +170,10 @@ export class NetqueryHelper {
   encodeToPossibleValues(field: keyof NetqueryConnection): OperatorFunction<QueryResult[], (QueryResult & PossilbeValue)[]> {
     return source => combineLatest([
       source,
-      this.appProfiles$
+      this.appProfiles$,
+      this.spnMapPins$,
     ]).pipe(
-      map(([items, profiles]) => {
+      map(([items, profiles, pins]) => {
         // convert profile IDs to profile name
         if (field === 'profile') {
           let lm = new Map<string, AppProfile>();
@@ -223,6 +240,21 @@ export class NetqueryHelper {
                 ...item
               }
             })
+        }
+
+        if (field === 'exit_node') {
+          const lm = new Map<string, Pin>();
+          pins.forEach(pin => lm.set(pin.ID, pin));
+
+          return items.map(item => {
+            const pin = lm.get(item.exit_node!);
+            return {
+              Name: pin?.Name || item.exit_node,
+              Value: item.exit_node,
+              Description: 'Operated by ' + (pin?.VerifiedOwner || 'N/A'),
+              ...item
+            }
+          })
         }
 
         // the rest is just converted into the {@link PossibleValue} form

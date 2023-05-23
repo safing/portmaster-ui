@@ -1,7 +1,6 @@
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, Input, OnChanges, OnDestroy, OnInit, Output, SimpleChanges } from "@angular/core";
-import { BoolSetting, ConfigService, getActualValue, Setting } from "@safing/portmaster-api";
-import { Subject } from "rxjs";
-import { takeUntil } from "rxjs/operators";
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, DestroyRef, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges, inject } from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
+import { BoolSetting, ConfigService, Setting, getActualValue } from "@safing/portmaster-api";
 import { SaveSettingEvent } from "src/app/shared/config/generic-setting/generic-setting";
 
 const interferingSettingsWhenOn = [
@@ -13,8 +12,8 @@ const interferingSettingsWhenOn = [
   templateUrl: './qs-use-spn.html',
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class QuickSettingUseSPNButtonComponent implements OnInit, OnDestroy, OnChanges {
-  private destroy$ = new Subject<void>();
+export class QuickSettingUseSPNButtonComponent implements OnInit, OnChanges {
+  private destroyRef = inject(DestroyRef);
 
   @Input()
   settings: Setting[] = [];
@@ -56,17 +55,12 @@ export class QuickSettingUseSPNButtonComponent implements OnInit, OnDestroy, OnC
 
   ngOnInit() {
     this.configService.watch<BoolSetting>('spn/enable')
-      .pipe(takeUntil(this.destroy$))
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(value => {
         this.spnDisabled = !value;
         this.cdr.markForCheck();
         this.updateInterfering();
       })
-  }
-
-  ngOnDestroy() {
-    this.destroy$.next();
-    this.destroy$.complete();
   }
 
   private updateInterfering() {

@@ -1,9 +1,9 @@
 import { coerceBooleanProperty, coerceNumberProperty } from '@angular/cdk/coercion';
-import { AfterViewInit, Component, ElementRef, Input, OnChanges, OnDestroy, OnInit, SimpleChanges } from '@angular/core';
+import { AfterViewInit, Component, DestroyRef, ElementRef, Input, OnChanges, OnInit, SimpleChanges, inject } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ChartResult } from '@safing/portmaster-api';
 import * as d3 from 'd3';
 import { Selection } from 'd3';
-import { Subject, takeUntil } from 'rxjs';
 import { AppComponent } from 'src/app/app.component';
 import { timeAgo } from '../../pipes';
 
@@ -18,8 +18,8 @@ import { timeAgo } from '../../pipes';
   ],
   template: '',
 })
-export class SfngNetqueryLineChartComponent implements OnChanges, OnInit, AfterViewInit, OnDestroy {
-  private destroy$ = new Subject<void>();
+export class SfngNetqueryLineChartComponent implements OnChanges, OnInit, AfterViewInit {
+  private destroyRef = inject(DestroyRef);
 
   @Input()
   data: ChartResult[] = [];
@@ -80,7 +80,7 @@ export class SfngNetqueryLineChartComponent implements OnChanges, OnInit, AfterV
   private requestedAnimationFrame: any;
   ngOnInit() {
     this.app.onContentSizeChange$
-      .pipe(takeUntil(this.destroy$))
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(() => {
         if (!!this.requestedAnimationFrame) {
           cancelAnimationFrame(this.requestedAnimationFrame);
@@ -101,10 +101,6 @@ export class SfngNetqueryLineChartComponent implements OnChanges, OnInit, AfterV
     if (changes.hasOwnProperty('data') && this.data) {
       this.redraw();
     }
-  }
-
-  ngOnDestroy(): void {
-    this.destroy$.next();
   }
 
   get yMargin() {

@@ -1,9 +1,9 @@
-import { AfterViewInit, Directive, ElementRef, HostBinding, Input, Renderer2 } from '@angular/core';
+import { AfterViewInit, Directive, ElementRef, HostBinding, Input, OnChanges, Renderer2, SimpleChanges } from '@angular/core';
 
 @Directive({
   selector: 'span[appCountryFlags]',
 })
-export class CountryFlagDirective implements AfterViewInit {
+export class CountryFlagDirective implements AfterViewInit, OnChanges {
   private readonly flagDir = "/assets/img/flags/";
   private readonly OFFSET = 127397;
 
@@ -17,6 +17,12 @@ export class CountryFlagDirective implements AfterViewInit {
     private el: ElementRef,
     private renderer: Renderer2
   ) { }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if (!changes['appCountryFlags'].isFirstChange()) {
+      this.update();
+    }
+  }
 
   ngAfterViewInit() {
     this.update();

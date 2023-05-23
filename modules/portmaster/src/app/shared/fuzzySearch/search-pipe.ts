@@ -1,5 +1,5 @@
 import { Pipe, PipeTransform } from '@angular/core';
-import { FuseSearchOpts, FuzzySearchService, FuseResult } from './fuse.service';
+import { FuseResult, FuseSearchOpts, FuzzySearchService } from './fuse.service';
 
 
 @Pipe({
@@ -10,7 +10,7 @@ export class FuzzySearchPipe implements PipeTransform {
     private FusejsService: FuzzySearchService
   ) { }
 
-  transform<T>(elements: Array<T>,
+  transform<T extends object>(elements: Array<T>,
     searchTerms: string,
     options: FuseSearchOpts<T> = {}): Array<FuseResult<T>> {
 

@@ -23,7 +23,7 @@ export class FuzzySearchService {
     minSearchTermLength: 3,
   };
 
-  searchList<T = any>(list: Array<T>, searchTerms: string, options: FuseSearchOpts<T> & { disableHighlight?: boolean } = {}): Array<FuseResult<T>> {
+  searchList<T extends {}>(list: Array<T>, searchTerms: string, options: FuseSearchOpts<T> & { disableHighlight?: boolean } = {}): Array<FuseResult<T>> {
     const opts: FuseSearchOpts<T> = {
       ...this.defaultOptions,
       ...options,

@@ -27,8 +27,7 @@ import { AppOverviewComponent, AppViewComponent, QuickSettingInternetButtonCompo
 import { QuickSettingUseSPNButtonComponent } from './pages/app-view/qs-use-spn/qs-use-spn';
 import { MonitorPageComponent } from './pages/monitor';
 import { SettingsComponent } from './pages/settings/settings';
-import { SpnPageComponent } from './pages/spn';
-import { SPNFeatureCarouselComponent } from './pages/spn/spn-feature-carousel';
+import { SPNModule } from './pages/spn/spn.module';
 import { SupportPageComponent } from './pages/support';
 import { SupportFormComponent } from './pages/support/form';
 import { NotificationsService } from './services';
@@ -83,13 +82,11 @@ import { PlaceholderComponent } from './shared/text-placeholder';
     ExitScreenComponent,
     SupportPageComponent,
     SupportFormComponent,
-    SpnPageComponent,
     SecurityLockComponent,
     SPNStatusComponent,
     SPNLoginComponent,
     SPNNetworkStatusComponent,
     SPNAccountDetailsComponent,
-    SPNFeatureCarouselComponent,
     NetworkScoutComponent,
     EditProfileDialog,
     ProcessDetailsDialogComponent,
@@ -132,6 +129,7 @@ import { PlaceholderComponent } from './shared/text-placeholder';
     NetqueryModule,
     CommonPipesModule,
     UiModule,
+    SPNModule,
     PortmasterAPIModule.forRoot({
       httpAPI: environment.httpAPI,
       websocketAPI: environment.portAPI,

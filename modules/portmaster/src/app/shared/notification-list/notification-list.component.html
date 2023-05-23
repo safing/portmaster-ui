@@ -23,7 +23,7 @@
 </ng-container>
 
 <div class="notification-body" [style.--count]="notifications.length" [@fadeIn] *ngIf="!!expandedNotification">
-  <markdown class="message" emoji [data]="expandedNotification?.Message"></markdown>
+  <markdown class="message" emoji [data]="expandedNotification.Message"></markdown>
   <div *ngIf="expandedNotification.isBroadcast" class="broadcast-info">
     This is a broadcast notification. <sfng-tipup key="broadcast-info" [anchor]="elementRef"></sfng-tipup>
   </div>

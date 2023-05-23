@@ -1,7 +1,8 @@
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, Inject, OnDestroy, OnInit, Optional } from "@angular/core";
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, DestroyRef, Inject, OnInit, Optional, inject } from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { SPNService, UserProfile } from "@safing/portmaster-api";
-import { SfngDialogRef, SFNG_DIALOG_REF } from "@safing/ui";
-import { catchError, delay, of, Subject, takeUntil, tap } from "rxjs";
+import { SFNG_DIALOG_REF, SfngDialogRef } from "@safing/ui";
+import { catchError, delay, of, tap } from "rxjs";
 import { ActionIndicatorService } from "../action-indicator";
 
 @Component({
@@ -9,8 +10,8 @@ import { ActionIndicatorService } from "../action-indicator";
   styleUrls: ['./spn-account-details.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class SPNAccountDetailsComponent implements OnInit, OnDestroy {
-  private destroy$ = new Subject<void>();
+export class SPNAccountDetailsComponent implements OnInit {
+  private destroyRef = inject(DestroyRef);
 
   /** Whether or not we're currently refreshing the user profile from the customer agent */
   refreshing = false;
@@ -59,7 +60,7 @@ export class SPNAccountDetailsComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.spnService.watchProfile()
       .pipe(
-        takeUntil(this.destroy$),
+        takeUntilDestroyed(this.destroyRef),
         catchError(err => of(null)),
       )
       .subscribe(profile => {
@@ -68,10 +69,5 @@ export class SPNAccountDetailsComponent implements OnInit, OnDestroy {
 
         this.cdr.markForCheck();
       })
-  }
-
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
   }
 }

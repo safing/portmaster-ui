@@ -1,234 +1,104 @@
-<div *ngIf="spnStatus?.Status === 'connected'"
-  class="absolute z-10 flex flex-col items-center justify-center gap-2 text-xs font-medium top-4 left-4 right-4">
-  <div class="flex flex-col items-center justify-center gap-2">
+<ng-container *ngIf="(mapService.status$ | async) as status">
+  <div *ngIf="status === 'connected'"
+    class="absolute z-10 flex flex-col items-center justify-center gap-2 text-xs font-medium top-4 left-4 right-4">
+    <div class="flex flex-col items-center justify-center gap-2">
 
+      <div
+        class="flex flex-row items-center justify-center w-full gap-2 px-4 bg-gray-300 rounded-sm bg-opacity-90 text-xxs"
+        [@fadeIn] *ngIf="loading">
+        <fa-icon icon="circle-notch" [spin]="true" class="py-3"></fa-icon>
+        Loading data, please wait ...
+      </div>
+    </div>
+  </div>
+
+  <div class="absolute top-0 bottom-0 left-0 flex flex-row items-start justify-start w-full h-full"
+    [class.w-full]="currentUser === null || status === 'disabled'">
     <div
-      class="flex flex-row items-center justify-center w-full gap-2 px-4 bg-gray-300 rounded-sm bg-opacity-90 text-xxs"
-      [@fadeIn] *ngIf="loading">
-      <fa-icon icon="circle-notch" [spin]="true" class="py-3"></fa-icon>
-      Loading data, please wait ...
-    </div>
+      class="z-10 flex flex-col items-center justify-center flex-grow h-full bg-white bg-opacity-90 backdrop-filter backdrop-blur-sm"
+      *ngIf="!currentUser || status === 'disabled'">
 
-    <div class="flex flex-row gap-2" [@fadeIn] *ngIf="!loading">
-      <div
-        class="flex flex-col items-center px-3 py-2 bg-gray-300 rounded shadow cursor-pointer bg-opacity-90 w-36 hover:bg-gray-200 hover:bg-opacity-90"
-        (click)="selectExitNodes($event)">
-        <span class="-mb-1 text-tertiary">Exit Nodes</span>
-        <span class="text-2xl text-primary">{{ countExitNodes }}</span>
-      </div>
-      <div
-        class="flex flex-col items-center px-3 py-2 bg-gray-300 rounded shadow cursor-pointer bg-opacity-90 w-36 hover:bg-gray-200 hover:bg-opacity-90"
-        (click)="selectTransitNodes($event)">
-        <span class="-mb-1 text-tertiary">Transit Nodes</span>
-        <span class="text-2xl text-primary">{{ countTransitNodes }}</span>
-      </div>
-      <div
-        class="flex flex-col items-center px-3 py-2 bg-gray-300 rounded shadow cursor-pointer bg-opacity-90 w-36 hover:bg-gray-200 hover:bg-opacity-90"
-        (click)="selectNodesWithAliveConnections($event)">
-        <span class="-mb-1 text-tertiary">Active Connections</span>
-        <span class="text-2xl text-primary">{{ countRoutedAliveConnections }}</span>
+      <spn-feature-carousel class="w-full p-10 mb-6 overflow-visible h-1/2">
+      </spn-feature-carousel>
+
+      <div class="flex flex-col items-center justify-center gap-4">
+        <button (click)="openAccountDetails()" *ngIf="!currentUser?.current_plan?.feature_ids?.includes('spn')"
+          class="w-56 px-5 py-2 font-medium uppercase rounded-full bg-blue bg-opacity-90 hover:bg-blue text-primary">
+          Login
+        </button>
+
+        <button (click)="toggleSPN()" *ngIf="currentUser?.current_plan?.feature_ids?.includes('spn')"
+          class="w-56 px-5 py-2 font-medium text-white uppercase rounded-full bg-blue bg-opacity-90 hover:bg-blue">
+          Enable the SPN
+        </button>
+
+        <a href="https://safing.io/pricing/?source=Portmaster"
+          class="w-56 px-5 py-2 font-medium text-center text-white uppercase rounded-full bg-background bg-opacity-90 hover:bg-background">
+          Pricing
+        </a>
       </div>
     </div>
   </div>
-</div>
-
-<div class="absolute top-0 bottom-0 left-0 flex flex-row items-start justify-start w-full h-full"
-  [class.w-full]="currentUser === null || !spnStatus || spnStatus.Status === 'disabled'">
-
-  <div
-    class="z-10 flex flex-col items-center justify-center flex-grow h-full bg-white bg-opacity-90 backdrop-filter backdrop-blur-sm"
-    *ngIf="!currentUser || spnStatus?.Status === 'disabled'">
-
-    <spn-feature-carousel class="w-full p-10 mb-6 overflow-visible h-1/2">
-    </spn-feature-carousel>
-
-    <div class="flex flex-col items-center justify-center gap-4">
-      <button (click)="openAccountDetails()" *ngIf="!currentUser?.current_plan?.feature_ids?.includes('spn')"
-        class="w-56 px-5 py-2 font-medium uppercase rounded-full bg-blue bg-opacity-90 hover:bg-blue text-primary">
-        Login
-      </button>
-
-      <button (click)="toggleSPN()" *ngIf="currentUser?.current_plan?.feature_ids?.includes('spn')"
-        class="w-56 px-5 py-2 font-medium text-white uppercase rounded-full bg-blue bg-opacity-90 hover:bg-blue">
-        Enable the SPN
-      </button>
-
-      <a href="https://safing.io/pricing/?source=Portmaster"
-        class="w-56 px-5 py-2 font-medium text-center text-white uppercase rounded-full bg-background bg-opacity-90 hover:bg-background">
-        Pricing
-      </a>
-    </div>
-  </div>
-
-  <!-- selected node pane -->
-  <div *ngIf="!!selectedPins" class="z-10 flex flex-col justify-start flex-grow flex-shrink-0 w-64 p-2 pt-4 space-y-3">
-
-    <div *ngFor="let pin of selectedPins!; trackBy: trackPin" class="relative ml-1 bg-gray-200 rounded shadow">
-
-      <fa-icon class="absolute top-0 right-0 mt-2 mr-3 text-xs cursor-pointer text-tertiary hover:text-secondary"
-        icon="times" (click)="clearSelection(pin.ID)"></fa-icon>
-
-      <fa-icon
-        class="absolute top-0 right-0 mt-2 mr-8 text-xs transition-all duration-200 ease-in-out cursor-pointer text-tertiary hover:text-secondary"
-        icon="chevron-down" (click)="pin.collapsed = !pin.collapsed" [class.rotate-180]="!pin.collapsed">
-      </fa-icon>
-
-      <span class="text-tertiary block pt-2.5 px-2.5 pb-1 text-xxs">
-        Selected Node
-      </span>
-
-      <div class="bg-gray-400 p-2.5 flex flex-row items-center justify-between"
-        *ngIf="(pin.EntityV4 || pin.EntityV6) as entity">
-        <div>
-          <span [appCountryFlags]="entity.Country" class="mr-2"></span>
-          {{ entity.IP }}
-        </div>
-        <ng-template #tooltipTemplate>
-          <table class="!text-xxs">
-            <tr>
-              <td class="px-2 bg-gray-200">ID</td>
-              <td>{{ pin.ID }}</td>
-            </tr>
-            <tr>
-              <td class="px-2 bg-gray-200">Name</td>
-              <td>{{ pin.Name }}</td>
-            </tr>
-            <tr>
-              <td class="px-2 bg-gray-200">Verified Owner</td>
-              <td>
-                <pre>{{ pin.VerifiedOwner }}</pre>
-              </td>
-            </tr>
-            <tr>
-              <td class="px-2 bg-gray-200">First Seen</td>
-              <td>{{ pin.FirstSeen | date }}</td>
-            </tr>
-            <tr>
-              <td class="px-2 bg-gray-200">Entity V4</td>
-              <td>
-                {{ pin.EntityV4?.IP }}
-                {{ pin.EntityV4?.Country }}
-                {{ pin.EntityV4?.ASN}}
-                {{ pin.EntityV4?.ASOrg}}
-              </td>
-            </tr>
-            <tr>
-              <td class="px-2 bg-gray-200">Entity V6</td>
-              <td>
-                {{ pin.EntityV6?.IP }}
-                {{ pin.EntityV6?.Country }}
-                {{ pin.EntityV6?.ASN}}
-                {{ pin.EntityV6?.ASOrg}}
-              </td>
-            </tr>
-            <tr>
-              <td class="px-2 bg-gray-200">States</td>
-              <td>
-                <pre>{{ pin.States.join(", ") }}</pre>
-              </td>
-            </tr>
-            <tr>
-              <td class="px-2 bg-gray-200">SessionActive</td>
-              <td>
-                <pre>{{ pin.SessionActive }}</pre>
-              </td>
-            </tr>
-            <tr>
-              <td class="px-2 bg-gray-200">HopDistance</td>
-              <td>
-                <pre>{{ pin.HopDistance }}</pre>
-              </td>
-            </tr>
-          </table>
-        </ng-template>
-        <svg viewBox="0 0 24 24" class="w-3.5 h-3.5 text-secondary" [sfng-tooltip]="tooltipTemplate"
-          *appExpertiseLevel="'developer'">
-          <g fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" stroke="currentColor">
-            <path stroke="#ffff" shape-rendering="geometricPrecision"
-              d="M12 21v0c-4.971 0-9-4.029-9-9v0c0-4.971 4.029-9 9-9v0c4.971 0 9 4.029 9 9v0c0 4.971-4.029 9-9 9z" />
-            <path stroke="#ffff" shape-rendering="geometricPrecision"
-              d="M12 17v-5h-1M11.749 8c-.138 0-.25.112-.249.25 0 .138.112.25.25.25s.25-.112.25-.25-.112-.25-.251-.25" />
-          </g>
-        </svg>
-      </div>
-
-      <div class="flex flex-row items-center gap-2 text-xs border-b border-gray-300">
-        <div class="p-2 px-3 text-xs font-light bg-gray-300 text-tertiary">
-          HOPS: <span [class.text-primary]="pin.route.length > 0">{{ pin.route.length || 'N/A' }}</span>
-        </div>
-        <div class="flex-grow text-xs font-light uppercase text-tertiary">
-          Name: <span class="text-primary">{{ pin.Name }}</span>
-        </div>
-      </div>
-
-      <ng-container *ngIf="pin.route.length > 0; else: notInUse">
-        <div class="mx-2 my-3 tunnel-path" *ngIf="!pin.collapsed">
-          <div class="line"></div>
-          <ul>
-            <li>
-              <span class="hop-icon">
-                <fa-icon far icon="dot-circle"></fa-icon>
-              </span>
-              <span class="hop-title text-secondary text-xxs">
-                Your Device
-              </span>
-            </li>
+</ng-container>
 
 
-            <li *ngFor="let node of pin.route; trackBy: trackPin">
-              <span *ngIf="node.preferredEntity.Country as country; else: noCountry" class="country"
-                [appCountryFlags]="country"></span>
-              <ng-template #noCountry>
-                <!-- TODO: use hop icon instead if unknown -->
-                <span class="country unknown"></span>
-              </ng-template>
-              <span>{{ node.preferredEntity?.Country || 'No Location' }}</span>
-              <span class="ip text-secondary">{{ node.preferredEntity?.IP || '' }}</span>
-              <span class="ip text-secondary text-xxs" *appExpertiseLevel="'developer'">{{ node.Name }}</span>
-              <span *appExpertiseLevel="'expert'" class="text-xxs text-tertiary"><br />AS{{ node.preferredEntity.ASN }}
-                -
-                {{
-      node.preferredEntity.ASOrg ||
-      'Unknown AS'
-      }}
-              </span>
-            </li>
+<div class="absolute top-0 right-0 z-10 flex gap-2 mt-4 mr-4">
+  <!-- DISABLED for now as it causes a lot of confusion ...
 
-            <li *ngIf="pin.isExit" class="leading-4">
-              <span class="hop-icon">
-                <fa-icon far icon="dot-circle"></fa-icon>
-                <!-- TODO: use destination country flag instead if known -->
-              </span>
-              <span class="hop-title text-secondary">
-                Destinations
-              </span>
-              <span *appExpertiseLevel="'developer'" class="block text-xxs text-tertiary">
-                {{ pin.countAliveConnections }}
-                active connections
-              </span>
-              <!-- TODO: add destination details? (Would be duplicate information from above.) -->
-            </li>
-            <ng-template #asnTemplate let-data>
-            </ng-template>
-          </ul>
-        </div>
-      </ng-container>
-      <ng-template #notInUse>
-        <div class="px-2 py-2 text-center text-xxs text-tertiary" *ngIf="!pin.collapsed">
-          {{
-pin.HopDistance === 1
-? 'Currently used as your HOME hub.'
-: 'Currently not used by any connections.'
-}}</div>
-      </ng-template>
-    </div>
-  </div>
-</div>
+  <sfng-toggle class="inline-block" [ngModel]="liveMode" (ngModelChange)="toggleLiveMode($event)"></sfng-toggle>
 
-
-<div class="absolute top-0 right-0 z-10 mt-4 mr-4">
+  -->
   <app-expertise></app-expertise>
 </div>
+
 <div class="relative flex-grow h-full">
-  <div #map id="map" class="w-full h-full" [class.disabled]="!currentUser || spnStatus?.Status === 'disabled'"></div>
+  <spn-map-renderer (zoomAndPan)="onZoomAndPan()" (pinClick)="onPinClick($event)" (pinHover)="onPinHover($event)"
+    (countryHover)="onCountryHover($event)" (countryClick)="onCountryClick($event)"
+    [pins]="(mapService.pins$|async) || []" [paths]="paths" class="block w-full h-full"
+    [class.disabled]="!currentUser || (mapService.status$ | async) === 'disabled'">
+  </spn-map-renderer>
+
+  <spn-map-country-overlay *ngIf="hoveredCountry as ctry" class="absolute right-10 bottom-10"
+    [countryCode]="ctry.countryCode" [countryName]="ctry.countryName"></spn-map-country-overlay>
+
+  <spn-map-legend *ngIf="!hoveredCountry" class="absolute right-10 bottom-10"></spn-map-legend>
+
+  <div class="absolute bottom-1.5 left-0 right-0 flex items-center justify-center gap-1 text-secondary"
+    *ngIf="!!proTipTemplate">
+    <svg xmlns="http://www.w3.org/2000/svg" class="w-3 h-3 -mt-0.5 " viewBox="0 0 20 20" fill="currentColor">
+      <path
+        d="M11 3a1 1 0 10-2 0v1a1 1 0 102 0V3zM15.657 5.757a1 1 0 00-1.414-1.414l-.707.707a1 1 0 001.414 1.414l.707-.707zM18 10a1 1 0 01-1 1h-1a1 1 0 110-2h1a1 1 0 011 1zM5.05 6.464A1 1 0 106.464 5.05l-.707-.707a1 1 0 00-1.414 1.414l.707.707zM5 10a1 1 0 01-1 1H3a1 1 0 110-2h1a1 1 0 011 1zM8 16v-1h4v1a2 2 0 11-4 0zM12 14c.015-.34.208-.646.477-.859a4 4 0 10-4.954 0c.27.213.462.519.476.859h4.002z" />
+    </svg>
+    <span class="font-semibold ">Pro Tip:</span>
+    <ng-container *ngTemplateOutlet="proTipTemplate"></ng-container>
+  </div>
+
+  <!-- we use a customer overlay container for all overlays created using the CdkOverlayService here -->
+  <div class="absolute top-0 bottom-0 left-0 right-0 pointer-events-none" #overlayContainer></div>
 </div>
+
+<ng-container>
+  <ng-template #proTip>
+    Hold <b>
+      <pre>CTRL</pre></b> key and click a node on the map to immediately open the node details dialog.
+  </ng-template>
+
+  <ng-template #proTip>
+    Hold <b>
+      <pre>SHIFT</pre></b> key to open more than one node overlay when clicking the node icon.
+  </ng-template>
+
+  <ng-template #proTip>
+    To keep node overlays open move them using
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
+      class="inline-block w-4 h-4 opacity-75 hover:opacity-100">
+      <path stroke-linecap="round" stroke-linejoin="round"
+        d="M3.75 3.75v4.5m0-4.5h4.5m-4.5 0L9 9M3.75 20.25v-4.5m0 4.5h4.5m-4.5 0L9 15M20.25 3.75h-4.5m4.5 0v4.5m0-4.5L15 9m5.25 11.25h-4.5m4.5 0v-4.5m0 4.5L15 15" />
+    </svg>. Double click to revert the overlay position on the map.
+  </ng-template>
+
+  <ng-template #proTip>
+    Click on a country to get more information about all nodes in that country and a list of Apps that use nodes in the
+    country as an identity.
+  </ng-template>
+</ng-container>

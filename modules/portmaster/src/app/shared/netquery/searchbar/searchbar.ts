@@ -1,12 +1,13 @@
 import { ListKeyManager } from "@angular/cdk/a11y";
 import { coerceBooleanProperty } from "@angular/cdk/coercion";
 import { CdkOverlayOrigin } from "@angular/cdk/overlay";
-import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, Directive, ElementRef, EventEmitter, forwardRef, HostBinding, HostListener, Input, OnDestroy, OnInit, Output, QueryList, TrackByFunction, ViewChild, ViewChildren } from "@angular/core";
+import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, DestroyRef, Directive, ElementRef, EventEmitter, forwardRef, HostBinding, HostListener, inject, Input, OnDestroy, OnInit, Output, QueryList, TrackByFunction, ViewChild, ViewChildren } from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from "@angular/forms";
 import { Condition, ExpertiseLevel, Netquery, NetqueryConnection } from "@safing/portmaster-api";
 import { SfngDropdownComponent } from "@safing/ui";
 import { combineLatest, Observable, of, Subject } from "rxjs";
-import { catchError, debounceTime, map, switchMap, takeUntil } from "rxjs/operators";
+import { catchError, debounceTime, map, switchMap } from "rxjs/operators";
 import { fadeInAnimation, fadeInListAnimation } from "../../animations";
 import { ExpertiseService } from "../../expertise";
 import { objKeys } from "../../utils";
@@ -81,7 +82,7 @@ export class SfngNetquerySearchbarComponent implements ControlValueAccessor, OnI
   private loadSuggestions$ = new Subject<void>();
   private triggerDropdownClose$ = new Subject<boolean>();
   private keyManager!: ListKeyManager<SfngNetquerySuggestionDirective<any>>;
-  private destroy$ = new Subject<void>();
+  private destroyRef = inject(DestroyRef);
 
   /** Whether or not we are currently loading suggestions */
   loading = false;
@@ -150,7 +151,7 @@ export class SfngNetquerySearchbarComponent implements ControlValueAccessor, OnI
       .withWrap();
 
     this.keyManager.change
-      .pipe(takeUntil(this.destroy$))
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(idx => {
         console.log("new active index: ", idx)
         this.suggestionValues.forEach(val => val.active = false);
@@ -287,8 +288,6 @@ export class SfngNetquerySearchbarComponent implements ControlValueAccessor, OnI
   ngOnDestroy(): void {
     this.loadSuggestions$.complete();
     this.triggerDropdownClose$.complete();
-    this.destroy$.next()
-    this.destroy$.complete();
   }
 
   cancelDropdownClose() {

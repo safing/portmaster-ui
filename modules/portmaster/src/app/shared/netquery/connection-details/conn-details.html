@@ -226,66 +226,7 @@
       <div *ngIf="conn.extra_data?.tunnel as tunnel">
         <span>
           <span></span>
-          <span class="tunnel-path">
-            <div class="line">
-              <!--<span class="arrow"></span>-->
-            </div>
-            <ul>
-              <li>
-                <span class="hop-icon">
-                  <fa-icon far icon="dot-circle"></fa-icon>
-                </span>
-                <span class="hop-title text-tertiary">
-                  Your Device
-                </span>
-              </li>
-
-              <li *ngFor="let node of tunnel.Path; let first=first; let last=last"
-                [sfngAddToFilter]="last ? 'exit_node' : null" [sfngAddToFilterValue]="conn.exit_node!">
-                <span *ngIf="(node.IPv4?.Country || node.IPv6?.Country) as country; else: noCountry" class="country"
-                  [appCountryFlags]="country"></span>
-                <ng-template #noCountry>
-                  <!-- TODO: use hop icon instead if unknown -->
-                  <span class="country unknown"></span>
-                </ng-template>
-                <span>{{ node.IPv4?.Country || node.IPv6?.Country || 'No Location' }}</span>
-                <span class="ip text-tertiary">{{ node.IPv4?.IP || node.IPv6?.IP || ''
-                  }}</span>
-                <span class="node-tag" *ngIf="first">Home</span>
-                <span class="node-tag" *ngIf="last">Exit</span>
-                <span *appExpertiseLevel="'expert'" class="text-tertiary"><br />{{ node.Name }}</span>
-
-                <ng-container *ngIf="node.IPv4 as ipv4; else: ipv6asn">
-                  <span *appExpertiseLevel="'expert'" class="text-tertiary"><br />AS{{ ipv4.ASN }} - {{ ipv4.ASOwner ||
-                    'AS Organization not in DB'
-                    }}</span>
-                </ng-container>
-
-                <ng-template #ipv6asn>
-                  <ng-container *ngIf="node.IPv6 as ipv6">
-                    <span *appExpertiseLevel="'expert'" class="text-tertiary"><br />AS{{ ipv6.ASN }} - {{ ipv6.ASOwner ||
-                      'AS Organization not in DB'
-                      }}</span>
-                  </ng-container>
-                </ng-template>
-
-                <span *appExpertiseLevel="'developer'" class="text-tertiary"><br />{{ node.ID }}</span>
-              </li>
-
-              <li>
-                <span class="hop-icon">
-                  <fa-icon far icon="dot-circle"></fa-icon>
-                  <!-- TODO: use destination country flag instead if known -->
-                </span>
-                <span class="hop-title text-tertiary">
-                  Destination
-                </span>
-                <!-- TODO: add destination details? (Would be duplicate information from above.) -->
-              </li>
-              <ng-template #asnTemplate let-data>
-              </ng-template>
-            </ul>
-          </span>
+          <sfng-spn-pin-route [route]="tunnel.Path"></sfng-spn-pin-route>
         </span>
       </div>
       <div *appExpertiseLevel="'developer'" class="flex flex-col items-start justify-start gap-1 mt-2">

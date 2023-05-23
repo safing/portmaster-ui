@@ -1,7 +1,8 @@
 import { coerceBooleanProperty } from "@angular/cdk/coercion";
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, Input, OnDestroy, OnInit } from "@angular/core";
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, DestroyRef, Input, OnInit, inject } from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { SPNService, UserProfile } from "@safing/portmaster-api";
-import { catchError, finalize, of, Subject, takeUntil } from "rxjs";
+import { catchError, finalize, of } from "rxjs";
 import { ActionIndicatorService } from "../action-indicator";
 
 @Component({
@@ -10,8 +11,8 @@ import { ActionIndicatorService } from "../action-indicator";
   styleUrls: ['./spn-login.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class SPNLoginComponent implements OnInit, OnDestroy {
-  private destroy$ = new Subject<void>();
+export class SPNLoginComponent implements OnInit {
+  private destroyRef = inject(DestroyRef);
 
   /** The current user profile if the user is already logged in */
   profile: UserProfile | null = null;
@@ -53,7 +54,7 @@ export class SPNLoginComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.spnService.watchProfile()
       .pipe(
-        takeUntil(this.destroy$),
+        takeUntilDestroyed(this.destroyRef),
         catchError(() => of(null))
       )
       .subscribe(profile => {
@@ -65,10 +66,5 @@ export class SPNLoginComponent implements OnInit, OnDestroy {
 
         this.cdr.markForCheck();
       });
-  }
-
-  ngOnDestroy(): void {
-    this.destroy$.next()
-    this.destroy$.complete()
   }
 }

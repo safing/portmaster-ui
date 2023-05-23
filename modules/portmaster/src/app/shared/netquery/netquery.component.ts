@@ -1,9 +1,10 @@
 import { coerceArray } from "@angular/cdk/coercion";
-import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, Input, OnDestroy, OnInit, Output, QueryList, TemplateRef, TrackByFunction, ViewChildren } from "@angular/core";
+import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, DestroyRef, EventEmitter, Input, OnDestroy, OnInit, Output, QueryList, TemplateRef, TrackByFunction, ViewChildren, inject } from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { ActivatedRoute, Router } from "@angular/router";
 import { ChartResult, Condition, IPScope, Netquery, NetqueryConnection, OrderBy, PossilbeValue, Query, QueryResult, Select, Verdict } from "@safing/portmaster-api";
 import { Datasource, DynamicItemsPaginator, SelectOption } from "@safing/ui";
-import { BehaviorSubject, combineLatest, forkJoin, interval, Observable, of, Subject } from "rxjs";
+import { BehaviorSubject, Observable, Subject, combineLatest, forkJoin, interval, of } from "rxjs";
 import { catchError, debounceTime, filter, map, share, skip, switchMap, take, takeUntil } from "rxjs/operators";
 import { ActionIndicatorService } from "../action-indicator";
 import { ExpertiseService } from "../expertise";
@@ -107,8 +108,7 @@ export class SfngNetqueryViewer implements OnInit, OnDestroy, AfterViewInit {
   /** @private Used to trigger a reload of the current filter */
   private search$ = new Subject<void>();
 
-  /** @private Emits and completed when the component is destroyed */
-  private destroy$ = new Subject<void>();
+  private destroyRef = inject(DestroyRef);
 
   /** @private Used to trigger an update of all displayed values in the tag-bar. */
   private updateTagBar$ = new BehaviorSubject<void>(undefined);
@@ -156,7 +156,7 @@ export class SfngNetqueryViewer implements OnInit, OnDestroy, AfterViewInit {
   /** @private Used to refresh the "Last reload xxx ago" message */
   lastReloadTicker = interval(2000)
     .pipe(
-      takeUntil(this.destroy$),
+      takeUntilDestroyed(this.destroyRef),
       map(() => Math.floor((new Date()).getTime() - this.lastReload.getTime()) / 1000),
       share()
     )
@@ -434,7 +434,7 @@ export class SfngNetqueryViewer implements OnInit, OnDestroy, AfterViewInit {
     // This is required as we keep the route parameters in sync with the current filter.
     this.route.queryParamMap
       .pipe(
-        takeUntil(this.destroy$),
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe(params => {
         if (this.skipNextRouteUpdate) {
@@ -466,7 +466,7 @@ export class SfngNetqueryViewer implements OnInit, OnDestroy, AfterViewInit {
     // we might get new search values from our helper service
     // in case the user "SHIFT-Clicks" a SfngAddToFilter directive.
     this.helper.onFieldsAdded()
-      .pipe(takeUntil(this.destroy$))
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(fields => this.onFieldsParsed(fields))
 
     // updateTagBar$ always emits a value when we need to update the current tag-bar values.
@@ -474,7 +474,7 @@ export class SfngNetqueryViewer implements OnInit, OnDestroy, AfterViewInit {
     // the supported ways.
     this.updateTagBar$
       .pipe(
-        takeUntil(this.destroy$),
+        takeUntilDestroyed(this.destroyRef),
         switchMap(() => {
           const obs: Observable<{ [key: string]: (PossilbeValue & QueryResult)[] }>[] = [];
 
@@ -566,8 +566,6 @@ export class SfngNetqueryViewer implements OnInit, OnDestroy, AfterViewInit {
   }
 
   ngOnDestroy() {
-    this.destroy$.next();
-    this.destroy$.complete();
     this.search$.complete();
     this.helper.dispose();
   }

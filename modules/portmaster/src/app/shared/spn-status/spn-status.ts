@@ -1,8 +1,9 @@
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, OnDestroy, OnInit, Output } from "@angular/core";
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, DestroyRef, OnInit, inject } from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { ActivatedRoute, Router } from '@angular/router';
 import { BoolSetting, ChartResult, ConfigService, Netquery, SPNService, SPNStatus, UserProfile } from "@safing/portmaster-api";
 import { SfngDialogService } from '@safing/ui';
-import { catchError, forkJoin, interval, of, startWith, Subject, switchMap, takeUntil } from "rxjs";
+import { catchError, forkJoin, interval, of, startWith, switchMap } from "rxjs";
 import { fadeInAnimation, fadeOutAnimation } from "../animations";
 import { SPNAccountDetailsComponent } from '../spn-account-details';
 
@@ -15,8 +16,8 @@ import { SPNAccountDetailsComponent } from '../spn-account-details';
     fadeOutAnimation,
   ]
 })
-export class SPNStatusComponent implements OnInit, OnDestroy {
-  private destroy$ = new Subject<void>();
+export class SPNStatusComponent implements OnInit {
+  private destroyRef = inject(DestroyRef);
 
   /** Whether or not the SPN is currently enabled */
   spnEnabled = false;
@@ -52,7 +53,7 @@ export class SPNStatusComponent implements OnInit, OnDestroy {
     this.spnService
       .watchProfile()
       .pipe(
-        takeUntil(this.destroy$),
+        takeUntilDestroyed(this.destroyRef),
         catchError(() => of(null))
       )
       .subscribe(profile => {
@@ -62,7 +63,7 @@ export class SPNStatusComponent implements OnInit, OnDestroy {
       });
 
     this.spnService.status$
-      .pipe(takeUntil(this.destroy$))
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(status => {
         this.spnStatus = status;
 
@@ -70,7 +71,7 @@ export class SPNStatusComponent implements OnInit, OnDestroy {
       })
 
     this.configService.watch<BoolSetting>("spn/enable")
-      .pipe(takeUntil(this.destroy$))
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(value => {
         this.spnEnabled = value;
 
@@ -86,7 +87,7 @@ export class SPNStatusComponent implements OnInit, OnDestroy {
     interval(5000)
       .pipe(
         startWith(-1),
-        takeUntil(this.destroy$),
+        takeUntilDestroyed(this.destroyRef),
         switchMap(() => forkJoin({
           chart: this.netquery.activeConnectionChart({ tunneled: { $eq: true } }),
           identities: this.netquery.query({
@@ -118,11 +119,6 @@ export class SPNStatusComponent implements OnInit, OnDestroy {
     }
 
     this.router.navigate(['/spn'])
-  }
-
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
   }
 
   setSPNEnabled(v: boolean) {
