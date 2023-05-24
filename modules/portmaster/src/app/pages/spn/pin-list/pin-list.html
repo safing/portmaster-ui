@@ -66,7 +66,7 @@
           {{ val.Latency / 1000 / 1000 | number:'1.0-2' }} ms
         </td>
         <td>
-          {{ val.Capacity / 8 / 1024 / 1024 | number:'1.0-2' }} MB/s
+          {{ val.Capacity / 1000 / 1000 | number:'1.0-2' }} Mbit/s
         </td>
       </ng-container>
 
