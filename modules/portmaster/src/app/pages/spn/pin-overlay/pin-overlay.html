@@ -5,6 +5,7 @@
   <div class="flex flex-row items-center justify-start w-full gap-1">
     <app-menu #pinUseMenu>
       <app-menu-item (click)="openPinDetails()">Show Details</app-menu-item>
+      <app-menu-item (click)="showExitConnections()">Show exit connections</app-menu-item>
       <app-menu-item (click)="copyNodeID()">Copy Node ID</app-menu-item>
     </app-menu>
     <app-menu-trigger class="mr-0 -ml-2" useContent="true" [menu]="pinUseMenu">

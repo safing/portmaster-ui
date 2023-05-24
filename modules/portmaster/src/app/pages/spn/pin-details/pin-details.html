@@ -84,6 +84,25 @@
           <pre>{{ pin.pin.HopDistance }}</pre>
         </td>
       </tr>
+      <tr>
+        <td class="p-2 font-thin">Exit Connections</td>
+        <td>
+          <div class="flex flex-row items-center gap-2 cursor-pointer" [routerLink]="['/monitor']"
+            [queryParams]="{q: 'exit_node:' + pin.pin.ID}" (click)="dialogRef?.close()">
+            <pre>{{ exitConnectionCount }}</pre>
+            <svg viewBox="0 0 24 24" class="w-4 h-4" sfng-tooltip="Show exit connections in monitor.">
+              <g fill="none" stroke="currentColor">
+                <path shape-rendering="geometricPrecision" stroke-linecap="round" stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M8.464 8.464c-1.953 1.953-1.953 5.118 0 7.071 1.953 1.953 5.118 1.953 7.071 0 1.953-1.953 1.953-5.119 0-7.071C14.559 7.488 13.28 7 12 7" />
+                <path shape-rendering="geometricPrecision" stroke-linecap="round" stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M5.636 5.636c-3.515 3.515-3.515 9.213 0 12.728 3.515 3.515 9.213 3.515 12.728 0 3.515-3.515 3.515-9.213 0-12.728-2.627-2.627-6.474-3.289-9.717-1.989M5.64 5.64L12 12" />
+              </g>
+            </svg>
+          </div>
+        </td>
+      </tr>
     </table>
   </sfng-tab>
 

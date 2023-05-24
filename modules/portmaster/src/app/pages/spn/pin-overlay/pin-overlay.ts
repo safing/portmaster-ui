@@ -1,7 +1,8 @@
-import { animate, AnimationEvent, keyframes, style, transition, trigger } from '@angular/animations';
+import { AnimationEvent, animate, keyframes, style, transition, trigger } from '@angular/animations';
 import { CdkDrag, CdkDragHandle, CdkDragRelease } from '@angular/cdk/drag-drop';
 import { Overlay, OverlayRef, PositionStrategy } from '@angular/cdk/overlay';
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, HostListener, Inject, Input, OnInit, Output, ViewChild } from '@angular/core';
+import { Router } from '@angular/router';
 import { SfngDialogService } from '@safing/ui';
 import { Path } from '../map-renderer';
 import { PinDetailsComponent } from '../pin-details';
@@ -154,6 +155,7 @@ export class PinOverlayComponent implements OnInit {
     @Inject(MapOverlay) public overlay: Overlay,
     private dialog: SfngDialogService,
     private actionIndicator: ActionIndicatorService,
+    private router: Router,
     private cdr: ChangeDetectorRef,
   ) { }
 
@@ -165,6 +167,14 @@ export class PinOverlayComponent implements OnInit {
   disposeOverlay() {
     this.showContent = false;
     this.cdr.markForCheck();
+  }
+
+  showExitConnections() {
+    this.router.navigate(['/monitor'], {
+      queryParams: {
+        q: 'exit_node:' + this.mapPin.pin.ID
+      }
+    })
   }
 
   async copyNodeID() {
