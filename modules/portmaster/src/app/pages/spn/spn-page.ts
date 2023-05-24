@@ -164,7 +164,7 @@ export class SpnPageComponent implements OnInit, OnDestroy, AfterViewInit {
 
   ngOnInit() {
     // load country center data
-    this.http.get<typeof this['countryCenters']>(`${this.httpAPI}/v1/geoip/country-centers`)
+    this.http.get<typeof this['countryCenters']>(`${this.httpAPI}/v1/intel/geoip/country-centers`)
       .subscribe(centers => this.countryCenters = centers);
 
     this.spnService
