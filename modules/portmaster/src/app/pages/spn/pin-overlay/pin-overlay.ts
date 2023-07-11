@@ -120,6 +120,10 @@ export class PinOverlayComponent implements OnInit {
   }
 
   onDragRelease(event: CdkDragRelease) {
+    if (!this.dragContainer || !this.overlayRef.hostElement || !this.overlayRef.hostElement.parentElement) {
+      return;
+    }
+
     const bbox = this.dragContainer.element.nativeElement.getBoundingClientRect();
     const parent = this.overlayRef.hostElement.parentElement!.getBoundingClientRect();
 

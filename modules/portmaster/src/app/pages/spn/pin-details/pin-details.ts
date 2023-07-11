@@ -74,7 +74,12 @@ export class PinDetailsComponent implements OnInit, OnChanges, OnDestroy {
             }
           });
 
-        this.exitConnectionCount = result.exitConnections[0].totalCount;
+        if (result.exitConnections.length) {
+          // we expect only one row to be returned for the above query.
+          this.exitConnectionCount = result.exitConnections[0].totalCount;
+        } else {
+          this.exitConnectionCount = 0;
+        }
 
         this.cdr.markForCheck();
       })
