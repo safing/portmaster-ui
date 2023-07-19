@@ -11,6 +11,22 @@
       Network Activity
       <sfng-tipup key="networkMonitor-App-Focus-connection-history"></sfng-tipup>
     </h1>
+    <h2 class="flex flex-row items-center gap-2 p-0 mb-2 ml-0 text-sm font-medium text-secondary">
+      <ng-container *ngIf="(history | async) as data; else: noHistory">
+        <ng-container *ngIf="!!data">
+          <span>
+            History data available since {{ data.first | date }} ({{ data.count }} connections)
+          </span>
+          <a class="text-xs underline cursor-pointer text-primary" (click)="clearHistoryData()">Clear</a>
+        </ng-container>
+      </ng-container>
+      <ng-template #noHistory>
+        <span>
+          History data not available
+        </span>
+      </ng-template>
+    </h2>
+
     <span class="text-secondary">
       Look at everything happening on your device. Showing the last 10 minutes. Easily search and filter for specific
       connections.

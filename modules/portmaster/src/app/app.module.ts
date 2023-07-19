@@ -59,6 +59,7 @@ import { SPNNetworkStatusComponent } from './shared/spn-network-status';
 import { SPNStatusComponent } from './shared/spn-status';
 import { PilotWidgetComponent } from './shared/status-pilot';
 import { PlaceholderComponent } from './shared/text-placeholder';
+import { QsHistoryComponent } from './pages/app-view/qs-history/qs-history.component';
 
 @NgModule({
   declarations: [
@@ -90,6 +91,7 @@ import { PlaceholderComponent } from './shared/text-placeholder';
     NetworkScoutComponent,
     EditProfileDialog,
     ProcessDetailsDialogComponent,
+    QsHistoryComponent,
   ],
   imports: [
     BrowserModule,

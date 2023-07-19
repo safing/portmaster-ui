@@ -1,8 +1,8 @@
 import { ChangeDetectorRef, Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { AppProfile, AppProfileService, ChartResult, Condition, ConfigService, DebugAPI, ExpertiseLevel, FlatConfigObject, flattenProfileConfig, IProfileStats, LayeredProfile, Netquery, setAppSetting, Setting } from '@safing/portmaster-api';
+import { AppProfile, AppProfileService, ChartResult, Condition, ConfigService, Database, DebugAPI, ExpertiseLevel, FlatConfigObject, IProfileStats, LayeredProfile, Netquery, Setting, flattenProfileConfig, setAppSetting } from '@safing/portmaster-api';
 import { SfngDialogService } from '@safing/ui';
-import { BehaviorSubject, combineLatest, interval, Observable, of, Subscription } from 'rxjs';
+import { BehaviorSubject, Observable, Subscription, combineLatest, interval, of } from 'rxjs';
 import { distinctUntilChanged, map, mergeMap, startWith, switchMap } from 'rxjs/operators';
 import { SessionDataService } from 'src/app/services';
 import { ActionIndicatorService } from 'src/app/shared/action-indicator';
@@ -32,6 +32,20 @@ export class AppViewComponent implements OnInit, OnDestroy {
    * The current chart data
    */
   appChartData: ChartResult[] = [];
+
+  /**
+   * @private
+   * historyAvailableSince holds the date of the oldes connection
+   * in the history database for this app.
+   */
+  historyAvailableSince: Date | null = null;
+
+  /**
+   * @private
+   * connectionsInHistory holds the total amount of connections
+   * in the history database for this app
+   */
+  connectionsInHistory = 0;
 
   /**
    * @private
@@ -197,6 +211,27 @@ export class AppViewComponent implements OnInit, OnDestroy {
     })
   }
 
+  cleanProfileHistory() {
+    if (!this.appProfile) {
+      return
+    }
+
+    const observer = this.actionIndicator.httpObserver('History successfully removed', 'Failed to remove history')
+
+    this.netquery.cleanProfileHistory(this.appProfile.Source + "/" + this.appProfile.ID)
+      .subscribe({
+        next: res => {
+          observer.next!(res)
+          this.historyAvailableSince = null;
+          this.connectionsInHistory = 0;
+          this.cdr.markForCheck();
+        },
+        error: err => {
+          observer.error!(err);
+        }
+      })
+  }
+
   ngOnInit() {
     this.profileService.tagDescriptions()
       .subscribe(tags => {
@@ -223,6 +258,8 @@ export class AppViewComponent implements OnInit, OnDestroy {
             this._loading = true;
 
             this.appChartData = [];
+            this.historyAvailableSince = null;
+            this.connectionsInHistory = 0;
             this.appProfile = null;
             this.stats = null;
 
@@ -276,6 +313,39 @@ export class AppViewComponent implements OnInit, OnDestroy {
             this.netquery.activeConnectionChart(query)
               .subscribe(data => {
                 this.appChartData = data;
+                this.cdr.markForCheck();
+              })
+
+            this.netquery.query({
+              select: [
+                {
+                  $min: {
+                    field: 'started',
+                    as: 'first_connection'
+                  },
+                },
+                {
+                  $count: {
+                    field: '*',
+                    as: 'totalCount',
+                  }
+                },
+              ],
+              groupBy: ['profile'],
+              query: {
+                profile: `${profile[0].Source}/${profile[0].ID}`,
+              },
+              databases: [Database.History],
+            })
+              .subscribe(result => {
+                if (result.length > 0) {
+                  this.historyAvailableSince = new Date(result[0].first_connection!)
+                  this.connectionsInHistory = result[0].totalCount;
+                } else {
+                  this.historyAvailableSince = null;
+                  this.connectionsInHistory = 0;
+                }
+
                 this.cdr.markForCheck();
               })
 
@@ -369,7 +439,6 @@ export class AppViewComponent implements OnInit, OnDestroy {
             // profile specific (i.e. not part of the global config). Also
             // update the current settings value (from the app profile) and
             // the default value (from the global profile).
-            let countModified = 0;
             this.settings = allSettings
               .map(setting => {
                 setting.Value = profileConfig[setting.Key];
@@ -382,9 +451,6 @@ export class AppViewComponent implements OnInit, OnDestroy {
                 }
 
                 const isModified = setting.Value !== undefined;
-                if (isModified) {
-                  countModified++;
-                }
                 if (this.viewSetting === 'all') {
                   return true;
                 }

@@ -1,11 +1,11 @@
-import { HttpClient } from "@angular/common/http";
+import { HttpClient, HttpResponse } from "@angular/common/http";
 import { Inject, Injectable } from "@angular/core";
-import { forkJoin, Observable } from "rxjs";
+import { Observable, forkJoin } from "rxjs";
 import { map, mergeMap } from "rxjs/operators";
 import { AppProfileService } from "./app-profile.service";
 import { AppProfile } from "./app-profile.types";
 import { DNSContext, IPScope, Reason, TLSContext, TunnelContext, Verdict } from "./network.types";
-import { PortapiService, PORTMASTER_HTTP_API_ENDPOINT } from "./portapi.service";
+import { PORTMASTER_HTTP_API_ENDPOINT, PortapiService } from "./portapi.service";
 
 export interface FieldSelect {
   field: string;
@@ -27,11 +27,23 @@ export interface Sum {
   }
 }
 
+export interface Min {
+  $min: {
+    condition: Condition;
+    as: string;
+    distinct?: boolean;
+  } | {
+    field: string;
+    as: string;
+    distinct?: boolean;
+  }
+}
+
 export interface Distinct {
   $distinct: string;
 }
 
-export type Select = FieldSelect | Count | Distinct | Sum;
+export type Select = FieldSelect | Count | Distinct | Sum | Min;
 
 export interface Equal {
   $eq: any;
@@ -80,6 +92,11 @@ export interface TextSearch {
   value: string;
 }
 
+export enum Database {
+  Live = "main",
+  History = "history"
+}
+
 export interface Query {
   select?: string | Select | (Select | string)[];
   query?: Condition;
@@ -88,6 +105,7 @@ export interface Query {
   groupBy?: string[];
   pageSize?: number;
   page?: number;
+  databases?: Database[];
 }
 
 export interface NetqueryConnection {
@@ -174,6 +192,18 @@ export class Netquery {
   query(query: Query): Observable<QueryResult[]> {
     return this.http.post<{ results: QueryResult[] }>(`${this.httpAPI}/v1/netquery/query`, query)
       .pipe(map(res => res.results || []));
+  }
+
+  cleanProfileHistory(profileIDs: string | string[]): Observable<HttpResponse<any>> {
+    return this.http.post(`${this.httpAPI}/v1/netquery/history/clear`,
+      {
+        profileIDs: Array.isArray(profileIDs) ? profileIDs : [profileIDs]
+      },
+      {
+        observe: 'response',
+        reportProgress: false,
+      }
+    )
   }
 
   activeConnectionChart(cond: Condition, textSearch?: TextSearch): Observable<ChartResult[]> {

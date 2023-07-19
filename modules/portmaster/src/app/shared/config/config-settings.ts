@@ -1,8 +1,8 @@
 import { coerceBooleanProperty } from '@angular/cdk/coercion';
 import { ScrollDispatcher } from '@angular/cdk/overlay';
 import { AfterViewInit, ChangeDetectorRef, Component, ElementRef, EventEmitter, Input, OnDestroy, OnInit, Output, QueryList, TrackByFunction, ViewChildren } from '@angular/core';
-import { ConfigService, ExpertiseLevelNumber, releaseLevelFromName, Setting } from '@safing/portmaster-api';
-import { BehaviorSubject, combineLatest, Subscription } from 'rxjs';
+import { ConfigService, ExpertiseLevelNumber, Setting, StringSetting, releaseLevelFromName } from '@safing/portmaster-api';
+import { BehaviorSubject, Subscription, combineLatest } from 'rxjs';
 import { debounceTime } from 'rxjs/operators';
 import { StatusService, Subsystem } from 'src/app/services';
 import { fadeInAnimation, fadeInListAnimation, fadeOutAnimation } from 'src/app/shared/animations';
@@ -165,10 +165,11 @@ export class ConfigSettingsViewComponent implements OnInit, OnDestroy, AfterView
       this.onSettingsChange,
       this.statusService.querySubsystem(),
       this.onSearch.pipe(debounceTime(250)),
+      this.configService.watch<StringSetting>("core/releaseLevel"),
     ])
       .pipe(debounceTime(10))
       .subscribe(
-        ([settings, subsystems, searchTerm]) => {
+        ([settings, subsystems, searchTerm, currentReleaseLevelSetting]) => {
           this.subsystems = subsystems.map(s => ({
             ...s,
             // we start with developer and decrease to the lowest number required
@@ -181,9 +182,8 @@ export class ConfigSettingsViewComponent implements OnInit, OnDestroy, AfterView
           this.settings = new Map();
 
           // Get the current release level as a number (fallback to 'stable' is something goes wrong)
-          const currentReleaseLevelSetting = settings.find(s => s.Key === 'core/releaseLevel');
           const currentReleaseLevel = releaseLevelFromName(
-            currentReleaseLevelSetting?.Value || currentReleaseLevelSetting?.DefaultValue || 'stable' as any
+            currentReleaseLevelSetting || 'stable' as any
           );
 
           // Make sure we only display settings that are allowed by the releaselevel setting.

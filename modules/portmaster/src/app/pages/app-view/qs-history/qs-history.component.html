@@ -1,0 +1,14 @@
+<div
+  class="relative flex flex-wrap items-center justify-center w-full h-full gap-2 px-3 py-2 bg-gray-300 border border-gray-300 rounded shadow"
+  snfgTooltipPosition="right" [sfng-tooltip]="(historyFeatureAllowed | async) === false ? tooltipTemplate : null">
+  <span class="text-primary">
+    Keep History
+  </span>
+
+  <sfng-toggle [ngModel]="currentValue" (ngModelChange)="updateHistoryEnabled($event)"
+    [disabled]="(historyFeatureAllowed | async) === false"></sfng-toggle>
+</div>
+
+<ng-template #tooltipTemplate>
+  <a href="https://safing.io/pricing/">Please subscribe or upgrade your plan to use the history feature.</a>
+</ng-template>
