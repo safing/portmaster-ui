@@ -31,7 +31,7 @@ export class QsHistoryComponent implements OnChanges {
 
   ngOnChanges(changes: SimpleChanges): void {
     if ('settings' in changes) {
-      const historySetting = this.settings.find(s => s.Key === 'history/enabled') as (BoolSetting | undefined);
+      const historySetting = this.settings.find(s => s.Key === 'history/enable') as (BoolSetting | undefined);
       if (historySetting) {
         this.currentValue = getActualValue(historySetting);
       }
@@ -41,7 +41,7 @@ export class QsHistoryComponent implements OnChanges {
   updateHistoryEnabled(enabled: boolean) {
     this.save.next({
       isDefault: false,
-      key: 'history/enabled',
+      key: 'history/enable',
       value: enabled,
     })
   }
