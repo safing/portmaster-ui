@@ -443,7 +443,7 @@ export class GenericSettingComponent<S extends BaseSetting<any, any>> implements
     this.spn.profile$
       .pipe(takeUntilDestroyed(this.destryoRef))
       .subscribe((profile: UserProfile | null) => {
-        let value = this.setting?.Annotations[WellKnown.SettingRequiresFeaturePlan]
+        let value = this.setting?.Annotations[WellKnown.RequiresFeatureID]
         if (value === undefined) {
           this._upgradeRequired = false;
         } else {
