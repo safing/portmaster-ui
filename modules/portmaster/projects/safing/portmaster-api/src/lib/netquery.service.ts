@@ -151,6 +151,8 @@ export interface NetqueryConnection {
 
   profile_name: string;
   active: boolean;
+  bytes_received: number;
+  bytes_sent: number;
 }
 
 export interface ChartResult {
