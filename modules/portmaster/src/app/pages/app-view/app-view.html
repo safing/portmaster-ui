@@ -56,15 +56,15 @@
             <span class="text-opacity-75 text-primary">{{stats?.countAliveConnections || 0}}</span>
           </div>
           <div class="space-x-2">
-            <span>History:</span>
+            <span>Network History:</span>
             <ng-container *ngIf="historyAvailableSince">
-              <span class="text-opacity-75 text-primary">available since {{ historyAvailableSince | date }}</span>
+              <span class="text-opacity-75 text-primary">As of {{ historyAvailableSince | date }}</span>
               <span class="-mt-3 underline cursor-pointer text-primary hover:text-secondary text-xxs"
                 (click)="cleanProfileHistory()">Remove all {{ connectionsInHistory }} Connections</span>
             </ng-container>
             <ng-container *ngIf="!historyAvailableSince">
               <span class="text-opacity-75 text-primary"
-                sfng-tooltip="Support for connection history requires a subscription">no history</span>
+                sfng-tooltip="Support for connection history requires a subscription">None</span>
             </ng-container>
           </div>
         </div>

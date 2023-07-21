@@ -15,21 +15,20 @@
       <ng-container *ngIf="(history | async) as data; else: noHistory">
         <ng-container *ngIf="!!data">
           <span>
-            History data available since {{ data.first | date }} ({{ data.count }} connections)
+            Network history data available as of {{ data.first | date }}. ({{ data.count }} connections)
           </span>
           <a class="text-xs underline cursor-pointer text-primary" (click)="clearHistoryData()">Clear</a>
         </ng-container>
       </ng-container>
       <ng-template #noHistory>
         <span>
-          History data not available
+          No network history data available.
         </span>
       </ng-template>
     </h2>
 
     <span class="text-secondary">
-      Look at everything happening on your device. Showing the last 10 minutes. Easily search and filter for specific
-      connections.
+      If network history is disabled, only shows connections that were active in the last 10 minutes. Use the search bar and drop downs to search and filter.
     </span>
   </div>
 
