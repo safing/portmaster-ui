@@ -55,6 +55,18 @@
             <span>Active Connections:</span>
             <span class="text-opacity-75 text-primary">{{stats?.countAliveConnections || 0}}</span>
           </div>
+          <div class="space-x-2">
+            <span>Network History:</span>
+            <ng-container *ngIf="historyAvailableSince">
+              <span class="text-opacity-75 text-primary">As of {{ historyAvailableSince | date }}</span>
+              <span class="-mt-3 underline cursor-pointer text-primary hover:text-secondary text-xxs"
+                (click)="cleanProfileHistory()">Remove all {{ connectionsInHistory }} Connections</span>
+            </ng-container>
+            <ng-container *ngIf="!historyAvailableSince">
+              <span class="text-opacity-75 text-primary"
+                sfng-tooltip="Support for connection history requires a subscription">None</span>
+            </ng-container>
+          </div>
         </div>
 
         <!-- Quick Settings -->
@@ -65,6 +77,8 @@
 
           <app-qs-use-spn [settings]="allSettings" (save)="saveSetting($event)">
           </app-qs-use-spn>
+
+          <app-qs-history [settings]="allSettings" (save)="saveSetting($event)"></app-qs-history>
 
           <sfng-tipup key="appSettings-QuickSettings"></sfng-tipup>
         </div>

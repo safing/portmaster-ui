@@ -1,15 +1,17 @@
 import { coerceBooleanProperty } from '@angular/cdk/coercion';
 import { TemplatePortal } from '@angular/cdk/portal';
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, HostBinding, Input, OnDestroy, OnInit, Output, TemplateRef, ViewChild, ViewContainerRef } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, DestroyRef, EventEmitter, HostBinding, Input, OnInit, Output, TemplateRef, ViewChild, ViewContainerRef } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { NgModel } from '@angular/forms';
-import { applyQuickSetting, BaseSetting, ConfigService, ExpertiseLevel, ExpertiseLevelNumber, ExternalOptionHint, OptionType, PortapiService, QuickSetting, ReleaseLevel, SettingValueType, WellKnown } from '@safing/portmaster-api';
+import { BaseSetting, ConfigService, ExpertiseLevel, ExpertiseLevelNumber, ExternalOptionHint, OptionType, PortapiService, QuickSetting, ReleaseLevel, SPNService, SettingValueType, UserProfile, WellKnown, applyQuickSetting } from '@safing/portmaster-api';
 import { SfngDialogRef, SfngDialogService } from '@safing/ui';
 import { Button } from 'js-yaml-loader!../../../i18n/helptexts.yaml';
-import { Subject, Subscription } from 'rxjs';
+import { Subject } from 'rxjs';
 import { debounceTime } from 'rxjs/operators';
 import { ActionIndicatorService } from '../../action-indicator';
 import { fadeInAnimation, fadeOutAnimation } from '../../animations';
 import { ExpertiseService } from '../../expertise/expertise.service';
+import { SPNAccountDetailsComponent } from '../../spn-account-details';
 
 export interface SaveSettingEvent<S extends BaseSetting<any, any> = any> {
   key: string;
@@ -30,7 +32,7 @@ export interface SaveSettingEvent<S extends BaseSetting<any, any> = any> {
     fadeOutAnimation
   ]
 })
-export class GenericSettingComponent<S extends BaseSetting<any, any>> implements OnInit, OnDestroy {
+export class GenericSettingComponent<S extends BaseSetting<any, any>> implements OnInit {
   //
   // Constants used in the template.
   //
@@ -46,6 +48,10 @@ export class GenericSettingComponent<S extends BaseSetting<any, any>> implements
   helpTemplate: TemplateRef<any> | null = null;
   private helpDialogRef: SfngDialogRef<any> | null = null;
 
+  // Whether or not the user needs to upgrade his/her account before
+  // this setting is valid.
+  _upgradeRequired = false;
+
   /**
    * Whether or not the component/setting is disabled and should
    * be read-only.
@@ -56,7 +62,7 @@ export class GenericSettingComponent<S extends BaseSetting<any, any>> implements
     this._disabled = coerceBooleanProperty(v);
   }
   get disabled() {
-    return this._disabled;
+    return this._disabled || this._upgradeRequired;
   }
   private _disabled: boolean = false;
 
@@ -130,9 +136,6 @@ export class GenericSettingComponent<S extends BaseSetting<any, any>> implements
 
   /** Used internally to publish save events. */
   private triggerSave = new Subject<void>();
-
-  /** Used internally for subscriptions to various changes */
-  private subscription = Subscription.EMPTY;
 
   /** Whether or not the value was reset. */
   wasReset = false;
@@ -422,17 +425,37 @@ export class GenericSettingComponent<S extends BaseSetting<any, any>> implements
     private dialog: SfngDialogService,
     private changeDetectorRef: ChangeDetectorRef,
     private actionIndicator: ActionIndicatorService,
+    private spn: SPNService,
     private viewRef: ViewContainerRef,
+    private destryoRef: DestroyRef,
   ) { }
 
   ngOnInit() {
-    this.subscription = this.triggerSave.pipe(
-      debounceTime(500),
-    ).subscribe(() => this.emitSaveRequest())
-  }
+    this.triggerSave
+      .pipe(
+        debounceTime(500),
+        takeUntilDestroyed(this.destryoRef),
+      )
+      .subscribe(() => this.emitSaveRequest())
 
-  ngOnDestroy() {
-    this.subscription.unsubscribe();
+    // watch the SPN user profile so we know which feature_ids
+    // are available for the user.
+    this.spn.profile$
+      .pipe(takeUntilDestroyed(this.destryoRef))
+      .subscribe((profile: UserProfile | null) => {
+        let value = this.setting?.Annotations[WellKnown.RequiresFeatureID]
+        if (value === undefined) {
+          this._upgradeRequired = false;
+        } else {
+          if (!Array.isArray(value)) {
+            value = [value];
+          }
+
+          this._upgradeRequired = value.some(val => !(profile?.current_plan?.feature_ids || []).includes(val))
+        }
+
+        this.changeDetectorRef.markForCheck();
+      })
   }
 
   /**
@@ -481,6 +504,13 @@ export class GenericSettingComponent<S extends BaseSetting<any, any>> implements
     }
 
     this.updateValue(value, true);
+  }
+
+  openAccountDetails() {
+    this.dialog.create(SPNAccountDetailsComponent, {
+      autoclose: true,
+      backdrop: 'light'
+    })
   }
 
   restartNow() {

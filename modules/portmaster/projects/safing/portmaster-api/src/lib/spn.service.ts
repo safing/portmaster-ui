@@ -1,8 +1,8 @@
 import { HttpClient, HttpParams, HttpResponse } from "@angular/common/http";
 import { Inject, Injectable } from "@angular/core";
 import { BehaviorSubject, Observable } from "rxjs";
-import { filter, map, multicast, refCount } from "rxjs/operators";
-import { PortapiService, PORTMASTER_HTTP_API_ENDPOINT } from './portapi.service';
+import { filter, map, multicast, refCount, share } from "rxjs/operators";
+import { PORTMASTER_HTTP_API_ENDPOINT, PortapiService } from './portapi.service';
 import { Pin, SPNStatus, UserProfile } from "./spn.types";
 
 @Injectable({ providedIn: 'root' })
@@ -10,6 +10,11 @@ export class SPNService {
 
   /** Emits the SPN status whenever it changes */
   status$: Observable<SPNStatus>;
+
+  profile$ = this.watchProfile()
+    .pipe(
+      share()
+    );
 
   constructor(
     private portapi: PortapiService,

@@ -143,7 +143,8 @@ export enum WellKnown {
   QuickSetting = "safing/portbase:ui:quick-setting",
   Requires = "safing/portbase:config:requires",
   RestartPending = "safing/portbase:options:restart-pending",
-  EndpointListVerdictNames = "safing/portmaster:ui:endpoint-list:verdict-names"
+  EndpointListVerdictNames = "safing/portmaster:ui:endpoint-list:verdict-names",
+  RequiresFeatureID = "safing/portmaster:ui:config:requires-feature"
 }
 
 /**
@@ -161,6 +162,7 @@ export interface Annotations<T extends OptionValueType> {
   [WellKnown.Stackable]?: true;
   [WellKnown.QuickSetting]?: QuickSetting<T> | QuickSetting<T>[];
   [WellKnown.Requires]?: ValueRequirement | ValueRequirement[];
+  [WellKnown.RequiresFeatureID]?: string | string[];
   // Any thing else...
   [key: string]: any;
 }
