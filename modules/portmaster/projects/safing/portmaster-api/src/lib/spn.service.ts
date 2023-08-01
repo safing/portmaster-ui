@@ -1,7 +1,7 @@
 import { HttpClient, HttpParams, HttpResponse } from "@angular/common/http";
 import { Inject, Injectable } from "@angular/core";
-import { BehaviorSubject, Observable } from "rxjs";
-import { filter, map, multicast, refCount, share } from "rxjs/operators";
+import { BehaviorSubject, Observable, of } from "rxjs";
+import { filter, map, multicast, refCount, share, switchMap } from "rxjs/operators";
 import { PORTMASTER_HTTP_API_ENDPOINT, PortapiService } from './portapi.service';
 import { Pin, SPNStatus, UserProfile } from "./spn.types";
 
@@ -13,8 +13,11 @@ export class SPNService {
 
   profile$ = this.watchProfile()
     .pipe(
-      share()
-    );
+      share({ connector: () => new BehaviorSubject<UserProfile | null | undefined>(undefined) }),
+      filter(val => val !== undefined)
+    ) as Observable<UserProfile | null>;
+
+  private pins$: Observable<Pin[]>;
 
   constructor(
     private portapi: PortapiService,
@@ -27,13 +30,26 @@ export class SPNService {
         refCount(),
         filter(val => val !== null),
       )
+
+    this.pins$ = this.status$
+      .pipe(
+        switchMap(status => {
+          if (status.Status !== "disabled") {
+            return this.portapi.watchAll<Pin>("map:main/", { retryDelay: 50000 })
+          }
+
+          return of([] as Pin[]);
+        }),
+        share({ connector: () => new BehaviorSubject<Pin[] | undefined>(undefined) }),
+        filter(val => val !== undefined)
+      ) as Observable<Pin[]>;
   }
 
   /**
    * Watches all pins of the "main" SPN map.
    */
   watchPins(): Observable<Pin[]> {
-    return this.portapi.watchAll<Pin>("map:main/")
+    return this.pins$;
   }
 
   /**
