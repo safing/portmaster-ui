@@ -1,6 +1,7 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { AppViewComponent } from './pages/app-view';
+import { DashboardPageComponent } from './pages/dashboard/dashboard.component';
 import { MonitorPageComponent } from './pages/monitor';
 import { SettingsComponent } from './pages/settings/settings';
 import { SpnPageComponent } from './pages/spn';
@@ -54,6 +55,10 @@ const routes: Routes = [
     path: '**',
     redirectTo: 'dashboard'
   },
+  {
+    path: 'dashboard',
+    component: DashboardPageComponent
+  }
 ];
 
 @NgModule({
