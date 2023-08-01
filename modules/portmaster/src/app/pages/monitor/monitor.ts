@@ -1,8 +1,9 @@
 import { Component, inject } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { Database, Netquery } from '@safing/portmaster-api';
+import { BoolSetting, ConfigService, Database, Feature, Netquery, SPNService } from '@safing/portmaster-api';
 import { Subject, interval, map, merge, repeat } from 'rxjs';
 import { SessionDataService } from 'src/app/services';
+import { ActionIndicatorService } from 'src/app/shared/action-indicator';
 import { fadeInAnimation, moveInOutListAnimation } from 'src/app/shared/animations';
 
 @Component({
@@ -15,6 +16,20 @@ export class MonitorPageComponent {
   session = inject(SessionDataService);
   netquery = inject(Netquery);
   reload = new Subject<void>();
+
+  configService = inject(ConfigService);
+  uai = inject(ActionIndicatorService);
+
+  historyEnabled = inject(ConfigService)
+    .watch<BoolSetting>('history/enable');
+
+  canUseHistory = inject(SPNService).profile$
+    .pipe(
+      map(profile => {
+        return profile?.current_plan?.feature_ids?.includes(Feature.History) || false;
+      })
+    );
+
   history = inject(Netquery)
     .query({
       select: [
@@ -47,6 +62,11 @@ export class MonitorPageComponent {
       }),
       takeUntilDestroyed()
     );
+
+  enableHistory() {
+    this.configService.save('history/enable', true)
+      .subscribe();
+  }
 
   clearHistoryData() {
     this.netquery.cleanProfileHistory([])

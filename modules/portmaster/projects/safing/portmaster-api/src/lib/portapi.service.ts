@@ -403,22 +403,21 @@ export class PortapiService {
   request<M extends RequestType, R extends Record = any>(method: M, attrs: Partial<Requestable<M>>, { forwardDone }: { forwardDone?: boolean } = {}): Observable<DataReply<R>> {
     return new Observable(observer => {
       const id = `${++uniqueRequestId}`;
-
       if (!this.ws$) {
         observer.error("No websocket connection");
         return
       }
 
-      let unsub: RequestMessage | null = null;
-
-      // some methods are cancellable and we MUST send
-      // a `cancel` message or the backend will not stop
-      // streaming data for that request id.
-      if (isCancellable(method)) {
-        unsub = {
-          id: id,
-          type: 'cancel'
+      let shouldCancel = isCancellable(method);
+      let unsub: (() => RequestMessage | null) = () => {
+        if (shouldCancel) {
+          return {
+            id: id,
+            type: 'cancel'
+          }
         }
+
+        return null
       }
 
       const request: any = {
@@ -463,6 +462,9 @@ export class PortapiService {
           // in all cases, an `error` message type
           // terminates the data flow.
           if (data.type === 'error') {
+            console.error(data.message);
+            shouldCancel = false;
+
             observer.error(data.message);
             return
           }
@@ -493,6 +495,7 @@ export class PortapiService {
             if (data.type === 'done') {
               if (method === 'query') {
                 // done ends the query but does not end sub or qsub
+                shouldCancel = false;
                 observer.complete();
                 return;
               }
@@ -519,6 +522,7 @@ export class PortapiService {
           // for a `get` method the first `ok` message
           // also marks the end of the stream.
           if (method === 'get' && data.type === 'ok') {
+            shouldCancel = false
             observer.complete();
           }
         },
@@ -547,7 +551,7 @@ export class PortapiService {
     });
   }
 
-  private multiplex(req: RequestMessage, cancel: RequestMessage | null): Observable<ReplyMessage> {
+  private multiplex(req: RequestMessage, cancel: (() => RequestMessage | null) | null): Observable<ReplyMessage> {
     return new Observable(observer => {
       if (this.connectedSubject.getValue()) {
         // Try to directly send the request to the backend
@@ -569,7 +573,10 @@ export class PortapiService {
         // any errors here.
         try {
           if (cancel !== null) {
-            this.ws$!.next(cancel);
+            const cancelMsg = cancel();
+            if (!!cancelMsg) {
+              this.ws$!.next(cancelMsg);
+            }
           }
         } catch (err) { }
 

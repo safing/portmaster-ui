@@ -2,7 +2,7 @@ import { coerceArray } from "@angular/cdk/coercion";
 import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, DestroyRef, EventEmitter, Input, OnDestroy, OnInit, Output, QueryList, TemplateRef, TrackByFunction, ViewChildren, inject } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { ActivatedRoute, Router } from "@angular/router";
-import { ChartResult, Condition, IPScope, Netquery, NetqueryConnection, OrderBy, PossilbeValue, Query, QueryResult, Select, Verdict } from "@safing/portmaster-api";
+import { ChartResult, Condition, Database, Feature, IPScope, Netquery, NetqueryConnection, OrderBy, PossilbeValue, Query, QueryResult, SPNService, Select, Verdict } from "@safing/portmaster-api";
 import { Datasource, DynamicItemsPaginator, SelectOption } from "@safing/ui";
 import { BehaviorSubject, Observable, Subject, combineLatest, forkJoin, interval, of } from "rxjs";
 import { catchError, debounceTime, filter, map, share, skip, switchMap, take, takeUntil } from "rxjs/operators";
@@ -160,6 +160,29 @@ export class SfngNetqueryViewer implements OnInit, OnDestroy, AfterViewInit {
       map(() => Math.floor((new Date()).getTime() - this.lastReload.getTime()) / 1000),
       share()
     )
+
+  // whether or not the history database should be queried as well.
+  useHistory = false;
+
+  private get databases(): Database[] {
+    if (!this.useHistory) {
+      return [Database.Live];
+    }
+
+    return [Database.Live, Database.History];
+  }
+
+  // whether or not the current use has the history feature available.
+  canUseHistory$ = inject(SPNService).profile$
+    .pipe(
+      map(profile => {
+        if (!profile) {
+          return false;
+        }
+
+        return profile.current_plan?.feature_ids?.includes(Feature.History) || false;
+      })
+    );
 
   constructor(
     private netquery: Netquery,
@@ -369,7 +392,13 @@ export class SfngNetqueryViewer implements OnInit, OnDestroy, AfterViewInit {
                 })
               ),
 
-            totalConnCount: this.netquery.query({ select: { $count: { field: '*', as: 'totalConnCount' } }, query: this.mergeFilter || {} })
+            totalConnCount: this.netquery.query({
+              select: {
+                $count: { field: '*', as: 'totalConnCount' }
+              },
+              query: this.mergeFilter || {},
+              databases: this.databases,
+            })
           })
         }),
       )
@@ -584,6 +613,7 @@ export class SfngNetqueryViewer implements OnInit, OnDestroy, AfterViewInit {
           { field: 'started', desc: true },
           { field: 'ended', desc: true }
         ],
+        databases: this.databases,
       })
         .subscribe(result => {
           const paginator = new DynamicItemsPaginator<NetqueryConnection>({
@@ -596,6 +626,7 @@ export class SfngNetqueryViewer implements OnInit, OnDestroy, AfterViewInit {
                 ],
                 page: pageNumber - 1,
                 pageSize: pageSize,
+                databases: this.databases,
               }) as Observable<NetqueryConnection[]>;
             }
           }, 25)
@@ -638,7 +669,8 @@ export class SfngNetqueryViewer implements OnInit, OnDestroy, AfterViewInit {
       groupBy: [
         field,
       ],
-      orderBy: [{ field: "count", desc: true }, { field, desc: true }]
+      orderBy: [{ field: "count", desc: true }, { field, desc: true }],
+      databases: this.databases,
     })
       .pipe(this.helper.encodeToPossibleValues(field))
       .subscribe(result => {
@@ -893,6 +925,7 @@ export class SfngNetqueryViewer implements OnInit, OnDestroy, AfterViewInit {
       groupBy: this.groupByKeys,
       orderBy: orderBy,
       textSearch,
+      databases: this.databases,
     }
   }
 

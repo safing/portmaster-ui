@@ -58,7 +58,7 @@ export class SPNAccountDetailsComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.spnService.watchProfile()
+    this.spnService.profile$
       .pipe(
         takeUntilDestroyed(this.destroyRef),
         catchError(err => of(null)),

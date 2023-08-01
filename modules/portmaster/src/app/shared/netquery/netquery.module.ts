@@ -4,7 +4,7 @@ import { CommonModule } from "@angular/common";
 import { NgModule } from "@angular/core";
 import { FormsModule } from "@angular/forms";
 import { FontAwesomeModule } from "@fortawesome/angular-fontawesome";
-import { SfngAccordionModule, SfngDropDownModule, SfngPaginationModule, SfngSelectModule, SfngTipUpModule, SfngTooltipModule } from "@safing/ui";
+import { SfngAccordionModule, SfngDropDownModule, SfngPaginationModule, SfngSelectModule, SfngTipUpModule, SfngToggleSwitchModule, SfngTooltipModule } from "@safing/ui";
 import { SfngAppIconModule } from "../app-icon";
 import { CountIndicatorModule } from "../count-indicator";
 import { CountryFlagModule } from "../country-flag";
@@ -39,6 +39,7 @@ import { SfngNetqueryTagbarComponent } from "./tag-bar";
     SfngFocusModule,
     SfngAppIconModule,
     SfngTipUpModule,
+    SfngToggleSwitchModule,
     A11yModule,
     ExpertiseModule,
     OverlayModule,

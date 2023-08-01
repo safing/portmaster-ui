@@ -221,7 +221,6 @@ export type Requestable<M extends RequestType> = RequestMessage & { type: M };
 export function isCancellable(m: MessageType): boolean {
   switch (m) {
     case 'qsub':
-    case 'query':
     case 'sub':
       return true;
     default:
