@@ -23,12 +23,16 @@
       <ng-template #noHistory>
         <span>
           No network history data available.
+          <ng-container *ngIf="(canUseHistory | async) && (historyEnabled | async) === false">
+            <a class="text-xs underline cursor-pointer text-primary" (click)="enableHistory()">Enable</a>
+          </ng-container>
         </span>
       </ng-template>
     </h2>
 
     <span class="text-secondary">
-      If network history is disabled, only shows connections that were active in the last 10 minutes. Use the search bar and drop downs to search and filter.
+      If network history is disabled, only shows connections that were active in the last 10 minutes. Use the search bar
+      and drop downs to search and filter.
     </span>
   </div>
 

@@ -168,7 +168,7 @@ export class SpnPageComponent implements OnInit, OnDestroy, AfterViewInit {
       .subscribe(centers => this.countryCenters = centers);
 
     this.spnService
-      .watchProfile()
+      .profile$
       .pipe(
         takeUntilDestroyed(this.destroyRef),
         catchError(() => of(null))

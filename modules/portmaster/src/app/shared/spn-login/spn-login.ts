@@ -52,7 +52,7 @@ export class SPNLoginComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.spnService.watchProfile()
+    this.spnService.profile$
       .pipe(
         takeUntilDestroyed(this.destroyRef),
         catchError(() => of(null))

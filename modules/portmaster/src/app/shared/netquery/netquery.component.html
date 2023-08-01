@@ -141,6 +141,13 @@
         </sfng-select-item>
       </ng-container>
     </sfng-select>
+
+    <div class="flex flex-row items-center gap-2 px-2 py-1 bg-gray-300 border border-gray-300 rounded text-xxs"
+      *ngIf="(canUseHistory$ | async)">
+      <sfng-toggle [(ngModel)]="useHistory" (ngModelChange)="performSearch()">
+      </sfng-toggle>
+      Use History
+    </div>
   </div>
 </div>
 

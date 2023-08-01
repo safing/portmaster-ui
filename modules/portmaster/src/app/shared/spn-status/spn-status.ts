@@ -51,7 +51,7 @@ export class SPNStatusComponent implements OnInit {
 
   ngOnInit(): void {
     this.spnService
-      .watchProfile()
+      .profile$
       .pipe(
         takeUntilDestroyed(this.destroyRef),
         catchError(() => of(null))

@@ -3,14 +3,14 @@
     <span sfngAddToFilter="started" [sfngAddToFilterValue]="conn.started">
       <span>Started:</span>
       <span>
-        {{ conn.started | date:'mediumTime'}}
+        {{ conn.started | date:'medium'}}
       </span>
     </span>
 
     <span sfngAddToFilter="ended" [sfngAddToFilterValue]="conn.ended">
       <span>Ended:</span>
       <span *ngIf="conn.ended">
-        {{ conn.ended | date:'mediumTime'}}
+        {{ conn.ended | date:'medium'}}
       </span>
       <span *ngIf="!conn.ended">
         <fa-icon icon="spinner" [spin]="true"></fa-icon>
