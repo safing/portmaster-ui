@@ -36,7 +36,7 @@
     </span>
   </div>
 
-  <sfng-netquery-viewer [filterPreset]="session.get('monitor/global-filter')"
+  <sfng-netquery-viewer [filterPreset]="session.get('monitor/global-filter') || 'scope:4'"
     (filterChange)="session.set('monitor/global-filter', $event)"></sfng-netquery-viewer>
 
 </div>
