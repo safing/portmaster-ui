@@ -11,7 +11,7 @@
     <span class="text-xxs uppercase text-secondary absolute right-1.5 top-2 font-light">{{allProfiles.length}}
       Apps</span>
     </div>
-    <sfng-select [(ngModel)]="displayOrder" (ngModelChange)="refreshScout($event)" class="relative auto" itemName="Sort" placeholder="Sort" allowSearch="false">
+    <sfng-select [(ngModel)]="displayOrder" (ngModelChange)="handleSortChange()" class="relative auto" itemName="Sort" placeholder="Sort" allowSearch="false">
       <ng-container *ngFor="let sort of SortMethods | keyvalue" >
         <sfng-select-item *sfngSelectValue="sort.value">{{ sort.value }}</sfng-select-item>
       </ng-container>

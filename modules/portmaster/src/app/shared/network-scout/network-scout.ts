@@ -1,9 +1,10 @@
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, DestroyRef, OnInit, TrackByFunction, inject } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { BoolSetting, Condition, ConfigService, ExpertiseLevel, IProfileStats, Netquery, Pin, SPNService } from "@safing/portmaster-api";
-import { Subject, combineLatest, debounceTime, forkJoin, interval, retry, startWith, switchMap, takeUntil } from "rxjs";
+import { Subject, combineLatest, debounceTime, filter, forkJoin, interval, map, retry, startWith, switchMap, takeUntil } from "rxjs";
 import { fadeInListAnimation } from "../animations";
 import { ExpertiseService } from './../expertise/expertise.service';
+import { UIStateService } from "src/app/services";
 
 interface _Pin extends Pin {
   count: number;
@@ -78,6 +79,7 @@ export class NetworkScoutComponent implements OnInit {
     private configService: ConfigService,
     private expertise: ExpertiseService,
     private cdr: ChangeDetectorRef,
+    private stateService: UIStateService,
   ) { }
 
   sortProfiles(profiles: _Profile[]) {
@@ -92,6 +94,30 @@ export class NetworkScoutComponent implements OnInit {
     const sortingFunc = sortMethods.get(this.displayOrder);
 
     if (sortingFunc) {
+
+       // We put this here to be sure the displayOrder exists
+       this.stateService.uiState()
+       .pipe(
+         map(state => {
+           if (state.netscoutSortOrder !== this.displayOrder) {
+             state.netscoutSortOrder = this.displayOrder;
+             return state;
+           }
+           return null; // Returning null means no need to save the state.
+         }),
+         // Filter null values when displayOrder hasnt changed
+         filter(updatedState => updatedState !== null),
+         switchMap(state => this.stateService.saveState(state!))
+       )
+       .subscribe({
+         next: () => {
+           console.log("UI state saved successfully.", );
+         },
+         error: (err) => {
+           console.error("Error saving UI state:", err);
+         }
+       });
+       
       profiles.sort(sortingFunc);
     }
 
@@ -127,8 +153,8 @@ export class NetworkScoutComponent implements OnInit {
     })
   }
 
-  refreshScout(event: any) {
-    this.cdr.markForCheck();
+  handleSortChange() {
+    this.triggerSearch.next(this.searchTerm);
   }
 
   expandAll() {
@@ -150,6 +176,13 @@ export class NetworkScoutComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    // Populate the Sort Order from the UI State
+    this.stateService.uiState().pipe(
+      map(status => status.netscoutSortOrder ?? "A - Z")
+    ).subscribe(result => {
+      this.displayOrder = result;
+    });
+
     this.configService.watch<BoolSetting>('spn/enable')
       .pipe(
         takeUntilDestroyed(this.destroyRef),

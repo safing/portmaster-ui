@@ -6,11 +6,13 @@ import { catchError } from "rxjs/operators";
 export interface UIState extends Record {
   hideExitScreen?: boolean;
   introScreenFinished?: boolean;
+  netscoutSortOrder?: string;
 }
 
 const defaultState: UIState = {
   hideExitScreen: false,
-  introScreenFinished: false
+  introScreenFinished: false,
+  netscoutSortOrder: 'A - Z',
 }
 
 @Injectable({ providedIn: 'root' })
