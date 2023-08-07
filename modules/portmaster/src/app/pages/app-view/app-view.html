@@ -65,6 +65,9 @@
             <ng-container *ngIf="!historyAvailableSince">
               <span class="text-opacity-75 text-primary"
                 sfng-tooltip="Support for connection history requires a subscription">None</span>
+              <ng-container *ngIf="(canUseHistory | async) === false">
+                <a class="text-xs underline cursor-pointer text-opacity-75" href="https://safing.io/pricing/?source=Portmaster">Available in Portmaster Plus</a>
+              </ng-container>
             </ng-container>
           </div>
         </div>
@@ -78,7 +81,8 @@
           <app-qs-use-spn [settings]="allSettings" (save)="saveSetting($event)">
           </app-qs-use-spn>
 
-          <app-qs-history [settings]="allSettings" (save)="saveSetting($event)"></app-qs-history>
+          <app-qs-history [settings]="allSettings" (save)="saveSetting($event)">
+          </app-qs-history>
 
           <sfng-tipup key="appSettings-QuickSettings"></sfng-tipup>
         </div>

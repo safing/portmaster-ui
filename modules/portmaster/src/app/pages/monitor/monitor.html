@@ -27,6 +27,9 @@
           <ng-container *ngIf="(canUseHistory | async) && (historyEnabled | async) === false">
             <a class="text-xs underline cursor-pointer text-primary" (click)="enableHistory()">Enable</a>
           </ng-container>
+          <ng-container *ngIf="(canUseHistory | async) === false">
+            <a class="text-xs underline cursor-pointer text-opacity-75" href="https://safing.io/pricing/?source=Portmaster">Available in Portmaster Plus</a>
+          </ng-container>
         </span>
       </ng-template>
     </span>
