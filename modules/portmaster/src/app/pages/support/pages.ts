@@ -35,6 +35,61 @@ export type SupportType = SupportPage | ExternalLink;
 
 export const supportTypes: PageSections[] = [
   {
+    title: "Resources",
+    choices: [
+      {
+        type: 'link',
+        title: '📘 Portmaster Wiki & FAQ',
+        url: 'https://wiki.safing.io/?source=Portmaster',
+        shortHelp: 'Search the Portmaster knowledge base and FAQ.',
+      },
+      {
+        type: 'link',
+        title: '🔖 Settings Handbook',
+        url: 'https://docs.safing.io/portmaster/settings?source=Portmaster',
+        shortHelp: 'A reference document of all Portmaster settings.'
+      },
+      {
+        type: 'link',
+        title: '📑 Safing Blog',
+        url: 'https://safing.io/blog?source=Portmaster',
+        shortHelp: 'Read our blog posts and announcements.',
+      }
+    ]
+  },
+  {
+    title: "Communities & Support",
+    style: 'small',
+    choices: [
+      {
+        type: 'link',
+        title: 'Join us on Discord',
+        url: 'https://discord.gg/safing',
+        shortHelp: 'Get help from the community and our AI bot on Discord.'
+      },
+      {
+        type: 'link',
+        title: 'Follow us on Mastodon',
+        url: 'https://fosstodon.org/@safing',
+        shortHelp: 'Get updates and privacy jokes on Mastodon.'
+      },
+      {
+        type: 'link',
+        title: 'Follow us on Twitter',
+        url: 'https://twitter.com/SafingIO',
+        shortHelp: 'Get updates and privacy jokes on Twitter.'
+      },
+      {
+        type: 'link',
+        title: 'Safing Support via Email',
+        url: 'mailto:support@safing.io',
+        shortHelp: 'As a subscriber, reach out to the Safing team directly.'
+      }
+    ]
+  },
+  {
+    title: "Make a Report",
+    style: 'small',
     choices: [
       {
         id: "report-bug",
@@ -72,7 +127,7 @@ export const supportTypes: PageSections[] = [
       {
         id: "give-feedback",
         title: "💡 Suggest an Improvement",
-        shortHelp: "Suggest an enhancement or a new feature for the Portmaster.",
+        shortHelp: "Suggest an enhancement or a new feature for Portmaster.",
         repoHelp: "What would you would like to improve?",
         sections: [
           {
@@ -115,48 +170,6 @@ export const supportTypes: PageSections[] = [
         ghIssuePreset: "report-compatibility.md",
         repositories: [] // not needed with the default being "portmaster"
       },
-      {
-        type: 'link',
-        title: '📘 Open Portmaster Docs',
-        url: 'https://docs.safing.io/?source=Portmaster',
-        shortHelp: 'View the Settings Handbook, get help with DNS Configuration and check VPN Compatibility.',
-      },
     ],
-  },
-  {
-    title: "Further Resources",
-    style: 'small',
-    choices: [
-      {
-        type: 'link',
-        title: 'Settings Handbook',
-        url: 'https://docs.safing.io/portmaster/settings?source=Portmaster',
-        shortHelp: 'A reference document of all Portmaster settings'
-      },
-      {
-        type: 'link',
-        title: 'What\'s Next?',
-        url: 'https://safing.io/next?source=Portmaster',
-        shortHelp: 'View what Safing is currently working on.',
-      },
-      {
-        type: 'link',
-        title: 'Safing Blog',
-        url: 'https://safing.io/blog?source=Portmaster',
-        shortHelp: 'Visit the Safing Blog and the monthly progress updates.',
-      },
-      {
-        type: 'link',
-        title: 'Ask on Reddit',
-        url: 'https://reddit.com/r/safing',
-        shortHelp: 'Directly ask us on our subreddit r/safing.'
-      },
-      {
-        type: 'link',
-        title: 'Contact Support via Mail',
-        url: 'mailto:support@safing.io',
-        shortHelp: 'Reach out to the Safing team directly.'
-      }
-    ]
   }
 ]

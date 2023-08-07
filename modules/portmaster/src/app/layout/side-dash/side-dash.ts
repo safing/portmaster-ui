@@ -1,7 +1,6 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { SfngDialogService } from '@safing/ui';
 import { SPNAccountDetailsComponent } from 'src/app/shared/spn-account-details';
-import { SPNNetworkStatusComponent } from 'src/app/shared/spn-network-status';
 
 @Component({
   selector: 'app-side-dash',
@@ -16,13 +15,6 @@ export class SideDashComponent {
   constructor(
     private dialog: SfngDialogService,
   ) { }
-
-  openNetworkStatus() {
-    this.dialog.create(SPNNetworkStatusComponent, {
-      autoclose: true,
-      backdrop: 'light'
-    })
-  }
 
   openAccountDetails() {
     this.dialog.create(SPNAccountDetailsComponent, {

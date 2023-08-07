@@ -8,7 +8,7 @@
 <div class="list-container" [@fadeIn]="true">
   <div *ngFor="let section of supportTypes" class="page-section" [class.small]="section.style === 'small'">
     <div *ngIf="!!section.title" class="section-title">
-      <h4>{{section.title}}</h4>
+      <h4 class="text-lg text-primary -mt-1.5">{{section.title}}</h4>
     </div>
 
     <div class="option-list">
@@ -23,6 +23,8 @@
   </div>
 </div>
 
+<!--
+TODO: Remove when not needed anymore.
 <div class="list-container">
   <div class="page-section">
     <div class="section-title">
@@ -43,5 +45,6 @@
     </div>
   </div>
 </div>
+-->
 
 <div class="flex-grow"></div>

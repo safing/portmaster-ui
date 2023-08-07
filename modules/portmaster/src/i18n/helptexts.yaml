@@ -32,6 +32,14 @@ intro:
     Open tips to learn how the Portmaster work.
 
     Tips like this one are found throughout the Portmaster. With some tips you can tour an element or a feature, like this:
+  nextKey: navNotifications
+
+navNotifications:
+  title: Notifications
+  content: |
+    View any active notifications.
+
+    A colored dot signifies the presence and urgency of the active noticiations, together with the color of the shield.
   nextKey: navMonitor
 
 navMonitor:
@@ -50,13 +58,19 @@ navApps:
   title: Per-App Settings
   content: |
     Configure per-app settings which override the global default.
-  nextKey: navSettings
+  nextKey: navMap
   buttons:
     - name: Take the tour
       action:
         Type: open-page
         Payload: apps
       nextKey: appsTitle
+
+navMap:
+  title: SPN Map
+  content: |
+    View the SPN map and see how your connections are routed.
+  nextKey: navSettings
 
 navSettings:
   title: Global Settings
@@ -74,11 +88,24 @@ navSupport:
   title: Get Help
   content: |
     Report a bug, contact support or view the extended Portmaster docs.
+  nextKey: navTools
   buttons:
     - name: Open Page
       action:
         Type: open-page
         Payload: support
+
+navTools:
+  title: Version and Tools
+  content: |
+    View the Portmaster's version and use special actions and tools.
+  nextKey: navPower
+
+navPower:
+  title: Shutdown and Restart
+  content: |
+    Shutdown or Restart Portmaster.
+  nextKey: uiMode
 
 uiMode:
   title: UI Mode
@@ -296,6 +323,12 @@ appSettings-QuickSettings:
     Quickly enable or disable SPN for this app.
 
     When other settings might overwrite this, a yellow dot next to the toggle will inform you of possible exceptions.
+
+    __Keep History__
+
+    Save connections in a database (on disk) in order to view and search them later.
+    
+    Changes might take a couple minutes to apply to all connections.
 
 #########################
 ### Support Page

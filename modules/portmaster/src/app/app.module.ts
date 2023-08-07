@@ -55,7 +55,6 @@ import { PromptListComponent } from './shared/prompt-list/prompt-list.component'
 import { SecurityLockComponent } from './shared/security-lock';
 import { SPNAccountDetailsComponent } from './shared/spn-account-details';
 import { SPNLoginComponent } from './shared/spn-login';
-import { SPNNetworkStatusComponent } from './shared/spn-network-status';
 import { SPNStatusComponent } from './shared/spn-status';
 import { PilotWidgetComponent } from './shared/status-pilot';
 import { PlaceholderComponent } from './shared/text-placeholder';
@@ -86,7 +85,6 @@ import { QsHistoryComponent } from './pages/app-view/qs-history/qs-history.compo
     SecurityLockComponent,
     SPNStatusComponent,
     SPNLoginComponent,
-    SPNNetworkStatusComponent,
     SPNAccountDetailsComponent,
     NetworkScoutComponent,
     EditProfileDialog,
