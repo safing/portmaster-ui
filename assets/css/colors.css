@@ -54,6 +54,18 @@
 .gate17-light-background {
   background-color: #ddc3ff4d !important;
 }
+.plus-color {
+  color: #2fcfae;
+}
+.plus-background {
+  background-color: #2fcfae;
+}
+.pro-color {
+  color: #029ad0;
+}
+.pro-background {
+  background-color: #029ad0;
+}
 .generic_section-background {
   background-color: #d5d5d5;
 }
