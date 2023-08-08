@@ -188,6 +188,14 @@ export class NavigationComponent implements OnInit {
       ))
   }
 
+  cleanupHistory(_: Event) {
+    this.portapi.cleanupHistory()
+      .subscribe(this.actionIndicator.httpObserver(
+        'History Data Cleared',
+        'Failed to Clear History.'
+      ))
+  }
+
   /**
    * @private
    * Trigger downloading of updates

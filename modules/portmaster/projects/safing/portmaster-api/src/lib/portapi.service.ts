@@ -132,6 +132,11 @@ export class PortapiService {
     return this.http.post(`${this.httpEndpoint}/v1/spn/reinit`, undefined, { observe: 'response', responseType: 'arraybuffer' })
   }
 
+  /** Cleans up the history database by applying history retention settings */
+  cleanupHistory(): Observable<any> {
+    return this.http.post(`${this.httpEndpoint}/v1/netquery/history/cleanup`, undefined, { observe: 'response', responseType: 'arraybuffer' })
+  }
+
   /**
    * Injects an event into a module to trigger certain backend
    * behavior.
