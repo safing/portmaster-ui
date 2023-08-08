@@ -60,6 +60,7 @@ import { SPNLoginComponent } from './shared/spn-login';
 import { SPNStatusComponent } from './shared/spn-status';
 import { PilotWidgetComponent } from './shared/status-pilot';
 import { PlaceholderComponent } from './shared/text-placeholder';
+import { FeatureCardComponent } from './pages/dashboard/feature-card/feature-card.component';
 
 @NgModule({
   declarations: [
@@ -91,7 +92,8 @@ import { PlaceholderComponent } from './shared/text-placeholder';
     EditProfileDialog,
     ProcessDetailsDialogComponent,
     QsHistoryComponent,
-    DashboardPageComponent
+    DashboardPageComponent,
+    FeatureCardComponent
   ],
   imports: [
     BrowserModule,

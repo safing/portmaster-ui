@@ -1,4 +1,5 @@
-export enum Feature {
+export enum FeatureID {
+  None = "",
   SPN = "spn",
   PrioritySupport = "support",
   History = "history",

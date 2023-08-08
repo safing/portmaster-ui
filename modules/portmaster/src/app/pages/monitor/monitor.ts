@@ -1,6 +1,6 @@
 import { Component, inject } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { BoolSetting, ConfigService, Database, Feature, Netquery, SPNService } from '@safing/portmaster-api';
+import { BoolSetting, ConfigService, Database, FeatureID, Netquery, SPNService } from '@safing/portmaster-api';
 import { Subject, interval, map, merge, repeat } from 'rxjs';
 import { SessionDataService } from 'src/app/services';
 import { ActionIndicatorService } from 'src/app/shared/action-indicator';
@@ -26,7 +26,7 @@ export class MonitorPageComponent {
   canUseHistory = inject(SPNService).profile$
     .pipe(
       map(profile => {
-        return profile?.current_plan?.feature_ids?.includes(Feature.History) || false;
+        return profile?.current_plan?.feature_ids?.includes(FeatureID.History) || false;
       })
     );
 

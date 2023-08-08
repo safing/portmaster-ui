@@ -1,3 +1,4 @@
+import { FeatureID } from './features';
 import { Record } from './portapi.types';
 import { deepClone } from './utils';
 
@@ -162,7 +163,7 @@ export interface Annotations<T extends OptionValueType> {
   [WellKnown.Stackable]?: true;
   [WellKnown.QuickSetting]?: QuickSetting<T> | QuickSetting<T>[];
   [WellKnown.Requires]?: ValueRequirement | ValueRequirement[];
-  [WellKnown.RequiresFeatureID]?: string | string[];
+  [WellKnown.RequiresFeatureID]?: FeatureID | FeatureID[];
   // Any thing else...
   [key: string]: any;
 }

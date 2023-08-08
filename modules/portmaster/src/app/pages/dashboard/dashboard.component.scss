@@ -1,5 +1,5 @@
 :host {
-  @apply flex flex-row w-full gap-3 p-4;
+  @apply flex flex-row w-full gap-3 p-4 overflow-auto;
 }
 
 .dashboard-grid {
@@ -12,6 +12,7 @@
     "header header header header"
     "feature feature feature feature"
     "stats   stats   stats   stats"
+    "charts charts charts charts"
     "countries countries map map"
     "blocked blocked map map";
 }
@@ -26,6 +27,10 @@
 
 #stats {
   grid-area: stats;
+}
+
+#charts {
+  grid-area: charts;
 }
 
 #countries {
@@ -58,42 +63,16 @@
   }
 
   .feature-card-list {
-    @apply grid gap-3 grid-flow-col w-full;
-    grid-template-columns: repeat(auto-fit, minmax(0, 1fr));
+    @apply grid gap-3 w-full;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  }
+
+  .mini-stats-list {
+    @apply grid gap-3 w-full;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
   }
 }
 
-.feature-card {
-  @apply flex flex-col p-4 bg-gray-300 rounded shadow w-full relative gap-2 overflow-hidden;
-
-  .disabled-bg {
-    @apply absolute top-0 left-0 text-gray-500;
-  }
-
-  &.disabled {
-    @apply opacity-60 shadow-inner;
-  }
-
-  &:not(.disabled) {
-    &:hover {
-      @apply bg-gray-400;
-    }
-
-    @apply cursor-pointer;
-  }
-
-  header {
-    @apply flex flex-row items-center justify-start gap-2 w-full;
-
-    svg {
-      @apply w-5 h-5;
-    }
-
-    &>span {
-      @apply text-base font-light;
-    }
-  }
-}
 
 ::ng-deep #map {
   #world-group {
@@ -124,38 +103,6 @@
     }
   }
 }
-
-.ribbon {
-  width: 90px;
-  height: 100%;
-  overflow: hidden;
-  position: absolute;
-  top: 0px;
-  right: 0px;
-  z-index: 100;
-}
-
-.ribbon__content {
-  left: -7px;
-  top: 25px;
-  -webkit-transform: rotate(45deg);
-  -ms-transform: rotate(45deg);
-  transform: rotate(45deg);
-  position: absolute;
-  display: block;
-  width: 125px;
-  padding: 2px 0;
-  // background-color: #00aaa0;
-  @apply bg-blue;
-  // box-shadow: 0 0px 10px;
-  color: #fff;
-  text-shadow: 0 1px 1px rgba(0, 0, 0, .2);
-  text-transform: uppercase;
-  text-align: center;
-  border: 2px dotted #fff;
-  outline: 3px solid #f5cd79aa;
-}
-
 
 .mini-stat {
   @apply flex flex-col items-center justify-center py-3 px-2 bg-gray-300 rounded shadow;

@@ -1,9 +1,11 @@
 import { KeyValue } from "@angular/common";
 import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, DestroyRef, ElementRef, OnInit, TrackByFunction, ViewChild, inject } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
-import { AppProfile, AppProfileService, Database, Netquery, SPNService, UserProfile, Verdict } from "@safing/portmaster-api";
+import { AppProfile, AppProfileService, ChartResult, Database, FeatureID, Netquery, SPNService, UserProfile, Verdict } from "@safing/portmaster-api";
+import { SfngDialogService } from "@safing/ui";
 import { GeoPermissibleObjects, Selection, geoMercator, geoPath, json, select } from "d3";
 import { Observable, forkJoin, map, repeat, switchMap } from "rxjs";
+import { SPNAccountDetailsComponent } from "src/app/shared/spn-account-details";
 import { feature } from "topojson-client";
 
 @Component({
@@ -23,6 +25,7 @@ export class DashboardPageComponent implements OnInit, AfterViewInit {
   netquery = inject(Netquery);
   spn = inject(SPNService);
   cdr = inject(ChangeDetectorRef);
+  dialog = inject(SfngDialogService);
 
   blockedProfiles: {
     [profileKey: string]: { profile: AppProfile, count: number }
@@ -37,13 +40,29 @@ export class DashboardPageComponent implements OnInit, AfterViewInit {
   activeConnections: number = 0;
   activeProfiles: number = 0;
   activeIdentities = 0;
+  dataIncoming = 0;
+  dataOutgoing = 0;
+  connectionChart: ChartResult[] = [];
 
   countriesPerProfile: { [profile: string]: string[] } = {}
 
   profile: UserProfile | null = null;
 
+  featureBw = false;
+  featureSPN = false;
+
+  features$ = this.spn.watchEnabledFeatures()
+    .pipe(takeUntilDestroyed());
+
   trackCountry: TrackByFunction<KeyValue<string, any>> = (_, ctr) => ctr.key;
   trackApp: TrackByFunction<KeyValue<string, any>> = (_, ctr) => ctr.key;
+
+  openAccountDetails() {
+    this.dialog.create(SPNAccountDetailsComponent, {
+      autoclose: true,
+      backdrop: 'light'
+    })
+  }
 
   onCountryHover(code: string | null) {
     this.svg.select('#world-group')
@@ -113,9 +132,14 @@ export class DashboardPageComponent implements OnInit, AfterViewInit {
 
     this.netquery
       .query({
-        select: ['country', { $count: { field: '*', as: 'totalCount' } }],
+        select: [
+          'country',
+          { $count: { field: '*', as: 'totalCount' } },
+          { $sum: { field: 'bytes_sent', as: 'bwin' } },
+          { $sum: { field: 'bytes_received', as: 'bwout' } },
+        ],
         query: {
-          verdict: { $eq: Verdict.Accept }
+          verdict: { $eq: Verdict.Accept },
         },
         groupBy: ['country'],
         databases: [Database.Live]
@@ -126,7 +150,17 @@ export class DashboardPageComponent implements OnInit, AfterViewInit {
       )
       .subscribe(result => {
         this.connectionsPerCountry = {};
+        this.dataIncoming = 0;
+        this.dataOutgoing = 0;
+
         result.forEach(row => {
+          this.dataIncoming += row.bwin;
+          this.dataOutgoing += row.bwout;
+
+          if (row.country === '') {
+            return
+          }
+
           this.connectionsPerCountry[row.country!] = row.totalCount || 0;
         })
 
@@ -141,8 +175,8 @@ export class DashboardPageComponent implements OnInit, AfterViewInit {
 
     this.netquery
       .query({
-        select: ['profile', 'country', 'active', 'verdict', { $count: { field: '*', as: 'totalCount' } }],
-        groupBy: ['profile', 'country', 'active', 'verdict'],
+        select: ['profile', 'country', 'active', { $count: { field: '*', as: 'totalCount' } }],
+        groupBy: ['profile', 'country', 'active'],
         databases: [Database.Live],
       })
       .pipe(
@@ -179,7 +213,7 @@ export class DashboardPageComponent implements OnInit, AfterViewInit {
         select: ['exit_node'],
         query: {
           active: { $eq: true },
-          exit_node: { $ne: null }
+          exit_node: { $ne: '' }
         },
         groupBy: ['exit_node'],
       })
@@ -192,6 +226,17 @@ export class DashboardPageComponent implements OnInit, AfterViewInit {
         this.cdr.markForCheck();
       })
 
+    this.netquery
+      .activeConnectionChart({})
+      .pipe(
+        repeat({ delay: 10000 }),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe(result => {
+        this.connectionChart = result;
+        this.cdr.markForCheck();
+      })
+
     this.spn
       .profile$
       .pipe(
@@ -199,6 +244,8 @@ export class DashboardPageComponent implements OnInit, AfterViewInit {
       )
       .subscribe(profile => {
         this.profile = profile;
+        this.featureBw = profile?.current_plan?.feature_ids?.includes(FeatureID.Bandwidth) || false;
+        this.featureSPN = profile?.current_plan?.feature_ids?.includes(FeatureID.SPN) || false;
         this.cdr.markForCheck();
       })
   }

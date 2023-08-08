@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, DestroyRef, OnInit, inject } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { ActivatedRoute, Router } from '@angular/router';
-import { BoolSetting, ChartResult, ConfigService, Netquery, SPNService, SPNStatus, UserProfile } from "@safing/portmaster-api";
+import { BoolSetting, ChartResult, ConfigService, FeatureID, Netquery, SPNService, SPNStatus, UserProfile } from "@safing/portmaster-api";
 import { SfngDialogService } from '@safing/ui';
 import { catchError, forkJoin, interval, of, startWith, switchMap } from "rxjs";
 import { fadeInAnimation, fadeOutAnimation } from "../animations";
@@ -36,7 +36,7 @@ export class SPNStatusComponent implements OnInit {
 
   /** Returns whether or not the current package has the SPN feature */
   get packageHasSPN() {
-    return this.profile?.current_plan?.feature_ids?.includes('spn')
+    return this.profile?.current_plan?.feature_ids?.includes(FeatureID.SPN)
   }
 
   constructor(

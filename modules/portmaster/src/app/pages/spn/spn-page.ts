@@ -5,7 +5,7 @@ import { HttpClient } from '@angular/common/http';
 import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, ComponentRef, DestroyRef, ElementRef, Inject, Injectable, InjectionToken, Injector, OnDestroy, OnInit, QueryList, TemplateRef, ViewChild, ViewChildren, inject } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { ActivatedRoute, ParamMap, Router } from "@angular/router";
-import { AppProfile, ConfigService, Connection, ExpertiseLevel, GeoCoordinates, Netquery, PORTMASTER_HTTP_API_ENDPOINT, PortapiService, SPNService, SPNStatus, UserProfile } from "@safing/portmaster-api";
+import { AppProfile, ConfigService, Connection, ExpertiseLevel, FeatureID, GeoCoordinates, Netquery, PORTMASTER_HTTP_API_ENDPOINT, PortapiService, SPNService, SPNStatus, UserProfile } from "@safing/portmaster-api";
 import { SfngDialogService } from "@safing/ui";
 import { Observable, Subscription, combineLatest, interval, of } from "rxjs";
 import { catchError, debounceTime, map, mergeMap, share, startWith, switchMap, take, takeUntil, withLatestFrom } from "rxjs/operators";
@@ -66,6 +66,8 @@ export class SpnPageComponent implements OnInit, OnDestroy, AfterViewInit {
 
   /** a list of opened country details. required to close them on destry */
   private openedCountryDetails: CountryDetailsComponent[] = [];
+
+  readonly featureID = FeatureID.SPN;
 
   paths: Path[] = [];
 
