@@ -1,6 +1,7 @@
-<ng-container *ngFor="let notif of notifications; trackBy: trackBy; let index=index">
-  <div class="row" (click)="toggelView(notif)" [style.--index]="index" [class.move-up]="notif === expandedNotification"
-    [class.fade-out]="!!expandedNotification">
+<caption class="text-xs text-secondary" *ngIf="!!notifications.length">Notifications</caption>
+
+<div class="flex flex-col w-full gap-2">
+  <div class="row" (click)="toggelView(notif)" *ngFor="let notif of notifications; trackBy: trackBy">
     <div class="type" [class.info]="notif.Type === types.Info" [class.warning]="notif.Type === types.Warning"
       [class.error]="notif.Type === types.Error" [class.broadcast]="notif.isBroadcast">
       <svg *ngIf="notif.isBroadcast" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
@@ -20,21 +21,4 @@
       </div>
     </div>
   </div>
-</ng-container>
-
-<div class="notification-body" [style.--count]="notifications.length" [@fadeIn] *ngIf="!!expandedNotification">
-  <markdown class="message" emoji [data]="expandedNotification.Message"></markdown>
-  <div *ngIf="expandedNotification.isBroadcast" class="broadcast-info">
-    This is a broadcast notification. <sfng-tipup key="broadcast-info" [anchor]="elementRef"></sfng-tipup>
-  </div>
-</div>
-
-<div class="placeholder" *ngIf="!notifications.length">
-  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1" stroke="currentColor"
-    class="w-12 h-12">
-    <path stroke-linecap="round" stroke-linejoin="round"
-      d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-  </svg>
-
-  No Notifications
 </div>

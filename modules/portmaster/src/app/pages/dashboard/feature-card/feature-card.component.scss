@@ -1,5 +1,6 @@
 .feature-card {
   @apply flex flex-col p-4 bg-gray-300 rounded shadow w-full relative gap-2 overflow-hidden;
+  @apply cursor-pointer;
 
   .disabled-bg {
     @apply absolute top-0 left-0 text-gray-500;
@@ -14,7 +15,6 @@
       @apply bg-gray-400;
     }
 
-    @apply cursor-pointer;
   }
 
   header {

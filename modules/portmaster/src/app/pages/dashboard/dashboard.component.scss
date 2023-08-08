@@ -12,9 +12,23 @@
     "header header header header"
     "feature feature feature feature"
     "stats   stats   stats   stats"
+    "stats   stats   stats   stats"
     "charts charts charts charts"
-    "countries countries map map"
-    "blocked blocked map map";
+    "charts charts charts charts"
+    "blocked blocked countries countries"
+    "map map map map";
+}
+
+:host-context(.min-width-1024px) {
+  .dashboard-grid {
+    grid-template-areas:
+      "header header header header"
+      "feature feature feature feature"
+      "stats   stats   stats   stats"
+      "charts charts charts charts"
+      "countries countries map map"
+      "blocked blocked map map";
+  }
 }
 
 #header {
@@ -47,12 +61,12 @@
 
 .auto-grid-3 {
   @apply grid gap-4;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
 }
 
 .auto-grid-4 {
   @apply grid gap-4;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
 }
 
 .feature-card-container {

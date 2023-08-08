@@ -1,10 +1,11 @@
 import { KeyValue } from "@angular/common";
-import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, DestroyRef, ElementRef, OnInit, TrackByFunction, ViewChild, inject } from "@angular/core";
+import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, DestroyRef, ElementRef, OnInit, QueryList, TrackByFunction, ViewChild, ViewChildren, inject } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { AppProfile, AppProfileService, ChartResult, Database, FeatureID, Netquery, SPNService, UserProfile, Verdict } from "@safing/portmaster-api";
 import { SfngDialogService } from "@safing/ui";
 import { GeoPermissibleObjects, Selection, geoMercator, geoPath, json, select } from "d3";
 import { Observable, forkJoin, map, repeat, switchMap } from "rxjs";
+import { SfngNetqueryLineChartComponent } from "src/app/shared/netquery/line-chart/line-chart";
 import { SPNAccountDetailsComponent } from "src/app/shared/spn-account-details";
 import { feature } from "topojson-client";
 
@@ -18,6 +19,9 @@ export class DashboardPageComponent implements OnInit, AfterViewInit {
   @ViewChild('map', { static: true, read: ElementRef })
   mapElement!: ElementRef<HTMLElement>;
 
+  @ViewChildren(SfngNetqueryLineChartComponent)
+  lineCharts!: QueryList<SfngNetqueryLineChartComponent>;
+
   private svg!: Selection<SVGSVGElement, unknown, null, never>;
 
   destroyRef = inject(DestroyRef);
@@ -26,6 +30,8 @@ export class DashboardPageComponent implements OnInit, AfterViewInit {
   spn = inject(SPNService);
   cdr = inject(ChangeDetectorRef);
   dialog = inject(SfngDialogService);
+  host = inject(ElementRef);
+  resizeObserver!: ResizeObserver;
 
   blockedProfiles: {
     [profileKey: string]: { profile: AppProfile, count: number }
@@ -38,11 +44,13 @@ export class DashboardPageComponent implements OnInit, AfterViewInit {
   countryNames: { [country: string]: string } = {};
 
   activeConnections: number = 0;
+  blockedConnections: number = 0;
   activeProfiles: number = 0;
   activeIdentities = 0;
   dataIncoming = 0;
   dataOutgoing = 0;
   connectionChart: ChartResult[] = [];
+  tunneldConnectionChart: ChartResult[] = [];
 
   countriesPerProfile: { [profile: string]: string[] } = {}
 
@@ -126,6 +134,10 @@ export class DashboardPageComponent implements OnInit, AfterViewInit {
         takeUntilDestroyed(this.destroyRef),
       )
       .subscribe(results => {
+        this.blockedConnections = 0;
+        Object.keys(results)
+          .forEach(profile => this.blockedConnections += results[profile].count);
+
         this.blockedProfiles = results;
         this.cdr.markForCheck();
       })
@@ -148,7 +160,7 @@ export class DashboardPageComponent implements OnInit, AfterViewInit {
         repeat({ delay: 10000 }),
         takeUntilDestroyed(this.destroyRef),
       )
-      .subscribe(result => {
+      .subscribe(async result => {
         this.connectionsPerCountry = {};
         this.dataIncoming = 0;
         this.dataOutgoing = 0;
@@ -163,6 +175,10 @@ export class DashboardPageComponent implements OnInit, AfterViewInit {
 
           this.connectionsPerCountry[row.country!] = row.totalCount || 0;
         })
+
+        if (!this.svg) {
+          await this.renderMap();
+        }
 
         this.svg.select('#world-group')
           .selectAll('path')
@@ -210,12 +226,12 @@ export class DashboardPageComponent implements OnInit, AfterViewInit {
 
     this.netquery
       .query({
-        select: ['exit_node'],
-        query: {
-          active: { $eq: true },
-          exit_node: { $ne: '' }
-        },
+        query: { tunneled: { $eq: true }, exit_node: { $ne: "" } },
         groupBy: ['exit_node'],
+        select: [
+          'exit_node',
+          { $count: { field: '*', as: 'totalCount' } }
+        ]
       })
       .pipe(
         repeat({ delay: 10000 }),
@@ -237,6 +253,17 @@ export class DashboardPageComponent implements OnInit, AfterViewInit {
         this.cdr.markForCheck();
       })
 
+    this.netquery
+      .activeConnectionChart({ tunneled: { $eq: true } })
+      .pipe(
+        repeat({ delay: 10000 }),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe(result => {
+        this.tunneldConnectionChart = result;
+        this.cdr.markForCheck();
+      })
+
     this.spn
       .profile$
       .pipe(
@@ -245,12 +272,40 @@ export class DashboardPageComponent implements OnInit, AfterViewInit {
       .subscribe(profile => {
         this.profile = profile;
         this.featureBw = profile?.current_plan?.feature_ids?.includes(FeatureID.Bandwidth) || false;
-        this.featureSPN = profile?.current_plan?.feature_ids?.includes(FeatureID.SPN) || false;
+        const featureSPN = profile?.current_plan?.feature_ids?.includes(FeatureID.SPN) || false;
+
+        if (featureSPN !== this.featureSPN) {
+          this.featureSPN = featureSPN;
+
+          // force a full change-detection cylce now!
+          this.cdr.detectChanges()
+
+          // force re-draw of the charts after change-detection because the
+          // width may change now.
+          this.lineCharts?.forEach(chart => chart.redraw())
+        }
         this.cdr.markForCheck();
       })
   }
 
   async ngAfterViewInit() {
+    await this.renderMap();
+
+    this.resizeObserver = new ResizeObserver(() => {
+      this.renderMap();
+      this.lineCharts.forEach(chart => chart.redraw());
+    });
+
+    this.resizeObserver.observe(this.host.nativeElement);
+
+    this.destroyRef.onDestroy(() => this.resizeObserver.disconnect());
+  }
+
+  async renderMap() {
+    if (!!this.svg) {
+      this.svg.remove();
+    }
+
     const map = select(this.mapElement.nativeElement);
 
     const size = this.mapElement.nativeElement.getBoundingClientRect();
@@ -266,8 +321,23 @@ export class DashboardPageComponent implements OnInit, AfterViewInit {
 
     const projection = geoMercator()
       .rotate([0, 0])
-      .scale(size.width / 8)
-      .translate([size.width / 2, size.height / 2 + 80]);
+      .scale(1)
+      .translate([size.width / 2, size.height / 2]);
+
+    // returns the top-left and the bottom-right of the current projection
+    const mercatorBounds = () => {
+      const yaw = projection.rotate()[0];
+      const xymax = projection([-yaw + 180 - 1e-6, -83])!;
+      const xymin = projection([-yaw - 180 + 1e-6, 83])!;
+      return [xymin, xymax];
+    }
+
+    const initialBounds = mercatorBounds();
+
+    const s = size.width / (initialBounds[1][0] - initialBounds[0][0]);
+
+    // scale the projection to the initial bounds
+    projection.scale(s)
 
     const pathFunc = geoPath().projection(projection);
 

@@ -110,7 +110,7 @@ export class SfngNetqueryLineChartComponent implements OnChanges, OnInit, AfterV
     return 0;
   }
 
-  private redraw(event?: Event) {
+  redraw(event?: Event) {
     if (!!this.svg) {
       this.svg.remove();
     }

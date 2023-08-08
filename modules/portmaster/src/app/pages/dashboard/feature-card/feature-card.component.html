@@ -33,13 +33,14 @@
         </div>
       </header>
       <div>
-        <span
-          class="font-normal ml-7 text-xxs text-secondary">{{ feature?.RequiredFeatureID ? (disabled ? 'Upgrade required' : 'Purchased') : 'Free / Forever'}}
+        <span class="font-normal ml-7 text-xxs text-secondary">
+          {{ (disabled ? 'Available in ' : '') + 'Portmaster ' + feature?.InPackage?.Name}}
           {{ commingSoon ? ' - Comming Soon' : '' }}</span>
       </div>
 
       <div *ngIf="!commingSoon && !disabled && configValue !== undefined" class="absolute right-4 bottom-4">
-        <sfng-toggle [ngModel]="configValue" (ngModelChange)="updateSettingsValue($event)"></sfng-toggle>
+        <sfng-toggle [ngModel]="configValue" (ngModelChange)="updateSettingsValue($event)"
+          (click)="$event.cancelBubble = true"></sfng-toggle>
       </div>
 
       <div class="ribbon" *ngIf="!!disabled && !!feature?.InPackage"><span class="ribbon__content"

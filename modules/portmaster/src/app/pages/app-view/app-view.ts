@@ -1,6 +1,6 @@
 import { ChangeDetectorRef, Component, OnDestroy, OnInit, ViewChild, inject } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { AppProfile, AppProfileService, ChartResult, Condition, ConfigService, Database, DebugAPI, ExpertiseLevel, FlatConfigObject, IProfileStats, LayeredProfile, Netquery, Setting, flattenProfileConfig, setAppSetting, Feature, SPNService } from '@safing/portmaster-api';
+import { AppProfile, AppProfileService, ChartResult, Condition, ConfigService, Database, DebugAPI, ExpertiseLevel, FeatureID, FlatConfigObject, IProfileStats, LayeredProfile, Netquery, SPNService, Setting, flattenProfileConfig, setAppSetting } from '@safing/portmaster-api';
 import { SfngDialogService } from '@safing/ui';
 import { BehaviorSubject, Observable, Subscription, combineLatest, interval, of } from 'rxjs';
 import { distinctUntilChanged, map, mergeMap, startWith, switchMap } from 'rxjs/operators';
@@ -23,6 +23,7 @@ import { EditProfileDialog } from './../../shared/edit-profile-dialog/edit-profi
 export class AppViewComponent implements OnInit, OnDestroy {
   @ViewChild(SfngNetqueryViewer)
   netqueryViewer?: SfngNetqueryViewer;
+
 
   /** subscription to our update-process observable */
   private subscription = Subscription.EMPTY;
@@ -50,7 +51,7 @@ export class AppViewComponent implements OnInit, OnDestroy {
   canUseHistory = inject(SPNService).profile$
     .pipe(
       map(profile => {
-        return profile?.current_plan?.feature_ids?.includes(Feature.History) || false;
+        return profile?.current_plan?.feature_ids?.includes(FeatureID.History) || false;
       })
     );
 
@@ -469,6 +470,7 @@ export class AppViewComponent implements OnInit, OnDestroy {
 
           this.cdr.markForCheck();
         });
+
   }
 
   /**

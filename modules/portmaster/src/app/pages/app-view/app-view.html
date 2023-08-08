@@ -66,7 +66,8 @@
               <span class="text-opacity-75 text-primary"
                 sfng-tooltip="Support for connection history requires a subscription">None</span>
               <ng-container *ngIf="(canUseHistory | async) === false">
-                <a class="text-xs underline cursor-pointer text-opacity-75" href="https://safing.io/pricing/?source=Portmaster">Available in Portmaster Plus</a>
+                <a class="text-xs text-opacity-75 underline cursor-pointer"
+                  href="https://safing.io/pricing/?source=Portmaster">Available in Portmaster Plus</a>
               </ng-container>
             </ng-container>
           </div>
@@ -138,7 +139,6 @@
         </sfng-netquery-viewer>
       </div>
     </sfng-tab>
-
     <!-- App Settings -->
     <sfng-tab id="settings" title="Settings">
       <div *sfngTabContent class="py-4 overflow-auto" cdkScrollable>

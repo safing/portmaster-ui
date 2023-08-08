@@ -65,6 +65,11 @@ export class FeatureCardComponent implements OnChanges, OnDestroy {
 
   navigateToConfigScope() {
     if (this.disabled) {
+      if ('app' in window) {
+        window.app.openExternal("https://safing.io/pricing?source=portmaster");
+      } else {
+        (window as any).open("https://safing.io/pricing?source=portmaster")
+      }
       return;
     }
 

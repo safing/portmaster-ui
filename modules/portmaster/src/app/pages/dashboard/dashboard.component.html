@@ -3,9 +3,10 @@
     <h1 class="flex flex-col flex-grow text-lg font-light text-white">
       Dashboard
       <span class="text-sm font-normal text-secondary">Welcome back
-        <ng-container *ngIf="!!profile">
-          , <span class="text-primary">{{ profile.username }}</span>!
+        <ng-container *ngIf="!!profile && profile.state !== ''">
+          , <span class="text-primary">{{ profile.username }}</span>
         </ng-container>
+        !
       </span>
     </h1>
 
@@ -14,10 +15,17 @@
         <div class="flex flex-col text-xs leading-4">
           <span class="font-light text-secondary">Your current plan is <span
               class="font-normal text-green-300">{{ profile.current_plan?.name || 'N/A' }}</span></span>
-          <span class="font-light text-secondary">and ends {{ profile.subscription ? ' in ': ''}} <span
-              class="font-normal text-primary">
+
+          <span class="font-light text-secondary" *ngIf="!profile.subscription?.next_billing_date">
+            and ends {{ profile.subscription ? ' in ': ''}} <span class="font-normal text-primary">
               {{ profile.subscription ? (profile.subscription.ends_at | timeAgo) : 'never'}}
-            </span></span>
+            </span>
+          </span>
+          <span class="font-light text-secondary" *ngIf="!!profile.subscription?.next_billing_date">
+            and re-news in <span class="font-normal text-primary">
+              {{ profile.subscription!.next_billing_date | timeAgo }}
+            </span>
+          </span>
         </div>
 
         <button *ngIf="profile.subscription" (click)="openAccountDetails()"
@@ -27,7 +35,7 @@
 
         <button *ngIf="!profile.subscription" (click)="openAccountDetails()"
           class="text-xs font-normal text-white cursor-pointer btn bg-blue bg-opacity-80 hover:bg-opacity-100 hover:bg-blue">
-          Subscribe
+          Login / Subscribe
         </button>
 
       </ng-container>
@@ -44,68 +52,79 @@
       <app-feature-card *ngFor="let feature of (features$ | async)" [feature]="feature" [disabled]="!feature.enabled">
       </app-feature-card>
     </div>
-
-    <span class="font-light text-xxs text-primary">
-      Want more features?
-      <a href="https://safing.io/pricing/?source=portmaster" class="font-normal underline text-primary">Upgrade your
-        plan now! 🚀</a>
-      or
-      <a href="https://safing.io/pricing/#comparison?source=portmaster" class="font-normal underline text-primary">find
-        out more</a>
-    </span>
   </div>
 
 
   <div class="feature-card-container" id="stats">
     <label>
-      Statistics
+      Statistics <span class="text-xxs">(last 10 minutes)</span>
     </label>
 
     <!-- Mini Stats -->
     <div class="mini-stats-list">
-      <div class="mini-stat">
-        <label>Trackers Blocked</label>
-        <span>1.2k</span>
+      <div class="mini-stat" routerLink="/monitor" [queryParams]="{q: 'verdict:3 verdict:4'}">
+        <label>Connections Blocked</label>
+        <span>{{ blockedConnections }}</span>
       </div>
 
-      <div class="mini-stat">
+      <div class="mini-stat" routerLink="/monitor" [queryParams]="{q: 'active:true'}">
         <label>Active Connections</label>
         <span>{{ activeConnections }}</span>
       </div>
 
-      <div class="mini-stat">
+      <div class="mini-stat" routerLink="/monitor" [queryParams]="{q: 'active:true groupby:profile'}">
         <label>Active Apps</label>
         <span>{{ activeProfiles }}</span>
       </div>
 
       <div class="mini-stat">
         <label>Data Sent</label>
-        <span>
-          {{ featureBw ? (dataOutgoing | bytes) : 'N/A'}}
+        <span *ngIf="featureBw">
+          {{ dataOutgoing | bytes }}
+        </span>
+
+        <span *ngIf="!featureBw" class="!text-xxs !text-secondary w-full text-center !leading-3">
+          Available in <br />Portmaster Plus
         </span>
       </div>
 
       <div class="mini-stat">
         <label>Data Received</label>
-        <span>
-          {{ featureBw ? (dataIncoming | bytes) : 'N/A'}}
+        <span *ngIf="featureBw">
+          {{ dataIncoming | bytes }}
+        </span>
+        <span *ngIf="!featureBw" class="!text-xxs !text-secondary w-full text-center !leading-3">
+          Available in <br />Portmaster Plus
         </span>
       </div>
 
-      <div class="mini-stat">
+      <div class="mini-stat" routerLink="/monitor" [queryParams]="{q: 'tunneled:true groupby:exit_node'}">
         <label>SPN Identities</label>
-        <span>{{ featureSPN ? activeIdentities : 'N/A' }}</span>
+        <span *ngIf="featureSPN">{{ activeIdentities }}</span>
+        <span *ngIf="!featureSPN" class="!text-xxs !text-secondary w-full text-center !leading-3">
+          Available in <br />Portmaster Pro
+        </span>
       </div>
     </div>
   </div>
 
   <div class="feature-card-container" id="charts">
-    <label>
-      Active/Blocked Connections
-    </label>
     <div class="mini-stats-list">
       <div class="mini-stat">
-        <sfng-netquery-line-chart class="w-full h-36" [data]="connectionChart"></sfng-netquery-line-chart>
+        <label routerLink="/monitor">
+          Active/Blocked Connections
+        </label>
+        <sfng-netquery-line-chart activeConnectionColor="text-green-300 text-opacity-70" class="w-full h-36"
+          [data]="connectionChart"></sfng-netquery-line-chart>
+      </div>
+      <div class="mini-stat" *ngIf="featureSPN">
+        <label routerLink="/monitor" [queryParams]="{q: 'tunneled:true'}">
+          Connections Tunneled through SPN
+        </label>
+        <sfng-netquery-line-chart activeConnectionColor="text-blue"
+          activeConnectionAreaColor="text-blue text-opacity-25" hideBlocked="true" class="w-full h-36"
+          [data]="tunneldConnectionChart">
+        </sfng-netquery-line-chart>
       </div>
     </div>
   </div>
@@ -135,8 +154,8 @@
     <label>
       Recently Blocked Applications
     </label>
-    <div class="block w-full">
-      <span *ngIf="!(blockedProfiles |keyvalue)?.length" class="flex flex-row items-center justify-center gap-2">
+    <div class="block w-full h-full">
+      <span *ngIf="!(blockedProfiles |keyvalue)?.length" class="flex flex-row items-center justify-center h-full gap-2">
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
           class="w-6 h-6">
           <path stroke-linecap="round" stroke-linejoin="round"

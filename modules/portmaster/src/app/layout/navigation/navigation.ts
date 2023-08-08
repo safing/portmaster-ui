@@ -30,7 +30,7 @@ export class NavigationComponent implements OnInit {
   hasNewNotifications = false;
 
   /** The color to use for the notifcation-available hint (dot) */
-  notificationColor: string = 'bg-green-300';
+  notificationColor: string = 'text-green-300';
 
   /** Whether or not we have new, unseen prompts */
   hasNewPrompts = false;
@@ -110,12 +110,12 @@ export class NavigationComponent implements OnInit {
         }
 
         if (notif.some(n => n.Type === NotificationType.Error)) {
-          this.notificationColor = 'bg-red-300';
+          this.notificationColor = 'text-red-300';
         } else
           if (notif.some(n => n.Type === NotificationType.Warning)) {
-            this.notificationColor = 'bg-yellow-300';
+            this.notificationColor = 'text-yellow-300';
           } else {
-            this.notificationColor = 'bg-green-300';
+            this.notificationColor = 'text-green-300';
           }
 
         this.cdr.markForCheck();
