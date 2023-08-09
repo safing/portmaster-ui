@@ -111,12 +111,11 @@ export class NavigationComponent implements OnInit {
 
         if (notif.some(n => n.Type === NotificationType.Error)) {
           this.notificationColor = 'text-red-300';
-        } else
-          if (notif.some(n => n.Type === NotificationType.Warning)) {
-            this.notificationColor = 'text-yellow-300';
-          } else {
-            this.notificationColor = 'text-green-300';
-          }
+        } else if (notif.some(n => n.Type === NotificationType.Warning)) {
+          this.notificationColor = 'text-yellow-300';
+        } else {
+          this.notificationColor = 'text-green-300';
+        }
 
         this.cdr.markForCheck();
       })
