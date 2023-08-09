@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, EventEmitter, Input, OnChanges, Output, SimpleChanges, inject } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { BoolSetting, Feature, SPNService, Setting, getActualValue } from '@safing/portmaster-api';
+import { BoolSetting, FeatureID, SPNService, Setting, getActualValue } from '@safing/portmaster-api';
 import { BehaviorSubject, Observable, map } from 'rxjs';
 import { share } from 'rxjs/operators';
 import { SaveSettingEvent } from 'src/app/shared/config';
@@ -18,7 +18,7 @@ export class QsHistoryComponent implements OnChanges {
     .pipe(
       takeUntilDestroyed(),
       map(profile => {
-        return (profile?.current_plan?.feature_ids?.includes(Feature.History)) || false;
+        return (profile?.current_plan?.feature_ids?.includes(FeatureID.History)) || false;
       }),
       share({ connector: () => new BehaviorSubject<boolean>(false) })
     )

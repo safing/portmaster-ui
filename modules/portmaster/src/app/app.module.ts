@@ -24,7 +24,9 @@ import { IntroModule } from './intro';
 import { NavigationComponent } from './layout/navigation/navigation';
 import { SideDashComponent } from './layout/side-dash/side-dash';
 import { AppOverviewComponent, AppViewComponent, QuickSettingInternetButtonComponent } from './pages/app-view';
+import { QsHistoryComponent } from './pages/app-view/qs-history/qs-history.component';
 import { QuickSettingUseSPNButtonComponent } from './pages/app-view/qs-use-spn/qs-use-spn';
+import { DashboardPageComponent } from './pages/dashboard/dashboard.component';
 import { MonitorPageComponent } from './pages/monitor';
 import { SettingsComponent } from './pages/settings/settings';
 import { SPNModule } from './pages/spn/spn.module';
@@ -58,7 +60,7 @@ import { SPNLoginComponent } from './shared/spn-login';
 import { SPNStatusComponent } from './shared/spn-status';
 import { PilotWidgetComponent } from './shared/status-pilot';
 import { PlaceholderComponent } from './shared/text-placeholder';
-import { QsHistoryComponent } from './pages/app-view/qs-history/qs-history.component';
+import { FeatureCardComponent } from './pages/dashboard/feature-card/feature-card.component';
 
 @NgModule({
   declarations: [
@@ -90,6 +92,8 @@ import { QsHistoryComponent } from './pages/app-view/qs-history/qs-history.compo
     EditProfileDialog,
     ProcessDetailsDialogComponent,
     QsHistoryComponent,
+    DashboardPageComponent,
+    FeatureCardComponent
   ],
   imports: [
     BrowserModule,

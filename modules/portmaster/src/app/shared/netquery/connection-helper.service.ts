@@ -167,6 +167,28 @@ export class NetqueryHelper {
     )
   }
 
+  attachPins(): OperatorFunction<QueryResult[], (QueryResult & { __exitNode?: Pin })[]> {
+    return source => combineLatest([
+      source,
+      this.spnMapPins$,
+    ]).pipe(
+      map(([items, pins]) => {
+        let lm = new Map<string, Pin>();
+        pins.forEach(pin => {
+          lm.set(pin.ID, pin)
+        })
+
+        return items.map(item => {
+          if ('exit_node' in item) {
+            item.__exitNode = lm.get(item.exit_node!)
+          }
+
+          return item;
+        })
+      })
+    )
+  }
+
   encodeToPossibleValues(field: keyof NetqueryConnection): OperatorFunction<QueryResult[], (QueryResult & PossilbeValue)[]> {
     return source => combineLatest([
       source,

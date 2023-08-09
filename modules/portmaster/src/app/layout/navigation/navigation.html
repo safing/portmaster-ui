@@ -1,11 +1,11 @@
 <div class="flex flex-col items-center gap-1">
   <div class="relative w-16 h-16">
 
-    <app-security-lock [@fadeIn] [@fadeOut] mode="small" class="absolute w-16 h-16"
+    <app-security-lock [@fadeIn] [@fadeOut] mode="small" class="absolute w-16 h-16" routerLink="dashboard"
       *ngIf="sideDashStatus === 'collapsed'">
     </app-security-lock>
 
-    <div class="absolute flex flex-col items-center justify-center w-16 h-16 outline-none" routerLink="monitor"
+    <div class="absolute flex flex-col items-center justify-center w-16 h-16 outline-none" routerLink="dashboard"
       [@fadeIn] [@fadeOut] *ngIf="sideDashStatus === 'expanded'">
       <div class="relative">
 
@@ -56,24 +56,15 @@
 
   <div class="pt-1 border-t border-gray-400 nav-list">
     <!-- The notification drop-down -->
-    <div
-      sfngTipUpTrigger="navNotifications" sfngTipUpPassive
-      class="relative link" cdkOverlayOrigin #notifOrigin="cdkOverlayOrigin"
-      (click)="notificationDropDown.toggle(notifOrigin)" [class.active]="notificationDropDown.isOpen">
+    <div sfngTipUpTrigger="navNotifications" sfngTipUpPassive class="relative mt-3" (click)="toggleSideDash($event)"
+      *ngIf="sideDashStatus !== 'expanded'">
 
-      <span *ngIf="hasNewNotifications"
-        class="absolute w-1.5 h-1.5 {{ notificationColor }} rounded-full top-1.5 right-1.5"></span>
-
-      <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"
-        stroke-width="2">
+      <svg class="w-4 h-4 {{ hasNewNotifications ? notificationColor : 'text-tertiary' }}" xmlns="http://www.w3.org/2000/svg"
+        fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
         <path stroke-linecap="round" stroke-linejoin="round"
           d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
       </svg>
     </div>
-    <sfng-dropdown [positions]="dropDownPositions" externalTrigger="true" #notificationDropDown offsetY="0" offsetX="10"
-      overlayClass="rounded-t">
-      <app-notification-list></app-notification-list>
-    </sfng-dropdown>
 
     <!-- The prompt list drop-down -->
     <div class="relative link" cdkOverlayOrigin #promptOrigin="cdkOverlayOrigin"
@@ -162,11 +153,9 @@
   </div>
 </div>
 <div class="nav-lower-list">
-  <div class="relative link"
-    sfngTipUpTrigger="navTools" sfngTipUpPassive
-    tooltip="Version and Tools" sfngTooltipDelay="1000" snfgTooltipPosition="right"
-    (click)="settingsMenu.dropdown.toggle(settingsMenuTrigger)" cdkOverlayOrigin
-    #settingsMenuTrigger="cdkOverlayOrigin" [class.active]="settingsMenu.dropdown.isOpen">
+  <div class="relative link" sfngTipUpTrigger="navTools" sfngTipUpPassive tooltip="Version and Tools"
+    sfngTooltipDelay="1000" snfgTooltipPosition="right" (click)="settingsMenu.dropdown.toggle(settingsMenuTrigger)"
+    cdkOverlayOrigin #settingsMenuTrigger="cdkOverlayOrigin" [class.active]="settingsMenu.dropdown.isOpen">
 
     <span *ngIf="versions?.Channel !== 'stable'"
       class="absolute w-1.5 h-1.5 bg-yellow-300 rounded-full top-1.5 right-1.5"></span>
@@ -210,13 +199,12 @@
     <app-menu-item (click)="clearDNSCache($event)">Clear DNS Cache</app-menu-item>
     <app-menu-item (click)="openDataDir($event)">Open Data Directory</app-menu-item>
     <app-menu-item (click)="copyDebugInfo($event)">Copy Debug Info</app-menu-item>
+    <app-menu-item (click)="cleanupHistory($event)">Cleanup Network History</app-menu-item>
   </app-menu>
 
   <!-- Power Menu -->
-  <div
-    sfngTipUpTrigger="navPower" sfngTipUpPassive
-    tooltip="Shutdown and Restart" sfngTooltipDelay="1000" snfgTooltipPosition="right"
-    class="link" (click)="powerMenu.dropdown.toggle(powerMenuTrigger)" cdkOverlayOrigin
+  <div sfngTipUpTrigger="navPower" sfngTipUpPassive tooltip="Shutdown and Restart" sfngTooltipDelay="1000"
+    snfgTooltipPosition="right" class="link" (click)="powerMenu.dropdown.toggle(powerMenuTrigger)" cdkOverlayOrigin
     #powerMenuTrigger="cdkOverlayOrigin" [class.active]="powerMenu.dropdown.isOpen">
 
     <svg version="1.1" viewBox="0 0 24 24" class="help" xmlns="http://www.w3.org/2000/svg"

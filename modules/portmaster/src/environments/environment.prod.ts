@@ -1,3 +1,4 @@
+/*
 export const environment = new class {
   readonly supportHub = "https://support.safing.io"
   readonly production = true;
@@ -11,3 +12,11 @@ export const environment = new class {
     return result;
   }
 }
+*/
+
+export const environment = {
+  production: false,
+  portAPI: "ws://127.0.0.1:817/api/database/v1",
+  httpAPI: "http://127.0.0.1:817/api",
+  supportHub: "https://support.safing.io"
+};

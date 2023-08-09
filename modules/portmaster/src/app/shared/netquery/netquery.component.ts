@@ -2,7 +2,7 @@ import { coerceArray } from "@angular/cdk/coercion";
 import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, DestroyRef, EventEmitter, Input, OnDestroy, OnInit, Output, QueryList, TemplateRef, TrackByFunction, ViewChildren, inject } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { ActivatedRoute, Router } from "@angular/router";
-import { ChartResult, Condition, Database, Feature, IPScope, Netquery, NetqueryConnection, OrderBy, PossilbeValue, Query, QueryResult, SPNService, Select, Verdict } from "@safing/portmaster-api";
+import { ChartResult, Condition, Database, FeatureID, IPScope, Netquery, NetqueryConnection, OrderBy, Pin, PossilbeValue, Query, QueryResult, SPNService, Select, Verdict } from "@safing/portmaster-api";
 import { Datasource, DynamicItemsPaginator, SelectOption } from "@safing/ui";
 import { BehaviorSubject, Observable, Subject, combineLatest, forkJoin, interval, of } from "rxjs";
 import { catchError, debounceTime, filter, map, share, skip, switchMap, take, takeUntil } from "rxjs/operators";
@@ -61,6 +61,7 @@ interface LocalQueryResult extends QueryResult {
   _chart: Observable<ChartResult[]> | null;
   _group: Observable<DynamicItemsPaginator<NetqueryConnection>> | null;
   __profile?: LocalAppProfile;
+  __exitNode?: Pin;
 }
 
 /**
@@ -180,7 +181,7 @@ export class SfngNetqueryViewer implements OnInit, OnDestroy, AfterViewInit {
           return false;
         }
 
-        return profile.current_plan?.feature_ids?.includes(Feature.History) || false;
+        return profile.current_plan?.feature_ids?.includes(FeatureID.History) || false;
       })
     );
 
@@ -335,6 +336,7 @@ export class SfngNetqueryViewer implements OnInit, OnDestroy, AfterViewInit {
         return this.netquery.query(query)
           .pipe(
             this.helper.attachProfile(),
+            this.helper.attachPins(),
             map(results => {
               return (results || []).map(r => {
                 const grpFilter: Condition = {

@@ -116,7 +116,7 @@
   </sfng-dropdown>
 
   <div class="flex flex-row items-center gap-2 px-2 py-1 bg-gray-300 border border-gray-300 rounded text-xxs"
-  *ngIf="(canUseHistory$ | async)">
+    *ngIf="(canUseHistory$ | async)">
     <sfng-toggle [(ngModel)]="useHistory" (ngModelChange)="performSearch()">
     </sfng-toggle>
     Search History
@@ -190,8 +190,20 @@
           <span>{{ data.__profile.Name }}</span>
         </span>
 
+        <!-- SPN Pin specific column rendering -->
+        <span *ngIf="key === 'exit_node' && !!data.__exitNode" class="flex flex-row items-center gap-2">
+          <span class="text-secondary text-xxs">
+            (
+            <span class="text-primary"
+              *ngIf="(data.__exitNode.EntityV4 || data.__exitNode.EntityV6)?.Country as country"
+              [appCountryFlags]="country"></span>
+            )
+          </span>
+          <span>{{ data.__exitNode.Name }}</span>
+        </span>
+
         <!-- everything else -->
-        <span style="direction: rtl" *ngIf="key !== 'domain' && key !== 'profile'"
+        <span style="direction: rtl" *ngIf="key !== 'domain' && key !== 'profile' && key !== 'exit_node'"
           class="overflow-hidden text-primary overflow-ellipsis">
           <span style="direction: ltr; unicode-bidi: bidi-override;">
             {{ data[key] || 'N/A' }}

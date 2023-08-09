@@ -29,21 +29,28 @@ export function timeAgo(value: number | Date | string) {
     value = value.valueOf() / 1000;
   }
 
+  let suffix = 'ago'
+
   let diffInSeconds = Math.floor(((new Date()).valueOf() - (value * 1000)) / 1000);
+  if (diffInSeconds < 0) {
+    diffInSeconds = diffInSeconds * -1;
+    suffix = ''
+  }
+
   for (let i = formats.length - 1; i >= 0; i--) {
     const f = formats[i];
     let n = Math.floor(diffInSeconds / f.ceiling);
     if (n > 0) {
       if (i < 1) {
-        return `< 1 min ago`
+        return `< 1 min ` + suffix;
       }
       let text = formats[i + 1].text;
       if (n > 1) {
         text += 's';
       }
-      return `${n} ${text} ago`
+      return `${n} ${text} ` + suffix
     }
   }
 
-  return "< 1 min ago" // actually just now (diffInSeconds == 0)
+  return "< 1 min" + suffix // actually just now (diffInSeconds == 0)
 }

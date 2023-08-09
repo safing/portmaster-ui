@@ -63,6 +63,7 @@ import { SPNFeatureCarouselComponent } from './spn-feature-carousel';
     SpnPageComponent,
     SpnPinRouteComponent,
     SpnNodeIconComponent,
+    MapRendererComponent,
   ]
 })
 export class SPNModule { }

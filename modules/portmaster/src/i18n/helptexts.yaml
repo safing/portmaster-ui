@@ -32,14 +32,14 @@ intro:
     Open tips to learn how the Portmaster work.
 
     Tips like this one are found throughout the Portmaster. With some tips you can tour an element or a feature, like this:
-  nextKey: navNotifications
+  nextKey: navShield
 
-navNotifications:
-  title: Notifications
+navShield:
+  title: Status Shield & Dashboard
   content: |
-    View any active notifications.
+    The shield gives you a high level overview of Portmaster's status. If turns any other color than green, look for a notification that tells you what is going on.
 
-    A colored dot signifies the presence and urgency of the active noticiations, together with the color of the shield.
+    __Click the shield in order to open the dashboard.__
   nextKey: navMonitor
 
 navMonitor:

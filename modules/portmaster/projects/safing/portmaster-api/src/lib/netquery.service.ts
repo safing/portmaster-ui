@@ -24,6 +24,10 @@ export interface Sum {
     condition: Condition;
     as: string;
     distinct?: boolean;
+  } | {
+    field: string;
+    as: string;
+    distinct?: boolean;
   }
 }
 

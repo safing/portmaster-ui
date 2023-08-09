@@ -2,8 +2,9 @@ import { HttpClient, HttpParams, HttpResponse } from "@angular/common/http";
 import { Inject, Injectable } from "@angular/core";
 import { BehaviorSubject, Observable, of } from "rxjs";
 import { filter, map, multicast, refCount, share, switchMap } from "rxjs/operators";
+import { FeatureID } from "./features";
 import { PORTMASTER_HTTP_API_ENDPOINT, PortapiService } from './portapi.service';
-import { Pin, SPNStatus, UserProfile } from "./spn.types";
+import { Feature, Pin, SPNStatus, UserProfile } from "./spn.types";
 
 @Injectable({ providedIn: 'root' })
 export class SPNService {
@@ -91,6 +92,39 @@ export class SPNService {
       responseType: 'text',
       observe: 'response'
     })
+  }
+
+  watchEnabledFeatures(): Observable<(Feature & { enabled: boolean })[]> {
+    return this.profile$
+      .pipe(
+        switchMap(profile => {
+          return this.loadFeaturePackages()
+            .pipe(
+              map(features => {
+                return features.map(feature => {
+                  console.log(feature, profile?.current_plan?.feature_ids)
+                  return {
+                    ...feature,
+                    enabled: feature.RequiredFeatureID === FeatureID.None || profile?.current_plan?.feature_ids?.includes(feature.RequiredFeatureID) || false,
+                  }
+                })
+              })
+            )
+        })
+      );
+  }
+
+  /** Returns a list of all feature packages */
+  loadFeaturePackages(): Observable<Feature[]> {
+    return this.http.get<{ Features: Feature[] }>(`${this.httpAPI}/v1/account/features`)
+      .pipe(
+        map(response => response.Features.map(feature => {
+          return {
+            ...feature,
+            IconURL: `${this.httpAPI}/v1/account/features/${feature.ID}/icon`,
+          }
+        }))
+      );
   }
 
   /**

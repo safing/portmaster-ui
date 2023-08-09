@@ -1,3 +1,4 @@
+import { FeatureID } from './features';
 import { GeoCoordinates, IntelEntity } from './network.types';
 import { Record } from './portapi.types';
 
@@ -55,16 +56,16 @@ export interface Plan {
   amount: number;
   months: number;
   renewable: boolean;
-  feature_ids: string[];
+  feature_ids: FeatureID[];
 }
 
 export interface View {
-    Message           : string;
-    ShowAccountData   : boolean;
-    ShowAccountButton : boolean;
-    ShowLoginButton   : boolean;
-    ShowRefreshButton : boolean;
-    ShowLogoutButton  : boolean;
+  Message: string;
+  ShowAccountData: boolean;
+  ShowAccountButton: boolean;
+  ShowLoginButton: boolean;
+  ShowRefreshButton: boolean;
+  ShowLogoutButton: boolean;
 }
 
 export interface UserProfile extends Record {
@@ -75,7 +76,27 @@ export interface UserProfile extends Record {
   subscription: Subscription | null;
   current_plan: Plan | null;
   next_plan: Plan | null;
-	view: View | null;
-	LastNotifiedOfEnd?: string;
+  view: View | null;
+  LastNotifiedOfEnd?: string;
   LoggedInAt?: string;
+}
+
+export interface Package {
+  Name: string;
+  HexColor: string;
+}
+
+export interface Feature {
+  ID: string;
+  Name: string;
+  ConfigKey: string;
+  ConfigScope: string;
+  RequiredFeatureID: FeatureID;
+  InPackage: Package | null;
+  Comment: string;
+  Beta?: boolean;
+  ComingSoon?: boolean;
+
+  // does not come from the PM API but is set by SPNService
+  IconURL: string;
 }
