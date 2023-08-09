@@ -95,7 +95,7 @@ export interface Feature {
   InPackage: Package | null;
   Comment: string;
   Beta?: boolean;
-  CommingSoon?: boolean;
+  ComingSoon?: boolean;
 
   // does not come from the PM API but is set by SPNService
   IconURL: string;

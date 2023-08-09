@@ -1,5 +1,8 @@
-    <div class="feature-card" [class.disabled]="disabled || commingSoon" (click)="navigateToConfigScope()">
-      <ng-container *ngIf="disabled || commingSoon">
+    <div class="feature-card"
+      [class.disabled]="disabled || comingSoon"
+      [class.clickable]="disabled || comingSoon || !!configValue || !!feature?.ConfigScope"
+      (click)="navigateToConfigScope()">
+      <ng-container *ngIf="disabled || comingSoon">
         <svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" class="disabled-bg">
           <defs>
             <pattern id="pattern_63Hoo" patternUnits="userSpaceOnUse" width="9.5" height="9.5"
@@ -18,11 +21,11 @@
           {{ feature?.Name }}
         </span>
 
-        <div class="relative flex flex-row self-start flex-grow" *ngIf="disabled || commingSoon || !!feature?.Beta">
+        <div class="relative flex flex-row self-start flex-grow" *ngIf="disabled || comingSoon || !!feature?.Beta">
           <div class="flex-grow"></div>
 
           <div *ngIf="!!feature?.Beta && !disabled"
-            class="absolute top-0 right-0 flex flex-col items-center justify-center gap-0 text-yellow-300">
+            class="absolute top-0 right-0 flex flex-col items-center justify-center gap-0 text-yellow-200">
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
               stroke="currentColor" class="relative z-10 w-4 h-4">
               <path stroke-linecap="round" stroke-linejoin="round"
@@ -35,12 +38,19 @@
       <div>
         <span class="font-normal ml-7 text-xxs text-secondary">
           {{ (disabled ? 'Available in ' : '') + 'Portmaster ' + feature?.InPackage?.Name}}
-          {{ commingSoon ? ' - Comming Soon' : '' }}</span>
+          {{ comingSoon ? ' - coming soon' : '' }}
+          {{ feature?.Comment }}
+        </span>
       </div>
 
-      <div *ngIf="!commingSoon && !disabled && configValue !== undefined" class="absolute right-4 bottom-4">
+      <div *ngIf="!comingSoon && !disabled && configValue !== undefined" class="absolute right-4 bottom-4">
         <sfng-toggle [ngModel]="configValue" (ngModelChange)="updateSettingsValue($event)"
           (click)="$event.cancelBubble = true"></sfng-toggle>
+      </div>
+      <div *ngIf="!comingSoon && !disabled && configValue === undefined" class="absolute right-4 bottom-4">
+        <span class="text-light text-green text-opacity-80">
+          Active
+        </span>
       </div>
 
       <div class="ribbon" *ngIf="!!disabled && !!feature?.InPackage"><span class="ribbon__content"

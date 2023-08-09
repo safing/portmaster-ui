@@ -2,19 +2,22 @@
   <header class="flex flex-row items-center justify-between w-full" id="header">
     <h1 class="flex flex-col flex-grow text-lg font-light text-white">
       Dashboard
-      <span class="text-sm font-normal text-secondary">Welcome back
-        <ng-container *ngIf="!!profile && profile.state !== ''">
-          , <span class="text-primary">{{ profile.username }}</span>
+      <span class="text-sm font-normal text-secondary">
+        <ng-container *ngIf="!!profile && profile.state !== ''; else: noSettingsTemplate">
+          Welcome back, <span class="text-primary">{{ profile.username }}</span>!
         </ng-container>
-        !
+        <ng-template #noSettingsTemplate>
+          Welcome back!
+        </ng-template>
       </span>
+      <span class="font-light text-xs text-green-300 mt-2">⮜ New: Click shield to open dashboard</span>
     </h1>
 
     <div class="flex flex-row gap-8">
       <ng-container *ngIf="!!profile">
         <div class="flex flex-col text-xs leading-4">
           <span class="font-light text-secondary">Your current plan is <span
-              class="font-normal text-green-300">{{ profile.current_plan?.name || 'N/A' }}</span></span>
+              class="font-normal text-primary">{{ profile.current_plan?.name || 'N/A' }}</span></span>
 
           <span class="font-light text-secondary" *ngIf="!profile.subscription?.next_billing_date">
             and ends {{ profile.subscription ? ' in ': ''}} <span class="font-normal text-primary">
@@ -22,7 +25,7 @@
             </span>
           </span>
           <span class="font-light text-secondary" *ngIf="!!profile.subscription?.next_billing_date">
-            and re-news in <span class="font-normal text-primary">
+            and auto-renews in <span class="font-normal text-primary">
               {{ profile.subscription!.next_billing_date | timeAgo }}
             </span>
           </span>
@@ -63,17 +66,17 @@
     <!-- Mini Stats -->
     <div class="mini-stats-list">
       <div class="mini-stat" routerLink="/monitor" [queryParams]="{q: 'verdict:3 verdict:4'}">
-        <label>Connections Blocked</label>
+        <label routerLink="/monitor" [queryParams]="{q: 'verdict:3 verdict:4'}">Connections Blocked</label>
         <span>{{ blockedConnections }}</span>
       </div>
 
       <div class="mini-stat" routerLink="/monitor" [queryParams]="{q: 'active:true'}">
-        <label>Active Connections</label>
+        <label routerLink="/monitor" [queryParams]="{q: 'active:true'}">Active Connections</label>
         <span>{{ activeConnections }}</span>
       </div>
 
       <div class="mini-stat" routerLink="/monitor" [queryParams]="{q: 'active:true groupby:profile'}">
-        <label>Active Apps</label>
+        <label routerLink="/monitor" [queryParams]="{q: 'active:true groupby:profile'}">Active Apps</label>
         <span>{{ activeProfiles }}</span>
       </div>
 
@@ -83,8 +86,8 @@
           {{ dataOutgoing | bytes }}
         </span>
 
-        <span *ngIf="!featureBw" class="!text-xxs !text-secondary w-full text-center !leading-3">
-          Available in <br />Portmaster Plus
+        <span *ngIf="!featureBw" class="!text-xxs !font-light !text-tertiary !text-opacity-50 w-full text-center !leading-3">
+          Available in<br />Portmaster Plus
         </span>
       </div>
 
@@ -93,16 +96,16 @@
         <span *ngIf="featureBw">
           {{ dataIncoming | bytes }}
         </span>
-        <span *ngIf="!featureBw" class="!text-xxs !text-secondary w-full text-center !leading-3">
-          Available in <br />Portmaster Plus
+        <span *ngIf="!featureBw" class="!text-xxs !font-light !text-tertiary !text-opacity-50 w-full text-center !leading-3">
+          Available in<br />Portmaster Plus
         </span>
       </div>
 
       <div class="mini-stat" routerLink="/monitor" [queryParams]="{q: 'tunneled:true groupby:exit_node'}">
-        <label>SPN Identities</label>
+        <label routerLink="/monitor" [queryParams]="{q: 'tunneled:true groupby:exit_node'}">SPN Identities</label>
         <span *ngIf="featureSPN">{{ activeIdentities }}</span>
-        <span *ngIf="!featureSPN" class="!text-xxs !text-secondary w-full text-center !leading-3">
-          Available in <br />Portmaster Pro
+        <span *ngIf="!featureSPN" class="!text-xxs !font-light !text-tertiary !text-opacity-50 w-full text-center !leading-3">
+          Available in<br />Portmaster Pro
         </span>
       </div>
     </div>
@@ -155,9 +158,9 @@
       Recently Blocked Applications
     </label>
     <div class="block w-full h-full">
-      <span *ngIf="!(blockedProfiles |keyvalue)?.length" class="flex flex-row items-center justify-center h-full gap-2">
+      <span *ngIf="!(blockedProfiles |keyvalue)?.length" class="flex flex-row items-center justify-center h-full gap-2 text-tertiary">
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
-          class="w-6 h-6">
+          class="w-5 h-5">
           <path stroke-linecap="round" stroke-linejoin="round"
             d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
         </svg>
@@ -184,7 +187,7 @@
 
   <div class="flex-grow feature-card-container" id="connmap">
     <label>
-      Connection Targets
+      Connection Destinations
     </label>
     <div class="block w-full h-96" #map>
     </div>

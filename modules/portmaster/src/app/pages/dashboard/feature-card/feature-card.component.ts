@@ -23,7 +23,7 @@ export class FeatureCardComponent implements OnChanges, OnDestroy {
   get disabled() { return this._disabled }
   _disabled = false;
 
-  get commingSoon() { return this.feature?.CommingSoon || false }
+  get comingSoon() { return this.feature?.ComingSoon || false }
 
   @Input()
   feature?: Feature;
