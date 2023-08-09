@@ -190,8 +190,8 @@ export class NavigationComponent implements OnInit {
   cleanupHistory(_: Event) {
     this.portapi.cleanupHistory()
       .subscribe(this.actionIndicator.httpObserver(
-        'History Data Cleared',
-        'Failed to Clear History.'
+        'Network History Cleaned Up',
+        'Failed to Cleanup Network History.'
       ))
   }
 
