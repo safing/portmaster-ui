@@ -151,7 +151,7 @@ export class DashboardPageComponent implements OnInit, AfterViewInit {
           { $sum: { field: 'bytes_received', as: 'bwin' } },
         ],
         query: {
-          verdict: { $eq: Verdict.Accept },
+          allowed: { $eq: true },
         },
         groupBy: ['country'],
         databases: [Database.Live]
@@ -192,6 +192,9 @@ export class DashboardPageComponent implements OnInit, AfterViewInit {
     this.netquery
       .query({
         select: ['profile', 'country', 'active', { $count: { field: '*', as: 'totalCount' } }],
+        query: {
+          allowed: { $eq: true },
+        },
         groupBy: ['profile', 'country', 'active'],
         databases: [Database.Live],
       })
@@ -231,7 +234,8 @@ export class DashboardPageComponent implements OnInit, AfterViewInit {
         select: [
           'exit_node',
           { $count: { field: '*', as: 'totalCount' } }
-        ]
+        ],
+        databases: [Database.Live],
       })
       .pipe(
         repeat({ delay: 10000 }),
