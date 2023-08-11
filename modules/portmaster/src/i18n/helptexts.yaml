@@ -212,7 +212,7 @@ dashboardIntro:
   content: |
     The Dashboard gives you a first overview of Portmaster's active features and what is happening on your device.
 
-    Unless noted otherwise, all graphs and statistics shown are based on what Portmaster has seen in the last 10 minutes.
+    Unless noted otherwise, all graphs and statistics shown are based on what Portmaster has seen in the last 10 minutes and are refreshed every 10 seconds.
 
 ########################
 ### Network Monitor Page
