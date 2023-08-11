@@ -102,7 +102,7 @@ export class SPNService {
             .pipe(
               map(features => {
                 return features.map(feature => {
-                  console.log(feature, profile?.current_plan?.feature_ids)
+                  // console.log(feature, profile?.current_plan?.feature_ids)
                   return {
                     ...feature,
                     enabled: feature.RequiredFeatureID === FeatureID.None || profile?.current_plan?.feature_ids?.includes(feature.RequiredFeatureID) || false,
