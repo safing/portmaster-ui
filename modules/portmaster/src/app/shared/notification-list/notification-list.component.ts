@@ -1,5 +1,5 @@
 import { animate, style, transition, trigger } from '@angular/animations';
-import { Component, ElementRef, HostBinding, OnDestroy, OnInit, TrackByFunction, inject } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, HostBinding, OnDestroy, OnInit, TrackByFunction, inject } from '@angular/core';
 import { SfngDialogService } from '@safing/ui';
 import { Subscription } from 'rxjs';
 import { map } from 'rxjs/operators';
@@ -18,6 +18,7 @@ export interface _Notification<T = any> extends Notification<T> {
 @Component({
   selector: 'app-notification-list',
   templateUrl: './notification-list.component.html',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrls: [
     './notification-list.component.scss'
   ],
@@ -41,8 +42,8 @@ export interface _Notification<T = any> extends Notification<T> {
 })
 export class NotificationListComponent implements OnInit, OnDestroy {
   readonly types = NotificationType;
-
   readonly dialog = inject(SfngDialogService);
+  readonly cdr = inject(ChangeDetectorRef);
 
   /** Used to set a fixed height when a notification is expanded. */
   @HostBinding('style.height')
@@ -83,8 +84,9 @@ export class NotificationListComponent implements OnInit, OnDestroy {
       .new$
       .pipe(
         // filter out any prompts as they are handled by a different widget.
-        map(notifs =>
-          notifs.filter(notif => !notif.SelectedActionID && !(notif.Type === NotificationType.Prompt && notif.EventID.startsWith("filter:prompt"))))
+        map(notifs => {
+          return notifs.filter(notif => !notif.SelectedActionID && !(notif.Type === NotificationType.Prompt && notif.EventID.startsWith("filter:prompt")))
+        })
       )
       .subscribe(list => {
         this.notifications = list.map(notification => {
@@ -93,6 +95,8 @@ export class NotificationListComponent implements OnInit, OnDestroy {
             isBroadcast: notification.EventID.startsWith("broadcasts:"),
           }
         });
+
+        this.cdr.markForCheck();
       });
   }
 
