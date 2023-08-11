@@ -147,8 +147,8 @@ export class DashboardPageComponent implements OnInit, AfterViewInit {
         select: [
           'country',
           { $count: { field: '*', as: 'totalCount' } },
-          { $sum: { field: 'bytes_sent', as: 'bwin' } },
-          { $sum: { field: 'bytes_received', as: 'bwout' } },
+          { $sum: { field: 'bytes_sent', as: 'bwout' } },
+          { $sum: { field: 'bytes_received', as: 'bwin' } },
         ],
         query: {
           verdict: { $eq: Verdict.Accept },

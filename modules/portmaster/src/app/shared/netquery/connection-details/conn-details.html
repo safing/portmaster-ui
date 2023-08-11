@@ -80,11 +80,11 @@
 
     <span *ngIf="conn.bytes_received > 0">
       <span>Data Received:</span>
-      <span>{{ conn.bytes_received  | bytes }} kB</span>
+      <span>{{ conn.bytes_received  | bytes }}</span>
     </span>
     <span *ngIf="conn.bytes_sent > 0">
       <span>Data Sent:</span>
-      <span>{{ conn.bytes_sent | bytes }} kB</span>
+      <span>{{ conn.bytes_sent | bytes }}</span>
     </span>
 
     <ng-container *ngIf="conn.extra_data?.tls as tls">

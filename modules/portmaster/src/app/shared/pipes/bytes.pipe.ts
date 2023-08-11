@@ -23,6 +23,6 @@ export class BytesPipe implements PipeTransform {
       idx++
     }
 
-    return (new DecimalPipe('en-US')).transform(value, '1.0-2') + ceilings[idx];
+    return (new DecimalPipe('en-US')).transform(value, '1.0-2') + ' ' + ceilings[idx];
   }
 }
