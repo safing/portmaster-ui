@@ -204,6 +204,16 @@ broadcast-info:
 #     This informs you with what's going on with portmaster.
 #     Ie, Updates, Errors, Warring etc
 
+#############
+### Dashboard
+
+dashboardIntro:
+  title: Dashboard
+  content: |
+    The Dashboard gives you a first overview of Portmaster's active features and what is happening on your device.
+
+    Unless noted otherwise, all graphs and statistics shown are based on what Portmaster has seen in the last 10 minutes.
+
 ########################
 ### Network Monitor Page
 
