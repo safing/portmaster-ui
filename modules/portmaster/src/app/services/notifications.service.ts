@@ -2,8 +2,8 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable, TrackByFunction } from '@angular/core';
 import { Params, Router } from '@angular/router';
 import { PortapiService, RetryableOpts } from '@safing/portmaster-api';
-import { BehaviorSubject, combineLatest, defer, Observable, throwError } from 'rxjs';
-import { map, multicast, refCount, toArray } from 'rxjs/operators';
+import { BehaviorSubject, Observable, combineLatest, defer, throwError } from 'rxjs';
+import { map, share, toArray } from 'rxjs/operators';
 import { environment } from 'src/environments/environment';
 import { ActionIndicatorService } from '../shared/action-indicator';
 import { Action, ActionHandler, NetqueryAction, Notification, NotificationState, NotificationType, OpenPageAction, OpenProfileAction, OpenSettingAction, OpenURLAction, PageIDs, WebhookAction } from './notifications.types';
@@ -152,10 +152,7 @@ export class NotificationsService {
       map(msgs => {
         return msgs.filter(msg => msg.State === NotificationState.Active || !msg.State)
       }),
-      multicast(() => {
-        return new BehaviorSubject<Notification<any>[]>([]);
-      }),
-      refCount(),
+      share({ connector: () => new BehaviorSubject<Notification<any>[]>([]) })
     );
   }
 

@@ -48,7 +48,7 @@ export class FeatureCardComponent implements OnChanges, OnDestroy {
 
       if (this.feature?.InPackage?.HexColor) {
         this.planColor = getContrastFontColor(this.feature.InPackage.HexColor);
-        console.log(this.feature.InPackage.HexColor, this.planColor)
+        // console.log(this.feature.InPackage.HexColor, this.planColor)
         this.cdr.markForCheck();
       }
     }

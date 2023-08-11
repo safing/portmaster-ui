@@ -1,0 +1,38 @@
+<div *ngIf="packageHasSPN || packageHasHistory" class="relative flex flex-col justify-center w-full">
+  <div class="relative flex flex-col justify-start px-4 py-4">
+    
+    <div *ngIf="packageHasSPN" class="relative mt-3">
+      <h2 class="p-0 m-0 font-light outline-none cursor-pointer test-base" [routerLink]="['/spn']">SPN</h2>
+      <sfng-toggle [ngModel]="spnEnabled" (ngModelChange)="setSPNEnabled($event)" class="absolute top-1 right-0"></sfng-toggle>
+
+      <ng-container *ngIf="spnEnabled">
+        <span [ngSwitch]="spnStatus?.Status" class="-mt-1 text-xs font-medium text-secondary">
+          <ng-template ngSwitchCase="disabled">
+            Disabled
+          </ng-template>
+          <ng-template ngSwitchCase="failed">
+            Failed to connect<br>
+            Fail-safe blocking enabled
+          </ng-template>
+          <ng-template ngSwitchCase="connecting">
+            Connecting...<br>
+            Fail-safe blocking enabled
+          </ng-template>
+          <ng-template ngSwitchCase="connected">
+            You're protected
+          </ng-template>
+        </span>
+        <br>
+        <!-- <span class="text-secondary text-xxs" *appExpertiseLevel="'advanced'">
+          Home: <u>{{ spnStatus?.ConnectedIP }}</u> via <u>{{ spnStatus?.ConnectedTransport}}</u>
+        </span> -->
+      </ng-container>
+    </div>
+
+    <div *ngIf="packageHasHistory" class="relative mt-3">
+      <h2 class="p-0 m-0 font-light outline-none cursor-pointer test-base" [routerLink]="['/monitor']">History</h2>
+      <sfng-toggle [ngModel]="historyEnabled" (ngModelChange)="setHistoryEnabled($event)" class="absolute top-1 right-0"></sfng-toggle>
+    </div>
+
+  </div>
+</div>

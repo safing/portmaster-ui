@@ -58,6 +58,7 @@ import { SecurityLockComponent } from './shared/security-lock';
 import { SPNAccountDetailsComponent } from './shared/spn-account-details';
 import { SPNLoginComponent } from './shared/spn-login';
 import { SPNStatusComponent } from './shared/spn-status';
+import { FeatureScoutComponent } from './shared/feature-scout';
 import { PilotWidgetComponent } from './shared/status-pilot';
 import { PlaceholderComponent } from './shared/text-placeholder';
 import { FeatureCardComponent } from './pages/dashboard/feature-card/feature-card.component';
@@ -86,6 +87,7 @@ import { FeatureCardComponent } from './pages/dashboard/feature-card/feature-car
     SupportFormComponent,
     SecurityLockComponent,
     SPNStatusComponent,
+    FeatureScoutComponent,
     SPNLoginComponent,
     SPNAccountDetailsComponent,
     NetworkScoutComponent,
