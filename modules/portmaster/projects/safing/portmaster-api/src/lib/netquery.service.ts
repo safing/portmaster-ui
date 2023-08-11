@@ -184,6 +184,7 @@ export interface IProfileStats {
   countAllowed: number;
   countUnpermitted: number;
   countAliveConnections: number;
+  allowed: boolean;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -322,6 +323,17 @@ export class Netquery {
             $ne: "",
           },
         },
+      }),
+
+      allowed: this.query({
+        select: [
+          'profile',
+          'allowed'
+        ],
+        groupBy: [
+          'profile'
+        ],
+        query: query
       })
     }).pipe(
       map(result => {
@@ -336,7 +348,8 @@ export class Netquery {
             countUnpermitted: 0,
             empty: true,
             identities: [],
-            size: 0
+            size: 0,
+            allowed: true
           };
 
           statsMap.set(id, stats);
@@ -386,6 +399,11 @@ export class Netquery {
 
           ident.count += res.totalCount;
         })
+
+        result.allowed.forEach(res => {
+          const stats = getOrCreate(res.profile!);
+          stats.allowed = res.allowed!;
+        });
 
         return Array.from(statsMap.values())
       }),

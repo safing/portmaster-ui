@@ -81,7 +81,7 @@
 <ng-template #header let-data let-active="active" let-accordion="accordion">
   <div class="flex flex-row items-center w-full gap-3 px-3 py-2 bg-gray-200 rounded-sm outline-none"
     [ngClass]="{'cursor-pointer hover:bg-gray-300': !spnEnabled}" [routerLink]="['/app/' + data.ID]"
-    [queryParams]="{tab: 0}" (click)="$event.stopPropagation()">
+    [queryParams]="{tab: 0}" (click)="$event.stopPropagation()" [ngClass]="{'conn-blocked': !data.allowed}">
 
     <svg xmlns="http://www.w3.org/2000/svg" class="flex-shrink-0 w-4 h-4 transition-all duration-150 transform"
       *ngIf="spnEnabled" [class.rotate-90]="active" viewBox="0 0 20 20" fill="currentColor"

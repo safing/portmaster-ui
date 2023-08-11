@@ -1,3 +1,7 @@
 :host {
   @apply w-full p-2 flex flex-col gap-2;
 }
+
+.conn-blocked {
+  background-color: rgba(252, 57, 57, 0.15);
+}
