@@ -23,6 +23,7 @@ export class DashboardPageComponent implements OnInit, AfterViewInit {
   lineCharts!: QueryList<SfngNetqueryLineChartComponent>;
 
   private svg!: Selection<SVGSVGElement, unknown, null, never>;
+  mapReady = false;
 
   destroyRef = inject(DestroyRef);
   profileService = inject(AppProfileService);
@@ -176,7 +177,7 @@ export class DashboardPageComponent implements OnInit, AfterViewInit {
           this.connectionsPerCountry[row.country!] = row.totalCount || 0;
         })
 
-        if (!this.svg) {
+        if (!this.mapReady) {
           await this.renderMap();
         }
 
@@ -220,7 +221,7 @@ export class DashboardPageComponent implements OnInit, AfterViewInit {
           this.countriesPerProfile[row.profile!] = arr;
         });
 
-        console.log(this.countriesPerProfile)
+        // console.log(this.countriesPerProfile)
 
         this.activeProfiles = profiles.size;
 
@@ -320,13 +321,14 @@ export class DashboardPageComponent implements OnInit, AfterViewInit {
       .attr('id', 'map')
       .attr("xmlns", "http://www.w3.org/2000/svg")
       .attr('width', '100%')
-      .attr('preserveAspectRation', 'none')
       .attr('height', '100%')
+      .attr('viewBox', '0 0 ' + size.width + ' ' + size.height)
+      .attr('preserveAspectRatio', 'none')
 
     const projection = geoMercator()
       .rotate([0, 0])
       .scale(1)
-      .translate([size.width / 2, size.height / 2]);
+      .translate([size.width / 2, size.height / 1.5]);
 
     // returns the top-left and the bottom-right of the current projection
     const mercatorBounds = () => {
@@ -356,8 +358,7 @@ export class DashboardPageComponent implements OnInit, AfterViewInit {
       this.countryNames[row.properties.iso_a2] = row.properties.name;
     });
 
-    // scale the projection to the initial bounds
-
+    // Add countries to map.
     const worldGroup = this.svg.append('g').attr('id', 'world-group')
     worldGroup.selectAll()
       .data<GeoPermissibleObjects>(data)
@@ -367,6 +368,13 @@ export class DashboardPageComponent implements OnInit, AfterViewInit {
       .attr('name', (d: any) => d.properties.name)
       .attr('d', pathFunc)
 
+    // Apply connections per country.
+    worldGroup.selectAll('path')
+      .classed('active', (d: any) => {
+        return !!this.connectionsPerCountry[d.properties.iso_a2];
+      });
+
+    this.mapReady = true;
     this.cdr.markForCheck();
   }
 }
