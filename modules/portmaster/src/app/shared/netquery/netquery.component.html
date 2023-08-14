@@ -259,7 +259,7 @@
   <ng-template [sfngPageContent]>
     <sfng-accordion-group class="flex flex-col gap-2 pr-4"
       *ngIf="(paginator.pageLoading$ | async) === false; else: loadingTemplate" [headerTemplate]="headerTemplate"
-      singleMode="false">
+      singleMode="false" #accordionGroup>
       <sfng-accordion [data]="result" #accordion *ngFor="let result of (paginator.pageItems$ | async)">
         <div *ngIf="accordion.active" class="p-3 bg-opacity-75 border-gray-300 rounded-b-sm"
           [ngClass]="{'bg-gray-300 border-t': !result._group}">
@@ -268,7 +268,7 @@
           <ng-container *ngIf="result._group !== null; else: connectionDetails">
             <sfng-accordion-group class="flex flex-col gap-2 ml-4"
               *ngIf="(result._group | async) as connsPaginator; else: loadingTemplate" [headerTemplate]="headerTemplate"
-              singleMode="false">
+              singleMode="false" #accordionGroup>
 
               <div class="flex flex-row items-center p-2 text-secondary" *ngIf="connsPaginator.total === 0">
                 All connections ended more than 10 minutes ago and have been removed.
