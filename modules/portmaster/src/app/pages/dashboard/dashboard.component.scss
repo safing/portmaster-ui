@@ -107,12 +107,12 @@
     }
 
     path.active {
-      @apply text-blue text-opacity-80;
+      color: #1d3c24;
       fill: currentColor;
     }
 
     path.hover {
-      @apply text-green-300 text-opacity-80;
+      color: #4fae4f;
       fill: currentColor;
     }
   }

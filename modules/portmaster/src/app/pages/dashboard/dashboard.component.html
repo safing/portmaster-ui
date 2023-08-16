@@ -7,45 +7,62 @@
       </h1>
 
       <span class="text-sm font-normal text-secondary">
-        <ng-container *ngIf="!!profile && profile.state !== ''; else: noSettingsTemplate">
+        <ng-container *ngIf="!!profile; else: noUsername">
           Welcome back, <span class="text-primary">{{ profile.username }}</span>!
+          <a *ngIf="profile?.state === '' && !!profile?.username" class="text-xs underline cursor-pointer text-tertiary" (click)="logoutCompletely($event)">Clear</a>
         </ng-container>
-        <ng-template #noSettingsTemplate>
+        <ng-template #noUsername>
           Welcome back!
         </ng-template>
       </span>
-      <span class="font-light text-xs text-green-300 mt-2">⮜ New: Click shield to open dashboard</span>
+      <span class="font-light text-xs text-green-300 mt-2">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-caret-left-fill inline-block h-4 -mt-1" viewBox="0 0 16 16">
+          <path d="m3.86 8.753 5.482 4.796c.646.566 1.658.106 1.658-.753V3.204a1 1 0 0 0-1.659-.753l-5.48 4.796a1 1 0 0 0 0 1.506z"/>
+        </svg>
+        New: Click shield to open dashboard
+      </span>
     </div>
 
     <div class="flex flex-row gap-8">
-      <ng-container *ngIf="!!profile">
-        <div class="flex flex-col text-xs leading-4">
-          <span class="font-light text-secondary">Your current plan is <span
-              class="font-normal text-primary">{{ profile.current_plan?.name || 'N/A' }}</span></span>
-
-          <span class="font-light text-secondary" *ngIf="!profile.subscription?.next_billing_date">
-            and ends {{ profile.subscription ? ' in ': ''}} <span class="font-normal text-primary">
-              {{ profile.subscription ? (profile.subscription.ends_at | timeAgo) : 'never'}}
-            </span>
+      <div class="flex flex-col text-xs leading-4">
+        <span class="font-light text-secondary">
+          Your current plan is
+          <span class="font-normal text-primary">
+            {{ profile?.current_plan?.name || 'Portmaster Free' }}
           </span>
-          <span class="font-light text-secondary" *ngIf="!!profile.subscription?.next_billing_date">
-            and auto-renews in <span class="font-normal text-primary">
-              {{ profile.subscription!.next_billing_date | timeAgo }}
-            </span>
-          </span>
-        </div>
+        </span>
 
-        <button *ngIf="profile.subscription" (click)="openAccountDetails()"
-          class="text-xs font-normal text-white cursor-pointer btn bg-blue bg-opacity-80 hover:bg-opacity-100 hover:bg-blue">
+        <span class="font-light text-secondary" *ngIf="!profile?.subscription?.next_billing_date">
+          and ends
+          <ng-container *ngIf="profile?.subscription?.ends_at; else: endsNever">
+            in
+            <span class="font-normal text-primary">
+              {{ profile?.subscription?.ends_at! | timeAgo }}
+            </span>
+          </ng-container>
+          <ng-template #endsNever>
+            never
+          </ng-template>
+        </span>
+        <span class="font-light text-secondary" *ngIf="!!profile?.subscription?.next_billing_date">
+          and auto-renews in <span class="font-normal text-primary">
+            {{ profile?.subscription?.next_billing_date! | timeAgo }}
+          </span>
+        </span>
+      </div>
+
+      <ng-container *ngIf="!!profile && profile.state !== ''; else: loginButton">
+        <button (click)="openAccountDetails()"
+          class="text-sm font-normal text-white cursor-pointer btn bg-blue bg-opacity-80 hover:bg-opacity-100 hover:bg-blue">
           Account Details
         </button>
-
-        <button *ngIf="!profile.subscription" (click)="openAccountDetails()"
-          class="text-xs font-normal text-white cursor-pointer btn bg-blue bg-opacity-80 hover:bg-opacity-100 hover:bg-blue">
+      </ng-container>
+      <ng-template #loginButton>
+        <button (click)="openAccountDetails()"
+          class="text-sm font-normal text-white cursor-pointer btn bg-blue bg-opacity-80 hover:bg-opacity-100 hover:bg-blue">
           Login / Subscribe
         </button>
-
-      </ng-container>
+      </ng-template>
     </div>
   </header>
 
@@ -189,8 +206,19 @@
   </div>
 
   <div class="flex-grow feature-card-container" id="connmap">
-    <label>
-      Connection Destinations
+    <label class="relative">
+      Recent Connection Countries
+
+      <!-- FIXME: Remove when map fully works as expected -->
+      <div class="absolute top-0 right-0 flex flex-col items-center justify-center gap-0 text-yellow-200">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+          stroke="currentColor" class="relative z-10 w-4 h-4">
+          <path stroke-linecap="round" stroke-linejoin="round"
+            d="M9.75 3.104v5.714a2.25 2.25 0 01-.659 1.591L5 14.5M9.75 3.104c-.251.023-.501.05-.75.082m.75-.082a24.301 24.301 0 014.5 0m0 0v5.714c0 .597.237 1.17.659 1.591L19.8 15.3M14.25 3.104c.251.023.501.05.75.082M19.8 15.3l-1.57.393A9.065 9.065 0 0112 15a9.065 9.065 0 00-6.23-.693L5 14.5m14.8.8l1.402 1.402c1.232 1.232.65 3.318-1.067 3.611A48.309 48.309 0 0112 21c-2.773 0-5.491-.235-8.135-.687-1.718-.293-2.3-2.379-1.067-3.61L5 14.5" />
+        </svg>
+        <span class="-mt-1 uppercase" style="font-size: 0.6rem">BETA</span>
+      </div>
+
     </label>
     <div class="block w-full h-96" #map>
     </div>

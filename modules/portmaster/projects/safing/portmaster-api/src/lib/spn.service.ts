@@ -85,7 +85,7 @@ export class SPNService {
   logout(purge = false): Observable<HttpResponse<string>> {
     let params = new HttpParams();
     if (!!purge) {
-      params.set("purge", "true")
+      params = params.set("purge", "true")
     }
     return this.http.delete(`${this.httpAPI}/v1/spn/account/logout`, {
       params,
