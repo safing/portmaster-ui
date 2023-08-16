@@ -7,6 +7,7 @@ import { GeoPermissibleObjects, Selection, geoMercator, geoPath, json, select } 
 import { Observable, forkJoin, map, repeat, switchMap } from "rxjs";
 import { SfngNetqueryLineChartComponent } from "src/app/shared/netquery/line-chart/line-chart";
 import { SPNAccountDetailsComponent } from "src/app/shared/spn-account-details";
+import { ActionIndicatorService } from 'src/app/shared/action-indicator';
 import { feature } from "topojson-client";
 
 @Component({
@@ -29,6 +30,7 @@ export class DashboardPageComponent implements OnInit, AfterViewInit {
   profileService = inject(AppProfileService);
   netquery = inject(Netquery);
   spn = inject(SPNService);
+  actionIndicator = inject(ActionIndicatorService);
   cdr = inject(ChangeDetectorRef);
   dialog = inject(SfngDialogService);
   host = inject(ElementRef);
@@ -376,5 +378,14 @@ export class DashboardPageComponent implements OnInit, AfterViewInit {
 
     this.mapReady = true;
     this.cdr.markForCheck();
+  }
+
+  /** Logs the user out of the SPN completely by purgin the user profile from the local storage */
+  logoutCompletely(_: Event) {
+    this.spn.logout(true)
+      .subscribe(this.actionIndicator.httpObserver(
+        'Logout',
+        'You have been logged out of the SPN completely.'
+      ))
   }
 }
