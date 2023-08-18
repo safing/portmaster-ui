@@ -33,7 +33,7 @@ export class CountryFlagDirective implements AfterViewInit, OnChanges {
     const flag = this.toUnicodeFlag(this.appCountryFlags);
     this.renderer.setAttribute(span, 'data-before', flag);
 
-    span.innerHTML = `<img style="display: inline" src="${this.flagDir}/${this.appCountryFlags.toLocaleUpperCase()}.png">`;
+    span.innerHTML = `<img style="display: inline" src="${this.flagDir}${this.appCountryFlags.toLocaleUpperCase()}.png">`;
   }
 
   private toUnicodeFlag(code: string) {
