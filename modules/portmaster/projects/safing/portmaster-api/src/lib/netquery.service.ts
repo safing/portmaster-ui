@@ -207,6 +207,7 @@ export class Netquery {
       },
       {
         observe: 'response',
+        responseType: 'text',
         reportProgress: false,
       }
     )
