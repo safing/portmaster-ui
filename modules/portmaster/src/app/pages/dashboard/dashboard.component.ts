@@ -276,23 +276,30 @@ export class DashboardPageComponent implements OnInit, AfterViewInit {
       .pipe(
         takeUntilDestroyed(this.destroyRef)
       )
-      .subscribe(profile => {
-        this.profile = profile;
+      .subscribe({
+        next: (profile) => {
+        this.profile = profile || null;
         this.featureBw = profile?.current_plan?.feature_ids?.includes(FeatureID.Bandwidth) || false;
-        const featureSPN = profile?.current_plan?.feature_ids?.includes(FeatureID.SPN) || false;
+        this.featureSPN = profile?.current_plan?.feature_ids?.includes(FeatureID.SPN) || false;
 
-        if (featureSPN !== this.featureSPN) {
-          this.featureSPN = featureSPN;
+        // force a full change-detection cylce now!
+        this.cdr.detectChanges()
 
-          // force a full change-detection cylce now!
-          this.cdr.detectChanges()
+        // force re-draw of the charts after change-detection because the
+        // width may change now.
+        this.lineCharts?.forEach(chart => chart.redraw())
 
-          // force re-draw of the charts after change-detection because the
-          // width may change now.
-          this.lineCharts?.forEach(chart => chart.redraw())
-        }
         this.cdr.markForCheck();
-      })
+      },
+      complete: () => {
+        // Database entry deletion will complete the observer.
+        this.profile = null;
+        this.featureBw = false;
+        this.featureSPN = false;
+        
+        this.cdr.markForCheck();
+      },
+    })
   }
 
   async ngAfterViewInit() {

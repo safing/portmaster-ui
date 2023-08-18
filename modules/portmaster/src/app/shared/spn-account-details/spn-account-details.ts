@@ -63,11 +63,20 @@ export class SPNAccountDetailsComponent implements OnInit {
         takeUntilDestroyed(this.destroyRef),
         catchError(err => of(null)),
       )
-      .subscribe(profile => {
-        this.loadingProfile = false;
-        this.currentUser = profile || null;
+      .subscribe({
+        next: (profile) => {
+          this.loadingProfile = false;
+          this.currentUser = profile || null;
 
-        this.cdr.markForCheck();
+          this.cdr.markForCheck();
+        },
+        complete: () => {
+          // Database entry deletion will complete the observer.
+          this.loadingProfile = false;
+          this.currentUser = null;
+
+          this.cdr.markForCheck();
+        },
       })
   }
 }
