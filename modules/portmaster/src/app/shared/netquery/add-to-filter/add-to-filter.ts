@@ -1,6 +1,7 @@
 import { ChangeDetectorRef, Directive, HostBinding, HostListener, Input, OnDestroy, OnInit } from "@angular/core";
 import { NetqueryConnection } from "@safing/portmaster-api";
-import { Subscription } from "rxjs";
+import { Subscription, combineLatest } from "rxjs";
+import { ActionIndicatorService } from "../../action-indicator";
 import { NetqueryHelper } from "../connection-helper.service";
 
 @Directive({
@@ -27,40 +28,61 @@ export class SfngNetqueryAddToFilterDirective implements OnInit, OnDestroy {
       return
     }
 
-    if (!evt.shiftKey) {
-      return;
+    let prevent = false
+    if (evt.shiftKey) {
+      this.helper.addToFilter(this.key, this._values);
+      prevent = true
+    } else if (evt.ctrlKey) {
+      if ('clipboard' in window.navigator) {
+        window.navigator.clipboard.writeText(this._values.join(', '))
+          .then(() => {
+            this.uai.success("Copied to clipboard", "Successfully copied " + this._values.join(", ") + " to your clipboard")
+          })
+          .catch(err => {
+            this.uai.error("Failed to copy to clipboard", this.uai.getErrorMessgae(err))
+          })
+      }
+
+      prevent = true
     }
 
-    evt.preventDefault();
-    evt.stopPropagation();
-
-    this.helper.addToFilter(this.key, this._values);
+    if (prevent) {
+      evt.preventDefault();
+      evt.stopPropagation();
+    }
   }
 
   @HostBinding('class.border-dashed')
   @HostBinding('class.border-gray-500')
   @HostBinding('class.hover:border-gray-700')
-  @HostBinding('class.hover:cursor-pointer')
   readonly _styleHost = true;
 
   @HostBinding('class.cursor-pointer')
+  @HostBinding('class.hover:cursor-pointer')
   @HostBinding('class.border-b')
   @HostBinding('class.select-none')
+  get shouldHiglight() {
+    return this.isShiftKeyPressed || this.isCtrlKeyPressed
+  }
+
   isShiftKeyPressed = false;
+  isCtrlKeyPressed = false;
 
   constructor(
     private helper: NetqueryHelper,
+    private uai: ActionIndicatorService,
     private cdr: ChangeDetectorRef,
   ) { }
 
   ngOnInit(): void {
-    this.subscription = this.helper.onShiftKey
-      .subscribe(isShiftKeyPressed => {
+    this.subscription = combineLatest([this.helper.onShiftKey, this.helper.onCtrlKey])
+      .subscribe(([isShiftKeyPressed, isCtrlKeyPressed]) => {
         if (!this.key) {
           return;
         }
 
         this.isShiftKeyPressed = isShiftKeyPressed;
+        this.isCtrlKeyPressed = isCtrlKeyPressed;
         this.cdr.markForCheck();
       })
   }

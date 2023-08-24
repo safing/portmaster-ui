@@ -30,12 +30,14 @@ export class NetqueryHelper {
   refresh = new Subject<void>();
 
   private onShiftKey$ = new BehaviorSubject<boolean>(false);
+  private onCtrlKey$ = new BehaviorSubject<boolean>(false);
   private addToFilter$ = new Subject<SfngSearchbarFields>();
   private destroy$ = new Subject<void>();
   private appProfiles$ = new BehaviorSubject<LocalAppProfile[]>([]);
   private spnMapPins$ = new BehaviorSubject<Pin[]>([]);
 
   readonly onShiftKey: Observable<boolean>;
+  readonly onCtrlKey: Observable<boolean>;
 
   constructor(
     private router: Router,
@@ -50,22 +52,33 @@ export class NetqueryHelper {
       if (event.shiftKey) {
         this.onShiftKey$.next(true)
       }
+      if (event.ctrlKey) {
+        this.onCtrlKey$.next(true);
+      }
     });
 
     const cleanupKeyUp = this.renderer.listen(this.document, 'keyup', () => {
-      if (this.onShiftKey$.getValue()) {
-        this.onShiftKey$.next(false);
-      }
+      this.onShiftKey$.next(false);
+      this.onCtrlKey$.next(false);
     })
 
-    this.onShiftKey$.subscribe({
+    const windowBlur = this.renderer.listen(window, 'blur', () => {
+      this.onShiftKey$.next(false);
+      this.onCtrlKey$.next(false);
+    })
+
+    this.destroy$.subscribe({
       complete: () => {
         cleanupKeyDown();
         cleanupKeyUp();
+        windowBlur();
       }
     })
 
     this.onShiftKey = this.onShiftKey$
+      .pipe(distinctUntilChanged());
+
+    this.onCtrlKey = this.onCtrlKey$
       .pipe(distinctUntilChanged());
 
     this.configService.query('')
