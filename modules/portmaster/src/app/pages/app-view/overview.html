@@ -43,7 +43,7 @@
 
   <ng-template #profileList let-list>
     <ng-container *ngFor="let profile of list; trackBy: trackProfile">
-      <div *appExpertiseLevel="profile.Internal ? 'developer' : 'user'" class="card-header"
+      <div *appExpertiseLevel="profile.Internal ? 'developer' : 'user'" class="relative card-header"
         [routerLink]="['/app', profile.Source,  profile.ID]">
         <app-icon [profile]="profile"></app-icon>
         <span class="card-title">
@@ -51,6 +51,9 @@
           <span class="card-sub-title" *appExpertiseLevel="'expert'"
             [innerHTML]="profile?.PresentationPath | safe:'html'"></span>
         </span>
+
+        <span *ngIf="profile.hasConfigChanges" sfng-tooltip="This app has custom settings"
+          class="absolute w-2 h-2 rounded-full top-1 right-1 bg-yellow"></span>
       </div>
     </ng-container>
 

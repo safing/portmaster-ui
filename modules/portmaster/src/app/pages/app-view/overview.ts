@@ -1,11 +1,15 @@
 import { ChangeDetectorRef, Component, OnDestroy, OnInit, TrackByFunction } from '@angular/core';
 import { AppProfile, AppProfileService, Netquery, trackById } from '@safing/portmaster-api';
 import { SfngDialogService } from '@safing/ui';
-import { BehaviorSubject, combineLatest, Subscription } from 'rxjs';
+import { BehaviorSubject, Subscription, combineLatest } from 'rxjs';
 import { debounceTime, filter, startWith } from 'rxjs/operators';
 import { fadeInAnimation, fadeInListAnimation, moveInOutListAnimation } from 'src/app/shared/animations';
 import { FuzzySearchService } from 'src/app/shared/fuzzySearch';
 import { EditProfileDialog } from './../../shared/edit-profile-dialog/edit-profile-dialog';
+
+interface LocalAppProfile extends AppProfile {
+  hasConfigChanges: boolean;
+}
 
 @Component({
   selector: 'app-settings-overview',
@@ -24,13 +28,13 @@ export class AppOverviewComponent implements OnInit, OnDestroy {
   loading = true;
 
   /** All application profiles that are actually running */
-  runningProfiles: AppProfile[] = [];
+  runningProfiles: LocalAppProfile[] = [];
 
   /** All application profiles that have been edited recently */
-  recentlyEdited: AppProfile[] = [];
+  recentlyEdited: LocalAppProfile[] = [];
 
   /** All application profiles */
-  profiles: AppProfile[] = [];
+  profiles: LocalAppProfile[] = [];
 
   /** The current search term */
   searchTerm: string = '';
@@ -42,7 +46,7 @@ export class AppOverviewComponent implements OnInit, OnDestroy {
   private onSearch = new BehaviorSubject('');
 
   /** TrackBy function for the profiles. */
-  trackProfile: TrackByFunction<AppProfile> = trackById;
+  trackProfile: TrackByFunction<LocalAppProfile> = trackById;
 
   constructor(
     private profileService: AppProfileService,
@@ -102,14 +106,19 @@ export class AppOverviewComponent implements OnInit, OnDestroy {
               return 0;
             })
             .forEach(profile => {
+              const local: LocalAppProfile = {
+                ...profile,
+                hasConfigChanges: Object.keys(profile.Config).length > 0,
+              };
+
               if (activeProfiles.includes(profile.Source + "/" + profile.ID)) {
-                this.runningProfiles.push(profile);
+                this.runningProfiles.push(local);
               } else if (profile.LastEdited >= recentlyUsedThreshold) {
-                this.recentlyEdited.push(profile);
+                this.recentlyEdited.push(local);
               }
 
               // we always add the profile to "All Apps"
-              this.profiles.push(profile);
+              this.profiles.push(local);
             });
 
           this.changeDetector.markForCheck();
