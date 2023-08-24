@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { ConfigService, ExpertiseLevel, StringSetting } from '@safing/portmaster-api';
 import { BehaviorSubject, Observable } from 'rxjs';
-import { delay, distinctUntilChanged, map, repeatWhen, share } from 'rxjs/operators';
+import { distinctUntilChanged, map, repeat, share } from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root'
@@ -14,7 +14,7 @@ export class ExpertiseService {
   /** Watches the expertise level as saved in the configuration */
   private _savedLevel$ = this.configService.watch<StringSetting>('core/expertiseLevel')
     .pipe(
-      repeatWhen(obs => obs.pipe(delay(2000))),
+      repeat({ delay: 2000 }),
       map(upd => {
         return upd as ExpertiseLevel;
       }),
