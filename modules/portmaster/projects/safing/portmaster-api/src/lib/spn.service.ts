@@ -1,7 +1,7 @@
 import { HttpClient, HttpParams, HttpResponse } from "@angular/common/http";
 import { Inject, Injectable } from "@angular/core";
 import { BehaviorSubject, Observable, of } from "rxjs";
-import { filter, map, multicast, refCount, share, switchMap } from "rxjs/operators";
+import { filter, map, share, switchMap } from "rxjs/operators";
 import { FeatureID } from "./features";
 import { PORTMASTER_HTTP_API_ENDPOINT, PortapiService } from './portapi.service';
 import { Feature, Pin, SPNStatus, UserProfile } from "./spn.types";
@@ -25,10 +25,9 @@ export class SPNService {
     private http: HttpClient,
     @Inject(PORTMASTER_HTTP_API_ENDPOINT) private httpAPI: string,
   ) {
-    this.status$ = this.portapi.watch<SPNStatus>('runtime:spn/status')
+    this.status$ = this.portapi.watch<SPNStatus>('runtime:spn/status', { ignoreDelete: true })
       .pipe(
-        multicast(() => new BehaviorSubject<any | null>(null)),
-        refCount(),
+        share({ connector: () => new BehaviorSubject<any | null>(null) }),
         filter(val => val !== null),
       )
 
@@ -148,7 +147,7 @@ export class SPNService {
    */
   watchProfile(): Observable<UserProfile | null> {
     let hasSent = false;
-    return this.portapi.watch<UserProfile>('core:spn/account/user', {}, { forwardDone: true })
+    return this.portapi.watch<UserProfile>('core:spn/account/user', { ignoreDelete: true }, { forwardDone: true })
       .pipe(
         filter(result => {
           if ('type' in result && result.type === 'done') {

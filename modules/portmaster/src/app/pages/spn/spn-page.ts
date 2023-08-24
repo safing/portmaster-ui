@@ -7,7 +7,7 @@ import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { ActivatedRoute, ParamMap, Router } from "@angular/router";
 import { AppProfile, ConfigService, Connection, ExpertiseLevel, FeatureID, GeoCoordinates, Netquery, PORTMASTER_HTTP_API_ENDPOINT, PortapiService, SPNService, SPNStatus, UserProfile } from "@safing/portmaster-api";
 import { SfngDialogService } from "@safing/ui";
-import { Observable, Subscription, combineLatest, interval, of } from "rxjs";
+import { BehaviorSubject, Observable, Subscription, combineLatest, interval, of } from "rxjs";
 import { catchError, debounceTime, map, mergeMap, share, startWith, switchMap, take, takeUntil, withLatestFrom } from "rxjs/operators";
 import { fadeInAnimation, fadeInListAnimation, fadeOutAnimation } from "src/app/shared/animations";
 import { ExpertiseService } from "src/app/shared/expertise/expertise.service";
@@ -144,7 +144,7 @@ export class SpnPageComponent implements OnInit, OnDestroy, AfterViewInit {
       .pipe(
         startWith(-1),
         switchMap(() => this.netquery.getActiveProfiles()),
-        share()
+        share({ connector: () => new BehaviorSubject<AppProfile[]>([]) })
       )
   }
 

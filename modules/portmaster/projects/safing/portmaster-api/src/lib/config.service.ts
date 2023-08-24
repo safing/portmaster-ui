@@ -1,6 +1,6 @@
 import { Injectable, TrackByFunction } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
-import { distinctUntilChanged, filter, map, multicast, refCount, toArray } from 'rxjs/operators';
+import { distinctUntilChanged, filter, map, share, toArray } from 'rxjs/operators';
 import { BaseSetting, BoolSetting, OptionType, Setting, SettingValueType } from './config.types';
 import { PortapiService } from './portapi.service';
 
@@ -23,8 +23,7 @@ export class ConfigService {
   constructor(private portapi: PortapiService) {
     this.networkRatingEnabled$ = this.watch<BoolSetting>("core/enableNetworkRating")
       .pipe(
-        multicast(() => new BehaviorSubject(false)),
-        refCount(),
+        share({ connector: () => new BehaviorSubject(false) }),
       )
   }
 

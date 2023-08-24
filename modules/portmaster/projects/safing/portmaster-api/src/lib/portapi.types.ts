@@ -1,5 +1,5 @@
-import { BehaviorSubject, iif, MonoTypeOperatorFunction, Observable, of, Subscriber, throwError } from 'rxjs';
-import { concatMap, delay, multicast, refCount, retryWhen } from 'rxjs/operators';
+import { iif, MonoTypeOperatorFunction, of, Subscriber, throwError } from 'rxjs';
+import { concatMap, delay, retryWhen } from 'rxjs/operators';
 
 /**
 * ReplyType contains all possible message types of a reply.
@@ -282,31 +282,13 @@ export function retryPipeline<T>({ retryDelay, maxRetries }: RetryableOpts = {})
   ))
 }
 
-/**
- * Returns an RxJS operator function that publishes the last value
- * of a source stream to new subscribers. It's reference counted
- * and will automatically resubscribe to the source.
- *
- * Its basically an alias for
- *
- *    multicast(() => new BehaviorSubject).refCount()
- *
- * @param def The default value for the behavior subject.
- */
-export function shareBehavior<T>(def: T): MonoTypeOperatorFunction<T> {
-  return (source: Observable<T>) => {
-    return source.pipe(
-      multicast(() => new BehaviorSubject<T>(def)),
-      refCount(),
-    )
-  }
-}
-
 export interface WatchOpts extends RetryableOpts {
   // Whether or not `new` updates should be filtered
   // or let through. See {@method PortAPI.watch} for
   // more information.
   ingoreNew?: boolean;
+
+  ignoreDelete?: boolean;
 }
 
 
