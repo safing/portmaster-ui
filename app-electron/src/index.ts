@@ -43,6 +43,7 @@ function createWindow() {
     webPreferences: {
       preload: path.join(__dirname, "preload.js"),
       nodeIntegration: true,
+      spellcheck: false,
     },
   });
   mainWindow.setMenuBarVisibility(false);
