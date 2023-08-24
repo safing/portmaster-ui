@@ -93,7 +93,7 @@
 
   <sfng-tab title="Environment">
     <div *sfngTabContent>
-      <div *ngIf="(process.Env | keyvalue).length === 0" class="p-2 text-xs text-center">
+      <div *ngIf="!(process.Env | keyvalue)?.length" class="p-2 text-xs text-center">
         <span class="text-secondary">This process does not have any environment variables.</span>
       </div>
 
