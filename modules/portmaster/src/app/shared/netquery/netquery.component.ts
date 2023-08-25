@@ -1,9 +1,9 @@
 import { coerceArray } from "@angular/cdk/coercion";
-import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, DestroyRef, EventEmitter, Input, OnDestroy, OnInit, Output, QueryList, TemplateRef, TrackByFunction, ViewChild, ViewChildren, inject } from "@angular/core";
+import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, DestroyRef, EventEmitter, Input, OnDestroy, OnInit, Output, QueryList, TemplateRef, TrackByFunction, ViewChildren, inject } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { ActivatedRoute, Router } from "@angular/router";
 import { ChartResult, Condition, Database, FeatureID, IPScope, Netquery, NetqueryConnection, OrderBy, Pin, PossilbeValue, Query, QueryResult, SPNService, Select, Verdict } from "@safing/portmaster-api";
-import { Datasource, DynamicItemsPaginator, SelectOption, SfngAccordionGroupComponent } from "@safing/ui";
+import { Datasource, DynamicItemsPaginator, SelectOption } from "@safing/ui";
 import { BehaviorSubject, Observable, Subject, combineLatest, forkJoin, interval, of } from "rxjs";
 import { catchError, debounceTime, filter, map, share, skip, switchMap, take, takeUntil } from "rxjs/operators";
 import { ActionIndicatorService } from "../action-indicator";
@@ -106,8 +106,6 @@ interface LocalQueryResult extends QueryResult {
 })
 // eslint-disable-next-line @angular-eslint/component-class-suffix
 export class SfngNetqueryViewer implements OnInit, OnDestroy, AfterViewInit {
-  @ViewChild('accordionGroup') accordionGroup!: SfngAccordionGroupComponent;
-
   /** @private Used to trigger a reload of the current filter */
   private search$ = new Subject<void>();
 
@@ -186,6 +184,13 @@ export class SfngNetqueryViewer implements OnInit, OnDestroy, AfterViewInit {
         return profile.current_plan?.feature_ids?.includes(FeatureID.History) || false;
       })
     );
+
+  trackPageItem: TrackByFunction<LocalQueryResult> = (_, r) => {
+    if (this.groupByKeys?.length) {
+      return this.groupByKeys.map(key => r[key]).join('-')
+    }
+    return r.id!
+  }
 
   constructor(
     private netquery: Netquery,
@@ -785,12 +790,6 @@ export class SfngNetqueryViewer implements OnInit, OnDestroy, AfterViewInit {
 
   /** @private Query the portmaster service for connections matching the current settings */
   performSearch() {
-    // Prevent a Memory Leak by Deleting all previous accordions.
-    if (typeof this.accordionGroup?.accordions !== 'undefined') {
-      for (let accordion of this.accordionGroup.accordions) {
-        this.accordionGroup.unregister(accordion);
-      }
-    }
     this.loading = true;
     this.lastReload = new Date();
     this.paginator.clear()
