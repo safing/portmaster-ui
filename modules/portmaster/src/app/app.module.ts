@@ -26,6 +26,7 @@ import { SideDashComponent } from './layout/side-dash/side-dash';
 import { AppOverviewComponent, AppViewComponent, QuickSettingInternetButtonComponent } from './pages/app-view';
 import { QsHistoryComponent } from './pages/app-view/qs-history/qs-history.component';
 import { QuickSettingUseSPNButtonComponent } from './pages/app-view/qs-use-spn/qs-use-spn';
+import { QuickSettingSelectExitButtonComponent } from './pages/app-view/qs-select-exit/qs-select-exit';
 import { DashboardPageComponent } from './pages/dashboard/dashboard.component';
 import { MonitorPageComponent } from './pages/monitor';
 import { SettingsComponent } from './pages/settings/settings';
@@ -78,6 +79,7 @@ import { FeatureCardComponent } from './pages/dashboard/feature-card/feature-car
     AppViewComponent,
     QuickSettingInternetButtonComponent,
     QuickSettingUseSPNButtonComponent,
+    QuickSettingSelectExitButtonComponent,
     AppOverviewComponent,
     PlaceholderComponent,
     LoadingComponent,

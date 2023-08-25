@@ -79,11 +79,14 @@
           <app-qs-internet [settings]="allSettings" (save)="saveSetting($event)">
           </app-qs-internet>
 
-          <app-qs-use-spn [settings]="allSettings" (save)="saveSetting($event)">
+          <app-qs-history [canUse]="canUseHistory" [settings]="allSettings" (save)="saveSetting($event)">
+          </app-qs-history>
+
+          <app-qs-use-spn [canUse]="canUseSPN" [settings]="allSettings" (save)="saveSetting($event)">
           </app-qs-use-spn>
 
-          <app-qs-history [settings]="allSettings" (save)="saveSetting($event)">
-          </app-qs-history>
+          <app-qs-select-exit [canUse]="canUseSPN" [settings]="allSettings" (save)="saveSetting($event)">
+          </app-qs-select-exit>
 
           <sfng-tipup key="appSettings-QuickSettings"></sfng-tipup>
         </div>

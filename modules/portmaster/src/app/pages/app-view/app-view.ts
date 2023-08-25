@@ -1,5 +1,6 @@
-import { ChangeDetectorRef, Component, OnDestroy, OnInit, ViewChild, inject } from '@angular/core';
+import { ChangeDetectorRef, Component, OnDestroy, DestroyRef, OnInit, ViewChild, inject } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { AppProfile, AppProfileService, ChartResult, Condition, ConfigService, Database, DebugAPI, ExpertiseLevel, FeatureID, FlatConfigObject, IProfileStats, LayeredProfile, Netquery, SPNService, Setting, flattenProfileConfig, setAppSetting } from '@safing/portmaster-api';
 import { SfngDialogService } from '@safing/ui';
 import { BehaviorSubject, Observable, Subscription, combineLatest, interval, of } from 'rxjs';
@@ -24,6 +25,12 @@ export class AppViewComponent implements OnInit, OnDestroy {
   @ViewChild(SfngNetqueryViewer)
   netqueryViewer?: SfngNetqueryViewer;
 
+  destroyRef = inject(DestroyRef);
+  spn = inject(SPNService);
+
+  canUseHistory = false;
+  canViewBW = false;
+  canUseSPN = false;
 
   /** subscription to our update-process observable */
   private subscription = Subscription.EMPTY;
@@ -47,13 +54,6 @@ export class AppViewComponent implements OnInit, OnDestroy {
    * in the history database for this app
    */
   connectionsInHistory = 0;
-
-  canUseHistory = inject(SPNService).profile$
-    .pipe(
-      map(profile => {
-        return profile?.current_plan?.feature_ids?.includes(FeatureID.History) || false;
-      })
-    );
 
   /**
    * @private
@@ -471,6 +471,17 @@ export class AppViewComponent implements OnInit, OnDestroy {
           this.cdr.markForCheck();
         });
 
+    this.spn.profile$
+      .pipe(
+        takeUntilDestroyed(this.destroyRef)
+      )
+      .subscribe({
+        next: (profile) => {
+          this.canUseHistory = profile?.current_plan?.feature_ids?.includes(FeatureID.History) || false;
+          this.canViewBW = profile?.current_plan?.feature_ids?.includes(FeatureID.Bandwidth) || false;
+          this.canUseSPN = profile?.current_plan?.feature_ids?.includes(FeatureID.SPN) || false;
+        },
+      })
   }
 
   /**

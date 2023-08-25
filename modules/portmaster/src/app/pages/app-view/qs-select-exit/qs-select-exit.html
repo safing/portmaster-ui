@@ -1,0 +1,37 @@
+<div class="relative flex flex-wrap items-center justify-center w-full h-full gap-2 px-3 py-2 bg-gray-300 border border-gray-300 rounded shadow">
+  <span class="text-primary">
+    SPN Exit
+  </span>
+
+  <span *ngIf="!canUse" routerLink="/dashboard" class="cursor-pointer text-tertiary hover:underline">
+    Get Pro
+  </span>
+
+  <!-- <ng-template *ngIf="canUse && selectedOption">
+    <span routerLink="/spn" class="cursor-pointer text-tertiary hover:underline">
+      {{ selectedOption }}
+    </span>
+  </ng-template> -->
+
+  <sfng-select *ngIf="canUse && spnEnabled === true && exitRuleSetting" [ngModel]="selectedExitRules" (ngModelChange)="updateExitRules($event)" placeholder="Custom">
+    <sfng-select-item *sfngSelectValue="">
+      Automatic
+    </sfng-select-item>
+    <ng-container *ngFor="let option of availableExitRules">
+      <sfng-select-item *sfngSelectValue="option.Value.join(',')">
+        {{ option.Name }}
+      </sfng-select-item>
+    </ng-container>
+  </sfng-select>
+
+  <ng-template *ngIf="canUse && spnEnabled === true && exitRuleSetting === null">
+    <fa-icon icon="spinner" [spin]="true"></fa-icon>
+  </ng-template>
+
+  <span *ngIf="canUse && spnEnabled === false"
+    routerLink="/spn" class="cursor-pointer text-tertiary hover:underline"
+    sfng-tooltip="Enable SPN to start using.">
+      Disabled
+  </span>
+
+</div>
