@@ -108,7 +108,7 @@ export class AppOverviewComponent implements OnInit, OnDestroy {
             .forEach(profile => {
               const local: LocalAppProfile = {
                 ...profile,
-                hasConfigChanges: Object.keys(profile.Config).length > 0,
+                hasConfigChanges: profile.LastEdited > 0 && Object.keys(profile.Config).length > 0,
               };
 
               if (activeProfiles.includes(profile.Source + "/" + profile.ID)) {

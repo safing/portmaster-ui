@@ -10,7 +10,7 @@
     <sfng-tipup key="appsTitle"></sfng-tipup>
   </h1>
   <div class="flex-grow"></div>
-  <button (click)="createProfile()" class="text-white bg-blue hover:bg-blue hover:bg-opacity-90">Create
+  <button (click)="createProfile()" class="text-white hover:bg-opacity-90">Create
     Profile</button>
 </div>
 
@@ -53,8 +53,8 @@
             [innerHTML]="profile?.PresentationPath | safe:'html'"></span>
         </span>
 
-        <span *ngIf="profile.hasConfigChanges" sfng-tooltip="This app has custom settings"
-          class="absolute w-2 h-2 rounded-full top-1 right-1 bg-yellow"></span>
+        <span *ngIf="profile.hasConfigChanges" sfng-tooltip="Settings Edited"
+          class="absolute w-2 h-2 rounded-full top-1 right-1 bg-blue"></span>
       </div>
     </ng-container>
 
