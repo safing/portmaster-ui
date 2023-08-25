@@ -16,6 +16,9 @@ export class QuickSettingUseSPNButtonComponent implements OnInit, OnChanges {
   private destroyRef = inject(DestroyRef);
 
   @Input()
+  canUse: boolean = true;
+
+  @Input()
   settings: Setting[] = [];
 
   @Output()
