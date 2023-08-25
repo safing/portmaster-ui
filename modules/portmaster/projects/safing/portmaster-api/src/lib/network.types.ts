@@ -67,6 +67,14 @@ export function IsDenied(v: Verdict): boolean {
   return deniedVerdicts.has(v);
 }
 
+export interface CountryInfo {
+  ID: string;
+	Name: string;
+	Region: string;
+	ContinentCode: string;
+	Center: GeoCoordinates;
+}
+
 export interface GeoCoordinates {
   AccuracyRadius: number;
   Latitude: number;

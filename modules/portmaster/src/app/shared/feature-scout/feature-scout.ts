@@ -3,10 +3,14 @@ import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { BoolSetting, ConfigService, FeatureID, Netquery, SPNService, SPNStatus, UserProfile } from "@safing/portmaster-api";
 import { catchError, of } from "rxjs";
 import { fadeInAnimation, fadeOutAnimation } from "../animations";
+import { CountryFlagModule } from 'src/app/shared/country-flag';
 
 @Component({
   selector: 'app-feature-scout',
   templateUrl: './feature-scout.html',
+  styleUrls: [
+    './feature-scout.scss'
+  ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   animations: [
     fadeInAnimation,

@@ -1,12 +1,14 @@
 import { FeatureID } from './features';
-import { GeoCoordinates, IntelEntity } from './network.types';
+import { CountryInfo, GeoCoordinates, IntelEntity } from './network.types';
 import { Record } from './portapi.types';
 
 export interface SPNStatus extends Record {
   Status: 'failed' | 'disabled' | 'connecting' | 'connected';
   HomeHubID: string;
+  HomeHubName: string;
   ConnectedIP: string;
   ConnectedTransport: string;
+  ConnectedCountry: CountryInfo | null;
   ConnectedSince: string | null;
 }
 
