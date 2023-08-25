@@ -1,5 +1,5 @@
 import { coerceBooleanProperty } from '@angular/cdk/coercion';
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, HostBinding, Input, OnInit, Optional, Output, TemplateRef, TrackByFunction } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, HostBinding, Input, OnDestroy, OnInit, Optional, Output, TemplateRef, TrackByFunction } from '@angular/core';
 import { fadeInAnimation, fadeOutAnimation } from '../animations';
 import { SfngAccordionGroupComponent } from './accordion-group';
 
@@ -13,7 +13,7 @@ import { SfngAccordionGroupComponent } from './accordion-group';
     fadeOutAnimation
   ]
 })
-export class SfngAccordionComponent<T = any> implements OnInit {
+export class SfngAccordionComponent<T = any> implements OnInit, OnDestroy {
   /** @deprecated in favor of [data] */
   @Input()
   title: string = '';
@@ -61,6 +61,10 @@ export class SfngAccordionComponent<T = any> implements OnInit {
   ngOnInit(): void {
     // register at our parent group-component (if any).
     this.group?.register(this);
+  }
+
+  ngOnDestroy(): void {
+    this.group?.unregister(this);
   }
 
   /**

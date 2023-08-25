@@ -1,7 +1,8 @@
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, DestroyRef, OnInit, TrackByFunction, inject } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { BoolSetting, Condition, ConfigService, ExpertiseLevel, IProfileStats, Netquery, Pin, SPNService } from "@safing/portmaster-api";
-import { Subject, combineLatest, debounceTime, forkJoin, interval, retry, startWith, switchMap, takeUntil } from "rxjs";
+import { Subject, combineLatest, debounceTime, forkJoin, interval, retry, startWith, switchMap, take, takeUntil } from "rxjs";
+import { UIStateService } from "src/app/services";
 import { fadeInListAnimation } from "../animations";
 import { ExpertiseService } from './../expertise/expertise.service';
 
@@ -103,6 +104,7 @@ export class NetworkScoutComponent implements OnInit {
     private netquery: Netquery,
     private spn: SPNService,
     private configService: ConfigService,
+    private stateService: UIStateService,
     private expertise: ExpertiseService,
     private cdr: ChangeDetectorRef,
   ) { }
@@ -151,6 +153,18 @@ export class NetworkScoutComponent implements OnInit {
     this.cdr.markForCheck();
   }
 
+  updateSortOrder(newOrder: SortTypes) {
+    this.sortOrder = newOrder;
+    this.searchProfiles(this.searchTerm);
+
+    this.stateService.set('netscoutSortOrder', newOrder)
+      .subscribe({
+        error: err => {
+          console.error(err);
+        }
+      })
+  }
+
   expandAll() {
     this.expandCollapseState = 'expand';
     this.allProfiles.forEach(profile => profile.expanded = profile.identities.length > 0)
@@ -170,6 +184,14 @@ export class NetworkScoutComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    this.stateService.uiState()
+      .pipe(take(1))
+      .subscribe(state => {
+        this.sortOrder = state.netscoutSortOrder;
+
+        this.searchProfiles(this.searchTerm);
+      })
+
     this.configService.watch<BoolSetting>('spn/enable')
       .pipe(
         takeUntilDestroyed(this.destroyRef),

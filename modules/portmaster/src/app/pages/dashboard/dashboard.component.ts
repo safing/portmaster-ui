@@ -4,7 +4,7 @@ import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { AppProfile, AppProfileService, ChartResult, Database, FeatureID, Netquery, SPNService, UserProfile, Verdict } from "@safing/portmaster-api";
 import { SfngDialogService } from "@safing/ui";
 import { GeoPermissibleObjects, Selection, geoMercator, geoPath, json, select } from "d3";
-import { Observable, forkJoin, map, repeat, switchMap } from "rxjs";
+import { Observable, Subject, debounceTime, forkJoin, map, repeat, switchMap, tap } from "rxjs";
 import { ActionIndicatorService } from 'src/app/shared/action-indicator';
 import { SfngNetqueryLineChartComponent } from "src/app/shared/netquery/line-chart/line-chart";
 import { SPNAccountDetailsComponent } from "src/app/shared/spn-account-details";
@@ -24,7 +24,6 @@ export class DashboardPageComponent implements OnInit, AfterViewInit {
   lineCharts!: QueryList<SfngNetqueryLineChartComponent>;
 
   private svg!: Selection<SVGSVGElement, unknown, null, never>;
-  mapReady = false;
 
   destroyRef = inject(DestroyRef);
   profileService = inject(AppProfileService);
@@ -55,6 +54,8 @@ export class DashboardPageComponent implements OnInit, AfterViewInit {
   connectionChart: ChartResult[] = [];
   tunneldConnectionChart: ChartResult[] = [];
 
+  private triggerRender$ = new Subject<void>();
+
   countriesPerProfile: { [profile: string]: string[] } = {}
 
   profile: UserProfile | null = null;
@@ -68,6 +69,9 @@ export class DashboardPageComponent implements OnInit, AfterViewInit {
   trackCountry: TrackByFunction<KeyValue<string, any>> = (_, ctr) => ctr.key;
   trackApp: TrackByFunction<KeyValue<string, any>> = (_, ctr) => ctr.key;
 
+  countries: any;
+  data: any;
+
   openAccountDetails() {
     this.dialog.create(SPNAccountDetailsComponent, {
       autoclose: true,
@@ -76,6 +80,10 @@ export class DashboardPageComponent implements OnInit, AfterViewInit {
   }
 
   onCountryHover(code: string | null) {
+    if (!this.svg) {
+      return
+    }
+
     this.svg.select('#world-group')
       .selectAll('path')
       .classed('hover', (d: any) => {
@@ -84,6 +92,10 @@ export class DashboardPageComponent implements OnInit, AfterViewInit {
   }
 
   onProfileHover(profile: string | null) {
+    if (!this.svg) {
+      return
+    }
+
     this.svg.select('#world-group')
       .selectAll('path')
       .classed('hover', (d: any) => {
@@ -95,7 +107,33 @@ export class DashboardPageComponent implements OnInit, AfterViewInit {
       });
   }
 
-  ngOnInit(): void {
+  async loadCountries() {
+    // load the world-map data and start rendering
+    const world = await json<any>('/assets/world-50m.json');
+    this.countries = feature(world, world.objects.countries) as any;
+    this.data = this.countries.features;
+    this.countryNames = {};
+    this.data.forEach((row: any) => {
+      this.countryNames[row.properties.iso_a2] = row.properties.name;
+    });
+
+    this.triggerRender$.next();
+
+    console.log("countries loaded, triggering rendering")
+    this.cdr.markForCheck();
+  }
+
+  async ngOnInit() {
+    this.triggerRender$
+      .pipe(
+        tap(() => console.log("rendering triggered")),
+        debounceTime(10),
+        takeUntilDestroyed(this.destroyRef)
+      )
+      .subscribe(() => this.renderMap())
+
+    this.loadCountries()
+
     this.netquery
       .query({
         select: [
@@ -181,7 +219,7 @@ export class DashboardPageComponent implements OnInit, AfterViewInit {
 
         // bail out if the map is not yet ready. Once renderMap() is called
         // in ngAfterViewInit the colors will be applied immediately
-        if (!this.mapReady) {
+        if (!this.svg) {
           return;
         }
 
@@ -224,8 +262,6 @@ export class DashboardPageComponent implements OnInit, AfterViewInit {
           arr.push(row.country!)
           this.countriesPerProfile[row.profile!] = arr;
         });
-
-        // console.log(this.countriesPerProfile)
 
         this.activeProfiles = profiles.size;
 
@@ -296,15 +332,15 @@ export class DashboardPageComponent implements OnInit, AfterViewInit {
       })
   }
 
-  async ngAfterViewInit() {
-    await this.renderMap();
+  ngAfterViewInit() {
+    this.triggerRender$.next()
 
     this.resizeObserver = new ResizeObserver(() => {
-      this.renderMap();
+      this.triggerRender$.next()
       this.lineCharts.forEach(chart => chart.redraw());
     });
 
-    this.resizeObserver.observe(this.host.nativeElement);
+    this.resizeObserver.observe(this.mapElement.nativeElement);
 
     this.destroyRef.onDestroy(() => {
       this.resizeObserver.disconnect()
@@ -315,19 +351,31 @@ export class DashboardPageComponent implements OnInit, AfterViewInit {
     });
   }
 
-  async renderMap() {
+  renderMap() {
+    if (!this.countries) {
+      // bail out if there's no data available
+      console.log("skip, no data")
+      return;
+    }
+
+    if (!this.mapElement) {
+      console.log("skip, view not ready")
+      return;
+    }
+
+    console.log("rendering map ...")
+
     if (!!this.svg) {
       this.svg.remove();
     }
 
     const map = select(this.mapElement.nativeElement);
-
     const size = this.mapElement.nativeElement.getBoundingClientRect();
 
     // setup the basic SVG elements
     this.svg = map
       .append('svg')
-      .attr('id', 'map')
+      .attr('id', 'dashboard-map')
       .attr("xmlns", "http://www.w3.org/2000/svg")
       .attr('width', '100%')
       .attr('height', '100%')
@@ -339,35 +387,22 @@ export class DashboardPageComponent implements OnInit, AfterViewInit {
       .scale(1)
       .translate([size.width / 2, size.height / 1.5]);
 
-    // load the world-map data and start rendering
-    const world = await json<any>('/assets/world-50m.json');
-
-    const countries = feature(world, world.objects.countries) as any;
-    const data = countries.features;
-
-
     // remove Antarctica from the feature set so projection.fitSize ignores it
     // and better aligns the rest of the world :)
-    const aqIdx = countries.features.findIndex((p: GeoJSON.Feature) => p.properties?.iso_a2 === "AQ");
+    const aqIdx = this.countries.features.findIndex((p: GeoJSON.Feature) => p.properties?.iso_a2 === "AQ");
     if (aqIdx >= 0) {
-      countries.features.splice(aqIdx, 1)
+      this.countries.features.splice(aqIdx, 1)
     }
 
     // scale the projection to the initial bounds
-    projection.fitSize([size.width, size.height], countries)
+    projection.fitSize([size.width, size.height], this.countries)
 
     const pathFunc = geoPath().projection(projection);
-
-
-    this.countryNames = {};
-    data.forEach((row: any) => {
-      this.countryNames[row.properties.iso_a2] = row.properties.name;
-    });
 
     // Add countries to map.
     const worldGroup = this.svg.append('g').attr('id', 'world-group')
     worldGroup.selectAll()
-      .data<GeoPermissibleObjects>(data)
+      .data<GeoPermissibleObjects>(this.data)
       .enter()
       .append('path')
       .attr('countryCode', (d: any) => d.properties.iso_a2)
@@ -379,9 +414,6 @@ export class DashboardPageComponent implements OnInit, AfterViewInit {
       .classed('active', (d: any) => {
         return !!this.connectionsPerCountry[d.properties.iso_a2];
       });
-
-    this.mapReady = true;
-    this.cdr.markForCheck();
   }
 
   /** Logs the user out of the SPN completely by purgin the user profile from the local storage */
