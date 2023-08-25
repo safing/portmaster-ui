@@ -15,6 +15,18 @@ interface _Profile extends IProfileStats {
   expanded: boolean;
 }
 
+export enum SortTypes {
+  static = 'Static',
+  aToZ = "A-Z",
+  zToA = "Z-A",
+  totalConnections = "Total Connections",
+  connectionsDenied = "Denied Connections",
+  connectionsAllowed = "Allowed Connections",
+  spnIdentities = "SPN Identities",
+  bytesSent = "Bytes Sent",
+  bytesReceived = "Bytes Received",
+}
+
 @Component({
   selector: 'app-network-scout',
   templateUrl: './network-scout.html',
@@ -26,6 +38,32 @@ interface _Profile extends IProfileStats {
 })
 export class NetworkScoutComponent implements OnInit {
   private destroyRef = inject(DestroyRef);
+
+  sortTypes = [
+    SortTypes.static,
+    SortTypes.aToZ,
+    SortTypes.zToA,
+    SortTypes.totalConnections,
+    SortTypes.connectionsDenied,
+    SortTypes.connectionsAllowed,
+    SortTypes.spnIdentities
+  ]
+
+  readonly sortMethods = new Map<SortTypes, any>([
+    // there's not entry for "Static" here on purpose because we'll use the sort order
+    // returned by netquery.
+    [SortTypes.aToZ, (a: _Profile, b: _Profile) => a.Name.localeCompare(b.Name)],
+    [SortTypes.zToA, (a: _Profile, b: _Profile) => b.Name.localeCompare(a.Name)],
+    [SortTypes.totalConnections, (a: _Profile, b: _Profile) => (b.countAllowed + b.countUnpermitted) - (a.countAllowed + a.countUnpermitted)],
+    [SortTypes.connectionsAllowed, (a: _Profile, b: _Profile) => b.countAllowed - a.countAllowed],
+    [SortTypes.connectionsDenied, (a: _Profile, b: _Profile) => b.countUnpermitted - a.countUnpermitted],
+    [SortTypes.spnIdentities, (a: _Profile, b: _Profile) => a.identities.length - b.identities.length],
+    [SortTypes.bytesReceived, (a: _Profile, b: _Profile) => b.bytes_received - a.bytes_received],
+    [SortTypes.bytesSent, (a: _Profile, b: _Profile) => b.bytes_sent - a.bytes_sent],
+  ]);
+
+  /** The current sort order */
+  sortOrder: SortTypes = SortTypes.static;
 
   /** Used to trigger a debounced search from the template */
   triggerSearch = new Subject<string>();
@@ -77,6 +115,8 @@ export class NetworkScoutComponent implements OnInit {
         ...this.allProfiles
       ];
 
+      this.sortProfiles(this.profiles);
+
       return;
     }
 
@@ -96,6 +136,19 @@ export class NetworkScoutComponent implements OnInit {
 
       return false;
     })
+
+    this.sortProfiles(this.profiles);
+  }
+
+  sortProfiles(profiles: _Profile[]) {
+    const method = this.sortMethods.get(this.sortOrder);
+    if (!method) {
+      return;
+    }
+
+    profiles.sort(method)
+
+    this.cdr.markForCheck();
   }
 
   expandAll() {
@@ -205,6 +258,18 @@ export class NetworkScoutComponent implements OnInit {
         });
 
         this.searchProfiles(searchTerm);
+
+        // check if we have profiles with bandwidth data and
+        // make sure our sort methods are updated.
+        if (this.profiles.some(p => p.bytes_received > 0 || p.bytes_sent > 0)) {
+          if (!this.sortTypes.includes(SortTypes.bytesReceived)) {
+            this.sortTypes.push(SortTypes.bytesReceived, SortTypes.bytesSent)
+          }
+
+          this.sortTypes = [...this.sortTypes];
+        } else {
+          this.sortTypes = this.sortTypes.filter(type => type !== SortTypes.bytesReceived && type !== SortTypes.bytesSent)
+        }
 
         this.cdr.markForCheck();
       })
