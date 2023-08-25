@@ -6,6 +6,7 @@ import { SfngTipUpAnchorDirective } from './anchor';
 import { SfngsfngTipUpTriggerDirective, SfngTipUpIconComponent } from './tipup';
 import { SfngTipUpComponent } from './tipup-component';
 import { ActionRunner, HelpTexts, SFNG_TIP_UP_ACTION_RUNNER, SFNG_TIP_UP_CONTENTS } from "./translations";
+import { SafePipe } from "./safe.pipe";
 
 @NgModule({
   imports: [
@@ -17,7 +18,8 @@ import { ActionRunner, HelpTexts, SFNG_TIP_UP_ACTION_RUNNER, SFNG_TIP_UP_CONTENT
     SfngTipUpIconComponent,
     SfngsfngTipUpTriggerDirective,
     SfngTipUpComponent,
-    SfngTipUpAnchorDirective
+    SfngTipUpAnchorDirective,
+    SafePipe
   ],
   exports: [
     SfngTipUpIconComponent,

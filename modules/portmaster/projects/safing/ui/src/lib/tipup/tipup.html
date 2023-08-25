@@ -7,7 +7,7 @@
       clip-rule="evenodd" />
   </svg>
 
-  <h1>{{title}}</h1>
+  <h1 [innerHTML]="title | safe: 'html'"></h1>
 
   <markdown emoji [data]="content" class="message"></markdown>
 
