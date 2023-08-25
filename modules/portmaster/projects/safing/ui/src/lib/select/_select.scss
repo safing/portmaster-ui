@@ -55,7 +55,12 @@
     li.disabled {
       @apply cursor-not-allowed;
     }
+  }
+}
 
+.sfng-select-dropdown.sfng-select-inline {
+  ul {
+    max-height: unset;
   }
 }
 
