@@ -25,7 +25,7 @@
   <sfng-dropdown [triggerTemplate]="settingsTrigger">
     <div class="flex flex-col gap-2 p-2">
       <h4>Sort By</h4>
-      <sfng-select displayMode="inline" [(ngModel)]="sortOrder" (ngModelChange)="searchProfiles(searchTerm)">
+      <sfng-select displayMode="inline" [ngModel]="sortOrder" (ngModelChange)="updateSortOrder($event)">
         <ng-container *ngFor="let sortMethod of sortTypes">
           <sfng-select-item
             *sfngSelectValue="sortMethod; description:(sortMethod === 'Static' ? 'The default sort order which adds new apps to the bottom' : '')">
