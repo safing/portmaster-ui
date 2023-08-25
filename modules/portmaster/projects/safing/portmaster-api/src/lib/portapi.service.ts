@@ -296,20 +296,28 @@ export class PortapiService {
    *        giving up. Defaults to Infinity
    * @param opts.ingoreNew Whether or not `new` notifications
    *        will be ignored. Defaults to false
+   * @param opts.ignoreDelete Whether or not "delete" notification
+   *        will be ignored (and replaced by null)
    * @param forwardDone: Whether or not the "done" message should be forwarded
    */
   watch<T extends Record>(key: string, opts?: WatchOpts): Observable<T>;
+  watch<T extends Record>(key: string, opts?: WatchOpts & { ignoreDelete: true }): Observable<T | null>;
   watch<T extends Record>(key: string, opts: WatchOpts, _: { forwardDone: true }): Observable<T | DoneReply>;
-  watch<T extends Record>(key: string, opts: WatchOpts = {}, { forwardDone }: { forwardDone?: boolean } = {}): Observable<T | DoneReply> {
+  watch<T extends Record>(key: string, opts: WatchOpts & { ignoreDelete: true }, _: { forwardDone: true }): Observable<T | DoneReply | null>;
+  watch<T extends Record>(key: string, opts: WatchOpts = {}, { forwardDone }: { forwardDone?: boolean } = {}): Observable<T | DoneReply | null> {
     return this.qsub<T>(key, opts, { forwardDone } as any)
       .pipe(
         filter(reply => reply.type !== 'done' || forwardDone === true),
         filter(reply => reply.type === 'done' || reply.key === key),
-        takeWhile(reply => reply.type !== 'del'),
+        takeWhile(reply => opts.ignoreDelete || reply.type !== 'del'),
         filter(reply => {
           return !opts.ingoreNew || reply.type !== 'new'
         }),
         map(reply => {
+          if (reply.type === 'del') {
+            return null;
+          }
+
           if (reply.type === 'done') {
             return reply;
           }

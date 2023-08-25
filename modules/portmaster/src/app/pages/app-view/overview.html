@@ -1,5 +1,6 @@
 <div class="flex flex-row items-center justify-between mb-4">
-  <input type="text" placeholder="Search" [ngModel]="searchTerm" (ngModelChange)="searchApps($event)">
+  <input type="text" placeholder="Search" [ngModel]="searchTerm" (ngModelChange)="searchApps($event)"
+    [autoFocus]="true">
   <app-expertise></app-expertise>
 </div>
 
@@ -9,7 +10,7 @@
     <sfng-tipup key="appsTitle"></sfng-tipup>
   </h1>
   <div class="flex-grow"></div>
-  <button (click)="createProfile()" class="text-white bg-blue hover:bg-blue hover:bg-opacity-90">Create
+  <button (click)="createProfile()" class="text-white hover:bg-opacity-90">Create
     Profile</button>
 </div>
 
@@ -43,7 +44,7 @@
 
   <ng-template #profileList let-list>
     <ng-container *ngFor="let profile of list; trackBy: trackProfile">
-      <div *appExpertiseLevel="profile.Internal ? 'developer' : 'user'" class="card-header"
+      <div *appExpertiseLevel="profile.Internal ? 'developer' : 'user'" class="relative card-header"
         [routerLink]="['/app', profile.Source,  profile.ID]">
         <app-icon [profile]="profile"></app-icon>
         <span class="card-title">
@@ -51,6 +52,9 @@
           <span class="card-sub-title" *appExpertiseLevel="'expert'"
             [innerHTML]="profile?.PresentationPath | safe:'html'"></span>
         </span>
+
+        <span *ngIf="profile.hasConfigChanges" sfng-tooltip="Settings Edited"
+          class="absolute w-2 h-2 rounded-full top-1 right-1 bg-blue"></span>
       </div>
     </ng-container>
 

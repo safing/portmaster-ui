@@ -17,7 +17,7 @@ import { GenericSettingComponent } from "./generic-setting";
 import { OrderedListComponent, OrderedListItemComponent } from "./ordererd-list";
 import { RuleListItemComponent } from "./rule-list/list-item";
 import { RuleListComponent } from "./rule-list/rule-list";
-import { SafePipe } from "./save.pipe";
+import { SafePipe } from "./safe.pipe";
 import { SecuritySettingComponent } from "./security-setting/security-setting";
 
 @NgModule({

@@ -9,13 +9,17 @@ import { SfngDropdownComponent } from '../dropdown';
 import { SelectOption, SfngSelectValueDirective } from './item';
 
 
-type SelectModes = 'single' | 'multi';
+export type SelectModes = 'single' | 'multi';
+
 type ModeInput = {
   mode: SelectModes;
 }
+
 type SelectValue<T, S extends ModeInput> = S['mode'] extends 'single' ? T : T[];
 
 export type SortByFunc = (a: SelectOption, b: SelectOption) => number;
+
+export type SelectDisplayMode = 'dropdown' | 'inline';
 
 @Directive({
   selector: '[sfngSelectRenderedListItem]'
@@ -64,8 +68,8 @@ export class SfngSelectComponent<T> implements AfterViewInit, ControlValueAccess
   /** the key manager used for keyboard support */
   private keyManager!: ListKeyManager<SfngSelectRenderedItemDirective>;
 
-  @ViewChild(SfngDropdownComponent, { static: true })
-  dropdown!: SfngDropdownComponent;
+  @ViewChild(SfngDropdownComponent, { static: false })
+  dropdown: SfngDropdownComponent | null = null;
 
   /** A reference to the cdk-scrollable directive that's placed on the item list */
   @ViewChild('scrollable', { read: ElementRef })
@@ -101,6 +105,9 @@ export class SfngSelectComponent<T> implements AfterViewInit, ControlValueAccess
   /** Whether or not the select operates in "single" or "multi" mode */
   @Input()
   mode: SelectModes = 'single';
+
+  @Input()
+  displayMode: SelectDisplayMode = 'dropdown';
 
   /** The placehodler to show when nothing is selected */
   @Input()
@@ -216,8 +223,8 @@ export class SfngSelectComponent<T> implements AfterViewInit, ControlValueAccess
   @HostListener('keydown.enter', ['$event'])
   @HostListener('keydown.space', ['$event'])
   onEnter(event: Event) {
-    if (!this.dropdown.isOpen) {
-      this.dropdown.toggle()
+    if (!this.dropdown?.isOpen) {
+      this.dropdown?.toggle()
 
       event.preventDefault();
       event.stopPropagation();
@@ -364,7 +371,6 @@ export class SfngSelectComponent<T> implements AfterViewInit, ControlValueAccess
     // to avoid flickering when the component height increases
     // during the "close" animation
     this.onSearch('');
-
   }
 
   /** @private - called when the internal dropdown closes */
@@ -384,12 +390,13 @@ export class SfngSelectComponent<T> implements AfterViewInit, ControlValueAccess
 
     const isSelected = this.currentItems.findIndex(selected => item.value === selected.value);
     if (isSelected === -1) {
+      item.selected = true;
+
       if (this.mode === 'single') {
         this.currentItems.forEach(i => i.selected = false);
         this.currentItems = [item];
         this.value = item.value;
       } else {
-        item.selected = true;
         this.currentItems.push(item);
         // TODO(ppacher): somehow typescript does not correctly pick up
         // the type of this.value here although it can be infered from the
@@ -410,7 +417,7 @@ export class SfngSelectComponent<T> implements AfterViewInit, ControlValueAccess
     // we keep it open as the user might want to select an additional
     // item as well.
     if (this.mode === 'single') {
-      this.dropdown.close();
+      this.dropdown?.close();
     }
     this.onChange(this.value!);
   }

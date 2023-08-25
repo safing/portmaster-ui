@@ -6,4 +6,4 @@ export * from './generic-setting';
 export * from './ordererd-list';
 export * from './rule-list';
 export * from './security-setting';
-export * from './save.pipe';
+export * from './safe.pipe';

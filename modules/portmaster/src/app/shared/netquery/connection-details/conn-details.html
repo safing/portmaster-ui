@@ -119,7 +119,7 @@
 
   <ng-template #dnsTemplate>
     <div *ngIf="conn.extra_data?.dns as dns">
-      <span>
+      <span sfngAddToFilter="domain" [sfngAddToFilterValue]="dns.Domain">
         <span>Domain:</span>
         <span>{{dns.Domain}}</span>
       </span>

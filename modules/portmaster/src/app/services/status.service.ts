@@ -1,7 +1,7 @@
 import { Injectable, TrackByFunction } from '@angular/core';
-import { PortapiService, RetryableOpts, SecurityLevel, trackById, WatchOpts } from '@safing/portmaster-api';
+import { PortapiService, RetryableOpts, SecurityLevel, WatchOpts, trackById } from '@safing/portmaster-api';
 import { BehaviorSubject, Observable } from 'rxjs';
-import { delay, filter, map, multicast, refCount, repeatWhen, toArray } from 'rxjs/operators';
+import { filter, map, repeat, share, toArray } from 'rxjs/operators';
 import { CoreStatus, Subsystem, VersionStatus } from './status.types';
 
 @Injectable({
@@ -24,12 +24,9 @@ export class StatusService {
    */
   readonly status$: Observable<CoreStatus> = this.portapi.qsub<CoreStatus>(`runtime:system/status`)
     .pipe(
-      repeatWhen(obs => obs.pipe(delay(2000))),
+      repeat({ delay: 2000 }),
       map(reply => reply.data),
-      multicast(() => {
-        return new BehaviorSubject<CoreStatus | null>(null);
-      }),
-      refCount(),
+      share({ connector: () => new BehaviorSubject<CoreStatus | null>(null) }),
       filter(value => value !== null),
     ) as Observable<CoreStatus>; // we filtered out the null values but we cannot make that typed with RxJS.
 

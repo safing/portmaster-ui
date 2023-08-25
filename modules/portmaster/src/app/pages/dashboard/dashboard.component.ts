@@ -5,9 +5,9 @@ import { AppProfile, AppProfileService, ChartResult, Database, FeatureID, Netque
 import { SfngDialogService } from "@safing/ui";
 import { GeoPermissibleObjects, Selection, geoMercator, geoPath, json, select } from "d3";
 import { Observable, forkJoin, map, repeat, switchMap } from "rxjs";
+import { ActionIndicatorService } from 'src/app/shared/action-indicator';
 import { SfngNetqueryLineChartComponent } from "src/app/shared/netquery/line-chart/line-chart";
 import { SPNAccountDetailsComponent } from "src/app/shared/spn-account-details";
-import { ActionIndicatorService } from 'src/app/shared/action-indicator';
 import { feature } from "topojson-client";
 
 @Component({
@@ -179,8 +179,10 @@ export class DashboardPageComponent implements OnInit, AfterViewInit {
           this.connectionsPerCountry[row.country!] = row.totalCount || 0;
         })
 
+        // bail out if the map is not yet ready. Once renderMap() is called
+        // in ngAfterViewInit the colors will be applied immediately
         if (!this.mapReady) {
-          await this.renderMap();
+          return;
         }
 
         this.svg.select('#world-group')
@@ -278,28 +280,20 @@ export class DashboardPageComponent implements OnInit, AfterViewInit {
       )
       .subscribe({
         next: (profile) => {
-        this.profile = profile || null;
-        this.featureBw = profile?.current_plan?.feature_ids?.includes(FeatureID.Bandwidth) || false;
-        this.featureSPN = profile?.current_plan?.feature_ids?.includes(FeatureID.SPN) || false;
+          this.profile = profile || null;
+          this.featureBw = profile?.current_plan?.feature_ids?.includes(FeatureID.Bandwidth) || false;
+          this.featureSPN = profile?.current_plan?.feature_ids?.includes(FeatureID.SPN) || false;
 
-        // force a full change-detection cylce now!
-        this.cdr.detectChanges()
+          // force a full change-detection cylce now!
+          this.cdr.detectChanges()
 
-        // force re-draw of the charts after change-detection because the
-        // width may change now.
-        this.lineCharts?.forEach(chart => chart.redraw())
+          // force re-draw of the charts after change-detection because the
+          // width may change now.
+          this.lineCharts?.forEach(chart => chart.redraw())
 
-        this.cdr.markForCheck();
-      },
-      complete: () => {
-        // Database entry deletion will complete the observer.
-        this.profile = null;
-        this.featureBw = false;
-        this.featureSPN = false;
-        
-        this.cdr.markForCheck();
-      },
-    })
+          this.cdr.markForCheck();
+        },
+      })
   }
 
   async ngAfterViewInit() {
@@ -312,7 +306,13 @@ export class DashboardPageComponent implements OnInit, AfterViewInit {
 
     this.resizeObserver.observe(this.host.nativeElement);
 
-    this.destroyRef.onDestroy(() => this.resizeObserver.disconnect());
+    this.destroyRef.onDestroy(() => {
+      this.resizeObserver.disconnect()
+
+      if (!!this.svg) {
+        this.svg.remove();
+      }
+    });
   }
 
   async renderMap() {
@@ -339,28 +339,25 @@ export class DashboardPageComponent implements OnInit, AfterViewInit {
       .scale(1)
       .translate([size.width / 2, size.height / 1.5]);
 
-    // returns the top-left and the bottom-right of the current projection
-    const mercatorBounds = () => {
-      const yaw = projection.rotate()[0];
-      const xymax = projection([-yaw + 180 - 1e-6, -83])!;
-      const xymin = projection([-yaw - 180 + 1e-6, 83])!;
-      return [xymin, xymax];
-    }
-
-    const initialBounds = mercatorBounds();
-
-    const s = size.width / (initialBounds[1][0] - initialBounds[0][0]);
-
-    // scale the projection to the initial bounds
-    projection.scale(s)
-
-    const pathFunc = geoPath().projection(projection);
-
     // load the world-map data and start rendering
     const world = await json<any>('/assets/world-50m.json');
 
-    // actually render the countries
-    const data = (feature(world, world.objects.countries) as any).features;
+    const countries = feature(world, world.objects.countries) as any;
+    const data = countries.features;
+
+
+    // remove Antarctica from the feature set so projection.fitSize ignores it
+    // and better aligns the rest of the world :)
+    const aqIdx = countries.features.findIndex((p: GeoJSON.Feature) => p.properties?.iso_a2 === "AQ");
+    if (aqIdx >= 0) {
+      countries.features.splice(aqIdx, 1)
+    }
+
+    // scale the projection to the initial bounds
+    projection.fitSize([size.width, size.height], countries)
+
+    const pathFunc = geoPath().projection(projection);
+
 
     this.countryNames = {};
     data.forEach((row: any) => {

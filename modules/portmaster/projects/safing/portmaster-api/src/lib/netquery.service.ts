@@ -1,6 +1,6 @@
 import { HttpClient, HttpResponse } from "@angular/common/http";
 import { Inject, Injectable } from "@angular/core";
-import { Observable, forkJoin } from "rxjs";
+import { Observable, forkJoin, of } from "rxjs";
 import { map, mergeMap } from "rxjs/operators";
 import { AppProfileService } from "./app-profile.service";
 import { AppProfile } from "./app-profile.types";
@@ -184,6 +184,8 @@ export interface IProfileStats {
   countAllowed: number;
   countUnpermitted: number;
   countAliveConnections: number;
+  bytes_sent: number;
+  bytes_received: number;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -280,6 +282,8 @@ export class Netquery {
   }
 
   getProfileStats(query?: Condition): Observable<IProfileStats[]> {
+    let profileCache = new Map<string, AppProfile>();
+
     return forkJoin({
 
       verdicts: this.query({
@@ -300,6 +304,8 @@ export class Netquery {
           'profile',
           { $count: { field: '*', as: 'totalCount' } },
           { $count: { field: 'ended', as: 'countEnded' } },
+          { $sum: { field: 'bytes_sent', as: 'bytes_sent' } },
+          { $sum: { field: 'bytes_received', as: 'bytes_received' } },
         ],
         groupBy: [
           'profile',
@@ -337,7 +343,9 @@ export class Netquery {
             countUnpermitted: 0,
             empty: true,
             identities: [],
-            size: 0
+            size: 0,
+            bytes_received: 0,
+            bytes_sent: 0
           };
 
           statsMap.set(id, stats);
@@ -371,6 +379,8 @@ export class Netquery {
           const stats = getOrCreate(res.profile!);
 
           stats.countAliveConnections = res.totalCount - res.countEnded;
+          stats.bytes_received += res.bytes_received!;
+          stats.bytes_sent += res.bytes_sent!;
         })
 
         result.identities?.forEach(res => {
@@ -391,13 +401,22 @@ export class Netquery {
         return Array.from(statsMap.values())
       }),
       mergeMap(stats => {
-        return forkJoin(stats.map(p => this.profileService.getAppProfile(p.ID)))
+        return forkJoin(stats.map(p => {
+          if (profileCache.has(p.ID)) {
+            return of(profileCache.get(p.ID)!);
+          }
+          return this.profileService.getAppProfile(p.ID)
+        }))
           .pipe(
             map(profiles => {
+              profileCache = new Map();
+
               let lm = new Map<string, IProfileStats>();
               stats.forEach(stat => lm.set(stat.ID, stat));
 
               profiles.forEach(p => {
+                profileCache.set(`${p.Source}/${p.ID}`, p)
+
                 let stat = lm.get(`${p.Source}/${p.ID}`)
                 if (!stat) {
                   return;

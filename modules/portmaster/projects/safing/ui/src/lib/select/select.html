@@ -1,5 +1,5 @@
 <ng-template #customTriggerTemplate>
-  <button [class.active]="dropdown.isOpen" type="button" class="sfng-select" [class.disabled]="disabled">
+  <button [class.active]="dropdown?.isOpen" type="button" class="sfng-select" [class.disabled]="disabled">
 
     <ng-template [ngIf]="mode !== 'multi' || (currentItems.length || 0) <= 1" [ngIfElse]="multiTemplate">
       <span *ngIf="!currentItems.length; else: itemTemplate">
@@ -21,7 +21,7 @@
 
     <ng-template #multiTemplate>
       <span>
-        {{ itemName ? itemName + ': ' : '' }}{{currentItems?.length}} selected
+        {{ itemName ? itemName + ': ' : '' }}{{currentItems.length}} selected
       </span>
     </ng-template>
 
@@ -35,11 +35,7 @@
   </button>
 </ng-template>
 
-<!-- This template displays the overlay content and is connected to the button -->
-<sfng-dropdown #dropdown="sfngDropdown" [triggerTemplate]="customTriggerTemplate" overlayClass="sfng-select-dropdown"
-  [disabled]="allItems.length === 0 && searchText === '' && disableWhenEmpty" [minWidth]="minWidth"
-  [minHeight]="minHeight" (opened)="onDropdownOpen()" (closed)="onDropdownClose()">
-
+<ng-template #content>
   <input *ngIf="allowSearch && (userProvidedItems?.length || 0) >= searchItemThreshold" type="text"
     class="w-full mb-2 rounded-t" [placeholder]="searchPlaceholder" [ngModel]="searchText"
     (ngModelChange)="onSearch($event)" (keydown)="onKeyDown($event)" (keydown.enter)="onEnter($event)">
@@ -71,7 +67,21 @@
       </sfng-select-item>
     </li>
   </ul>
-</sfng-dropdown>
+</ng-template>
+
+<!-- This template displays the overlay content and is connected to the button -->
+<ng-container [ngSwitch]="displayMode">
+  <sfng-dropdown *ngSwitchCase="'dropdown'" #dropdown="sfngDropdown" [triggerTemplate]="customTriggerTemplate"
+    overlayClass="sfng-select-dropdown" [disabled]="allItems.length === 0 && searchText === '' && disableWhenEmpty"
+    [minWidth]="minWidth" [minHeight]="minHeight" (opened)="onDropdownOpen()" (closed)="onDropdownClose()">
+    <ng-container *ngTemplateOutlet="content"></ng-container>
+  </sfng-dropdown>
+
+  <div *ngSwitchCase="'inline'" class="sfng-select-dropdown sfng-select-inline">
+    <ng-container *ngTemplateOutlet="content"></ng-container>
+  </div>
+</ng-container>
+
 
 <ng-template #defaultDynamicValueTemplate let-data>
   <sfng-select-item>{{ data.label || data.value }}</sfng-select-item>
