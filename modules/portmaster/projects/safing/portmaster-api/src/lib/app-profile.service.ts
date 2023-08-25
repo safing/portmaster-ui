@@ -1,14 +1,16 @@
 import { HttpClient } from '@angular/common/http';
 import { Inject, Injectable } from '@angular/core';
-import { Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
-import { AppProfile, FlatConfigObject, flattenProfileConfig, LayeredProfile, TagDescription } from './app-profile.types';
-import { PortapiService, PORTMASTER_HTTP_API_ENDPOINT } from './portapi.service';
+import { BehaviorSubject, Observable } from 'rxjs';
+import { filter, finalize, map, share, take } from 'rxjs/operators';
+import { AppProfile, FlatConfigObject, LayeredProfile, TagDescription, flattenProfileConfig } from './app-profile.types';
+import { PORTMASTER_HTTP_API_ENDPOINT, PortapiService } from './portapi.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AppProfileService {
+  private watchedProfiles = new Map<string, Observable<AppProfile>>();
+
   constructor(
     private portapi: PortapiService,
     private http: HttpClient,
@@ -65,6 +67,14 @@ export class AppProfileService {
       source += "/" + id
     }
     const key = `core:profiles/${source}`
+
+    if (this.watchedProfiles.has(key)) {
+      return this.watchedProfiles.get(key)!
+        .pipe(
+          take(1)
+        )
+    }
+
     return this.getAppProfileFromKey(key);
   }
 
@@ -101,7 +111,24 @@ export class AppProfileService {
    */
   watchAppProfile(source: string, id: string): Observable<AppProfile> {
     const key = `core:profiles/${source}/${id}`;
-    return this.portapi.watch(key)
+
+    if (this.watchedProfiles.has(key)) {
+      return this.watchedProfiles.get(key)!;
+    }
+
+    const stream = this.portapi.watch<AppProfile>(key)
+      .pipe(
+        finalize(() => {
+          console.log("watchAppProfile: removing cached profile stream for " + key)
+          this.watchedProfiles.delete(key);
+        }),
+        share({ connector: () => new BehaviorSubject<AppProfile | null>(null), resetOnRefCountZero: true }),
+        filter(profile => profile !== null),
+      ) as Observable<AppProfile>;
+
+    this.watchedProfiles.set(key, stream);
+
+    return stream;
   }
 
   /** @deprecated use saveProfile instead */
