@@ -61,6 +61,7 @@ export class MapRendererComponent implements AfterViewInit, OnDestroy {
   private projection!: GeoProjection;
   private lineFunc!: D3Line<(MapPin | [number, number])>;
   private pathFunc!: GeoPath<any, GeoPermissibleObjects>;
+  private zoomScale: number = 1
 
   @Input()
   set paths(paths: Path[]) {
@@ -108,14 +109,20 @@ export class MapRendererComponent implements AfterViewInit, OnDestroy {
     this.linesGroup = this.svg.append('g').attr('id', 'line-group')
     this.pinsGroup = this.svg.append('g').attr('id', 'pin-group')
 
+    // load the world-map data and start rendering
+    const world = await json<any>('/assets/world-50m.json');
+
+    // actually render the countries
+    const countries = (feature(world, world.objects.countries) as any);
+
     this.setupProjection();
-    this.setupZoom();
+    await this.setupZoom(countries);
 
     // we need to await the initial world render here because otherwise
     // the initial renderPins() will not be able to update the country attributes
     // and cause a delay before the state of the country (has-nodes, is-blocked, ...)
     // is visible.
-    await this.renderWorld();
+    this.renderWorld(countries);
 
     this.renderPins$
       .pipe(takeUntilDestroyed(this.destroyRef))
@@ -144,6 +151,15 @@ export class MapRendererComponent implements AfterViewInit, OnDestroy {
       .append('path')
       .attr('d', path => {
         return self.lineFunc(path.points)
+      })
+      .attr("stroke-width", d => {
+        if (d.attributes) {
+          if (d.attributes['in-use']) {
+            return 2 / this.zoomScale
+          }
+        }
+
+        return 1 / this.zoomScale;
       })
       .call(sel => {
         if (sel.empty()) {
@@ -186,24 +202,37 @@ export class MapRendererComponent implements AfterViewInit, OnDestroy {
       .enter()
       .append('g')
       .append(d => {
+        const val = MapRendererComponent.MarkerSize / this.zoomScale;
+
         if (d.pin.HopDistance === 1) {
           const homeIcon = document.createElementNS('http://www.w3.org/2000/svg', 'circle')
-          homeIcon.setAttribute('r', `${MapRendererComponent.MarkerSize * 1.25}`)
+          homeIcon.setAttribute('r', `${val * 1.25}`)
 
           return homeIcon;
         }
 
         if (d.pin.VerifiedOwner === 'Safing') {
           const polygon = document.createElementNS('http://www.w3.org/2000/svg', 'polygon')
-          polygon.setAttribute('points', `0,-${MapRendererComponent.MarkerSize} -${MapRendererComponent.MarkerSize},${MapRendererComponent.MarkerSize} ${MapRendererComponent.MarkerSize},${MapRendererComponent.MarkerSize}`)
+          polygon.setAttribute('points', `0,-${val} -${val},${val} ${val},${val}`)
 
           return polygon;
         }
 
         const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle')
-        circle.setAttribute('r', `${MapRendererComponent.MarkerSize}`)
+        circle.setAttribute('r', `${val}`)
 
         return circle;
+      })
+      .attr("stroke-width", d => {
+        if (d.isExit || self.highlightedPins.has(d.pin.ID)) {
+          return 2 / this.zoomScale
+        }
+
+        if (d.isHome) {
+          return 4.5 / this.zoomScale
+        }
+
+        return 1 / this.zoomScale
       })
       .call(selection => {
         selection
@@ -272,12 +301,9 @@ export class MapRendererComponent implements AfterViewInit, OnDestroy {
     this.cdr.detectChanges();
   }
 
-  private async renderWorld() {
-    // load the world-map data and start rendering
-    const world = await json<any>('/assets/world-50m.json');
-
+  private renderWorld(countries: any) {
     // actually render the countries
-    const data = (feature(world, world.objects.countries) as any).features;
+    const data = countries.features;
     const self = this;
 
     data.forEach((country: any) => {
@@ -343,9 +369,23 @@ export class MapRendererComponent implements AfterViewInit, OnDestroy {
       })
   }
 
-  private setupZoom() {
-    const width = this.mapRoot.nativeElement.getBoundingClientRect().width;
-    const height = window.innerHeight;
+  private async setupZoom(countries: any) {
+    // create a copy of countries
+    countries = {
+      ...countries,
+      features: [...countries.features]
+    }
+
+    // remove Antarctica from the feature set so projection.fitSize ignores it
+    // and better aligns the rest of the world :)
+    const aqIdx = countries.features.findIndex((p: GeoJSON.Feature) => p.properties?.iso_a2 === "AQ");
+    if (aqIdx >= 0) {
+      countries.features.splice(aqIdx, 1)
+    }
+
+    const size = this.mapRoot.nativeElement.getBoundingClientRect();
+
+    this.projection.fitSize([size.width, size.height], countries)
 
     // returns the top-left and the bottom-right of the current projection
     const mercatorBounds = () => {
@@ -355,16 +395,12 @@ export class MapRendererComponent implements AfterViewInit, OnDestroy {
       return [xymin, xymax];
     }
 
-    const initialBounds = mercatorBounds();
+    const s = this.projection.scale()
+    const scaleExtent = [s, s * 10]
 
-    const s = width / (initialBounds[1][0] - initialBounds[0][0]);
-    const scaleExtend = [s, 10 * s];
     const transform = zoomIdentity
-      .scale(scaleExtend[0])
+      .scale(this.projection.scale())
       .translate(this.projection.translate()[0], this.projection.translate()[1]);
-
-    // scale the projection to the initial bounds
-    this.projection.scale(scaleExtend[0]);
 
     // whenever the users zooms we need to update our groups
     // individually to apply the zoom effect.
@@ -373,8 +409,11 @@ export class MapRendererComponent implements AfterViewInit, OnDestroy {
       y: 0,
       k: 0,
     }
+
+    const self = this;
+
     let z = zoom<SVGSVGElement, unknown>()
-      .scaleExtent(scaleExtend as [number, number])
+      .scaleExtent(scaleExtent as [number, number])
       .on('zoom', (e) => {
         const t: ZoomTransform = e.transform;
 
@@ -389,7 +428,7 @@ export class MapRendererComponent implements AfterViewInit, OnDestroy {
               const newPos = this.projection(coords!)!;
               const yaw = this.projection.rotate()[0];
               this.projection.translate([tp[0], tp[1] + (p[1] - newPos[1])])
-              this.projection.rotate([yaw + 360.0 * (p[0] - newPos[0]) / width * scaleExtend[0] / t.k, 0, 0])
+              this.projection.rotate([yaw + 360.0 * (p[0] - newPos[0]) / size.width * scaleExtent[0] / t.k, 0, 0])
             }
           }
 
@@ -403,13 +442,13 @@ export class MapRendererComponent implements AfterViewInit, OnDestroy {
           const tp = this.projection.translate();
 
           // use x translation to rotate based on current scale
-          this.projection.rotate([yaw + 360.0 * dx / width * scaleExtend[0] / t.k, 0, 0])
+          this.projection.rotate([yaw + 360.0 * dx / size.width * scaleExtent[0] / t.k, 0, 0])
           // use y translation to translate projection clamped to bounds
           let bounds = mercatorBounds();
           if (bounds[0][1] + dy > 0) {
             dy = -bounds[0][1];
-          } else if (bounds[1][1] + dy < height) {
-            dy = height - bounds[1][1];
+          } else if (bounds[1][1] + dy < size.height) {
+            dy = size.height - bounds[1][1];
           }
           this.projection.translate([tp[0], tp[1] + dy]);
         }
