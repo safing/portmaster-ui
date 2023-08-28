@@ -1,11 +1,12 @@
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, DestroyRef, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges, inject } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
-import { BoolSetting, StringArraySetting, QuickSetting, ConfigService, Setting, getActualValue } from "@safing/portmaster-api";
+import { BoolSetting, StringArraySetting, CountrySelectionQuickSetting, ConfigService, Setting, getActualValue } from "@safing/portmaster-api";
 import { SaveSettingEvent } from "src/app/shared/config/generic-setting/generic-setting";
 
 @Component({
   selector: 'app-qs-select-exit',
   templateUrl: './qs-select-exit.html',
+  styleUrls: ['./qs-select-exit.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class QuickSettingSelectExitButtonComponent implements OnInit, OnChanges {
@@ -24,7 +25,7 @@ export class QuickSettingSelectExitButtonComponent implements OnInit, OnChanges 
   exitRuleSetting: StringArraySetting | null = null;
 
   selectedExitRules: string | undefined = undefined;
-  availableExitRules: QuickSetting<string[]>[] | null = null;
+  availableExitRules: CountrySelectionQuickSetting<string[]>[] | null = null;
 
   constructor(
     private configService: ConfigService,
@@ -64,7 +65,6 @@ export class QuickSettingSelectExitButtonComponent implements OnInit, OnChanges 
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(value => {
         this.spnEnabled = value;
-        this.cdr.markForCheck();
         this.updateOptions();
       })
   }
@@ -81,15 +81,15 @@ export class QuickSettingSelectExitButtonComponent implements OnInit, OnChanges 
     }
     this.availableExitRules = this.getQuickSettings();
 
-    // FIXME: When editing settings, dropdown should automatically change to "Custom" (ie. no selection) if rules do not match any preset anymore.
+    this.cdr.markForCheck();
   }
 
-  private getQuickSettings(): QuickSetting<string[]>[] {
+  private getQuickSettings(): CountrySelectionQuickSetting<string[]>[] {
     if (!this.exitRuleSetting) {
       return [];
     }
 
-    let val = this.exitRuleSetting.Annotations["safing/portbase:ui:quick-setting"];
+    let val = this.exitRuleSetting.Annotations["safing/portbase:ui:quick-setting"] as CountrySelectionQuickSetting<string[]>[];
     if (val === undefined) {
       return [];
     }
