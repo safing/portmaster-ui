@@ -64,11 +64,7 @@
             </ng-container>
             <ng-container *ngIf="!historyAvailableSince">
               <span class="text-opacity-75 text-primary"
-                sfng-tooltip="Support for connection history requires a subscription">None</span>
-              <ng-container *ngIf="(canUseHistory | async) === false">
-                <a class="text-xs text-opacity-75 underline cursor-pointer"
-                  href="https://safing.io/pricing/?source=Portmaster">Available in Portmaster Plus</a>
-              </ng-container>
+                sfng-tooltip="Network History feature is available in Portmaster Plus">None</span>
             </ng-container>
           </div>
         </div>
@@ -79,11 +75,14 @@
           <app-qs-internet [settings]="allSettings" (save)="saveSetting($event)">
           </app-qs-internet>
 
-          <app-qs-use-spn [settings]="allSettings" (save)="saveSetting($event)">
+          <app-qs-history [canUse]="canUseHistory" [settings]="allSettings" (save)="saveSetting($event)">
+          </app-qs-history>
+
+          <app-qs-use-spn [canUse]="canUseSPN" [settings]="allSettings" (save)="saveSetting($event)">
           </app-qs-use-spn>
 
-          <app-qs-history [settings]="allSettings" (save)="saveSetting($event)">
-          </app-qs-history>
+          <app-qs-select-exit [canUse]="canUseSPN" [settings]="allSettings" (save)="saveSetting($event)">
+          </app-qs-select-exit>
 
           <sfng-tipup key="appSettings-QuickSettings"></sfng-tipup>
         </div>
@@ -95,17 +94,7 @@
         <div [ngClass]="{
             'h-20 sfng-lg:w-32 sfng-lg:h-24': !collapseHeader
           }"
-          class="flex flex-col items-center justify-center w-24 px-4 py-1 transition-all duration-200 bg-gray-300 border border-gray-300 rounded shadow bg-opacity-90">
-          <h2 class="p-0 m-0 text-lg sfng-lg:text-xl text-primary">{{ (100 / stats!.size) *
-            stats!.countAllowed
-            | number:'1.0-1' }}%</h2>
-          <span class="text-secondary">Allowed</span>
-        </div>
-
-        <div [ngClass]="{
-            'h-20 sfng-lg:w-32 sfng-lg:h-24': !collapseHeader
-          }"
-          class="flex flex-col items-center justify-center w-24 px-4 py-1 transition-all duration-200 bg-gray-400 bg-opacity-75 border border-gray-400 rounded shadow">
+          class="flex flex-col items-center justify-center w-24 px-4 py-1 transition-all duration-200 bg-gray-300 bg-opacity-75 border border-gray-300 rounded shadow">
           <h2 class="p-0 m-0 text-lg sfng-lg:text-xl text-primary">{{ stats!.size | prettyCount }}</h2>
           <span class="text-secondary">Connections</span>
         </div>
@@ -119,25 +108,30 @@
           <span class="text-secondary">Blocked</span>
         </div>
 
-        <ng-container *ngIf="stats.bytes_received || stats.bytes_sent">
-          <div [ngClass]="{
-              'h-20 sfng-lg:w-32 sfng-lg:h-24': !collapseHeader
-            }"
-            class="flex flex-col items-center justify-center w-24 px-4 py-1 transition-all duration-200 bg-gray-300 bg-opacity-75 border border-gray-300 rounded shadow">
-            <h2 class="p-0 m-0 text-lg sfng-lg:text-xl text-primary whitespace-nowrap">
-              {{ stats.bytes_received | bytes }}</h2>
-            <span class="text-secondary">Received</span>
-          </div>
+        <div [ngClass]="{
+            'h-20 sfng-lg:w-32 sfng-lg:h-24': !collapseHeader
+          }"
+          class="flex flex-col items-center justify-center w-24 px-4 py-1 transition-all duration-200 bg-gray-300 bg-opacity-75 border border-gray-300 rounded shadow">
+          <h2 *ngIf="canViewBW; else: cannotViewBW" class="p-0 m-0 text-lg sfng-lg:text-xl text-primary whitespace-nowrap">
+            {{ stats.bytes_received | bytes }}
+          </h2>
+          <ng-template #cannotViewBW>
+            <span routerLink="/dashboard" class="p-0 m-0 pb-2.5 text-xxs sfng-lg:text-xs text-tertiary text-opacity-50 whitespace-nowrap hover:underline">
+              Available in Plus
+            </span>
+          </ng-template>
+          <span class="text-secondary">Received</span>
+        </div>
 
-          <div [ngClass]="{
-              'h-20 sfng-lg:w-32 sfng-lg:h-24': !collapseHeader
-            }"
-            class="flex flex-col items-center justify-center w-24 px-4 py-1 transition-all duration-200 bg-gray-300 bg-opacity-75 border border-gray-300 rounded shadow">
-            <h2 class="p-0 m-0 text-lg sfng-lg:text-xl text-primary whitespace-nowrap">{{ stats.bytes_sent | bytes }}
-            </h2>
-            <span class="text-secondary">Sent</span>
-          </div>
-        </ng-container>
+        <div [ngClass]="{
+            'h-20 sfng-lg:w-32 sfng-lg:h-24': !collapseHeader
+          }"
+          class="flex flex-col items-center justify-center w-24 px-4 py-1 transition-all duration-200 bg-gray-300 bg-opacity-75 border border-gray-300 rounded shadow">
+          <h2 *ngIf="canViewBW; else: cannotViewBW" class="p-0 m-0 text-lg sfng-lg:text-xl text-primary whitespace-nowrap">
+            {{ stats.bytes_sent | bytes }}
+          </h2>
+          <span class="text-secondary">Sent</span>
+        </div>
 
       </div>
     </div>

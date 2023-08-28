@@ -161,7 +161,7 @@ export interface Annotations<T extends OptionValueType> {
   [WellKnown.Category]?: string;
   [WellKnown.Subsystem]?: string;
   [WellKnown.Stackable]?: true;
-  [WellKnown.QuickSetting]?: QuickSetting<T> | QuickSetting<T>[];
+  [WellKnown.QuickSetting]?: QuickSetting<T> | QuickSetting<T>[] | CountrySelectionQuickSetting<T> | CountrySelectionQuickSetting<T>[];
   [WellKnown.Requires]?: ValueRequirement | ValueRequirement[];
   [WellKnown.RequiresFeatureID]?: FeatureID | FeatureID[];
   // Any thing else...
@@ -185,6 +185,12 @@ export interface QuickSetting<T extends OptionValueType> {
   Value: T;
   // Action defines the action of the quick setting.
   Action: 'replace' | 'merge-top' | 'merge-bottom';
+}
+
+export interface CountrySelectionQuickSetting<T extends OptionValueType> extends QuickSetting<T> {
+  // Filename of the flag to be used.
+  // In most cases this will be the 2-letter country code, but there are also special flags.
+  FlagID: string;
 }
 
 export interface ValueRequirement {

@@ -30,22 +30,34 @@
   <div *ngIf="spnEnabled" class="flex flex-row justify-center w-full gap-2 pt-2">
     <div class="status-info" sfng-tooltip="Home Node" [routerLink]="['/spn']">
 
-      <!-- <span class="text-tertiary">
-        SPN Home is
-      </span> -->
-
-      <svg xmlns="http://www.w3.org/2000/svg" width="12px" height="12px" fill="currentColor" viewBox="0 0 16 16"
-        class="text-tertiary" class="inline-block -mt-0.5">
-        <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-8 3a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"/>
-      </svg>
-      {{ spnStatus?.HomeHubName }}
-      <span class="text-tertiary">
-        in
-      </span>
-      <span *ngIf="!!spnStatus?.ConnectedCountry?.ID" [appCountryFlags]="spnStatus!.ConnectedCountry!.ID"></span>
-      {{ spnStatus?.ConnectedCountry?.Name }}
-      <span class="text-tertiary">
-        via {{ spnStatus?.ConnectedTransport}}
+      <span [ngSwitch]="spnStatus?.Status">
+        <ng-template ngSwitchCase="disabled">
+          SPN is connecting...<br>
+          Fail-safe blocking enabled
+        </ng-template>
+        <ng-template ngSwitchCase="failed">
+          <span class="text-red-300">SPN failed to connect</span><br>
+          Fail-safe blocking enabled
+        </ng-template>
+        <ng-template ngSwitchCase="connecting">
+          SPN is connecting...<br>
+          Fail-safe blocking enabled
+        </ng-template>
+        <ng-template ngSwitchCase="connected">
+          <svg xmlns="http://www.w3.org/2000/svg" width="12px" height="12px" fill="currentColor" viewBox="0 0 16 16"
+            class="text-tertiary" class="inline-block -mt-0.5">
+            <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-8 3a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"/>
+          </svg>
+          {{ spnStatus?.HomeHubName }}
+          <span class="text-tertiary">
+            in
+          </span>
+          <span *ngIf="!!spnStatus?.ConnectedCountry?.Code" [appCountryFlags]="spnStatus!.ConnectedCountry!.Code"></span>
+          {{ spnStatus?.ConnectedCountry?.Name }}
+          <span class="text-tertiary">
+            via {{ spnStatus?.ConnectedTransport}}
+          </span>
+        </ng-template>
       </span>
 
     </div>

@@ -7,7 +7,7 @@
 }
 
 .status-info {
-  @apply text-primary text-opacity-80 text-xxs;
+  @apply text-primary text-opacity-80 text-xxs text-center;
 
   &:hover {
     cursor: default;

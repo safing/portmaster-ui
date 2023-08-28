@@ -24,6 +24,9 @@ export class QsHistoryComponent implements OnChanges {
     )
 
   @Input()
+  canUse: boolean = true;
+
+  @Input()
   settings: Setting[] = [];
 
   @Output()
