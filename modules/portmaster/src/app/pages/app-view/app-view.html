@@ -65,10 +65,6 @@
             <ng-container *ngIf="!historyAvailableSince">
               <span class="text-opacity-75 text-primary"
                 sfng-tooltip="Network History feature is available in Portmaster Plus">None</span>
-              <!-- <ng-container *ngIf="!canUseHistory">
-                <a class="text-xs text-opacity-75 underline cursor-pointer"
-                  href="https://safing.io/pricing/?source=Portmaster">Available in Portmaster Plus</a>
-              </ng-container> -->
             </ng-container>
           </div>
         </div>
@@ -95,16 +91,6 @@
       <!-- Statistics -->
       <div class="flex flex-row flex-wrap items-center justify-end flex-grow gap-4 pr-8"
         *ngIf="!!stats && stats.size > 0">
-        <!-- <div [ngClass]="{
-            'h-20 sfng-lg:w-32 sfng-lg:h-24': !collapseHeader
-          }"
-          class="flex flex-col items-center justify-center w-24 px-4 py-1 transition-all duration-200 bg-gray-300 border border-gray-300 rounded shadow bg-opacity-90">
-          <h2 class="p-0 m-0 text-lg sfng-lg:text-xl text-primary">{{ (100 / stats!.size) *
-            stats!.countAllowed
-            | number:'1.0-1' }}%</h2>
-          <span class="text-secondary">Allowed</span>
-        </div> -->
-
         <div [ngClass]="{
             'h-20 sfng-lg:w-32 sfng-lg:h-24': !collapseHeader
           }"
@@ -130,10 +116,9 @@
             {{ stats.bytes_received | bytes }}
           </h2>
           <ng-template #cannotViewBW>
-            <a class="p-0 m-0 pb-2.5 text-xxs sfng-lg:text-xs text-tertiary text-opacity-50 whitespace-nowrap"
-              [routerLink]="['/dashboard']">
+            <span routerLink="/dashboard" class="p-0 m-0 pb-2.5 text-xxs sfng-lg:text-xs text-tertiary text-opacity-50 whitespace-nowrap hover:underline">
               Available in Plus
-            </a>
+            </span>
           </ng-template>
           <span class="text-secondary">Received</span>
         </div>
