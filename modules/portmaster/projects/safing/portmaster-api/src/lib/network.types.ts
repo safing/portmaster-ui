@@ -68,11 +68,16 @@ export function IsDenied(v: Verdict): boolean {
 }
 
 export interface CountryInfo {
-  ID: string;
+  Code: string;
 	Name: string;
-	Region: string;
-	ContinentCode: string;
 	Center: GeoCoordinates;
+  Continent: ContinentInfo;
+}
+
+export interface ContinentInfo {
+  Code: string;
+  Region: string;
+  Name: string;
 }
 
 export interface GeoCoordinates {

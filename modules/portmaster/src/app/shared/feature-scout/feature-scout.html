@@ -52,7 +52,7 @@
           <span class="text-tertiary">
             in
           </span>
-          <span *ngIf="!!spnStatus?.ConnectedCountry?.ID" [appCountryFlags]="spnStatus!.ConnectedCountry!.ID"></span>
+          <span *ngIf="!!spnStatus?.ConnectedCountry?.Code" [appCountryFlags]="spnStatus!.ConnectedCountry!.Code"></span>
           {{ spnStatus?.ConnectedCountry?.Name }}
           <span class="text-tertiary">
             via {{ spnStatus?.ConnectedTransport}}
