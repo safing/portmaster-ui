@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, EventEmitter, Input, OnChanges, Output, SimpleChanges } from "@angular/core";
-import { getActualValue, Setting, StringSetting } from "@safing/portmaster-api";
+import { Setting, StringSetting, getActualValue } from "@safing/portmaster-api";
 import { SaveSettingEvent } from "src/app/shared/config/generic-setting/generic-setting";
 
 const interferingSettings = {

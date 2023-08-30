@@ -1,6 +1,6 @@
-import { ChangeDetectorRef, Component, OnDestroy, DestroyRef, OnInit, ViewChild, inject } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ChangeDetectorRef, Component, DestroyRef, OnDestroy, OnInit, ViewChild, inject } from '@angular/core';
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
+import { ActivatedRoute, Router } from '@angular/router';
 import { AppProfile, AppProfileService, ChartResult, Condition, ConfigService, Database, DebugAPI, ExpertiseLevel, FeatureID, FlatConfigObject, IProfileStats, LayeredProfile, Netquery, SPNService, Setting, flattenProfileConfig, setAppSetting } from '@safing/portmaster-api';
 import { SfngDialogService } from '@safing/ui';
 import { BehaviorSubject, Observable, Subscription, combineLatest, interval, of } from 'rxjs';
@@ -74,6 +74,8 @@ export class AppViewComponent implements OnInit, OnDestroy {
    * The currently displayed list of settings
    */
   settings: Setting[] = [];
+
+  profileSettings: Setting[] = [];
 
   /**
    * @private
@@ -441,18 +443,21 @@ export class AppViewComponent implements OnInit, OnDestroy {
           // the next time we're executed
           prevousGlobal = global;
 
-          if (!!this.appProfile && settingsNeedUpdate) {
 
+          if (!!this.appProfile && settingsNeedUpdate) {
             // filter the settings and remove all settings that are not
             // profile specific (i.e. not part of the global config). Also
             // update the current settings value (from the app profile) and
             // the default value (from the global profile).
-            this.settings = allSettings
+            this.profileSettings = allSettings
               .map(setting => {
                 setting.Value = profileConfig[setting.Key];
                 setting.GlobalDefault = global[setting.Key];
+
                 return setting;
               })
+
+            this.settings = this.profileSettings
               .filter(setting => {
                 if (!(setting.Key in global)) {
                   return false;
