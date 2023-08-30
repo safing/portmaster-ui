@@ -72,16 +72,16 @@
         <!-- Quick Settings -->
         <div class="flex flex-row flex-wrap gap-2 text-xxs whitespace-nowrap" *ngIf="!collapseHeader" [@fadeIn]
           [@fadeOut]>
-          <app-qs-internet [settings]="allSettings" (save)="saveSetting($event)">
+          <app-qs-internet [settings]="profileSettings" (save)="saveSetting($event)">
           </app-qs-internet>
 
-          <app-qs-history [canUse]="canUseHistory" [settings]="allSettings" (save)="saveSetting($event)">
+          <app-qs-history [canUse]="canUseHistory" [settings]="profileSettings" (save)="saveSetting($event)">
           </app-qs-history>
 
-          <app-qs-use-spn [canUse]="canUseSPN" [settings]="allSettings" (save)="saveSetting($event)">
+          <app-qs-use-spn [canUse]="canUseSPN" [settings]="profileSettings" (save)="saveSetting($event)">
           </app-qs-use-spn>
 
-          <app-qs-select-exit [canUse]="canUseSPN" [settings]="allSettings" (save)="saveSetting($event)">
+          <app-qs-select-exit [canUse]="canUseSPN" [settings]="profileSettings" (save)="saveSetting($event)">
           </app-qs-select-exit>
 
           <sfng-tipup key="appSettings-QuickSettings"></sfng-tipup>
@@ -112,11 +112,13 @@
             'h-20 sfng-lg:w-32 sfng-lg:h-24': !collapseHeader
           }"
           class="flex flex-col items-center justify-center w-24 px-4 py-1 transition-all duration-200 bg-gray-300 bg-opacity-75 border border-gray-300 rounded shadow">
-          <h2 *ngIf="canViewBW; else: cannotViewBW" class="p-0 m-0 text-lg sfng-lg:text-xl text-primary whitespace-nowrap">
+          <h2 *ngIf="canViewBW; else: cannotViewBW"
+            class="p-0 m-0 text-lg sfng-lg:text-xl text-primary whitespace-nowrap">
             {{ stats.bytes_received | bytes }}
           </h2>
           <ng-template #cannotViewBW>
-            <span routerLink="/dashboard" class="p-0 m-0 pb-2.5 text-xxs sfng-lg:text-xs text-tertiary text-opacity-50 whitespace-nowrap hover:underline">
+            <span routerLink="/dashboard"
+              class="p-0 m-0 pb-2.5 text-xxs sfng-lg:text-xs text-tertiary text-opacity-50 whitespace-nowrap hover:underline">
               Available in Plus
             </span>
           </ng-template>
@@ -127,7 +129,8 @@
             'h-20 sfng-lg:w-32 sfng-lg:h-24': !collapseHeader
           }"
           class="flex flex-col items-center justify-center w-24 px-4 py-1 transition-all duration-200 bg-gray-300 bg-opacity-75 border border-gray-300 rounded shadow">
-          <h2 *ngIf="canViewBW; else: cannotViewBW" class="p-0 m-0 text-lg sfng-lg:text-xl text-primary whitespace-nowrap">
+          <h2 *ngIf="canViewBW; else: cannotViewBW"
+            class="p-0 m-0 text-lg sfng-lg:text-xl text-primary whitespace-nowrap">
             {{ stats.bytes_sent | bytes }}
           </h2>
           <span class="text-secondary">Sent</span>
