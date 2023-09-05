@@ -53,6 +53,9 @@ export class CountryOverlayComponent implements OnInit, OnChanges, OnDestroy {
         this.communityNodes = [];
 
         pinsInCountry.forEach(pin => {
+          if (pin.isOffline) {
+            return
+          }
           if (pin.pin.VerifiedOwner === 'Safing') {
             this.safingNodes.push(pin)
           } else {

@@ -184,6 +184,7 @@ export class MapRendererComponent implements AfterViewInit, OnDestroy {
   }
 
   private async renderPins(pins: MapPin[]) {
+    pins = pins.filter(pin => !pin.isOffline && !pin.isActive);
     console.log(`[MAP] Rendering ${pins.length} pins`)
 
     const countriesWithNodes = new Set<string>();
@@ -204,7 +205,7 @@ export class MapRendererComponent implements AfterViewInit, OnDestroy {
       .append(d => {
         const val = MapRendererComponent.MarkerSize / this.zoomScale;
 
-        if (d.pin.HopDistance === 1) {
+        if (d.isHome) {
           const homeIcon = document.createElementNS('http://www.w3.org/2000/svg', 'circle')
           homeIcon.setAttribute('r', `${val * 1.25}`)
 
@@ -233,6 +234,13 @@ export class MapRendererComponent implements AfterViewInit, OnDestroy {
         }
 
         return 1 / this.zoomScale
+      })
+      .attr("fill", d => {
+        if (d.hasIssues) {
+          return "none"
+        }
+
+        return ""
       })
       .call(selection => {
         selection
@@ -269,7 +277,7 @@ export class MapRendererComponent implements AfterViewInit, OnDestroy {
     // update all pins to their correct position and update their attributes
     this.pinsGroup.selectAll<SVGGElement, MapPin>('g')
       .attr('hub-id', d => d.pin.ID)
-      .attr('is-home', d => d.pin.HopDistance === 1)
+      .attr('is-home', d => d.isHome)
       .attr('transform', d => `translate(${this.projection([d.location.Longitude, d.location.Latitude])})`)
       .attr('in-use', d => d.isTransit)
       .attr('is-exit', d => d.isExit)
