@@ -153,8 +153,9 @@
   </div>
 </div>
 <div class="nav-lower-list">
-  <div class="relative link" sfngTipUpTrigger="navTools" sfngTipUpPassive tooltip="Version and Tools"
-    sfngTooltipDelay="1000" snfgTooltipPosition="right" (click)="settingsMenu.dropdown.toggle(settingsMenuTrigger)"
+  <div class="relative link" sfngTipUpTrigger="navTools" sfngTipUpPassive
+  sfng-tooltip="Version and Tools" sfngTooltipDelay="1000" snfgTooltipPosition="right"
+  (click)="settingsMenu.dropdown.toggle(settingsMenuTrigger)"
     cdkOverlayOrigin #settingsMenuTrigger="cdkOverlayOrigin" [class.active]="settingsMenu.dropdown.isOpen">
 
     <span *ngIf="versions?.Channel !== 'stable'"
@@ -203,8 +204,9 @@
   </app-menu>
 
   <!-- Power Menu -->
-  <div sfngTipUpTrigger="navPower" sfngTipUpPassive tooltip="Shutdown and Restart" sfngTooltipDelay="1000"
-    snfgTooltipPosition="right" class="link" (click)="powerMenu.dropdown.toggle(powerMenuTrigger)" cdkOverlayOrigin
+  <div sfngTipUpTrigger="navPower" sfngTipUpPassive
+    sfng-tooltip="Shutdown and Restart" sfngTooltipDelay="1000" snfgTooltipPosition="right"
+    class="link" (click)="powerMenu.dropdown.toggle(powerMenuTrigger)" cdkOverlayOrigin
     #powerMenuTrigger="cdkOverlayOrigin" [class.active]="powerMenu.dropdown.isOpen">
 
     <svg version="1.1" viewBox="0 0 24 24" class="help" xmlns="http://www.w3.org/2000/svg"
