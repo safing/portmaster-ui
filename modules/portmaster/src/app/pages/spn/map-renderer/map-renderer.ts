@@ -245,7 +245,6 @@ export class MapRendererComponent implements OnInit, AfterViewInit, OnDestroy {
     const size = this.mapRoot.nativeElement.getBoundingClientRect();
 
     this.projection.fitSize([size.width, size.height], countries)
-    this.projection.center([-80, 40])
 
     //this.projection.fitWidth(size.width, countries)
     //this.projection.fitHeight(size.height, countries)
