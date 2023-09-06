@@ -2,24 +2,42 @@ import { coerceElement } from "@angular/cdk/coercion";
 import { Overlay, OverlayContainer } from "@angular/cdk/overlay";
 import { ComponentPortal } from '@angular/cdk/portal';
 import { HttpClient } from '@angular/common/http';
-import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, ComponentRef, DestroyRef, ElementRef, Inject, Injectable, InjectionToken, Injector, OnDestroy, OnInit, QueryList, TemplateRef, ViewChild, ViewChildren, inject } from "@angular/core";
+import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, ComponentRef, DestroyRef, ElementRef, Inject, Injectable, InjectionToken, Injector, OnDestroy, OnInit, QueryList, TemplateRef, ViewChild, ViewChildren, forwardRef, inject } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { ActivatedRoute, ParamMap, Router } from "@angular/router";
-import { AppProfile, ConfigService, Connection, ExpertiseLevel, FeatureID, GeoCoordinates, Netquery, PORTMASTER_HTTP_API_ENDPOINT, PortapiService, SPNService, SPNStatus, UserProfile } from "@safing/portmaster-api";
+import { AppProfile, ConfigService, Connection, ExpertiseLevel, FeatureID, Netquery, PORTMASTER_HTTP_API_ENDPOINT, PortapiService, SPNService, SPNStatus, UserProfile } from "@safing/portmaster-api";
 import { SfngDialogService } from "@safing/ui";
+import { Line as D3Line, Selection, interpolateString, line, select } from 'd3';
 import { BehaviorSubject, Observable, Subscription, combineLatest, interval, of } from "rxjs";
 import { catchError, debounceTime, map, mergeMap, share, startWith, switchMap, take, takeUntil, withLatestFrom } from "rxjs/operators";
 import { fadeInAnimation, fadeInListAnimation, fadeOutAnimation } from "src/app/shared/animations";
 import { ExpertiseService } from "src/app/shared/expertise/expertise.service";
 import { SPNAccountDetailsComponent } from "src/app/shared/spn-account-details";
 import { CountryDetailsComponent } from "./country-details";
-import { CountryEvent, MapRendererComponent, Path, PinEvent } from "./map-renderer/map-renderer";
+import { CountryEvent, MAP_HANDLER, MapRef, MapRendererComponent } from "./map-renderer/map-renderer";
 import { MapPin, MapService } from "./map.service";
 import { PinDetailsComponent } from "./pin-details";
 import { PinOverlayComponent } from "./pin-overlay";
 import { OVERLAY_REF } from './utils';
 
 export const MapOverlay = new InjectionToken<Overlay>('MAP_OVERLAY')
+
+export type PinGroup = Selection<SVGGElement, unknown, null, unknown>;
+export type LaneGroup = Selection<SVGGElement, unknown, null, unknown>;
+
+export interface Path {
+  id: string;
+  points: (MapPin | [number, number])[];
+  attributes?: {
+    [key: string]: string;
+  }
+}
+
+export interface PinEvent {
+  event?: MouseEvent;
+  mapPin: MapPin;
+}
+
 
 /**
  * A custom class that implements the OverlayContainer interface of CDK. This
@@ -52,6 +70,7 @@ class MapOverlayContainer {
     MapOverlayContainer,
     { provide: MapOverlay, useClass: Overlay },
     { provide: OverlayContainer, useExisting: MapOverlayContainer },
+    { provide: MAP_HANDLER, useExisting: forwardRef(() => SpnPageComponent), multi: true }
   ],
   animations: [
     fadeInListAnimation,
@@ -110,8 +129,6 @@ export class SpnPageComponent implements OnInit, OnDestroy, AfterViewInit {
 
   private liveModeSubscription = Subscription.EMPTY;
 
-  countryCenters: { [key: string]: GeoCoordinates } = {};
-
   /**
    * spnStatusTranslation translates the spn status to the text that is displayed
    * at the view
@@ -121,6 +138,50 @@ export class SpnPageComponent implements OnInit, OnDestroy, AfterViewInit {
     connecting: 'Connecting',
     disabled: 'Disabled',
     failed: 'Failure'
+  }
+
+
+  private mapRef: MapRef | null = null;
+  private lineFunc: D3Line<(MapPin | [number, number])> | null = null;
+  private highlightedPins = new Set<string>();
+
+  registerMap(ref: MapRef) {
+    this.mapRef = ref;
+
+    ref.onMapReady(() => {
+      // we want to have straight lines between our hubs so we use a custom
+      // path function that updates x and y coordinates based on the mercator projection
+      // without, points will no be at the correct geo-coordinates.
+      this.lineFunc = line<MapPin | [number, number]>()
+        .x(d => {
+          if (Array.isArray(d)) {
+            return this.mapRef!.projection([d[0], d[1]])![0];
+          }
+          return this.mapRef!.projection([d.location.Longitude, d.location.Latitude])![0];
+        })
+        .y(d => {
+          if (Array.isArray(d)) {
+            return this.mapRef!.projection([d[0], d[1]])![1];
+          }
+          return this.mapRef!.projection([d.location.Longitude, d.location.Latitude])![1];
+        })
+
+      this.mapRef!.root.append('g').attr('id', 'line-group')
+      this.mapRef!.root.append('g').attr('id', 'pin-group')
+
+      if (this.mapService._pins$.getValue().length > 0) {
+        this.renderPins(this.mapService._pins$.getValue())
+      }
+    })
+
+    ref.onCountryClick(event => this.onCountryClick(event))
+    ref.onCountryHover(event => this.onCountryHover(event))
+    ref.onZoomPan(() => this.onZoomAndPan())
+  }
+
+  unregisterMap(ref: MapRef) {
+    this.mapRef = null;
+    this.lineFunc = null;
   }
 
   constructor(
@@ -165,10 +226,6 @@ export class SpnPageComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   ngOnInit() {
-    // load country center data
-    this.http.get<typeof this['countryCenters']>(`${this.httpAPI}/v1/intel/geoip/country-centers`)
-      .subscribe(centers => this.countryCenters = centers);
-
     this.spnService
       .profile$
       .pipe(
@@ -210,6 +267,8 @@ export class SpnPageComponent implements OnInit, OnDestroy, AfterViewInit {
           previousQueryMap = params;
         }
 
+        this.renderPins(pins);
+
         // we're done with everything now.
         this.loading = false;
       })
@@ -242,13 +301,6 @@ export class SpnPageComponent implements OnInit, OnDestroy, AfterViewInit {
 
           if (!!conn.Entity.Coordinates) {
             points.push([conn.Entity.Coordinates.Longitude, conn.Entity.Coordinates.Latitude])
-          } else {
-            if (!!conn.Entity.Country) {
-              const coords = this.countryCenters[conn.Entity.Country.toUpperCase()]
-              if (!!coords) {
-                points.push([coords.Longitude, coords.Latitude])
-              }
-            }
           }
 
           return {
@@ -345,12 +397,26 @@ export class SpnPageComponent implements OnInit, OnDestroy, AfterViewInit {
 
   onZoomAndPan() {
     this.updateOverlayPositions();
+
+    if (this.mapRef) {
+      this.mapRef.root
+        .select('#lines-group')
+        .selectAll<SVGPathElement, Path>('path')
+        .attr('d', d => this.lineFunc!(d.points))
+
+      this.mapRef.root
+        .select("#pin-group")
+        .selectAll<SVGGElement, MapPin>('g')
+        .attr('transform', d => `translate(${this.mapRef!.projection([d.location.Longitude, d.location.Latitude])})`)
+    }
+
+    this.cdr.markForCheck();
   }
 
   private createPinOverlay(pinEvent: PinEvent, lm: Map<string, MapPin>): PinOverlayComponent {
     const paths = this.getRouteHome(pinEvent.mapPin, lm, false)
     const overlayBoundingRect = this.overlayContainer.nativeElement.getBoundingClientRect();
-    const target = pinEvent.event?.target || this.mapRenderer.getPinElem(pinEvent.mapPin.pin.ID)?.children[0];
+    const target = pinEvent.event?.target || this.getPinElem(pinEvent.mapPin.pin.ID)?.children[0];
     let delay = 0;
     if (paths.length > 0) {
       delay = paths[0].points.length * MapRendererComponent.LineAnimationDuration;
@@ -443,11 +509,12 @@ export class SpnPageComponent implements OnInit, OnDestroy, AfterViewInit {
           this.onPinHover({
             mapPin: pins.find(p => p.pin.ID === hovered)!,
           })
-          this.mapRenderer.highlightPin(hovered, true)
+          this.highlightPin(hovered, true)
         } else {
           this.onPinHover(null);
-          this.mapRenderer.clearPinHighlights();
+          this.clearPinHighlights();
         }
+
 
         this.cdr.markForCheck();
       })
@@ -455,7 +522,7 @@ export class SpnPageComponent implements OnInit, OnDestroy, AfterViewInit {
     ref.onClose
       .subscribe(() => {
         if (hasPinHighlightActive) {
-          this.mapRenderer.clearPinHighlights();
+          this.clearPinHighlights();
         }
 
         const index = this.openedCountryDetails.findIndex(cmp => cmp === component);
@@ -496,6 +563,7 @@ export class SpnPageComponent implements OnInit, OnDestroy, AfterViewInit {
         countryCode: countryEvent.countryCode,
         countryName: countryEvent.countryName,
       }
+      this.cdr.markForCheck();
 
       return;
     }
@@ -539,7 +607,7 @@ export class SpnPageComponent implements OnInit, OnDestroy, AfterViewInit {
         //  - remove lines showing the route to the home hub
         overlayComp.afterDispose
           .subscribe(pinID => {
-            this.mapRenderer.highlightPin(pinID, false);
+            this.highlightPin(pinID, false);
 
             const overlayIdx = this.selectedPins.findIndex(por => por.mapPin.pin.ID === pinEvent.mapPin.pin.ID);
             this.selectedPins.splice(overlayIdx, 1)
@@ -553,7 +621,7 @@ export class SpnPageComponent implements OnInit, OnDestroy, AfterViewInit {
         //   - (un)hightlight the pin element on the map
         overlayComp.overlayHover
           .subscribe(evt => {
-            this.mapRenderer.highlightPin(evt.pinID, evt.type === 'enter')
+            this.highlightPin(evt.pinID, evt.type === 'enter')
 
             // over the overlay component to the top
             if (evt.type === 'enter') {
@@ -600,6 +668,8 @@ export class SpnPageComponent implements OnInit, OnDestroy, AfterViewInit {
         }
       }
     });
+
+    this.renderPaths(this.paths)
   }
 
   onPinHover(pinEvent: PinEvent | null) {
@@ -689,10 +759,254 @@ export class SpnPageComponent implements OnInit, OnDestroy, AfterViewInit {
     });
 
     return result;
+
   }
 
+  private async renderPaths(paths: Path[]) {
+    if (!this.mapRef) {
+      return;
+    }
+
+    const ref = this.mapRef!
+
+    const linesGroup: LaneGroup = this.mapRef.select("#line-group")!
+
+    const self = this;
+    const renderedPaths = linesGroup.selectAll<SVGPathElement, Path>('path')
+      .data(paths, p => p.id);
+
+    renderedPaths
+      .enter()
+      .append('path')
+      .attr('d', path => {
+        return self.lineFunc!(path.points)
+      })
+      .attr("stroke-width", d => {
+        if (d.attributes) {
+          if (d.attributes['in-use']) {
+            return 2 / ref.zoomScale
+          }
+        }
+
+        return 1 / ref.zoomScale;
+      })
+      .call(sel => {
+        if (sel.empty()) {
+          return;
+        }
+        const data = sel.datum()?.attributes || {};
+        Object.keys(data)
+          .forEach(key => {
+            sel.attr(key, data[key])
+          })
+      })
+      .transition("enter-lane")
+      .duration(d => d.points.length * MapRendererComponent.LineAnimationDuration)
+      .attrTween('stroke-dasharray', tweenDashEnter)
+
+    renderedPaths.exit()
+      .interrupt("enter-lane")
+      .transition("leave-lane")
+      .duration(200)
+      .attrTween('stroke-dasharray', tweenDashExit)
+      .remove();
+  }
+
+  private async renderPins(pins: MapPin[]) {
+    console.log(`[MAP] Rendering ${pins.length} pins`)
+
+    if (!this.mapRef) {
+      return
+    }
+
+    const ref = this.mapRef!;
+
+    const countriesWithNodes = new Set<string>();
+
+    pins.forEach(pin => {
+      countriesWithNodes.add(pin.entity.Country)
+    })
+
+    const pinsGroup = ref.select('#pin-group')!
+
+    const pinElements = pinsGroup
+      .selectAll<SVGGElement, MapPin>('g')
+      .data(pins, pin => pin.pin.ID)
+
+    const self = this;
+
+    // add new pins
+    pinElements
+      .enter()
+      .append('g')
+      .append(d => {
+        const val = MapRendererComponent.MarkerSize / ref.zoomScale;
+
+        if (d.pin.HopDistance === 1) {
+          const homeIcon = document.createElementNS('http://www.w3.org/2000/svg', 'circle')
+          homeIcon.setAttribute('r', `${val * 1.25}`)
+
+          return homeIcon;
+        }
+
+        if (d.pin.VerifiedOwner === 'Safing') {
+          const polygon = document.createElementNS('http://www.w3.org/2000/svg', 'polygon')
+          polygon.setAttribute('points', `0,-${val} -${val},${val} ${val},${val}`)
+
+          return polygon;
+        }
+
+        const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle')
+        circle.setAttribute('r', `${val}`)
+
+        return circle;
+      })
+      .attr("stroke-width", d => {
+        if (d.isExit || self.highlightedPins.has(d.pin.ID)) {
+          return 2 / ref.zoomScale
+        }
+
+        if (d.isHome) {
+          return 4.5 / ref.zoomScale
+        }
+
+        return 1 / ref.zoomScale
+      })
+      .call(selection => {
+        selection
+          .style('opacity', 0)
+          .attr('transform', d => 'scale(0)')
+          .transition('enter-marker')
+          /**/.duration(1000)
+          /**/.attr('transform', d => `scale(1)`)
+          /**/.style('opacity', 1)
+      })
+      .on('click', function (e: MouseEvent) {
+        const pin = select(this).datum() as MapPin;
+        self.onPinClick({
+          event: e,
+          mapPin: pin
+        });
+      })
+      .on('mouseenter', function (e: MouseEvent) {
+        const pin = select(this).datum() as MapPin;
+        self.onPinHover({
+          event: e,
+          mapPin: pin,
+        })
+      })
+      .on('mouseout', function (e: MouseEvent) {
+        self.onPinHover(null);
+      })
+
+    // remove pins from the map that disappeared
+    pinElements
+      .exit()
+      .remove()
+
+    // update all pins to their correct position and update their attributes
+    pinsGroup.selectAll<SVGGElement, MapPin>('g')
+      .attr('hub-id', d => d.pin.ID)
+      .attr('is-home', d => d.pin.HopDistance === 1)
+      .attr('transform', d => `translate(${ref.projection([d.location.Longitude, d.location.Latitude])})`)
+      .attr('in-use', d => d.isTransit)
+      .attr('is-exit', d => d.isExit)
+      .attr('raise', d => this.highlightedPins.has(d.pin.ID))
+
+    // update the attributes of the country shapes
+    ref.worldGroup.selectAll<SVGGElement, any>('path')
+      .attr('has-nodes', d => countriesWithNodes.has(d.properties.iso_a2))
+
+    // get all in-use pins and raise them to the top
+    pinsGroup.selectAll<SVGGElement, MapPin>('g[in-use=true]')
+      .raise()
+
+    // finally, re-raise all pins that are highlighted
+    pinsGroup.selectAll<SVGGElement, MapPin>('g[raise=true]')
+      .raise()
+
+    const activeCountrySet = new Set<string>();
+    pins.forEach(pin => {
+      if (pin.isTransit) {
+        activeCountrySet.add(pin.pin.ID)
+      }
+    })
+
+    // update the in-use attributes of the country shapes
+    ref.worldGroup.selectAll<SVGPathElement, any>('path')
+      .attr('in-use', d => activeCountrySet.has(d.properties.iso_a2))
+
+    this.cdr.detectChanges();
+  }
+
+  public getPinElem(pinID: string) {
+    if (!this.mapRef) {
+      return
+    }
+
+    return this.mapRef.root
+      .select("#pin-group")
+      .select<SVGGElement>(`g[hub-id=${pinID}]`)
+      .node()
+  }
+
+  public clearPinHighlights() {
+    if (!this.mapRef) {
+      return
+    }
+
+    this.mapRef.root
+      .select('#pin-group')
+      .select<SVGGElement>(`g[raise=true]`)
+      .attr('raise', false)
+
+    this.highlightedPins.clear();
+  }
+
+  public highlightPin(pinID: string, highlight: boolean) {
+    if (highlight) {
+      this.highlightedPins.add(pinID)
+    } else {
+      this.highlightedPins.delete(pinID);
+    }
+
+    if (!this.mapRef) {
+      return
+    }
+    const pinElemn = this.mapRef!.root
+      .select("#pin-group")
+      .select<SVGGElement>(`g[hub-id=${pinID}]`)
+      .attr('raise', highlight)
+
+    if (highlight) {
+      pinElemn
+        .raise()
+    }
+  }
 }
 
 function lineID(l: [MapPin, MapPin]): string {
   return [l[0].pin.ID, l[1].pin.ID].sort().join("-")
+}
+
+const tweenDashEnter = function (this: SVGPathElement) {
+  const len = this.getTotalLength();
+  const interpolate = interpolateString(`0, ${len}`, `${len}, ${len}`);
+  return (t: number) => {
+    if (t === 1) {
+      return '0';
+    }
+    return interpolate(t);
+  }
+}
+
+const tweenDashExit = function (this: SVGPathElement) {
+  const len = this.getTotalLength();
+  const interpolate = interpolateString(`${len}, ${len}`, `0, ${len}`);
+  return (t: number) => {
+    if (t === 1) {
+      return `${len}`;
+    }
+    return interpolate(t);
+  }
 }

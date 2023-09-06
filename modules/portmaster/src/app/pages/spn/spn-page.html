@@ -52,9 +52,7 @@
 </div>
 
 <div class="relative flex-grow h-full">
-  <spn-map-renderer (zoomAndPan)="onZoomAndPan()" (pinClick)="onPinClick($event)" (pinHover)="onPinHover($event)"
-    (countryHover)="onCountryHover($event)" (countryClick)="onCountryClick($event)"
-    [pins]="(mapService.pins$|async) || []" [paths]="paths" class="block w-full h-full"
+  <spn-map-renderer class="block w-full h-full"
     [class.disabled]="!currentUser || (mapService.status$ | async) === 'disabled'">
   </spn-map-renderer>
 
