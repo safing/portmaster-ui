@@ -124,6 +124,24 @@
 
   <div class="flex-grow"></div>
 
+  <nz-range-picker *ngIf="useHistory" [nzShowTime]="true" class="py-0" [nzRenderExtraFooter]="customTimeRange"
+    [(ngModel)]="dateFilter" [nzBorderless]="true">
+  </nz-range-picker>
+  <ng-template #customTimeRange>
+    <span class="py-2 uppercase text-xxs text-secondary">Quick Settings</span>
+    <ul class="grid grid-flow-row grid-cols-3 py-2 text-xs">
+      <li
+        class="cursor-pointer text-secondary hover:text-primary px-2 py-1.5 hover:bg-gray-500 hover:bg-opacity-50 rounded-md">
+        Last 24 Hours</li>
+      <li
+        class="cursor-pointer text-secondary hover:text-primary px-2 py-1.5 hover:bg-gray-500 hover:bg-opacity-50 rounded-md">
+        Last Week</li>
+      <li
+        class="cursor-pointer text-secondary hover:text-primary px-2 py-1.5 hover:bg-gray-500 hover:bg-opacity-50 rounded-md">
+        Last Month</li>
+    </ul>
+  </ng-template>
+
   <div class="flex flex-row items-center gap-3">
     <!--
       Group-By selection

@@ -132,6 +132,9 @@ export class SfngNetqueryViewer implements OnInit, OnDestroy, AfterViewInit {
   /** The value of the free-text search */
   textSearch: string = '';
 
+  /** The date filter */
+  dateFilter: Date[] = []
+
   /** a list of allowed group-by keys */
   readonly allowedGroupBy = groupByKeys;
 
@@ -402,11 +405,10 @@ export class SfngNetqueryViewer implements OnInit, OnDestroy, AfterViewInit {
               ),
 
             totalConnCount: this.netquery.query({
+              ...query,
               select: {
                 $count: { field: '*', as: 'totalConnCount' }
               },
-              query: this.mergeFilter || {},
-              databases: this.databases,
             })
           })
         }),
@@ -914,6 +916,7 @@ export class SfngNetqueryViewer implements OnInit, OnDestroy, AfterViewInit {
     }
 
     let normalizedQuery = mergeConditions(query, this.mergeFilter || {})
+    normalizedQuery = this.mergeDateFilter(normalizedQuery)
 
     let orderBy: string[] | OrderBy[] = this.orderByKeys;
     if (!orderBy || orderBy.length === 0) {
@@ -937,6 +940,19 @@ export class SfngNetqueryViewer implements OnInit, OnDestroy, AfterViewInit {
       textSearch,
       databases: this.databases,
     }
+  }
+
+  private mergeDateFilter(condition: Condition): Condition {
+    if (this.dateFilter?.length) {
+      condition = mergeConditions(condition, {
+        started: {
+          $ge: Math.floor(this.dateFilter[0].getTime() / 1000),
+          $le: Math.ceil(this.dateFilter[1].getTime() / 1000),
+        }
+      })
+    }
+
+    return condition
   }
 
   /** @private Updates the current model form all values emited by the tag-bar. */
