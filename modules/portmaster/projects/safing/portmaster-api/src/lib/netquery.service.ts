@@ -69,7 +69,23 @@ export interface NotIn {
   $notin: string[];
 }
 
-export type Matcher = Equal | NotEqual | Like | In | NotIn;
+export interface Greater {
+  $gt: number;
+}
+
+export interface GreaterOrEqual {
+  $ge: number;
+}
+
+export interface Less {
+  $lt: number;
+}
+
+export interface LessOrEqual {
+  $le: number;
+}
+
+export type Matcher = Equal | NotEqual | Like | In | NotIn | Greater | GreaterOrEqual | Less | LessOrEqual;
 
 export interface OrderBy {
   field: string;
