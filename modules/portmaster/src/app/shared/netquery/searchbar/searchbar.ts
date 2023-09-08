@@ -153,7 +153,10 @@ export class SfngNetquerySearchbarComponent implements ControlValueAccessor, OnI
     this.keyManager.change
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(idx => {
-        console.log("new active index: ", idx)
+        if (!this.suggestionValues.length) {
+          return
+        }
+
         this.suggestionValues.forEach(val => val.active = false);
         this.suggestionValues.get(idx)!.active = true;
         this.cdr.markForCheck();
