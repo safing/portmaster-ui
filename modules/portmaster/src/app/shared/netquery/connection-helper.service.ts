@@ -3,7 +3,7 @@ import { Inject, Injectable, Renderer2 } from '@angular/core';
 import { Router } from '@angular/router';
 import { AppProfile, AppProfileService, ConfigService, IPScope, NetqueryConnection, Pin, PossilbeValue, QueryResult, SPNService, Verdict, deepClone, flattenProfileConfig, getAppSetting, setAppSetting } from '@safing/portmaster-api';
 import { BehaviorSubject, Observable, OperatorFunction, Subject, combineLatest } from 'rxjs';
-import { distinctUntilChanged, map, switchMap, takeUntil } from 'rxjs/operators';
+import { distinctUntilChanged, filter, map, switchMap, take, takeUntil } from 'rxjs/operators';
 import { ActionIndicatorService } from '../action-indicator';
 import { objKeys } from '../utils';
 import { SfngSearchbarFields } from './searchbar';
@@ -183,7 +183,11 @@ export class NetqueryHelper {
   attachPins(): OperatorFunction<QueryResult[], (QueryResult & { __exitNode?: Pin })[]> {
     return source => combineLatest([
       source,
-      this.spnMapPins$,
+      this.spnMapPins$
+        .pipe(
+          filter(result => !!result.length),
+          take(1),
+        ),
     ]).pipe(
       map(([items, pins]) => {
         let lm = new Map<string, Pin>();
@@ -202,7 +206,7 @@ export class NetqueryHelper {
     )
   }
 
-  encodeToPossibleValues(field: keyof NetqueryConnection): OperatorFunction<QueryResult[], (QueryResult & PossilbeValue)[]> {
+  encodeToPossibleValues(field: string): OperatorFunction<QueryResult[], (QueryResult & PossilbeValue)[]> {
     return source => combineLatest([
       source,
       this.appProfiles$,
