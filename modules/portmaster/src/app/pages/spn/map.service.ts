@@ -13,6 +13,9 @@ export interface MapPin {
   // this pin.
   entity: IntelEntity;
 
+  // whether the pin is regarded as offline / not available.
+  isOffline: boolean;
+
   // whether or not the pin is currently used as an exit node
   isExit: boolean;
 
@@ -24,6 +27,9 @@ export interface MapPin {
 
   // whether or not the pin is used as the entry-node.
   isHome: boolean;
+
+  // whether the pin has any known issues
+  hasIssues: boolean;
 
   // FIXME: remove me
   collapsed?: boolean;
@@ -116,23 +122,35 @@ export class MapService {
           }));
 
           pins.forEach(pin => {
+            // Save Pin ID as seen.
+            seenPinIDs.add(pin.ID);
+
             const oldPinModel = pinMap.get(pin.ID);
+
+            // Get states of new model.
+            const isOffline = pin.States.includes('Offline') || !pin.States.includes('Reachable');
+            const isHome = pin.HopDistance === 1;
+            const isTransit = transitPins.has(pin.ID);
+
             const isExit = exitPins.has(pin.ID);
             const isActive = activePins.has(pin.ID);
-            const isTransit = transitPins.has(pin.ID)
+            const hasIssues = pin.States.includes('ConnectivityIssues');
 
-            const pinHasChanged = !oldPinModel || oldPinModel.pin !== pin || oldPinModel.isExit !== isExit || oldPinModel.isActive !== isActive || oldPinModel.isTransit !== isTransit;
-            seenPinIDs.add(pin.ID);
+            const pinHasChanged = !oldPinModel || oldPinModel.pin !== pin ||
+              oldPinModel.isOffline !== isOffline || oldPinModel.isHome !== isHome || oldPinModel.isTransit !== isTransit ||
+              oldPinModel.isExit !== isExit || oldPinModel.isActive !== isActive || oldPinModel.hasIssues !== hasIssues;
 
             if (pinHasChanged) {
               const newPinModel: MapPin = {
                 pin: pin,
                 location: getPinCoords(pin) || UnknownLocation,
                 entity: (pin.EntityV4 || pin.EntityV6)!,
-                isExit: exitPins.has(pin.ID),
-                isTransit: isTransit,
-                isActive: activePins.has(pin.ID),
-                isHome: pin.HopDistance === 1,
+                isExit,
+                isTransit,
+                isActive,
+                isOffline,
+                isHome,
+                hasIssues,
               }
 
               pinMap.set(pin.ID, newPinModel);
@@ -159,7 +177,6 @@ export class MapService {
         distinctUntilChanged(),
       )
       .subscribe(pins => this._pins$.next(pins))
-
   }
 
   getExitPinIDsForProfile(profile: AppProfile) {

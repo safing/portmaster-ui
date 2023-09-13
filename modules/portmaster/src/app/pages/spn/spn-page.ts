@@ -813,7 +813,7 @@ export class SpnPageComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   private async renderPins(pins: MapPin[]) {
-    console.log(`[MAP] Rendering ${pins.length} pins`)
+    pins = pins.filter(pin => !pin.isOffline || pin.isActive);
 
     if (!this.mapRef) {
       return
@@ -842,7 +842,7 @@ export class SpnPageComponent implements OnInit, OnDestroy, AfterViewInit {
       .append(d => {
         const val = MapRendererComponent.MarkerSize / ref.zoomScale;
 
-        if (d.pin.HopDistance === 1) {
+        if (d.isHome) {
           const homeIcon = document.createElementNS('http://www.w3.org/2000/svg', 'circle')
           homeIcon.setAttribute('r', `${val * 1.25}`)
 
@@ -907,7 +907,7 @@ export class SpnPageComponent implements OnInit, OnDestroy, AfterViewInit {
     // update all pins to their correct position and update their attributes
     pinsGroup.selectAll<SVGGElement, MapPin>('g')
       .attr('hub-id', d => d.pin.ID)
-      .attr('is-home', d => d.pin.HopDistance === 1)
+      .attr('is-home', d => d.isHome)
       .attr('transform', d => `translate(${ref.projection([d.location.Longitude, d.location.Latitude])})`)
       .attr('in-use', d => d.isTransit)
       .attr('is-exit', d => d.isExit)
