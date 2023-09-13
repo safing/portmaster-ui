@@ -11,7 +11,7 @@
       <sfng-tipup *ngIf="setting?.Description" [key]="setting!.Key" [text]="setting?.Description"
         [buttons]="sfngTipUpButtons" [title]="setting?.Name"></sfng-tipup>
 
-      <span *ngIf="changeAccepted || restartPending" (click)="restartNow()"
+      <span *ngIf="changeAccepted || restartPending || (changeAccepted && uiReloadRequired)" (click)="restartNow()"
         class="px-1.5 py-0.5 border  rounded inline-flex justify-evenly items-center text-xxs mb-0.5" [ngClass]="{
           'border-green-300 text-green-300': !_setting?.RequiresRestart,
           'border-yellow text-yellow cursor-pointer hover:bg-yellow hover:text-gray-200': _setting?.RequiresRestart
@@ -22,7 +22,8 @@
             d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
             clip-rule="evenodd" />
         </svg>
-        Saved {{ _setting?.RequiresRestart ? ' - Restart required' : '' }}
+
+        Saved {{ _setting?.RequiresRestart ? ' - Restart required' : (uiReloadRequired ? ' - Reload required' : '') }}
       </span>
 
       <span *ngIf="rejected" (click)="abortChange()"

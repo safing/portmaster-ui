@@ -7,7 +7,7 @@ import { BaseSetting, ConfigService, ExpertiseLevel, ExpertiseLevelNumber, Exter
 import { SfngDialogRef, SfngDialogService } from '@safing/ui';
 import { Button } from 'js-yaml-loader!../../../i18n/helptexts.yaml';
 import { Subject } from 'rxjs';
-import { debounceTime } from 'rxjs/operators';
+import { debounceTime, tap } from 'rxjs/operators';
 import { ActionIndicatorService } from '../../action-indicator';
 import { fadeInAnimation, fadeOutAnimation } from '../../animations';
 import { ExpertiseService } from '../../expertise/expertise.service';
@@ -170,6 +170,15 @@ export class GenericSettingComponent<S extends BaseSetting<any, any>> implements
    */
   get restartPending(): boolean {
     return !!this._setting?.Annotations?.[WellKnown.RestartPending];
+  }
+
+  /**
+   * @private
+   * Returns whether or not a UI reload is required for this setting
+   * to apply
+   */
+  get uiReloadRequired(): boolean {
+    return this._setting?.Annotations?.[WellKnown.RequiresUIReload] !== undefined;
   }
 
   /**
@@ -514,37 +523,50 @@ export class GenericSettingComponent<S extends BaseSetting<any, any>> implements
   }
 
   restartNow() {
-    if (!this._setting?.RequiresRestart) {
+    if (this._setting?.RequiresRestart) {
+      this.dialog.confirm({
+        header: 'Restart Portmaster',
+        message: 'Do you want to restart the Portmaster now?',
+        buttons: [
+          {
+            id: 'no',
+            text: 'Maybe Later',
+            class: 'outline',
+          },
+          {
+            id: 'restart',
+            text: 'Restart',
+            class: 'danger'
+          }
+        ]
+      })
+        .onAction('restart', () =>
+          this.portapi.restartPortmaster()
+            .subscribe(this.actionIndicator.httpObserver(
+              'Restarting ...',
+              'Failed to Restart',
+            ))
+        )
+        .onAction('no', () => {
+          this._changeAccepted = false;
+          this.changeDetectorRef.markForCheck();
+        });
+
       return;
     }
 
-    this.dialog.confirm({
-      header: 'Restart Portmaster',
-      message: 'Do you want to restart the Portmaster now?',
-      buttons: [
-        {
-          id: 'no',
-          text: 'Maybe Later',
-          class: 'outline',
-        },
-        {
-          id: 'restart',
-          text: 'Restart',
-          class: 'danger'
-        }
-      ]
-    })
-      .onAction('restart', () =>
-        this.portapi.restartPortmaster()
-          .subscribe(this.actionIndicator.httpObserver(
-            'Restarting ...',
-            'Failed to Restart',
-          ))
-      )
-      .onAction('no', () => {
-        this._changeAccepted = false;
-        this.changeDetectorRef.markForCheck();
-      });
+    if (this.uiReloadRequired) {
+      this.portapi.reloadUI()
+        .pipe(
+          tap(() => {
+            setTimeout(() => window.location.reload(), 1000)
+          })
+        )
+        .subscribe(this.actionIndicator.httpObserver(
+          'Reloading UI ...',
+          'Failed to Reload UI',
+        ))
+    }
   }
 
   /**
