@@ -346,7 +346,7 @@ export class AppViewComponent implements OnInit, OnDestroy {
                 profile: `${profile[0].Source}/${profile[0].ID}`,
               },
               databases: [Database.History],
-            })
+            }, 'app-view-get-first-connection')
               .subscribe(result => {
                 if (result.length > 0) {
                   this.historyAvailableSince = new Date(result[0].first_connection!)

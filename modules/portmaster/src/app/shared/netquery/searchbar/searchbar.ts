@@ -227,7 +227,7 @@ export class SfngNetquerySearchbarComponent implements ControlValueAccessor, OnI
               page: 0,
               pageSize: limit,
               orderBy: [{ field: "count", desc: true }]
-            })
+            }, 'netquery-searchbar-get-counts')
               .pipe(
                 this.helper.encodeToPossibleValues(field),
                 map(results => {

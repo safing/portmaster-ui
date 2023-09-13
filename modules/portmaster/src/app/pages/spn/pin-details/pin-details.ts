@@ -55,7 +55,7 @@ export class PinDetailsComponent implements OnInit, OnChanges, OnDestroy {
               exit_node: pin.pin.ID,
             },
             groupBy: ['exit_node']
-          })
+          }, 'pin-details-get-connections-per-exit-node')
         }))
       )
       .subscribe((result) => {

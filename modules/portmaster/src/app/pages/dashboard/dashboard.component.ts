@@ -151,7 +151,7 @@ export class DashboardPageComponent implements OnInit {
         },
         groupBy: ['profile'],
         databases: [Database.Live]
-      })
+      }, 'dashboard-get-active-profile-count')
       .pipe(
         repeat({ delay: 10000 }),
         switchMap(result => {
@@ -197,7 +197,7 @@ export class DashboardPageComponent implements OnInit {
         },
         groupBy: ['country'],
         databases: [Database.Live]
-      })
+      }, 'dashboard-get-country-stats')
       .pipe(
         repeat({ delay: 10000 }),
         takeUntilDestroyed(this.destroyRef),
@@ -231,7 +231,7 @@ export class DashboardPageComponent implements OnInit {
         },
         groupBy: ['profile', 'country', 'active'],
         databases: [Database.Live],
-      })
+      }, 'dashboard-get-per-country-connections')
       .pipe(
         repeat({ delay: 10000 }),
         takeUntilDestroyed(this.destroyRef),
@@ -268,7 +268,7 @@ export class DashboardPageComponent implements OnInit {
           { $count: { field: '*', as: 'totalCount' } }
         ],
         databases: [Database.Live],
-      })
+      }, 'dashboard-get-exit-nodes')
       .pipe(
         repeat({ delay: 10000 }),
         takeUntilDestroyed(this.destroyRef),

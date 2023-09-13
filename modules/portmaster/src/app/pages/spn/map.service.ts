@@ -170,7 +170,7 @@ export class MapService {
         query: {
           profile: { $eq: `${profile.Source}/${profile.ID}` },
         }
-      })
+      }, 'map-service-get-exit-pin-ids-for-profile')
       .pipe(map(result => result.map(row => row.exit_node!)))
   }
 
@@ -186,7 +186,7 @@ export class MapService {
       .query({
         select: ['exit_node'],
         groupBy: ['exit_node']
-      })
+      }, 'map-service-get-pins-used-as-exit')
       .pipe(
         map(result => result.map(row => row.exit_node!))
       )
@@ -199,7 +199,7 @@ export class MapService {
       query: {
         active: { $eq: true }
       }
-    })
+    }, 'map-service-get-pins-with-connections')
       .pipe(
         map(activeExitNodes => {
           const pins = this._pins$.getValue();

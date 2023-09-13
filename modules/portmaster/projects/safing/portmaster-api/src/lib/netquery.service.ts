@@ -1,4 +1,4 @@
-import { HttpClient, HttpResponse } from "@angular/common/http";
+import { HttpClient, HttpParams, HttpResponse } from "@angular/common/http";
 import { Inject, Injectable } from "@angular/core";
 import { Observable, forkJoin, of } from "rxjs";
 import { map, mergeMap } from "rxjs/operators";
@@ -213,8 +213,10 @@ export class Netquery {
     @Inject(PORTMASTER_HTTP_API_ENDPOINT) private httpAPI: string,
   ) { }
 
-  query(query: Query): Observable<QueryResult[]> {
-    return this.http.post<{ results: QueryResult[] }>(`${this.httpAPI}/v1/netquery/query`, query)
+  query(query: Query, origin: string): Observable<QueryResult[]> {
+    return this.http.post<{ results: QueryResult[] }>(`${this.httpAPI}/v1/netquery/query`, query, {
+      params: new HttpParams().set("origin", origin)
+    })
       .pipe(map(res => res.results || []));
   }
 
@@ -283,7 +285,7 @@ export class Netquery {
       groupBy: [
         'profile',
       ],
-    }).pipe(
+    }, 'get-active-profile-ids').pipe(
       map(result => {
         return result.map(res => res.profile!);
       })
@@ -313,7 +315,7 @@ export class Netquery {
           'verdict',
         ],
         query: query,
-      }),
+      }, 'profile-stats'),
 
       conns: this.query({
         select: [
@@ -327,7 +329,7 @@ export class Netquery {
           'profile',
         ],
         query: query,
-      }),
+      }, 'profile-stats'),
 
       identities: this.query({
         select: [
@@ -345,7 +347,7 @@ export class Netquery {
             $ne: "",
           },
         },
-      })
+      }, 'profile-stats')
     }).pipe(
       map(result => {
         let statsMap = new Map<string, IProfileStats>();

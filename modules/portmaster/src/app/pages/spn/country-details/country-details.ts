@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, Inject, Input, OnChanges, OnDestroy, OnInit, Optional, Output, SimpleChanges, TrackByFunction } from "@angular/core";
 import { AppProfile, AppProfileService, Netquery } from '@safing/portmaster-api';
-import { SfngDialogRef, SfngDialogService, SFNG_DIALOG_REF } from "@safing/ui";
-import { forkJoin, of, Subscription, switchMap } from 'rxjs';
+import { SFNG_DIALOG_REF, SfngDialogRef, SfngDialogService } from "@safing/ui";
+import { Subscription, forkJoin, of, switchMap } from 'rxjs';
 import { repeat } from 'rxjs/operators';
 import { MapPin, MapService } from './../map.service';
 import { PinDetailsComponent } from './../pin-details/pin-details';
@@ -120,7 +120,7 @@ export class CountryDetailsComponent implements OnInit, OnChanges, OnDestroy {
                     $in: countryPins.map(pin => pin.pin.ID),
                   }
                 }
-              })
+              }, 'get-connections-per-profile-in-country')
               .pipe(
                 switchMap(queryResult => {
                   if (queryResult.length === 0) {

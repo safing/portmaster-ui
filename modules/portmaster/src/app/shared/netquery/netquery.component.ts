@@ -343,7 +343,7 @@ export class SfngNetqueryViewer implements OnInit, OnDestroy, AfterViewInit {
         query.page = page - 1; // UI starts at page 1 while the backend is 0-based
         query.pageSize = pageSize;
 
-        return this.netquery.query(query)
+        return this.netquery.query(query, 'netquery-viewer')
           .pipe(
             this.helper.attachProfile(),
             this.helper.attachPins(),
@@ -392,7 +392,7 @@ export class SfngNetqueryViewer implements OnInit, OnDestroy, AfterViewInit {
             totalCount: this.netquery.query({
               ...query,
               select: { $count: { field: '*', as: 'totalCount' } },
-            })
+            }, 'netquery-viewer-total-count')
               .pipe(
                 map(result => {
                   // the the correct resulsts here which depend on whether or not
@@ -409,7 +409,7 @@ export class SfngNetqueryViewer implements OnInit, OnDestroy, AfterViewInit {
               select: {
                 $count: { field: '*', as: 'totalConnCount' }
               },
-            })
+            }, 'netquery-viewer-total-conn-count')
           })
         }),
       )
@@ -626,7 +626,7 @@ export class SfngNetqueryViewer implements OnInit, OnDestroy, AfterViewInit {
           { field: 'ended', desc: true }
         ],
         databases: this.databases,
-      })
+      }, 'netquery-viewer-load-group')
         .subscribe(result => {
           const paginator = new DynamicItemsPaginator<NetqueryConnection>({
             view: (pageNumber: number, pageSize: number) => {
@@ -639,7 +639,7 @@ export class SfngNetqueryViewer implements OnInit, OnDestroy, AfterViewInit {
                 page: pageNumber - 1,
                 pageSize: pageSize,
                 databases: this.databases,
-              }) as Observable<NetqueryConnection[]>;
+              }, 'netquery-viewer-group-paginator') as Observable<NetqueryConnection[]>;
             }
           }, 25)
 
@@ -683,7 +683,7 @@ export class SfngNetqueryViewer implements OnInit, OnDestroy, AfterViewInit {
       ],
       orderBy: [{ field: "count", desc: true }, { field, desc: true }],
       databases: this.databases,
-    })
+    }, 'netquery-viewer-load-suggestions')
       .pipe(this.helper.encodeToPossibleValues(field))
       .subscribe(result => {
         this.models[field]!.loading = false;
