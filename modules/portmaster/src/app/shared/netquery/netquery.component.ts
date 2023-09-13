@@ -1,8 +1,9 @@
 import { coerceArray } from "@angular/cdk/coercion";
-import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, DestroyRef, EventEmitter, Input, OnDestroy, OnInit, Output, QueryList, TemplateRef, TrackByFunction, ViewChildren, inject } from "@angular/core";
+import { FormatWidth, formatDate, getLocaleDateFormat, getLocaleId } from "@angular/common";
+import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, DestroyRef, EventEmitter, Input, LOCALE_ID, OnDestroy, OnInit, Output, QueryList, TemplateRef, TrackByFunction, ViewChildren, inject, isDevMode } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { ActivatedRoute, Router } from "@angular/router";
-import { ChartResult, Condition, Database, FeatureID, IPScope, Netquery, NetqueryConnection, OrderBy, Pin, PossilbeValue, Query, QueryResult, SPNService, Select, Verdict } from "@safing/portmaster-api";
+import { ChartResult, Condition, Database, FeatureID, GreaterOrEqual, IPScope, LessOrEqual, Netquery, NetqueryConnection, OrderBy, Pin, PossilbeValue, Query, QueryResult, SPNService, Select, Verdict } from "@safing/portmaster-api";
 import { Datasource, DynamicItemsPaginator, SelectOption } from "@safing/ui";
 import { BehaviorSubject, Observable, Subject, combineLatest, forkJoin, interval, of } from "rxjs";
 import { catchError, debounceTime, filter, map, share, skip, switchMap, take, takeUntil } from "rxjs/operators";
@@ -28,6 +29,7 @@ interface Model<T> {
   menuTitle?: string;
   loading: boolean;
   tipupKey?: string;
+  virtual?: boolean;
 }
 
 const freeTextSearchFields: (keyof Partial<NetqueryConnection>)[] = [
@@ -62,6 +64,11 @@ interface LocalQueryResult extends QueryResult {
   _group: Observable<DynamicItemsPaginator<NetqueryConnection>> | null;
   __profile?: LocalAppProfile;
   __exitNode?: Pin;
+}
+
+interface QuickDateSetting {
+  name: string;
+  apply: () => [Date, Date];
 }
 
 /**
@@ -109,6 +116,7 @@ export class SfngNetqueryViewer implements OnInit, OnDestroy, AfterViewInit {
   /** @private Used to trigger a reload of the current filter */
   private search$ = new Subject<void>();
 
+  /** @private The DestroyRef of the component, required for takeUntilDestroyed */
   private destroyRef = inject(DestroyRef);
 
   /** @private Used to trigger an update of all displayed values in the tag-bar. */
@@ -119,6 +127,68 @@ export class SfngNetqueryViewer implements OnInit, OnDestroy, AfterViewInit {
 
   /** @private Whether or not we should update the URL when performSearch() finishes */
   private skipUrlUpdate = false;
+
+  /** @private The LOCALE_ID to format dates. */
+  private localeId = inject(LOCALE_ID);
+
+  /** @private the date format for the nz-range-picker */
+  dateFormat = getLocaleDateFormat(getLocaleId(this.localeId), FormatWidth.Medium)
+
+  /** @private A list of quick-date settings for the nz-range-picker */
+  quickDateSettings: QuickDateSetting[] = [
+    {
+      name: 'Today',
+      apply: () => {
+        const now = new Date();
+        return [
+          new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0),
+          new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1, 0, 0, -1),
+        ]
+      }
+    },
+    {
+      name: 'Last 24 Hours',
+      apply: () => {
+        const now = new Date();
+        return [
+          new Date(now.getFullYear(), now.getMonth(), now.getDate(), now.getHours() - 24, now.getMinutes(), now.getSeconds()),
+          now
+        ]
+      }
+    },
+    {
+      name: 'Last 7 Days',
+      apply: () => {
+        const now = new Date();
+        return [
+          new Date(now.getFullYear(), now.getMonth(), now.getDate() - 7, now.getHours(), now.getMinutes(), now.getSeconds()),
+          now,
+        ]
+      }
+    },
+    {
+      name: 'Last Month',
+      apply: () => {
+        const now = new Date();
+        return [
+          new Date(now.getFullYear(), now.getMonth() - 1, now.getDate(), now.getHours(), now.getMinutes(), now.getSeconds()),
+          now,
+        ]
+      }
+    },
+  ]
+
+  applyQuickDateSetting(qds: QuickDateSetting) {
+    const [from, to] = qds.apply()
+
+    const fromStr = formatDate(from, 'medium', this.localeId)
+    const toStr = formatDate(to, 'medium', this.localeId)
+
+    this.onFieldsParsed({
+      from: [fromStr],
+      to: [toStr]
+    }, true)
+  }
 
   /** @private - The paginator used for the result set */
   paginator!: DynamicItemsPaginator<LocalQueryResult>;
@@ -166,7 +236,9 @@ export class SfngNetqueryViewer implements OnInit, OnDestroy, AfterViewInit {
     )
 
   // whether or not the history database should be queried as well.
-  useHistory = false;
+  get useHistory() {
+    return this.dateFilter?.length;
+  }
 
   private get databases(): Database[] {
     if (!this.useHistory) {
@@ -194,6 +266,8 @@ export class SfngNetqueryViewer implements OnInit, OnDestroy, AfterViewInit {
     }
     return r.id!
   }
+
+  trackConnection: TrackByFunction<NetqueryConnection> = (_, c) => c.id
 
   constructor(
     private netquery: Netquery,
@@ -245,7 +319,80 @@ export class SfngNetqueryViewer implements OnInit, OnDestroy, AfterViewInit {
   /** @private Holds the value displayed in the tag-bar */
   tagbarValues: SfngTagbarValue[] = [];
 
-  models: { [key in keyof NetqueryConnection]?: Model<any> } = initializeModels({
+  private updateDateRangeState() {
+    const values = [
+      this.models.from.searchValues[0],
+      this.models.to.searchValues[0],
+    ]
+
+    let fromValueTs = Date.parse(values[0])
+    let toValueTs = Date.parse(values[1])
+
+    // if we failed to parse the date from a string, the user might
+    // just entered the timestamp in seconds
+    if (isNaN(fromValueTs)) {
+      fromValueTs = Number(values[0]) * 1000
+    }
+    if (isNaN(toValueTs)) {
+      toValueTs = Number(values[1]) * 1000
+    }
+
+    const fromValid = !isNaN(fromValueTs)
+    const toValid = !isNaN(toValueTs)
+
+
+    let fromValue = new Date(fromValueTs)
+    let toValue = new Date(toValueTs);
+
+    if (fromValid && toValid && fromValue.getTime() === toValue.getTime()) {
+      fromValue = new Date(fromValue.getFullYear(), fromValue.getMonth(), fromValue.getDate(), 0, 0, 0)
+      toValue = new Date(toValue.getFullYear(), toValue.getMonth(), toValue.getDate() + 1, 0, 0, -1)
+    }
+
+    this.dateFilter = [];
+
+    if (fromValid) {
+      this.dateFilter.push(fromValue)
+      this.models.from.searchValues = [
+        formatDate(fromValue, 'medium', this.localeId)
+      ]
+    }
+
+    if (toValid) {
+      if (!fromValid) {
+        this.dateFilter.push(new Date(2000, 0, 1))
+      }
+
+      this.dateFilter.push(toValue)
+      this.models.to.searchValues = [
+        formatDate(toValue, 'medium', this.localeId)
+      ]
+    }
+
+    this.cdr.markForCheck();
+  }
+
+  private getDateRangeCondition(): Condition | null {
+    this.updateDateRangeState()
+
+    if (!this.dateFilter.length) {
+      return null
+    }
+
+    const cond: GreaterOrEqual & Partial<LessOrEqual> = {
+      $ge: Math.floor(this.dateFilter[0].getTime() / 1000),
+    }
+
+    if (this.dateFilter.length >= 2) {
+      cond['$le'] = Math.floor(this.dateFilter[1].getTime() / 1000)
+    }
+
+    return {
+      started: cond
+    }
+  }
+
+  models: { [key: string]: Model<any> } = initializeModels({
     domain: {
       visible: true,
     },
@@ -319,7 +466,13 @@ export class SfngNetqueryViewer implements OnInit, OnDestroy, AfterViewInit {
       menuTitle: 'SPN',
       suggestions: booleanSuggestionValues(),
       tipupKey: 'spn'
-    }
+    },
+    from: {
+      virtual: true
+    },
+    to: {
+      virtual: true,
+    },
   })
 
   /** Translations for the connection field names */
@@ -356,11 +509,13 @@ export class SfngNetqueryViewer implements OnInit, OnDestroy, AfterViewInit {
                   grpFilter[key] = r[key];
                 })
 
-                return {
+                let page = {
                   ...r,
                   _chart: !!this.groupByKeys.length ? this.getGroupChart(grpFilter) : null,
                   _group: !!this.groupByKeys.length ? this.lazyLoadGroup(grpFilter) : null,
                 }
+
+                return page;
               });
             })
           );
@@ -523,7 +678,7 @@ export class SfngNetqueryViewer implements OnInit, OnDestroy, AfterViewInit {
           // of the profile ID). Since we might need to load data from the Portmaster for this (like
           // for profile names) we construct a list of observables using helper.encodeToPossibleValues
           // and use the result for the tagbar.
-          objKeys(this.models)
+          Object.keys(this.models)
             .sort() // make sure we always output values in a constant order
             .forEach(modelKey => {
               const values = this.models[modelKey]!.searchValues;
@@ -595,7 +750,11 @@ export class SfngNetqueryViewer implements OnInit, OnDestroy, AfterViewInit {
           orderBy: result.orderBy,
         });
       } catch (err) {
-        console.error(err);
+        // only log the error in dev mode as this is most likely
+        // just bad user input
+        if (isDevMode()) {
+          console.error(err);
+        }
       }
     }
   }
@@ -653,7 +812,7 @@ export class SfngNetqueryViewer implements OnInit, OnDestroy, AfterViewInit {
   // Returns an observable that loads the current active connection chart using the
   // current page query but only for the condition of the displayed group.
   getGroupChart(groupFilter: Condition): Observable<ChartResult[]> {
-    return this.netquery.activeConnectionChart(groupFilter);
+    return this.netquery.activeConnectionChart(groupFilter)
   }
 
   // loadSuggestion loads possible values for a given connection field
@@ -721,8 +880,8 @@ export class SfngNetqueryViewer implements OnInit, OnDestroy, AfterViewInit {
   }
 
   /** @private Callback for keyboard events on the search-input */
-  onFieldsParsed(fields: SfngSearchbarFields) {
-    const allowedKeys = new Set(objKeys(this.models));
+  onFieldsParsed(fields: SfngSearchbarFields, replace = false) {
+    const allowedKeys = new Set<string>(Object.keys(this.models))
 
     objKeys(fields).forEach(key => {
       if (key === 'groupBy') {
@@ -762,27 +921,37 @@ export class SfngNetqueryViewer implements OnInit, OnDestroy, AfterViewInit {
         return;
       }
 
-      fields[key]!.forEach(val => {
-        // quick fix to make sure domains always end in a period.
-        if (key === 'domain' && typeof val === 'string' && val.length > 0 && !val.endsWith('.')) {
-          val = `${val}.`
-        }
+      if (fields[key]?.length === 0 && replace) {
+        this.models[key].searchValues = [];
+      } else {
+        fields[key]!.forEach(val => {
+          // quick fix to make sure domains always end in a period.
+          if (key === 'domain' && typeof val === 'string' && val.length > 0 && !val.endsWith('.')) {
+            val = `${val}.`
+          }
 
-        if (typeof val === 'object' && '$ne' in val) {
-          this.actionIndicator.error("NOT conditions are not yet supported")
-          return;
-        }
+          if (typeof val === 'object' && '$ne' in val) {
+            this.actionIndicator.error("NOT conditions are not yet supported")
+            return;
+          }
 
-        // avoid duplicates
-        if (this.models[key]!.searchValues.includes(val)) {
-          return;
-        }
+          // avoid duplicates
+          if (this.models[key]!.searchValues.includes(val)) {
+            return;
+          }
 
-        this.models[key]!.searchValues = [
-          ...this.models[key]!.searchValues,
-          val,
-        ]
-      })
+          if (!replace) {
+            this.models[key]!.searchValues = [
+              ...this.models[key]!.searchValues,
+              val,
+            ]
+          } else {
+            this.models[key]!.searchValues = [val]
+          }
+        })
+      }
+
+      this.updateDateRangeState()
     })
 
     this.cdr.markForCheck();
@@ -860,13 +1029,23 @@ export class SfngNetqueryViewer implements OnInit, OnDestroy, AfterViewInit {
     let query: Condition = {}
     let textSearch: Query['textSearch'];
 
+    const dateQuery = this.getDateRangeCondition()
+    if (dateQuery !== null) {
+      query = mergeConditions(query, dateQuery)
+    }
+
     // create the query conditions for all keys on this.models
-    objKeys(this.models).forEach((key: keyof NetqueryConnection) => {
+    Object.keys(this.models).forEach((key: string) => {
       if (excludeFields.includes(key)) {
         return;
       }
 
       if (this.models[key]!.searchValues.length > 0) {
+        // check if model is virtual, and if, skip adding it to the query
+        if (this.models[key].virtual) {
+          return
+        }
+
         query[key] = {
           $in: this.models[key]!.searchValues,
         }
@@ -916,7 +1095,6 @@ export class SfngNetqueryViewer implements OnInit, OnDestroy, AfterViewInit {
     }
 
     let normalizedQuery = mergeConditions(query, this.mergeFilter || {})
-    normalizedQuery = this.mergeDateFilter(normalizedQuery)
 
     let orderBy: string[] | OrderBy[] = this.orderByKeys;
     if (!orderBy || orderBy.length === 0) {
@@ -942,19 +1120,6 @@ export class SfngNetqueryViewer implements OnInit, OnDestroy, AfterViewInit {
     }
   }
 
-  private mergeDateFilter(condition: Condition): Condition {
-    if (this.dateFilter?.length) {
-      condition = mergeConditions(condition, {
-        started: {
-          $ge: Math.floor(this.dateFilter[0].getTime() / 1000),
-          $le: Math.ceil(this.dateFilter[1].getTime() / 1000),
-        }
-      })
-    }
-
-    return condition
-  }
-
   /** @private Updates the current model form all values emited by the tag-bar. */
   onTagbarChange(tagKinds: SfngTagbarValue[]) {
     objKeys(this.models).forEach(key => {
@@ -971,7 +1136,25 @@ export class SfngNetqueryViewer implements OnInit, OnDestroy, AfterViewInit {
         })
     })
 
+    this.updateDateRangeState();
+
     this.performSearch();
+  }
+
+  onDateRangeChange(event: Date[]) {
+    if (event.length >= 1) {
+      event[0] = new Date(event[0].getFullYear(), event[0].getMonth(), event[0].getDate(), 0, 0, 0)
+      this.onFieldsParsed({ from: [formatDate(event[0], 'medium', this.localeId)] }, true)
+    } else {
+      this.onFieldsParsed({ from: [] }, true)
+    }
+
+    if (event.length >= 2) {
+      event[1] = new Date(event[1].getFullYear(), event[1].getMonth(), event[1].getDate() + 1, 0, 0, -1)
+      this.onFieldsParsed({ to: [formatDate(event[1], 'medium', this.localeId)] }, true)
+    } else {
+      this.onFieldsParsed({ to: [] }, true)
+    }
   }
 
   /** Updates the {@link tagbarValues} from {@link models}*/

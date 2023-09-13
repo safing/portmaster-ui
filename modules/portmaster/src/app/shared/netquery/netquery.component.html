@@ -88,6 +88,7 @@
       </div>
     </button>
   </ng-template>
+
   <sfng-dropdown #customDropdown [triggerTemplate]="selectTemplate" overlayClass="grid grid-cols-4">
     <ng-container *ngFor="let model of (models | keyvalue | combinedMenu); let last=last">
       <div class="border-gray-400 sfng-select-dropdown" [class.border-r]="!last">
@@ -115,32 +116,26 @@
     </ng-container>
   </sfng-dropdown>
 
-  <div class="flex flex-row items-center gap-2 px-2 py-1 bg-gray-300 border border-gray-300 rounded text-xxs"
-    *ngIf="(canUseHistory$ | async)">
-    <sfng-toggle [(ngModel)]="useHistory" (ngModelChange)="performSearch()">
-    </sfng-toggle>
-    Search History
-  </div>
 
   <div class="flex-grow"></div>
 
-  <nz-range-picker *ngIf="useHistory" [nzShowTime]="true" class="py-0" [nzRenderExtraFooter]="customTimeRange"
-    [(ngModel)]="dateFilter" [nzBorderless]="true">
-  </nz-range-picker>
-  <ng-template #customTimeRange>
-    <span class="py-2 uppercase text-xxs text-secondary">Quick Settings</span>
-    <ul class="grid grid-flow-row grid-cols-3 py-2 text-xs">
-      <li
-        class="cursor-pointer text-secondary hover:text-primary px-2 py-1.5 hover:bg-gray-500 hover:bg-opacity-50 rounded-md">
-        Last 24 Hours</li>
-      <li
-        class="cursor-pointer text-secondary hover:text-primary px-2 py-1.5 hover:bg-gray-500 hover:bg-opacity-50 rounded-md">
-        Last Week</li>
-      <li
-        class="cursor-pointer text-secondary hover:text-primary px-2 py-1.5 hover:bg-gray-500 hover:bg-opacity-50 rounded-md">
-        Last Month</li>
-    </ul>
-  </ng-template>
+  <div class="flex flex-row items-center gap-2 px-2 bg-gray-300 border border-gray-300 rounded text-xxs"
+    *ngIf="(canUseHistory$ | async)">
+    Search History:
+    <nz-range-picker [nzShowTime]="false" class="py-0" [nzRenderExtraFooter]="customTimeRange" [(ngModel)]="dateFilter"
+      [nzBorderless]="true" (ngModelChange)="onDateRangeChange($event)" [nzAllowClear]="true" [nzFormat]="dateFormat">
+    </nz-range-picker>
+
+    <ng-template #customTimeRange>
+      <span class="py-2 uppercase text-xxs text-secondary">Quick Settings</span>
+      <ul class="grid grid-flow-row grid-cols-3 py-2 text-xs">
+        <li *ngFor="let qds of quickDateSettings" (click)="applyQuickDateSetting(qds)"
+          class="cursor-pointer text-secondary hover:text-primary px-2 py-1.5 hover:bg-gray-500 hover:bg-opacity-50 rounded-md">
+          {{ qds.name }}
+        </li>
+      </ul>
+    </ng-template>
+  </div>
 
   <div class="flex flex-row items-center gap-3">
     <!--
@@ -182,6 +177,7 @@
 <ng-template #headerTemplate let-data let-active="active">
   <div class="relative flex flex-row items-center w-full gap-3 px-3 bg-gray-200"
     [ngClass]="{'rounded-sm': !active, 'rounded-t-sm': active, 'py-2': !!data._group, 'py-1': !data._group}">
+
     <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 transition-all duration-150 transform"
       [class.rotate-90]="active" viewBox="0 0 20 20" fill="currentColor">
       <path fill-rule="evenodd"
@@ -278,6 +274,7 @@
     <sfng-accordion-group class="flex flex-col gap-2 pr-4"
       *ngIf="(paginator.pageLoading$ | async) === false; else: loadingTemplate" [headerTemplate]="headerTemplate"
       singleMode="false">
+
       <sfng-accordion [data]="result" #accordion
         *ngFor="let result of (paginator.pageItems$ | async); trackBy: trackPageItem">
         <div *ngIf="accordion.active" class="p-3 bg-opacity-75 border-gray-300 rounded-b-sm"
@@ -295,7 +292,8 @@
 
               <sfng-pagination [source]="connsPaginator" class="flex flex-col flex-grow gap-2">
                 <ng-template [sfngPageContent]>
-                  <sfng-accordion *ngFor="let conn of (connsPaginator.pageItems$ | async)" [data]="conn" #subAccordion>
+                  <sfng-accordion *ngFor="let conn of (connsPaginator.pageItems$ | async); trackBy: trackConnection"
+                    [data]="conn" #subAccordion>
                     <div *ngIf="subAccordion.active"
                       class="p-3 bg-gray-300 bg-opacity-75 border-t border-gray-300 rounded-b-sm">
                       <ng-container *ngTemplateOutlet="connectionDetails; context: {$implicit: conn}"></ng-container>

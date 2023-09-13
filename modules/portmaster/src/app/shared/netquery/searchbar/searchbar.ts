@@ -19,6 +19,8 @@ export type SfngSearchbarFields = {
 } & {
   groupBy?: string[];
   orderBy?: string[];
+  from?: string[];
+  to?: string[];
 }
 
 export type SfngSearchbarSuggestionValue<K extends keyof NetqueryConnection> = {
