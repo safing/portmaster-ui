@@ -18,6 +18,8 @@ export interface MapRef {
   onCountryHover(cb: (_: CountryEvent | null) => void): void;
   onCountryClick(cb: (_: CountryEvent) => void): void;
   select(selection: string): Selection<any, any, any, any> | null;
+
+  countryNames: { [key: string]: string };
   root: MapRoot;
   projection: GeoProjection;
   zoomScale: number;
@@ -46,8 +48,9 @@ export class MapRendererComponent implements OnInit, AfterViewInit, OnDestroy {
   static readonly MarkerSize = 4;
   static readonly LineAnimationDuration = 200;
 
-
-  readonly countryNames = new Map<string, string>();
+  countryNames: {
+    [countryCode: string]: string
+  } = {}
 
   // SVG group elements
   private svg!: MapRoot;
@@ -176,7 +179,7 @@ export class MapRendererComponent implements OnInit, AfterViewInit, OnDestroy {
     const self = this;
 
     data.forEach((country: any) => {
-      this.countryNames.set(country.properties.iso_a2, country.properties.name)
+      this.countryNames[country.properties.iso_a2] = country.properties.name
     })
 
     this.worldGroup.selectAll()

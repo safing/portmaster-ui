@@ -1,5 +1,5 @@
 import { KeyValue } from "@angular/common";
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, DestroyRef, ElementRef, OnInit, QueryList, TrackByFunction, ViewChild, ViewChildren, forwardRef, inject } from "@angular/core";
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, DestroyRef, ElementRef, OnInit, QueryList, TrackByFunction, ViewChildren, forwardRef, inject } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { AppProfileService, ChartResult, Database, FeatureID, Netquery, SPNService, UserProfile, Verdict } from "@safing/portmaster-api";
 import { SfngDialogService } from "@safing/ui";
@@ -24,9 +24,6 @@ interface BlockedProfile {
   ]
 })
 export class DashboardPageComponent implements OnInit {
-  @ViewChild('map', { static: true, read: ElementRef })
-  mapElement!: ElementRef<HTMLElement>;
-
   @ViewChildren(SfngNetqueryLineChartComponent)
   lineCharts!: QueryList<SfngNetqueryLineChartComponent>;
 
@@ -46,7 +43,10 @@ export class DashboardPageComponent implements OnInit {
     [country: string]: number
   } = {};
 
-  countryNames: { [country: string]: string } = {};
+  get countryNames(): { [country: string]: string } {
+    return this.mapRef?.countryNames || {};
+  }
+
 
   activeConnections: number = 0;
   blockedConnections: number = 0;

@@ -682,7 +682,7 @@ export class SpnPageComponent implements OnInit, OnDestroy, AfterViewInit {
 
     // we also emit a country hover event here to keep the country
     // overlay open.
-    const countryName = this.mapRenderer.countryNames.get(pinEvent.mapPin.entity.Country)
+    const countryName = this.mapRenderer.countryNames[pinEvent.mapPin.entity.Country]
     this.onCountryHover({
       event: pinEvent.event,
       countryCode: pinEvent.mapPin.entity.Country,
