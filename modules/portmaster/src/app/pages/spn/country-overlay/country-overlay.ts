@@ -53,7 +53,7 @@ export class CountryOverlayComponent implements OnInit, OnChanges, OnDestroy {
         this.communityNodes = [];
 
         pinsInCountry.forEach(pin => {
-          if (pin.isOffline) {
+          if (pin.isOffline && !pin.isActive) {
             return
           }
 
