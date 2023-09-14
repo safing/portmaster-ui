@@ -197,7 +197,7 @@ export class DashboardPageComponent implements OnInit {
         this.blockedConnections = 0;
         this.blockedProfiles = [];
 
-        response.profileCount.forEach(row => {
+        response.profileCount?.forEach(row => {
           this.blockedConnections += row.totalCount;
           this.blockedProfiles.push({
             profileID: row.profile!,
@@ -210,7 +210,7 @@ export class DashboardPageComponent implements OnInit {
         this.dataIncoming = 0;
         this.dataOutgoing = 0;
 
-        response.countryStats.forEach(row => {
+        response.countryStats?.forEach(row => {
           this.dataIncoming += row.bwin;
           this.dataOutgoing += row.bwout;
 
@@ -229,7 +229,7 @@ export class DashboardPageComponent implements OnInit {
         this.activeConnections = 0;
         this.countriesPerProfile = {};
 
-        response.perCountryConns.forEach(row => {
+        response.perCountryConns?.forEach(row => {
           profiles.add(row.profile!);
 
           if (row.active) {
