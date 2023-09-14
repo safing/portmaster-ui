@@ -1,4 +1,4 @@
-import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, Inject, InjectionToken, Input, OnDestroy, OnInit, Optional } from '@angular/core';
+import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, DestroyRef, ElementRef, Inject, InjectionToken, Input, OnDestroy, OnInit, Optional, inject } from '@angular/core';
 import { GeoPath, GeoPermissibleObjects, GeoProjection, Selection, ZoomTransform, geoMercator, geoPath, json, pointer, select, zoom, zoomIdentity } from 'd3';
 import { feature } from 'topojson-client';
 
@@ -48,12 +48,15 @@ export class MapRendererComponent implements OnInit, AfterViewInit, OnDestroy {
   static readonly MarkerSize = 4;
   static readonly LineAnimationDuration = 200;
 
+  private readonly destroyRef = inject(DestroyRef);
+  private destroyed = false;
+
   countryNames: {
     [countryCode: string]: string
   } = {}
 
   // SVG group elements
-  private svg!: MapRoot;
+  private svg: MapRoot | null = null;
   worldGroup!: WorldGroup;
 
   // Projection and line rendering functions
@@ -63,7 +66,7 @@ export class MapRendererComponent implements OnInit, AfterViewInit, OnDestroy {
   private pathFunc!: GeoPath<any, GeoPermissibleObjects>;
 
   get root() {
-    return this.svg
+    return this.svg!
   }
 
   @Input()
@@ -118,11 +121,19 @@ export class MapRendererComponent implements OnInit, AfterViewInit, OnDestroy {
       this.renderMap()
     })
 
+    this.destroyRef.onDestroy(() => {
+      observer.unobserve(this.mapRoot.nativeElement)
+      observer.disconnect()
+    })
+
     observer.observe(this.mapRoot.nativeElement);
-    // FIXME(ppacher): remove observer
   }
 
   async renderMap() {
+    if (this.destroyed) {
+      return;
+    }
+
     if (!!this.svg) {
       this.svg.remove()
     }
@@ -159,6 +170,8 @@ export class MapRendererComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   ngOnDestroy() {
+    this.destroyed = true;
+
     this.overlays?.forEach(ov => ov.unregisterMap(this));
 
     this._countryClickCb = [];
@@ -171,6 +184,7 @@ export class MapRendererComponent implements OnInit, AfterViewInit, OnDestroy {
     }
 
     this.svg.remove();
+    this.svg = null;
   }
 
   private renderWorld(countries: any) {
@@ -232,6 +246,10 @@ export class MapRendererComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   private async setupZoom(countries: any) {
+    if (!this.svg) {
+      return
+    }
+
     // create a copy of countries
     countries = {
       ...countries,
