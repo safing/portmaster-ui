@@ -544,27 +544,36 @@ export class SfngNetqueryViewer implements OnInit, OnDestroy, AfterViewInit {
           // loaded by the DynamicItemsPaginator using the "view" function defined above.
           return forkJoin({
             query: of(query),
-            totalCount: this.netquery.query({
-              ...query,
-              select: { $count: { field: '*', as: 'totalCount' } },
-            }, 'netquery-viewer-total-count')
+            response: this.netquery.batch({
+              totalCount: {
+                ...query,
+                select: { $count: { field: '*', as: 'totalCount' } },
+              },
+
+              totalConnCount: {
+                ...query,
+                select: {
+                  $count: { field: '*', as: 'totalConnCount' }
+                },
+              }
+            })
               .pipe(
-                map(result => {
+                map(response => {
                   // the the correct resulsts here which depend on whether or not
                   // we're applying a group by.
+                  let totalCount = 0;
                   if (this.groupByKeys.length === 0) {
-                    return result[0].totalCount;
+                    totalCount = response.totalCount[0].totalCount;
+                  } else {
+                    totalCount = response.totalCount.length;
                   }
-                  return result.length;
+
+                  return {
+                    totalCount,
+                    totalConnCount: response.totalConnCount,
+                  }
                 })
               ),
-
-            totalConnCount: this.netquery.query({
-              ...query,
-              select: {
-                $count: { field: '*', as: 'totalConnCount' }
-              },
-            }, 'netquery-viewer-total-conn-count')
           })
         }),
       )
@@ -592,9 +601,9 @@ export class SfngNetqueryViewer implements OnInit, OnDestroy, AfterViewInit {
 
         // reset the paginator with the new total result count and
         // open the first page.
-        this.paginator.reset(result.totalCount);
-        this.totalConnCount = result.totalConnCount[0].totalConnCount;
-        this.totalResultCount = result.totalCount;
+        this.paginator.reset(result.response.totalCount);
+        this.totalConnCount = result.response.totalConnCount[0].totalConnCount;
+        this.totalResultCount = result.response.totalCount;
 
         // update the current URL to include the new search
         // query and make sure we skip the parameter-update emitted by
