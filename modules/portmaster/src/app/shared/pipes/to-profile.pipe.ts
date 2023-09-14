@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Pipe, PipeTransform, inject } from "@angular/core";
+import { ChangeDetectorRef, OnDestroy, Pipe, PipeTransform, inject } from "@angular/core";
 import { AppProfile, AppProfileService } from "@safing/portmaster-api";
 import { Subscription } from "rxjs";
 
@@ -6,7 +6,7 @@ import { Subscription } from "rxjs";
   name: 'toAppProfile',
   pure: false
 })
-export class ToAppProfilePipe implements PipeTransform {
+export class ToAppProfilePipe implements PipeTransform, OnDestroy {
   profileService = inject(AppProfileService);
   cdr = inject(ChangeDetectorRef);
 
@@ -27,5 +27,9 @@ export class ToAppProfilePipe implements PipeTransform {
     }
 
     return this._lastProfile || null;
+  }
+
+  ngOnDestroy(): void {
+    this._subscription.unsubscribe();
   }
 }
