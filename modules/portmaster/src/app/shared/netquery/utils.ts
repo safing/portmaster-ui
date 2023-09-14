@@ -18,7 +18,9 @@ export const connectionFieldTranslation: { [key: string]: string } = {
   asn: 'ASN',
   tunneled: 'SPN Active',
   active: 'Active',
-  allowed: 'Allowed'
+  allowed: 'Allowed',
+  from: 'From',
+  to: 'To'
 }
 
 export function isMatcher(v: any | Matcher): v is Matcher {
