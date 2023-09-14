@@ -1,4 +1,4 @@
-import { HttpClient, HttpResponse } from "@angular/common/http";
+import { HttpClient, HttpParams, HttpResponse } from "@angular/common/http";
 import { Inject, Injectable } from "@angular/core";
 import { Observable, forkJoin, of } from "rxjs";
 import { map, mergeMap } from "rxjs/operators";
@@ -69,7 +69,23 @@ export interface NotIn {
   $notin: string[];
 }
 
-export type Matcher = Equal | NotEqual | Like | In | NotIn;
+export interface Greater {
+  $gt: number;
+}
+
+export interface GreaterOrEqual {
+  $ge: number;
+}
+
+export interface Less {
+  $lt: number;
+}
+
+export interface LessOrEqual {
+  $le: number;
+}
+
+export type Matcher = Equal | NotEqual | Like | In | NotIn | Greater | GreaterOrEqual | Less | LessOrEqual;
 
 export interface OrderBy {
   field: string;
@@ -188,6 +204,14 @@ export interface IProfileStats {
   bytes_received: number;
 }
 
+type BatchResponse<T> = {
+  [key in keyof T]: QueryResult[]
+}
+
+interface BatchRequest {
+  [key: string]: Query
+}
+
 @Injectable({ providedIn: 'root' })
 export class Netquery {
   constructor(
@@ -197,9 +221,15 @@ export class Netquery {
     @Inject(PORTMASTER_HTTP_API_ENDPOINT) private httpAPI: string,
   ) { }
 
-  query(query: Query): Observable<QueryResult[]> {
-    return this.http.post<{ results: QueryResult[] }>(`${this.httpAPI}/v1/netquery/query`, query)
+  query(query: Query, origin: string): Observable<QueryResult[]> {
+    return this.http.post<{ results: QueryResult[] }>(`${this.httpAPI}/v1/netquery/query`, query, {
+      params: new HttpParams().set("origin", origin)
+    })
       .pipe(map(res => res.results || []));
+  }
+
+  batch<T extends BatchRequest>(queries: T): Observable<BatchResponse<T>> {
+    return this.http.post<BatchResponse<T>>(`${this.httpAPI}/v1/netquery/query/batch`, queries)
   }
 
   cleanProfileHistory(profileIDs: string | string[]): Observable<HttpResponse<any>> {
@@ -267,7 +297,7 @@ export class Netquery {
       groupBy: [
         'profile',
       ],
-    }).pipe(
+    }, 'get-active-profile-ids').pipe(
       map(result => {
         return result.map(res => res.profile!);
       })
@@ -284,9 +314,8 @@ export class Netquery {
   getProfileStats(query?: Condition): Observable<IProfileStats[]> {
     let profileCache = new Map<string, AppProfile>();
 
-    return forkJoin({
-
-      verdicts: this.query({
+    return this.batch({
+      verdicts: {
         select: [
           'profile',
           'verdict',
@@ -297,9 +326,9 @@ export class Netquery {
           'verdict',
         ],
         query: query,
-      }),
+      },
 
-      conns: this.query({
+      conns: {
         select: [
           'profile',
           { $count: { field: '*', as: 'totalCount' } },
@@ -311,9 +340,9 @@ export class Netquery {
           'profile',
         ],
         query: query,
-      }),
+      },
 
-      identities: this.query({
+      identities: {
         select: [
           'profile',
           'exit_node',
@@ -329,7 +358,7 @@ export class Netquery {
             $ne: "",
           },
         },
-      })
+      }
     }).pipe(
       map(result => {
         let statsMap = new Map<string, IProfileStats>();

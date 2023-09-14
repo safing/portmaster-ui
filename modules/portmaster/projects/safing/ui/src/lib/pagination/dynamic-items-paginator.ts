@@ -1,6 +1,6 @@
 
-import { BehaviorSubject, Observable } from "rxjs";
-import { clipPage, Pagination } from "./pagination";
+import { BehaviorSubject, Observable, Subscription } from "rxjs";
+import { Pagination, clipPage } from "./pagination";
 
 export interface Datasource<T> {
   // view should emit all items in the given page using the specified page number.
@@ -12,6 +12,7 @@ export class DynamicItemsPaginator<T> implements Pagination<T> {
   private _pageNumber$ = new BehaviorSubject<number>(1);
   private _pageItems$ = new BehaviorSubject<T[]>([]);
   private _pageLoading$ = new BehaviorSubject<boolean>(false);
+  private _pageSubscription = Subscription.EMPTY;
 
   /** Returns the number of total pages. */
   get total() { return this._total; }
@@ -40,16 +41,21 @@ export class DynamicItemsPaginator<T> implements Pagination<T> {
     this._total = 0;
     this._pageItems$.next([]);
     this._pageNumber$.next(1);
+    this._pageSubscription.unsubscribe();
   }
 
   openPage(pageNumber: number): void {
     pageNumber = clipPage(pageNumber, this.total);
     this._pageLoading$.next(true);
-    this.source.view(pageNumber, this.pageSize)
-      .subscribe(results => {
-        this._pageLoading$.next(false);
-        this._pageItems$.next(results);
-        this._pageNumber$.next(pageNumber);
+
+    this._pageSubscription.unsubscribe()
+    this._pageSubscription = this.source.view(pageNumber, this.pageSize)
+      .subscribe({
+        next: results => {
+          this._pageLoading$.next(false);
+          this._pageItems$.next(results);
+          this._pageNumber$.next(pageNumber);
+        }
       });
   }
 

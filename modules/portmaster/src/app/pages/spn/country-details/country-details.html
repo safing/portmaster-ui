@@ -25,9 +25,9 @@
           <th>
             <span class="text-primary">Total Nodes</span>
           </th>
-          <td>{{ pins.length }}</td>
+          <td>{{ totalAliveCount }}</td>
         </tr>
-        <tr *ngIf="!!pins.length">
+        <tr *ngIf="totalAliveCount">
           <th>
             <span class="inline-block pl-4">
               <spn-node-icon bySafing="true" isActive="true"></spn-node-icon>
@@ -36,7 +36,7 @@
           </th>
           <td>{{ safingNodeCount }}</td>
         </tr>
-        <tr *ngIf="!!pins.length">
+        <tr *ngIf="totalAliveCount">
           <th>
             <span class="inline-block pl-4">
               <spn-node-icon bySafing="false" isActive="true"></spn-node-icon>

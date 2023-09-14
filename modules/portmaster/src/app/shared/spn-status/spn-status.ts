@@ -97,7 +97,7 @@ export class SPNStatusComponent implements OnInit {
               'exit_node',
               { $count: { field: '*', as: 'totalCount' } }
             ]
-          })
+          }, 'spn-status-get-connections-count-per-exit-node')
         }))
       )
       .subscribe(data => {

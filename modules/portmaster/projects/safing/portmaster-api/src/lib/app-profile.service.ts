@@ -109,8 +109,26 @@ export class AppProfileService {
    * @param source The source of the profile
    * @param id The ID of the profile
    */
-  watchAppProfile(source: string, id: string): Observable<AppProfile> {
-    const key = `core:profiles/${source}/${id}`;
+  watchAppProfile(sourceAndId: string): Observable<AppProfile>;
+  /**
+   * Watches an application profile for changes.
+   *
+   * @param source The source of the profile
+   * @param id The ID of the profile
+   */
+  watchAppProfile(source: string, id: string): Observable<AppProfile>;
+
+  watchAppProfile(sourceAndId: string, id?: string): Observable<AppProfile> {
+    let key = '';
+
+    if (id === undefined) {
+      key = sourceAndId
+      if (!key.startsWith("core:profiles/")) {
+        key = `core:profiles/${key}`
+      }
+    } else {
+      key = `core:profiles/${sourceAndId}/${id}`;
+    }
 
     if (this.watchedProfiles.has(key)) {
       return this.watchedProfiles.get(key)!;

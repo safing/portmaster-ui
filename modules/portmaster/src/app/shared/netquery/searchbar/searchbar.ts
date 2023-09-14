@@ -19,6 +19,8 @@ export type SfngSearchbarFields = {
 } & {
   groupBy?: string[];
   orderBy?: string[];
+  from?: string[];
+  to?: string[];
 }
 
 export type SfngSearchbarSuggestionValue<K extends keyof NetqueryConnection> = {
@@ -153,7 +155,10 @@ export class SfngNetquerySearchbarComponent implements ControlValueAccessor, OnI
     this.keyManager.change
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(idx => {
-        console.log("new active index: ", idx)
+        if (!this.suggestionValues.length) {
+          return
+        }
+
         this.suggestionValues.forEach(val => val.active = false);
         this.suggestionValues.get(idx)!.active = true;
         this.cdr.markForCheck();
@@ -224,7 +229,7 @@ export class SfngNetquerySearchbarComponent implements ControlValueAccessor, OnI
               page: 0,
               pageSize: limit,
               orderBy: [{ field: "count", desc: true }]
-            })
+            }, 'netquery-searchbar-get-counts')
               .pipe(
                 this.helper.encodeToPossibleValues(field),
                 map(results => {

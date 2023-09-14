@@ -1,22 +1,10 @@
-import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, DestroyRef, ElementRef, EventEmitter, Input, OnDestroy, Output, inject } from '@angular/core';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { Line as D3Line, GeoPath, GeoPermissibleObjects, GeoProjection, Selection, ZoomTransform, geoMercator, geoPath, interpolateString, json, line, pointer, select, zoom, zoomIdentity } from 'd3';
-import { BehaviorSubject } from 'rxjs';
+import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, DestroyRef, ElementRef, Inject, InjectionToken, Input, OnDestroy, OnInit, Optional, inject } from '@angular/core';
+import { GeoPath, GeoPermissibleObjects, GeoProjection, Selection, ZoomTransform, geoMercator, geoPath, json, pointer, select, zoom, zoomIdentity } from 'd3';
 import { feature } from 'topojson-client';
-import { MapPin } from '../map.service';
 
-export interface Path {
-  id: string;
-  points: (MapPin | [number, number])[];
-  attributes?: {
-    [key: string]: string;
-  }
-}
 
-export interface PinEvent {
-  event?: MouseEvent;
-  mapPin: MapPin;
-}
+export type MapRoot = Selection<SVGSVGElement, unknown, null, never>;
+export type WorldGroup = Selection<SVGGElement, unknown, null, unknown>
 
 export interface CountryEvent {
   event?: MouseEvent;
@@ -24,10 +12,26 @@ export interface CountryEvent {
   countryName: string;
 }
 
-type MapRoot = Selection<SVGSVGElement, unknown, null, never>;
-type WorldGroup = Selection<SVGGElement, unknown, null, unknown>
-type PinGroup = Selection<SVGGElement, unknown, null, unknown>;
-type LaneGroup = Selection<SVGGElement, unknown, null, unknown>;
+export interface MapRef {
+  onMapReady(cb: () => any): void;
+  onZoomPan(cb: () => any): void;
+  onCountryHover(cb: (_: CountryEvent | null) => void): void;
+  onCountryClick(cb: (_: CountryEvent) => void): void;
+  select(selection: string): Selection<any, any, any, any> | null;
+
+  countryNames: { [key: string]: string };
+  root: MapRoot;
+  projection: GeoProjection;
+  zoomScale: number;
+  worldGroup: WorldGroup;
+}
+
+export interface MapHandler {
+  registerMap(ref: MapRef): void;
+  unregisterMap(ref: MapRef): void;
+}
+
+export const MAP_HANDLER = new InjectionToken<MapHandler>('MAP_HANDLER');
 
 @Component({
   // eslint-disable-next-line @angular-eslint/component-selector
@@ -38,76 +42,114 @@ type LaneGroup = Selection<SVGGElement, unknown, null, unknown>;
     './map-style.scss'
   ],
 })
-export class MapRendererComponent implements AfterViewInit, OnDestroy {
+export class MapRendererComponent implements OnInit, AfterViewInit, OnDestroy {
   static readonly Rotate = 0; // so [-0, 0] is the initial center of the projection
   static readonly Maxlat = 83; // clip northern and southern pols (infinite in mercator)
   static readonly MarkerSize = 4;
   static readonly LineAnimationDuration = 200;
 
-  private destroyRef = inject(DestroyRef);
-  private renderPaths$ = new BehaviorSubject<Path[]>([]);
-  private renderPins$ = new BehaviorSubject<MapPin[]>([]);
-  private highlightedPins = new Set<string>();
+  private readonly destroyRef = inject(DestroyRef);
+  private destroyed = false;
 
-  readonly countryNames = new Map<string, string>();
+  countryNames: {
+    [countryCode: string]: string
+  } = {}
 
   // SVG group elements
-  private svg!: MapRoot;
-  private worldGroup!: WorldGroup;
-  private linesGroup!: LaneGroup;
-  private pinsGroup!: PinGroup;
+  private svg: MapRoot | null = null;
+  worldGroup!: WorldGroup;
 
   // Projection and line rendering functions
-  private projection!: GeoProjection;
-  private lineFunc!: D3Line<(MapPin | [number, number])>;
+  projection!: GeoProjection;
+  zoomScale: number = 1
+
   private pathFunc!: GeoPath<any, GeoPermissibleObjects>;
-  private zoomScale: number = 1
 
-  @Input()
-  set paths(paths: Path[]) {
-    this.renderPaths$.next(paths);
+  get root() {
+    return this.svg!
   }
 
   @Input()
-  set pins(pins: MapPin[]) {
-    this.renderPins$.next(pins)
-  }
-
-  @Output()
-  readonly pinHover = new EventEmitter<PinEvent | null>();
-
-  @Output()
-  readonly pinClick = new EventEmitter<PinEvent>();
-
-  @Output()
-  readonly countryHover = new EventEmitter<CountryEvent | null>()
-
-  @Output()
-  readonly countryClick = new EventEmitter<CountryEvent>();
-
-  @Output()
-  readonly zoomAndPan = new EventEmitter<void>();
+  mapId: string = 'map'
 
   constructor(
     private mapRoot: ElementRef<HTMLElement>,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    @Inject(MAP_HANDLER) @Optional() private overlays: MapHandler[],
   ) { }
 
+  ngOnInit(): void {
+    this.overlays?.forEach(ov => {
+      ov.registerMap(this)
+    })
+
+    this.cdr.detach()
+  }
+
+  select(selector: string) {
+    if (!this.svg) {
+      return null
+    }
+
+    return this.svg.select(selector);
+  }
+
+  private _readyCb: (() => void)[] = [];
+  onMapReady(cb: () => void) {
+    this._readyCb.push(cb);
+  }
+
+  private _zoomCb: (() => void)[] = [];
+  onZoomPan(cb: () => void) {
+    this._zoomCb.push(cb)
+  }
+
+  private _countryHoverCb: ((e: CountryEvent | null) => void)[] = [];
+  onCountryHover(cb: (e: CountryEvent | null) => void) {
+    this._countryHoverCb.push(cb);
+  }
+
+  private _countryClickCb: ((e: CountryEvent) => void)[] = [];
+  onCountryClick(cb: (e: CountryEvent) => void) {
+    this._countryClickCb.push(cb)
+  }
+
   async ngAfterViewInit() {
+    await this.renderMap()
+
+    const observer = new ResizeObserver(() => {
+      this.renderMap()
+    })
+
+    this.destroyRef.onDestroy(() => {
+      observer.unobserve(this.mapRoot.nativeElement)
+      observer.disconnect()
+    })
+
+    observer.observe(this.mapRoot.nativeElement);
+  }
+
+  async renderMap() {
+    if (this.destroyed) {
+      return;
+    }
+
+    if (!!this.svg) {
+      this.svg.remove()
+    }
+
     const map = select(this.mapRoot.nativeElement);
 
     // setup the basic SVG elements
     this.svg = map
       .append('svg')
-      .attr('id', 'map')
+      .attr('id', this.mapId)
       .attr("xmlns", "http://www.w3.org/2000/svg")
       .attr('width', '100%')
       .attr('preserveAspectRation', 'none')
       .attr('height', '100%')
 
     this.worldGroup = this.svg.append('g').attr('id', 'world-group')
-    this.linesGroup = this.svg.append('g').attr('id', 'line-group')
-    this.pinsGroup = this.svg.append('g').attr('id', 'pin-group')
 
     // load the world-map data and start rendering
     const world = await json<any>('/assets/world-50m.json');
@@ -124,181 +166,25 @@ export class MapRendererComponent implements AfterViewInit, OnDestroy {
     // is visible.
     this.renderWorld(countries);
 
-    this.renderPins$
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(pins => this.renderPins(pins));
-
-    this.renderPaths$
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(paths => this.renderPaths(paths));
+    this._readyCb.forEach(cb => cb());
   }
 
   ngOnDestroy() {
+    this.destroyed = true;
+
+    this.overlays?.forEach(ov => ov.unregisterMap(this));
+
+    this._countryClickCb = [];
+    this._countryHoverCb = [];
+    this._readyCb = [];
+    this._zoomCb = [];
+
     if (!this.svg) {
       return;
     }
 
     this.svg.remove();
-  }
-
-  private async renderPaths(paths: Path[]) {
-    const self = this;
-    const renderedPaths = this.linesGroup.selectAll<SVGPathElement, Path>('path')
-      .data(paths, p => p.id);
-
-    renderedPaths
-      .enter()
-      .append('path')
-      .attr('d', path => {
-        return self.lineFunc(path.points)
-      })
-      .attr("stroke-width", d => {
-        if (d.attributes) {
-          if (d.attributes['in-use']) {
-            return 2 / this.zoomScale
-          }
-        }
-
-        return 1 / this.zoomScale;
-      })
-      .call(sel => {
-        if (sel.empty()) {
-          return;
-        }
-        const data = sel.datum()?.attributes || {};
-        Object.keys(data)
-          .forEach(key => {
-            sel.attr(key, data[key])
-          })
-      })
-      .transition("enter-lane")
-      .duration(d => d.points.length * MapRendererComponent.LineAnimationDuration)
-      .attrTween('stroke-dasharray', tweenDashEnter)
-
-    renderedPaths.exit()
-      .interrupt("enter-lane")
-      .transition("leave-lane")
-      .duration(200)
-      .attrTween('stroke-dasharray', tweenDashExit)
-      .remove();
-  }
-
-  private async renderPins(pins: MapPin[]) {
-    console.log(`[MAP] Rendering ${pins.length} pins`)
-
-    const countriesWithNodes = new Set<string>();
-
-    pins.forEach(pin => {
-      countriesWithNodes.add(pin.entity.Country)
-    })
-
-    const pinElements = this.pinsGroup.selectAll<SVGGElement, MapPin>('g')
-      .data(pins, pin => pin.pin.ID)
-
-    const self = this;
-
-    // add new pins
-    pinElements
-      .enter()
-      .append('g')
-      .append(d => {
-        const val = MapRendererComponent.MarkerSize / this.zoomScale;
-
-        if (d.pin.HopDistance === 1) {
-          const homeIcon = document.createElementNS('http://www.w3.org/2000/svg', 'circle')
-          homeIcon.setAttribute('r', `${val * 1.25}`)
-
-          return homeIcon;
-        }
-
-        if (d.pin.VerifiedOwner === 'Safing') {
-          const polygon = document.createElementNS('http://www.w3.org/2000/svg', 'polygon')
-          polygon.setAttribute('points', `0,-${val} -${val},${val} ${val},${val}`)
-
-          return polygon;
-        }
-
-        const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle')
-        circle.setAttribute('r', `${val}`)
-
-        return circle;
-      })
-      .attr("stroke-width", d => {
-        if (d.isExit || self.highlightedPins.has(d.pin.ID)) {
-          return 2 / this.zoomScale
-        }
-
-        if (d.isHome) {
-          return 4.5 / this.zoomScale
-        }
-
-        return 1 / this.zoomScale
-      })
-      .call(selection => {
-        selection
-          .style('opacity', 0)
-          .attr('transform', d => 'scale(0)')
-          .transition('enter-marker')
-          /**/.duration(1000)
-          /**/.attr('transform', d => `scale(1)`)
-          /**/.style('opacity', 1)
-      })
-      .on('click', function (e: MouseEvent) {
-        const pin = select(this).datum() as MapPin;
-        self.pinClick.next({
-          event: e,
-          mapPin: pin
-        });
-      })
-      .on('mouseenter', function (e: MouseEvent) {
-        const pin = select(this).datum() as MapPin;
-        self.pinHover.next({
-          event: e,
-          mapPin: pin,
-        })
-      })
-      .on('mouseout', function (e: MouseEvent) {
-        self.pinHover.next(null);
-      })
-
-    // remove pins from the map that disappeared
-    pinElements
-      .exit()
-      .remove()
-
-    // update all pins to their correct position and update their attributes
-    this.pinsGroup.selectAll<SVGGElement, MapPin>('g')
-      .attr('hub-id', d => d.pin.ID)
-      .attr('is-home', d => d.pin.HopDistance === 1)
-      .attr('transform', d => `translate(${this.projection([d.location.Longitude, d.location.Latitude])})`)
-      .attr('in-use', d => d.isTransit)
-      .attr('is-exit', d => d.isExit)
-      .attr('raise', d => this.highlightedPins.has(d.pin.ID))
-
-    // update the attributes of the country shapes
-    this.worldGroup.selectAll<SVGGElement, any>('path')
-      .attr('has-nodes', d => countriesWithNodes.has(d.properties.iso_a2))
-
-    // get all in-use pins and raise them to the top
-    this.pinsGroup.selectAll<SVGGElement, MapPin>('g[in-use=true]')
-      .raise()
-
-    // finally, re-raise all pins that are highlighted
-    this.pinsGroup.selectAll<SVGGElement, MapPin>('g[raise=true]')
-      .raise()
-
-    const activeCountrySet = new Set<string>();
-    pins.forEach(pin => {
-      if (pin.isTransit) {
-        activeCountrySet.add(pin.pin.ID)
-      }
-    })
-
-    // update the in-use attributes of the country shapes
-    this.worldGroup.selectAll<SVGPathElement, any>('path')
-      .attr('in-use', d => activeCountrySet.has(d.properties.iso_a2))
-
-    this.cdr.detectChanges();
+    this.svg = null;
   }
 
   private renderWorld(countries: any) {
@@ -307,7 +193,7 @@ export class MapRendererComponent implements AfterViewInit, OnDestroy {
     const self = this;
 
     data.forEach((country: any) => {
-      this.countryNames.set(country.properties.iso_a2, country.properties.name)
+      this.countryNames[country.properties.iso_a2] = country.properties.name
     })
 
     this.worldGroup.selectAll()
@@ -319,57 +205,51 @@ export class MapRendererComponent implements AfterViewInit, OnDestroy {
       .attr('d', this.pathFunc)
       .on('mouseenter', function (event: MouseEvent) {
         const country = select(this).datum() as any;
-        self.countryHover.next({
+        const countryEvent: CountryEvent = {
           event: event,
           countryCode: country.properties.iso_a2,
           countryName: country.properties.name,
-        })
+        }
+
+        self._countryHoverCb.forEach(cb => cb(countryEvent))
       })
       .on('mouseout', function (event: MouseEvent) {
-        self.countryHover.next(null)
+        self._countryHoverCb.forEach(cb => cb(null))
       })
       .on('click', function (event: MouseEvent) {
         const country = select(this).datum() as any;
-        self.countryClick.next({
+        const countryEvent: CountryEvent = {
           event: event,
           countryCode: country.properties.iso_a2,
           countryName: country.properties.name,
-        })
+        }
+
+        const loc = self.projection.invert!([event.clientX, event.clientY])
+
+        console.log(loc)
+
+        self._countryClickCb.forEach(cb => cb(countryEvent))
       })
   }
 
   private setupProjection() {
-    const width = this.mapRoot.nativeElement.getBoundingClientRect().width;
-    const height = window.innerHeight;
+    const size = this.mapRoot.nativeElement.getBoundingClientRect();
 
     this.projection = geoMercator()
       .rotate([MapRendererComponent.Rotate, 0])
       .scale(1)
-      .translate([width / 2, height / 2]);
+      .translate([size.width / 2, size.height / 2]);
 
 
     // path is used to update the SVG path to match our mercator projection
     this.pathFunc = geoPath().projection(this.projection);
-
-    // we want to have straight lines between our hubs so we use a custom
-    // path function that updates x and y coordinates based on the mercator projection
-    // without, points will no be at the correct geo-coordinates.
-    this.lineFunc = line<MapPin | [number, number]>()
-      .x(d => {
-        if (Array.isArray(d)) {
-          return this.projection([d[0], d[1]])![0];
-        }
-        return this.projection([d.location.Longitude, d.location.Latitude])![0];
-      })
-      .y(d => {
-        if (Array.isArray(d)) {
-          return this.projection([d[0], d[1]])![1];
-        }
-        return this.projection([d.location.Longitude, d.location.Latitude])![1];
-      })
   }
 
   private async setupZoom(countries: any) {
+    if (!this.svg) {
+      return
+    }
+
     // create a copy of countries
     countries = {
       ...countries,
@@ -386,6 +266,9 @@ export class MapRendererComponent implements AfterViewInit, OnDestroy {
     const size = this.mapRoot.nativeElement.getBoundingClientRect();
 
     this.projection.fitSize([size.width, size.height], countries)
+
+    //this.projection.fitWidth(size.width, countries)
+    //this.projection.fitHeight(size.height, countries)
 
     // returns the top-left and the bottom-right of the current projection
     const mercatorBounds = () => {
@@ -463,13 +346,8 @@ export class MapRendererComponent implements AfterViewInit, OnDestroy {
         this.worldGroup.selectAll<SVGPathElement, GeoPermissibleObjects>('path')
           .attr('d', this.pathFunc)
 
-        this.pinsGroup.selectAll<SVGGElement, MapPin>('g')
-          .attr('transform', d => `translate(${this.projection([d.location.Longitude, d.location.Latitude])})`)
 
-        this.linesGroup.selectAll<SVGPathElement, Path>('path')
-          .attr('d', d => this.lineFunc(d.points))
-
-        this.zoomAndPan.next();
+        this._zoomCb.forEach(cb => cb());
       });
 
     this.svg.call(z)
@@ -502,52 +380,4 @@ export class MapRendererComponent implements AfterViewInit, OnDestroy {
     return x >= rootElem.left && x <= rootElem.right && y >= rootElem.top && y <= rootElem.bottom;
   }
 
-  public getPinElem(pinID: string) {
-    return this.pinsGroup.select<SVGGElement>(`g[hub-id=${pinID}]`)
-      .node()
-  }
-
-  public clearPinHighlights() {
-    this.pinsGroup.select<SVGGElement>(`g[raise=true]`)
-      .attr('raise', false)
-
-    this.highlightedPins.clear();
-  }
-
-  public highlightPin(pinID: string, highlight: boolean) {
-    if (highlight) {
-      this.highlightedPins.add(pinID)
-    } else {
-      this.highlightedPins.delete(pinID);
-    }
-    const pinElemn = this.pinsGroup.select<SVGGElement>(`g[hub-id=${pinID}]`)
-      .attr('raise', highlight)
-
-    if (highlight) {
-      pinElemn
-        .raise()
-    }
-  }
-}
-
-const tweenDashEnter = function (this: SVGPathElement) {
-  const len = this.getTotalLength();
-  const interpolate = interpolateString(`0, ${len}`, `${len}, ${len}`);
-  return (t: number) => {
-    if (t === 1) {
-      return '0';
-    }
-    return interpolate(t);
-  }
-}
-
-const tweenDashExit = function (this: SVGPathElement) {
-  const len = this.getTotalLength();
-  const interpolate = interpolateString(`${len}, ${len}`, `0, ${len}`);
-  return (t: number) => {
-    if (t === 1) {
-      return `${len}`;
-    }
-    return interpolate(t);
-  }
 }

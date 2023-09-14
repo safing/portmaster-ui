@@ -3,9 +3,10 @@ import { OverlayModule } from '@angular/cdk/overlay';
 import { PortalModule } from '@angular/cdk/portal';
 import { ScrollingModule } from '@angular/cdk/scrolling';
 import { CdkTableModule } from '@angular/cdk/table';
-import { CommonModule } from '@angular/common';
+import { CommonModule, registerLocaleData } from '@angular/common';
 import { HttpClientModule } from '@angular/common/http';
-import { NgModule } from '@angular/core';
+
+import { APP_INITIALIZER, LOCALE_ID, NgModule } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
@@ -13,10 +14,12 @@ import { FaIconLibrary, FontAwesomeModule } from '@fortawesome/angular-fontaweso
 import { faGithub } from '@fortawesome/free-brands-svg-icons';
 import { far } from '@fortawesome/free-regular-svg-icons';
 import { fas } from '@fortawesome/free-solid-svg-icons';
-import { PortmasterAPIModule } from '@safing/portmaster-api';
+import { ConfigService, PortmasterAPIModule, StringSetting, getActualValue } from '@safing/portmaster-api';
 import { OverlayStepperModule, SfngAccordionModule, SfngDialogModule, SfngDropDownModule, SfngPaginationModule, SfngSelectModule, SfngTipUpModule, SfngToggleSwitchModule, SfngTooltipModule, TabModule, UiModule } from '@safing/ui';
 import MyYamlFile from 'js-yaml-loader!../i18n/helptexts.yaml';
+import * as i18n from 'ng-zorro-antd/i18n';
 import { MarkdownModule } from 'ngx-markdown';
+import { firstValueFrom } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
@@ -25,9 +28,10 @@ import { NavigationComponent } from './layout/navigation/navigation';
 import { SideDashComponent } from './layout/side-dash/side-dash';
 import { AppOverviewComponent, AppViewComponent, QuickSettingInternetButtonComponent } from './pages/app-view';
 import { QsHistoryComponent } from './pages/app-view/qs-history/qs-history.component';
-import { QuickSettingUseSPNButtonComponent } from './pages/app-view/qs-use-spn/qs-use-spn';
 import { QuickSettingSelectExitButtonComponent } from './pages/app-view/qs-select-exit/qs-select-exit';
+import { QuickSettingUseSPNButtonComponent } from './pages/app-view/qs-use-spn/qs-use-spn';
 import { DashboardPageComponent } from './pages/dashboard/dashboard.component';
+import { FeatureCardComponent } from './pages/dashboard/feature-card/feature-card.component';
 import { MonitorPageComponent } from './pages/monitor';
 import { SettingsComponent } from './pages/settings/settings';
 import { SPNModule } from './pages/spn/spn.module';
@@ -43,6 +47,7 @@ import { EditProfileDialog } from './shared/edit-profile-dialog';
 import { ExitScreenComponent } from './shared/exit-screen/exit-screen';
 import { ExpertiseModule } from './shared/expertise/expertise.module';
 import { ExternalLinkDirective } from './shared/external-link.directive';
+import { FeatureScoutComponent } from './shared/feature-scout';
 import { SfngFocusModule } from './shared/focus';
 import { FuzzySearchPipe } from './shared/fuzzySearch';
 import { LoadingComponent } from './shared/loading';
@@ -59,10 +64,52 @@ import { SecurityLockComponent } from './shared/security-lock';
 import { SPNAccountDetailsComponent } from './shared/spn-account-details';
 import { SPNLoginComponent } from './shared/spn-login';
 import { SPNStatusComponent } from './shared/spn-status';
-import { FeatureScoutComponent } from './shared/feature-scout';
 import { PilotWidgetComponent } from './shared/status-pilot';
 import { PlaceholderComponent } from './shared/text-placeholder';
-import { FeatureCardComponent } from './pages/dashboard/feature-card/feature-card.component';
+
+function loadAndSetLocaleInitializer(configService: ConfigService) {
+  return async function () {
+    let angularLocaleID = 'en-GB';
+    let nzLocaleID: string = 'en_GB';
+
+    try {
+      const setting = await firstValueFrom(configService.get("core/localeID"))
+
+      const currentValue = getActualValue(setting as StringSetting);
+      switch (currentValue) {
+        case 'en-US':
+          angularLocaleID = 'en-US'
+          nzLocaleID = 'en_US'
+          break;
+        case 'en-GB':
+          angularLocaleID = 'en-GB'
+          nzLocaleID = 'en_GB'
+          break;
+
+        default:
+          console.error(`Unsupported locale value: ${currentValue}, defaulting to en-GB`)
+      }
+
+      /* webpackInclude: /(en|en-GB)\.mjs$/ */
+      /* webpackChunkName: "./l10n-base/[request]"*/
+      await import(`../../node_modules/@angular/common/locales/${angularLocaleID}.mjs`)
+        .then(locale => {
+          registerLocaleData(locale.default)
+
+          localeConfig.localeId = angularLocaleID;
+          localeConfig.nzLocale = (i18n as any)[nzLocaleID];
+        })
+
+    } catch (err) {
+      console.error(`Failed to get locale setting, using default en-US`, err)
+    }
+  }
+}
+
+const localeConfig = {
+  nzLocale: i18n.en_GB,
+  localeId: 'en-GB'
+}
 
 @NgModule({
   declarations: [
@@ -143,7 +190,24 @@ import { FeatureCardComponent } from './pages/dashboard/feature-card/feature-car
       websocketAPI: environment.portAPI,
     }),
   ],
-  bootstrap: [AppComponent]
+  bootstrap: [AppComponent],
+  providers: [
+    {
+      provide: APP_INITIALIZER, useFactory: loadAndSetLocaleInitializer, deps: [ConfigService], multi: true
+    },
+    {
+      provide: i18n.NZ_I18N, useFactory: () => {
+        console.log("nz-locale is set to ", localeConfig.nzLocale)
+        return localeConfig.nzLocale
+      }
+    },
+    {
+      provide: LOCALE_ID, useFactory: () => {
+        console.log("locale-id is set to ", localeConfig.localeId)
+        return localeConfig.localeId
+      }
+    }
+  ]
 })
 export class AppModule {
   constructor(library: FaIconLibrary) {

@@ -47,7 +47,7 @@ export class MonitorPageComponent {
         }
       ],
       databases: [Database.History]
-    })
+    }, 'monitor-get-first-history-connection')
     .pipe(
       repeat({ delay: () => merge(interval(10000), this.reload) }),
       map(result => {

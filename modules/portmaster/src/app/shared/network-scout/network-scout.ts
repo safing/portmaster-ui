@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, DestroyRef, OnInit, TrackByFunction, inject } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { BoolSetting, Condition, ConfigService, ExpertiseLevel, IProfileStats, Netquery, Pin, SPNService } from "@safing/portmaster-api";
-import { Subject, combineLatest, debounceTime, forkJoin, interval, retry, startWith, switchMap, take, takeUntil } from "rxjs";
+import { Subject, combineLatest, debounceTime, filter, finalize, interval, retry, startWith, switchMap, take, takeUntil } from "rxjs";
 import { UIStateService } from "src/app/services";
 import { fadeInListAnimation } from "../animations";
 import { ExpertiseService } from './../expertise/expertise.service';
@@ -211,9 +211,14 @@ export class NetworkScoutComponent implements OnInit {
         this.spnEnabled = enabled;
       });
 
+    let updateInProgress = false;
+
     combineLatest([
       combineLatest([
-        interval(5000),
+        interval(5000)
+          .pipe(
+            filter(() => !updateInProgress)
+          ),
         this.expertise.change,
       ])
         .pipe(
@@ -224,9 +229,12 @@ export class NetworkScoutComponent implements OnInit {
               query["internal"] = { $eq: false }
             }
 
-            return forkJoin({
-              stats: this.netquery.getProfileStats(query),
-            })
+            updateInProgress = true
+
+            return this.netquery.getProfileStats(query)
+              .pipe(
+                finalize(() => updateInProgress = false)
+              )
           }),
           retry({ delay: 5000 })
         ),
@@ -236,6 +244,7 @@ export class NetworkScoutComponent implements OnInit {
           debounceTime(100),
           startWith([]),
         ),
+
       this.triggerSearch
         .pipe(
           debounceTime(100),
@@ -257,7 +266,7 @@ export class NetworkScoutComponent implements OnInit {
 
         // map the list of profile statistics to include the exit Pin information
         // as well.
-        this.allProfiles = res.stats.map(s => {
+        this.allProfiles = res.map(s => {
           const existing = profileLookupMap.get(s.ID);
           return {
             ...s,

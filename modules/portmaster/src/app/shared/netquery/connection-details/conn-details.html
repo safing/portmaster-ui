@@ -140,7 +140,7 @@
 
       <span *appExpertiseLevel="'expert'">
         <span>Expires:</span>
-        <span>{{dns.Expires}}</span>
+        <span>{{dns.Expires | date:'medium'}}</span>
       </span>
     </div>
   </ng-template>

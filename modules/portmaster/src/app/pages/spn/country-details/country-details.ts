@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, Inject, Input, OnChanges, OnDestroy, OnInit, Optional, Output, SimpleChanges, TrackByFunction } from "@angular/core";
 import { AppProfile, AppProfileService, Netquery } from '@safing/portmaster-api';
-import { SfngDialogRef, SfngDialogService, SFNG_DIALOG_REF } from "@safing/ui";
-import { forkJoin, of, Subscription, switchMap } from 'rxjs';
+import { SFNG_DIALOG_REF, SfngDialogRef, SfngDialogService } from "@safing/ui";
+import { Subscription, forkJoin, of, switchMap } from 'rxjs';
 import { repeat } from 'rxjs/operators';
 import { MapPin, MapService } from './../map.service';
 import { PinDetailsComponent } from './../pin-details/pin-details';
@@ -42,6 +42,9 @@ export class CountryDetailsComponent implements OnInit, OnChanges, OnDestroy {
 
   /** @private - A {@link TrackByFunction} for all profiles that use this country for exit */
   trackProfile: TrackByFunction<this['profiles'][0]> = (_: number, profile: this['profiles'][0]) => `${profile.profile.Source}/${profile.profile.ID}`;
+
+  /** The number of alive nodes in this country */
+  totalAliveCount = 0;
 
   /** The number of exit nodes in this country */
   exitNodeCount = 0;
@@ -120,7 +123,7 @@ export class CountryDetailsComponent implements OnInit, OnChanges, OnDestroy {
                     $in: countryPins.map(pin => pin.pin.ID),
                   }
                 }
-              })
+              }, 'get-connections-per-profile-in-country')
               .pipe(
                 switchMap(queryResult => {
                   if (queryResult.length === 0) {
@@ -161,6 +164,10 @@ export class CountryDetailsComponent implements OnInit, OnChanges, OnDestroy {
           this.communityExitNodeCount = 0;
 
           this.pins.forEach(pin => {
+            if (pin.isOffline) {
+              return
+            }
+            this.totalAliveCount++;
 
             if (pin.pin.VerifiedOwner === 'Safing') {
               this.safingNodeCount++;

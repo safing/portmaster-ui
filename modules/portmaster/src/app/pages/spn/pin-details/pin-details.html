@@ -19,6 +19,13 @@
   <span class="font-normal">{{ pin.pin.VerifiedOwner || 'Community' }}</span>
 </span>
 
+<div *ngIf="pin?.isOffline" class="text-sm mt-.5 mb-2 font-thin text-red-300">
+  Node is Offline
+</div>
+<div *ngIf="pin?.hasIssues && !pin?.isOffline" class="text-sm mt-.5 mb-2 font-thin text-yellow-300">
+  Node has Issues
+</div>
+
 <sfng-tab-group *ngIf="pin as pin" linkRouter="false">
   <sfng-tab id="details" title="Details">
     <table *sfngTabContent class="custom">
@@ -34,7 +41,7 @@
       </tr>
       <tr>
         <td class="p-2 font-thin">First Seen</td>
-        <td>{{ pin.pin.FirstSeen | date }}</td>
+        <td>{{ pin.pin.FirstSeen | date:'medium' }}</td>
       </tr>
       <tr>
         <td class="p-2 font-thin">IPv4</td>
