@@ -184,7 +184,7 @@
       Recently Blocked Applications
     </label>
     <div class="block w-full h-full">
-      <span *ngIf="!(blockedProfiles |keyvalue)?.length"
+      <span *ngIf="!blockedProfiles?.length"
         class="flex flex-row items-center justify-center h-full gap-2 text-tertiary">
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
           class="w-5 h-5">
@@ -198,16 +198,17 @@
       </span>
 
       <ul class="list-none auto-grid-3">
-        <li *ngFor="let profile of (blockedProfiles | keyvalue); trackBy: trackApp"
-          (mouseenter)="onProfileHover(profile.key)" (mouseleave)="onProfileHover(null)"
-          [routerLink]="['/app', profile.value.profile.Source, profile.value.profile.ID]"
-          class="flex flex-row items-center p-2 bg-gray-300 rounded-md cursor-pointer hover:bg-gray-400">
-          <div class="flex flex-row items-center flex-grow gap-2">
-            <app-icon [profile]="profile.value.profile"></app-icon>
-            <span class="text-xs text-secondary">{{ profile.value.profile.Name }}</span>
-          </div>
-          {{ profile.value.count }}
-        </li>
+        <ng-container *ngFor="let entry of blockedProfiles; trackBy: trackApp">
+          <li *ngIf="(entry.profileID | toAppProfile) as profile" (mouseenter)="onProfileHover(entry.profileID)"
+            (mouseleave)="onProfileHover(null)" [routerLink]="['/app', profile.Source, profile.ID]"
+            class="flex flex-row items-center p-2 bg-gray-300 rounded-md cursor-pointer hover:bg-gray-400">
+            <div class="flex flex-row items-center flex-grow gap-2">
+              <app-icon [profile]="profile"></app-icon>
+              <span class="text-xs text-secondary">{{ profile.Name }}</span>
+            </div>
+            {{ entry.count }}
+          </li>
+        </ng-container>
       </ul>
     </div>
   </div>
