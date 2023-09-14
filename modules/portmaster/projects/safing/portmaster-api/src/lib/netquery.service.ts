@@ -204,6 +204,14 @@ export interface IProfileStats {
   bytes_received: number;
 }
 
+type BatchResponse<T> = {
+  [key in keyof T]: QueryResult[]
+}
+
+interface BatchRequest {
+  [key: string]: Query
+}
+
 @Injectable({ providedIn: 'root' })
 export class Netquery {
   constructor(
@@ -218,6 +226,10 @@ export class Netquery {
       params: new HttpParams().set("origin", origin)
     })
       .pipe(map(res => res.results || []));
+  }
+
+  batch<T extends BatchRequest>(queries: T): Observable<BatchResponse<T>> {
+    return this.http.post<BatchResponse<T>>(`${this.httpAPI}/v1/netquery/query/batch`, queries)
   }
 
   cleanProfileHistory(profileIDs: string | string[]): Observable<HttpResponse<any>> {
@@ -302,9 +314,8 @@ export class Netquery {
   getProfileStats(query?: Condition): Observable<IProfileStats[]> {
     let profileCache = new Map<string, AppProfile>();
 
-    return forkJoin({
-
-      verdicts: this.query({
+    return this.batch({
+      verdicts: {
         select: [
           'profile',
           'verdict',
@@ -315,9 +326,9 @@ export class Netquery {
           'verdict',
         ],
         query: query,
-      }, 'profile-stats'),
+      },
 
-      conns: this.query({
+      conns: {
         select: [
           'profile',
           { $count: { field: '*', as: 'totalCount' } },
@@ -329,9 +340,9 @@ export class Netquery {
           'profile',
         ],
         query: query,
-      }, 'profile-stats'),
+      },
 
-      identities: this.query({
+      identities: {
         select: [
           'profile',
           'exit_node',
@@ -347,7 +358,7 @@ export class Netquery {
             $ne: "",
           },
         },
-      }, 'profile-stats')
+      }
     }).pipe(
       map(result => {
         let statsMap = new Map<string, IProfileStats>();
