@@ -244,7 +244,7 @@ export class DashboardPageComponent implements OnInit {
         this.activeProfiles = profiles.size;
 
         // exitNodes
-        this.activeIdentities = response.exitNodes.length || 0;
+        this.activeIdentities = response.exitNodes?.length || 0;
         this.cdr.markForCheck();
       })
 
