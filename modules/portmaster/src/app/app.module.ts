@@ -73,7 +73,7 @@ function loadAndSetLocaleInitializer(configService: ConfigService) {
     let nzLocaleID: string = 'en_GB';
 
     try {
-      const setting = await firstValueFrom(configService.get("core/localeID"))
+      const setting = await firstValueFrom(configService.get("core/locale"))
 
       const currentValue = getActualValue(setting as StringSetting);
       switch (currentValue) {

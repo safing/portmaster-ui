@@ -34,7 +34,7 @@ export class NetqueryHelper {
   private addToFilter$ = new Subject<SfngSearchbarFields>();
   private destroy$ = new Subject<void>();
   private appProfiles$ = new BehaviorSubject<LocalAppProfile[]>([]);
-  private spnMapPins$ = new BehaviorSubject<Pin[]>([]);
+  private spnMapPins$ = new BehaviorSubject<Pin[] | null>(null);
 
   readonly onShiftKey: Observable<boolean>;
   readonly onCtrlKey: Observable<boolean>;
@@ -149,7 +149,7 @@ export class NetqueryHelper {
 
     if (field === 'exit_node') {
       const lm = new Map<string, Pin>();
-      this.spnMapPins$.getValue()
+      (this.spnMapPins$.getValue() || [])
         .forEach(pin => lm.set(pin.Name, pin));
 
       return values.map(val => lm.get(val)?.ID || val)
@@ -185,13 +185,13 @@ export class NetqueryHelper {
       source,
       this.spnMapPins$
         .pipe(
-          filter(result => !!result.length),
+          filter(result => result !== null),
           take(1),
         ),
     ]).pipe(
       map(([items, pins]) => {
         let lm = new Map<string, Pin>();
-        pins.forEach(pin => {
+        pins!.forEach(pin => {
           lm.set(pin.ID, pin)
         })
 
@@ -283,7 +283,7 @@ export class NetqueryHelper {
 
         if (field === 'exit_node') {
           const lm = new Map<string, Pin>();
-          pins.forEach(pin => lm.set(pin.ID, pin));
+          pins!.forEach(pin => lm.set(pin.ID, pin));
 
           return items.map(item => {
             const pin = lm.get(item.exit_node!);
