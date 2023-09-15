@@ -89,19 +89,28 @@ function loadAndSetLocaleInitializer(configService: ConfigService) {
         default:
           console.error(`Unsupported locale value: ${currentValue}, defaulting to en-GB`)
       }
+    } catch (err) {
+      console.error(`failed to get locale setting, using default en-GB:`, err)
+    }
+
+    try {
+      // Get name of module.
+      let localeModuleID = angularLocaleID;
+      if (localeModuleID == "en-US") {
+        localeModuleID = "en";
+      }
 
       /* webpackInclude: /(en|en-GB)\.mjs$/ */
       /* webpackChunkName: "./l10n-base/[request]"*/
-      await import(`../../node_modules/@angular/common/locales/${angularLocaleID}.mjs`)
+      await import(`../../node_modules/@angular/common/locales/${localeModuleID}.mjs`)
         .then(locale => {
           registerLocaleData(locale.default)
 
           localeConfig.localeId = angularLocaleID;
           localeConfig.nzLocale = (i18n as any)[nzLocaleID];
         })
-
     } catch (err) {
-      console.error(`Failed to get locale setting, using default en-US`, err)
+      console.error(`failed to load locale module for ${angularLocaleID}:`, err)
     }
   }
 }
@@ -197,13 +206,13 @@ const localeConfig = {
     },
     {
       provide: i18n.NZ_I18N, useFactory: () => {
-        console.log("nz-locale is set to ", localeConfig.nzLocale)
+        console.log("nz-locale is set to", localeConfig.nzLocale)
         return localeConfig.nzLocale
       }
     },
     {
       provide: LOCALE_ID, useFactory: () => {
-        console.log("locale-id is set to ", localeConfig.localeId)
+        console.log("locale-id is set to", localeConfig.localeId)
         return localeConfig.localeId
       }
     }
