@@ -48,6 +48,11 @@ export interface TagDescription {
   Description: string;
 }
 
+export interface Icon {
+  Type: 'database' | 'path';
+  Value: string;
+}
+
 export interface AppProfile extends Record {
   ID: string;
   LinkedPath: string; // deprecated
@@ -60,8 +65,7 @@ export interface AppProfile extends Record {
   Warning: string;
   WarningLastUpdated: string;
   Homepage: string;
-  Icon: string;
-  IconType: 'blob' | 'database' | 'path' | '';
+  Icons: Icon[];
   Name: string;
   Internal: boolean;
   SecurityLevel: SecurityLevel;
