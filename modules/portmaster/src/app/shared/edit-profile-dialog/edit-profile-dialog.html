@@ -41,7 +41,7 @@
                   class="inline-block p-1 px-4 font-medium rounded-sm outline-none cursor-pointer whitespace-nowrap bg-blue bg-opacity-80 hover:bg-blue text-xxs w-fit">
                   Choose Icon
                 </label>
-                <button *ngIf="!!iconBase64 && profile.IconType" (click)="resetIcon()" class="bg-red-300">Reset
+                <button *ngIf="!!iconBase64 && profile.Icons?.length" (click)="resetIcon()" class="bg-red-300">Reset
                   Icon</button>
               </div>
               <span class="pl-2 break-normal text-tertiary">The icon must be smaller than 10kB and it's dimensions must

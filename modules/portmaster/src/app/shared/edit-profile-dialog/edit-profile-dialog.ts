@@ -1,8 +1,8 @@
 import { CdkDragDrop, moveItemInArray } from "@angular/cdk/drag-drop";
 import { ChangeDetectorRef, Component, Inject, OnDestroy, OnInit, TrackByFunction } from "@angular/core";
-import { AppProfile, AppProfileService, FingerpringOperation, Fingerprint, FingerprintType, mergeDeep, PortapiService, Record, TagDescription } from '@safing/portmaster-api';
-import { SfngDialogRef, SfngDialogService, SFNG_DIALOG_REF } from '@safing/ui';
-import { Observable, of, Subject, switchMap, takeUntil } from 'rxjs';
+import { AppProfile, AppProfileService, FingerpringOperation, Fingerprint, FingerprintType, PortapiService, Record, TagDescription, mergeDeep } from '@safing/portmaster-api';
+import { SFNG_DIALOG_REF, SfngDialogRef, SfngDialogService } from '@safing/ui';
+import { Observable, Subject, of, switchMap, takeUntil } from 'rxjs';
 import { ActionIndicatorService } from 'src/app/shared/action-indicator';
 
 @Component({
@@ -19,7 +19,7 @@ export class EditProfileDialog implements OnInit, OnDestroy {
     Source: 'local',
     Name: '',
     Description: '',
-    Icon: '',
+    Icons: [],
     Fingerprints: [],
   };
 
@@ -77,18 +77,16 @@ export class EditProfileDialog implements OnInit, OnDestroy {
   }
 
   private loadIcon() {
-    if (!this.profile.Icon) {
+    if (!this.profile.Icons?.length) {
       return;
     }
 
-    // get the current icon of the profile
-    switch (this.profile.IconType) {
-      case 'blob':
-        this.iconBase64 = this.profile.Icon;
-        break;
+    const firstIcon = this.profile.Icons[0];
 
+    // get the current icon of the profile
+    switch (firstIcon.Type) {
       case 'database':
-        this.portapi.get<Record & { iconData: string }>(this.profile.Icon)
+        this.portapi.get<Record & { iconData: string }>(firstIcon.Value)
           .subscribe(data => {
             this.iconBase64 = data.iconData;
             this.cdr.markForCheck();
@@ -96,7 +94,7 @@ export class EditProfileDialog implements OnInit, OnDestroy {
         break;
 
       default:
-        console.error(`Unsupported icon type ${this.profile.IconType}`)
+        console.error(`Unsupported icon type ${firstIcon.Type}`)
     }
     this.cdr.markForCheck();
   }
@@ -191,21 +189,25 @@ export class EditProfileDialog implements OnInit, OnDestroy {
 
     if (this.iconChanged) {
       // delete any previously set icon
-      if (!!this.profile.Icon && this.profile.IconType === 'database') {
-        this.portapi.delete(this.profile.Icon!).subscribe()
-      }
+      this.profile.Icons?.forEach(icon => {
+        if (icon.Type === 'database') {
+          this.portapi.delete(icon.Value).subscribe()
+        }
+      })
 
       if (this.iconBase64 !== '') {
         // save the new icon in the cache database
-        this.profile.Icon = `cache:icons/${this.uuidv4()}`;
-        this.profile.IconType = 'database';
-        updateIcon = this.portapi.update(this.profile.Icon, { iconData: this.iconBase64 });
+        this.profile.Icons = [{
+          Value: `cache:icons/${this.uuidv4()}`,
+          Type: 'database'
+        }]
+
+        updateIcon = this.portapi.update(this.profile.Icons[0]!.Value, { iconData: this.iconBase64 });
 
         // FIXME(ppacher): reset presentationpath
       } else {
         // just clear out that there was an icon
-        this.profile.Icon = '';
-        this.profile.IconType = '';
+        this.profile.Icons = [];
       }
     }
 

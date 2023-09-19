@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, HostBinding, Input, OnDestroy, SkipSelf } from '@angular/core';
 import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
 import { AppProfileService, PortapiService, Record } from '@safing/portmaster-api';
-import { map, of, Subscription } from 'rxjs';
+import { Subscription, map, of } from 'rxjs';
 import { switchMap } from 'rxjs/operators';
 
 // Interface that must be satisfied for the profile-input
@@ -168,17 +168,17 @@ export class AppIconComponent implements OnDestroy {
     this.sub = this.profileService.watchAppProfile(sourceAndId[0], sourceAndId[1])
       .pipe(
         switchMap(profile => {
-          if (!!profile.Icon && profile.IconType) {
-            switch (profile.IconType) {
-              case 'blob':
-                return of(profile.Icon)
+          if (!!profile.Icons?.length) {
+            const firstIcon = profile.Icons[0];
+
+            switch (firstIcon.Type) {
               case 'database':
-                return this.portapi.get<Record & { iconData: string }>(profile.Icon)
+                return this.portapi.get<Record & { iconData: string }>(firstIcon.Value)
                   .pipe(map(result => {
                     return result.iconData
                   }))
               default:
-                console.error(`Icon type ${profile.IconType} not yet supported`)
+                console.error(`Icon type ${firstIcon.Type} not yet supported`)
             }
           }
 
