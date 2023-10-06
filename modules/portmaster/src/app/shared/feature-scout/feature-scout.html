@@ -28,7 +28,7 @@
   </div>
 
   <div *ngIf="spnEnabled" class="flex flex-row justify-center w-full gap-2 pt-2">
-    <div class="status-info" sfng-tooltip="Home Node" [routerLink]="['/spn']">
+    <div class="status-info" [routerLink]="['/spn']">
 
       <span [ngSwitch]="spnStatus?.Status">
         <ng-template ngSwitchCase="disabled">
@@ -48,14 +48,15 @@
             class="text-tertiary" class="inline-block -mt-0.5">
             <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-8 3a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"/>
           </svg>
-          {{ spnStatus?.HomeHubName }}
+          <span sfng-tooltip="Home Node">
+            {{ spnStatus?.HomeHubName }}
+          </span>
           <span class="text-tertiary">
             in
           </span>
           <span *ngIf="!!spnStatus?.ConnectedCountry?.Code" [appCountryFlags]="spnStatus!.ConnectedCountry!.Code"></span>
-          {{ spnStatus?.ConnectedCountry?.Name }}
-          <span class="text-tertiary">
-            via {{ spnStatus?.ConnectedTransport}}
+          <span [sfng-tooltip]="spnTooltipTemplate">
+            {{ spnStatus?.ConnectedCountry?.Name }}
           </span>
         </ng-template>
       </span>
@@ -98,3 +99,11 @@
 
 </div>
 </ng-container>
+
+<ng-template #spnTooltipTemplate>
+  Encrypted SPN Uplink:
+  <ul class="pl-4 list-disc">
+    <li>Connected to {{ spnStatus?.ConnectedIP }}</li>
+    <li>Built with transport/decoy {{ spnStatus?.ConnectedTransport }}</li>
+  </ul>
+</ng-template>
