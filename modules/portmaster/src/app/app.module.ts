@@ -66,6 +66,7 @@ import { SPNLoginComponent } from './shared/spn-login';
 import { SPNStatusComponent } from './shared/spn-status';
 import { PilotWidgetComponent } from './shared/status-pilot';
 import { PlaceholderComponent } from './shared/text-placeholder';
+import { DashboardWidgetComponent } from './pages/dashboard/dashboard-widget/dashboard-widget.component';
 
 function loadAndSetLocaleInitializer(configService: ConfigService) {
   return async function () {
@@ -153,6 +154,7 @@ const localeConfig = {
     ProcessDetailsDialogComponent,
     QsHistoryComponent,
     DashboardPageComponent,
+    DashboardWidgetComponent,
     FeatureCardComponent
   ],
   imports: [

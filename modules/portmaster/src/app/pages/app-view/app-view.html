@@ -19,11 +19,6 @@
 
   <!-- Application Header -->
   <div class="relative px-12 transition-all duration-200" [class.p-4]="!collapseHeader">
-    <div class="absolute top-0 bottom-0 left-0 right-0 opacity-25" *ngIf="!collapseHeader">
-      <sfng-netquery-line-chart [data]="appChartData" showAxis="false" class="h-full">
-      </sfng-netquery-line-chart>
-    </div>
-
     <div class="relative z-10 flex flex-row items-center w-full" [class.py-8]="!collapseHeader">
       <!-- Application metadata -->
       <div class="flex flex-col items-start flex-grow space-y-5">

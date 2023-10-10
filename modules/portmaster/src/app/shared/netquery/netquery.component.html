@@ -165,11 +165,23 @@
   </div>
 </div>
 
-<div class="relative flex-shrink-0 h-32">
-  <sfng-netquery-line-chart [data]="chartData" class="h-32 opacity-75" *ngIf="chartData.length > 0" [@fadeIn]>
-  </sfng-netquery-line-chart>
+<div class="relative flex-shrink-0 my-1 bg-gray-200 p-2 rounded grid" [class.grid-cols-2]="featureBw$ | async">
+  <div>
+    <h2 class="text-secondary text-xxs uppercase font-light p-0 m-0 mb-1 w-full text-center">Connections</h2>
+    <div class="h-32">
+      <sfng-netquery-line-chart [data]="connectionChartData" class="h-full" *ngIf="connectionChartData.length > 0" [@fadeIn]></sfng-netquery-line-chart>
+    </div>
+  </div>
+
+  <div *ngIf="featureBw$ | async">
+    <h2 class="text-secondary text-xxs uppercase font-light p-0 m-0 mb-1 w-full text-center">Data Usage</h2>
+    <div class="h-32">
+      <sfng-netquery-line-chart [config]="bwChartConfig" [data]="bwChartData" class="h-full" *ngIf="!!bwChartData?.length" [@fadeIn]></sfng-netquery-line-chart>
+    </div>
+  </div>
+
   <div class="absolute top-0 bottom-0 left-0 right-0 flex items-center justify-center text-secondary"
-    *ngIf="loading || chartData.length === 0">
+    *ngIf="loading || connectionChartData.length === 0">
     Loading Chart
   </div>
 </div>

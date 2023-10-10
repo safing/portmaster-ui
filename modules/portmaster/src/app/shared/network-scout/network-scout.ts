@@ -26,7 +26,14 @@ export enum SortTypes {
   spnIdentities = "SPN Identities",
   bytesSent = "Bytes Sent",
   bytesReceived = "Bytes Received",
+  totalBytes = "Total Bytes"
 }
+
+const bandwidthSorts: SortTypes[] = [
+  SortTypes.bytesReceived,
+  SortTypes.bytesSent,
+  SortTypes.totalBytes
+]
 
 @Component({
   selector: 'app-network-scout',
@@ -61,10 +68,15 @@ export class NetworkScoutComponent implements OnInit {
     [SortTypes.spnIdentities, (a: _Profile, b: _Profile) => a.identities.length - b.identities.length],
     [SortTypes.bytesReceived, (a: _Profile, b: _Profile) => b.bytes_received - a.bytes_received],
     [SortTypes.bytesSent, (a: _Profile, b: _Profile) => b.bytes_sent - a.bytes_sent],
+    [SortTypes.totalBytes, (a: _Profile, b: _Profile) => (b.bytes_received + b.bytes_sent) - (a.bytes_received + a.bytes_sent)]
   ]);
 
   /** The current sort order */
   sortOrder: SortTypes = SortTypes.static;
+
+  get isByteSortOrder() {
+    return bandwidthSorts.includes(this.sortOrder);
+  }
 
   /** Used to trigger a debounced search from the template */
   triggerSearch = new Subject<string>();
@@ -294,12 +306,14 @@ export class NetworkScoutComponent implements OnInit {
         // make sure our sort methods are updated.
         if (this.profiles.some(p => p.bytes_received > 0 || p.bytes_sent > 0)) {
           if (!this.sortTypes.includes(SortTypes.bytesReceived)) {
-            this.sortTypes.push(SortTypes.bytesReceived, SortTypes.bytesSent)
+            this.sortTypes.push.apply(this.sortTypes, bandwidthSorts)
           }
 
           this.sortTypes = [...this.sortTypes];
         } else {
-          this.sortTypes = this.sortTypes.filter(type => type !== SortTypes.bytesReceived && type !== SortTypes.bytesSent)
+          this.sortTypes = this.sortTypes.filter(type => {
+            return !bandwidthSorts.includes(type)
+          })
         }
 
         this.cdr.markForCheck();

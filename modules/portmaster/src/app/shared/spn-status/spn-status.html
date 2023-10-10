@@ -1,7 +1,15 @@
 <div class="relative flex flex-col justify-center w-full">
-  <sfng-netquery-line-chart hideBlocked="true" *ngIf="spnEnabled && !!spnConnChart.length" [@fadeIn] [@fadeOut]
-    [data]="spnConnChart" showAxis="false" activeConnectionColor="text-blue"
-    activeConnectionAreaColor="text-blue text-opacity-50" class="absolute bottom-0 left-0 right-0 h-16">
+  <sfng-netquery-line-chart  *ngIf="spnEnabled && !!spnConnChart.length" [@fadeIn] [@fadeOut]
+    [data]="spnConnChart" showAxis="false"
+          [config]="{
+            series: {
+              value: {
+                lineColor: 'text-blue',
+                areaColor: 'text-blue text-opacity-25',
+              }
+            }
+          }"
+    class="absolute bottom-0 left-0 right-0 h-16">
   </sfng-netquery-line-chart>
 
   <div class="relative flex flex-col justify-start gap-1 px-8 py-4">

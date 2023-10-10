@@ -44,7 +44,8 @@ export class Parser {
   static aliases: { [key: string]: string } = {
     'provider': 'as_owner',
     'app': 'profile',
-    'ip': 'remote_ip'
+    'ip': 'remote_ip',
+    'port': 'remote_port'
   }
 
   /** parse is a shortcut for new Parser(input).process() */

@@ -1,9 +1,13 @@
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, Input, OnChanges, OnDestroy, OnInit, SimpleChanges } from "@angular/core";
-import { IPProtocol, IPScope, IsDenied, IsDNSRequest, NetqueryConnection, PortapiService, Process, Verdict } from "@safing/portmaster-api";
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, Input, OnChanges, OnDestroy, OnInit, SimpleChanges, inject } from "@angular/core";
+import { BandwidthChartResult, ConnectionBandwidthChartResult, IPProtocol, IPScope, IsDenied, IsDNSRequest, Netquery, NetqueryConnection, PortapiService, Process, Verdict } from "@safing/portmaster-api";
 import { SfngDialogService } from '@safing/ui';
 import { Subscription } from "rxjs";
 import { ProcessDetailsDialogComponent } from '../../process-details-dialog';
 import { NetqueryHelper } from "../connection-helper.service";
+import { BytesPipe } from "../../pipes/bytes.pipe";
+import { formatDuration } from "../../pipes";
+
+
 
 @Component({
   selector: 'sfng-netquery-conn-details',
@@ -12,6 +16,12 @@ import { NetqueryHelper } from "../connection-helper.service";
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SfngNetqueryConnectionDetailsComponent implements OnInit, OnDestroy, OnChanges {
+  helper = inject(NetqueryHelper)
+  private readonly portapi = inject(PortapiService)
+  private readonly dialog = inject(SfngDialogService)
+  private readonly cdr = inject(ChangeDetectorRef)
+  private readonly netquery = inject(Netquery)
+
   @Input()
   conn: NetqueryConnection | null = null;
 
@@ -23,22 +33,48 @@ export class SfngNetqueryConnectionDetailsComponent implements OnInit, OnDestroy
   readonly scopes = IPScope;
   private _subscription = Subscription.EMPTY;
 
+  formatBytes = (n: d3.NumberValue, seriesKey?: string) => {
+    let prefix = '';
+    if (seriesKey !== undefined) {
+      prefix = seriesKey === 'incoming' ? 'Received: ' : 'Sent: '
+    }
+    return prefix + new BytesPipe().transform(n.valueOf())
+  }
+
+  formatTime = (n: Date) => {
+    const diff = Math.floor(new Date().getTime() - n.getTime())
+    return formatDuration(diff, false, true) + " ago"
+  }
+
+  tooltipFormat = (n: BandwidthChartResult<any>) => {
+    const bytes = new BytesPipe().transform
+    const received = `Received: ${bytes(n?.incoming || 0)}`;
+    const sent = `Sent: ${bytes(n?.outgoing || 0)}`
+
+    if ((n?.incoming || 0) > (n?.outgoing || 0)) {
+      return `${received}\n${sent}`
+    }
+    return `${sent}\n${received}`
+  }
+
   connectionNotice: string = '';
+  bwData: ConnectionBandwidthChartResult[] = [];
 
   ngOnChanges(changes: SimpleChanges) {
     if (!!changes?.conn) {
       this.updateConnectionNotice();
+      this.loadBandwidthChart();
 
       if (this.conn?.extra_data?.pid !== undefined) {
         this.portapi.get<Process>(`network:tree/${this.conn.extra_data.pid}-${this.conn.extra_data.processCreatedAt}`)
           .subscribe({
             next: p => {
               this.process = p;
-              this.changeDetectorRef.markForCheck();
+              this.cdr.markForCheck();
             },
             error: () => {
               this.process = null; // the process does not exist anymore
-              this.changeDetectorRef.markForCheck();
+              this.cdr.markForCheck();
             }
           })
       } else {
@@ -47,17 +83,12 @@ export class SfngNetqueryConnectionDetailsComponent implements OnInit, OnDestroy
     }
   }
 
-  constructor(
-    public helper: NetqueryHelper,
-    private portapi: PortapiService,
-    private dialog: SfngDialogService,
-    private changeDetectorRef: ChangeDetectorRef,
-  ) { }
-
   ngOnInit() {
     this._subscription = this.helper.refresh.subscribe(() => {
       this.updateConnectionNotice();
-      this.changeDetectorRef.markForCheck();
+      this.loadBandwidthChart();
+
+      this.cdr.markForCheck();
     })
   }
 
@@ -71,6 +102,27 @@ export class SfngNetqueryConnectionDetailsComponent implements OnInit, OnDestroy
       backdrop: true,
       autoclose: true,
     })
+  }
+
+  private loadBandwidthChart() {
+    this.bwData = [];
+
+    if (!this.conn) {
+      this.cdr.markForCheck()
+
+      return;
+    }
+
+    this.netquery.connectionBandwidthChart([this.conn!.id], 1)
+      .subscribe(result => {
+        if (!result[this.conn!.id]?.length) {
+          return;
+        }
+
+        this.bwData = result[this.conn!.id];
+
+        this.cdr.markForCheck();
+      });
   }
 
   private updateConnectionNotice() {

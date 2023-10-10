@@ -6,7 +6,7 @@ import { Pipe, PipeTransform } from "@angular/core";
   name: 'bytes',
 })
 export class BytesPipe implements PipeTransform {
-  transform(value: any, ...args: any[]) {
+  transform(value: any, decimal: string = '1.0-2', ...args: any[]) {
     value = +value; // convert to number
 
     const ceilings = [
@@ -23,6 +23,6 @@ export class BytesPipe implements PipeTransform {
       idx++
     }
 
-    return (new DecimalPipe('en-US')).transform(value, '1.0-2') + ' ' + ceilings[idx];
+    return (new DecimalPipe('en-US')).transform(value, decimal) + ' ' + ceilings[idx];
   }
 }

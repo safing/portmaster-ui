@@ -1,7 +1,7 @@
 import { ChangeDetectorRef, Component, DestroyRef, OnDestroy, OnInit, ViewChild, inject } from '@angular/core';
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { ActivatedRoute, Router } from '@angular/router';
-import { AppProfile, AppProfileService, ChartResult, Condition, ConfigService, Database, DebugAPI, ExpertiseLevel, FeatureID, FlatConfigObject, IProfileStats, LayeredProfile, Netquery, SPNService, Setting, flattenProfileConfig, setAppSetting } from '@safing/portmaster-api';
+import { AppProfile, AppProfileService, BandwidthChartResult, ChartResult, Condition, ConfigService, Database, DebugAPI, ExpertiseLevel, FeatureID, FlatConfigObject, IProfileStats, LayeredProfile, Netquery, ProfileBandwidthChartResult, SPNService, Setting, flattenProfileConfig, setAppSetting } from '@safing/portmaster-api';
 import { SfngDialogService } from '@safing/ui';
 import { BehaviorSubject, Observable, Subscription, combineLatest, interval, of } from 'rxjs';
 import { distinctUntilChanged, map, mergeMap, startWith, switchMap } from 'rxjs/operators';
@@ -12,6 +12,8 @@ import { SaveSettingEvent } from 'src/app/shared/config/generic-setting/generic-
 import { ExpertiseService } from 'src/app/shared/expertise';
 import { SfngNetqueryViewer } from 'src/app/shared/netquery';
 import { EditProfileDialog } from './../../shared/edit-profile-dialog/edit-profile-dialog';
+import { formatDuration } from 'src/app/shared/pipes';
+import { BytesPipe } from 'src/app/shared/pipes/bytes.pipe';
 
 @Component({
   templateUrl: './app-view.html',
@@ -34,12 +36,6 @@ export class AppViewComponent implements OnInit, OnDestroy {
 
   /** subscription to our update-process observable */
   private subscription = Subscription.EMPTY;
-
-  /**
-   * @private
-   * The current chart data
-   */
-  appChartData: ChartResult[] = [];
 
   /**
    * @private
@@ -149,6 +145,7 @@ export class AppViewComponent implements OnInit, OnDestroy {
   } = {}
 
   collapseHeader = false;
+
 
   constructor(
     public sessionDataService: SessionDataService,
@@ -267,7 +264,6 @@ export class AppViewComponent implements OnInit, OnDestroy {
             }
             this._loading = true;
 
-            this.appChartData = [];
             this.historyAvailableSince = null;
             this.connectionsInHistory = 0;
             this.appProfile = null;
@@ -309,8 +305,10 @@ export class AppViewComponent implements OnInit, OnDestroy {
           const previousProfile = this.appProfile;
 
           if (!!profile) {
+            const key = profile![0].Source + "/" + profile![0].ID;
+
             const query: Condition = {
-              profile: profile![0].Source + "/" + profile![0].ID,
+              profile: key
             }
 
             // ignore internal connections if the user is not in developer mode.
@@ -319,12 +317,6 @@ export class AppViewComponent implements OnInit, OnDestroy {
                 $eq: false,
               };
             }
-
-            this.netquery.activeConnectionChart(query)
-              .subscribe(data => {
-                this.appChartData = data;
-                this.cdr.markForCheck();
-              })
 
             this.netquery.query({
               select: [

@@ -70,23 +70,15 @@
   </header>
 
 
-  <div class="feature-card-container" id="features">
-    <label>
-      Features
-    </label>
-
+  <app-dashboard-widget id="features" label="Features">
     <div class="feature-card-list">
       <app-feature-card *ngFor="let feature of (features$ | async)" [feature]="feature" [disabled]="!feature.enabled">
       </app-feature-card>
     </div>
-  </div>
+  </app-dashboard-widget>
 
 
-  <div class="feature-card-container" id="stats">
-    <label>
-      Recent Activity
-    </label>
-
+  <app-dashboard-widget id="stats" label="Recent Activity">
     <!-- Mini Stats -->
     <div class="mini-stats-list">
       <div class="mini-stat" routerLink="/monitor" [queryParams]="{q: 'verdict:3 verdict:4'}">
@@ -135,33 +127,38 @@
         </span>
       </div>
     </div>
-  </div>
+  </app-dashboard-widget>
 
-  <div class="feature-card-container" id="charts">
+  <app-dashboard-widget id="charts">
     <div class="mini-stats-list">
       <div class="mini-stat">
         <label routerLink="/monitor">
           Active/Blocked Connections
         </label>
-        <sfng-netquery-line-chart activeConnectionColor="text-green-300 text-opacity-70" class="w-full h-36"
+        <sfng-netquery-line-chart activeConnectionColor="text-green-300 text-opacity-70" class="w-full !h-36"
           [data]="connectionChart"></sfng-netquery-line-chart>
       </div>
       <div class="mini-stat" *ngIf="featureSPN">
         <label routerLink="/monitor" [queryParams]="{q: 'tunneled:true'}">
           Connections Tunneled through SPN
         </label>
-        <sfng-netquery-line-chart activeConnectionColor="text-blue"
-          activeConnectionAreaColor="text-blue text-opacity-25" hideBlocked="true" class="w-full h-36"
+        <sfng-netquery-line-chart
+          [config]="{
+            series: {
+              value: {
+                lineColor: 'text-blue text-opacity-80',
+                areaColor: 'text-blue text-opacity-20',
+              }
+            }
+          }"
+          class="w-full !h-36"
           [data]="tunneldConnectionChart">
         </sfng-netquery-line-chart>
       </div>
     </div>
-  </div>
+  </app-dashboard-widget>
 
-  <div class="flex-grow feature-card-container" id="countries">
-    <label>
-      Recent Connections per Country
-    </label>
+  <app-dashboard-widget class="flex-grow" id="countries" label="Recent Connections per Country">
     <div class="block w-full">
       <ul class="list-none auto-grid-4">
         <li *ngFor="let country of (connectionsPerCountry | keyvalue); trackBy: trackCountry"
@@ -177,12 +174,9 @@
         </li>
       </ul>
     </div>
-  </div>
+  </app-dashboard-widget>
 
-  <div class="flex-grow feature-card-container" id="blocked">
-    <label>
-      Recently Blocked Applications
-    </label>
+  <app-dashboard-widget class="flex-grow" id="blocked" label="Recently Blocked Applications">
     <div class="block w-full h-full">
       <span *ngIf="!blockedProfiles?.length"
         class="flex flex-row items-center justify-center h-full gap-2 text-tertiary">
@@ -211,24 +205,28 @@
         </ng-container>
       </ul>
     </div>
-  </div>
+  </app-dashboard-widget>
 
-  <div class="flex-grow feature-card-container" id="connmap" style="min-height: 400px">
-    <label class="relative">
-      Recent Connection Countries
-
-      <!-- FIXME: Remove when map fully works as expected -->
-      <div class="absolute top-0 right-0 flex flex-col items-center justify-center gap-0 text-yellow-200">
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
-          class="relative z-10 w-4 h-4">
-          <path stroke-linecap="round" stroke-linejoin="round"
-            d="M9.75 3.104v5.714a2.25 2.25 0 01-.659 1.591L5 14.5M9.75 3.104c-.251.023-.501.05-.75.082m.75-.082a24.301 24.301 0 014.5 0m0 0v5.714c0 .597.237 1.17.659 1.591L19.8 15.3M14.25 3.104c.251.023.501.05.75.082M19.8 15.3l-1.57.393A9.065 9.065 0 0112 15a9.065 9.065 0 00-6.23-.693L5 14.5m14.8.8l1.402 1.402c1.232 1.232.65 3.318-1.067 3.611A48.309 48.309 0 0112 21c-2.773 0-5.491-.235-8.135-.687-1.718-.293-2.3-2.379-1.067-3.61L5 14.5" />
-        </svg>
-        <span class="-mt-1 uppercase" style="font-size: 0.6rem">BETA</span>
-      </div>
-
-    </label>
-
+  <app-dashboard-widget class="flex-grow" id="connmap" style="min-height: 400px" label="Recent Connection Countries" beta="true">
     <spn-map-renderer class="w-full h-full" mapId="dashboard-map"></spn-map-renderer>
-  </div>
+  </app-dashboard-widget>
+
+  <app-dashboard-widget class="flex-grow" id="bwvis-bar" [ngStyle]="{minHeight: featureBw ? '400px' : 'unset'}" label="Recent Top Consumers" beta="true">
+    <sfng-netquery-circular-bar-chart *ngIf="featureBw" class="block w-full h-full" [data]="bandwidthBarData" [config]="bandwidthBarConfig"></sfng-netquery-circular-bar-chart>
+
+    <span *ngIf="!featureBw"
+      class="!text-xxs !font-light !text-tertiary !text-opacity-50 w-full text-center !leading-3">
+      Available in<br />Portmaster Plus
+    </span>
+  </app-dashboard-widget>
+
+  <app-dashboard-widget class="flex-grow" id="bwvis-line" [ngStyle]="{minHeight: featureBw ? '400px' : 'unset'}" label="Recent Bandwidth Usage" beta="true">
+    <sfng-netquery-line-chart class="block w-full h-full" *ngIf="featureBw" [data]="bandwidthLineChart" [config]="bwChartConfig"></sfng-netquery-line-chart>
+
+    <span *ngIf="!featureBw"
+      class="!text-xxs !font-light !text-tertiary !text-opacity-50 w-full text-center !leading-3">
+      Available in<br />Portmaster Plus
+    </span>
+  </app-dashboard-widget>
+
 </div>

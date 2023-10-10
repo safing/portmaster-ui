@@ -25,6 +25,7 @@ import { SfngNetqueryScopeLabelComponent } from "./scope-label";
 import { SfngNetquerySearchOverlayComponent } from "./search-overlay";
 import { SfngNetquerySearchbarComponent, SfngNetquerySuggestionDirective } from "./searchbar";
 import { SfngNetqueryTagbarComponent } from "./tag-bar";
+import { CircularBarChartComponent } from './circular-bar-chart/circular-bar-chart.component';
 
 @NgModule({
   imports: [
@@ -55,6 +56,7 @@ import { SfngNetqueryTagbarComponent } from "./tag-bar";
     SfngNetqueryLineChartComponent,
     SfngNetquerySearchOverlayComponent,
     SfngNetqueryScopeLabelComponent,
+    CircularBarChartComponent,
   ],
   declarations: [
     SfngNetqueryViewer,
@@ -72,6 +74,7 @@ import { SfngNetqueryTagbarComponent } from "./tag-bar";
     CanUseRulesPipe,
     CanShowConnection,
     CombinedMenuPipe,
+    CircularBarChartComponent,
   ]
 })
 export class NetqueryModule { }

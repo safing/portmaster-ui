@@ -6,9 +6,17 @@ import { AppProfileService } from "./app-profile.service";
 import { AppProfile } from "./app-profile.types";
 import { DNSContext, IPScope, Reason, TLSContext, TunnelContext, Verdict } from "./network.types";
 import { PORTMASTER_HTTP_API_ENDPOINT, PortapiService } from "./portapi.service";
+import { Container } from "postcss";
 
 export interface FieldSelect {
   field: string;
+}
+
+export interface FieldAsSelect {
+  $field: {
+    field: string;
+    as: string;
+  }
 }
 
 export interface Count {
@@ -47,7 +55,7 @@ export interface Distinct {
   $distinct: string;
 }
 
-export type Select = FieldSelect | Count | Distinct | Sum | Min;
+export type Select = FieldSelect | FieldAsSelect | Count | Distinct | Sum | Min;
 
 export interface Equal {
   $eq: any;
@@ -94,17 +102,6 @@ export interface OrderBy {
 
 export interface Condition {
   [key: string]: string | Matcher | (string | Matcher)[];
-}
-
-export interface BatchQuery {
-  [key: string]: Query;
-}
-
-type BatchResult<T extends BatchQuery> = {
-  [key in keyof T]: {
-    results: { [field: string]: any }[];
-    error?: string;
-  }
 }
 
 export interface TextSearch {
@@ -212,6 +209,22 @@ interface BatchRequest {
   [key: string]: Query
 }
 
+interface BandwidthBaseResult {
+  timestamp: number;
+  incoming: number;
+  outgoing: number;
+}
+
+export type ConnKeys = keyof NetqueryConnection
+
+export type BandwidthChartResult<K extends ConnKeys> = {
+  [key in K]: NetqueryConnection[K];
+} & BandwidthBaseResult
+
+export type ProfileBandwidthChartResult = BandwidthChartResult<'profile'>;
+
+export type ConnectionBandwidthChartResult = BandwidthChartResult<'id'>;
+
 @Injectable({ providedIn: 'root' })
 export class Netquery {
   constructor(
@@ -243,6 +256,65 @@ export class Netquery {
         reportProgress: false,
       }
     )
+  }
+
+  profileBandwidthChart(profile?: string[], interval?: number): Observable<{ [profile: string]: ProfileBandwidthChartResult[] }> {
+    const cond: Condition = {}
+    if (!!profile) {
+      cond['profile'] = profile
+    }
+
+    return this.bandwidthChart(cond, ['profile'], interval)
+      .pipe(
+        map(results => {
+          const obj: {
+            [connId: string]: ProfileBandwidthChartResult[]
+          } = {};
+
+          results?.forEach(row => {
+            const arr = obj[row.profile] || []
+            arr.push(row)
+            obj[row.profile] = arr
+          })
+
+          return obj
+        })
+      )
+  }
+
+  bandwidthChart<K extends ConnKeys>(query: Condition, groupBy?: K[], interval?: number): Observable<BandwidthChartResult<K>[]> {
+    return this.http.post<{ results: BandwidthChartResult<K>[] }>(`${this.httpAPI}/v1/netquery/charts/bandwidth`, {
+      interval,
+      groupBy,
+      query,
+    })
+      .pipe(
+        map(response => response.results),
+      )
+  }
+
+  connectionBandwidthChart(connIds: string[], interval?: number): Observable<{ [connId: string]: ConnectionBandwidthChartResult[] }> {
+    const cond: Condition = {}
+    if (!!connIds) {
+      cond['id'] = connIds
+    }
+
+    return this.bandwidthChart(cond, ['id'], interval)
+      .pipe(
+        map(results => {
+          const obj: {
+            [connId: string]: ConnectionBandwidthChartResult[]
+          } = {};
+
+          results?.forEach(row => {
+            const arr = obj[row.id] || []
+            arr.push(row)
+            obj[row.id] = arr
+          })
+
+          return obj
+        })
+      )
   }
 
   activeConnectionChart(cond: Condition, textSearch?: TextSearch): Observable<ChartResult[]> {
