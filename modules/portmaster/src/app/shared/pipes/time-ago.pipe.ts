@@ -10,17 +10,17 @@ export class TimeAgoPipe implements PipeTransform {
   }
 }
 
-export function timeAgo(value: number | Date | string) {
-  const formats = [
-    { ceiling: 1, text: "" },
-    { ceiling: 60, text: "sec" },
-    { ceiling: 3600, text: "min" },
-    { ceiling: 86400, text: "hour" },
-    { ceiling: 2629744, text: "day" },
-    { ceiling: 31556926, text: "month" },
-    { ceiling: Infinity, text: "year" }
-  ];
+export const timeCeilings = [
+  { ceiling: 1, text: "" },
+  { ceiling: 60, text: "sec" },
+  { ceiling: 3600, text: "min" },
+  { ceiling: 86400, text: "hour" },
+  { ceiling: 2629744, text: "day" },
+  { ceiling: 31556926, text: "month" },
+  { ceiling: Infinity, text: "year" }
+]
 
+export function timeAgo(value: number | Date | string) {
   if (typeof value === 'string') {
     value = new Date(value)
   }
@@ -37,14 +37,14 @@ export function timeAgo(value: number | Date | string) {
     suffix = ''
   }
 
-  for (let i = formats.length - 1; i >= 0; i--) {
-    const f = formats[i];
+  for (let i = timeCeilings.length - 1; i >= 0; i--) {
+    const f = timeCeilings[i];
     let n = Math.floor(diffInSeconds / f.ceiling);
     if (n > 0) {
       if (i < 1) {
         return `< 1 min ` + suffix;
       }
-      let text = formats[i + 1].text;
+      let text = timeCeilings[i + 1].text;
       if (n > 1) {
         text += 's';
       }
