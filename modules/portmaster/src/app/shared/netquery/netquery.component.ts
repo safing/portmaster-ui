@@ -3,7 +3,7 @@ import { FormatWidth, formatDate, getLocaleDateFormat, getLocaleId } from "@angu
 import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, DestroyRef, EventEmitter, Input, LOCALE_ID, OnDestroy, OnInit, Output, QueryList, TemplateRef, TrackByFunction, ViewChildren, inject, isDevMode } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { ActivatedRoute, Router } from "@angular/router";
-import { ChartResult, Condition, Database, FeatureID, GreaterOrEqual, IPScope, LessOrEqual, Netquery, NetqueryConnection, OrderBy, Pin, PossilbeValue, Query, QueryResult, SPNService, Select, Verdict } from "@safing/portmaster-api";
+import { BandwidthChartResult, ChartResult, Condition, Database, FeatureID, GreaterOrEqual, IPScope, LessOrEqual, Netquery, NetqueryConnection, OrderBy, Pin, PossilbeValue, Query, QueryResult, SPNService, Select, Verdict } from "@safing/portmaster-api";
 import { Datasource, DynamicItemsPaginator, SelectOption } from "@safing/ui";
 import { BehaviorSubject, Observable, Subject, combineLatest, forkJoin, interval, of } from "rxjs";
 import { catchError, debounceTime, filter, map, share, skip, switchMap, take, takeUntil } from "rxjs/operators";
@@ -16,6 +16,7 @@ import { SfngSearchbarFields } from "./searchbar";
 import { SfngTagbarValue } from "./tag-bar";
 import { Parser } from "./textql";
 import { connectionFieldTranslation, mergeConditions } from "./utils";
+import { DefaultBandwidthChartConfig } from "./line-chart/line-chart";
 
 interface Suggestion<T = any> extends PossilbeValue<T> {
   count: number;
@@ -214,8 +215,14 @@ export class SfngNetqueryViewer implements OnInit, OnDestroy, AfterViewInit {
   /** @private Whether or not we are currently loading data */
   loading = false;
 
-  /** @private The chart data */
-  chartData: ChartResult[] = [];
+  /** @private The connection chart data */
+  connectionChartData: ChartResult[] = [];
+
+  /** @private The bandwidth chart data */
+  bwChartData: BandwidthChartResult<any>[] = [];
+
+  /** @private The configuration for the bandwidth chart */
+  readonly bwChartConfig = DefaultBandwidthChartConfig;
 
   /** @private The list of "pro-tips" that are defined in the template. Only one pro-tip will be rendered depending on proTipIdx */
   @ViewChildren('proTip', { read: TemplateRef })
@@ -257,6 +264,17 @@ export class SfngNetqueryViewer implements OnInit, OnDestroy, AfterViewInit {
         }
 
         return profile.current_plan?.feature_ids?.includes(FeatureID.History) || false;
+      })
+    );
+
+  featureBw$ = inject(SPNService).profile$
+    .pipe(
+      map(profile => {
+        if (!profile) {
+          return false;
+        }
+
+        return profile.current_plan?.feature_ids?.includes(FeatureID.Bandwidth) || false;
       })
     );
 
@@ -534,7 +552,9 @@ export class SfngNetqueryViewer implements OnInit, OnDestroy, AfterViewInit {
         debounceTime(1000),
         switchMap(() => {
           this.loading = true;
-          this.chartData = [];
+          this.connectionChartData = [];
+          this.bwChartData = [];
+
           this.cdr.detectChanges();
 
           const query = this.getQuery();
@@ -584,18 +604,25 @@ export class SfngNetqueryViewer implements OnInit, OnDestroy, AfterViewInit {
             takeUntil(this.search$), // skip loading the chart if the user trigger a subsequent search
             filter(loading => !loading),
             take(1),
-            switchMap(() => this.netquery.activeConnectionChart(result.query.query!)),
-            catchError(err => {
-              this.actionIndicator.error(
-                'Internal Error',
-                'Failed to load chart: ' + this.actionIndicator.getErrorMessgae(err)
-              );
+            switchMap(() => forkJoin({
+              connectionChart: this.netquery.activeConnectionChart(result.query.query!)
+                .pipe(
+                  catchError(err => {
+                    this.actionIndicator.error(
+                      'Internal Error',
+                      'Failed to load chart: ' + this.actionIndicator.getErrorMessgae(err)
+                    );
 
-              return of([] as ChartResult[]);
-            }),
+                    return of([] as ChartResult[]);
+                  }),
+                ),
+              bwChart: this.netquery.bandwidthChart(result.query.query!, [], 60)
+            })),
           )
           .subscribe(chart => {
-            this.chartData = chart;
+            this.connectionChartData = chart.connectionChart;
+            this.bwChartData = chart.bwChart;
+
             this.cdr.markForCheck();
           })
 
@@ -1074,7 +1101,7 @@ export class SfngNetqueryViewer implements OnInit, OnDestroy, AfterViewInit {
       }
     }
 
-    let select: (Select | string)[] | undefined = undefined;
+    let select: Query['select'] | undefined = undefined;
     if (!!this.groupByKeys.length) {
       // we always want to show the total and the number of allowed connections
       // per group so we need to add those to the select part of the query
