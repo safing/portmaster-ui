@@ -17,6 +17,13 @@
       </span>
     </span>
 
+    <span *ngIf="conn.ended">
+      <span>Duration:</span>
+      <span >
+        {{ [conn.ended, conn.started] | duration }}
+      </span>
+    </span>
+
     <span *appExpertiseLevel="'developer'" sfngAddToFilter="profile_revision"
       [sfngAddToFilterValue]="conn.profile_revision">
       <span>Profile Revision:</span>
@@ -257,7 +264,38 @@
     </ng-container>
   </div>
 
-
+  <div *ngIf="!!bwData.length" class="col-span-3 block border-t border-gray-400 py-2">
+    <h2 class="text-secondary uppercase w-full text-center text-xxs">Data Usage</h2>
+    <sfng-netquery-line-chart class="block w-full h-36" [data]="bwData" [config]="{
+      series: {
+        incoming: {
+          lineColor: 'text-green-300',
+          areaColor: 'text-green-200 text-opacity-50',
+        },
+        outgoing: {
+          lineColor: 'text-yellow-300',
+          areaColor: 'text-yellow-200 text-opacity-50',
+        },
+      },
+      time: {
+        from: conn.started,
+        to: conn.ended,
+      },
+      fromMargin: 5,
+      toMargin: 5,
+      valueFormat: formatBytes,
+      timeFormat: formatTime,
+      showDataPoints: true,
+      fillEmptyTicks: {
+        interval: 1
+      },
+      tooltipFormat: tooltipFormat,
+      verticalMarkers: [
+        { text: 'started', time: conn.started },
+        { text: 'ended', time: conn.ended},
+      ]
+    }"></sfng-netquery-line-chart>
+  </div>
 </section>
 
 <div class="flex justify-end border-t border-gray-300 pt-0.5 mt-0.5" *ngIf="!!conn">
