@@ -20,7 +20,10 @@ export const connectionFieldTranslation: { [key: string]: string } = {
   active: 'Active',
   allowed: 'Allowed',
   from: 'From',
-  to: 'To'
+  to: 'To',
+  remote_port: 'Port',
+  bytes_sent: 'Bytes Sent',
+  bytes_received: 'Bytes Received'
 }
 
 export function isMatcher(v: any | Matcher): v is Matcher {
