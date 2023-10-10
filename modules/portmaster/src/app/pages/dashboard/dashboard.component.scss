@@ -16,7 +16,8 @@
     "charts charts charts charts"
     "charts charts charts charts"
     "blocked blocked countries countries"
-    "map map map map";
+    "map map map map"
+    "bwvis-bar bwvis-bar bwvis-line bwvis-line";
 }
 
 :host-context(.min-width-1024px) {
@@ -27,7 +28,8 @@
       "stats   stats   stats   stats"
       "charts charts charts charts"
       "countries countries map map"
-      "blocked blocked map map";
+      "blocked blocked map map"
+      "bwvis-bar bwvis-bar bwvis-line bwvis-line";
   }
 }
 
@@ -59,6 +61,14 @@
   grid-area: map;
 }
 
+#bwvis-bar {
+  grid-area: bwvis-bar;
+}
+
+#bwvis-line {
+  grid-area: bwvis-line;
+}
+
 .auto-grid-3 {
   @apply grid gap-4;
   grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
@@ -69,9 +79,7 @@
   grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
 }
 
-.feature-card-container {
-  @apply bg-gray-200 p-4 self-stretch rounded-md flex flex-col gap-2;
-
+app-dashboard-widget {
   label {
     @apply text-xs uppercase text-secondary font-light flex flex-row items-center gap-2 pb-2;
   }

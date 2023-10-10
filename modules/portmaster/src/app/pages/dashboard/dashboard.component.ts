@@ -1,17 +1,29 @@
 import { KeyValue } from "@angular/common";
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, DestroyRef, ElementRef, OnInit, QueryList, TrackByFunction, ViewChildren, forwardRef, inject } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
-import { AppProfileService, ChartResult, Database, FeatureID, Netquery, SPNService, UserProfile, Verdict } from "@safing/portmaster-api";
+import { AppProfileService, BandwidthChartResult, ChartResult, Database, FeatureID, Netquery, SPNService, UserProfile, Verdict } from "@safing/portmaster-api";
 import { SfngDialogService } from "@safing/ui";
-import { repeat } from "rxjs";
+import { Observable, map, repeat } from "rxjs";
 import { ActionIndicatorService } from 'src/app/shared/action-indicator';
-import { SfngNetqueryLineChartComponent } from "src/app/shared/netquery/line-chart/line-chart";
+import { DefaultBandwidthChartConfig, SfngNetqueryLineChartComponent } from "src/app/shared/netquery/line-chart/line-chart";
 import { SPNAccountDetailsComponent } from "src/app/shared/spn-account-details";
 import { MAP_HANDLER, MapRef } from "../spn/map-renderer";
+import { CircularBarChartConfig, splitQueryResult } from "src/app/shared/netquery/circular-bar-chart/circular-bar-chart.component";
+import { BytesPipe } from "src/app/shared/pipes/bytes.pipe";
+import { formatDuration } from "src/app/shared/pipes";
 
 interface BlockedProfile {
   profileID: string;
   count: number;
+}
+
+interface BandwidthBarData {
+  profile: string;
+  profile_name: string;
+  series: 'sent' | 'received';
+  value: number;
+  sent: number;
+  received: number;
 }
 
 @Component({
@@ -47,6 +59,61 @@ export class DashboardPageComponent implements OnInit {
     return this.mapRef?.countryNames || {};
   }
 
+  bandwidthLineChart: BandwidthChartResult<any>[] = [];
+
+  bandwidthBarData: BandwidthBarData[] = [];
+
+  readonly bandwidthBarConfig: CircularBarChartConfig<BandwidthBarData> = {
+    stack: 'profile_name',
+    seriesKey: 'series',
+    seriesLabel: d => {
+      if (d === 'sent') {
+        return 'Bytes Sent'
+      }
+      return 'Bytes Received'
+    },
+    value: 'value',
+    ticks: 3,
+    colorAsClass: true,
+    series: {
+      'received': {
+        color: 'text-green-300 text-opacity-50',
+      },
+      'sent': {
+        color: 'text-yellow-300 text-opacity-50',
+      }
+    },
+    formatTick: (tick: number) => {
+      return new BytesPipe().transform(tick, '1.0-0')
+    },
+    formatValue: (stack, series, value, data) => {
+      const bytes = new BytesPipe().transform
+      return `${stack}\nSent: ${bytes(data?.sent)}\nReceived: ${bytes(data?.received)}`
+    },
+    formatStack: (sel, data) => {
+      const bytes = new BytesPipe().transform
+
+      return sel
+        .call(sel => {
+          sel.append("text")
+            .attr("dy", "0")
+            .attr("y", "0")
+            .text(d => d)
+        })
+        .call(sel => {
+          sel.append("text")
+            .attr("y", 0)
+            .attr("dy", "0.8rem")
+            .style("font-size", "0.6rem")
+            .text(d => {
+              const first = data.find(result => result.profile_name === d);
+              return `${bytes(first?.sent)} / ${bytes(first?.received)}`
+            })
+        })
+    }
+  }
+
+  bwChartConfig = DefaultBandwidthChartConfig;
 
   activeConnections: number = 0;
   blockedConnections: number = 0;
@@ -138,6 +205,29 @@ export class DashboardPageComponent implements OnInit {
 
     this.netquery
       .batch({
+        bwBarChart: {
+          query: {
+            internal: { $eq: false },
+          },
+          select: [
+            'profile',
+            'profile_name',
+            {
+              $sum: {
+                field: 'bytes_sent',
+                as: 'sent'
+              }
+            },
+            {
+              $sum: {
+                field: 'bytes_received',
+                as: 'received'
+              }
+            },
+          ],
+          groupBy: ['profile', 'profile_name'],
+        },
+
         profileCount: {
           select: [
             'profile',
@@ -193,6 +283,13 @@ export class DashboardPageComponent implements OnInit {
         takeUntilDestroyed(this.destroyRef),
       )
       .subscribe(response => {
+        // bandwidth bar chart
+        const barChartData = response.bwBarChart
+          .filter(value => (value.sent + value.received) > 0)
+          .sort((a, b) => (b.sent + b.received) - (a.sent + a.received))
+          .slice(0, 10);
+        this.bandwidthBarData = splitQueryResult(barChartData, ['sent', 'received']) as BandwidthBarData[]
+
         // profileCount
         this.blockedConnections = 0;
         this.blockedProfiles = [];
@@ -259,6 +356,17 @@ export class DashboardPageComponent implements OnInit {
       )
       .subscribe(result => {
         this.connectionChart = result;
+        this.cdr.markForCheck();
+      })
+
+    this.netquery
+      .bandwidthChart({}, undefined, 60)
+      .pipe(
+        repeat({ delay: 10000 }),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe(bw => {
+        this.bandwidthLineChart = bw;
         this.cdr.markForCheck();
       })
 
