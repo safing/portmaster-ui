@@ -176,7 +176,7 @@
   <div *ngIf="featureBw$ | async">
     <h2 class="text-secondary text-xxs uppercase font-light p-0 m-0 mb-1 w-full text-center">Data Usage</h2>
     <div class="h-32">
-      <sfng-netquery-line-chart [config]="bwChartConfig" [data]="bwChartData" class="h-full" *ngIf="bwChartData.length > 0" [@fadeIn]></sfng-netquery-line-chart>
+      <sfng-netquery-line-chart [config]="bwChartConfig" [data]="bwChartData" class="h-full" *ngIf="!!bwChartData?.length" [@fadeIn]></sfng-netquery-line-chart>
     </div>
   </div>
 

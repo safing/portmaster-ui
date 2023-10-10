@@ -266,7 +266,7 @@
 
   <div *ngIf="!!bwData.length" class="col-span-3 block border-t border-gray-400 py-2">
     <h2 class="text-secondary uppercase w-full text-center text-xxs">Data Usage</h2>
-    <sfng-netquery-line-chart class="block w-full h-36" [data]="bwData" [config]="{
+    <sfng-netquery-line-chart class="block w-full !h-36" [data]="bwData" [config]="{
       series: {
         incoming: {
           lineColor: 'text-green-300',

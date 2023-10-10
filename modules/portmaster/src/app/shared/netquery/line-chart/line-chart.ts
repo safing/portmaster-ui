@@ -57,25 +57,25 @@ function coerceDate(d: Date | number | string): Date {
 export const DefaultChartConfig: ChartConfig<ChartResult> = {
   series: {
     value: {
-      lineColor: 'text-green-300',
-      areaColor: 'text-green-100'
+      lineColor: 'text-green-200',
+      areaColor: 'text-green-100 text-opacity-25'
     },
     countBlocked: {
-      lineColor: 'text-red-300',
-      areaColor: 'text-red-100'
+      lineColor: 'text-red-200',
+      areaColor: 'text-red-100 text-opacity-25'
     }
   },
 }
 
 export const DefaultBandwidthChartConfig: ChartConfig<BandwidthChartResult<any>> = {
   series: {
-    incoming: {
-      lineColor: 'text-green-300',
-      areaColor: 'text-green-200 text-opacity-50',
-    },
     outgoing: {
-      lineColor: 'text-yellow-300',
-      areaColor: 'text-yellow-200 text-opacity-50',
+      lineColor: 'text-deepPurple-500',
+      areaColor: 'text-deepPurple-700 text-opacity-5',
+    },
+    incoming: {
+      lineColor: 'text-cyan-800',
+      areaColor: 'text-cyan-700 text-opacity-5',
     },
   },
   time: {
@@ -117,7 +117,7 @@ export interface SeriesData {
   styles: [
     `
     :host {
-      @apply block;
+      @apply block h-full w-full;
     }
     `
   ],

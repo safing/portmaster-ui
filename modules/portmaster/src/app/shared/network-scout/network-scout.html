@@ -162,15 +162,15 @@
 
     <app-count-indicator *ngIf="!isByteSortOrder; else: bytesTemplate" [count]="data.size" [countAllowed]="data.countAllowed"></app-count-indicator>
     <ng-template #bytesTemplate>
-      <div style="font-size: 0.6rem" class="bg-gray-400 text-secondary p-0.5 rounded-md w-14 flex-shrink-0 flex-grow-0">
-        <span class="flex flex-row leading-3 justify-between items-center">
+      <div style="font-size: 0.6rem" class="bg-gray-300 font-light p-0.5 pr-1 rounded-md w-14 flex-shrink-0 flex-grow-0 ">
+        <span class="flex flex-row leading-3 justify-between items-center text-deepPurple-200">
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-3 h-3">
             <path fill-rule="evenodd" d="M10 15a.75.75 0 01-.75-.75V7.612L7.29 9.77a.75.75 0 01-1.08-1.04l3.25-3.5a.75.75 0 011.08 0l3.25 3.5a.75.75 0 11-1.08 1.04l-1.96-2.158v6.638A.75.75 0 0110 15z" clip-rule="evenodd" />
           </svg>
           {{ data.bytes_sent | bytes:"1.0-0" }}
         </span>
 
-        <span class="flex flex-row leading-3 justify-between items-center">
+        <span class="flex flex-row leading-3 justify-between items-center text-cyan-700">
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-3 h-3">
             <path fill-rule="evenodd" d="M10 5a.75.75 0 01.75.75v6.638l1.96-2.158a.75.75 0 111.08 1.04l-3.25 3.5a.75.75 0 01-1.08 0l-3.25-3.5a.75.75 0 111.08-1.04l1.96 2.158V5.75A.75.75 0 0110 5z" clip-rule="evenodd" />
           </svg>

@@ -76,11 +76,11 @@ export class DashboardPageComponent implements OnInit {
     ticks: 3,
     colorAsClass: true,
     series: {
-      'received': {
-        color: 'text-green-300 text-opacity-50',
-      },
       'sent': {
-        color: 'text-yellow-300 text-opacity-50',
+        color: 'text-deepPurple-500 text-opacity-50',
+      },
+      'received': {
+        color: 'text-cyan-800 text-opacity-50',
       }
     },
     formatTick: (tick: number) => {

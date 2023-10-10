@@ -135,7 +135,7 @@
         <label routerLink="/monitor">
           Active/Blocked Connections
         </label>
-        <sfng-netquery-line-chart activeConnectionColor="text-green-300 text-opacity-70" class="w-full h-36"
+        <sfng-netquery-line-chart activeConnectionColor="text-green-300 text-opacity-70" class="w-full !h-36"
           [data]="connectionChart"></sfng-netquery-line-chart>
       </div>
       <div class="mini-stat" *ngIf="featureSPN">
@@ -146,12 +146,12 @@
           [config]="{
             series: {
               value: {
-                lineColor: 'text-blue',
-                areaColor: 'text-blue text-opacity-25',
+                lineColor: 'text-blue text-opacity-80',
+                areaColor: 'text-blue text-opacity-20',
               }
             }
           }"
-          class="w-full h-36"
+          class="w-full !h-36"
           [data]="tunneldConnectionChart">
         </sfng-netquery-line-chart>
       </div>
@@ -211,7 +211,7 @@
     <spn-map-renderer class="w-full h-full" mapId="dashboard-map"></spn-map-renderer>
   </app-dashboard-widget>
 
-  <app-dashboard-widget class="flex-grow" id="bwvis-bar" [ngStyle]="{minHeight: featureBw ? '400px' : 'unset'}" label="Top 10 Bandwidth Consumers" beta="true">
+  <app-dashboard-widget class="flex-grow" id="bwvis-bar" [ngStyle]="{minHeight: featureBw ? '400px' : 'unset'}" label="Recent Top Consumers" beta="true">
     <sfng-netquery-circular-bar-chart *ngIf="featureBw" class="block w-full h-full" [data]="bandwidthBarData" [config]="bandwidthBarConfig"></sfng-netquery-circular-bar-chart>
 
     <span *ngIf="!featureBw"
@@ -220,7 +220,7 @@
     </span>
   </app-dashboard-widget>
 
-  <app-dashboard-widget class="flex-grow" id="bwvis-line" [ngStyle]="{minHeight: featureBw ? '400px' : 'unset'}" label="Bandwidth Usage" beta="true">
+  <app-dashboard-widget class="flex-grow" id="bwvis-line" [ngStyle]="{minHeight: featureBw ? '400px' : 'unset'}" label="Recent Bandwidth Usage" beta="true">
     <sfng-netquery-line-chart class="block w-full h-full" *ngIf="featureBw" [data]="bandwidthLineChart" [config]="bwChartConfig"></sfng-netquery-line-chart>
 
     <span *ngIf="!featureBw"
