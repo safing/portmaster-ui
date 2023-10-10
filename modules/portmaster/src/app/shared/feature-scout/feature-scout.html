@@ -30,7 +30,7 @@
   <div *ngIf="spnEnabled" class="flex flex-row justify-center w-full gap-2 pt-2">
     <div class="status-info" [routerLink]="['/spn']">
 
-      <span [ngSwitch]="spnStatus?.Status">
+      <span [ngSwitch]="spnStatus?.Status" [sfng-tooltip]="spnStatus?.Status == 'connected' ? spnTooltipTemplate : null">
         <ng-template ngSwitchCase="disabled">
           SPN is connecting...<br>
           Fail-safe blocking enabled
@@ -48,16 +48,12 @@
             class="text-tertiary" class="inline-block -mt-0.5">
             <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-8 3a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"/>
           </svg>
-          <span sfng-tooltip="Home Node">
-            {{ spnStatus?.HomeHubName }}
-          </span>
+          {{ spnStatus?.HomeHubName }}
           <span class="text-tertiary">
             in
           </span>
           <span *ngIf="!!spnStatus?.ConnectedCountry?.Code" [appCountryFlags]="spnStatus!.ConnectedCountry!.Code"></span>
-          <span [sfng-tooltip]="spnTooltipTemplate">
-            {{ spnStatus?.ConnectedCountry?.Name }}
-          </span>
+          {{ spnStatus?.ConnectedCountry?.Name }}
         </ng-template>
       </span>
 
@@ -101,9 +97,10 @@
 </ng-container>
 
 <ng-template #spnTooltipTemplate>
-  Encrypted SPN Uplink:
+  SPN Home (Entry) Node
   <ul class="pl-4 list-disc">
     <li>Connected to {{ spnStatus?.ConnectedIP }}</li>
+    <li>Uplink is always encrypted</li>
     <li>Built with transport/decoy {{ spnStatus?.ConnectedTransport }}</li>
   </ul>
 </ng-template>
