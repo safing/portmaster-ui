@@ -10,7 +10,8 @@
   grid-template-columns: 1fr 1fr 1fr 1fr;
   grid-template-areas:
     "header header header header"
-    "feature feature feature feature"
+    "feature feature news news"
+    "feature feature news news"
     "stats   stats   stats   stats"
     "stats   stats   stats   stats"
     "charts charts charts charts"
@@ -24,7 +25,8 @@
   .dashboard-grid {
     grid-template-areas:
       "header header header header"
-      "feature feature feature feature"
+      "feature feature news news"
+      "feature feature news news"
       "stats   stats   stats   stats"
       "charts charts charts charts"
       "countries countries map map"
@@ -69,6 +71,10 @@
   grid-area: bwvis-line;
 }
 
+#news {
+  grid-area: news;
+}
+
 .auto-grid-3 {
   @apply grid gap-4;
   grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
@@ -93,8 +99,28 @@ app-dashboard-widget {
     @apply grid gap-3 w-full;
     grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
   }
-}
 
+  &#news {
+
+    h1 {
+      @apply text-base;
+      @apply font-light;
+    }
+
+    ::ng-deep markdown {
+      @apply font-light;
+
+      a {
+        @apply underline text-blue;
+      }
+
+      strong {
+        @apply font-medium;
+      }
+    }
+  }
+
+}
 
 ::ng-deep #dashboard-map {
   #world-group {
