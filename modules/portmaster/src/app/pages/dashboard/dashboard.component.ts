@@ -1,16 +1,16 @@
 import { KeyValue } from "@angular/common";
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, DestroyRef, ElementRef, OnInit, QueryList, TrackByFunction, ViewChildren, forwardRef, inject } from "@angular/core";
+import { AfterContentInit, AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, DestroyRef, ElementRef, OnInit, QueryList, TrackByFunction, ViewChild, ViewChildren, forwardRef, inject } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
-import { AppProfileService, BandwidthChartResult, ChartResult, Database, FeatureID, Netquery, SPNService, UserProfile, Verdict } from "@safing/portmaster-api";
-import { SfngDialogService } from "@safing/ui";
-import { Observable, map, repeat } from "rxjs";
+import { AppProfileService, BandwidthChartResult, ChartResult, Database, FeatureID, Netquery, PortapiService, SPNService, UserProfile, Verdict } from "@safing/portmaster-api";
+import { SfngDialogService, SfngTabGroupComponent } from "@safing/ui";
+import { Observable, catchError, filter, interval, map, repeat, retry, startWith, throwError } from "rxjs";
 import { ActionIndicatorService } from 'src/app/shared/action-indicator';
 import { DefaultBandwidthChartConfig, SfngNetqueryLineChartComponent } from "src/app/shared/netquery/line-chart/line-chart";
 import { SPNAccountDetailsComponent } from "src/app/shared/spn-account-details";
 import { MAP_HANDLER, MapRef } from "../spn/map-renderer";
 import { CircularBarChartConfig, splitQueryResult } from "src/app/shared/netquery/circular-bar-chart/circular-bar-chart.component";
 import { BytesPipe } from "src/app/shared/pipes/bytes.pipe";
-import { formatDuration } from "src/app/shared/pipes";
+import { HttpErrorResponse } from "@angular/common/http";
 
 interface BlockedProfile {
   profileID: string;
@@ -26,6 +26,23 @@ interface BandwidthBarData {
   received: number;
 }
 
+interface NewsCard {
+  title: string;
+  body: string;
+  url?: string;
+  footer?: string;
+  progress?: {
+    percent: number;
+    style: string;
+  }
+}
+
+interface News {
+  cards: NewsCard[];
+}
+
+const newsResourceIdentifier = "all/intel/portmaster/news.yaml"
+
 @Component({
   selector: 'app-dashboard',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -35,18 +52,21 @@ interface BandwidthBarData {
     { provide: MAP_HANDLER, useExisting: forwardRef(() => DashboardPageComponent), multi: true },
   ]
 })
-export class DashboardPageComponent implements OnInit {
+export class DashboardPageComponent implements OnInit, AfterViewInit {
   @ViewChildren(SfngNetqueryLineChartComponent)
   lineCharts!: QueryList<SfngNetqueryLineChartComponent>;
 
-  destroyRef = inject(DestroyRef);
-  profileService = inject(AppProfileService);
-  netquery = inject(Netquery);
-  spn = inject(SPNService);
-  actionIndicator = inject(ActionIndicatorService);
-  cdr = inject(ChangeDetectorRef);
-  dialog = inject(SfngDialogService);
-  host = inject(ElementRef);
+  @ViewChild(SfngTabGroupComponent)
+  carouselTabGroup?: SfngTabGroupComponent;
+
+  private readonly destroyRef = inject(DestroyRef);
+  private readonly netquery = inject(Netquery);
+  private readonly spn = inject(SPNService);
+  private readonly actionIndicator = inject(ActionIndicatorService);
+  private readonly cdr = inject(ChangeDetectorRef);
+  private readonly dialog = inject(SfngDialogService);
+  private readonly portapi = inject(PortapiService)
+
   resizeObserver!: ResizeObserver;
 
   blockedProfiles: BlockedProfile[] = []
@@ -131,6 +151,8 @@ export class DashboardPageComponent implements OnInit {
   featureBw = false;
   featureSPN = false;
 
+  hoveredCard: NewsCard | null = null;
+
   features$ = this.spn.watchEnabledFeatures()
     .pipe(takeUntilDestroyed());
 
@@ -138,6 +160,8 @@ export class DashboardPageComponent implements OnInit {
   trackApp: TrackByFunction<BlockedProfile> = (_, bp) => bp.profileID;
 
   data: any;
+
+  news?: News | 'pending' = 'pending';
 
   private mapRef: MapRef | null = null;
 
@@ -164,6 +188,10 @@ export class DashboardPageComponent implements OnInit {
 
   unregisterMap(ref: MapRef): void {
     this.mapRef = null;
+  }
+
+  onCarouselTabHover(card: NewsCard | null) {
+    this.hoveredCard = card;
   }
 
   openAccountDetails() {
@@ -201,7 +229,44 @@ export class DashboardPageComponent implements OnInit {
       });
   }
 
+  ngAfterViewInit(): void {
+    interval(15000)
+      .pipe(
+        takeUntilDestroyed(this.destroyRef),
+        startWith(-1),
+        filter(() => this.hoveredCard === null)
+      )
+      .subscribe(() => {
+        if (!this.carouselTabGroup) {
+          return
+        }
+
+        let next = this.carouselTabGroup.activeTabIndex + 1
+        if (next >= this.carouselTabGroup.tabs!.length) {
+          next = 0
+        }
+
+        this.carouselTabGroup.activateTab(next, "left")
+      })
+  }
+
   async ngOnInit() {
+    this.portapi.getResource(newsResourceIdentifier, "application/json")
+      .pipe(
+        repeat({ delay: 60000 }),
+        takeUntilDestroyed(this.destroyRef)
+      )
+      .subscribe({
+        next: response => {
+          const news: News = JSON.parse(response.body!)
+          this.news = news;
+          this.cdr.markForCheck();
+        },
+        error: () => {
+          this.news = undefined;
+          this.cdr.markForCheck();
+        }
+      })
 
     this.netquery
       .batch({

@@ -2,7 +2,7 @@
   (keydown)="onKeydown($event)">
 
   <!-- Tab Group Header -->
-  <div *ngFor="let tab of tabs; let index=index"
+  <div *ngFor="let tab of (tabs$ | async); let index=index"
     class="flex flex-row items-center justify-center px-4 py-2 space-x-1 cursor-pointer hover:text-primary" #tabHeader
     [ngClass]="{'text-primary': index === activeTabIndex, 'text-secondary': index !== activeTabIndex}"
     (click)="activateTab(index)">

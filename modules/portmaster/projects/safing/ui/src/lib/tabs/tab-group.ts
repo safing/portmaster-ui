@@ -5,7 +5,7 @@ import { AfterContentInit, AfterViewInit, ChangeDetectionStrategy, ChangeDetecto
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { ActivatedRoute, Router } from "@angular/router";
 import { Observable, Subject } from "rxjs";
-import { distinctUntilChanged, map } from "rxjs/operators";
+import { distinctUntilChanged, map, startWith } from "rxjs/operators";
 import { SfngTabComponent, TAB_ANIMATION_DIRECTION, TAB_PORTAL, TAB_SCROLL_HANDLER, TabOutletComponent } from "./tab";
 
 export interface SfngTabContentScrollEvent {
@@ -91,6 +91,15 @@ export class SfngTabGroupComponent implements AfterContentInit, AfterViewInit, O
   private tabActivate$ = new Subject<string>();
   private destroyRef = inject(DestroyRef);
 
+  /** Emits the tab QueryList every time there are changes to the content-children */
+  get tabs$() {
+    return this.tabs?.changes
+      .pipe(
+        map(() => this.tabs),
+        startWith(this.tabs)
+      )
+  }
+
   /** onActivate fires when a tab has been activated. */
   get onActivate(): Observable<string> { return this.tabActivate$.asObservable() }
 
@@ -106,7 +115,7 @@ export class SfngTabGroupComponent implements AfterContentInit, AfterViewInit, O
   /**
    * pendingTabIdx holds the id or the index of a tab that should be activated after the component
    * has been bootstrapped. We need to cache this value here because the ActivatedRoute might emit
-   * before we ar AfterViewInit.
+   * before we are AfterViewInit.
    */
   private pendingTabIdx: string | null = null;
 
@@ -155,6 +164,20 @@ export class SfngTabGroupComponent implements AfterContentInit, AfterViewInit, O
       .withHorizontalOrientation("ltr")
       .withTypeAhead()
       .withWrap()
+
+    this.tabs!.changes
+      .subscribe(() => {
+        if (this.portalOutlet?.hasAttached()) {
+          if (this.tabs!.length === 0) {
+            this.portalOutlet.detach();
+          }
+        } else {
+          if (this.tabs!.length > 0) {
+            this.activateTab(0)
+          }
+        }
+
+      })
 
     this.keymanager.change
       .pipe(takeUntilDestroyed(this.destroyRef))

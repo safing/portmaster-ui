@@ -1,4 +1,4 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders, HttpResponse } from '@angular/common/http';
 import { Inject, Injectable, InjectionToken, isDevMode, NgZone } from '@angular/core';
 import { BehaviorSubject, Observable, Observer, of } from 'rxjs';
 import { concatMap, delay, filter, map, retryWhen, takeWhile, tap } from 'rxjs/operators';
@@ -135,6 +135,28 @@ export class PortapiService {
   /** Cleans up the history database by applying history retention settings */
   cleanupHistory(): Observable<any> {
     return this.http.post(`${this.httpEndpoint}/v1/netquery/history/cleanup`, undefined, { observe: 'response', responseType: 'arraybuffer' })
+  }
+
+  /** Requests a resource from the portmaster as application/json and automatically parses the response body*/
+  getResource<T>(resource: string): Observable<T>;
+
+  /** Requests a resource from the portmaster as text */
+  getResource(resource: string, type: string): Observable<HttpResponse<string>>;
+
+  getResource(resource: string, type?: string): Observable<HttpResponse<string> | any> {
+    if (type !== undefined) {
+      const headers = new HttpHeaders({
+        'Accept': type
+      })
+
+      return this.http.get(`${this.httpEndpoint}/v1/updates/get/${resource}`, {
+        headers: headers,
+        observe: 'response',
+        responseType: 'text',
+      })
+    }
+
+    return this.http.get<any>(`${this.httpEndpoint}/v1/updates/get/${resource}`);
   }
 
   /**

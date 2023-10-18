@@ -30,7 +30,7 @@
   <div *ngIf="spnEnabled" class="flex flex-row justify-center w-full gap-2 pt-2">
     <div class="status-info" [routerLink]="['/spn']">
 
-      <span [ngSwitch]="spnStatus?.Status" [sfng-tooltip]="spnStatus?.Status == 'connected' ? spnTooltipTemplate : null">
+      <span [ngSwitch]="spnStatus?.Status" [sfng-tooltip]="spnStatus?.Status === 'connected' ? spnTooltipTemplate : null">
         <ng-template ngSwitchCase="disabled">
           SPN is connecting...<br>
           Fail-safe blocking enabled
