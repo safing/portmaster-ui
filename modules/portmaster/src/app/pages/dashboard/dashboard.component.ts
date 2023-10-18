@@ -33,7 +33,7 @@ interface NewsCard {
   footer?: string;
   progress?: {
     percent: number;
-    color: string;
+    style: string;
   }
 }
 

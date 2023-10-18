@@ -10,10 +10,10 @@
   grid-template-columns: 1fr 1fr 1fr 1fr;
   grid-template-areas:
     "header header header header"
-    "feature feature news news"
-    "feature feature news news"
-    "stats   stats   stats   stats"
-    "stats   stats   stats   stats"
+    "feature feature feature feature"
+    "feature feature feature feature"
+    "stats stats news news"
+    "stats stats news news"
     "charts charts charts charts"
     "charts charts charts charts"
     "blocked blocked countries countries"
@@ -25,9 +25,10 @@
   .dashboard-grid {
     grid-template-areas:
       "header header header header"
-      "feature feature news news"
-      "feature feature news news"
-      "stats   stats   stats   stats"
+      "feature feature feature news"
+      "feature feature feature news"
+      "stats stats stats news"
+      "stats stats stats news"
       "charts charts charts charts"
       "countries countries map map"
       "blocked blocked map map"
