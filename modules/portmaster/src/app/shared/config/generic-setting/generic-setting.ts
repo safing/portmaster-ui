@@ -74,6 +74,31 @@ export class GenericSettingComponent<S extends BaseSetting<any, any>> implements
     };
   }
 
+  /** Whether or not the setting should be in select mode */
+  @Input()
+  set selectMode(v: any) {
+    this._selectMode = coerceBooleanProperty(v)
+
+    if (!this.selectMode) {
+      this.selected = false;
+      this.selectedChange.next(false);
+    }
+  }
+  get selectMode() { return this._selectMode }
+  private _selectMode = false;
+
+  /** Whether or not the setting has been selected */
+  @Input()
+  set selected(v: any) {
+    this._selected = coerceBooleanProperty(v)
+  }
+  get selected() { return this._selected }
+  private _selected = false;
+
+  /** Emits when the user (de-) selectes the setting. Can be used for two-way binding */
+  @Output()
+  selectedChange = new EventEmitter<boolean>();
+
   /** Controls whether or not header with the setting name and success/failure markers is shown */
   @Input()
   set showHeader(v: any) {

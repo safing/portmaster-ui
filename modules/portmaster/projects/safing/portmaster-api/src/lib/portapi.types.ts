@@ -258,6 +258,12 @@ export interface RetryableOpts {
   maxRetries?: number;
 }
 
+export interface ImportResult {
+  restartRequired: boolean;
+  replacesExisting: boolean;
+  containsUnknown: boolean;
+}
+
 /**
  * Returns a RxJS operator function that implements a retry pipeline
  * with a configurable retry delay and an optional maximum retry count.
