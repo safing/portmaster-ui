@@ -181,7 +181,7 @@ export class ConfigSettingsViewComponent implements OnInit, OnDestroy, AfterView
   }
 
   generateExport() {
-    const selectedKeys = Object.keys(this.selectedSettings)
+    let selectedKeys = Object.keys(this.selectedSettings)
       .reduce((sum, key) => {
         if (this.selectedSettings[key]) {
           sum.push(key)
@@ -191,9 +191,18 @@ export class ConfigSettingsViewComponent implements OnInit, OnDestroy, AfterView
       }, [] as string[])
 
     if (selectedKeys.length === 0) {
-      this.actionIndicator.error('Settings Export', 'No settings have been selected');
-      this.exportMode = false;
-      return
+      selectedKeys = Array.from(this.settings.values())
+        .reduce((sum, current) => {
+          current.forEach(cat => {
+            cat.settings.forEach(s => {
+              if (s.Value !== undefined) {
+                sum.push(s.Key)
+              }
+            })
+          })
+
+          return sum
+        }, [] as string[])
     }
 
     this.portapi.exportSettings(selectedKeys, this.scope)
