@@ -216,7 +216,7 @@
 
     <span *ngIf="!featureBw"
       class="!text-xxs !font-light !text-tertiary !text-opacity-50 w-full text-center !leading-3">
-      Available in<br />Portmaster Plus
+      Available in Portmaster Plus
     </span>
   </app-dashboard-widget>
 
@@ -225,49 +225,46 @@
 
     <span *ngIf="!featureBw"
       class="!text-xxs !font-light !text-tertiary !text-opacity-50 w-full text-center !leading-3">
-      Available in<br />Portmaster Plus
+      Available in Portmaster Plus
     </span>
   </app-dashboard-widget>
 
   <app-dashboard-widget class="flex-grow relative" id="news" label="News">
 
     <div class="flex flex-col items-center justify-center w-full h-full gap-2 font-light" *ngIf="!news">
-      <span>News are only available if intel data updates are enabled</span>
+      <span>News is only available if intel data updates are enabled</span>
       <button [routerLink]="['/settings']" [queryParams]="{setting: 'core/automaticIntelUpdates'}">Open Settings</button>
     </div>
 
     <div class="flex flex-col items-center justify-center w-full h-full gap-2 font-light" *ngIf="news === 'pending'">
-      <span>Just a second, we're loading the latest news</span>
+      <span>Just a second, we're loading the latest news...</span>
     </div>
 
     <ng-container *ngIf="!!news && news !== 'pending'">
       <sfng-tab-group linkRouter="false" [customHeader]="true" #carousel>
         <sfng-tab *ngFor="let card of news?.cards" [id]="card.title" [title]="card.title">
           <section *sfngTabContent class="flex flex-col gap-2 p-2 h-full" (mouseenter)="onCarouselTabHover(card)" (mouseleave)="onCarouselTabHover(null)">
-            <h1 class="flex flex-row justify-between items-center w-full ml-2 mr-2">
-              <span>
+            <a [attr.href]="card.url">
+              <h1 class="flex flex-row gap-2 items-center w-full ml-2 mr-2">
                 {{ card.title }}
-              </span>
-              <a *ngIf="card.url" [attr.href]="card.url" target="_blank" class="bg-gray-400 text-xs rounded text-white hover:text-white py-0.5 px-1 hover:bg-gray-400 hover:bg-opacity-50 ml-2 flex flex-row items-center gap-2">
-                Open
-
-                <svg role="img" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" class="text-white text-opacity-50 w-3 h-3">
+                <svg *ngIf="card.url" role="img" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" class="text-white text-opacity-50 w-3 h-3">
                   <path fill="currentColor" d="M352 0c-12.9 0-24.6 7.8-29.6 19.8s-2.2 25.7 6.9 34.9L370.7 96 201.4 265.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0L416 141.3l41.4 41.4c9.2 9.2 22.9 11.9 34.9 6.9s19.8-16.6 19.8-29.6V32c0-17.7-14.3-32-32-32H352zM80 32C35.8 32 0 67.8 0 112V432c0 44.2 35.8 80 80 80H400c44.2 0 80-35.8 80-80V320c0-17.7-14.3-32-32-32s-32 14.3-32 32V432c0 8.8-7.2 16-16 16H80c-8.8 0-16-7.2-16-16V112c0-8.8 7.2-16 16-16H192c17.7 0 32-14.3 32-32s-14.3-32-32-32H80z"></path>
                 </svg>
-              </a>
-            </h1>
+              </h1>
+            </a>
 
             <markdown class="flex-grow" *ngIf="card.body" emoji [data]="card.body"></markdown>
-            <markdown *ngIf="card.footer" emoji [data]="card.footer"></markdown>
 
             <div *ngIf="card.progress as progress" class="ml-2 mr-2">
-              <div class="overflow-hidden rounded border bg-gray-400 border-gray-100 h-3 w-full relative">
-                <div class="h-full" [style.backgroundColor]="progress.color" [style.width.%]="progress.percent"></div>
+              <div class="overflow-hidden rounded border bg-gray-400 border-gray-100 h-5 w-full relative">
+                <div class="h-full" [style]="progress.style" [style.width.%]="progress.percent"></div>
                 <div class="absolute top-0.5 bottom-0 left-0 right-0 flex flex-row justify-center items-center text-xxs text-background">
                   <span>{{ progress.percent }}%</span>
                 </div>
               </div>
             </div>
+
+            <markdown *ngIf="card.footer" emoji [data]="card.footer" class="!text-secondary"></markdown>
 
           </section>
         </sfng-tab>
