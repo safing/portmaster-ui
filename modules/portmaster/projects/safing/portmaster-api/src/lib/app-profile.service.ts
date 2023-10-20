@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Inject, Injectable } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
-import { filter, finalize, map, share, take } from 'rxjs/operators';
+import { filter, finalize, map, mergeMap, share, take } from 'rxjs/operators';
 import { AppProfile, FlatConfigObject, LayeredProfile, TagDescription, flattenProfileConfig } from './app-profile.types';
 import { PORTMASTER_HTTP_API_ENDPOINT, PortapiService } from './portapi.service';
 
@@ -134,15 +134,17 @@ export class AppProfileService {
       return this.watchedProfiles.get(key)!;
     }
 
-    const stream = this.portapi.watch<AppProfile>(key)
-      .pipe(
-        finalize(() => {
-          console.log("watchAppProfile: removing cached profile stream for " + key)
-          this.watchedProfiles.delete(key);
-        }),
-        share({ connector: () => new BehaviorSubject<AppProfile | null>(null), resetOnRefCountZero: true }),
-        filter(profile => profile !== null),
-      ) as Observable<AppProfile>;
+    const stream =
+      this.portapi.get<AppProfile>(key)
+        .pipe(
+          mergeMap(() => this.portapi.watch<AppProfile>(key)),
+          finalize(() => {
+            console.log("watchAppProfile: removing cached profile stream for " + key)
+            this.watchedProfiles.delete(key);
+          }),
+          share({ connector: () => new BehaviorSubject<AppProfile | null>(null), resetOnRefCountZero: true }),
+          filter(profile => profile !== null),
+        ) as Observable<AppProfile>;
 
     this.watchedProfiles.set(key, stream);
 

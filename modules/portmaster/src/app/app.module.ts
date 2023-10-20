@@ -67,6 +67,7 @@ import { SPNStatusComponent } from './shared/spn-status';
 import { PilotWidgetComponent } from './shared/status-pilot';
 import { PlaceholderComponent } from './shared/text-placeholder';
 import { DashboardWidgetComponent } from './pages/dashboard/dashboard-widget/dashboard-widget.component';
+import { MergeProfileDialogComponent } from './pages/app-view/merge-profile-dialog/merge-profile-dialog.component';
 
 function loadAndSetLocaleInitializer(configService: ConfigService) {
   return async function () {
@@ -155,7 +156,8 @@ const localeConfig = {
     QsHistoryComponent,
     DashboardPageComponent,
     DashboardWidgetComponent,
-    FeatureCardComponent
+    FeatureCardComponent,
+    MergeProfileDialogComponent
   ],
   imports: [
     BrowserModule,

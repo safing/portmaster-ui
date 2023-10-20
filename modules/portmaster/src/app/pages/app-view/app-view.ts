@@ -3,8 +3,8 @@ import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { ActivatedRoute, Router } from '@angular/router';
 import { AppProfile, AppProfileService, BandwidthChartResult, ChartResult, Condition, ConfigService, Database, DebugAPI, ExpertiseLevel, FeatureID, FlatConfigObject, IProfileStats, LayeredProfile, Netquery, ProfileBandwidthChartResult, SPNService, Setting, flattenProfileConfig, setAppSetting } from '@safing/portmaster-api';
 import { SfngDialogService } from '@safing/ui';
-import { BehaviorSubject, Observable, Subscription, combineLatest, interval, of } from 'rxjs';
-import { distinctUntilChanged, map, mergeMap, startWith, switchMap } from 'rxjs/operators';
+import { BehaviorSubject, Observable, Subscription, combineLatest, interval, of, throwError } from 'rxjs';
+import { catchError, distinctUntilChanged, map, mergeMap, startWith, switchMap } from 'rxjs/operators';
 import { SessionDataService } from 'src/app/services';
 import { ActionIndicatorService } from 'src/app/shared/action-indicator';
 import { fadeInAnimation, fadeOutAnimation } from 'src/app/shared/animations';
@@ -272,19 +272,35 @@ export class AppViewComponent implements OnInit, OnDestroy {
             // Start watching the application profile.
             // switchMap will unsubscribe automatically if
             // we start watching a different profile.
-            return combineLatest([
-              this.profileService.watchAppProfile(source, id),
-              this.profileService.watchLayeredProfile(source, id)
-                .pipe(startWith(null)),
-              interval(10000)
-                .pipe(
-                  startWith(-1),
-                  mergeMap(() => this.netquery.getProfileStats({
-                    profile: `${source}/${id}`,
-                  }).pipe(map(result => result?.[0]))),
-                  startWith(null),
-                )
-            ])
+            return this.profileService.getAppProfile(source, id)
+              .pipe(
+                catchError(err => {
+                  if (typeof err === 'string') {
+                    err = new Error(err)
+                  }
+
+                  this.router.navigate(['/app/overview'], { onSameUrlNavigation: 'reload' })
+
+                  this.actionIndicator.error('Failed To Get Profile', this.actionIndicator.getErrorMessgae(err))
+
+                  return throwError(() => err)
+                }),
+                mergeMap(() => {
+                  return combineLatest([
+                    this.profileService.watchAppProfile(source, id),
+                    this.profileService.watchLayeredProfile(source, id)
+                      .pipe(startWith(null)),
+                    interval(10000)
+                      .pipe(
+                        startWith(-1),
+                        mergeMap(() => this.netquery.getProfileStats({
+                          profile: `${source}/${id}`,
+                        }).pipe(map(result => result?.[0]))),
+                        startWith(null),
+                      )
+                  ])
+                })
+              )
           })
         );
 

@@ -196,6 +196,17 @@ export class PortapiService {
     })
   }
 
+  /** Merge multiple profiles into one primary profile. */
+  mergeProfiles(name: string, primary: string, secondaries: string[]): Observable<string> {
+    return this.http.post<{ new: string }>(`${this.httpEndpoint}/v1/profile/merge`, {
+      name: name,
+      to: primary,
+      from: secondaries,
+    }).pipe(
+      map(response => response.new)
+    )
+  }
+
   /**
    * Injects an event into a module to trigger certain backend
    * behavior.
