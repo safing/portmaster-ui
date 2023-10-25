@@ -1,7 +1,7 @@
 import { coerceBooleanProperty } from '@angular/cdk/coercion';
 import { ScrollDispatcher } from '@angular/cdk/overlay';
 import { AfterViewInit, ChangeDetectorRef, Component, ElementRef, EventEmitter, Input, OnDestroy, OnInit, Output, QueryList, TrackByFunction, ViewChildren } from '@angular/core';
-import { ConfigService, ExpertiseLevelNumber, Setting, StringSetting, releaseLevelFromName } from '@safing/portmaster-api';
+import { ConfigService, ExpertiseLevelNumber, PortapiService, Setting, StringSetting, releaseLevelFromName } from '@safing/portmaster-api';
 import { BehaviorSubject, Subscription, combineLatest } from 'rxjs';
 import { debounceTime } from 'rxjs/operators';
 import { StatusService, Subsystem } from 'src/app/services';
@@ -9,6 +9,10 @@ import { fadeInAnimation, fadeInListAnimation, fadeOutAnimation } from 'src/app/
 import { FuzzySearchService } from 'src/app/shared/fuzzySearch';
 import { ExpertiseLevelOverwrite } from '../expertise/expertise-directive';
 import { SaveSettingEvent } from './generic-setting/generic-setting';
+import { ActionIndicatorService } from '../action-indicator';
+import { SfngDialogService } from '@safing/ui';
+import { SettingsExportDialogComponent } from './export-dialog/export-dialog.component';
+import { SettingsImportDialogComponent } from './import-dialog/import-dialog.component';
 
 interface Category {
   name: string;
@@ -34,6 +38,12 @@ export class ConfigSettingsViewComponent implements OnInit, OnDestroy, AfterView
   subsystems: SubsystemWithExpertise[] = [];
   others: Setting[] | null = null
   settings: Map<string, Category[]> = new Map();
+
+  /** A list of all selected settings for export */
+  selectedSettings: { [key: string]: boolean } = {};
+
+  /** Whether or not we are currently in "export" mode */
+  exportMode = false;
 
   activeSection = '';
   activeCategory = '';
@@ -76,6 +86,13 @@ export class ConfigSettingsViewComponent implements OnInit, OnDestroy, AfterView
   set availableSettings(v: Setting[]) {
     this.onSettingsChange.next(v);
   }
+
+  @Input()
+  set scope(scope: 'global' | string) {
+    this._scope = scope;
+  }
+  get scope() { return this._scope }
+  private _scope: 'global' | string = 'global';
 
   @Input()
   displayStackable: string | boolean = false;
@@ -142,7 +159,69 @@ export class ConfigSettingsViewComponent implements OnInit, OnDestroy, AfterView
     private changeDetectorRef: ChangeDetectorRef,
     private scrollDispatcher: ScrollDispatcher,
     private searchService: FuzzySearchService,
+    private actionIndicator: ActionIndicatorService,
+    private portapi: PortapiService,
+    private dialog: SfngDialogService
   ) { }
+
+  openImportDialog() {
+    this.dialog.create(SettingsImportDialogComponent, {
+      data: this.scope,
+      autoclose: false,
+      backdrop: 'light',
+    })
+  }
+
+  toggleExportMode() {
+    this.exportMode = !this.exportMode;
+
+    if (this.exportMode) {
+      this.actionIndicator.info('Settings Export', 'Please select all setttings you want to export and press "Save" to generate the export. Note that settings with system defaults cannot be exported and are hidden.')
+    }
+  }
+
+  generateExport() {
+    let selectedKeys = Object.keys(this.selectedSettings)
+      .reduce((sum, key) => {
+        if (this.selectedSettings[key]) {
+          sum.push(key)
+        }
+
+        return sum
+      }, [] as string[])
+
+    if (selectedKeys.length === 0) {
+      selectedKeys = Array.from(this.settings.values())
+        .reduce((sum, current) => {
+          current.forEach(cat => {
+            cat.settings.forEach(s => {
+              if (s.Value !== undefined) {
+                sum.push(s.Key)
+              }
+            })
+          })
+
+          return sum
+        }, [] as string[])
+    }
+
+    this.portapi.exportSettings(selectedKeys, this.scope)
+      .subscribe({
+        next: exportBlob => {
+          this.dialog.create(SettingsExportDialogComponent, {
+            data: exportBlob,
+            backdrop: 'light',
+            autoclose: true,
+          })
+
+          this.exportMode = false;
+        },
+        error: err => {
+          const msg = this.actionIndicator.getErrorMessgae(err)
+          this.actionIndicator.error('Failed To Generate Export', msg)
+        }
+      })
+  }
 
   saveSetting(event: SaveSettingEvent, s: Setting) {
     this.save.next(event);

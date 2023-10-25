@@ -1,7 +1,7 @@
 import { HttpClient, HttpParams, HttpResponse } from "@angular/common/http";
 import { Inject, Injectable } from "@angular/core";
 import { Observable, forkJoin, of } from "rxjs";
-import { map, mergeMap } from "rxjs/operators";
+import { catchError, map, mergeMap } from "rxjs/operators";
 import { AppProfileService } from "./app-profile.service";
 import { AppProfile } from "./app-profile.types";
 import { DNSContext, IPScope, Reason, TLSContext, TunnelContext, Verdict } from "./network.types";
@@ -438,7 +438,7 @@ export class Netquery {
         const getOrCreate = (id: string) => {
           let stats = statsMap.get(id) || {
             ID: id,
-            Name: 'TODO',
+            Name: 'Deleted',
             countAliveConnections: 0,
             countAllowed: 0,
             countUnpermitted: 0,
@@ -507,24 +507,32 @@ export class Netquery {
             return of(profileCache.get(p.ID)!);
           }
           return this.profileService.getAppProfile(p.ID)
+            .pipe(catchError(err => {
+              return of(null)
+            }))
         }))
           .pipe(
-            map(profiles => {
+            map((profiles: (AppProfile | null)[]) => {
               profileCache = new Map();
 
               let lm = new Map<string, IProfileStats>();
               stats.forEach(stat => lm.set(stat.ID, stat));
 
-              profiles.forEach(p => {
-                profileCache.set(`${p.Source}/${p.ID}`, p)
+              profiles
+                .forEach(p => {
+                  if (!p) {
+                    return
+                  }
 
-                let stat = lm.get(`${p.Source}/${p.ID}`)
-                if (!stat) {
-                  return;
-                }
+                  profileCache.set(`${p.Source}/${p.ID}`, p)
 
-                stat.Name = p.Name
-              })
+                  let stat = lm.get(`${p.Source}/${p.ID}`)
+                  if (!stat) {
+                    return;
+                  }
+
+                  stat.Name = p.Name
+                })
 
               return Array.from(lm.values())
             })

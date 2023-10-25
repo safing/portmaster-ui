@@ -3,7 +3,7 @@ import { Inject, Injectable, InjectionToken, isDevMode, NgZone } from '@angular/
 import { BehaviorSubject, Observable, Observer, of } from 'rxjs';
 import { concatMap, delay, filter, map, retryWhen, takeWhile, tap } from 'rxjs/operators';
 import { WebSocketSubject } from 'rxjs/webSocket';
-import { DataReply, deserializeMessage, DoneReply, InspectedActiveRequest, isCancellable, isDataReply, Record, ReplyMessage, Requestable, RequestMessage, RequestType, RetryableOpts, retryPipeline, serializeMessage, WatchOpts } from './portapi.types';
+import { DataReply, deserializeMessage, DoneReply, ImportResult, InspectedActiveRequest, isCancellable, isDataReply, Record, ReplyMessage, Requestable, RequestMessage, RequestType, RetryableOpts, retryPipeline, serializeMessage, WatchOpts } from './portapi.types';
 import { WebsocketService } from './websocket.service';
 
 export const PORTMASTER_WS_API_ENDPOINT = new InjectionToken<string>('PortmasterWebsocketEndpoint');
@@ -150,13 +150,61 @@ export class PortapiService {
       })
 
       return this.http.get(`${this.httpEndpoint}/v1/updates/get/${resource}`, {
-        headers: headers,
+        headers: new HttpHeaders({ 'Accept': type }),
         observe: 'response',
         responseType: 'text',
       })
     }
 
-    return this.http.get<any>(`${this.httpEndpoint}/v1/updates/get/${resource}`);
+    return this.http.get<any>(`${this.httpEndpoint}/v1/updates/get/${resource}`, {
+      headers: new HttpHeaders({ 'Accept': 'application/json' }),
+      responseType: 'json',
+    });
+  }
+
+  /** Export one or more settings, either from global settings or a specific profile */
+  exportSettings(keys: string[], from: 'global' | string = 'global'): Observable<string> {
+    return this.http.post(`${this.httpEndpoint}/v1/sync/settings/export`, {
+      from,
+      keys,
+    }, {
+      headers: new HttpHeaders({ 'Accept': 'text/yaml' }),
+      responseType: 'text',
+      observe: 'body',
+    })
+  }
+
+  /** Validate a settings import for a given target */
+  validateSettingsImport(blob: string | Blob, target: string | 'global' = 'global', mimeType: string = 'text/yaml'): Observable<ImportResult> {
+    return this.http.post<ImportResult>(`${this.httpEndpoint}/v1/sync/settings/import`, {
+      target,
+      rawExport: blob.toString(),
+      rawMime: mimeType,
+      validateOnly: true
+    })
+  }
+
+  /** Import settings into a given target */
+  importSettings(blob: string | Blob, target: string | 'global' = 'global', mimeType: string = 'text/yaml', reset = false, allowUnknown = false): Observable<ImportResult> {
+    return this.http.post<ImportResult>(`${this.httpEndpoint}/v1/sync/settings/import`, {
+      target,
+      rawExport: blob.toString(),
+      rawMime: mimeType,
+      validateOnly: false,
+      reset,
+      allowUnknown,
+    })
+  }
+
+  /** Merge multiple profiles into one primary profile. */
+  mergeProfiles(name: string, primary: string, secondaries: string[]): Observable<string> {
+    return this.http.post<{ new: string }>(`${this.httpEndpoint}/v1/profile/merge`, {
+      name: name,
+      to: primary,
+      from: secondaries,
+    }).pipe(
+      map(response => response.new)
+    )
   }
 
   /**

@@ -29,7 +29,18 @@
     <li *ngIf="!!others" (click)="scrollTo('config:other')" [class.active]="activeSection === 'config:other'">
       Other
     </li>
+
+    <li class="mt-3" *ngIf="!exportMode">
+      <button class="bg-blue text-white w-full" (click)="openImportDialog()">Import</button>
+    </li>
+    <li *ngIf="exportMode" class="mt-3">
+      <button class="bg-blue text-white w-full" (click)="generateExport()">Save</button>
+    </li>
+    <li>
+      <button [ngClass]="{'bg-blue': !exportMode, 'bg-gray-400': exportMode}" class="text-white w-full" (click)="toggleExportMode()">{{ !exportMode ? 'Export' : 'Abort Export' }}</button>
+    </li>
   </ul>
+
 </div>
 
 <div class="flex justify-center flex-grow px-0 pb-24 pr-4 overflow-auto whitespace-normal" cdkScrollable>
@@ -69,7 +80,7 @@
 
                   <app-generic-setting [class.highlighted]="highlightKey === setting.Key" [setting]="setting"
                     [attr.id]="setting.Key" [resetLabelText]="resetLabelText" (save)="saveSetting($event, setting)"
-                    [lockDefaults]="lockDefaults" [displayStackable]="displayStackable">
+                    [lockDefaults]="lockDefaults" [displayStackable]="displayStackable" [selectMode]="exportMode" [(selected)]="selectedSettings[setting.Key]">
                   </app-generic-setting>
 
                 </div>
@@ -88,7 +99,7 @@
         <ng-container *ngFor="let setting of others; trackBy: configService.trackBy">
           <app-generic-setting *appExpertiseLevel="setting.ExpertiseLevel; data: setting; overwrite: mustShowSetting"
             [setting]="setting" [resetLabelText]="resetLabelText" (save)="saveSetting($event, setting)"
-            [lockDefaults]="lockDefaults" [displayStackable]="displayStackable">
+            [lockDefaults]="lockDefaults" [displayStackable]="displayStackable" [selectMode]="exportMode" [(selected)]="selectedSettings[setting.Key]">
           </app-generic-setting>
         </ng-container>
       </div>

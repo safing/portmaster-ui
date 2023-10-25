@@ -193,7 +193,7 @@
         <ng-container *ngIf="settings.length > 0; else: noSettingsTemplate">
           <app-settings-view [searchTerm]="searchTerm" [availableSettings]="settings" compactView="true"
             [highlightKey]="highlightSettingKey" userSettingsMarker="true" (save)="saveSetting($event)"
-            resetLabelText="Use global setting" lockDefaults="true" displayStackable="true">
+            resetLabelText="Use global setting" lockDefaults="true" displayStackable="true" [scope]="appProfile.Source + '/' + appProfile.ID">
           </app-settings-view>
         </ng-container>
 

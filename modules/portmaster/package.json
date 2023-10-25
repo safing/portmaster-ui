@@ -40,6 +40,7 @@
     "ng-zorro-antd": "^16.1.0",
     "ngx-markdown": "^16.0.0",
     "postcss": "^8.4.23",
+    "prismjs": "^1.29.0",
     "psl": "^1.9.0",
     "rxjs": "~7.8.1",
     "topojson-client": "^3.1.0",

@@ -19,6 +19,8 @@ import { RuleListItemComponent } from "./rule-list/list-item";
 import { RuleListComponent } from "./rule-list/rule-list";
 import { SafePipe } from "./safe.pipe";
 import { SecuritySettingComponent } from "./security-setting/security-setting";
+import { SettingsExportDialogComponent } from "./export-dialog/export-dialog.component";
+import { SettingsImportDialogComponent } from "./import-dialog/import-dialog.component";
 
 @NgModule({
   imports: [
@@ -36,6 +38,7 @@ import { SecuritySettingComponent } from "./security-setting/security-setting";
     RouterModule,
     ExpertiseModule,
     SfngToggleSwitchModule,
+    MarkdownModule
   ],
   declarations: [
     BasicSettingComponent,
@@ -48,6 +51,8 @@ import { SecuritySettingComponent } from "./security-setting/security-setting";
     ConfigSettingsViewComponent,
     GenericSettingComponent,
     SafePipe,
+    SettingsExportDialogComponent,
+    SettingsImportDialogComponent
   ],
   exports: [
     BasicSettingComponent,
