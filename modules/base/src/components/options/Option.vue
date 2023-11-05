@@ -191,7 +191,7 @@
           Services that trick humans into thinking the service is genuine, while it is not. There is no malware
           involved.<br />
           <span style="margin-left: 20px;"></span><strong>PHISH</strong>: Phishing<br />
-          <span style="margin-left: 20px;"></span>Services that engage in password fishing.<br />
+          <span style="margin-left: 20px;"></span>Services that engage in password phishing.<br />
           <span style="margin-left: 20px;"></span><strong>FAKEN</strong>: Fake News<br />
           <span style="margin-left: 20px;"></span>Services that deliberately provide wrong information.<br />
           <span style="margin-left: 20px;"></span><strong>FRAUD</strong>: Fraud<br />
