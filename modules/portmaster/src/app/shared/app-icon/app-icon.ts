@@ -59,7 +59,16 @@ export class AppIconComponent implements OnDestroy {
 
   /** The profile for which to show the app-icon */
   @Input()
-  set profile(p: IDandName | null | undefined) {
+  set profile(p: IDandName | null | undefined | string) {
+    if (typeof p === 'string') {
+      const parts = p.split("/")
+      p = {
+        Source: parts[0],
+        ID: parts[1],
+        Name: '',
+      }
+    }
+
     if (!!this._profile && !!p && this._profile.ID === p.ID) {
       // skip if this is the same profile
       return;
@@ -68,7 +77,7 @@ export class AppIconComponent implements OnDestroy {
     this._profile = p || null;
     this.updateView();
   }
-  get profile() {
+  get profile(): IDandName | null | undefined {
     return this._profile;
   }
   private _profile: IDandName | null = null;
@@ -94,10 +103,10 @@ export class AppIconComponent implements OnDestroy {
     @SkipSelf() private parentCdr: ChangeDetectorRef,
     private sanitzier: DomSanitizer,
     @Inject(PORTMASTER_HTTP_API_ENDPOINT) private httpAPI: string
-  ) {}
+  ) { }
 
   /** Updates the view of the app-icon and tries to find the actual application icon */
-  private updateView() {
+  private updateView(skipIcon = false) {
     const p = this.profile;
     const sourceAndId = this.getIDAndSource();
 
@@ -110,23 +119,7 @@ export class AppIconComponent implements OnDestroy {
       const combinedID = `${sourceAndId[0]}/${sourceAndId[1]}`;
       this.isIgnoredProfile = profilesToIgnore.includes(combinedID);
 
-      if (p.Name !== '') {
-        if (p.Name[0] === '<') {
-          // we might get the name with search-highlighting which
-          // will then include <em> tags. If the first character is a <
-          // make sure to strip all HTML tags before getting [0].
-          this.letter = p.Name.replace(
-            /(&nbsp;|<([^>]+)>)/gi,
-            ''
-          )[0].toLocaleUpperCase();
-        } else {
-          this.letter = p.Name[0];
-        }
-
-        this.letter = this.letter.toLocaleUpperCase();
-      } else {
-        this.letter = '?';
-      }
+      this.updateLetter(p);
 
       if (!this.isIgnoredProfile) {
         this.color = AppColors[idx % AppColors.length];
@@ -134,7 +127,10 @@ export class AppIconComponent implements OnDestroy {
         this.color = 'transparent';
       }
 
-      this.tryGetSystemIcon(p);
+      if (!skipIcon) {
+        this.tryGetSystemIcon(p);
+      }
+
     } else {
       this.isIgnoredProfile = false;
       this.color = 'var(--text-tertiary)';
@@ -142,6 +138,26 @@ export class AppIconComponent implements OnDestroy {
 
     this.changeDetectorRef.markForCheck();
     this.parentCdr.markForCheck();
+  }
+
+  private updateLetter(p: IDandName) {
+    if (p.Name !== '') {
+      if (p.Name[0] === '<') {
+        // we might get the name with search-highlighting which
+        // will then include <em> tags. If the first character is a <
+        // make sure to strip all HTML tags before getting [0].
+        this.letter = p.Name.replace(
+          /(&nbsp;|<([^>]+)>)/gi,
+          ''
+        )[0].toLocaleUpperCase();
+      } else {
+        this.letter = p.Name[0];
+      }
+
+      this.letter = this.letter.toLocaleUpperCase();
+    } else {
+      this.letter = '?';
+    }
   }
 
   getIDAndSource(): [string, string] | null {
@@ -186,6 +202,8 @@ export class AppIconComponent implements OnDestroy {
       .watchAppProfile(sourceAndId[0], sourceAndId[1])
       .pipe(
         switchMap((profile) => {
+          this.updateLetter(profile);
+
           if (!!profile.Icons?.length) {
             const firstIcon = profile.Icons[0];
 

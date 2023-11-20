@@ -6,7 +6,7 @@ import {
   ViewChild,
   inject,
 } from '@angular/core';
-import { ImportResult, PortapiService } from '@safing/portmaster-api';
+import { ImportResult, PortapiService, ProfileImportResult } from '@safing/portmaster-api';
 import { SFNG_DIALOG_REF, SfngDialogRef } from '@safing/ui';
 import { ActionIndicatorService } from '../../action-indicator';
 import { getSelectionOffset, setSelectionOffset } from './selection';
@@ -46,11 +46,23 @@ export class ImportDialogComponent {
   @ViewChild('codeBlock', { static: true, read: ElementRef })
   codeBlockElement!: ElementRef<HTMLElement>;
 
-  result: ImportResult | null = null;
+  result: ImportResult | ProfileImportResult | null = null;
   reset = false;
   allowUnknown = false;
   triggerRestart = false;
   allowReplace = false;
+
+  get replacedProfiles() {
+    if (this.result === null) {
+      return []
+    }
+
+    if ('replacesProfiles' in this.result) {
+      return this.result.replacesProfiles || [];
+    }
+
+    return [];
+  }
 
   errorMessage: string = '';
 

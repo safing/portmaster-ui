@@ -19,14 +19,14 @@ if (typeof (CSS as any)['registerProperty'] === 'function') {
 
 function handleExternalResources(e: Event) {
   // get click target
-  var target: HTMLElement | null = e.target as HTMLElement;
+  let target: HTMLElement | null = e.target as HTMLElement;
   // traverse until we reach an a tag
   while (!!target && target.tagName !== "A") {
     target = target.parentElement;
   }
 
   if (!!target && !!window.app) {
-    var href = target.getAttribute("href");
+    let href = target.getAttribute("href");
     if (href?.startsWith("blob")) {
       return
     }

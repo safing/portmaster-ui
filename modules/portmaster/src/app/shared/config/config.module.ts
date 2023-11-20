@@ -29,6 +29,7 @@ import { SafePipe } from './safe.pipe';
 import { SecuritySettingComponent } from './security-setting/security-setting';
 import { ExportDialogComponent } from './export-dialog/export-dialog.component';
 import { ImportDialogComponent } from './import-dialog/import-dialog.component';
+import { SfngAppIconModule } from '../app-icon';
 
 @NgModule({
   imports: [
@@ -47,6 +48,7 @@ import { ImportDialogComponent } from './import-dialog/import-dialog.component';
     ExpertiseModule,
     SfngToggleSwitchModule,
     MarkdownModule,
+    SfngAppIconModule
   ],
   declarations: [
     BasicSettingComponent,
@@ -75,4 +77,4 @@ import { ImportDialogComponent } from './import-dialog/import-dialog.component';
     SafePipe,
   ],
 })
-export class ConfigModule {}
+export class ConfigModule { }

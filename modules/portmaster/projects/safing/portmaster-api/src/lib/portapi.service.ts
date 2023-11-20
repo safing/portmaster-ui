@@ -25,6 +25,7 @@ import {
   InspectedActiveRequest,
   isCancellable,
   isDataReply,
+  ProfileImportResult,
   Record,
   ReplyMessage,
   Requestable,
@@ -305,7 +306,7 @@ export class PortapiService {
     allowUnknown = false,
     allowReplaceProfiles = false
   ): Observable<ImportResult> {
-    return this.http.post<ImportResult>(
+    return this.http.post<ProfileImportResult>(
       `${this.httpEndpoint}/v1/sync/profile/import`,
       {
         rawExport: blob.toString(),
@@ -323,7 +324,7 @@ export class PortapiService {
     blob: string | Blob,
     mimeType: string = 'text/yaml'
   ): Observable<ImportResult> {
-    return this.http.post<ImportResult>(
+    return this.http.post<ProfileImportResult>(
       `${this.httpEndpoint}/v1/sync/profile/import`,
       {
         rawExport: blob.toString(),
@@ -375,7 +376,7 @@ export class PortapiService {
   bridgeAPI(call: string, method: string): Observable<void> {
     return this.create(`api:${call}`, {
       Method: method,
-    }).pipe(map(() => {}));
+    }).pipe(map(() => { }));
   }
 
   /**
@@ -481,7 +482,7 @@ export class PortapiService {
    */
   create(key: string, data: any): Observable<void> {
     data = this.stripMeta(data);
-    return this.request('create', { key, data }).pipe(map(() => {}));
+    return this.request('create', { key, data }).pipe(map(() => { }));
   }
 
   /**
@@ -492,7 +493,7 @@ export class PortapiService {
    */
   update(key: string, data: any): Observable<void> {
     data = this.stripMeta(data);
-    return this.request('update', { key, data }).pipe(map(() => {}));
+    return this.request('update', { key, data }).pipe(map(() => { }));
   }
 
   /**
@@ -504,7 +505,7 @@ export class PortapiService {
    */
   insert(key: string, data: any): Observable<void> {
     data = this.stripMeta(data);
-    return this.request('insert', { key, data }).pipe(map(() => {}));
+    return this.request('insert', { key, data }).pipe(map(() => { }));
   }
 
   /**
@@ -513,7 +514,7 @@ export class PortapiService {
    * @param key The key of the database entry to delete.
    */
   delete(key: string): Observable<void> {
-    return this.request('delete', { key }).pipe(map(() => {}));
+    return this.request('delete', { key }).pipe(map(() => { }));
   }
 
   /**
@@ -723,7 +724,7 @@ export class PortapiService {
         // methods. This also includes updates to subscriptions.
         stream$ = stream$.pipe(
           tap(
-            (msg) => {},
+            (msg) => { },
             //msg => console.log(`[portapi] reply for ${method} ${id}: `, msg),
             (err) => console.error(`[portapi] error in ${method} ${id}: `, err)
           )
@@ -860,7 +861,7 @@ export class PortapiService {
               this.ws$!.next(cancelMsg);
             }
           }
-        } catch (err) {}
+        } catch (err) { }
 
         this._pendingCalls$.delete(req.id);
         this._streams$.delete(req.id);
