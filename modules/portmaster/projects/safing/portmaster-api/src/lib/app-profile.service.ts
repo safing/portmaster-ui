@@ -1,12 +1,21 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Inject, Injectable } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { filter, finalize, map, mergeMap, share, take } from 'rxjs/operators';
-import { AppProfile, FlatConfigObject, LayeredProfile, TagDescription, flattenProfileConfig } from './app-profile.types';
-import { PORTMASTER_HTTP_API_ENDPOINT, PortapiService } from './portapi.service';
+import {
+  AppProfile,
+  FlatConfigObject,
+  LayeredProfile,
+  TagDescription,
+  flattenProfileConfig,
+} from './app-profile.types';
+import {
+  PORTMASTER_HTTP_API_ENDPOINT,
+  PortapiService,
+} from './portapi.service';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class AppProfileService {
   private watchedProfiles = new Map<string, Observable<AppProfile>>();
@@ -14,8 +23,8 @@ export class AppProfileService {
   constructor(
     private portapi: PortapiService,
     private http: HttpClient,
-    @Inject(PORTMASTER_HTTP_API_ENDPOINT) private httpAPI: string,
-  ) { }
+    @Inject(PORTMASTER_HTTP_API_ENDPOINT) private httpAPI: string
+  ) {}
 
   /**
    * Returns the database key of a profile.
@@ -41,7 +50,7 @@ export class AppProfileService {
 
     if (!!id) {
       key = `core:profiles/${idOrSourceOrProfile}/${id}`;
-    };
+    }
 
     return key;
   }
@@ -61,21 +70,36 @@ export class AppProfileService {
    */
   getAppProfile(source: string, id: string): Observable<AppProfile>;
 
-  getAppProfile(sourceOrSourceAndID: string, id?: string): Observable<AppProfile> {
+  getAppProfile(
+    sourceOrSourceAndID: string,
+    id?: string
+  ): Observable<AppProfile> {
     let source = sourceOrSourceAndID;
     if (id !== undefined) {
-      source += "/" + id
+      source += '/' + id;
     }
-    const key = `core:profiles/${source}`
+    const key = `core:profiles/${source}`;
 
     if (this.watchedProfiles.has(key)) {
-      return this.watchedProfiles.get(key)!
-        .pipe(
-          take(1)
-        )
+      return this.watchedProfiles.get(key)!.pipe(take(1));
     }
 
     return this.getAppProfileFromKey(key);
+  }
+
+  setProfileIcon(
+    content: string | ArrayBuffer,
+    mimeType: string
+  ): Observable<{ filename: string }> {
+    return this.http.post<{ filename: string }>(
+      `${this.httpAPI}/v1/profile/icon`,
+      content,
+      {
+        headers: new HttpHeaders({
+          'Content-Type': mimeType,
+        }),
+      }
+    );
   }
 
   /**
@@ -84,23 +108,23 @@ export class AppProfileService {
    * @param key The key of the application profile.
    */
   getAppProfileFromKey(key: string): Observable<AppProfile> {
-    return this.portapi.get(key)
+    return this.portapi.get(key);
   }
 
   /**
    * Loads the global-configuration profile.
    */
   globalConfig(): Observable<FlatConfigObject> {
-    return this.getAppProfile('special', 'global-config')
-      .pipe(
-        map(profile => flattenProfileConfig(profile.Config)),
-      )
+    return this.getAppProfile('special', 'global-config').pipe(
+      map((profile) => flattenProfileConfig(profile.Config))
+    );
   }
 
   /** Returns all possible process tags. */
   tagDescriptions(): Observable<TagDescription[]> {
-    return this.http.get<{ Tags: TagDescription[] }>(`${this.httpAPI}/v1/process/tags`)
-      .pipe(map(result => result.Tags))
+    return this.http
+      .get<{ Tags: TagDescription[] }>(`${this.httpAPI}/v1/process/tags`)
+      .pipe(map((result) => result.Tags));
   }
 
   /**
@@ -122,9 +146,9 @@ export class AppProfileService {
     let key = '';
 
     if (id === undefined) {
-      key = sourceAndId
-      if (!key.startsWith("core:profiles/")) {
-        key = `core:profiles/${key}`
+      key = sourceAndId;
+      if (!key.startsWith('core:profiles/')) {
+        key = `core:profiles/${key}`;
       }
     } else {
       key = `core:profiles/${sourceAndId}/${id}`;
@@ -134,17 +158,20 @@ export class AppProfileService {
       return this.watchedProfiles.get(key)!;
     }
 
-    const stream =
-      this.portapi.get<AppProfile>(key)
-        .pipe(
-          mergeMap(() => this.portapi.watch<AppProfile>(key)),
-          finalize(() => {
-            console.log("watchAppProfile: removing cached profile stream for " + key)
-            this.watchedProfiles.delete(key);
-          }),
-          share({ connector: () => new BehaviorSubject<AppProfile | null>(null), resetOnRefCountZero: true }),
-          filter(profile => profile !== null),
-        ) as Observable<AppProfile>;
+    const stream = this.portapi.get<AppProfile>(key).pipe(
+      mergeMap(() => this.portapi.watch<AppProfile>(key)),
+      finalize(() => {
+        console.log(
+          'watchAppProfile: removing cached profile stream for ' + key
+        );
+        this.watchedProfiles.delete(key);
+      }),
+      share({
+        connector: () => new BehaviorSubject<AppProfile | null>(null),
+        resetOnRefCountZero: true,
+      }),
+      filter((profile) => profile !== null)
+    ) as Observable<AppProfile>;
 
     this.watchedProfiles.set(key, stream);
 
@@ -162,15 +189,18 @@ export class AppProfileService {
    * @param profile The profile to save
    */
   saveProfile(profile: AppProfile): Observable<void> {
-    profile.LastEdited = Math.floor((new Date()).getTime() / 1000);
-    return this.portapi.update(`core:profiles/${profile.Source}/${profile.ID}`, profile);
+    profile.LastEdited = Math.floor(new Date().getTime() / 1000);
+    return this.portapi.update(
+      `core:profiles/${profile.Source}/${profile.ID}`,
+      profile
+    );
   }
 
   /**
    * Watch all application profiles
    */
   watchProfiles(): Observable<AppProfile[]> {
-    return this.portapi.watchAll<AppProfile>('core:profiles/')
+    return this.portapi.watchAll<AppProfile>('core:profiles/');
   }
 
   watchLayeredProfile(source: string, id: string): Observable<LayeredProfile>;
@@ -183,8 +213,11 @@ export class AppProfileService {
    */
   watchLayeredProfile(profile: AppProfile): Observable<LayeredProfile>;
 
-  watchLayeredProfile(profileOrSource: string | AppProfile, id?: string): Observable<LayeredProfile> {
-    if (typeof profileOrSource == "object") {
+  watchLayeredProfile(
+    profileOrSource: string | AppProfile,
+    id?: string
+  ): Observable<LayeredProfile> {
+    if (typeof profileOrSource == 'object') {
       id = profileOrSource.ID;
       profileOrSource = profileOrSource.Source;
     }

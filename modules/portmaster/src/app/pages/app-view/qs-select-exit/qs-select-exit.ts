@@ -1,15 +1,35 @@
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, DestroyRef, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges, inject } from "@angular/core";
-import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
-import { BoolSetting, StringArraySetting, CountrySelectionQuickSetting, ConfigService, Setting, getActualValue } from "@safing/portmaster-api";
-import { SaveSettingEvent } from "src/app/shared/config/generic-setting/generic-setting";
+import {
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
+  Component,
+  DestroyRef,
+  EventEmitter,
+  Input,
+  OnChanges,
+  OnInit,
+  Output,
+  SimpleChanges,
+  inject,
+} from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import {
+  BoolSetting,
+  StringArraySetting,
+  CountrySelectionQuickSetting,
+  ConfigService,
+  Setting,
+  getActualValue,
+} from '@safing/portmaster-api';
+import { SaveSettingEvent } from 'src/app/shared/config/generic-setting/generic-setting';
 
 @Component({
   selector: 'app-qs-select-exit',
   templateUrl: './qs-select-exit.html',
-  styleUrls: ['./qs-select-exit.scss'],
-  changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class QuickSettingSelectExitButtonComponent implements OnInit, OnChanges {
+export class QuickSettingSelectExitButtonComponent
+  implements OnInit, OnChanges
+{
   private destroyRef = inject(DestroyRef);
 
   @Input()
@@ -30,21 +50,21 @@ export class QuickSettingSelectExitButtonComponent implements OnInit, OnChanges 
   constructor(
     private configService: ConfigService,
     private cdr: ChangeDetectorRef
-  ) { }
+  ) {}
 
   updateExitRules(newExitRules: string) {
     this.selectedExitRules = newExitRules;
 
     let newConfigValue: string[] = [];
     if (!!newExitRules) {
-      newConfigValue = newExitRules.split(",")
+      newConfigValue = newExitRules.split(',');
     }
 
     this.save.next({
       isDefault: false,
       key: 'spn/exitHubPolicy',
       value: newConfigValue,
-    })
+    });
   }
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -52,7 +72,9 @@ export class QuickSettingSelectExitButtonComponent implements OnInit, OnChanges 
       this.exitRuleSetting = null;
       this.selectedExitRules = undefined;
 
-      const exitRuleSetting = this.settings.find(s => s.Key == 'spn/exitHubPolicy') as (StringArraySetting | undefined);
+      const exitRuleSetting = this.settings.find(
+        (s) => s.Key == 'spn/exitHubPolicy'
+      ) as StringArraySetting | undefined;
       if (exitRuleSetting) {
         this.exitRuleSetting = exitRuleSetting;
         this.updateOptions();
@@ -61,23 +83,24 @@ export class QuickSettingSelectExitButtonComponent implements OnInit, OnChanges 
   }
 
   ngOnInit() {
-    this.configService.watch<BoolSetting>('spn/enable')
+    this.configService
+      .watch<BoolSetting>('spn/enable')
       .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(value => {
+      .subscribe((value) => {
         this.spnEnabled = value;
         this.updateOptions();
-      })
+      });
   }
 
   private updateOptions() {
     if (!this.exitRuleSetting) {
       this.selectedExitRules = undefined;
       this.availableExitRules = null;
-      return
+      return;
     }
 
     if (!!this.exitRuleSetting.Value && this.exitRuleSetting.Value.length > 0) {
-      this.selectedExitRules = this.exitRuleSetting.Value.join(",")
+      this.selectedExitRules = this.exitRuleSetting.Value.join(',');
     }
     this.availableExitRules = this.getQuickSettings();
 
@@ -89,7 +112,9 @@ export class QuickSettingSelectExitButtonComponent implements OnInit, OnChanges 
       return [];
     }
 
-    let val = this.exitRuleSetting.Annotations["safing/portbase:ui:quick-setting"] as CountrySelectionQuickSetting<string[]>[];
+    let val = this.exitRuleSetting.Annotations[
+      'safing/portbase:ui:quick-setting'
+    ] as CountrySelectionQuickSetting<string[]>[];
     if (val === undefined) {
       return [];
     }

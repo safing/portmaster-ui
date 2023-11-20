@@ -1,14 +1,32 @@
-import { CdkDragDrop, moveItemInArray } from "@angular/cdk/drag-drop";
-import { ChangeDetectorRef, Component, Inject, OnDestroy, OnInit, TrackByFunction } from "@angular/core";
-import { AppProfile, AppProfileService, FingerpringOperation, Fingerprint, FingerprintType, PortapiService, Record, TagDescription, mergeDeep } from '@safing/portmaster-api';
+import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
+import {
+  ChangeDetectorRef,
+  Component,
+  Inject,
+  OnDestroy,
+  OnInit,
+  TrackByFunction,
+} from '@angular/core';
+import {
+  AppProfile,
+  AppProfileService,
+  FingerpringOperation,
+  Fingerprint,
+  FingerprintType,
+  PORTMASTER_HTTP_API_ENDPOINT,
+  PortapiService,
+  Record,
+  TagDescription,
+  mergeDeep,
+} from '@safing/portmaster-api';
 import { SFNG_DIALOG_REF, SfngDialogRef, SfngDialogService } from '@safing/ui';
-import { Observable, Subject, of, switchMap, takeUntil } from 'rxjs';
+import { Observable, Subject, map, of, switchMap, takeUntil } from 'rxjs';
 import { ActionIndicatorService } from 'src/app/shared/action-indicator';
 
 @Component({
   templateUrl: './edit-profile-dialog.html',
   //changeDetection: ChangeDetectionStrategy.OnPush,
-  styleUrls: ['./edit-profile-dialog.scss']
+  styleUrls: ['./edit-profile-dialog.scss'],
 })
 // eslint-disable-next-line @angular-eslint/component-class-suffix
 export class EditProfileDialog implements OnInit, OnDestroy {
@@ -24,8 +42,10 @@ export class EditProfileDialog implements OnInit, OnDestroy {
   };
 
   isEditMode = false;
-  iconBase64: string = '';
+  iconData: string | ArrayBuffer = '';
+  iconType: string = '';
   iconChanged = false;
+  iconObjectURL = '';
   imageError: string | null = null;
 
   allProfiles: AppProfile[] = [];
@@ -38,39 +58,52 @@ export class EditProfileDialog implements OnInit, OnDestroy {
   fingerPrintOperations = FingerpringOperation;
   processTags: TagDescription[] = [];
 
-  trackFingerPrint: TrackByFunction<Fingerprint> = (_: number, fp: Fingerprint) => `${fp.Type}-${fp.Key}-${fp.Operation}-${fp.Value}`;
+  trackFingerPrint: TrackByFunction<Fingerprint> = (
+    _: number,
+    fp: Fingerprint
+  ) => `${fp.Type}-${fp.Key}-${fp.Operation}-${fp.Value}`;
 
   constructor(
-    @Inject(SFNG_DIALOG_REF) private dialgoRef: SfngDialogRef<EditProfileDialog, any, string | null | AppProfile>,
+    @Inject(SFNG_DIALOG_REF)
+    private dialgoRef: SfngDialogRef<
+      EditProfileDialog,
+      any,
+      string | null | AppProfile
+    >,
     private profileService: AppProfileService,
     private portapi: PortapiService,
     private actionIndicator: ActionIndicatorService,
     private dialog: SfngDialogService,
     private cdr: ChangeDetectorRef,
-  ) { }
+    @Inject(PORTMASTER_HTTP_API_ENDPOINT) private httpAPI: string
+  ) {}
 
   ngOnInit(): void {
-    this.profileService.tagDescriptions()
-      .subscribe(result => {
-        this.processTags = result;
-        this.cdr.markForCheck();
-      });
+    this.profileService.tagDescriptions().subscribe((result) => {
+      this.processTags = result;
+      this.cdr.markForCheck();
+    });
 
-    this.profileService.watchProfiles()
+    this.profileService
+      .watchProfiles()
       .pipe(takeUntil(this.destory$))
-      .subscribe(profiles => {
+      .subscribe((profiles) => {
         this.allProfiles = profiles;
         this.cdr.markForCheck();
       });
 
     if (!!this.dialgoRef.data && typeof this.dialgoRef.data === 'string') {
       this.isEditMode = true;
-      this.profileService.getAppProfile(this.dialgoRef.data)
-        .subscribe(profile => {
+      this.profileService
+        .getAppProfile(this.dialgoRef.data)
+        .subscribe((profile) => {
           this.profile = profile;
           this.loadIcon();
         });
-    } else if (!!this.dialgoRef.data && typeof this.dialgoRef.data === 'object') {
+    } else if (
+      !!this.dialgoRef.data &&
+      typeof this.dialgoRef.data === 'object'
+    ) {
       this.profile = this.dialgoRef.data;
       this.loadIcon();
     }
@@ -86,16 +119,25 @@ export class EditProfileDialog implements OnInit, OnDestroy {
     // get the current icon of the profile
     switch (firstIcon.Type) {
       case 'database':
-        this.portapi.get<Record & { iconData: string }>(firstIcon.Value)
-          .subscribe(data => {
-            this.iconBase64 = data.iconData;
+        this.portapi
+          .get<Record & { iconData: string }>(firstIcon.Value)
+          .subscribe((data) => {
+            this.iconData = data.iconData;
+            this.iconObjectURL = this.iconData;
             this.cdr.markForCheck();
-          })
+          });
+        break;
+
+      case 'api':
+        this.iconData = `${this.httpAPI}/v1/profile/icon/${firstIcon.Value}`;
+        this.iconObjectURL = this.iconData;
+
         break;
 
       default:
-        console.error(`Unsupported icon type ${firstIcon.Type}`)
+        console.error(`Unsupported icon type ${firstIcon.Type}`);
     }
+
     this.cdr.markForCheck();
   }
 
@@ -109,100 +151,114 @@ export class EditProfileDialog implements OnInit, OnDestroy {
       Key: '',
       Operation: FingerpringOperation.Equal,
       Value: '',
-      Type: FingerprintType.Path
-    })
+      Type: FingerprintType.Path,
+    });
   }
 
   removeFingerprint(idx: number) {
-    this.profile.Fingerprints?.splice(idx, 1)
-    this.profile.Fingerprints = [
-      ...this.profile.Fingerprints!,
-    ]
+    this.profile.Fingerprints?.splice(idx, 1);
+    this.profile.Fingerprints = [...this.profile.Fingerprints!];
   }
 
   removeCopyFrom(idx: number) {
-    this.copySettingsFrom.splice(idx, 1)
-    this.copySettingsFrom = [
-      ...this.copySettingsFrom
-    ]
+    this.copySettingsFrom.splice(idx, 1);
+    this.copySettingsFrom = [...this.copySettingsFrom];
   }
 
   addCopyFrom() {
-    this.copySettingsFrom = [
-      ...this.copySettingsFrom,
-      this.selectedCopyFrom!,
-    ]
+    this.copySettingsFrom = [...this.copySettingsFrom, this.selectedCopyFrom!];
     this.selectedCopyFrom = null;
   }
 
   drop(event: CdkDragDrop<string[]>) {
     // create a copy of the array
     this.copySettingsFrom = [...this.copySettingsFrom];
-    moveItemInArray(this.copySettingsFrom, event.previousIndex, event.currentIndex);
+    moveItemInArray(
+      this.copySettingsFrom,
+      event.previousIndex,
+      event.currentIndex
+    );
 
     this.cdr.markForCheck();
   }
 
   deleteProfile() {
-    this.dialog.confirm({
-      caption: 'Caution',
-      header: 'Confirm Profile Deletion',
-      message: 'Do you want to delete this profile?',
-      buttons: [
-        {
-          id: 'delete',
-          class: 'danger',
-          text: 'Delete'
-        },
-        {
-          id: 'abort',
-          class: 'outline',
-          text: 'Abort'
-        }
-      ]
-    }).onAction('delete', () => {
-      this.profileService.deleteProfile(this.profile as AppProfile)
-        .subscribe({
-          next: () => this.dialgoRef.close('deleted'),
-          error: err => {
-            this.actionIndicator.error('Failed to delete profile', err)
-          }
-        })
-    })
+    this.dialog
+      .confirm({
+        caption: 'Caution',
+        header: 'Confirm Profile Deletion',
+        message: 'Do you want to delete this profile?',
+        buttons: [
+          {
+            id: 'delete',
+            class: 'danger',
+            text: 'Delete',
+          },
+          {
+            id: 'abort',
+            class: 'outline',
+            text: 'Abort',
+          },
+        ],
+      })
+      .onAction('delete', () => {
+        this.profileService
+          .deleteProfile(this.profile as AppProfile)
+          .subscribe({
+            next: () => this.dialgoRef.close('deleted'),
+            error: (err) => {
+              this.actionIndicator.error('Failed to delete profile', err);
+            },
+          });
+      });
   }
 
   resetIcon() {
     this.iconChanged = true;
-    this.iconBase64 = '';
+    this.iconData = '';
+    this.iconType = '';
+    this.iconObjectURL = '';
   }
 
   save() {
     if (!this.profile.ID) {
-      this.profile.ID = this.uuidv4()
+      this.profile.ID = this.uuidv4();
     }
 
     if (!this.profile.Source) {
-      this.profile.Source = 'local'
+      this.profile.Source = 'local';
     }
 
     let updateIcon: Observable<any> = of(undefined);
 
     if (this.iconChanged) {
       // delete any previously set icon
-      this.profile.Icons?.forEach(icon => {
+      this.profile.Icons?.forEach((icon) => {
         if (icon.Type === 'database') {
-          this.portapi.delete(icon.Value).subscribe()
+          this.portapi.delete(icon.Value).subscribe();
         }
-      })
 
-      if (this.iconBase64 !== '') {
+        // FIXME(ppacher): we cannot yet delete API based icons ...
+      });
+
+      if (this.iconData !== '') {
         // save the new icon in the cache database
-        this.profile.Icons = [{
-          Value: `cache:icons/${this.uuidv4()}`,
-          Type: 'database'
-        }]
 
-        updateIcon = this.portapi.update(this.profile.Icons[0]!.Value, { iconData: this.iconBase64 });
+        // FIXME(ppacher): we currently need to calls because the icon API in portmaster
+        // does not update the profile but just saves the file and returns the filename.
+        // So we still need to update the profile manually.
+        updateIcon = this.profileService
+          .setProfileIcon(this.iconData, this.iconType)
+          .pipe(
+            map(({ filename }) => {
+              this.profile.Icons = [
+                {
+                  Type: 'api',
+                  Value: filename,
+                },
+              ];
+            })
+          );
 
         // FIXME(ppacher): reset presentationpath
       } else {
@@ -214,62 +270,78 @@ export class EditProfileDialog implements OnInit, OnDestroy {
     if (this.profile.Fingerprints!.length > 1) {
       this.profile.PresentationPath = '';
     }
-    const oldConfig = this.profile.Config || {}
-    this.profile.Config = {}
+    const oldConfig = this.profile.Config || {};
+    this.profile.Config = {};
 
-    mergeDeep(this.profile.Config, ...[...this.copySettingsFrom.map(p => (p.Config || {})), oldConfig])
+    mergeDeep(
+      this.profile.Config,
+      ...[...this.copySettingsFrom.map((p) => p.Config || {}), oldConfig]
+    );
 
     updateIcon
       .pipe(
         switchMap(() => {
-          return this.profileService.saveProfile(this.profile as AppProfile)
+          return this.profileService.saveProfile(this.profile as AppProfile);
         })
       )
       .subscribe({
         next: () => {
-          this.actionIndicator.success(this.profile.Name!, 'Profile saved successfully')
+          this.actionIndicator.success(
+            this.profile.Name!,
+            'Profile saved successfully'
+          );
           this.dialgoRef.close('saved');
         },
-        error: err => {
-          this.actionIndicator.error('Failed to save profile', err)
-        }
-      })
+        error: (err) => {
+          this.actionIndicator.error('Failed to save profile', err);
+        },
+      });
   }
 
   abort() {
-    this.dialgoRef.close('abort')
+    this.dialgoRef.close('abort');
   }
 
   fileChangeEvent(fileInput: any) {
     this.imageError = null;
-    this.iconBase64 = '';
+    this.iconData = '';
     this.iconChanged = true;
 
     if (fileInput.target.files && fileInput.target.files[0]) {
       const max_size = 10 * 1024;
-      const allowed_types = ['image/png', 'image/jpeg', 'image/svg'];
+      const allowed_types = [
+        'image/png',
+        'image/jpeg',
+        'image/svg',
+        'image/gif',
+        'image/tiff',
+      ];
       const max_height = 512;
       const max_width = 512;
+      const file: File = fileInput.target.files[0];
 
-      if (fileInput.target.files[0].size > max_size) {
-        this.imageError =
-          'Maximum size allowed is ' + max_size / 1000 + 'KB';
+      if (file.size > max_size) {
+        this.imageError = 'Maximum size allowed is ' + max_size / 1000 + 'KB';
       }
 
-      if (!allowed_types.includes(fileInput.target.files[0].type)) {
-        this.imageError = 'Only JPG and PNG is allowed';
+      if (!allowed_types.includes(file.type)) {
+        this.imageError = 'Only JPG, PNG, SVG, GIF or Tiff files are allowed';
       }
+
+      this.iconType = file.type;
 
       const reader = new FileReader();
-      reader.onload = (e: any) => {
+      reader.onload = (e: ProgressEvent<FileReader>) => {
+        const content: ArrayBuffer = e.target!.result! as ArrayBuffer;
+        const blob = new Blob([content]);
+
         const image = new Image();
-        image.src = e.target.result;
+        image.src = URL.createObjectURL(blob);
+        this.iconObjectURL = image.src;
+
         image.onload = (rs: any) => {
           const img_height = rs.currentTarget['height']!;
           const img_width = rs.currentTarget['width'];
-
-          console.log(img_height, img_width);
-
 
           if (img_height > max_height && img_width > max_width) {
             this.imageError =
@@ -278,10 +350,8 @@ export class EditProfileDialog implements OnInit, OnDestroy {
               '*' +
               max_width +
               'px';
-
           } else {
-            const imgBase64Path = e.target.result;
-            this.iconBase64 = imgBase64Path;
+            this.iconData = content;
           }
 
           this.cdr.markForCheck();
@@ -290,18 +360,18 @@ export class EditProfileDialog implements OnInit, OnDestroy {
         this.cdr.markForCheck();
       };
 
-      reader.readAsDataURL(fileInput.target.files[0]);
+      reader.readAsArrayBuffer(fileInput.target.files[0]);
     }
   }
 
   private uuidv4(): string {
     if (typeof crypto.randomUUID === 'function') {
-      return crypto.randomUUID()
+      return crypto.randomUUID();
     }
 
     // This one is not really random and not RFC compliant but serves enough for fallback
     // purposes if the UI is opened in a browser that does not yet support randomUUID
-    console.warn("Using browser with lacking support for crypto.randomUUID()")
+    console.warn('Using browser with lacking support for crypto.randomUUID()');
 
     return Date.now().toString(36) + Math.random().toString(36).substring(2);
   }
