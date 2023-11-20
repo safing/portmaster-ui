@@ -39,7 +39,7 @@
   <legend class="px-2 py-1 m-0 text-xs w-fit">Configuration</legend>
 
   <div class="p-2 space-y-2">
-    <div class="flex flex-row gap-2">
+    <div class="flex flex-row gap-2" *ngIf="dialogRef.data.type === 'setting'">
       <input type="checkbox" [(ngModel)]="reset" id="reset" />
       <label class="text-primary" for="reset"
         >Reset all settings to default before importing</label

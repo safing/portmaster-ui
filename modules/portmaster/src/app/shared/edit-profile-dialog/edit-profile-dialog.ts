@@ -333,7 +333,7 @@ export class EditProfileDialog implements OnInit, OnDestroy {
       const reader = new FileReader();
       reader.onload = (e: ProgressEvent<FileReader>) => {
         const content: ArrayBuffer = e.target!.result! as ArrayBuffer;
-        const blob = new Blob([content]);
+        const blob = new Blob([content], { type: file.type });
 
         const image = new Image();
         image.src = URL.createObjectURL(blob);
@@ -357,7 +357,21 @@ export class EditProfileDialog implements OnInit, OnDestroy {
           this.cdr.markForCheck();
         };
 
+        image.onerror = (err: any) => {
+          this.actionIndicator.error(
+            'Failed to get image',
+            this.actionIndicator.getErrorMessgae(err)
+          );
+        };
+
         this.cdr.markForCheck();
+      };
+
+      reader.onerror = (err: any) => {
+        this.actionIndicator.error(
+          'Failed to get image',
+          this.actionIndicator.getErrorMessgae(err)
+        );
       };
 
       reader.readAsArrayBuffer(fileInput.target.files[0]);
