@@ -26,9 +26,11 @@ function handleExternalResources(e: Event) {
   }
 
   if (!!target && !!window.app) {
-    e.preventDefault();
-
     var href = target.getAttribute("href");
+    if (href?.startsWith("blob")) {
+      return
+    }
+
     if (!!href && !href.includes(location.hostname)) {
       e.preventDefault();
       window.app.openExternal(href!);

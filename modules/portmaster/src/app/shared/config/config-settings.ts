@@ -65,8 +65,7 @@ interface SubsystemWithExpertise extends Subsystem {
   animations: [fadeInAnimation, fadeOutAnimation, fadeInListAnimation],
 })
 export class ConfigSettingsViewComponent
-  implements OnInit, OnDestroy, AfterViewInit
-{
+  implements OnInit, OnDestroy, AfterViewInit {
   subsystems: SubsystemWithExpertise[] = [];
   others: Setting[] | null = null;
   settings: Map<string, Category[]> = new Map();
@@ -209,7 +208,7 @@ export class ConfigSettingsViewComponent
     private actionIndicator: ActionIndicatorService,
     private portapi: PortapiService,
     private dialog: SfngDialogService
-  ) {}
+  ) { }
 
   openImportDialog() {
     const importConfig: ImportConfig = {
@@ -268,7 +267,7 @@ export class ConfigSettingsViewComponent
         };
 
         this.dialog.create(ExportDialogComponent, {
-          data: exportBlob,
+          data: exportConfig,
           backdrop: 'light',
           autoclose: true,
         });
