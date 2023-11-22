@@ -258,6 +258,10 @@ export interface RetryableOpts {
   maxRetries?: number;
 }
 
+export interface ProfileImportResult extends ImportResult {
+  replacesProfiles: string[];
+}
+
 export interface ImportResult {
   restartRequired: boolean;
   replacesExisting: boolean;

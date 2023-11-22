@@ -23,16 +23,16 @@ export interface LayeredProfile extends Record {
 }
 
 export enum FingerprintType {
-  Tag = "tag",
-  Cmdline = "cmdline",
-  Env = "env",
-  Path = "path"
+  Tag = 'tag',
+  Cmdline = 'cmdline',
+  Env = 'env',
+  Path = 'path',
 }
 
 export enum FingerpringOperation {
-  Equal = "equals",
-  Prefix = "prefix",
-  Regex = "regex",
+  Equal = 'equals',
+  Prefix = 'prefix',
+  Regex = 'regex',
 }
 
 export interface Fingerprint {
@@ -49,7 +49,7 @@ export interface TagDescription {
 }
 
 export interface Icon {
-  Type: 'database' | 'path';
+  Type: 'database' | 'path' | 'api';
   Value: string;
 }
 
@@ -74,13 +74,14 @@ export interface AppProfile extends Record {
 
 // flattenProfileConfig returns a flat version of a nested ConfigMap where each property
 // can be used as the database key for the associated setting.
-export function flattenProfileConfig(p: ConfigMap, prefix = ''): FlatConfigObject {
+export function flattenProfileConfig(
+  p: ConfigMap,
+  prefix = ''
+): FlatConfigObject {
   let result: FlatConfigObject = {};
 
-  Object.keys(p).forEach(key => {
-    const childPrefix = prefix === ''
-      ? key
-      : `${prefix}/${key}`;
+  Object.keys(p).forEach((key) => {
+    const childPrefix = prefix === '' ? key : `${prefix}/${key}`;
 
     const prop = p[key];
 
@@ -91,7 +92,7 @@ export function flattenProfileConfig(p: ConfigMap, prefix = ''): FlatConfigObjec
     }
 
     result[childPrefix] = prop;
-  })
+  });
 
   return result;
 }
@@ -103,7 +104,10 @@ export function flattenProfileConfig(p: ConfigMap, prefix = ''): FlatConfigObjec
  * @param obj The ConfigMap object
  * @param path  The path of the setting separated by foward slashes.
  */
-export function getAppSetting<T extends OptionValueType>(obj: ConfigMap, path: string): T | null {
+export function getAppSetting<T extends OptionValueType>(
+  obj: ConfigMap,
+  path: string
+): T | null {
   const parts = path.split('/');
 
   let iter = obj;
@@ -124,12 +128,13 @@ export function getAppSetting<T extends OptionValueType>(obj: ConfigMap, path: s
     }
 
     iter = value;
-
   }
   return null;
 }
 
-export function getActualValue<S extends BaseSetting<any, any>>(s: S): SettingValueType<S> {
+export function getActualValue<S extends BaseSetting<any, any>>(
+  s: S
+): SettingValueType<S> {
   if (s.Value !== undefined) {
     return s.Value;
   }
@@ -138,7 +143,6 @@ export function getActualValue<S extends BaseSetting<any, any>>(s: S): SettingVa
   }
   return s.DefaultValue;
 }
-
 
 /**
  * Sets the value of a settings inside the nested config object.
@@ -159,11 +163,11 @@ export function setAppSetting(obj: ConfigObject, path: string, value: any) {
 
     if (idx === parts.length - 1) {
       if (value === undefined) {
-        delete (iter[propName])
+        delete iter[propName];
       } else {
         iter[propName] = value;
       }
-      return
+      return;
     }
 
     if (iter[propName] === undefined) {
@@ -186,13 +190,16 @@ function isConfigMap(v: any): v is ConfigMap {
  * @param a The first config object
  * @param b The second config object
  */
-function mergeObjects(a: FlatConfigObject, b: FlatConfigObject): FlatConfigObject {
+function mergeObjects(
+  a: FlatConfigObject,
+  b: FlatConfigObject
+): FlatConfigObject {
   var res: FlatConfigObject = {};
-  Object.keys(a).forEach(key => {
+  Object.keys(a).forEach((key) => {
     res[key] = a[key];
   });
-  Object.keys(b).forEach(key => {
+  Object.keys(b).forEach((key) => {
     res[key] = b[key];
-  })
+  });
   return res;
 }
