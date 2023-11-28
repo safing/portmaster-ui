@@ -29,10 +29,9 @@ var (
 	activeSPNStatus     = ""
 	activeSPNSwitch     = ""
 
-	menuItemStatusMsg   *systray.MenuItem
-	menuItemSPNStatus   *systray.MenuItem
-	menuItemSPNSwitch   *systray.MenuItem
-	menuItemRateNetwork *systray.MenuItem
+	menuItemStatusMsg *systray.MenuItem
+	menuItemSPNStatus *systray.MenuItem
+	menuItemSPNSwitch *systray.MenuItem
 )
 
 func init() {
@@ -87,11 +86,6 @@ func onReady() {
 		ToggleSPN()
 	})
 	systray.AddSeparator()
-
-	// menu: network rating
-
-	menuItemRateNetwork = systray.AddMenuItem("Rate Your Network", "")
-	menuItemRateNetwork.Disable()
 
 	// menu: quit
 	systray.AddSeparator()

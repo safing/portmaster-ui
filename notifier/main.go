@@ -122,12 +122,10 @@ func main() {
 
 	// start subsystems
 	go tray()
-	go statusClient()
 	go subsystemsClient()
 	go spnStatusClient()
 	go notifClient()
 	go startShutdownEventListener()
-	go networkRatingClient()
 
 	// Shutdown
 	// catch interrupt for clean shutdown
