@@ -15,13 +15,13 @@
     "@types/hasbin": "^1.2.0",
     "@typescript-eslint/eslint-plugin": "^4.22.0",
     "@typescript-eslint/parser": "^4.22.0",
-    "electron": "^20.0.3",
-    "electron-builder": "^23.3.3",
+    "electron": "^27.1.2",
+    "electron-builder": "^24.9.1",
     "eslint": "^7.3.1",
     "typescript": "^4.2.4"
   },
   "dependencies": {
-    "axios": "^0.27.2",
+    "axios": "^1.6.2",
     "electron-window-state": "^5.0.3",
     "hasbin": "^1.2.3",
     "sudo-prompt": "^9.2.1"

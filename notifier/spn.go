@@ -84,7 +84,7 @@ func handleSPNStatusUpdate(m *client.Message) {
 			log.Warningf("config: failed to parse config: %s", err)
 			return
 		}
-		log.Infof("config: received update to SPN status: %v", newStatus)
+		log.Infof("config: received update to SPN status: %+v", newStatus)
 
 		updateSPNStatus(newStatus)
 		triggerTrayUpdate()
