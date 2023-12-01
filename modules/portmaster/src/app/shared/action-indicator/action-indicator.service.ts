@@ -1,7 +1,7 @@
 import { Overlay, OverlayConfig, OverlayRef } from '@angular/cdk/overlay';
 import { ComponentPortal } from '@angular/cdk/portal';
 import { HttpErrorResponse, HttpResponse } from '@angular/common/http';
-import { Injectable, InjectionToken, Injector } from '@angular/core';
+import { Injectable, InjectionToken, Injector, isDevMode } from '@angular/core';
 import { interval, PartialObserver, Subject } from 'rxjs';
 import { take, takeUntil } from 'rxjs/operators';
 import { IndicatorComponent } from './indicator';
@@ -214,40 +214,63 @@ export class ActionIndicatorService {
   }
 
   /**
+   *  @deprecated use the version without a typo ...
+   */
+  getErrorMessgae(resp: HttpResponse<ArrayBuffer | string> | HttpErrorResponse | Error): string {
+    return this.getErrorMessage(resp)
+  }
+
+  /**
    * Parses a HTTP or HTTP Error response and returns a
    * message that can be displayed to the user.
    */
-  getErrorMessgae(resp: HttpResponse<ArrayBuffer | string> | HttpErrorResponse | Error): string {
-    let msg = '';
-    let body: string | null = null;
+  getErrorMessage(resp: HttpResponse<ArrayBuffer | string> | HttpErrorResponse | Error): string {
+    try {
+      let msg = '';
+      let body: string | null = null;
 
-    if (resp instanceof Error) {
-      return resp.message;
-    }
+      if (typeof resp === 'string') {
+        return resp
+      }
 
-    if (resp instanceof HttpErrorResponse) {
-      // A client-side or network error occured.
-      if (resp.error instanceof Error) {
-        body = resp.error.message;
+      if (resp instanceof Error) {
+        return resp.message;
+      }
+
+      if (resp instanceof HttpErrorResponse) {
+        // A client-side or network error occured.
+        if (resp.error instanceof Error) {
+          body = resp.error.message;
+        } else {
+          body = this.stringifyBody(resp.error);
+        }
       } else {
-        body = this.stringifyBody(resp.error);
+        body = this.stringifyBody(resp.body);
       }
-    } else {
-      body = this.stringifyBody(resp.body);
-    }
 
-    const ct = resp.headers.get('content-type') || '';
-    if (/application\/json/.test(ct)) {
-      if (!!body) {
-        msg = body;
+      if (resp instanceof HttpResponse) {
+        const ct = resp.headers.get('content-type') || '';
+        if (/application\/json/.test(ct)) {
+          if (!!body) {
+            msg = body;
+          }
+        } else if (/text\/plain/.test(ct)) {
+          msg = body;
+        }
+        // Make the first letter uppercase
+        if (!!msg) {
+          msg = msg[0].toLocaleUpperCase() + msg.slice(1)
+        }
+        return msg;
       }
-    } else if (/text\/plain/.test(ct)) {
-      msg = body;
+
+      console.error(`Unexpected error type`, resp)
+
+      return `Unknown error: ${resp}`
+
+    } catch (err: any) {
+      console.error(err)
+      return `Unknown error: ${resp}`
     }
-    // Make the first letter uppercase
-    if (!!msg) {
-      msg = msg[0].toLocaleUpperCase() + msg.slice(1)
-    }
-    return msg;
   }
 }
