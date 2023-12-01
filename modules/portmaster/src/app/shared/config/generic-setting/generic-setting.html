@@ -8,7 +8,8 @@
     'hidden': selectMode && !userConfigured
   }">
 
-  <input class="absolute -left-5 my-auto" type="checkbox" *ngIf="selectMode && userConfigured" [(ngModel)]="selected" (ngModelChange)="selectedChange.next($event)">
+  <input class="absolute -left-5 my-auto" type="checkbox" *ngIf="selectMode && userConfigured" [(ngModel)]="selected"
+    (ngModelChange)="selectedChange.next($event)">
 
   <div class="flex flex-col flex-grow">
     <div class="flex flex-row items-center justify-start space-x-2 w-fit" *ngIf="showHeader">
@@ -95,11 +96,6 @@
 
   <!-- Actual settings input -->
   <ng-container [ngSwitch]="externalOptType(setting)">
-    <!-- Security Level Switches -->
-    <app-security-setting *ngSwitchCase="optionHint.SecurityLevel" [disabled]="disabled"
-      class="w-full mt-2 xl:mt-0 xl:w-auto" [onOffMode]="(networkRatingEnabled$ | async) === false" [setting]="_setting"
-      [ngModel]="_currentValue" (ngModelChange)="updateValue($event, true)">
-    </app-security-setting>
 
     <!-- Rule lists -->
     <ng-container *ngSwitchCase="optionHint.EndpointList">

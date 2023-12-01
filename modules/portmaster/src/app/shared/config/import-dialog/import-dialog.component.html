@@ -13,8 +13,9 @@
 
 <span class="text-xs font-light">Please paste the "Export Content" or use "Choose File" to select one from
   your hard disk.</span>
-<pre tabindex="0" class="block flex-grow w-full rounded border border-gray-500 language-yaml" #codeBlock id="yaml"
-  contenteditable="true" (blur)="onBlur()" (mouseleave)="onBlur()" (paste)="onPaste($event)"></pre>
+
+<pre tabindex="0" class="block flex-grow w-full rounded border border-gray-500 language-yaml overflow-auto outline-none"
+  #codeBlock id="yaml" contenteditable="true" (blur)="onBlur()" (mouseleave)="onBlur()" (paste)="onPaste($event)"></pre>
 
 <fieldset class="p-2 text-xs font-light bg-gray-400 rounded border border-gray-500 border-solid">
   <legend class="px-2 py-1 m-0 text-xs w-fit">Configuration</legend>

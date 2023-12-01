@@ -17,6 +17,17 @@ export interface ExportConfig {
 @Component({
   templateUrl: './export-dialog.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
+  styles: [
+    `
+      :host {
+        @apply flex flex-col gap-2 overflow-hidden;
+        min-height: 24rem;
+        min-width: 24rem;
+        max-height: 40rem;
+        max-width: 40rem;
+      }
+    `,
+  ],
 })
 export class ExportDialogComponent implements OnInit {
   readonly dialogRef: SfngDialogRef<

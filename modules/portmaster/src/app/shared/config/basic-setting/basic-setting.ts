@@ -233,14 +233,14 @@ export class BasicSettingComponent<S extends BaseSetting<any, any>> implements C
     // from security-settings to booleans.
     //
     // In order to not mess and hide an actual portmaster issue
-    // we only convert v to a boolean if it's a number value.
+    // we only convert v to a boolean if it's a number value and marked as a security setting.
     // In all other cases we don't mangle it.
     //
-    // TODO(ppacher): Remove in v1.5
+    // TODO(ppacher): Remove in v1.8?
     // BOM
-    if (this.setting?.OptType === OptionType.Bool) {
+    if (this.setting?.OptType === OptionType.Bool && this.setting?.Annotations[WellKnown.DisplayHint] === ExternalOptionHint.SecurityLevel) {
       if (typeof v === 'number') {
-        (v as any) = !!v
+        (v as any) = v === 7;
       }
     }
     // EOM

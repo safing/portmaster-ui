@@ -22,7 +22,7 @@ export interface ImportConfig {
   styles: [
     `
       :host {
-        @apply flex flex-col gap-2;
+        @apply flex flex-col gap-2 overflow-hidden;
         min-height: 24rem;
         min-width: 24rem;
         max-height: 40rem;
