@@ -406,6 +406,7 @@ export class GenericSettingComponent<S extends BaseSetting<any, any>> implements
     this._defaultValue = val;
     this.updateActualValue();
   }
+
   get defaultValue() {
     // Return cached value.
     if (this._defaultValue !== null) {

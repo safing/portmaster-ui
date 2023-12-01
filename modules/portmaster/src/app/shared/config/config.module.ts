@@ -26,7 +26,6 @@ import {
 import { RuleListItemComponent } from './rule-list/list-item';
 import { RuleListComponent } from './rule-list/rule-list';
 import { SafePipe } from './safe.pipe';
-import { SecuritySettingComponent } from './security-setting/security-setting';
 import { ExportDialogComponent } from './export-dialog/export-dialog.component';
 import { ImportDialogComponent } from './import-dialog/import-dialog.component';
 import { SfngAppIconModule } from '../app-icon';
@@ -57,7 +56,6 @@ import { SfngAppIconModule } from '../app-icon';
     OrderedListItemComponent,
     RuleListComponent,
     RuleListItemComponent,
-    SecuritySettingComponent,
     ConfigSettingsViewComponent,
     GenericSettingComponent,
     SafePipe,
@@ -71,7 +69,6 @@ import { SfngAppIconModule } from '../app-icon';
     OrderedListItemComponent,
     RuleListComponent,
     RuleListItemComponent,
-    SecuritySettingComponent,
     ConfigSettingsViewComponent,
     GenericSettingComponent,
     SafePipe,
