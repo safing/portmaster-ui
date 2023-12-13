@@ -99,8 +99,6 @@ function getStateDir(): string {
 }
 
 async function main() {
-  console.log(`Portmaster data directory: ${dataDirectory}`);
-
   // we ensure the notifier is running even though we might quit
   // immediately because another instance of the app is already
   // running. This ensures the user can restart the notifier 

@@ -56,7 +56,6 @@ export class SystemdServiceManager implements ServiceManager {
 
     private systemctl(cmd: string, unit: string, asRoot = false): Promise<Output> {
         const command = `systemctl ${cmd} ${unit} --no-pager`;
-        console.log(command);
         if (asRoot) {
             return execAsRoot(command);
         }

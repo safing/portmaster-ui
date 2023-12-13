@@ -82,7 +82,6 @@ export class AppAPI {
             console.error(e);
             pathOrUrl = await this.createFileURL(pathOrUrl);
         }
-        console.log("opening external: ", pathOrUrl)
 
         await shell.openExternal(pathOrUrl);
     }
