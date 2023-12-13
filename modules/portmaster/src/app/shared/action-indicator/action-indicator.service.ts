@@ -226,7 +226,6 @@ export class ActionIndicatorService {
    */
   getErrorMessage(resp: HttpResponse<ArrayBuffer | string> | HttpErrorResponse | Error): string {
     try {
-      let msg = '';
       let body: string | null = null;
 
       if (typeof resp === 'string') {
@@ -244,12 +243,20 @@ export class ActionIndicatorService {
         } else {
           body = this.stringifyBody(resp.error);
         }
-      } else {
-        body = this.stringifyBody(resp.body);
+
+        if (!!body) {
+          body = body[0].toLocaleUpperCase() + body.slice(1)
+          return body
+        }
       }
 
+
       if (resp instanceof HttpResponse) {
+        let msg = '';
         const ct = resp.headers.get('content-type') || '';
+
+        body = this.stringifyBody(resp.body);
+
         if (/application\/json/.test(ct)) {
           if (!!body) {
             msg = body;
@@ -257,11 +264,12 @@ export class ActionIndicatorService {
         } else if (/text\/plain/.test(ct)) {
           msg = body;
         }
+
         // Make the first letter uppercase
         if (!!msg) {
           msg = msg[0].toLocaleUpperCase() + msg.slice(1)
+          return msg;
         }
-        return msg;
       }
 
       console.error(`Unexpected error type`, resp)
