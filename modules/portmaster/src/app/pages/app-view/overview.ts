@@ -97,7 +97,7 @@ export class AppOverviewComponent implements OnInit, OnDestroy {
     private dialog: SfngDialogService,
     private actionIndicator: ActionIndicatorService,
     private router: Router
-  ) {}
+  ) { }
 
   handleProfileClick(profile: LocalAppProfile, event: MouseEvent) {
     if (event.shiftKey) {
@@ -249,7 +249,7 @@ export class AppOverviewComponent implements OnInit, OnDestroy {
           const local: LocalAppProfile = {
             ...profile,
             hasConfigChanges:
-              profile.LastEdited > 0 && Object.keys(profile.Config).length > 0,
+              profile.LastEdited > 0 && Object.keys(profile.Config || {}).length > 0,
             selected:
               oldProfiles.get(`${profile.Source}/${profile.ID}`)?.selected ||
               false,

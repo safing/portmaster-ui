@@ -487,6 +487,11 @@ export class NetqueryHelper {
           }
 
           const newProfile = deepClone(profile);
+
+          if (newProfile.Config === null || newProfile.Config === undefined) {
+            newProfile.Config = {}
+          }
+
           setAppSetting(newProfile.Config, key, rules);
 
           return this.profileService.saveProfile(newProfile)
