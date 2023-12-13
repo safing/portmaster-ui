@@ -149,6 +149,8 @@
             } else if (!status.service.running) {
                 text = '';
                 showStartButton = true;
+            } else {
+                text = 'Unexpected status response from service manager: ' + JSON.stringify(status)
             }
 
             if (showStartButton) {
@@ -163,6 +165,18 @@
         function handleError(err) {
             const errorBox = document.getElementById('errorbox');
             const message = err?.message || err?.stderr || '';
+
+            try {
+                if (typeof message !== 'string') {
+                    message = JSON.stringify(message)
+                }
+            } catch(err) {
+                console.log('JSON', err)
+                console.log('original-error', message)
+
+                message = 'Unexpected error'
+            }
+
             if (message === '') {
                 errorBox.classList.add('hidden');
             } else {

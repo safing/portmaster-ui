@@ -22,19 +22,6 @@ export function startNotifier(): Promise<void> {
                 cwd: execDir,
             })
 
-            process.on('close', code => {
-                console.log('notifier:close', code)
-            })
-            process.on('disconnect', () => {
-                console.log('notifier:disconnect')
-            })
-            process.on('error', code => {
-                console.log('notifier:close', code)
-            })
-            process.on('exit', code => {
-                console.log('notifier:exit', code)
-            })
-
             process.unref();
             resolve();
         } catch (err) {
