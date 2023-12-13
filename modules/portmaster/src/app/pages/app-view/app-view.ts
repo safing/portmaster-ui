@@ -204,7 +204,7 @@ export class AppViewComponent implements OnInit, OnDestroy {
     private debugAPI: DebugAPI,
     private expertiseService: ExpertiseService,
     private portapi: PortapiService
-  ) {}
+  ) { }
 
   /**
    * @private
@@ -218,6 +218,10 @@ export class AppViewComponent implements OnInit, OnDestroy {
     // to save.
     if (!this.appProfile) {
       return;
+    }
+
+    if (!this.appProfile!.Config) {
+      this.appProfile.Config = {}
     }
 
     // If the value has been "reset to global value" we need to

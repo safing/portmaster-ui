@@ -60,7 +60,7 @@ export interface AppProfile extends Record {
   Fingerprints: Fingerprint[];
   Created: number;
   LastEdited: number;
-  Config: ConfigMap;
+  Config?: ConfigMap;
   Description: string;
   Warning: string;
   WarningLastUpdated: string;
@@ -75,9 +75,13 @@ export interface AppProfile extends Record {
 // flattenProfileConfig returns a flat version of a nested ConfigMap where each property
 // can be used as the database key for the associated setting.
 export function flattenProfileConfig(
-  p: ConfigMap,
+  p?: ConfigMap,
   prefix = ''
 ): FlatConfigObject {
+  if (p === null || p === undefined) {
+    return {}
+  }
+
   let result: FlatConfigObject = {};
 
   Object.keys(p).forEach((key) => {
@@ -105,9 +109,13 @@ export function flattenProfileConfig(
  * @param path  The path of the setting separated by foward slashes.
  */
 export function getAppSetting<T extends OptionValueType>(
-  obj: ConfigMap,
+  obj: ConfigMap | null | undefined,
   path: string
 ): T | null {
+  if (obj === null || obj === undefined) {
+    return null
+  }
+
   const parts = path.split('/');
 
   let iter = obj;
