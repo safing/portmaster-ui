@@ -5,3 +5,5 @@ http-redir
 
 # meta
 .DS_Store
+
+app-electron/app-window-state.json
