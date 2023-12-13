@@ -149,6 +149,8 @@
             } else if (!status.service.running) {
                 text = '';
                 showStartButton = true;
+            } else {
+                text = 'Unexpected status response from service manager: ' + JSON.stringify(status)
             }
 
             if (showStartButton) {
