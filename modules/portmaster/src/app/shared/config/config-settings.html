@@ -29,15 +29,17 @@
     <li *ngIf="!!others" (click)="scrollTo('config:other')" [class.active]="activeSection === 'config:other'">
       Other
     </li>
+  </ul>
 
+  <ul class="bottom-0 mb-7">
     <li class="mt-3" *ngIf="!exportMode">
-      <button class="bg-blue text-white w-full" (click)="openImportDialog()">Import</button>
+      <button class="bg-grey text-white w-full" (click)="openImportDialog()">Import Settings</button>
     </li>
     <li *ngIf="exportMode" class="mt-3">
-      <button class="bg-blue text-white w-full" (click)="generateExport()">Save</button>
+      <button class="bg-grey text-white w-full" (click)="generateExport()">Save</button>
     </li>
     <li>
-      <button [ngClass]="{'bg-blue': !exportMode, 'bg-gray-400': exportMode}" class="text-white w-full" (click)="toggleExportMode()">{{ !exportMode ? 'Export' : 'Abort Export' }}</button>
+      <button [ngClass]="{'bg-grey': !exportMode, 'bg-gray-400': exportMode}" class="text-white w-full" (click)="toggleExportMode()">{{ !exportMode ? 'Export Settings' : 'Cancel Export' }}</button>
     </li>
   </ul>
 
