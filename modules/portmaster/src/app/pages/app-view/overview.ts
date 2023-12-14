@@ -153,7 +153,7 @@ export class AppOverviewComponent implements OnInit, OnDestroy {
         buttons: [
           {
             id: 'no',
-            text: 'Abort',
+            text: 'Cancel',
             class: 'outline',
           },
           {

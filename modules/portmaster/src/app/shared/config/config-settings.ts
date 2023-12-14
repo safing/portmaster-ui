@@ -228,7 +228,7 @@ export class ConfigSettingsViewComponent
     if (this.exportMode) {
       this.actionIndicator.info(
         'Settings Export',
-        'Please select all setttings you want to export and press "Save" to generate the export. Note that settings with system defaults cannot be exported and are hidden.'
+        'Please select all settings you want to export and press "Save" to generate the export. Note that settings with system defaults cannot be exported and are hidden.'
       );
     }
   }

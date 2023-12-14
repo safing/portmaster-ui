@@ -197,7 +197,7 @@ export class EditProfileDialog implements OnInit, OnDestroy {
           {
             id: 'abort',
             class: 'outline',
-            text: 'Abort',
+            text: 'Cancel',
           },
         ],
       })
