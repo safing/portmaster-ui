@@ -2,7 +2,7 @@
   "name": "portmaster-app",
   "appId": "io.safing.portmaster",
   "artifactName": "${name}-${version}.${ext}",
-  "version": "0.2.6",
+  "version": "0.2.7",
   "productName": "Portmaster",
   "description": "Portmaster Privacy Suite",
   "author": "Safing ICS Technologies GmbH",
