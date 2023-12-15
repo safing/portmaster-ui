@@ -1,0 +1,63 @@
+{
+  "build": {
+    "beforeDevCommand": {
+      "script": "npm run serve",
+      "cwd": "../../modules/portmaster/dist",
+      "wait": false
+    },
+    "devPath": "http://localhost:4200",
+    "distDir": "./web",
+    "withGlobalTauri": true
+  },
+  "package": {
+    "productName": "Portmaster",
+    "version": "0.1.0"
+  },
+  "tauri": {
+    "bundle": {
+      "active": true,
+      "category": "DeveloperTool",
+      "copyright": "",
+      "deb": {
+        "depends": []
+      },
+      "externalBin": [],
+      "icon": [
+        "icons/32x32.png",
+        "icons/128x128.png",
+        "icons/128x128@2x.png",
+        "icons/icon.icns",
+        "icons/icon.ico"
+      ],
+      "identifier": "io.safing.portmaster",
+      "longDescription": "",
+      "macOS": {
+        "entitlements": null,
+        "exceptionDomain": "",
+        "frameworks": [],
+        "providerShortName": null,
+        "signingIdentity": null
+      },
+      "resources": [],
+      "shortDescription": "",
+      "targets": "all",
+      "windows": {
+        "certificateThumbprint": null,
+        "digestAlgorithm": "sha256",
+        "timestampUrl": ""
+      }
+    },
+    "security": {
+      "csp": null
+    },
+    "windows": [
+      {
+        "fullscreen": false,
+        "height": 600,
+        "resizable": true,
+        "title": "Portmaster",
+        "width": 800
+      }
+    ]
+  }
+}
