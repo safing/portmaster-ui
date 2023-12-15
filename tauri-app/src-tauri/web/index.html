@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset='utf-8'>
+    <meta http-equiv='X-UA-Compatible' content='IE=edge'>
+    <title>Portmaster</title>
+    <meta name='viewport' content='width=device-width, initial-scale=1'>
+    <link rel='stylesheet' type='text/css' media='screen' href='main.css'>
+    <script>
+        function loadImage() {
+            const value = document.getElementById("exec").value;
+
+            window.__TAURI__.primitives.invoke(
+                "get_app_icon_blob",
+                { executable: value }
+            )
+                .then(data => {
+                    document.getElementById("img").src = data;
+                })
+        }
+
+        function prepare() {
+            document.getElementById("load")
+                .addEventListener("click", loadImage);
+            
+            console.log("ready")
+        }
+    </script>
+</head>
+<body onload="prepare()">
+    <button onclick="javascript: window.location.replace('http://localhost:4200')">Open Portmaster</button>
+
+    <input id="exec" type="text">
+
+    <button id="load">Find Image</button>
+
+    <br />
+
+    <img id="img" width="64">
+</body>
+</html>
