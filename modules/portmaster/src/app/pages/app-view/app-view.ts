@@ -12,8 +12,6 @@ import { ActivatedRoute, Router } from '@angular/router';
 import {
   AppProfile,
   AppProfileService,
-  BandwidthChartResult,
-  ChartResult,
   Condition,
   ConfigService,
   Database,
@@ -25,11 +23,10 @@ import {
   LayeredProfile,
   Netquery,
   PortapiService,
-  ProfileBandwidthChartResult,
   SPNService,
   Setting,
   flattenProfileConfig,
-  setAppSetting,
+  setAppSetting
 } from '@safing/portmaster-api';
 import { SfngDialogService } from '@safing/ui';
 import {
@@ -49,19 +46,18 @@ import {
   startWith,
   switchMap,
 } from 'rxjs/operators';
+import { INTEGRATION_SERVICE } from 'src/app/integration';
 import { SessionDataService } from 'src/app/services';
 import { ActionIndicatorService } from 'src/app/shared/action-indicator';
 import { fadeInAnimation, fadeOutAnimation } from 'src/app/shared/animations';
-import { SaveSettingEvent } from 'src/app/shared/config/generic-setting/generic-setting';
-import { ExpertiseService } from 'src/app/shared/expertise';
-import { SfngNetqueryViewer } from 'src/app/shared/netquery';
-import { EditProfileDialog } from './../../shared/edit-profile-dialog/edit-profile-dialog';
-import { formatDuration } from 'src/app/shared/pipes';
-import { BytesPipe } from 'src/app/shared/pipes/bytes.pipe';
 import {
   ExportConfig,
   ExportDialogComponent,
 } from 'src/app/shared/config/export-dialog/export-dialog.component';
+import { SaveSettingEvent } from 'src/app/shared/config/generic-setting/generic-setting';
+import { ExpertiseService } from 'src/app/shared/expertise';
+import { SfngNetqueryViewer } from 'src/app/shared/netquery';
+import { EditProfileDialog } from './../../shared/edit-profile-dialog/edit-profile-dialog';
 
 @Component({
   templateUrl: './app-view.html',
@@ -69,6 +65,8 @@ import {
   animations: [fadeOutAnimation, fadeInAnimation],
 })
 export class AppViewComponent implements OnInit, OnDestroy {
+  private readonly integration = inject(INTEGRATION_SERVICE);
+
   @ViewChild(SfngNetqueryViewer)
   netqueryViewer?: SfngNetqueryViewer;
 
@@ -597,13 +595,11 @@ export class AppViewComponent implements OnInit, OnDestroy {
 
     this.debugAPI
       .getProfileDebugInfo(this.appProfile.Source, this.appProfile.ID)
-      .subscribe((data) => {
+      .subscribe(async (data) => {
         console.log(data);
         // Copy to clip-board if supported
-        if (!!navigator.clipboard) {
-          navigator.clipboard.writeText(data);
-          this.actionIndicator.success('Copied to Clipboard');
-        }
+        await this.integration.writeToClipboard(data);
+        this.actionIndicator.success('Copied to Clipboard');
       });
   }
 

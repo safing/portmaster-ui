@@ -48,7 +48,29 @@
       }
     },
     "security": {
-      "csp": null
+      "csp": null,
+      "dangerousRemoteDomainIpcAccess": [
+        {
+          "windows": ["main"],
+          "plugins": [
+            "shell",
+            "os",
+            "clipboard-manager",
+            "event"
+          ],
+          "domain": "localhost"
+        },
+        {
+          "windows": ["main"],
+          "plugins": [
+            "shell",
+            "os",
+            "clipboard-manager",
+            "event"
+          ],
+          "domain": "localhost:4200"
+        }
+      ]
     },
     "windows": [
       {

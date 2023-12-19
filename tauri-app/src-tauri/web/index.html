@@ -7,16 +7,17 @@
     <meta name='viewport' content='width=device-width, initial-scale=1'>
     <link rel='stylesheet' type='text/css' media='screen' href='main.css'>
     <script>
+        window.__TAURI__.event.listen("test", function(response) {
+            document.getElementById("img").src = response.payload.icon_dataurl;
+        })
+
         function loadImage() {
             const value = document.getElementById("exec").value;
 
             window.__TAURI__.primitives.invoke(
-                "get_app_icon_blob",
-                { executable: value }
+                "get_app_info",
+                { executable: value, responseId: "test"},
             )
-                .then(data => {
-                    document.getElementById("img").src = data;
-                })
         }
 
         function prepare() {

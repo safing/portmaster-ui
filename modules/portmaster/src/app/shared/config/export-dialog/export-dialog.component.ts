@@ -8,6 +8,7 @@ import {
 } from '@angular/core';
 import { SFNG_DIALOG_REF, SfngDialogRef } from '@safing/ui';
 import { ActionIndicatorService } from '../../action-indicator';
+import { INTEGRATION_SERVICE } from 'src/app/integration';
 
 export interface ExportConfig {
   content: string;
@@ -39,6 +40,7 @@ export class ExportDialogComponent implements OnInit {
   private readonly elementRef: ElementRef<HTMLElement> = inject(ElementRef);
   private readonly document = inject(DOCUMENT);
   private readonly uai = inject(ActionIndicatorService);
+  private readonly integration = inject(INTEGRATION_SERVICE);
 
   content = '';
 
@@ -58,16 +60,8 @@ export class ExportDialogComponent implements OnInit {
   }
 
   copyToClipboard() {
-    if (!!navigator.clipboard) {
-      navigator.clipboard
-        .writeText(this.dialogRef.data.content)
-        .then(() => this.uai.success('Copied to Clipboard'))
-        .catch(() => this.uai.error('Failed to Copy to Clipboard'));
-    } else {
-      this.uai.info(
-        'Failed to Copy to Clipboard',
-        'Copy to clipboard is not supported by your browser'
-      );
-    }
+    this.integration.writeToClipboard(this.dialogRef.data.content)
+      .then(() => this.uai.success('Copied to Clipboard'))
+      .catch(() => this.uai.error('Failed to Copy to Clipboard'));
   }
 }

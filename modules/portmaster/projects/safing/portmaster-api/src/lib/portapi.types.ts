@@ -45,13 +45,13 @@ export interface RecordMeta {
   Key: string;
 }
 
-
 export interface Process extends Record {
   Name: string;
   UserID: number;
   UserName: string;
   UserHome: string;
   Pid: number;
+  Pgid: number;
   CreatedAt: number;
   ParentPid: number;
   ParentCreatedAt: number;
@@ -59,15 +59,22 @@ export interface Process extends Record {
   ExecName: string;
   Cwd: string;
   CmdLine: string;
+  FirstArg: string;
   Env: {
-    [key: string]: string,
-  };
+    [key: string]: string
+  } | null;
   Tags: {
     Key: string;
     Value: string;
-  }[],
+  }[] | null;
   MatchingPath: string;
   PrimaryProfileID: string;
+  FirstSeen: number;
+  LastSeen: number;
+  Error: string;
+  ExecHashes: {
+    [key: string]: string
+  } | null;
 }
 
 // Record describes the base record structure of all API resources.

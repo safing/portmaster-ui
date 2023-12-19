@@ -1,5 +1,6 @@
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit, TrackByFunction } from "@angular/core";
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit, TrackByFunction, inject } from "@angular/core";
 import { map } from "rxjs";
+import { INTEGRATION_SERVICE } from "src/app/integration";
 import { Issue, SupportHubService } from "src/app/services";
 
 /** The name of the SPN repository used to filter SPN support hub issues. */
@@ -19,10 +20,9 @@ interface _Issue extends Issue {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SPNNetworkStatusComponent implements OnInit {
-  constructor(
-    private supportHub: SupportHubService,
-    private cdr: ChangeDetectorRef
-  ) { }
+  private readonly integration = inject(INTEGRATION_SERVICE);
+  private readonly supportHub = inject(SupportHubService);
+  private readonly cdr = inject(ChangeDetectorRef);
 
   /** trackIssue is used as a track-by function when rendering SPN issues. */
   trackIssue: TrackByFunction<_Issue> = (_: number, issue: _Issue) => issue.url;
@@ -60,10 +60,6 @@ export class SPNNetworkStatusComponent implements OnInit {
    * @private - template only
    */
   openIssue(issue: Issue) {
-    if (!!window.app) {
-      window.app.openExternal(issue.url);
-      return;
-    }
-    window.open(issue.url, '__blank')
+    this.integration.openExternal(issue.url);
   }
 }

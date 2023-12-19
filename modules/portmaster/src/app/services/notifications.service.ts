@@ -1,5 +1,5 @@
 import { HttpClient } from '@angular/common/http';
-import { Injectable, TrackByFunction } from '@angular/core';
+import { Injectable, TrackByFunction, inject } from '@angular/core';
 import { Params, Router } from '@angular/router';
 import { PortapiService, RetryableOpts } from '@safing/portmaster-api';
 import { BehaviorSubject, Observable, combineLatest, defer, throwError } from 'rxjs';
@@ -8,11 +8,14 @@ import { environment } from 'src/environments/environment';
 import { ActionIndicatorService } from '../shared/action-indicator';
 import { Action, ActionHandler, NetqueryAction, Notification, NotificationState, NotificationType, OpenPageAction, OpenProfileAction, OpenSettingAction, OpenURLAction, PageIDs, WebhookAction } from './notifications.types';
 import { VirtualNotification } from './virtual-notification';
+import { INTEGRATION_SERVICE } from '../integration';
 
 @Injectable({
   providedIn: 'root'
 })
 export class NotificationsService {
+  private readonly integration = inject(INTEGRATION_SERVICE);
+
   /**
    * A {@link TrackByFunction} from tracking notifications.
    */
@@ -29,11 +32,7 @@ export class NotificationsService {
   } = {
       '': async () => { },
       'open-url': async (a: OpenURLAction) => {
-        if (!!window.app) {
-          await window.app.openExternal(a.Payload);
-        } else {
-          window.open(a.Payload, '_blank')
-        }
+        await this.integration.openExternal(a.Payload);
       },
       'open-profile': (a: OpenProfileAction) => this.router.navigate([
         '/app', ...a.Payload.split('/')

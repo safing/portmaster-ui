@@ -2,14 +2,17 @@ import { isPlatformBrowser } from '@angular/common';
 import {
   Directive,
   HostBinding, HostListener, Inject,
-  Input, OnChanges, PLATFORM_ID
+  Input, OnChanges, PLATFORM_ID, inject
 } from '@angular/core';
+import { INTEGRATION_SERVICE } from '../integration';
 
 @Directive({
   // eslint-disable-next-line @angular-eslint/directive-selector
   selector: 'a[href]'
 })
 export class ExternalLinkDirective implements OnChanges {
+  private readonly integration = inject(INTEGRATION_SERVICE);
+
   @HostBinding('attr.rel')
   relAttr = '';
 
@@ -26,14 +29,10 @@ export class ExternalLinkDirective implements OnChanges {
 
   @HostListener('click', ['$event'])
   onClick(event: Event) {
-    if (!window.app) {
-      return;
-    }
-
     event.preventDefault();
     event.stopPropagation();
 
-    window.app.openExternal(this.href);
+    this.integration.openExternal(this.href);
   }
 
   ngOnChanges() {
