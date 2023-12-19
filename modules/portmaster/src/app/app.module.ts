@@ -68,6 +68,7 @@ import { PilotWidgetComponent } from './shared/status-pilot';
 import { PlaceholderComponent } from './shared/text-placeholder';
 import { DashboardWidgetComponent } from './pages/dashboard/dashboard-widget/dashboard-widget.component';
 import { MergeProfileDialogComponent } from './pages/app-view/merge-profile-dialog/merge-profile-dialog.component';
+import { INTEGRATION_SERVICE, integrationServiceFactory } from './integration';
 
 function loadAndSetLocaleInitializer(configService: ConfigService) {
   return async function () {
@@ -219,6 +220,10 @@ const localeConfig = {
         console.log("locale-id is set to", localeConfig.localeId)
         return localeConfig.localeId
       }
+    },
+    {
+      provide: INTEGRATION_SERVICE,
+      useFactory: integrationServiceFactory
     }
   ]
 })
@@ -228,3 +233,4 @@ export class AppModule {
     library.addIcons(faGithub)
   }
 }
+

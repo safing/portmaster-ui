@@ -1,7 +1,7 @@
 import { AnimationEvent, animate, keyframes, style, transition, trigger } from '@angular/animations';
 import { CdkDrag, CdkDragHandle, CdkDragRelease } from '@angular/cdk/drag-drop';
 import { Overlay, OverlayRef, PositionStrategy } from '@angular/cdk/overlay';
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, HostListener, Inject, Input, OnInit, Output, ViewChild } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, HostListener, Inject, Input, OnInit, Output, ViewChild, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { SfngDialogService } from '@safing/ui';
 import { PinDetailsComponent } from '../pin-details';
@@ -9,6 +9,7 @@ import { MapOverlay, Path } from '../spn-page';
 import { ActionIndicatorService } from './../../../shared/action-indicator/action-indicator.service';
 import { MapPin } from './../map.service';
 import { OVERLAY_REF } from './../utils';
+import { INTEGRATION_SERVICE } from 'src/app/integration';
 
 export interface PinOverlayHoverEvent {
   type: 'enter' | 'leave';
@@ -45,6 +46,8 @@ export interface PinOverlayHoverEvent {
   ]
 })
 export class PinOverlayComponent implements OnInit {
+  private readonly integration = inject(INTEGRATION_SERVICE);
+
   @Input()
   mapPin!: MapPin;
 
@@ -181,9 +184,7 @@ export class PinOverlayComponent implements OnInit {
   }
 
   async copyNodeID() {
-    if (!!navigator.clipboard) {
-      await navigator.clipboard.writeText(this.mapPin.pin.ID);
-      this.actionIndicator.success("Copied to Clipboard")
-    }
+    await this.integration.writeToClipboard(this.mapPin?.pin.ID)
+    this.actionIndicator.success("Copied to Clipboard")
   }
 }

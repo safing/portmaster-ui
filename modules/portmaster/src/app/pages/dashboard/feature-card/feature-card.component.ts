@@ -3,6 +3,7 @@ import { ChangeDetectionStrategy, ChangeDetectorRef, Component, Input, OnChanges
 import { Router } from '@angular/router';
 import { BoolSetting, ConfigService, Feature } from '@safing/portmaster-api';
 import { Subscription } from 'rxjs';
+import { INTEGRATION_SERVICE } from 'src/app/integration';
 
 @Component({
   selector: 'app-feature-card',
@@ -11,10 +12,12 @@ import { Subscription } from 'rxjs';
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class FeatureCardComponent implements OnChanges, OnDestroy {
-  private cdr = inject(ChangeDetectorRef);
-  private configService = inject(ConfigService);
+  private readonly cdr = inject(ChangeDetectorRef);
+  private readonly configService = inject(ConfigService);
+  private readonly router = inject(Router);
+  private readonly integration = inject(INTEGRATION_SERVICE);
+
   private configValueSubscription = Subscription.EMPTY;
-  private router = inject(Router);
 
   @Input()
   set disabled(v: any) {
@@ -65,11 +68,7 @@ export class FeatureCardComponent implements OnChanges, OnDestroy {
 
   navigateToConfigScope() {
     if (this.disabled) {
-      if ('app' in window) {
-        window.app.openExternal("https://safing.io/pricing?source=Portmaster");
-      } else {
-        (window as any).open("https://safing.io/pricing?source=Portmaster")
-      }
+      this.integration.openExternal("https://safing.io/pricing?source=Portmaster")
       return;
     }
 

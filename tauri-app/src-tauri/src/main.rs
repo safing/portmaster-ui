@@ -2,13 +2,16 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 mod common;
 
-use std::fs;
 
-use common::icons::*;
 use common::service_manager::*;
 
-use dataurl::DataUrl;
-use tauri::Manager;
+use tauri::http::response;
+use tauri::{Manager, Window};
+use tauri::async_runtime::{spawn};
+
+
+#[macro_use]
+extern crate lazy_static;
 
 #[derive(Clone, serde::Serialize)]
 struct Payload {
@@ -16,47 +19,41 @@ struct Payload {
   cwd: String,
 }
 
-#[tauri::command]
-fn get_app_icon_path(executable: String) -> std::result::Result<String, String> {
-    match find_icon(executable.as_str()) {
-      Ok(res) => Ok(res.icon_name),
-      Err(err) => Err(err.to_string())
-    }
+#[derive(Clone, serde::Serialize, serde::Deserialize)]
+struct Error {
+  error: String,
 }
 
 #[tauri::command]
-fn get_app_icon_blob(executable: String) -> std::result::Result<String, String> {
-    match find_icon(executable.as_str()) {
-      Ok(res) => {
-        if !res.icon_data.is_empty() {
-            println!("icon data already attached");
+fn get_app_info(window: Window, response_id: String, matching_path: String, exec_path: String, pid: i64, cmdline: String) -> std::result::Result<String, String> {
+  let mut id = response_id;
 
-            let mut du = DataUrl::new();
+  let info = common::xdg_desktop::ProcessInfo{
+    cmdline,
+    exec_path,
+    pid,
+    matching_path
+  };
 
-            du.set_media_type(Some("image/png".to_string()));
-            du.set_data(&res.icon_data);
+  if id == "" {
+    id = uuid::Uuid::new_v4().to_string().to_string();
+  }
+  let cloned = id.clone();
 
-            return Ok(du.to_string())
-        }
-
-          println!("icon data not attached, reading from file");
-
-        match fs::read(res.icon_name.as_str()) {
-          Ok(data) => {
-            let mut du = DataUrl::new();
-
-            du.set_media_type(Some("image/png".to_string()));
-            du.set_data(&data);
-
-            Ok(du.to_string())
-          },
-          Err(err) => {
-            Err(err.to_string())
-          }
-        }
+  std::thread::spawn(move || {
+    match common::xdg_desktop::get_app_info(info) {
+      Ok(info) => {
+        window.emit(&id, info)
       },
-      Err(err) => Err(err.to_string())
+      Err(err) => {
+        window.emit(&id, Error{
+          error: err.to_string()
+        })
+      }
     }
+  });
+
+  Ok(cloned)
 }
 
 fn main() {
@@ -93,8 +90,7 @@ fn main() {
     }))
 
     // Custom Rust handlers
-    .invoke_handler(tauri::generate_handler![get_app_icon_path])
-    .invoke_handler(tauri::generate_handler![get_app_icon_blob])
+    .invoke_handler(tauri::generate_handler![get_app_info])
 
     .setup(|app| {
       #[cfg(debug_assertions)]
@@ -105,6 +101,7 @@ fn main() {
 
       Ok(())
     })
+    .any_thread()
     .run(tauri::generate_context!())
     .expect("error while running tauri application");
 }

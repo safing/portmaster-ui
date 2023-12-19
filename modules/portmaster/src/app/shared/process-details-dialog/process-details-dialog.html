@@ -19,8 +19,8 @@
           </tr>
           <tr>
             <th>User</th>
-            <td>{{ process.UserName }} <span class="text-tertiary"
-                *appExpertiseLevel="'export'">({{ process.UserID }})</span></td>
+            <td>{{ process.UserName }} <span class="text-tertiary" *appExpertiseLevel="'expert'">({{ process.UserID
+                }})</span></td>
             <td></td>
           </tr>
           <tr *appExpertiseLevel="'expert'">
@@ -28,6 +28,13 @@
             <td>{{ process.Pid }}</td>
             <td></td>
           </tr>
+
+          <tr *appExpertiseLevel="'expert'">
+            <th>Process Group ID</th>
+            <td (click)="openGroup()">{{ process.Pgid }}</td>
+            <td></td>
+          </tr>
+
           <tr *appExpertiseLevel="'expert'">
             <th>Parent Process ID</th>
             <td (click)="openParent()">{{ process.ParentPid }}</td>
@@ -35,8 +42,8 @@
           </tr>
           <tr>
             <th>Path</th>
-            <td>{{ process.Path }} <span *ngIf="process.MatchingPath"
-                class="text-tertiary">({{ process.MatchingPath }})</span></td>
+            <td>{{ process.Path }} <span *ngIf="process.MatchingPath" class="text-tertiary">({{ process.MatchingPath
+                }})</span></td>
             <td>
               <button (click)="createProfileForPath()"
                 sfng-tooltip="Create a new profile for all processes with this path">

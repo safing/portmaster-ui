@@ -1,8 +1,9 @@
 import { ConnectedPosition } from '@angular/cdk/overlay';
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, OnInit, Output } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, OnInit, Output, inject } from '@angular/core';
 import { ConfigService, DebugAPI, PortapiService, SPNService, StringSetting } from '@safing/portmaster-api';
 import { tap } from 'rxjs/operators';
 import { AppComponent } from 'src/app/app.component';
+import { INTEGRATION_SERVICE } from 'src/app/integration';
 import { NotificationType, NotificationsService, StatusService, VersionStatus } from 'src/app/services';
 import { ActionIndicatorService } from 'src/app/shared/action-indicator';
 import { fadeInAnimation, fadeOutAnimation } from 'src/app/shared/animations';
@@ -20,6 +21,8 @@ import { ExitService } from 'src/app/shared/exit-screen';
   ]
 })
 export class NavigationComponent implements OnInit {
+  private readonly integration = inject(INTEGRATION_SERVICE);
+
   /** Emits the current portapi connection state on changes. */
   readonly connected$ = this.portapi.connected$;
 
@@ -243,19 +246,13 @@ export class NavigationComponent implements OnInit {
    * Requires the application to run inside electron.
    */
   async openDataDir(event: Event) {
-    if (!!window.app) {
-      const dir = await window.app.getInstallDir()
-      await window.app.openExternal(dir);
-    }
+    const dir = await this.integration.getInstallDir()
+    await this.integration.openExternal(dir);
   }
 
   openChangeLog() {
     const url = "https://github.com/safing/portmaster/releases";
-    if (!!window.app) {
-      window.app.openExternal(url);
-      return;
-    }
-    window.open(url, '_blank');
+    this.integration.openExternal(url);
   }
 
   showIntro() {
@@ -279,13 +276,7 @@ export class NavigationComponent implements OnInit {
     this.debugAPI.getCoreDebugInfo()
       .subscribe(
         async info => {
-          console.log(info);
-          // Copy to clip-board if supported
-          if (!!navigator.clipboard) {
-            await navigator.clipboard.writeText(info);
-            this.actionIndicator.success("Copied to Clipboard")
-          }
-
+          await this.integration.writeToClipboard(info);
         },
         err => {
           console.error(err);

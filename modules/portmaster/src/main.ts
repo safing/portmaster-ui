@@ -3,6 +3,7 @@ import { platformBrowserDynamic } from '@angular/platform-browser-dynamic';
 
 import { AppModule } from './app/app.module';
 import { environment } from './environments/environment';
+import { integrationServiceFactory } from './app/integration';
 
 if (environment.production) {
   enableProdMode();
@@ -25,7 +26,7 @@ function handleExternalResources(e: Event) {
     target = target.parentElement;
   }
 
-  if (!!target && !!window.app) {
+  if (!!target) {
     let href = target.getAttribute("href");
     if (href?.startsWith("blob")) {
       return
@@ -33,7 +34,8 @@ function handleExternalResources(e: Event) {
 
     if (!!href && !href.includes(location.hostname)) {
       e.preventDefault();
-      window.app.openExternal(href!);
+
+      integrationServiceFactory().openExternal(href);
     }
   }
 }

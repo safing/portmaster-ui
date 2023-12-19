@@ -6,7 +6,9 @@ import {
   Inject,
   Input,
   OnDestroy,
+  OnInit,
   SkipSelf,
+  inject,
 } from '@angular/core';
 import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
 import {
@@ -15,8 +17,9 @@ import {
   PortapiService,
   Record,
 } from '@safing/portmaster-api';
-import { Subscription, map, of } from 'rxjs';
-import { switchMap } from 'rxjs/operators';
+import { Subscription, map, of, throwError } from 'rxjs';
+import { catchError, switchMap } from 'rxjs/operators';
+import { INTEGRATION_SERVICE, ProcessInfo } from 'src/app/integration';
 
 // Interface that must be satisfied for the profile-input
 // of app-icon.
@@ -51,8 +54,10 @@ const profilesToIgnore = ['local/_unidentified', 'local/_unsolicited'];
   styleUrls: ['./app-icon.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class AppIconComponent implements OnDestroy {
+export class AppIconComponent implements OnInit, OnDestroy {
   private sub = Subscription.EMPTY;
+  private integration = inject(INTEGRATION_SERVICE);
+  private initDone = false;
 
   /** @private The data-URL for the app-icon if available */
   src: SafeUrl | string = '';
@@ -75,7 +80,10 @@ export class AppIconComponent implements OnDestroy {
     }
 
     this._profile = p || null;
-    this.updateView();
+
+    if (this.initDone) {
+      this.updateView();
+    }
   }
   get profile(): IDandName | null | undefined {
     return this._profile;
@@ -106,7 +114,25 @@ export class AppIconComponent implements OnDestroy {
   ) { }
 
   /** Updates the view of the app-icon and tries to find the actual application icon */
+  private requestedAnimationFrame: number | null = null;
   private updateView(skipIcon = false) {
+    if (this.requestedAnimationFrame !== null) {
+      cancelAnimationFrame(this.requestedAnimationFrame);
+    }
+
+    this.requestedAnimationFrame = requestAnimationFrame(() => {
+      this.__updateView();
+    })
+  }
+
+  ngOnInit(): void {
+    this.updateView();
+    this.initDone = true;
+  }
+
+  private __updateView(skipIcon = false) {
+    this.requestedAnimationFrame = null;
+
     const p = this.profile;
     const sourceAndId = this.getIDAndSource();
 
@@ -225,9 +251,31 @@ export class AppIconComponent implements OnDestroy {
             }
           }
 
-          if (!!window.app && !!profile.PresentationPath) {
-            return window.app.getFileIcon(profile.PresentationPath);
-          }
+          return this.profileService
+            .getProcessesByProfile(profile)
+            .pipe(
+              switchMap(processes => {
+                if (processes?.length == 0) {
+                  return throwError('no processes found')
+                }
+
+                const process = processes[0];
+
+                const info: ProcessInfo = {
+                  execPath: process.Path,
+                  cmdline: process.CmdLine,
+                  pid: process.Pid,
+                  matchingPath: process.MatchingPath,
+                }
+
+                return this.integration.getAppIcon(info);
+              }),
+              catchError(err => {
+                console.error(err);
+
+                return of('')
+              })
+            );
 
           return of('');
         })

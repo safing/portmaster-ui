@@ -1,14 +1,16 @@
-import { ChangeDetectorRef, Directive, HostBinding, HostListener, Input, OnDestroy, OnInit } from "@angular/core";
+import { ChangeDetectorRef, Directive, HostBinding, HostListener, Input, OnDestroy, OnInit, inject } from "@angular/core";
 import { NetqueryConnection } from "@safing/portmaster-api";
 import { Subscription, combineLatest } from "rxjs";
 import { ActionIndicatorService } from "../../action-indicator";
 import { NetqueryHelper } from "../connection-helper.service";
+import { INTEGRATION_SERVICE } from "src/app/integration";
 
 @Directive({
   selector: '[sfngAddToFilter]'
 })
 export class SfngNetqueryAddToFilterDirective implements OnInit, OnDestroy {
   private subscription = Subscription.EMPTY;
+  private readonly integration = inject(INTEGRATION_SERVICE);
 
   @Input('sfngAddToFilter')
   key: keyof NetqueryConnection | null = null;
@@ -33,15 +35,13 @@ export class SfngNetqueryAddToFilterDirective implements OnInit, OnDestroy {
       this.helper.addToFilter(this.key, this._values);
       prevent = true
     } else if (evt.ctrlKey) {
-      if ('clipboard' in window.navigator) {
-        window.navigator.clipboard.writeText(this._values.join(', '))
-          .then(() => {
-            this.uai.success("Copied to clipboard", "Successfully copied " + this._values.join(", ") + " to your clipboard")
-          })
-          .catch(err => {
-            this.uai.error("Failed to copy to clipboard", this.uai.getErrorMessgae(err))
-          })
-      }
+      this.integration.writeToClipboard(this._values.join(', '))
+        .then(() => {
+          this.uai.success("Copied to clipboard", "Successfully copied " + this._values.join(", ") + " to your clipboard")
+        })
+        .catch(err => {
+          this.uai.error("Failed to copy to clipboard", this.uai.getErrorMessgae(err))
+        })
 
       prevent = true
     }

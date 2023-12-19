@@ -12,6 +12,7 @@ import { ActionIndicatorService } from 'src/app/shared/action-indicator';
 import { fadeInAnimation, fadeInListAnimation, moveInOutAnimation } from 'src/app/shared/animations';
 import { FuzzySearchService } from 'src/app/shared/fuzzySearch';
 import { SupportPage, supportTypes } from '../pages';
+import { INTEGRATION_SERVICE } from 'src/app/integration';
 
 @Component({
   templateUrl: './support-form.html',
@@ -19,8 +20,10 @@ import { SupportPage, supportTypes } from '../pages';
   animations: [fadeInAnimation, moveInOutAnimation, fadeInListAnimation]
 })
 export class SupportFormComponent implements OnInit {
-  private destroyRef = inject(DestroyRef);
-  private search$ = new BehaviorSubject<string>('');
+  private readonly destroyRef = inject(DestroyRef);
+  private readonly search$ = new BehaviorSubject<string>('');
+  private readonly integration = inject(INTEGRATION_SERVICE);
+
   page: SupportPage | null = null;
 
   debugData: string = '';
@@ -139,13 +142,9 @@ export class SupportFormComponent implements OnInit {
   }
 
   copyToClipboard(what: string) {
-    if (!!navigator.clipboard) {
-      navigator.clipboard.writeText(what)
-        .then(() => this.uai.success("Copied to Clipboard"))
-        .catch(() => this.uai.error('Failed to Copy to Clipboard'));
-    } else {
-      this.uai.info('Failed to Copy to Clipboard', 'Copy to clipboard is not supported by your browser')
-    }
+    this.integration.writeToClipboard(what)
+      .then(() => this.uai.success("Copied to Clipboard"))
+      .catch(() => this.uai.error('Failed to Copy to Clipboard'));
   }
 
   validate(): boolean {
@@ -209,11 +208,7 @@ export class SupportFormComponent implements OnInit {
         next: url => {
           this.sessionService.delete(this.page?.id || '');
           const openUrl = () => {
-            if (!!window.app) {
-              window.app.openExternal(url);
-            } else {
-              window.open(url, '__blank');
-            }
+            this.integration.openExternal(url);
           }
 
           if (genUrl === true) {
@@ -240,11 +235,7 @@ export class SupportFormComponent implements OnInit {
   }
 
   openIssue(issue: Issue) {
-    if (!!window.app) {
-      window.app.openExternal(issue.url);
-      return;
-    }
-    window.open(issue.url, '__blank')
+    this.integration.openExternal(issue.url);
   }
 
   createPrivateTicket() {
