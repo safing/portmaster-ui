@@ -25,6 +25,8 @@
                 .addEventListener("click", loadImage);
             
             console.log("ready")
+
+            window.__TAURI__.event.listen("exit-requested", () => window.__TAURI__.window.getCurrent().close())
         }
     </script>
 </head>

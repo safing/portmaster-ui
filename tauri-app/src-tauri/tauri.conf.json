@@ -13,7 +13,25 @@
     "productName": "Portmaster",
     "version": "0.1.0"
   },
+  "plugins": {
+    "cli": {
+      "args": [
+        {
+          "short": "d",
+          "name": "data",
+          "description": "Path to the installation directory",
+          "takesValue": true
+        },
+        {
+          "short": "b",
+          "name": "background",
+          "description": "Start in the background without opening a window"
+        }
+      ]
+    }
+  },
   "tauri": {
+
     "bundle": {
       "active": true,
       "category": "DeveloperTool",
@@ -73,13 +91,6 @@
       ]
     },
     "windows": [
-      {
-        "fullscreen": false,
-        "height": 600,
-        "resizable": true,
-        "title": "Portmaster",
-        "width": 800
-      }
     ]
   }
 }
