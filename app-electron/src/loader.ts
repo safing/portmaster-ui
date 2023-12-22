@@ -27,7 +27,7 @@ export class WebUILoader {
     constructor(
         private win: BrowserWindow,
         private url: string = 'http://127.0.0.1:817/',
-        private pollUrl: string = 'http://127.0.0.1:817/',
+        private pollUrl: string = 'http://127.0.0.1:817/api/v1/ping',
     ) {
         // Detect the system manager we need to interface
         // with when starting/stopping the portmaster
@@ -83,8 +83,8 @@ export class WebUILoader {
                 // we try to load the index.html in the background
                 // so we don't mess around with the current window
                 // content.
-                const response = await axios.get(this.pollUrl);
-                await this.win.loadURL(this.url)
+                await axios.get(this.pollUrl);
+                await this.win.loadURL(this.url);
                 this.loaded = true;
                 return
             } catch (err) {
