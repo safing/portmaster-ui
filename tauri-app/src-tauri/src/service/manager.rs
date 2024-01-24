@@ -1,49 +1,90 @@
 use std::process::{Command, Stdio, ExitStatus};
-use std::io;
+use std::{fs, io};
+
+use thiserror::Error;
+
+#[cfg(target_os = "linux")]
+use std::os::unix::fs::PermissionsExt;
+
+use super::status::StatusResult;
 
 static SYSTEMCTL: &str = "systemctl";
 static PKEXEC: &str = "pkexec";
 // TODO(ppacher): add support for kdesudo and gksudo
 
-/// SystemResult defines the "success" codes when querying or starting
-/// a system service. 
-pub enum StatusResult {
-    // The requested system service is installed and currently running.
-    Running,
-
-    // The requested system service is installed but currently stopped.
-    Stopped,
-
-    // NotFound is returned when the system service (systemd unit for linux)
-    // has not been found and the system and likely means the Portmaster installtion
-    // is broken all together. 
-    NotFound,
-
-    // For linux, there are multiple system service managers so we might encounter
-    // the situation where systemd is not installed. This is not considered an error
-    // here because it's fine for distros to use a different system manager but
-    // we need to account for that and display an "unsupported system manager"
-    // in the user interface nonetheless.
-    Unsupported,
-}
-
 pub type Result<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 
 /// A common interface to the system manager service (might be systemd, openrc, sc.exe, ...)
 pub trait ServiceManager {
-    fn status(&self, name: &str) -> Result<StatusResult>;
-    fn start(&self, name: &str) -> Result<StatusResult>;
+    fn status(&self) -> Result<StatusResult>;
+    fn start(&self) -> Result<StatusResult>;
+}
+
+#[cfg(target_os = "linux")]
+#[derive(Error, Debug)]
+pub enum SystemctlError {
+    #[error(transparent)]
+    FromUtf8Error(#[from] std::string::FromUtf8Error),
+
+    #[error(transparent)]
+    IoError(#[from] io::Error),
+
+    #[error("exit-status={0} output={1}")]
+    Other(ExitStatus, String)
+}
+
+impl From<std::process::Output> for SystemctlError {
+    fn from(output: std::process::Output) -> Self {
+        let msg = String::from_utf8(output.stderr)
+            .ok()
+            .filter(|s| !s.trim().is_empty())
+            .or_else(|| {
+                String::from_utf8(output.stdout)
+                    .ok()
+                    .filter(|s| !s.trim().is_empty())
+            })
+            .unwrap_or_else(|| format!("Failed to run `systemctl`"));
+
+        SystemctlError::Other(output.status, msg)
+    }
 }
 
 /// System Service manager implementation for Linux based distros.
 #[cfg(target_os = "linux")]
 pub struct SystemdServiceManager {}
 
-// TODO(ppacher): add an implementation for target_os = "windows"!
+impl SystemdServiceManager {
+    /// Checks if systemctl is available in /sbin/ /bin, /usr/bin or /usr/sbin.
+    ///
+    /// Note that we explicitly check those paths to avoid returning true in case
+    /// there's a systemctl binary in the cwd and PATH includes . since this may
+    /// pose a security risk of running an untrusted binary with root privileges.
+    pub fn is_installed() -> bool {
+        let paths = vec![
+            "/sbin/systemctl",
+            "/bin/systemctl",
+            "/usr/sbin/systemctl",
+            "/usr/bin/systemctl",
+        ];
 
+        for path in paths {
+            match fs::metadata(path) {
+                Ok(md) => {
+                    if md.is_file() && md.permissions().mode() & 0o111 != 0 {
+                        return true
+                    }
+                },
+                Err(err) => {},
+            }
+        }
+
+        false
+    }
+}
 
 impl ServiceManager for SystemdServiceManager {
-    fn status(&self, name: &str) -> Result<StatusResult> {
+    fn status(&self) -> Result<StatusResult> {
+        let name = "portmaster.service";
         let result = systemctl("is-active", name, false);
 
         match result {
@@ -75,13 +116,6 @@ impl ServiceManager for SystemdServiceManager {
                         }
                     },
 
-                    Err(SystemctlError::IoError(e)) => {
-                        match e.kind() {
-                            io::ErrorKind::NotFound => Ok(StatusResult::Unsupported),
-                            _ => Err(Box::new(e))
-                        }
-                    },
-
                     // Any other error type means something went completely wrong while running systemctl altogether.
                     Err(e) => {
                         Err(Box::new(e))
@@ -105,87 +139,32 @@ impl ServiceManager for SystemdServiceManager {
         }
     }
 
-    fn start(&self, name: &str) -> Result<StatusResult> {
+    fn start(&self) -> Result<StatusResult> {
+        let name = "portmaster.service";
+
         // This time we need to run as root through pkexec or similar binaries like kdesudo/gksudo. 
-        let result = systemctl("start", name, true);
+        systemctl("start", name, true)?;
 
-        match result {
-            Ok(_) => {
-                // It seems like we managed to start the service in question so try to retreive
-                // the current service status just to be sure.
-                self.status(name)
-            },
-
-            Err(e) => {
-                // Just bubble up the error to the caller, we don't really care what
-                // happened here...
-                Err(Box::new(e))
-            }
-        }
+        // Check the status again to be sure it's started now
+        self.status()
     }
 }
-
-
-#[cfg(target_os = "linux")]
-#[derive(Debug)]
-pub enum SystemctlError {
-    FromUtf8Error(std::string::FromUtf8Error),
-    IoError(io::Error),
-    Other(ExitStatus, String)
-}
-
-impl std::fmt::Display for SystemctlError {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match self {
-            Self::FromUtf8Error(e) => write!(f, "failed to convert from utf8: {}", e),
-            Self::IoError(e) => write!(f, "io error: {}", e),
-            Self::Other(e, msg) => write!(f, "{}: {}", e, msg),
-        }
-    }
-}
-
-impl From<io::Error> for SystemctlError {
-    fn from(value: io::Error) -> Self {
-        SystemctlError::IoError(value)
-    }
-}
-
-impl std::error::Error for SystemctlError {}
 
 #[cfg(target_os = "linux")]
 fn systemctl(cmd: &str, unit: &str, run_as_root: bool) -> std::result::Result<String, SystemctlError> {
     let output = run(run_as_root, SYSTEMCTL, vec![
         cmd,
         unit,
-    ]);
+    ])?;
 
-    match output {
-        Err(e) => Err(SystemctlError::IoError(e)),
-        Ok(output) => {
-            // The command have been able to run (i.e. has been spawned and executed by the kernel).
-            // We now need to check the exit code and "stdout/stderr" output in case of an error.
-            if output.status.success() {
-                let result: std::prelude::v1::Result<String, std::string::FromUtf8Error> = String::from_utf8(output.stdout);
-
-                match result {
-                    Ok(str) => Ok(str),
-                    Err(e) => Err(SystemctlError::FromUtf8Error(e))
-                }
-
-            } else {
-                let msg = String::from_utf8(output.stderr)
-                    .ok()
-                    .filter(|s| !s.trim().is_empty())
-                    .or_else(|| {
-                        String::from_utf8(output.stdout)
-                            .ok()
-                            .filter(|s| !s.trim().is_empty())
-                    })
-                    .unwrap_or_else(|| format!("Failed to run `systemctl {cmd} {unit}`"));
-
-                Err(SystemctlError::Other(output.status, msg))
-            }
-        }
+    // The command have been able to run (i.e. has been spawned and executed by the kernel).
+    // We now need to check the exit code and "stdout/stderr" output in case of an error.
+    if output.status.success() {
+        Ok(
+            String::from_utf8(output.stdout)?
+        )
+    } else {
+        Err(output.into())
     }
 }
 

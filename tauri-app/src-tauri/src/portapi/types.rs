@@ -15,57 +15,57 @@ pub enum Request {
 }
 
 impl std::convert::TryFrom<Message> for Request {
-    type Error = DeserializeError;
+    type Error = MessageError;
 
     fn try_from(value: Message) -> Result<Self, Self::Error> {
         match value.cmd.as_str() {
             "get" => {
-                let key = value.key.ok_or(DeserializeError::MissingKey)?;
+                let key = value.key.ok_or(MessageError::MissingKey)?;
                 Ok(Request::Get(key))
             },
             "query" => {
-                let key = value.key.ok_or(DeserializeError::MissingKey)?;
+                let key = value.key.ok_or(MessageError::MissingKey)?;
                 Ok(Request::Query(key))
             },
             "sub" => {
-                let key = value.key.ok_or(DeserializeError::MissingKey)?;
+                let key = value.key.ok_or(MessageError::MissingKey)?;
                 Ok(Request::Subscribe(key))
             },
             "qsub" => {
-                let key = value.key.ok_or(DeserializeError::MissingKey)?;
+                let key = value.key.ok_or(MessageError::MissingKey)?;
                 Ok(Request::QuerySubscribe(key))
             },
             "create" => {
-                let key = value.key.ok_or(DeserializeError::MissingKey)?;
-                let payload = value.payload.ok_or(DeserializeError::MissingPayload)?;
+                let key = value.key.ok_or(MessageError::MissingKey)?;
+                let payload = value.payload.ok_or(MessageError::MissingPayload)?;
                 Ok(Request::Create(key, payload))
             },
             "update" => {
-                let key = value.key.ok_or(DeserializeError::MissingKey)?;
-                let payload = value.payload.ok_or(DeserializeError::MissingPayload)?;
+                let key = value.key.ok_or(MessageError::MissingKey)?;
+                let payload = value.payload.ok_or(MessageError::MissingPayload)?;
                 Ok(Request::Update(key, payload))
             },
             "insert" => {
-                let key = value.key.ok_or(DeserializeError::MissingKey)?;
-                let payload = value.payload.ok_or(DeserializeError::MissingPayload)?;
+                let key = value.key.ok_or(MessageError::MissingKey)?;
+                let payload = value.payload.ok_or(MessageError::MissingPayload)?;
                 Ok(Request::Insert(key, payload))
             },
             "delete" => {
-                let key = value.key.ok_or(DeserializeError::MissingKey)?;
+                let key = value.key.ok_or(MessageError::MissingKey)?;
                 Ok(Request::Delete(key))
             },
             "cancel" => {
                 Ok(Request::Cancel)
             },
-            &_ => {
-                Err(DeserializeError::UnknownCommand)
+            cmd => {
+                Err(MessageError::UnknownCommand(cmd.to_string()))
             }
         }     
     }
 }
 
 impl std::convert::TryFrom<Request> for Message {
-    type Error = DeserializeError;
+    type Error = MessageError;
 
     fn try_from(value: Request) -> Result<Self, Self::Error> {
         match value {
@@ -95,30 +95,30 @@ pub enum Response {
 }
 
 impl std::convert::TryFrom<Message> for Response {
-    type Error = DeserializeError;
+    type Error = MessageError;
 
-    fn try_from(value: Message) -> Result<Self, DeserializeError> {
+    fn try_from(value: Message) -> Result<Self, MessageError> {
         match value.cmd.as_str() {
             "ok" => {
-                let key = value.key.ok_or(DeserializeError::MissingKey)?;
-                let payload = value.payload.ok_or(DeserializeError::MissingPayload)?;
+                let key = value.key.ok_or(MessageError::MissingKey)?;
+                let payload = value.payload.ok_or(MessageError::MissingPayload)?;
 
                 Ok(Response::Ok(key, payload))
             },
             "upd" => {
-                let key = value.key.ok_or(DeserializeError::MissingKey)?;
-                let payload = value.payload.ok_or(DeserializeError::MissingPayload)?;
+                let key = value.key.ok_or(MessageError::MissingKey)?;
+                let payload = value.payload.ok_or(MessageError::MissingPayload)?;
 
                 Ok(Response::Update(key, payload))
             },
             "new" => {
-                let key = value.key.ok_or(DeserializeError::MissingKey)?;
-                let payload = value.payload.ok_or(DeserializeError::MissingPayload)?;
+                let key = value.key.ok_or(MessageError::MissingKey)?;
+                let payload = value.payload.ok_or(MessageError::MissingPayload)?;
 
                 Ok(Response::New(key, payload))
             },
             "del" => {
-                let key = value.key.ok_or(DeserializeError::MissingKey)?;
+                let key = value.key.ok_or(MessageError::MissingKey)?;
 
                 Ok(Response::Delete(key))
             },
@@ -126,25 +126,25 @@ impl std::convert::TryFrom<Message> for Response {
                 Ok(Response::Success)
             },
             "error" => {
-                let key = value.key.ok_or(DeserializeError::MissingKey)?;
+                let key = value.key.ok_or(MessageError::MissingKey)?;
 
                 Ok(Response::Error(key))
             },
             "warning" => {
-                let key = value.key.ok_or(DeserializeError::MissingKey)?;
+                let key = value.key.ok_or(MessageError::MissingKey)?;
 
                 Ok(Response::Warning(key))
             },
             "done" => {
                 Ok(Response::Done)
             },
-            &_ => Err(DeserializeError::UnknownCommand)
+            cmd => Err(MessageError::UnknownCommand(cmd.to_string()))
         }
     }
 }
 
 impl std::convert::TryFrom<Response> for Message {
-    type Error = DeserializeError;
+    type Error = MessageError;
 
     fn try_from(value: Response) -> Result<Self, Self::Error> {
         match value {

@@ -46,6 +46,12 @@ tokio-websockets = { version = "0.5.0", features = ["client", "ring", "rand"] }
 sha = "1.0.3"
 http = "1.0.0"
 url = "2.5.0"
+thiserror = "1.0"
+
+[dev-dependencies]
+which = "6.0.0"
+gtk = "0.18"
+ctor = "0.2.6"
 
 [features]
 # this feature is used for production builds or when `devPath` points to the filesystem and the built-in dev server is disabled.
