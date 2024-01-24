@@ -1,5 +1,7 @@
 use thiserror::Error;
 
+/// MessageError describes any error that is encountered when parsing
+/// PortAPI messages or when converting between the Request/Response types.
 #[derive(Debug, Error)]
 pub enum MessageError {
     #[error("missing command id")]
@@ -25,12 +27,20 @@ pub enum MessageError {
 }
 
 
+/// Payload defines the payload type and content of a PortAPI message.
+/// 
+/// For the time being, only JSON payloads (indicated by a prefixed 'J' of the payload content)
+/// is directly supported in `Payload::parse()`.
+/// 
+/// For other payload types (like CBOR, BSON, ...) it's the user responsibility to figure out
+/// appropriate decoding from the `Payload::UNKNOWN` variant.
 #[derive(PartialEq, Debug, Clone)]
 pub enum Payload {
     JSON(String),
     UNKNOWN(String),
 }
 
+/// ParseError is returned from `Payload::parse()`.
 #[derive(Debug, Error)]
 pub enum ParseError {
     #[error(transparent)]
@@ -42,6 +52,9 @@ pub enum ParseError {
 
 
 impl Payload {
+    /// Parse the payload into T.
+    /// 
+    /// Only JSON parsing is supported for now. See [Payload] for more information.
     pub fn parse<'a, T>(self: &'a Self) -> std::result::Result<T, ParseError> 
     where
         T: serde::de::Deserialize<'a> {
@@ -53,6 +66,9 @@ impl Payload {
     }
 }
 
+/// Supports creating a Payload instance from a String.
+/// 
+/// See [Payload] for more information.
 impl std::convert::From<String> for Payload {
     fn from(value: String) -> Payload {
         let mut chars = value.chars();
@@ -69,6 +85,7 @@ impl std::convert::From<String> for Payload {
     }
 }
 
+/// Display implementation for Payload that just displays the raw payload.
 impl std::fmt::Display for Payload {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
@@ -82,6 +99,12 @@ impl std::fmt::Display for Payload {
     }
 }
 
+/// Message is an internal representation of a PortAPI message.
+/// Users should more likely use `portapi::types::Request` and `portapi::types::Response` 
+/// instead of directly using `Message`.
+/// 
+/// The struct is still public since it might be useful for debugging or to implement new
+/// commands not yet supported by the `portapi::types` crate.
 #[derive(PartialEq, Debug, Clone)]
 pub struct Message {
     pub id: usize,
@@ -90,6 +113,10 @@ pub struct Message {
     pub payload: Option<Payload>,
 }
 
+/// Implementation to marshal a PortAPI message into it's wire-format representation
+/// (which is a string).
+/// 
+/// Note that this conversion does not check for invalid messages!
 impl std::convert::From<Message> for String {
     fn from(value: Message) -> Self {
         let mut result = "".to_owned();
@@ -112,6 +139,10 @@ impl std::convert::From<Message> for String {
     }
 }
 
+/// An implementation for `String::parse()` to convert a wire-format representation
+/// of a PortAPI message to a Message instance.
+/// 
+/// Any errors returned from `String::parse()` will be of type `MessageError`
 impl std::str::FromStr for Message {
     type Err = MessageError;
 
