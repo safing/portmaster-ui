@@ -1,6 +1,9 @@
 
 use super::message::*;
 
+/// Request is a strongly typed request message
+/// that can be converted to a `portapi::message::Message`
+/// object for further use by the client (`portapi::client::PortAPI`).
 #[derive(PartialEq, Debug)]
 pub enum Request {
     Get(String),
@@ -14,6 +17,10 @@ pub enum Request {
     Cancel,
 }
 
+/// Implementation to convert a internal `portapi::message::Message` to a valid
+/// `Request` variant.
+/// 
+/// Any error returned will be of type `portapi::message::MessageError`.
 impl std::convert::TryFrom<Message> for Request {
     type Error = MessageError;
 
@@ -64,6 +71,12 @@ impl std::convert::TryFrom<Message> for Request {
     }
 }
 
+/// An implementation to try to convert a `Request` variant into a valid 
+/// `portapi::message::Message` struct.
+/// 
+/// While this implementation does not yet return any errors, it's expected that
+/// additional validation will be added in the future so users should already expect
+/// to receive `portapi::message::MessageError`s.
 impl std::convert::TryFrom<Request> for Message {
     type Error = MessageError;
 
@@ -82,6 +95,10 @@ impl std::convert::TryFrom<Request> for Message {
     }
 }
 
+
+/// Response is strongly types PortAPI response message.
+/// that can be converted to a `portapi::message::Message`
+/// object for further use by the client (`portapi::client::PortAPI`).
 #[derive(PartialEq, Debug)]
 pub enum Response {
     Ok(String, Payload),
@@ -94,6 +111,10 @@ pub enum Response {
     Done
 }
 
+/// Implementation to convert a internal `portapi::message::Message` to a valid
+/// `Response` variant.
+/// 
+/// Any error returned will be of type `portapi::message::MessageError`.
 impl std::convert::TryFrom<Message> for Response {
     type Error = MessageError;
 
@@ -143,6 +164,12 @@ impl std::convert::TryFrom<Message> for Response {
     }
 }
 
+/// An implementation to try to convert a `Response` variant into a valid 
+/// `portapi::message::Message` struct.
+/// 
+/// While this implementation does not yet return any errors, it's expected that
+/// additional validation will be added in the future so users should already expect
+/// to receive `portapi::message::MessageError`s.
 impl std::convert::TryFrom<Response> for Message {
     type Error = MessageError;
 

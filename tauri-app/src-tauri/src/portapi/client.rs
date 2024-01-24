@@ -9,18 +9,33 @@ use http::Uri;
 use super::types::*;
 use super::message::*;
 
+/// An internal representation of a Command that
+/// contains the PortAPI message as well as a response
+/// channel that will receive all responses sent from the
+/// server.
+/// 
+/// Users should normally not need to use the Command struct
+/// directly since `PortAPI` already abstracts the creation of
+/// mpsc channels.
 struct Command {
     msg: Message,
     response: Sender<Response>
 }
 
+/// The client implementation for PortAPI.
 #[derive(Clone)]
 pub struct PortAPI{
     dispatch: Sender<Command>,
 }
 
+/// The map type used to store message subscribers.
 type SubscriberMap = RwLock<HashMap<usize, Sender<Response>>>;
 
+/// Connect to PortAPI at the specified URI. 
+/// 
+/// This method will launch a new async thread on the `tauri::async_runtime`
+/// that will handle message to transmit and also multiplex server responses
+/// to the appropriate subscriber.
 pub async fn connect(uri: &str) -> Result<PortAPI, Error> {
     let parsed = match uri.parse::<Uri>() {
         Ok(u) => u,
@@ -32,7 +47,7 @@ pub async fn connect(uri: &str) -> Result<PortAPI, Error> {
     let (mut client, _) = ClientBuilder::from_uri(parsed).connect().await?;
     let (tx, mut dispatch) = channel::<Command>(64);
 
-    tokio::spawn(async move {
+    tauri::async_runtime::spawn(async move {
         let subscribers: SubscriberMap = RwLock::new(HashMap::new());
         let next_id = AtomicUsize::new(0);
 
@@ -129,11 +144,20 @@ pub async fn connect(uri: &str) -> Result<PortAPI, Error> {
 
 
 impl PortAPI {
+    /// `request` sends a PortAPI `portapi::types::Request` to the server and returns a mpsc receiver channel
+    /// where all server responses are forwarded.
+    /// 
+    /// If the caller does not intend to read any responses the returned receiver may be closed or 
+    /// dropped. As soon as the async-thread launched in `connect` detects a closed receiver it is remove
+    /// from the subscription map.
+    /// 
+    /// The default buffer size for the channel is 64. Use `request_with_buffer_size` to specify a dedicated buffer size.
     pub async fn request(&self, r: Request) -> std::result::Result<Receiver<Response>, MessageError> {
-        self.request_buffer(r, 64).await
+        self.request_with_buffer_size(r, 64).await
     }
 
-    pub async fn request_buffer(&self, r: Request, buffer: usize) -> std::result::Result<Receiver<Response>, MessageError> {
+    // Like `request` but supports explicitly specifying a channel buffer size.
+    pub async fn request_with_buffer_size(&self, r: Request, buffer: usize) -> std::result::Result<Receiver<Response>, MessageError> {
         let (tx, rx) = channel(buffer);
 
         let msg: Message = r.try_into()?;
@@ -146,6 +170,11 @@ impl PortAPI {
         Ok(rx)
     }
 
+    /// Reports whether or not the websocket connection to the Portmaster Database API has been closed
+    /// due to errors.
+    /// 
+    /// Users are expected to check this field on a regular interval to detect any issues and perform
+    /// a clean re-connect by calling `connect` again.
     pub fn is_closed(&self) -> bool {
         self.dispatch.is_closed()
     }
