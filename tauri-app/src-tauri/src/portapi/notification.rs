@@ -39,14 +39,6 @@ pub struct Notification {
 }
 
 #[derive(Serialize, Deserialize, Debug, PartialEq)]
-pub struct NotificationType(i32);
-
-pub const INFO: NotificationType = NotificationType(0);
-pub const WARN: NotificationType = NotificationType(1);
-pub const PROMPT: NotificationType = NotificationType(2);
-pub const ERROR: NotificationType = NotificationType(3);
-
-#[derive(Serialize, Deserialize, Debug, PartialEq)]
 pub struct Action {
     #[serde(alias = "ID")]
     pub id: String,
@@ -61,20 +53,18 @@ pub struct Action {
     pub payload: serde_json::Value,
 }
 
-impl Notification {
-    pub fn is_info(self) -> bool {
-        self.notification_type == INFO
-    }
+#[derive(Serialize, Deserialize, Debug, PartialEq)]
+pub struct NotificationType(i32);
 
-    pub fn is_warning(self) -> bool {
-        self.notification_type == WARN
-    }
+#[allow(dead_code)]
+pub const INFO: NotificationType = NotificationType(0);
 
-    pub fn is_prompt(self) -> bool {
-        self.notification_type == PROMPT
-    }
+#[allow(dead_code)]
+pub const WARN: NotificationType = NotificationType(1);
 
-    pub fn is_error(self) -> bool {
-        self.notification_type == ERROR
-    }
-}
+#[allow(dead_code)]
+pub const PROMPT: NotificationType = NotificationType(2);
+
+#[allow(dead_code)]
+pub const ERROR: NotificationType = NotificationType(3);
+

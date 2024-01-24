@@ -1,7 +1,8 @@
-use std::{collections::HashMap, ops::Deref, sync::{atomic::{AtomicUsize, Ordering, AtomicBool}, Arc}};
+use std::collections::HashMap;
+use std::sync::atomic::{AtomicUsize, Ordering};
 use futures_util::{SinkExt, StreamExt};
-use tokio::sync::{RwLock, mpsc::{Sender, Receiver, channel}};
-use tokio::task::JoinHandle;
+use tokio::sync::RwLock;
+use tokio::sync::mpsc::{Sender, Receiver, channel};
 use tokio_websockets::{ClientBuilder, Error};
 use http::Uri;
 
@@ -60,7 +61,7 @@ pub async fn connect(uri: &str) -> Result<PortAPI, Error> {
                                         .await;
 
                                     if let Some(sub) = map.get(&id) {
-                                        let res: Result<Response, DeserializeError> = msg.try_into();
+                                        let res: Result<Response, MessageError> = msg.try_into();
                                         match res {
                                             Ok(response) => {
                                                 if let Err(_) = sub.send(response).await {
@@ -128,11 +129,11 @@ pub async fn connect(uri: &str) -> Result<PortAPI, Error> {
 
 
 impl PortAPI {
-    pub async fn request(&self, r: Request) -> std::result::Result<Receiver<Response>, DeserializeError> {
+    pub async fn request(&self, r: Request) -> std::result::Result<Receiver<Response>, MessageError> {
         self.request_buffer(r, 64).await
     }
 
-    pub async fn request_buffer(&self, r: Request, buffer: usize) -> std::result::Result<Receiver<Response>, DeserializeError> {
+    pub async fn request_buffer(&self, r: Request, buffer: usize) -> std::result::Result<Receiver<Response>, MessageError> {
         let (tx, rx) = channel(buffer);
 
         let msg: Message = r.try_into()?;

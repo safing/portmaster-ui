@@ -3,12 +3,13 @@ use std::collections::HashMap;
 use std::ffi::c_int;
 use std::path::{Path, PathBuf};
 use std::sync::{Arc, RwLock};
-use std::{io::{Result, Error, ErrorKind}, env, fs};
+use std::{io::{Error, ErrorKind}, env, fs};
 use std::ffi::{CStr, CString};
 use gdk_pixbuf::{Pixbuf, PixbufError};
 use gtk_sys::{GtkIconTheme, gtk_icon_info_get_filename, gtk_icon_theme_get_default, gtk_icon_theme_lookup_icon, gtk_icon_info_free};
 use dataurl::DataUrl;
 use cached::proc_macro::once;
+use thiserror::Error;
 
 use dirs;
 use ini::{ParseOption, Ini};
@@ -18,6 +19,14 @@ static mut GTK_DEFAULT_THEME: Option<*mut GtkIconTheme> = None;
 lazy_static! {
     static ref APP_INFO_CACHE: Arc<RwLock<HashMap<String, AppInfo>>> = Arc::new(RwLock::new(HashMap::new()));
 }
+
+#[derive(Debug, Error)]
+pub enum LookupError {
+    #[error(transparent)]
+    IoError(#[from] std::io::Error),
+}
+
+pub type Result<T> = std::result::Result<T, LookupError>;
 
 #[derive(Clone, serde::Serialize)]
 pub struct AppInfo {
@@ -89,9 +98,9 @@ pub fn get_app_info(process_info: ProcessInfo) -> Result<AppInfo> {
 
                 break;
             },
-            Err(err) => {
-                if err.kind() != ErrorKind::NotFound {
-                    return Err(err)
+            Err(LookupError::IoError(ioerr)) => {
+                if ioerr.kind() != ErrorKind::NotFound {
+                    return Err(ioerr.into())
                 }
             }
         };
@@ -107,9 +116,9 @@ pub fn get_app_info(process_info: ProcessInfo) -> Result<AppInfo> {
 
                     break;
                 },
-                Err(err) => {
-                    if err.kind() != ErrorKind::NotFound {
-                        return Err(err)
+                Err(LookupError::IoError(ioerr)) => {
+                    if ioerr.kind() != ErrorKind::NotFound {
+                        return Err(ioerr.into())
                     }
                 }
             };
@@ -125,7 +134,7 @@ pub fn get_app_info(process_info: ProcessInfo) -> Result<AppInfo> {
             Ok(info)
         },
         None => {
-            Err(Error::new(ErrorKind::NotFound, format!("failed to find app info")))
+            Err(Error::new(ErrorKind::NotFound, format!("failed to find app info")).into())
         }
     }
 }
@@ -198,7 +207,7 @@ fn find_desktop_files(path: &Path) -> Result<Vec<fs::DirEntry>> {
             if err.kind() == ErrorKind::NotFound {
                 Ok(Vec::new())
             } else {
-                Err(err)
+                Err(err.into())
             }
         }
     }
@@ -208,7 +217,6 @@ enum CheckType {
     Name,
     Exec,
 }
-
 
 
 fn try_get_app_info(needle: &str, check: CheckType) -> Result<AppInfo> {
@@ -313,7 +321,7 @@ fn try_get_app_info(needle: &str, check: CheckType) -> Result<AppInfo> {
 
     }
 
-    Err(Error::new(ErrorKind::NotFound, "no matching .desktop files found"))
+    Err(Error::new(ErrorKind::NotFound, "no matching .desktop files found").into())
 }
 
 fn parse_app_info(props: &ini::Properties) -> AppInfo {
@@ -331,7 +339,7 @@ fn get_icon_as_png_dataurl(name: &str, size: i8) -> Result<(String, String)> {
             let theme = gtk_icon_theme_get_default();
             if theme.is_null() {
                 println!("You have to initialize GTK!");
-                return Err(Error::new(ErrorKind::Other, "You have to initialize GTK!"))
+                return Err(Error::new(ErrorKind::Other, "You have to initialize GTK!").into())
             }
 
             let theme = gtk_icon_theme_get_default();
@@ -402,7 +410,7 @@ fn get_icon_as_png_dataurl(name: &str, size: i8) -> Result<(String, String)> {
         }
     };
 
-     Err(Error::new(ErrorKind::NotFound, "failed to find icon"))
+     Err(Error::new(ErrorKind::NotFound, "failed to find icon").into())
 }
 
 
@@ -473,7 +481,7 @@ fn read_and_convert_pixbuf(result: String) -> std::result::Result<String, glib::
                     Ok(du.to_string())
                 },
                 Err(err) => {
-                    return Err(glib::Error::new(PixbufError::Failed, ""));
+                    return Err(glib::Error::new(PixbufError::Failed, err.to_string().as_str()));
                 }
             }
         },
@@ -484,3 +492,67 @@ fn read_and_convert_pixbuf(result: String) -> std::result::Result<String, glib::
 }
 
 
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use which::which;
+    use ctor::ctor;
+
+    // Use the ctor create to setup a global initializer before our tests are executed.
+    #[ctor]
+    fn init() {
+        // we need to initialize GTK before running our tests.
+        // This is only required when unit tests are executed as 
+        // GTK will otherwise be initialize by Tauri.
+
+        gtk::init().expect("failed to initialize GTK for tests")
+    }
+
+    #[test]
+    fn test_find_info_success() {
+        // we expect at least one of the following binaries to be installed
+        // on a linux system
+        let test_binaries = vec![
+            "vim",                  // vim is mostly bundled with a .desktop file
+            "blueman-manager",      // blueman-manager is the default bluetooth manager on most DEs
+            "nautilus",             // nautlis: file-manager on GNOME DE
+            "thunar",               // thunar: file-manager on XFCE
+            "dolphin",               // dolphin: file-manager on KDE 
+        ];
+
+        let mut bin_found = false;
+
+        for cmd in test_binaries {
+            match which(cmd) {
+                Ok(bin) => {
+                    bin_found = true;
+
+                    let bin = bin.to_string_lossy().to_string();
+
+                    let result = get_app_info(ProcessInfo{
+                        cmdline: cmd.to_string(),
+                        exec_path: bin.clone(),
+                        matching_path: bin.clone(),
+                        pid: 0,
+                    }).expect(format!("expected to find app info for {} ({})", bin, cmd.to_string()).as_str());
+
+                    let empty_string = String::from("");
+
+                    // just make sure all fields are populated
+                    assert_ne!(result.app_name, empty_string);
+                    assert_ne!(result.comment, empty_string);
+                    assert_ne!(result.icon_name, empty_string);
+                    assert_ne!(result.icon_dataurl, empty_string);
+                },
+                Err(_) => {
+                    // binary not found
+                    continue;
+                }
+            }
+        }
+
+        if !bin_found {
+            eprintln!("test_find_info_success: no test binary found, test was skipped")
+        }
+    }
+}

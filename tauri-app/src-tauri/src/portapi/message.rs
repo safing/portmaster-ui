@@ -1,27 +1,29 @@
-#[derive(Debug)]
-pub enum DeserializeError {
+use thiserror::Error;
+
+#[derive(Debug, Error)]
+pub enum MessageError {
+    #[error("missing command id")]
     MissingID,
+
+    #[error("invalid command id")]
     InvalidID,
+
+    #[error("missing command")]
     MissingCommand,
+
+    #[error("missing key")]
     MissingKey,
+
+    #[error("missing payload")]
     MissingPayload,
-    InvalidPayload(serde_json::Error),
-    UnknownCommand,
+
+    #[error("unknown or unsupported command: {0}")]
+    UnknownCommand(String),
+
+    #[error(transparent)]
+    InvalidPayload(#[from] serde_json::Error),
 }
 
-impl std::fmt::Display for DeserializeError {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match self {
-            DeserializeError::InvalidID => write!(f, "invalid id"),
-            DeserializeError::MissingID => write!(f, "missing id"),
-            DeserializeError::MissingCommand => write!(f, "missing command"),
-            DeserializeError::MissingKey => write!(f, "missing key"),
-            DeserializeError::MissingPayload => write!(f, "missing payload"),
-            DeserializeError::InvalidPayload(err) => write!(f, "invalid payload: {}", err.to_string()),
-            DeserializeError::UnknownCommand => write!(f, "unknown command"),
-        }
-    }
-}
 
 #[derive(PartialEq, Debug, Clone)]
 pub enum Payload {
@@ -29,17 +31,15 @@ pub enum Payload {
     UNKNOWN(String),
 }
 
-#[derive(Debug)]
+#[derive(Debug, Error)]
 pub enum ParseError {
-    JSON(serde_json::Error),
+    #[error(transparent)]
+    JSON(#[from] serde_json::Error),
+
+    #[error("unknown error while parsing")]
     UNKNOWN
 }
 
-impl std::convert::From<serde_json::Error> for ParseError {
-    fn from(value: serde_json::Error) -> Self {
-        ParseError::JSON(value)
-    }
-}
 
 impl Payload {
     pub fn parse<'a, T>(self: &'a Self) -> std::result::Result<T, ParseError> 
@@ -113,7 +113,7 @@ impl std::convert::From<Message> for String {
 }
 
 impl std::str::FromStr for Message {
-    type Err = DeserializeError;
+    type Err = MessageError;
 
     fn from_str(line: &str) -> Result<Self, Self::Err> {
         let parts = line.split("|").collect::<Vec<&str>>();
@@ -121,14 +121,14 @@ impl std::str::FromStr for Message {
         let id = match parts.get(0) {
             Some(s) => match (*s).parse::<usize>() {
                 Ok(id) => Ok(id),
-                Err(_) => Err(DeserializeError::InvalidID),
+                Err(_) => Err(MessageError::InvalidID),
             },
-            None => Err(DeserializeError::MissingID),
+            None => Err(MessageError::MissingID),
         }?;
 
         let cmd = match parts.get(1) {
             Some(s) => Ok(*s),
-            None => Err(DeserializeError::MissingCommand),
+            None => Err(MessageError::MissingCommand),
         }?
         .to_string();
 
@@ -151,7 +151,6 @@ impl std::str::FromStr for Message {
 mod tests {
     use super::*;
     use serde::Deserialize;
-
 
     #[derive(Debug, PartialEq, Deserialize)]
     struct Test {
@@ -214,14 +213,14 @@ mod tests {
 
         let m = "".parse::<Message>()
             .expect_err("Expected parsing to fail");
-        if let DeserializeError::InvalidID = m {} else {
+        if let MessageError::InvalidID = m {} else {
             panic!("unexpected error value: {}", m)
         }
 
         let m = "1".parse::<Message>()
             .expect_err("Expected parsing to fail");
 
-        if let DeserializeError::MissingCommand = m {} else {
+        if let MessageError::MissingCommand = m {} else {
             panic!("unexpected error value: {}", m)
         }
     }
