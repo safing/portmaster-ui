@@ -53,11 +53,22 @@ pub async fn connect(uri: &str) -> Result<PortAPI, Error> {
 
         loop {
             tokio::select! {
-                Some(msg) = client.next() => {
+                msg = client.next() => {
+                    let msg = match msg {
+                        Some(msg) => msg,
+                        None => {
+                            eprintln!("websocket connection lost");
+
+                            dispatch.close();
+                            return;
+                        }
+                    };
+
                     match msg {
                         Err(err) => {
                             eprintln!("failed to receive frame from websocket: {}", err);
 
+                            dispatch.close();
                             return;
                         },
                         Ok(msg) => {

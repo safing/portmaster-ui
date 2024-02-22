@@ -1,9 +1,10 @@
-use std::sync::{Arc, atomic::{AtomicBool, Ordering}};
+use std::{pin::Pin, sync::{atomic::{AtomicBool, Ordering}, Arc}};
+use std::future::Future;
+use futures_util::future;
 use tokio::time::{sleep, Duration};
 use tauri::Manager;
 
-use crate::portapi::client::connect;
-use crate::notifications::notification_handler;
+use crate::portapi::{self, client::connect};
 
 lazy_static! {
     static ref PM_REACHABLE: Arc<AtomicBool> = Arc::new(AtomicBool::new(false));
@@ -21,6 +22,10 @@ pub fn is_portapi_reachable() -> bool {
     PM_REACHABLE.load(Ordering::Relaxed)
 }
 
+pub trait Handler  {
+    fn handle(&self, cli: portapi::client::PortAPI) -> ();
+}
+
 /// Starts a backround thread (via tauri::async_runtime) that connects to the Portmaster
 /// Websocket database API.
 /// 
@@ -32,7 +37,8 @@ pub fn is_portapi_reachable() -> bool {
 /// 
 /// Also, a global app event "portapi::status" will be emitted whenever the status of
 /// the API connection changes. The payload of this event is either "connected" or "disconnected".
-pub fn start_websocket_thread(app: &tauri::AppHandle, handle_notifications: bool) {
+pub fn start_websocket_thread(app: &tauri::AppHandle, handler: Box<dyn Handler + Send>)
+{
     let app = app.clone();
 
     tauri::async_runtime::spawn(async move {
@@ -50,13 +56,8 @@ pub fn start_websocket_thread(app: &tauri::AppHandle, handle_notifications: bool
 
                     let _ = app.emit(PORTAPI_STATUS_EVENT, "connected");
 
-                    // Start the notification handle if desired
-                    if handle_notifications {
-                        let cli = cli.clone();
-                        tauri::async_runtime::spawn(async move {
-                            notification_handler(cli).await;
-                        });
-                    }
+                    eprintln!("Starting websocket handlers");
+                    handler.handle(cli.clone());
 
                     while !cli.is_closed() {
                         let _ = sleep(Duration::from_secs(1)).await;
