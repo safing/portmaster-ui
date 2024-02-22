@@ -2,7 +2,7 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
 use tauri::{
-    Manager, RunEvent, WindowEvent,
+    AppHandle, Manager, RunEvent, WindowEvent
 };
 use tauri_plugin_cli::CliExt;
 use tauri_plugin_notification::NotificationExt;
@@ -38,6 +38,27 @@ struct Payload {
     cwd: String,
 }
 
+struct WsHandler {
+    handle: AppHandle,
+    notifications: bool,
+}
+
+impl websocket::Handler for WsHandler {
+    fn handle(&self, cli: portapi::client::PortAPI) -> () {
+        if self.notifications {
+            let cli = cli.clone();
+            tauri::async_runtime::spawn(async move {
+                notifications::notification_handler(cli).await;
+            });
+        }
+
+        let cli = cli.clone();
+        let handle = self.handle.clone();
+        tauri::async_runtime::spawn(async move {
+            traymenu::tray_handler(cli, handle).await;
+        });
+    }
+}
 
 fn main() {
     let app = tauri::Builder::default()
@@ -130,7 +151,12 @@ fn main() {
                     .show();
             }
 
-            start_websocket_thread(app.handle(), handle_notifications);
+            let handler = WsHandler{
+                handle: app.handle().clone(),
+                notifications: handle_notifications,
+            };
+
+            start_websocket_thread(app.handle(), Box::new(handler));
 
             Ok(())
         })
