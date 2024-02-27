@@ -1,4 +1,4 @@
-use tauri::{AppHandle, Window, WindowBuilder, WindowUrl, Result, Manager};
+use tauri::{AppHandle, Manager, Result, UserAttentionType, Window, WindowBuilder, WindowUrl};
 
 use crate::websocket::is_portapi_reachable;
 
@@ -27,6 +27,30 @@ pub fn open_or_create_window(app: &AppHandle) -> Result<Window> {
     };
 
     Ok(window)
+}
+
+pub fn create_splash_window(app: &AppHandle) -> Result<Window> {
+    let window = WindowBuilder::new(app, "splash", WindowUrl::App("index.html".into()))
+        .always_on_top(true)
+        .center()
+        .closable(false)
+        .decorations(false)
+        .focused(true)
+        .resizable(false)
+        .visible(true)
+        .title("Portmaster")
+        .inner_size(600.0, 250.0)
+        .build()?;
+
+    let _ = window.request_user_attention(Some(UserAttentionType::Informational));
+
+    Ok(window)
+}
+
+pub fn close_splash_window(app: &AppHandle) {
+    if let Some(window) = app.get_window("splash") {
+        let _ = window.close();
+    }
 }
 
 /// If the Portmaster Websocket database API is reachable the window will be navigated

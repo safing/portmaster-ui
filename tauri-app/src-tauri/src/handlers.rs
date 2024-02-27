@@ -74,3 +74,35 @@ pub fn get_service_manager_status(
 
     Ok(cloned)
 }
+
+#[tauri::command]
+pub fn start_service(
+    window: Window,
+    response_id: String
+) -> std::result::Result<String, String> {
+    let mut id = response_id;
+
+    if id == "" {
+        id = uuid::Uuid::new_v4().to_string();
+    }
+    let cloned = id.clone();
+
+    std::thread::spawn(move || {
+        let result = match get_service_manager() {
+            Ok(sm) => {
+                sm.start()
+                    .map_err(|err| err.to_string())
+            },
+            Err(err) => {
+                Err(err.to_string())
+            }
+        };
+
+        match result {
+            Ok(result) => window.emit(&id, &result),
+            Err(err) => window.emit(&id, Error{ error: err })
+        }
+    });
+
+    Ok(cloned)
+}
