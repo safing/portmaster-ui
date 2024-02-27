@@ -20,6 +20,8 @@ pub fn get_service_manager() -> Result<impl ServiceManager> {
     #[cfg(target_os = "linux")]
     {
         if SystemdServiceManager::is_installed() {
+            eprintln!("system service manager: systemd");
+
             Ok(SystemdServiceManager{})
         } else {
             Err(ServiceManagerError::UnsupportedServiceManager)
