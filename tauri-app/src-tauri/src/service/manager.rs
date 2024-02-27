@@ -9,8 +9,12 @@ use std::os::unix::fs::PermissionsExt;
 use super::status::StatusResult;
 
 static SYSTEMCTL: &str = "systemctl";
-static PKEXEC: &str = "pkexec";
 // TODO(ppacher): add support for kdesudo and gksudo
+
+enum SudoCommand {
+    Pkexec,
+    Gksu,
+}
 
 pub type Result<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 
@@ -29,7 +33,7 @@ pub enum SystemctlError {
     #[error(transparent)]
     IoError(#[from] io::Error),
 
-    #[error("exit-status={0} output={1}")]
+    #[error("{0} output={1}")]
     Other(ExitStatus, String)
 }
 
@@ -68,15 +72,28 @@ impl SystemdServiceManager {
         ];
 
         for path in paths {
+            #[cfg(debug_assertions)]
+            eprintln!("checking for systemctl at path {}", path);
+
             match fs::metadata(path) {
                 Ok(md) => {
+                    eprintln!("found systemctl at path {} ", path);
+
                     if md.is_file() && md.permissions().mode() & 0o111 != 0 {
                         return true
                     }
+
+                    eprintln!("systemctl binary found but invalid permissions: {}", md.permissions().mode().to_string());
                 },
-                Err(err) => {},
-            }
+                Err(err) => {
+                    eprintln!("failed to check systemctl binary at {}: {}", path, err.to_string());
+
+                    continue
+                },
+            };
         }
+
+        eprintln!("failed to find systemctl binary");
 
         false
     }
@@ -103,6 +120,17 @@ impl ServiceManager for SystemdServiceManager {
             },
 
             Err(e) => {
+                if let SystemctlError::Other(_err, ref output) = e {
+                    let mut copy = output.to_owned();
+                    trim_newline(&mut copy);
+
+                    if copy == "inactive" {
+                        return Ok(StatusResult::Stopped)
+                    }
+                } else {
+                    eprintln!("failed to run 'systemctl is-active': {}", e.to_string());
+                }
+
                 // Failed to check if the unit is running
                 match systemctl("cat", name, false) { 
                     // "systemctl cat" seems to no have stable exit codes so we need
@@ -174,14 +202,34 @@ fn run<'a>(root: bool, cmd: &'a str, args: Vec<&'a str>) -> std::io::Result<std:
     // through pkexec or friends. This is just callled a couple of times on start-up
     // so cloning the vector does not add any mentionable performance impact here and it's better
     // than expecting a mutalble vector in the first place.
+
     let mut args = args.to_vec();
 
     let mut command = match root {
         true => {
-            // if we run through pkexec we need to append cmd as the first argument.
-            args.insert(0, cmd);
+            // if we run through pkexec and friends we need to append cmd as the second argument.
 
-            Command::new(PKEXEC)
+            args.insert(0, cmd);
+            match get_sudo_cmd() {
+                Ok(cmd) => {
+                    match cmd {
+                        SudoCommand::Pkexec => {
+                            // disable the internal text-based prompt agent from pkexec because it won't work anyway.
+                            args.insert(0, "--disable-internal-agent");
+                            Command::new("/usr/bin/pkexec")
+                        },
+                        SudoCommand::Gksu  => {
+                            args.insert(0, "--message=Please enter your password:");
+                            args.insert(1, "--sudo-mode");
+
+                            Command::new("/usr/bin/gksudo")
+                        }
+                    }
+                },
+                Err(err) => {
+                    return Err(err)
+                }
+            }
         },
         false => Command::new(cmd),
     };
@@ -203,4 +251,16 @@ fn trim_newline(s: &mut String) {
             s.pop();
         }
     }
+}
+
+fn get_sudo_cmd() -> std::result::Result<SudoCommand, std::io::Error> {
+    if let Ok(_) = fs::metadata("/usr/bin/pkexec") {
+        return Ok(SudoCommand::Pkexec)
+    }
+
+    if let Ok(_) = fs::metadata("/usr/bin/gksudo") {
+        return Ok(SudoCommand::Gksu)
+    }
+
+    Err(std::io::Error::new(io::ErrorKind::NotFound, "failed to detect sudo command"))
 }
