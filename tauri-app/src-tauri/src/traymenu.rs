@@ -93,7 +93,7 @@ pub fn setup_tray_menu(
                 let handle = app.clone();
                 app.dialog()
                     .message("This does not stop the Portmaster system service")
-                    .title("Do you really want to quit the user interface")
+                    .title("Do you really want to quit the user interface?")
                     .ok_button_label("Yes, exit")
                     .cancel_button_label("No")
                     .show(move |answer| {
