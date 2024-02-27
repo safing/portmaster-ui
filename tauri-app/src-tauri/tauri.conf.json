@@ -1,12 +1,12 @@
 {
   "build": {
     "beforeDevCommand": {
-      "script": "npm run serve",
-      "cwd": "../../modules/portmaster/dist",
+      "script": "ng serve tauri-builtin",
+      "cwd": "../../modules/portmaster",
       "wait": false
     },
     "devPath": "http://localhost:4200",
-    "distDir": "./web",
+    "distDir": "../../modules/portmaster/dist/tauri-builtin",
     "withGlobalTauri": true
   },
   "package": {

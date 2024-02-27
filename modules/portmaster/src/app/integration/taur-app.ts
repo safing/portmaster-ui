@@ -6,7 +6,7 @@ import { open } from '@tauri-apps/plugin-shell';
 // import { invoke } from '@tauri-apps/api/primitives';
 
 function invoke<T>(method: string, args: any): Promise<T> {
-  return (window as any).__TAURI__.primitives.invoke(method, args);
+  return (window as any).__TAURI__.core.invoke(method, args);
 }
 
 interface Event<T> {
@@ -43,7 +43,7 @@ function asyncInvoke<T>(method: string, args: object): Promise<T> {
     const eventId = uuid();
 
     once<T & { error: string }>(eventId, (event) => {
-      if ('error' in event.payload) {
+      if (typeof event.payload === 'object' && 'error' in event.payload) {
         reject(event.payload);
         return
       };
@@ -57,6 +57,8 @@ function asyncInvoke<T>(method: string, args: object): Promise<T> {
     }).catch(err => reject(err));
   })
 }
+
+export type ServiceManagerStatus = 'Running' | 'Stopped' | 'NotFound' | 'unsupported service manager' | 'unsupported operating system';
 
 export class TauriIntegrationService implements IntegrationService {
   writeToClipboard(text: string): Promise<void> {
@@ -84,6 +86,14 @@ export class TauriIntegrationService implements IntegrationService {
 
   exitApp(): Promise<void> {
     return invoke('exit', {})
+  }
+
+  getServiceManagerStatus(): Promise<ServiceManagerStatus> {
+    return asyncInvoke("get_service_manager_status", {})
+  }
+
+  startService(): Promise<any> {
+    return asyncInvoke("start_service", {});
   }
 }
 
