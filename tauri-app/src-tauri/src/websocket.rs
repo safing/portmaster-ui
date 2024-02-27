@@ -23,21 +23,22 @@ pub fn is_portapi_reachable() -> bool {
 }
 
 pub trait Handler  {
-    fn handle(&self, cli: portapi::client::PortAPI) -> ();
+    fn handle(&mut self, cli: portapi::client::PortAPI) -> ();
+    fn on_disconnect(&mut self);
 }
 
 /// Starts a backround thread (via tauri::async_runtime) that connects to the Portmaster
 /// Websocket database API.
 /// 
-/// If handle_notifications is set to true, a dedicated async thread is spawned to handle
-/// and display system notifications.
-/// 
+/// Once a connection has been established the provided handler will be called with the
+/// portapi::client::PortAPI instance.
+///
 /// In case the PM connection is lost, the spawned thread will try to re-connect to the
-/// API and re-start any handler (like for notifications) upon successfull reconnection.
+/// API and re-call the handler upon successfull reconnection.
 /// 
 /// Also, a global app event "portapi::status" will be emitted whenever the status of
 /// the API connection changes. The payload of this event is either "connected" or "disconnected".
-pub fn start_websocket_thread(app: &tauri::AppHandle, handler: Box<dyn Handler + Send>)
+pub fn start_websocket_thread(app: &tauri::AppHandle, mut handler: Box<dyn Handler + Send>)
 {
     let app = app.clone();
 
@@ -66,10 +67,14 @@ pub fn start_websocket_thread(app: &tauri::AppHandle, handler: Box<dyn Handler +
                     PM_REACHABLE.store(false, Ordering::Relaxed);
                     let _ = app.emit(PORTAPI_STATUS_EVENT, "disconnected");
 
+                    handler.on_disconnect();
+
                     eprintln!("lost connection to portmaster, retrying ....")
                 }
                 Err(err) => {
                     eprintln!("failed to create portapi client: {}", err);
+
+                    handler.on_disconnect();
 
                     // sleep and retry
                     sleep(Duration::from_secs(2)).await;

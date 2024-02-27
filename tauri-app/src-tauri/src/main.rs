@@ -25,7 +25,8 @@ use window::open_or_create_window;
 use websocket::start_websocket_thread;
 use handlers::{
     get_app_info,
-    get_service_manager_status
+    get_service_manager_status,
+    start_service,
 };
 
 
@@ -41,10 +42,22 @@ struct Payload {
 struct WsHandler {
     handle: AppHandle,
     notifications: bool,
+    background: bool,
+
+    is_first_connect: bool,
 }
 
 impl websocket::Handler for WsHandler {
-    fn handle(&self, cli: portapi::client::PortAPI) -> () {
+    fn handle(&mut self, cli: portapi::client::PortAPI) -> () {
+        window::close_splash_window(&self.handle.clone());
+
+        if !self.background && self.handle.get_window("main") == None {
+            let _ = open_or_create_window(&self.handle.clone());
+
+            #[cfg(debug_assertions)]
+            self.handle.get_window("main").unwrap().open_devtools();
+        }
+
         if self.notifications {
             let cli = cli.clone();
             tauri::async_runtime::spawn(async move {
@@ -57,6 +70,14 @@ impl websocket::Handler for WsHandler {
         tauri::async_runtime::spawn(async move {
             traymenu::tray_handler(cli, handle).await;
         });
+    }
+
+    fn on_disconnect(&mut self) {
+        if !self.background && self.is_first_connect {
+            let _ = window::create_splash_window(&self.handle.clone());
+
+            self.is_first_connect = false
+        }
     }
 }
 
@@ -85,6 +106,7 @@ fn main() {
         .invoke_handler(tauri::generate_handler![
             get_app_info,
             get_service_manager_status,
+            start_service,
         ])
         // Setup the app an any listeners
         .setup(|app| {
@@ -137,12 +159,7 @@ fn main() {
                 Err(_) => {}
             };
 
-            if !background {
-                open_or_create_window(&app.handle().clone())?;
-
-                #[cfg(debug_assertions)]
-                app.get_window("main").unwrap().open_devtools();
-            } else {
+            if background {
                 let _ = app
                     .notification()
                     .builder()
@@ -154,6 +171,8 @@ fn main() {
             let handler = WsHandler{
                 handle: app.handle().clone(),
                 notifications: handle_notifications,
+                background: background,
+                is_first_connect: true,
             };
 
             start_websocket_thread(app.handle(), Box::new(handler));
