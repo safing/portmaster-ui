@@ -2,54 +2,54 @@ use serde::*;
 
 #[derive(Serialize, Deserialize, Debug, PartialEq)]
 pub struct Notification {
-    #[serde(alias = "EventID")]
+    #[serde(rename = "EventID")]
     pub event_id: String,
 
-    #[serde(alias = "GUID")]
+    #[serde(rename = "GUID")]
     pub guid: String,
 
-    #[serde(alias = "Type")]
+    #[serde(rename = "Type")]
     pub notification_type: NotificationType,
 
-    #[serde(alias = "Message")]
+    #[serde(rename = "Message")]
     pub message: String,
 
-    #[serde(alias = "Title")]
+    #[serde(rename = "Title")]
     pub title: String,
-    #[serde(alias = "Category")]
+    #[serde(rename = "Category")]
     pub category: String,
 
-    #[serde(alias = "EventData")]
+    #[serde(rename = "EventData")]
     pub data: serde_json::Value,
 
-    #[serde(alias = "Expires")]
+    #[serde(rename = "Expires")]
     pub expires: u64,
 
-    #[serde(alias = "State")]
+    #[serde(rename = "State")]
     pub state: String,
 
-    #[serde(alias = "AvailableActions")]
+    #[serde(rename = "AvailableActions")]
     pub actions: Vec<Action>,
 
-    #[serde(alias = "SelectedActionID")]
+    #[serde(rename = "SelectedActionID")]
     pub selected_action_id: String,
 
-    #[serde(alias = "ShowOnSystem")]
+    #[serde(rename = "ShowOnSystem")]
     pub show_on_system: bool,
 }
 
 #[derive(Serialize, Deserialize, Debug, PartialEq)]
 pub struct Action {
-    #[serde(alias = "ID")]
+    #[serde(rename = "ID")]
     pub id: String,
 
-    #[serde(alias = "Text")]
+    #[serde(rename = "Text")]
     pub text: String,
 
-    #[serde(alias = "Type")]
+    #[serde(rename = "Type")]
     pub action_type: String,
 
-    #[serde(alias = "Payload")]
+    #[serde(rename = "Payload")]
     pub payload: serde_json::Value,
 }
 

@@ -2,40 +2,40 @@ use serde::*;
 
 #[derive(Serialize, Deserialize, Debug, PartialEq, Clone)]
 pub struct ModuleStatus {
-    #[serde(alias = "Name")]
+    #[serde(rename = "Name")]
     pub name: String,
 
-    #[serde(alias = "Enabled")]
+    #[serde(rename = "Enabled")]
     pub enabled: bool,
 
-    #[serde(alias = "Status")]
+    #[serde(rename = "Status")]
     pub status: u8,
 
-    #[serde(alias = "FailureStatus")]
+    #[serde(rename = "FailureStatus")]
     pub failure_status: u8,
 
-    #[serde(alias = "FailureID")]
+    #[serde(rename = "FailureID")]
     pub failure_id: String,
     
-    #[serde(alias = "FailureMsg")]
+    #[serde(rename = "FailureMsg")]
     pub failure_msg: String
 }
 
 #[derive(Serialize, Deserialize, Debug, PartialEq, Clone)]
 pub struct Subsystem {
-    #[serde(alias = "ID")]
+    #[serde(rename = "ID")]
     pub id: String,
 
-    #[serde(alias = "Name")]
+    #[serde(rename = "Name")]
     pub name: String,
 
-    #[serde(alias = "Description")]
+    #[serde(rename = "Description")]
     pub description: String,
 
-    #[serde(alias = "Modules")]
+    #[serde(rename = "Modules")]
     pub module_status: Vec<ModuleStatus>,
 
-    #[serde(alias = "FailureStatus")]
+    #[serde(rename = "FailureStatus")]
     pub failure_status: u8
 }
 
