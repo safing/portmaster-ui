@@ -1,6 +1,10 @@
-use tauri::{Manager, Window};
+use tauri::{Manager, Window, Runtime, State};
 use crate::{xdg, ServiceManager};
 use crate::service::get_service_manager;
+use super::PortmasterPlugin;
+use std::sync::atomic::Ordering;
+
+pub type Result = std::result::Result<String, String>;
 
 #[derive(Clone, serde::Serialize, serde::Deserialize)]
 pub struct Error {
@@ -8,14 +12,65 @@ pub struct Error {
 }
 
 #[tauri::command]
-pub fn get_app_info(
-    window: Window,
+pub fn should_show<R: Runtime>(
+    _window: Window<R>,
+    portmaster: State<'_, PortmasterPlugin<R>>,
+) -> Result {
+    if portmaster.get_show_after_bootstrap() {
+        Ok("show".to_string())
+    } else {
+        Ok("hide".to_string())
+    }
+}
+
+#[tauri::command]
+pub fn should_handle_prompts<R: Runtime>(
+    _window: Window<R>,
+    portmaster: State<'_, PortmasterPlugin<R>>,
+) -> Result {
+    if portmaster.handle_prompts.load(Ordering::Relaxed) {
+        Ok("true".to_string())
+    } else {
+        Ok("false".to_string())
+    }
+}
+
+#[tauri::command]
+pub fn get_state<R: Runtime>(
+    _window: Window<R>,
+    portmaster: State<'_, PortmasterPlugin<R>>,
+    key: String,
+) -> Result {
+    let value = portmaster.get_state(key);
+
+    if let Some(value) = value {
+        Ok(value)
+    } else {
+        Ok("".to_string())
+    }
+}
+
+#[tauri::command]
+pub fn set_state<R: Runtime>(
+    _window: Window<R>,
+    portmaster: State<'_, PortmasterPlugin<R>>,
+    key: String,
+    value: String,
+) -> Result {
+    portmaster.set_state(key, value);
+
+    Ok("".to_string())
+}
+
+#[tauri::command]
+pub fn get_app_info<R: Runtime>(
+    window: Window<R>,
     response_id: String,
     matching_path: String,
     exec_path: String,
     pid: i64,
     cmdline: String,
-) -> std::result::Result<String, String> {
+) -> Result {
     let mut id = response_id;
 
     let info = xdg::ProcessInfo {
@@ -44,10 +99,10 @@ pub fn get_app_info(
 }
 
 #[tauri::command]
-pub fn get_service_manager_status(
-    window: Window,
+pub fn get_service_manager_status<R: Runtime>(
+    window: Window<R>,
     response_id: String,
-) -> std::result::Result<String, String> {
+) -> Result {
     let mut id = response_id;
 
     if id == "" {
@@ -76,10 +131,10 @@ pub fn get_service_manager_status(
 }
 
 #[tauri::command]
-pub fn start_service(
-    window: Window,
+pub fn start_service<R: Runtime>(
+    window: Window<R>,
     response_id: String
-) -> std::result::Result<String, String> {
+) -> Result {
     let mut id = response_id;
 
     if id == "" {

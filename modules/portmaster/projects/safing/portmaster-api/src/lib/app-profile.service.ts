@@ -1,4 +1,3 @@
-import { query } from '@angular/animations';
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Inject, Injectable } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
@@ -253,14 +252,11 @@ export class AppProfileService {
       profileOrId = profileOrId.Source + "/" + profileOrId.ID
     }
 
-    return this.http.get<Process[]>(`${this.httpAPI}/v1/process/by-profile`, {
-      params: new HttpParams()
-        .set("scopedId", profileOrId)
-    })
+    return this.http.get<Process[]>(`${this.httpAPI}/v1/process/list/by-profile/${profileOrId}`)
   }
 
   getProcessByPid(pid: number): Observable<Process> {
-    return this.http.get<Process>(`${this.httpAPI}/v1/process/by-pid/${pid}`)
+    return this.http.get<Process>(`${this.httpAPI}/v1/process/group-leader/${pid}`)
   }
 }
 

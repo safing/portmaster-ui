@@ -1,5 +1,5 @@
 use std::sync::Mutex;
-use std::{collections::HashMap};
+use std::collections::HashMap;
 
 use serde::*;
 use tauri::{
@@ -9,40 +9,23 @@ use tauri::{
 };
 use tauri_plugin_dialog::DialogExt;
 
-use crate::portapi::message::Payload;
+use crate::{portapi::message::Payload, window::{self, create_splash_window}};
 use crate::{
     portapi::{
         client::PortAPI,
         message::ParseError,
-        subsystem::{self, Subsystem},
         types::{Request, Response},
+        models::{
+            spn::SPNStatus,
+            subsystem::{self, Subsystem},
+            config::BooleanValue,
+        }
     },
-    window::open_or_create_window,
+    window::create_main_window,
+    portmaster::PortmasterExt
 };
 
 pub type AppIcon = TrayIcon<Wry>;
-
-#[derive(Serialize, Deserialize, Debug, PartialEq, Clone)]
-struct BooleanValue {
-    #[serde(rename = "Value")]
-    value: Option<bool>,
-}
-
-impl TryInto<Payload> for BooleanValue {
-    type Error = serde_json::Error;
-
-    fn try_into(self) -> Result<Payload, Self::Error> {
-        let str = serde_json::to_string(&self)?;
-
-        Ok(Payload::JSON(str))
-    }
-}
-
-#[derive(Serialize, Deserialize, Debug, PartialEq, Clone)]
-struct SPNStatus {
-    #[serde(rename = "Status")]
-    status: String,
-}
 
 lazy_static! {
     // Set once setup_tray_menu executed.
@@ -103,14 +86,17 @@ pub fn setup_tray_menu(
                         }
                     });
             }
-            "open" => match open_or_create_window(app) {
-                Ok(_) => {}
-                Err(err) => {
-                    eprintln!("Failed to open or create window: {:?}", err);
-                }
+            "open" => {
+                window::open_window(app);
             },
             "spn" => {
-                _ = app.emit("spn:toggle", "");
+                let btn = SPN_BUTTON.lock().unwrap();
+
+                if let Some(bt) = &*btn {
+                    if let Ok(is_checked) = bt.is_checked() {
+                        app.portmaster().set_spn_enabled(is_checked);
+                    }
+                }
             }
             other => {
                 eprintln!("unknown menu event id: {}", other);
@@ -119,7 +105,9 @@ pub fn setup_tray_menu(
         .on_tray_icon_event(|tray, event| {
             // not supported on linux
             if event.click_type == ClickType::Left {
-                let _ = open_or_create_window(tray.app_handle());
+                tray.app_handle().portmaster().show_window();
+
+                let _ = create_main_window(tray.app_handle());
             }
         })
         .build(app)?;
@@ -163,27 +151,6 @@ pub async fn tray_handler(cli: PortAPI, app: tauri::AppHandle) {
             return;
         }
     };
-
-    let cloned = cli.clone();
-    let id = app.listen_global("spn:toggle", move |_event| {
-        let cloned = cloned.clone();
-        let btn = SPN_BUTTON.lock().unwrap();
-
-        if let Some(bt) = &*btn {
-            if let Ok(is_checked) = bt.is_checked() {
-                eprintln!("Toggeling SPN enable to {}", is_checked);
-
-                let body: Result<Payload, serde_json::Error> =
-                    BooleanValue { value: Some(is_checked) }.try_into();
-
-                if let Ok(payload) = body {
-                    tauri::async_runtime::spawn(async move { 
-                        _ = cloned.request(Request::Update("config:spn/enable".to_string(), payload)).await;
-                    });
-                }
-            }
-        }
-    });
 
     let mut subsystem_subscription = match cli
         .request(Request::QuerySubscribe(
@@ -334,8 +301,6 @@ pub async fn tray_handler(cli: PortAPI, app: tauri::AppHandle) {
     if let Some(btn) = &mut *(SPN_BUTTON.lock().unwrap()) {
         _ = btn.set_checked(false);
     }
-
-    app.unlisten(id);
 
     _ = icon.set_icon(Some(Icon::Raw(RED_ICON.to_vec())));
 }

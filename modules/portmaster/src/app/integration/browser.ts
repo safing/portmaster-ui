@@ -32,5 +32,10 @@ export class BrowserIntegrationService implements IntegrationService {
 
     return Promise.resolve();
   }
+
+  onExitRequest(cb: () => void): () => void {
+    // nothing to do, there
+    return () => { }
+  }
 }
 
