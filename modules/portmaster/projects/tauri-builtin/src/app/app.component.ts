@@ -28,9 +28,12 @@ export class AppComponent implements OnInit {
     this.tauri.openExternal("https://wiki.safing.io/en/Portmaster/App")
   }
 
-  async startService() {
-    await this.tauri.startService();
-    this.getStatus();
+  startService() {
+    this.tauri.startService()
+      .then(() => this.getStatus())
+      .catch(err => {
+        this.status = err.error;
+      });
   }
 
   getStatus() {

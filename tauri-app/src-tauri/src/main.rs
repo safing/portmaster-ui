@@ -5,7 +5,6 @@ use tauri::{
     AppHandle, Manager, RunEvent, WindowEvent
 };
 use tauri_plugin_cli::CliExt;
-use tauri_plugin_notification::NotificationExt;
 
 // Library crates
 mod service;
@@ -13,22 +12,14 @@ mod portapi;
 mod xdg;
 
 // App modules
-mod notifications;
 mod traymenu;
 mod window;
-mod websocket;
-mod handlers;
+mod portmaster;
 
 use service::manager::*;
 use traymenu::setup_tray_menu;
-use window::open_or_create_window;
-use websocket::start_websocket_thread;
-use handlers::{
-    get_app_info,
-    get_service_manager_status,
-    start_service,
-};
-
+use window::create_main_window;
+use portmaster::PortmasterExt;
 
 #[macro_use]
 extern crate lazy_static;
@@ -41,31 +32,24 @@ struct Payload {
 
 struct WsHandler {
     handle: AppHandle,
-    notifications: bool,
     background: bool,
 
     is_first_connect: bool,
 }
 
-impl websocket::Handler for WsHandler {
-    fn handle(&mut self, cli: portapi::client::PortAPI) -> () {
-        window::close_splash_window(&self.handle.clone());
+impl portmaster::Handler for WsHandler {
+    fn on_connect(&mut self, cli: portapi::client::PortAPI) -> () {
+        // we successfully connected to Portmaster. Set is_first_connect to false
+        // so we don't show the splash-screen when we loose connection.
+        self.is_first_connect = false;
 
-        if !self.background && self.handle.get_window("main") == None {
-            let _ = open_or_create_window(&self.handle.clone());
-
-            #[cfg(debug_assertions)]
-            self.handle.get_window("main").unwrap().open_devtools();
+        // create the main window now. It's not automatically visible by default.
+        // Rather, the angular application will show the window itself when it finished
+        // bootstrapping.
+        if let Err(err) = create_main_window(&self.handle.clone()) {
+            eprintln!("failed to create window: {}", err.to_string());
         }
 
-        if self.notifications {
-            let cli = cli.clone();
-            tauri::async_runtime::spawn(async move {
-                notifications::notification_handler(cli).await;
-            });
-        }
-
-        let cli = cli.clone();
         let handle = self.handle.clone();
         tauri::async_runtime::spawn(async move {
             traymenu::tray_handler(cli, handle).await;
@@ -73,6 +57,11 @@ impl websocket::Handler for WsHandler {
     }
 
     fn on_disconnect(&mut self) {
+        // if we're not running in background and this was the first connection attempt
+        // then display the splash-screen.
+        //
+        // Once we had a successful connection the splash-screen will not be shown anymore
+        // since there's already a main window with the angular application.
         if !self.background && self.is_first_connect {
             let _ = window::create_splash_window(&self.handle.clone());
 
@@ -93,47 +82,29 @@ fn main() {
         .plugin(tauri_plugin_os::init())
         // Single instance guard
         .plugin(tauri_plugin_single_instance::init(|app, argv, cwd| {
-            println!("{}, {argv:?}, {cwd}", app.package_info().name);
-
-            app.emit("single-instance", Payload { args: argv, cwd })
-                .unwrap();
+            let _ = app.emit("single-instance", Payload { args: argv, cwd });
         }))
         // Custom CLI arguments
         .plugin(tauri_plugin_cli::init())
         // Notification support
         .plugin(tauri_plugin_notification::init())
-        // Custom Rust handlers
-        .invoke_handler(tauri::generate_handler![
-            get_app_info,
-            get_service_manager_status,
-            start_service,
-        ])
+        // Our Portmaster Plugin that handles communication between tauri and our angular app.
+        .plugin(portmaster::init())
+
         // Setup the app an any listeners
         .setup(|app| {
             setup_tray_menu(app)?;
 
             // Setup the single-instance event listener that will create/focus the main window
-            // incase the tauri app would have been started again.
+            // or the splash-screen.
             let handle = app.handle().clone();
             app.listen_global("single-instance", move |_event| {
-                let _ = open_or_create_window(&handle);
+                window::open_window(&handle);
             });
 
-            // Load the UI from portmaster if portapi::connected event is emitted
-            // and we're not yet on the correct page.
-            // Note that we do not create the window here if it does not exist (i.e. we're minimized to tray.)
-            let handle = app.handle().clone();
-            app.listen_global(websocket::PORTAPI_STATUS_EVENT, move |event| {
-                if event.payload() == "connected" {
-                    if let Some(mut window) = handle.get_window("main") {
-                        crate::window::may_navigate_to_ui(&mut window)
-                    }
-                }
-            });
-
+            // Handle cli flags:
+            //
             let mut background = false;
-            let mut handle_notifications = false;
-
             match app.cli().matches() {
                 Ok(matches) => {
                     println!("{:?}", matches);
@@ -142,6 +113,7 @@ fn main() {
                         match bg_flag.value.as_bool() {
                             Some(value) => {
                                 background = value;
+                                app.portmaster().set_show_after_bootstrap(!background);
                             }
                             None => {}
                         }
@@ -150,32 +122,36 @@ fn main() {
                     if let Some(nf_flag) = matches.args.get("with-notifications") {
                         match nf_flag.value.as_bool() {
                             Some(v) => {
-                                handle_notifications = v;
+                                app.portmaster().with_notification_support(v);
                             }
                             None => {}
                         }
                     }
+
+                    if let Some(pf_flag) = matches.args.get("with-prompts") {
+                        match pf_flag.value.as_bool() {
+                            Some(v) => {
+                                app.portmaster().with_connection_prompts(v);
+                            },
+                            None => {}
+                        }
+                    }
                 }
-                Err(_) => {}
+                Err(err) => {
+                    eprintln!("failed to parse cli arguments: {}", err.to_string());
+                }
             };
 
-            if background {
-                let _ = app
-                    .notification()
-                    .builder()
-                    .body("Portmaster User Interface is running in the background")
-                    .icon("portmaster")
-                    .show();
-            }
-
+            // prepare a custom portmaster plugin handler that will show the splash-screen
+            // (if not in --background) and launch the tray-icon handler.
             let handler = WsHandler{
                 handle: app.handle().clone(),
-                notifications: handle_notifications,
-                background: background,
+                background,
                 is_first_connect: true,
             };
 
-            start_websocket_thread(app.handle(), Box::new(handler));
+            // register the custom handler
+            app.portmaster().register_handler(handler);
 
             Ok(())
         })
@@ -201,6 +177,9 @@ fn main() {
             //
             match event {
                 WindowEvent::CloseRequested { api, .. } => {
+                    #[cfg(debug_assertions)]
+                    println!("window (label={}) close request received, forwarding to user-interface.", label);
+
                     api.prevent_close();
                     if let Some(window) = handle.get_window(label.as_str()) {
                         let _ = window.emit("exit-requested", "");

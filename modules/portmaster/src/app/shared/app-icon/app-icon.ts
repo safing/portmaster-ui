@@ -271,13 +271,9 @@ export class AppIconComponent implements OnInit, OnDestroy {
                 return this.integration.getAppIcon(info);
               }),
               catchError(err => {
-                console.error(err);
-
                 return of('')
               })
             );
-
-          return of('');
         })
       )
       .subscribe({

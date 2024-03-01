@@ -451,7 +451,7 @@ export class SfngNetqueryLineChartComponent<D extends SeriesData = any> implemen
       return;
     }
 
-    if (!this.data.length) {
+    if (!this.data?.length) {
       return;
     }
 

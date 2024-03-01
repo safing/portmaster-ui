@@ -31,6 +31,9 @@ export interface IntegrationService {
 
   /** Closes the application, does not return */
   exitApp(): Promise<void>;
+
+  /** Registers a listener for on-close requests. */
+  onExitRequest(cb: () => void): () => void;
 }
 
 

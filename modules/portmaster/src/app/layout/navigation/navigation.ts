@@ -1,13 +1,14 @@
+import { INTEGRATION_SERVICE, IntegrationService } from 'src/app/integration';
 import { ConnectedPosition } from '@angular/cdk/overlay';
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, OnInit, Output, inject } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, Inject, OnInit, Output, inject } from '@angular/core';
 import { ConfigService, DebugAPI, PortapiService, SPNService, StringSetting } from '@safing/portmaster-api';
 import { tap } from 'rxjs/operators';
 import { AppComponent } from 'src/app/app.component';
-import { INTEGRATION_SERVICE } from 'src/app/integration';
 import { NotificationType, NotificationsService, StatusService, VersionStatus } from 'src/app/services';
 import { ActionIndicatorService } from 'src/app/shared/action-indicator';
 import { fadeInAnimation, fadeOutAnimation } from 'src/app/shared/animations';
 import { ExitService } from 'src/app/shared/exit-screen';
+import { TauriIntegrationService } from 'src/app/integration/taur-app';
 
 @Component({
   selector: 'app-navigation',
@@ -100,10 +101,20 @@ export class NavigationComponent implements OnInit {
 
     this.notificationService.new$
       .subscribe(notif => {
+
+
         if (notif.some(n => n.Type === NotificationType.Prompt && n.EventID.startsWith("filter:prompt"))) {
           this.hasNewPrompts = true;
+
+          if (this.integration instanceof TauriIntegrationService) {
+            this.integration.openPrompt();
+          }
         } else {
           this.hasNewPrompts = false;
+
+          if (this.integration instanceof TauriIntegrationService) {
+            this.integration.closePrompt();
+          }
         }
 
         if (notif.some(n => !n.EventID.startsWith("filter:prompt"))) {

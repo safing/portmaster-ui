@@ -38,4 +38,18 @@ export class ElectronIntegrationService extends BrowserIntegrationService {
 
     return Promise.resolve();
   }
+
+  onExitRequest(cb: () => void): () => void {
+    let listener = (event: MessageEvent<any>) => {
+      if (event.data === 'on-app-close') {
+        cb();
+      }
+    }
+
+    window.addEventListener('message', listener);
+
+    return () => {
+      window.removeEventListener('message', listener)
+    }
+  }
 }

@@ -1,5 +1,4 @@
 pub mod client;
 pub mod message;
 pub mod types;
-pub mod notification;
-pub mod subsystem;
+pub mod models;

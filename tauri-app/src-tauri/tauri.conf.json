@@ -26,6 +26,14 @@
           "short": "b",
           "name": "background",
           "description": "Start in the background without opening a window"
+        },
+        {
+          "name": "with-notifications",
+          "description": "Enable experimental notifications via Tauri. Replaces the notifier app."
+        },
+        {
+          "name": "with-prompts",
+          "description": "Enable experimental prompt support via Tauri. Replaces the notifier app."
         }
       ]
     }
@@ -34,7 +42,7 @@
 
     "bundle": {
       "active": true,
-      "category": "DeveloperTool",
+      "category": "Privacy",
       "copyright": "",
       "deb": {
         "depends": []
@@ -69,28 +77,20 @@
       "csp": null,
       "dangerousRemoteDomainIpcAccess": [
         {
-          "windows": ["main"],
+          "windows": ["main", "prompt"],
           "plugins": [
             "shell",
             "os",
             "clipboard-manager",
-            "event"
+            "event",
+            "window",
+            "cli",
+            "portmaster"
           ],
           "domain": "localhost"
-        },
-        {
-          "windows": ["main"],
-          "plugins": [
-            "shell",
-            "os",
-            "clipboard-manager",
-            "event"
-          ],
-          "domain": "localhost:4200"
         }
       ]
     },
-    "windows": [
-    ]
+    "windows": []
   }
 }

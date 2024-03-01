@@ -99,27 +99,25 @@ export class ExitService {
       this.portapi.bridgeAPI('ui/reload', 'POST').subscribe();
     })
 
-    window.addEventListener('message', event => {
-      if (event.data === 'on-app-close') {
-        this.stateService.uiState()
-          // make sure to not wait for the portmaster to start
-          .pipe(timeout(1000), catchError(() => of(null)))
-          .subscribe(state => {
-            if (state?.hideExitScreen) {
-              this.integration.exitApp();
-              return
-            }
+    this.integration.onExitRequest(() => {
+      this.stateService.uiState()
+        // make sure to not wait for the portmaster to start
+        .pipe(timeout(1000), catchError(() => of(null)))
+        .subscribe(state => {
+          if (state?.hideExitScreen) {
+            this.integration.exitApp();
+            return
+          }
 
-            if (this.hasOverlay) {
-              return;
-            }
-            this.hasOverlay = true;
+          if (this.hasOverlay) {
+            return;
+          }
+          this.hasOverlay = true;
 
-            this.dialog.create(ExitScreenComponent, { autoclose: true })
-              .onAction('exit', () => this.integration.exitApp())
-              .onClose.subscribe(() => this.hasOverlay = false);
-          })
-      }
+          this.dialog.create(ExitScreenComponent, { autoclose: true })
+            .onAction('exit', () => this.integration.exitApp())
+            .onClose.subscribe(() => this.hasOverlay = false);
+        })
     })
   }
 

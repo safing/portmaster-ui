@@ -1,7 +1,7 @@
 
 use crate::portapi::types::*;
 use crate::portapi::message::*;
-use crate::portapi::notification::*;
+use crate::portapi::models::notification::*;
 use crate::portapi::client::*;
 use tauri::async_runtime;
 use notify_rust;

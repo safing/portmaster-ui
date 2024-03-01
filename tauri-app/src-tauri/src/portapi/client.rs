@@ -39,7 +39,7 @@ type SubscriberMap = RwLock<HashMap<usize, Sender<Response>>>;
 pub async fn connect(uri: &str) -> Result<PortAPI, Error> {
     let parsed = match uri.parse::<Uri>() {
         Ok(u) => u,
-        Err(e) => {
+        Err(_e) => {
             return Err(Error::NoUriConfigured) // TODO(ppacher): fix the return error type.
         }
     };
@@ -75,9 +75,6 @@ pub async fn connect(uri: &str) -> Result<PortAPI, Error> {
                             let text = unsafe {
                                 std::str::from_utf8_unchecked(msg.as_payload())
                             };
-
-                            #[cfg(debug_assertions)]
-                            eprintln!("Received websocket frame: {}", text);
 
                             match text.parse::<Message>() {
                                 Ok(msg) => {

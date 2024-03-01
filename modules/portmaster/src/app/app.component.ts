@@ -1,5 +1,5 @@
 import { Overlay } from '@angular/cdk/overlay';
-import { AfterViewInit, ChangeDetectorRef, Component, ElementRef, HostListener, NgZone, OnInit, Renderer2, ViewChild } from '@angular/core';
+import { AfterViewInit, ChangeDetectorRef, Component, ElementRef, HostListener, Inject, NgZone, OnInit, Renderer2, ViewChild } from '@angular/core';
 import { Params, Router } from '@angular/router';
 import { PortapiService } from '@safing/portmaster-api';
 import { OverlayStepper, SfngDialogService, StepperRef } from '@safing/ui';
@@ -11,6 +11,8 @@ import { ActionIndicatorService } from './shared/action-indicator';
 import { fadeInAnimation, fadeOutAnimation } from './shared/animations';
 import { ExitService } from './shared/exit-screen';
 import { SfngNetquerySearchOverlayComponent } from './shared/netquery/search-overlay';
+import { INTEGRATION_SERVICE, IntegrationService } from './integration';
+import { TauriIntegrationService } from './integration/taur-app';
 
 @Component({
   selector: 'app-root',
@@ -90,14 +92,13 @@ export class AppComponent implements OnInit, AfterViewInit {
     public portapi: PortapiService,
     public changeDetectorRef: ChangeDetectorRef,
     private router: Router,
-    private notificationService: NotificationsService,
-    private actionIndicatorService: ActionIndicatorService,
     private exitService: ExitService,
     private overlayStepper: OverlayStepper,
     private dialog: SfngDialogService,
     private overlay: Overlay,
     private stateService: UIStateService,
     private renderer2: Renderer2,
+    @Inject(INTEGRATION_SERVICE) private integration: IntegrationService,
   ) {
     (window as any).portapi = portapi;
   }
@@ -199,6 +200,18 @@ export class AppComponent implements OnInit, AfterViewInit {
 
   ngAfterViewInit(): void {
     this.sideDashOpen.next(this.sideDashStatus !== 'collapsed')
+
+    if (this.integration instanceof TauriIntegrationService) {
+      let tauri = this.integration;
+
+      tauri.shouldShow()
+        .then(show => {
+          console.log("should open window: ", show)
+          if (show) {
+            tauri.openApp();
+          }
+        });
+    }
   }
 
   showIntro(): StepperRef {
