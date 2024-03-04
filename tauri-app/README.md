@@ -33,3 +33,12 @@ The tauri application consists of the following modules:
          Free-Desktop XDG Desktop and Icon- Theme specifications.
 - `main.rs`: The main entrypoint file that configures and runs the tauri application.
 - `window.rs`: Utility methods for managing the main and splash-screen windows.
+
+## Build with Docker
+
+    # Build docker image
+    docker build -t tauri-builder
+    # Build for linux
+    docker run -ti --rm -v $PWD:/app tauri-builder cargo build
+    # Build for windows
+    docker run -ti --rm -v $PWD:/app tauri-builder cargo build --target x86_64-pc-windows-gnu
