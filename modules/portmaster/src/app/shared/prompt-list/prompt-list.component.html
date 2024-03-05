@@ -6,10 +6,17 @@
       <span class="prompt-count info-circle">{{ profile.prompts.length }}</span>
       <app-menu-trigger [menu]="menu"></app-menu-trigger>
       <app-menu #menu>
+        <app-menu-group>Per Connection</app-menu-group>
         <app-menu-item (click)="allowAll(profile)">Allow All</app-menu-item>
         <app-menu-item (click)="denyAll(profile)">Block All</app-menu-item>
+
+        <app-menu-group>Default Action</app-menu-group>
+        <app-menu-item (click)="changeDefault(profile, 'permit')">Allow App</app-menu-item>
+        <app-menu-item (click)="changeDefault(profile, 'block')">Block App</app-menu-item>
+
         <app-menu-item class="item-seperator" [routerLink]="['/', 'app', profile.Source, profile.ID]"
-          [queryParams]="{setting: 'filter/defaultAction'}">Change Default</app-menu-item>
+          [queryParams]="{setting: 'filter/defaultAction', tab: 'settings'}">Change Default</app-menu-item>
+
         <app-menu-item class="item-seperator" [routerLink]="['/', 'app', profile.Source, profile.ID]">
           App Settings
         </app-menu-item>
