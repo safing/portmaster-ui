@@ -3,7 +3,6 @@ import { writeText } from '@tauri-apps/plugin-clipboard-manager';
 import { open } from '@tauri-apps/plugin-shell';
 import { listen, once } from '@tauri-apps/api/event';
 import { invoke } from '@tauri-apps/api/core'
-import { getMatches } from '@tauri-apps/plugin-cli';
 import { getCurrent, Window } from '@tauri-apps/api/window';
 
 // Returns a new uuidv4. If crypto.randomUUID is not available it fals back to

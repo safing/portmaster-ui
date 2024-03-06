@@ -269,6 +269,9 @@ export class AppIconComponent implements OnInit, OnDestroy {
                 }
 
                 return this.integration.getAppIcon(info);
+
+                /// FIXME(ppacher): store the icon using icon-source "UI".
+
               }),
               catchError(err => {
                 return of('')

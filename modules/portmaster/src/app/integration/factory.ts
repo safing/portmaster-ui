@@ -6,13 +6,16 @@ import { TauriIntegrationService } from "./taur-app";
 
 export function integrationServiceFactory(): IntegrationService {
   if ('__TAURI__' in window) {
+    console.log("[app] running under tauri")
     return new TauriIntegrationService();
   }
 
   if ('app' in window) {
+    console.log("[app] running under electron")
     return new ElectronIntegrationService();
   }
 
+  console.log("[app] running in browser")
   return new BrowserIntegrationService();
 }
 
