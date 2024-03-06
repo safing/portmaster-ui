@@ -1,15 +1,13 @@
 use std::sync::Mutex;
 use std::collections::HashMap;
 
-use serde::*;
 use tauri::{
-    menu::{CheckMenuItem, CheckMenuItemBuilder, MenuBuilder, MenuItemBuilder, PredefinedMenuItem},
+    menu::{CheckMenuItem, CheckMenuItemBuilder, MenuBuilder, MenuItemBuilder, PredefinedMenuItem, SubmenuBuilder},
     tray::{ClickType, TrayIcon, TrayIconBuilder},
     Icon, Manager, Wry,
 };
 use tauri_plugin_dialog::DialogExt;
 
-use crate::{portapi::message::Payload, window::{self, create_splash_window}};
 use crate::{
     portapi::{
         client::PortAPI,
@@ -21,7 +19,11 @@ use crate::{
             config::BooleanValue,
         }
     },
-    window::create_main_window,
+    window::{
+        create_main_window,
+        open_window,
+        may_navigate_to_ui
+    },
     portmaster::PortmasterExt
 };
 
@@ -50,12 +52,21 @@ pub fn setup_tray_menu(
     let close_btn = MenuItemBuilder::with_id("close", "Exit").build(app);
     let open_btn = MenuItemBuilder::with_id("open", "Open").build(app);
 
-    let spn = CheckMenuItemBuilder::with_id("spn", "SPN").build(app);
+    let spn = CheckMenuItemBuilder::with_id("spn", "Use SPN").build(app);
 
     // Store the SPN button reference
     let mut button_ref = SPN_BUTTON.lock().unwrap();
     *button_ref = Some(spn.clone());
 
+    let force_show_window = MenuItemBuilder::with_id("force-show", "Force Show UI").build(app);
+    let reload_btn = MenuItemBuilder::with_id("reload", "Reload User Interface").build(app);
+    let developer_menu = SubmenuBuilder::new(app, "Developer")
+        .items(&[
+            &reload_btn,
+            &force_show_window,
+        ])
+        .build()?;
+    
     // Drop the reference now so we unlock immediately.
     drop(button_ref);
 
@@ -65,6 +76,7 @@ pub fn setup_tray_menu(
             &PredefinedMenuItem::separator(app),
             &open_btn,
             &close_btn,
+            &developer_menu,
         ])
         .build()?;
 
@@ -87,7 +99,25 @@ pub fn setup_tray_menu(
                     });
             }
             "open" => {
-                window::open_window(app);
+                let _ = open_window(app);
+            },
+            "reload" => {
+                if let Ok(mut win) = open_window(app) {
+                    may_navigate_to_ui(&mut win, true);
+                }
+            },
+            "force-show" => {
+                match create_main_window(app) {
+                    Ok(mut win) => {
+                        may_navigate_to_ui(&mut win, true);
+                        if let Err(err) = win.show() {
+                            eprintln!("[tauri] failed to show window: {}", err.to_string());
+                        };
+                    },
+                    Err(err) => {
+                        eprintln!("[tauri] failed to create main window: {}", err.to_string());
+                    }
+                };
             },
             "spn" => {
                 let btn = SPN_BUTTON.lock().unwrap();

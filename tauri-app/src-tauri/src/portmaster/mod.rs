@@ -171,6 +171,9 @@ impl<R: Runtime> PortmasterPlugin<R> {
     /// It calls set_show_after_bootstrap(true) automatically so the application
     /// also shows after bootstrapping.
     pub fn show_window(&self) {
+        #[cfg(debug_assertions)]
+        eprintln!("[tauri] showing main window");
+
         // set show_after_bootstrap to true so the app will even show if it
         // misses the event below because it's still bootstrapping.
         self.set_show_after_bootstrap(true);

@@ -17,8 +17,14 @@ pub fn should_show<R: Runtime>(
     portmaster: State<'_, PortmasterPlugin<R>>,
 ) -> Result {
     if portmaster.get_show_after_bootstrap() {
+        #[cfg(debug_assertions)]
+        eprintln!("[tauri:rpc:should_show] application should show after bootstrap");
+
         Ok("show".to_string())
     } else {
+        #[cfg(debug_assertions)]
+        eprintln!("[tauri:rpc:should_show] application should hide after bootstrap");
+
         Ok("hide".to_string())
     }
 }
