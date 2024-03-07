@@ -1,25 +1,24 @@
 // Prevents additional console window on Windows in release, DO NOT REMOVE!!
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
-use tauri::{
-    AppHandle, Manager, RunEvent, WindowEvent
-};
+use tauri::{AppHandle, Manager, RunEvent, WindowEvent};
 use tauri_plugin_cli::CliExt;
 
 // Library crates
-mod service;
 mod portapi;
+mod service;
+
+#[cfg(target_os = "linux")]
 mod xdg;
 
 // App modules
+mod portmaster;
 mod traymenu;
 mod window;
-mod portmaster;
 
-use service::manager::*;
+use portmaster::PortmasterExt;
 use traymenu::setup_tray_menu;
 use window::create_main_window;
-use portmaster::PortmasterExt;
 
 #[macro_use]
 extern crate lazy_static;
@@ -90,7 +89,6 @@ fn main() {
         .plugin(tauri_plugin_notification::init())
         // Our Portmaster Plugin that handles communication between tauri and our angular app.
         .plugin(portmaster::init())
-
         // Setup the app an any listeners
         .setup(|app| {
             setup_tray_menu(app)?;
@@ -132,7 +130,7 @@ fn main() {
                         match pf_flag.value.as_bool() {
                             Some(v) => {
                                 app.portmaster().with_connection_prompts(v);
-                            },
+                            }
                             None => {}
                         }
                     }
@@ -144,7 +142,7 @@ fn main() {
 
             // prepare a custom portmaster plugin handler that will show the splash-screen
             // (if not in --background) and launch the tray-icon handler.
-            let handler = WsHandler{
+            let handler = WsHandler {
                 handle: app.handle().clone(),
                 background,
                 is_first_connect: true,
@@ -178,7 +176,10 @@ fn main() {
             match event {
                 WindowEvent::CloseRequested { api, .. } => {
                     #[cfg(debug_assertions)]
-                    println!("window (label={}) close request received, forwarding to user-interface.", label);
+                    println!(
+                        "window (label={}) close request received, forwarding to user-interface.",
+                        label
+                    );
 
                     api.prevent_close();
                     if let Some(window) = handle.get_window(label.as_str()) {
@@ -187,7 +188,7 @@ fn main() {
                 }
                 _ => {}
             }
-        },
+        }
 
         RunEvent::ExitRequested { api, .. } => {
             api.prevent_exit();

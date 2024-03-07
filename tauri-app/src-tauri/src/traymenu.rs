@@ -1,8 +1,11 @@
-use std::sync::Mutex;
 use std::collections::HashMap;
+use std::sync::Mutex;
 
 use tauri::{
-    menu::{CheckMenuItem, CheckMenuItemBuilder, MenuBuilder, MenuItemBuilder, PredefinedMenuItem, SubmenuBuilder},
+    menu::{
+        CheckMenuItem, CheckMenuItemBuilder, MenuBuilder, MenuItemBuilder, PredefinedMenuItem,
+        SubmenuBuilder,
+    },
     tray::{ClickType, TrayIcon, TrayIconBuilder},
     Icon, Manager, Wry,
 };
@@ -12,19 +15,15 @@ use crate::{
     portapi::{
         client::PortAPI,
         message::ParseError,
-        types::{Request, Response},
         models::{
+            config::BooleanValue,
             spn::SPNStatus,
             subsystem::{self, Subsystem},
-            config::BooleanValue,
-        }
+        },
+        types::{Request, Response},
     },
-    window::{
-        create_main_window,
-        open_window,
-        may_navigate_to_ui
-    },
-    portmaster::PortmasterExt
+    portmaster::PortmasterExt,
+    window::{create_main_window, may_navigate_to_ui, open_window},
 };
 
 pub type AppIcon = TrayIcon<Wry>;
@@ -32,18 +31,18 @@ pub type AppIcon = TrayIcon<Wry>;
 lazy_static! {
     // Set once setup_tray_menu executed.
     static ref SPN_BUTTON: Mutex<Option<CheckMenuItem<Wry>>> = Mutex::new(None);
-
-    // Icons
-    //
-    static ref BLUE_ICON: Vec<u8> =
-        include_bytes!("../../../notifier/icons/icons/pm_light_blue_512.ico").to_vec();
-    static ref RED_ICON: Vec<u8> =
-        include_bytes!("../../../notifier/icons/icons/pm_light_red_512.ico").to_vec();
-    static ref YELLOW_ICON: Vec<u8> =
-        include_bytes!("../../../notifier/icons/icons/pm_light_yellow_512.ico").to_vec();
-    static ref GREEN_ICON: Vec<u8> =
-        include_bytes!("../../../notifier/icons/icons/pm_light_green_512.ico").to_vec();
 }
+
+// Icons
+//
+const BLUE_ICON: &'static [u8] =
+    include_bytes!("../../../notifier/icons/icons/pm_light_blue_512.ico");
+const RED_ICON: &'static [u8] =
+    include_bytes!("../../../notifier/icons/icons/pm_light_red_512.ico");
+const YELLOW_ICON: &'static [u8] =
+    include_bytes!("../../../notifier/icons/icons/pm_light_yellow_512.ico");
+const GREEN_ICON: &'static [u8] =
+    include_bytes!("../../../notifier/icons/icons/pm_light_green_512.ico");
 
 pub fn setup_tray_menu(
     app: &mut tauri::App,
@@ -61,12 +60,9 @@ pub fn setup_tray_menu(
     let force_show_window = MenuItemBuilder::with_id("force-show", "Force Show UI").build(app);
     let reload_btn = MenuItemBuilder::with_id("reload", "Reload User Interface").build(app);
     let developer_menu = SubmenuBuilder::new(app, "Developer")
-        .items(&[
-            &reload_btn,
-            &force_show_window,
-        ])
+        .items(&[&reload_btn, &force_show_window])
         .build()?;
-    
+
     // Drop the reference now so we unlock immediately.
     drop(button_ref);
 
@@ -100,12 +96,12 @@ pub fn setup_tray_menu(
             }
             "open" => {
                 let _ = open_window(app);
-            },
+            }
             "reload" => {
                 if let Ok(mut win) = open_window(app) {
                     may_navigate_to_ui(&mut win, true);
                 }
-            },
+            }
             "force-show" => {
                 match create_main_window(app) {
                     Ok(mut win) => {
@@ -113,12 +109,12 @@ pub fn setup_tray_menu(
                         if let Err(err) = win.show() {
                             eprintln!("[tauri] failed to show window: {}", err.to_string());
                         };
-                    },
+                    }
                     Err(err) => {
                         eprintln!("[tauri] failed to create main window: {}", err.to_string());
                     }
                 };
-            },
+            }
             "spn" => {
                 let btn = SPN_BUTTON.lock().unwrap();
 
@@ -163,11 +159,11 @@ pub fn update_icon(icon: AppIcon, subsystems: HashMap<String, Subsystem>, spn_st
         );
 
     let next_icon = match failure {
-        subsystem::FAILURE_WARNING => YELLOW_ICON.to_vec(),
-        subsystem::FAILURE_ERROR => RED_ICON.to_vec(),
+        subsystem::FAILURE_WARNING => YELLOW_ICON,
+        subsystem::FAILURE_ERROR => RED_ICON,
         _ => match spn_status.as_str() {
-            "connected" | "connecting" => BLUE_ICON.to_vec(),
-            _ => GREEN_ICON.to_vec(),
+            "connected" | "connecting" => BLUE_ICON,
+            _ => GREEN_ICON,
         },
     };
 

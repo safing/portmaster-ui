@@ -1,17 +1,14 @@
-
-use crate::portapi::types::*;
+use crate::portapi::client::*;
 use crate::portapi::message::*;
 use crate::portapi::models::notification::*;
-use crate::portapi::client::*;
-use tauri::async_runtime;
+use crate::portapi::types::*;
 use notify_rust;
 use serde_json::json;
+use tauri::async_runtime;
 
 pub async fn notification_handler(cli: PortAPI) {
     let res = cli
-        .request(Request::QuerySubscribe(
-            "query notifications:".to_string(),
-        ))
+        .request(Request::QuerySubscribe("query notifications:".to_string()))
         .await;
 
     if let Ok(mut rx) = res {
@@ -54,6 +51,7 @@ pub async fn notification_handler(cli: PortAPI) {
                             let res = notif.show();
                             match res {
                                 Ok(handle) => {
+                                    #[cfg(target_os = "linux")]
                                     handle.wait_for_action(|action| {
                                         match action {
                                             "__closed" => {
