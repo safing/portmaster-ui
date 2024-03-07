@@ -1,8 +1,8 @@
 [package]
 name = "app"
 version = "0.1.0"
-description = "A Tauri App"
-authors = ["you"]
+description = "Portmaster UI"
+authors = ["Safing"]
 license = ""
 repository = ""
 default-run = "app"
@@ -15,8 +15,7 @@ rust-version = "1.60"
 tauri-build = { version = "2.0.0-alpha", features = [] }
 
 [dependencies]
-serde_json = "1.0"
-serde = { version = "1.0", features = ["derive"] }
+# Tauri
 tauri = { version = "2.0.0-alpha", features = ["tray-icon", "icon-ico", "icon-png"] }
 tauri-plugin-shell = "2.0.0-alpha"
 tauri-plugin-dialog = "2.0.0-alpha"
@@ -25,17 +24,14 @@ tauri-plugin-os = "2.0.0-alpha"
 tauri-plugin-single-instance = "2.0.0-alpha"
 tauri-plugin-cli = "2.0.0-alpha"
 tauri-plugin-notification = "2.0.0-alpha"
-futures-util = "0.3"
 
+# General
+serde_json = "1.0"
+serde = { version = "1.0", features = ["derive"] }
+futures-util = "0.3"
 dirs = "1.0"
 rust-ini = "0.20.0"
-gio-sys = "0.18.1"
-glib = "0.18.4"
-gtk-sys = "0.18.0"
-glib-sys = "0.18.1"
 dataurl = "0.1.2"
-gdk-pixbuf = "0.18.3"
-gdk-pixbuf-sys = "0.18.0"
 uuid = "1.6.1"
 lazy_static = "1.4.0"
 tokio = { version = "1.35.0", features = ["macros"] }
@@ -47,6 +43,15 @@ sha = "1.0.3"
 http = "1.0.0"
 url = "2.5.0"
 thiserror = "1.0"
+
+# Linux only
+[target.'cfg(target_os = "linux")'.dependencies]
+glib = "0.18.4"
+gtk-sys = "0.18.0"
+glib-sys = "0.18.1"
+gdk-pixbuf = "0.18.3"
+gdk-pixbuf-sys = "0.18.0"
+gio-sys = "0.18.1"
 
 [dev-dependencies]
 which = "6.0.0"

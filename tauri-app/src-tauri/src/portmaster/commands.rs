@@ -1,8 +1,9 @@
-use tauri::{Manager, Window, Runtime, State};
-use crate::{xdg, ServiceManager};
-use crate::service::get_service_manager;
 use super::PortmasterPlugin;
+use crate::service::get_service_manager;
+use crate::service::ServiceManager;
+use crate::xdg;
 use std::sync::atomic::Ordering;
+use tauri::{Manager, Runtime, State, Window};
 
 pub type Result = std::result::Result<String, String>;
 
