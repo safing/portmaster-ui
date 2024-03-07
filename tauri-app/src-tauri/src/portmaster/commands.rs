@@ -1,7 +1,6 @@
 use super::PortmasterPlugin;
 use crate::service::get_service_manager;
 use crate::service::ServiceManager;
-use crate::xdg;
 use std::sync::atomic::Ordering;
 use tauri::{Manager, Runtime, State, Window};
 
@@ -69,6 +68,7 @@ pub fn set_state<R: Runtime>(
     Ok("".to_string())
 }
 
+#[cfg(target_os = "linux")]
 #[tauri::command]
 pub fn get_app_info<R: Runtime>(
     window: Window<R>,
@@ -80,7 +80,7 @@ pub fn get_app_info<R: Runtime>(
 ) -> Result {
     let mut id = response_id;
 
-    let info = xdg::ProcessInfo {
+    let info = crate::xdg::ProcessInfo {
         cmdline,
         exec_path,
         pid,
@@ -92,7 +92,7 @@ pub fn get_app_info<R: Runtime>(
     }
     let cloned = id.clone();
 
-    std::thread::spawn(move || match xdg::get_app_info(info) {
+    std::thread::spawn(move || match crate::xdg::get_app_info(info) {
         Ok(info) => window.emit(&id, info),
         Err(err) => window.emit(
             &id,
@@ -105,11 +105,37 @@ pub fn get_app_info<R: Runtime>(
     Ok(cloned)
 }
 
+#[cfg(target_os = "windows")]
 #[tauri::command]
-pub fn get_service_manager_status<R: Runtime>(
+pub fn get_app_info<R: Runtime>(
     window: Window<R>,
     response_id: String,
+    matching_path: String,
+    exec_path: String,
+    pid: i64,
+    cmdline: String,
 ) -> Result {
+    let mut id = response_id;
+
+    if id == "" {
+        id = uuid::Uuid::new_v4().to_string()
+    }
+    let cloned = id.clone();
+
+    std::thread::spawn(move || {
+        window.emit(
+            &id,
+            Error {
+                error: "Unsupported OS".to_string(),
+            },
+        );
+    });
+
+    Ok(cloned)
+}
+
+#[tauri::command]
+pub fn get_service_manager_status<R: Runtime>(window: Window<R>, response_id: String) -> Result {
     let mut id = response_id;
 
     if id == "" {
@@ -119,18 +145,13 @@ pub fn get_service_manager_status<R: Runtime>(
 
     std::thread::spawn(move || {
         let result = match get_service_manager() {
-            Ok(sm) => {
-                sm.status()
-                    .map_err(|err| err.to_string())
-            },
-            Err(err) => {
-                Err(err.to_string())
-            }
+            Ok(sm) => sm.status().map_err(|err| err.to_string()),
+            Err(err) => Err(err.to_string()),
         };
 
         match result {
             Ok(result) => window.emit(&id, &result),
-            Err(err) => window.emit(&id, Error{ error: err })
+            Err(err) => window.emit(&id, Error { error: err }),
         }
     });
 
@@ -138,10 +159,7 @@ pub fn get_service_manager_status<R: Runtime>(
 }
 
 #[tauri::command]
-pub fn start_service<R: Runtime>(
-    window: Window<R>,
-    response_id: String
-) -> Result {
+pub fn start_service<R: Runtime>(window: Window<R>, response_id: String) -> Result {
     let mut id = response_id;
 
     if id == "" {
@@ -151,18 +169,13 @@ pub fn start_service<R: Runtime>(
 
     std::thread::spawn(move || {
         let result = match get_service_manager() {
-            Ok(sm) => {
-                sm.start()
-                    .map_err(|err| err.to_string())
-            },
-            Err(err) => {
-                Err(err.to_string())
-            }
+            Ok(sm) => sm.start().map_err(|err| err.to_string()),
+            Err(err) => Err(err.to_string()),
         };
 
         match result {
             Ok(result) => window.emit(&id, &result),
-            Err(err) => window.emit(&id, Error{ error: err })
+            Err(err) => window.emit(&id, Error { error: err }),
         }
     });
 
