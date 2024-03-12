@@ -110,10 +110,10 @@ pub fn get_app_info<R: Runtime>(
 pub fn get_app_info<R: Runtime>(
     window: Window<R>,
     response_id: String,
-    matching_path: String,
-    exec_path: String,
-    pid: i64,
-    cmdline: String,
+    _matching_path: String,
+    _exec_path: String,
+    _pid: i64,
+    _cmdline: String,
 ) -> Result {
     let mut id = response_id;
 
@@ -123,7 +123,7 @@ pub fn get_app_info<R: Runtime>(
     let cloned = id.clone();
 
     std::thread::spawn(move || {
-        window.emit(
+        let _ = window.emit(
             &id,
             Error {
                 error: "Unsupported OS".to_string(),

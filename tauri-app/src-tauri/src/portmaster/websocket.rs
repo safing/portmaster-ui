@@ -1,14 +1,11 @@
-use tokio::time::{sleep, Duration};
 use super::PortmasterExt;
-use tauri::{Runtime, AppHandle};
-use std::sync::atomic::Ordering;
 use crate::portapi::client::connect;
-
+use tauri::{AppHandle, Runtime};
+use tokio::time::{sleep, Duration};
 
 /// Starts a backround thread (via tauri::async_runtime) that connects to the Portmaster
 /// Websocket database API.
-pub fn start_websocket_thread<R: Runtime>(app: AppHandle<R>)
-{
+pub fn start_websocket_thread<R: Runtime>(app: AppHandle<R>) {
     let app = app.clone();
 
     tauri::async_runtime::spawn(async move {
@@ -25,7 +22,6 @@ pub fn start_websocket_thread<R: Runtime>(app: AppHandle<R>)
                     eprintln!("Successfully connected to portmaster");
 
                     portmaster.on_connect(cli.clone());
-                    
 
                     while !cli.is_closed() {
                         let _ = sleep(Duration::from_secs(1)).await;
