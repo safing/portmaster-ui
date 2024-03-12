@@ -39,10 +39,9 @@
     }
   },
   "tauri": {
-
     "bundle": {
       "active": true,
-      "category": "Privacy",
+      "category": "Utility",
       "copyright": "",
       "deb": {
         "depends": []
@@ -66,7 +65,15 @@
       },
       "resources": [],
       "shortDescription": "",
-      "targets": "all",
+      "targets": [
+        "deb",
+        "appimage",
+        "nsis",
+        "msi",
+        "app",
+        "dmg",
+        "updater"
+      ],
       "windows": {
         "certificateThumbprint": null,
         "digestAlgorithm": "sha256",
@@ -77,7 +84,10 @@
       "csp": null,
       "dangerousRemoteDomainIpcAccess": [
         {
-          "windows": ["main", "prompt"],
+          "windows": [
+            "main",
+            "prompt"
+          ],
           "plugins": [
             "shell",
             "os",

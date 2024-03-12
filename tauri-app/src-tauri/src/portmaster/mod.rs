@@ -1,6 +1,6 @@
 /// This module contains a custom tauri plugin that handles all communication
 /// with the angular app loaded from the portmaster api.
-/// 
+///
 /// Using a custom-plugin for this has the advantage that all code that has
 /// access to a tauri::Window or a tauri::AppHandle can get access to the
 /// portmaster plugin using the Runtime/Manager extension by just calling
@@ -11,7 +11,6 @@
 ///
 /// Code that handles windows should NOT live here but should rather be placed
 /// in the crate root.
-
 // The commands module contains tauri commands that are available to Javascript
 // using the invoke() and our custom invokeAsync() command.
 mod commands;
@@ -24,23 +23,22 @@ mod websocket;
 // The notification module manages system notifications from portmaster.
 mod notifications;
 
-
-use std::{collections::HashMap, sync::atomic::{AtomicBool, Ordering}};
 use crate::portapi::{
-    client::PortAPI,
-    message::Payload,
-    types::Request,
-    models::config::BooleanValue,
+    client::PortAPI, message::Payload, models::config::BooleanValue, types::Request,
+};
+use std::{
+    collections::HashMap,
+    sync::atomic::{AtomicBool, Ordering},
 };
 
-use std::sync::Mutex;
 use serde;
+use std::sync::Mutex;
 use tauri::{
     plugin::{Builder, TauriPlugin},
     AppHandle, Manager, Runtime,
 };
 
-pub trait Handler  {
+pub trait Handler {
     fn on_connect(&mut self, cli: PortAPI) -> ();
     fn on_disconnect(&mut self);
 }
@@ -158,7 +156,8 @@ impl<R: Runtime> PortmasterPlugin<R> {
     /// Whether or not the angular application should call window.show after it
     /// finished bootstrapping.
     pub fn set_show_after_bootstrap(&self, show: bool) {
-        self.should_show_after_bootstrap.store(show, Ordering::Relaxed);
+        self.should_show_after_bootstrap
+            .store(show, Ordering::Relaxed);
     }
 
     /// Returns whether or not the angular application should call window.show
@@ -183,14 +182,18 @@ impl<R: Runtime> PortmasterPlugin<R> {
     }
 
     /// Enables or disables the SPN.
-    pub fn set_spn_enabled(&self, enabled: bool) { 
+    pub fn set_spn_enabled(&self, enabled: bool) {
         if let Some(api) = self.get_api() {
-            let body: Result<Payload, serde_json::Error> =
-                BooleanValue { value: Some(enabled) }.try_into();
+            let body: Result<Payload, serde_json::Error> = BooleanValue {
+                value: Some(enabled),
+            }
+            .try_into();
 
             if let Ok(payload) = body {
-                tauri::async_runtime::spawn(async move { 
-                    _ = api.request(Request::Update("config:spn/enable".to_string(), payload)).await;
+                tauri::async_runtime::spawn(async move {
+                    _ = api
+                        .request(Request::Update("config:spn/enable".to_string(), payload))
+                        .await;
                 });
             }
         }
@@ -220,7 +223,6 @@ impl<R: Runtime> PortmasterPlugin<R> {
             self.start_notification_handler();
         }
 
-
         if let Ok(mut handlers) = self.handlers.lock() {
             for handler in handlers.iter_mut() {
                 handler.on_connect(api.clone());
@@ -245,7 +247,6 @@ impl<R: Runtime> PortmasterPlugin<R> {
     }
 }
 
-
 pub trait PortmasterExt<R: Runtime> {
     fn portmaster(&self) -> &PortmasterPlugin<R>;
 }
@@ -260,18 +261,18 @@ impl<R: Runtime, T: Manager<R>> PortmasterExt<R> for T {
 }
 
 pub fn init<R: Runtime>() -> TauriPlugin<R, Option<Config>> {
-    Builder::<R, Option<Config>>::new("portmaster")   
-    .invoke_handler(tauri::generate_handler![
-        commands::get_app_info,
-        commands::get_service_manager_status,
-        commands::start_service,
-        commands::get_state,
-        commands::set_state,
-        commands::should_show,
-        commands::should_handle_prompts
-    ])
-        .setup(|app, api| {
-            let plugin = PortmasterPlugin{
+    Builder::<R, Option<Config>>::new("portmaster")
+        .invoke_handler(tauri::generate_handler![
+            commands::get_app_info,
+            commands::get_service_manager_status,
+            commands::start_service,
+            commands::get_state,
+            commands::set_state,
+            commands::should_show,
+            commands::should_handle_prompts
+        ])
+        .setup(|app, _api| {
+            let plugin = PortmasterPlugin {
                 app: app.clone(),
                 state: Mutex::new(HashMap::new()),
                 is_reachable: AtomicBool::new(false),

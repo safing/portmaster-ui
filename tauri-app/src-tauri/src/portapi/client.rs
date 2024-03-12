@@ -87,7 +87,7 @@ pub async fn connect(uri: &str) -> Result<PortAPI, Error> {
                                         let res: Result<Response, MessageError> = msg.try_into();
                                         match res {
                                             Ok(response) => {
-                                                if let Err(_) = sub.send(response).await {
+                                                if let Err(err) = sub.send(response).await {
                                                     // The receiver side has been closed already,
                                                     // drop the read lock and remove the subscriber
                                                     // from our hashmap
@@ -99,7 +99,7 @@ pub async fn connect(uri: &str) -> Result<PortAPI, Error> {
                                                         .remove(&id);
 
                                                     #[cfg(debug_assertions)]
-                                                    eprintln!("subscriber for command {} closed read side", id);
+                                                    eprintln!("subscriber for command {} closed read side: {}", id, err);
                                                 }
                                             },
                                             Err(err) => {
@@ -109,7 +109,7 @@ pub async fn connect(uri: &str) -> Result<PortAPI, Error> {
                                     }
                                 },
                                 Err(err) => {
-                                    eprintln!("failed to deserizalize message: {}", err)
+                                    eprintln!("failed to deserialize message: {}", err)
                                 }
                             }
                         }
@@ -176,13 +176,7 @@ impl PortAPI {
 
         let msg: Message = r.try_into()?;
 
-        let _ = self
-            .dispatch
-            .send(Command {
-                response: tx,
-                msg: msg,
-            })
-            .await;
+        let _ = self.dispatch.send(Command { response: tx, msg }).await;
 
         Ok(rx)
     }

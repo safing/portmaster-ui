@@ -131,9 +131,7 @@ pub fn setup_tray_menu(
         .on_tray_icon_event(|tray, event| {
             // not supported on linux
             if event.click_type == ClickType::Left {
-                tray.app_handle().portmaster().show_window();
-
-                let _ = create_main_window(tray.app_handle());
+                let _ = open_window(tray.app_handle());
             }
         })
         .build(app)?;

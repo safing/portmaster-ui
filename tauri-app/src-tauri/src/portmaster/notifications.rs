@@ -4,6 +4,7 @@ use crate::portapi::models::notification::*;
 use crate::portapi::types::*;
 use notify_rust;
 use serde_json::json;
+#[allow(unused_imports)]
 use tauri::async_runtime;
 
 pub async fn notification_handler(cli: PortAPI) {
@@ -46,43 +47,45 @@ pub async fn notification_handler(cli: PortAPI) {
                             notif.action(&action.id, &action.text);
                         }
 
-                        let cli_clone = cli.clone();
-                        async_runtime::spawn(async move {
-                            let res = notif.show();
-                            match res {
-                                Ok(handle) => {
-                                    #[cfg(target_os = "linux")]
-                                    handle.wait_for_action(|action| {
-                                        match action {
-                                            "__closed" => {
-                                                // timeout
-                                            }
+                        #[cfg(target_os = "linux")]
+                        {
+                            let cli_clone = cli.clone();
+                            async_runtime::spawn(async move {
+                                let res = notif.show();
+                                match res {
+                                    Ok(handle) => {
+                                        handle.wait_for_action(|action| {
+                                            match action {
+                                                "__closed" => {
+                                                    // timeout
+                                                }
 
-                                            value => {
-                                                let value = value.to_string().clone();
+                                                value => {
+                                                    let value = value.to_string().clone();
 
-                                                async_runtime::spawn(async move {
-                                                    let _ = cli_clone
-                                                        .request(Request::Update(
-                                                            key,
-                                                            Payload::JSON(
-                                                                json!({
-                                                                    "SelectedActionID": value
-                                                                })
-                                                                .to_string(),
-                                                            ),
-                                                        ))
-                                                        .await;
-                                                });
+                                                    async_runtime::spawn(async move {
+                                                        let _ = cli_clone
+                                                            .request(Request::Update(
+                                                                key,
+                                                                Payload::JSON(
+                                                                    json!({
+                                                                        "SelectedActionID": value
+                                                                    })
+                                                                    .to_string(),
+                                                                ),
+                                                            ))
+                                                            .await;
+                                                    });
+                                                }
                                             }
-                                        }
-                                    })
+                                        })
+                                    }
+                                    Err(err) => {
+                                        eprintln!("failed to display notification: {}", err);
+                                    }
                                 }
-                                Err(err) => {
-                                    eprintln!("failed to display notification: {}", err);
-                                }
-                            }
-                        });
+                            });
+                        }
                     }
                     Err(err) => match err {
                         ParseError::JSON(err) => {

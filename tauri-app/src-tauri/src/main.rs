@@ -18,7 +18,7 @@ mod window;
 
 use portmaster::PortmasterExt;
 use traymenu::setup_tray_menu;
-use window::create_main_window;
+use window::{close_splash_window, create_main_window};
 
 #[macro_use]
 extern crate lazy_static;
@@ -42,11 +42,15 @@ impl portmaster::Handler for WsHandler {
         // so we don't show the splash-screen when we loose connection.
         self.is_first_connect = false;
 
+        if let Err(err) = close_splash_window(&self.handle) {
+            eprintln!("failed to close splash window: {}", err.to_string());
+        }
+
         // create the main window now. It's not automatically visible by default.
         // Rather, the angular application will show the window itself when it finished
         // bootstrapping.
-        if let Err(err) = create_main_window(&self.handle.clone()) {
-            eprintln!("failed to create window: {}", err.to_string());
+        if let Err(err) = create_main_window(&self.handle) {
+            eprintln!("failed to create main window: {}", err.to_string());
         }
 
         let handle = self.handle.clone();
@@ -97,7 +101,7 @@ fn main() {
             // or the splash-screen.
             let handle = app.handle().clone();
             app.listen_global("single-instance", move |_event| {
-                window::open_window(&handle);
+                let _ = window::open_window(&handle);
             });
 
             // Handle cli flags:
