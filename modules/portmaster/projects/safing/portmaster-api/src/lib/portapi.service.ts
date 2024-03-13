@@ -734,7 +734,7 @@ export class PortapiService {
           // in all cases, an `error` message type
           // terminates the data flow.
           if (data.type === 'error') {
-            console.error(data.message);
+            console.error(data.message, inspected);
             shouldCancel = false;
 
             observer.error(data.message);
