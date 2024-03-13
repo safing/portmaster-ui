@@ -51,6 +51,7 @@ export interface TagDescription {
 
 export interface Icon {
   Type: 'database' | 'path' | 'api';
+  Source: '' | 'user' | 'import' | 'core' | 'ui';
   Value: string;
 }
 
