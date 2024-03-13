@@ -1,6 +1,7 @@
 
 use std::collections::HashMap;
 use std::ffi::c_int;
+use std::io;
 use std::path::{Path, PathBuf};
 use std::sync::{Arc, RwLock};
 use std::{io::{Error, ErrorKind}, env, fs};
@@ -17,7 +18,7 @@ use ini::{ParseOption, Ini};
 static mut GTK_DEFAULT_THEME: Option<*mut GtkIconTheme> = None;
 
 lazy_static! {
-    static ref APP_INFO_CACHE: Arc<RwLock<HashMap<String, AppInfo>>> = Arc::new(RwLock::new(HashMap::new()));
+    static ref APP_INFO_CACHE: Arc<RwLock<HashMap<String, Option<AppInfo>>>> = Arc::new(RwLock::new(HashMap::new()));
 }
 
 #[derive(Debug, Error)]
@@ -67,9 +68,14 @@ pub fn get_app_info(process_info: ProcessInfo) -> Result<AppInfo> {
             .unwrap();
 
         if let Some(value) = cache.get(process_info.exec_path.as_str()) {
-            println!("returning cached app-info for {}", process_info.exec_path.as_str());
-
-            return Ok(value.clone())
+            match value {
+                Some(app_info) => {
+                   return Ok(app_info.clone())
+                },
+                None => {
+                   return Err(LookupError::IoError(io::Error::new(io::ErrorKind::NotFound, "not found")))
+                }
+            }
         }
     }
 
@@ -84,19 +90,39 @@ pub fn get_app_info(process_info: ProcessInfo) -> Result<AppInfo> {
         needles.push(process_info.matching_path.as_str())
     }
 
+    // sort and deduplicate
+    needles.sort();
+    needles.dedup();
+
+
     #[cfg(debug_assertions)]
     println!("Searching app info for {:?}", process_info);
 
-    let mut info: Option<AppInfo> = None;
+    let mut desktop_files = Vec::new();
+    for dir in get_application_directories()? {
+        let mut files = find_desktop_files(dir.as_path())?;
+        desktop_files.append(&mut files);
+    }
+
+    let mut matches = Vec::new();
     for needle in needles.clone() {
         #[cfg(debug_assertions)]
         println!("Trying needle {} on exec path", needle);
 
-        match try_get_app_info(needle, CheckType::Exec) {
-            Ok(result) => {
-                info = Some(result);
+        match try_get_app_info(needle, CheckType::Exec, &desktop_files) {
+            Ok(mut result) => {
+                matches.append(&mut result);
+            },
+            Err(LookupError::IoError(ioerr)) => {
+                if ioerr.kind() != ErrorKind::NotFound {
+                    return Err(ioerr.into())
+                }
+            }
+        };
 
-                break;
+        match try_get_app_info(needle, CheckType::Name, &desktop_files) {
+            Ok(mut result) => {
+                matches.append(&mut result);
             },
             Err(LookupError::IoError(ioerr)) => {
                 if ioerr.kind() != ErrorKind::NotFound {
@@ -106,36 +132,37 @@ pub fn get_app_info(process_info: ProcessInfo) -> Result<AppInfo> {
         };
     }
 
-    if info.is_none() {
-        for needle in needles {
-            println!("Trying needle {} on Name", needle);
+    if matches.is_empty() {
+        APP_INFO_CACHE.write()
+            .unwrap()
+            .insert(process_info.exec_path, None);
 
-            match try_get_app_info(needle, CheckType::Name) {
-                Ok(result) => {
-                    info = Some(result);
+        Err(Error::new(ErrorKind::NotFound, format!("failed to find app info")).into())
+    } else {
+        // sort matches by length
+        matches.sort_by(|a, b| a.1.cmp(&b.1));
 
-                    break;
+        for mut info in matches  {
+            match get_icon_as_png_dataurl(&info.0.icon_name, 32)  {
+                Ok(du) => {
+                    #[cfg(debug_assertions)]
+                    eprintln!("[xdg] best match for {:?} is {:?} with len {}", process_info, info.0.icon_name, info.1);
+
+                    info.0.icon_dataurl = du.1;
+
+                    APP_INFO_CACHE.write()
+                        .unwrap()
+                        .insert(process_info.exec_path, Some(info.0.clone()));
+
+                    return Ok(info.0);
                 },
-                Err(LookupError::IoError(ioerr)) => {
-                    if ioerr.kind() != ErrorKind::NotFound {
-                        return Err(ioerr.into())
-                    }
+                Err(err) => {
+                    eprintln!("{}: failed to get icon: {}", info.0.icon_name, err.to_string());
                 }
             };
         }
-    }
 
-    match info {
-        Some(info) => {
-            APP_INFO_CACHE.write()
-                .unwrap()
-                .insert(process_info.exec_path, info.clone());
-
-            Ok(info)
-        },
-        None => {
-            Err(Error::new(ErrorKind::NotFound, format!("failed to find app info")).into())
-        }
+        Err(Error::new(ErrorKind::NotFound, format!("failed to find app info")).into())
     }
 }
 
@@ -219,7 +246,7 @@ enum CheckType {
 }
 
 
-fn try_get_app_info(needle: &str, check: CheckType) -> Result<AppInfo> {
+fn try_get_app_info(needle: &str, check: CheckType, desktop_files: &Vec<fs::DirEntry>) -> Result<Vec<(AppInfo, usize)>> {
     let path = PathBuf::from(needle);
 
     let file_name = path
@@ -228,8 +255,8 @@ fn try_get_app_info(needle: &str, check: CheckType) -> Result<AppInfo> {
         .unwrap_or_default()
         .to_str();
 
-    for dir in get_application_directories()? {
-        let desktop_files = find_desktop_files(dir.as_path())?;
+    let mut result = Vec::new();
+
         for file in desktop_files {
             let content = Ini::load_from_file_opt(file.path(), ParseOption{
                     enabled_escape: false,
@@ -254,9 +281,13 @@ fn try_get_app_info(needle: &str, check: CheckType) -> Result<AppInfo> {
                     };
 
                     if let Some(file_name) = file_name {
-                        name.to_lowercase().contains(file_name)
+                        if name.to_lowercase().contains(file_name) {
+                            file_name.len()
+                        } else {
+                            0
+                        }
                     } else {
-                        false
+                        0
                     }
                 },
                 CheckType::Exec => {
@@ -268,60 +299,34 @@ fn try_get_app_info(needle: &str, check: CheckType) -> Result<AppInfo> {
                     };
 
                     if exec.to_lowercase().contains(needle) {
-                        true
+                        needle.len()
                     } else if let Some(file_name) = file_name {
-                        exec.to_lowercase().contains(file_name)
+                        if exec.to_lowercase().starts_with(file_name) {
+                            file_name.len()
+                        } else {
+                            0
+                        }
                     } else {
-                        false
+                        0
                     }
                 }
             };
 
-            if matches {
+            if matches > 0 {
+                #[cfg(debug_assertions)]
+                println!("[xdg] found matching desktop for needle {} file at {}", needle, file.path().to_string_lossy());
 
-                println!("Found matching desktop file at {}", file.path().to_string_lossy());
+                let info = parse_app_info(desktop_section);
 
-                let mut info = parse_app_info(desktop_section);
-
-
-                match get_icon_as_png_dataurl(&info.icon_name, 32) {
-                    Ok(result) => {
-                        println!("Found icon {} at path {} (method 1)", info.icon_name, result.0);
-
-                        info.icon_name = result.0;
-                        info.icon_dataurl = result.1;
-
-                        return Ok(info)
-                    },
-                    Err(err) => {
-                        eprintln!("failed to get icon path for icon {}: {}", info.icon_name, err.to_string());
-
-                        /*
-                        match get_icon_as_file_2(icon_name, 64) {
-                            Ok(file_path) => {
-                                println!("Found icon {} at path {} (method 2)", icon_name, file_path.0);
-
-                                return Ok(AppInfo{
-                                    icon_name: file_path.0,
-                                    app_name: "".to_string(),
-                                    icon_data: file_path.1,
-                                })
-                            },
-                            Err(err) => {
-                                eprintln!("failed to get icon path for icon using method 2 {}: {}", icon_name, err.to_string());
-                            }
-                        }
-                        */
-
-                        continue;
-                    }
-                }
+                result.push((info, matches));
             }
         }
 
+    if result.len() > 0 {
+        Ok(result)
+    } else {
+        Err(Error::new(ErrorKind::NotFound, "no matching .desktop files found").into())
     }
-
-    Err(Error::new(ErrorKind::NotFound, "no matching .desktop files found").into())
 }
 
 fn parse_app_info(props: &ini::Properties) -> AppInfo {
