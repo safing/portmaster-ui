@@ -76,7 +76,7 @@ export class EditProfileDialog implements OnInit, OnDestroy {
     private dialog: SfngDialogService,
     private cdr: ChangeDetectorRef,
     @Inject(PORTMASTER_HTTP_API_ENDPOINT) private httpAPI: string
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     this.profileService.tagDescriptions().subscribe((result) => {
@@ -255,6 +255,7 @@ export class EditProfileDialog implements OnInit, OnDestroy {
                 {
                   Type: 'api',
                   Value: filename,
+                  Source: 'user',
                 },
               ];
             })
