@@ -1,3 +1,4 @@
+import { Min } from './../../../../dist-lib/safing/portmaster-api/lib/netquery.service.d';
 import {
   ChangeDetectionStrategy,
   ChangeDetectorRef,
@@ -16,10 +17,12 @@ import {
   PORTMASTER_HTTP_API_ENDPOINT,
   PortapiService,
   Record,
+  deepClone,
 } from '@safing/portmaster-api';
 import { Subscription, map, of, throwError } from 'rxjs';
 import { catchError, switchMap } from 'rxjs/operators';
 import { INTEGRATION_SERVICE, ProcessInfo } from 'src/app/integration';
+import { AppIconResolver } from './app-icon-resolver';
 
 // Interface that must be satisfied for the profile-input
 // of app-icon.
@@ -56,8 +59,9 @@ const profilesToIgnore = ['local/_unidentified', 'local/_unsolicited'];
 })
 export class AppIconComponent implements OnInit, OnDestroy {
   private sub = Subscription.EMPTY;
-  private integration = inject(INTEGRATION_SERVICE);
   private initDone = false;
+
+  private resovler = inject(AppIconResolver);
 
   /** @private The data-URL for the app-icon if available */
   src: SafeUrl | string = '';
@@ -233,6 +237,8 @@ export class AppIconComponent implements OnInit, OnDestroy {
           if (!!profile.Icons?.length) {
             const firstIcon = profile.Icons[0];
 
+            console.log(`profile ${profile.Name} has icon of from source ${firstIcon.Source} stored in ${firstIcon.Type}`)
+
             switch (firstIcon.Type) {
               case 'database':
                 return this.portapi
@@ -251,32 +257,11 @@ export class AppIconComponent implements OnInit, OnDestroy {
             }
           }
 
-          return this.profileService
-            .getProcessesByProfile(profile)
-            .pipe(
-              switchMap(processes => {
-                if (processes?.length == 0) {
-                  return throwError('no processes found')
-                }
+          this.resovler.resolveIcon(profile);
 
-                const process = processes[0];
-
-                const info: ProcessInfo = {
-                  execPath: process.Path,
-                  cmdline: process.CmdLine,
-                  pid: process.Pid,
-                  matchingPath: process.MatchingPath,
-                }
-
-                return this.integration.getAppIcon(info);
-
-                /// FIXME(ppacher): store the icon using icon-source "UI".
-
-              }),
-              catchError(err => {
-                return of('')
-              })
-            );
+          // return an empty icon here. If the resolver manages to find an icon
+          // the profle will get updated and we'll run again here.
+          return of('');
         })
       )
       .subscribe({
