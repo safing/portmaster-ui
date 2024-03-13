@@ -24,8 +24,15 @@ pub fn create_main_window(app: &AppHandle) -> Result<Window> {
             .visible(false)
             .build();
 
+
         match res {
-            Ok(win) => win,
+            Ok(win) => {
+                win.once("tauri://error", |event| {
+                    eprintln!("failed to open tauri window: {}", event.payload());
+                });
+
+                win
+            },
             Err(err) => {
                 eprintln!("[tauri] failed to create main window: {}", err.to_string());
 
