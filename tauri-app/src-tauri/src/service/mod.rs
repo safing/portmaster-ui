@@ -4,6 +4,9 @@ pub mod status;
 #[cfg(target_os = "linux")]
 mod systemd;
 
+#[cfg(target_os = "windows")]
+mod windows_service;
+
 use std::process::ExitStatus;
 
 #[cfg(target_os = "linux")]
@@ -30,6 +33,9 @@ pub enum ServiceManagerError {
 
     #[error("{0} output={1}")]
     Other(ExitStatus, String),
+
+    #[error("{0}")]
+    WindowsError(String),
 }
 
 pub type Result<T> = std::result::Result<T, ServiceManagerError>;
@@ -64,6 +70,6 @@ pub fn get_service_manager() -> Result<impl ServiceManager> {
         }
     }
 
-    #[cfg(not(target_os = "linux"))]
-    Err::<EmptyServiceManager, ServiceManagerError>(ServiceManagerError::UnsupportedOperatingSystem)
+    #[cfg(target_os = "windows")]
+    return Ok(windows_service::SERVICE_MANGER.clone());
 }

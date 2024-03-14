@@ -53,6 +53,11 @@ gdk-pixbuf = "0.18.3"
 gdk-pixbuf-sys = "0.18.0"
 gio-sys = "0.18.1"
 
+# Windows only
+[target.'cfg(target_os = "windows")'.dependencies]
+windows-service = "0.6.0"
+windows = { version = "0.54.0", features = ["Win32_Foundation", "Win32_UI_Shell", "Win32_UI_WindowsAndMessaging"] }
+
 [dev-dependencies]
 which = "6.0.0"
 gtk = "0.18"
