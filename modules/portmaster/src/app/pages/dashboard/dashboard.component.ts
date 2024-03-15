@@ -251,22 +251,21 @@ export class DashboardPageComponent implements OnInit, AfterViewInit {
   }
 
   async ngOnInit() {
-    this.portapi.getResource(newsResourceIdentifier, "application/json")
+    this.portapi.getResource<News>(newsResourceIdentifier)
       .pipe(
         repeat({ delay: 60000 }),
         takeUntilDestroyed(this.destroyRef)
       )
       .subscribe({
         next: response => {
-          const news: News = JSON.parse(response.body!)
-          this.news = news;
+          this.news = response;
           this.cdr.markForCheck();
         },
         error: () => {
           this.news = undefined;
           this.cdr.markForCheck();
         }
-      })
+      });
 
     this.netquery
       .batch({

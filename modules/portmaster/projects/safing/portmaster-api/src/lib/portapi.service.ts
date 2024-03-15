@@ -221,10 +221,6 @@ export class PortapiService {
     type?: string
   ): Observable<HttpResponse<string> | any> {
     if (type !== undefined) {
-      const headers = new HttpHeaders({
-        Accept: type,
-      });
-
       return this.http.get(`${this.httpEndpoint}/v1/updates/get/${resource}`, {
         headers: new HttpHeaders({ Accept: type }),
         observe: 'response',
