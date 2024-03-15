@@ -414,6 +414,11 @@
         </div>
       </div>
     </sfng-tab>
+    <sfng-tab id="insights" title="Insights">
+      <div *sfngTabContent class="py-4 space-y-8 overflow-auto" cdkScrollable>
+        <app-app-insights [profile]="appProfile"></app-app-insights>
+      </div>
+    </sfng-tab>
   </sfng-tab-group>
 </ng-container>
 
