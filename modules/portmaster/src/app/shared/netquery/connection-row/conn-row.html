@@ -37,8 +37,17 @@
   </ng-template>
 </div>
 
+<ng-template #countryTooltip>
+  <div class="flex flex-row gap-2 items-center justify-start">
+    <span *ngIf="conn.country && conn.type !== 'dns'" [appCountryFlags]="conn.country"></span>
+    <span>{{ conn.country | countryName }}</span>
+  </div>
+</ng-template>
+
 <div [class.text-tertiary]="!conn.country" class="flex-row items-center justify-start hidden gap-1 sfng-md:flex"
-  name="location" [sfngAddToFilter]="!!conn.country ? 'country' : null" [sfngAddToFilterValue]="conn.country">
+  name="location" [sfngAddToFilter]="!!conn.country ? 'country' : null" [sfngAddToFilterValue]="conn.country"
+  [sfng-tooltip]="conn.country && conn.type !== 'dns' ? countryTooltip : null">
+  <span *ngIf="conn.country && conn.type !== 'dns'" [appCountryFlags]="conn.country"></span>
   {{ conn | connectionLocation }}
 </div>
 
