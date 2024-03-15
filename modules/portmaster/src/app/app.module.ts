@@ -69,6 +69,7 @@ import { PlaceholderComponent } from './shared/text-placeholder';
 import { DashboardWidgetComponent } from './pages/dashboard/dashboard-widget/dashboard-widget.component';
 import { MergeProfileDialogComponent } from './pages/app-view/merge-profile-dialog/merge-profile-dialog.component';
 import { INTEGRATION_SERVICE, integrationServiceFactory } from './integration';
+import { SupportProgressDialogComponent } from './pages/support/progress-dialog';
 
 function loadAndSetLocaleInitializer(configService: ConfigService) {
   return async function () {
@@ -158,7 +159,8 @@ const localeConfig = {
     DashboardPageComponent,
     DashboardWidgetComponent,
     FeatureCardComponent,
-    MergeProfileDialogComponent
+    MergeProfileDialogComponent,
+    SupportProgressDialogComponent
   ],
   imports: [
     BrowserModule,
