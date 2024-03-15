@@ -1,10 +1,11 @@
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, HostBinding, OnDestroy, OnInit, TrackByFunction } from '@angular/core';
-import { AppProfile, AppProfileService } from '@safing/portmaster-api';
+import { AppProfile, AppProfileService, deepClone, setAppSetting } from '@safing/portmaster-api';
 import { combineLatest, forkJoin, Observable, Subscription } from 'rxjs';
 import { map, switchMap } from 'rxjs/operators';
 import { Action, ConnectionPrompt, NotificationsService, NotificationType } from 'src/app/services';
 import { moveInOutAnimation, moveInOutListAnimation } from 'src/app/shared/animations';
 import { ParsedDomain, parseDomain } from 'src/app/shared/utils';
+import { ActionIndicatorService } from '../action-indicator';
 
 // ExtendedConnectionPrompt extends the normal connection prompt
 // with parsed domain information.
@@ -53,6 +54,7 @@ export class PromptListComponent implements OnInit, OnDestroy {
     private changeDetectorRef: ChangeDetectorRef,
     private profileService: AppProfileService,
     public notifService: NotificationsService,
+    public uai: ActionIndicatorService
   ) { }
 
   trackPrompts: TrackByFunction<ExtendedConnectionPrompt> = this.notifService.trackBy;
@@ -183,6 +185,29 @@ export class PromptListComponent implements OnInit, OnDestroy {
         return;
       }
     }
+  }
+
+  changeDefault(profile: ProfilePrompts, newDefault: 'permit' | 'block') {
+
+    this.profileService
+      .getAppProfile(profile.Source, profile.ID)
+      .pipe(
+        map(rawProfile => {
+          const copy = deepClone(rawProfile);
+          setAppSetting(copy.Config || {}, 'filter/defaultAction', newDefault)
+
+          return copy
+        }),
+        switchMap(updatedProfile => this.profileService.saveProfile(updatedProfile)),
+      )
+      .subscribe({
+        error: (err) => {
+          this.uai.error('Failed to change App Settings', this.uai.getErrorMessage(err));
+        }
+      })
+
+
+    setAppSetting(profile.Config || {}, 'filter/defaultAction', newDefault)
   }
 
   allowAll(profile: ProfilePrompts) {
