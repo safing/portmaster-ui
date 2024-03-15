@@ -13,6 +13,7 @@ import { fadeInAnimation, fadeInListAnimation, moveInOutAnimation } from 'src/ap
 import { FuzzySearchService } from 'src/app/shared/fuzzySearch';
 import { SupportPage, supportTypes } from '../pages';
 import { INTEGRATION_SERVICE } from 'src/app/integration';
+import { SupportProgressDialogComponent, TicketData, TicketInfo } from '../progress-dialog';
 
 @Component({
   templateUrl: './support-form.html',
@@ -156,6 +157,46 @@ export class SupportFormComponent implements OnInit {
     return valid;
   }
 
+  createIssue(type: 'github' | 'private', genUrl?: boolean, email?: string) {
+    const ticketData: TicketData = {
+      repo: this.selectedRepo || '',
+      title: this.title,
+      debugInfo: this.debugData,
+      sections: this.page?.sections.map(section => ({
+        title: section.title,
+        body: this.form[section.title],
+      })) || [],
+    }
+
+    let issue: TicketInfo;
+
+    switch (type) {
+      case 'github':
+        issue = {
+          type: 'github',
+          generateUrl: genUrl || false,
+          preset: this.page!.ghIssuePreset || '',
+          ...ticketData
+        };
+
+        break;
+
+      case 'private':
+        issue = {
+          type: 'private',
+          email: email,
+          ...ticketData
+        }
+
+        break;
+    }
+
+    SupportProgressDialogComponent.open(this.dialog, issue)
+      .subscribe(() => {
+        this.sessionService.delete(this.page?.id || '');
+      });
+  }
+
   createOnGithub(genUrl?: boolean) {
     if (!this.validate()) {
       return;
@@ -177,61 +218,13 @@ export class SupportFormComponent implements OnInit {
         ]
       })
         .onAction('openGithub', () => {
-          this.createOnGithub(true);
+          this.createIssue('github', true)
         })
         .onAction('createWithout', () => {
-          this.createOnGithub(false);
+          this.createIssue('github', false)
         })
       return;
     }
-
-    let debugInfo: Observable<string> = this.supporthub.uploadText('debug-info', this.debugData);
-    if (!this.page?.includeDebugData) {
-      debugInfo = of('');
-    }
-
-    debugInfo
-      .pipe(
-        mergeMap(url => this.supporthub.createIssue(
-          this.selectedRepo,
-          this.page?.ghIssuePreset || '',
-          this.title,
-          this.page!.sections.map(section => ({
-            title: section.title,
-            body: this.form[section.title],
-          })),
-          url,
-          { generateUrl: genUrl || false }
-        ))
-      )
-      .subscribe({
-        next: url => {
-          this.sessionService.delete(this.page?.id || '');
-          const openUrl = () => {
-            this.integration.openExternal(url);
-          }
-
-          if (genUrl === true) {
-            openUrl();
-            return;
-          }
-
-          const opts: ConfirmDialogConfig = {
-            canCancel: false,
-            buttons: [{ id: '', text: 'Close', class: 'outline' }, { id: 'open', text: 'Open Issue' }],
-            caption: 'Info',
-            header: 'Issue Created!',
-            message: 'We successfully created the issue on Github for you. Use the following link to check for updates: ' + url,
-          }
-          this.dialog.confirm(opts)
-            .onAction('open', () => {
-              openUrl();
-            })
-        },
-        error: err => {
-          this.uai.error('Failed to create issue', this.uai.getErrorMessgae(err))
-        }
-      })
   }
 
   openIssue(issue: Issue) {
@@ -258,37 +251,7 @@ export class SupportFormComponent implements OnInit {
     }
     this.dialog.confirm(opts)
       .onAction('create', () => {
-        let debugInfo: Observable<string> = this.supporthub.uploadText('debug-info', this.debugData);
-        if (!this.page?.includeDebugData) {
-          debugInfo = of('');
-        }
-
-        debugInfo
-          .pipe(
-            mergeMap(url => this.supporthub.createTicket(
-              this.selectedRepo,
-              this.title,
-              opts.inputModel || '',
-              this.page!.sections.map(section => ({
-                title: section.title,
-                body: this.form[section.title],
-              })),
-              url,
-            ))
-          )
-          .subscribe({
-            next: () => {
-              let msg = '';
-              if (!!opts.inputModel) {
-                msg = 'You will be contacted as soon as possible';
-              }
-              this.uai.success('Ticket created successfully', msg)
-              this.sessionService.delete(this.page?.id || '');
-            },
-            error: err => {
-              this.uai.error('Failed to create ticket', this.uai.getErrorMessgae(err))
-            }
-          })
+        this.createIssue('private', undefined, opts.inputModel);
       });
   }
 
