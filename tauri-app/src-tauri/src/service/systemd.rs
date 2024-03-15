@@ -1,3 +1,5 @@
+use log::{debug, error};
+
 use super::status::StatusResult;
 use super::{Result, ServiceManager, ServiceManagerError};
 use std::os::unix::fs::PermissionsExt;
@@ -48,24 +50,23 @@ impl SystemdServiceManager {
         ];
 
         for path in paths {
-            #[cfg(debug_assertions)]
-            eprintln!("checking for systemctl at path {}", path);
+            debug!("checking for systemctl at path {}", path);
 
             match fs::metadata(path) {
                 Ok(md) => {
-                    eprintln!("found systemctl at path {} ", path);
+                    debug!("found systemctl at path {} ", path);
 
                     if md.is_file() && md.permissions().mode() & 0o111 != 0 {
                         return true;
                     }
 
-                    eprintln!(
+                    error!(
                         "systemctl binary found but invalid permissions: {}",
                         md.permissions().mode().to_string()
                     );
                 }
                 Err(err) => {
-                    eprintln!(
+                    error!(
                         "failed to check systemctl binary at {}: {}",
                         path,
                         err.to_string()
@@ -76,7 +77,7 @@ impl SystemdServiceManager {
             };
         }
 
-        eprintln!("failed to find systemctl binary");
+        error!("failed to find systemctl binary");
 
         false
     }
@@ -111,7 +112,7 @@ impl ServiceManager for SystemdServiceManager {
                         return Ok(StatusResult::Stopped);
                     }
                 } else {
-                    eprintln!("failed to run 'systemctl is-active': {}", e.to_string());
+                    error!("failed to run 'systemctl is-active': {}", e.to_string());
                 }
 
                 // Failed to check if the unit is running

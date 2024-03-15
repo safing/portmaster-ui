@@ -1,24 +1,31 @@
-
+use cached::proc_macro::once;
+use dataurl::DataUrl;
+use gdk_pixbuf::{Pixbuf, PixbufError};
+use gtk_sys::{
+    gtk_icon_info_free, gtk_icon_info_get_filename, gtk_icon_theme_get_default,
+    gtk_icon_theme_lookup_icon, GtkIconTheme,
+};
+use log::{debug, error};
 use std::collections::HashMap;
 use std::ffi::c_int;
+use std::ffi::{CStr, CString};
 use std::io;
 use std::path::{Path, PathBuf};
 use std::sync::{Arc, RwLock};
-use std::{io::{Error, ErrorKind}, env, fs};
-use std::ffi::{CStr, CString};
-use gdk_pixbuf::{Pixbuf, PixbufError};
-use gtk_sys::{GtkIconTheme, gtk_icon_info_get_filename, gtk_icon_theme_get_default, gtk_icon_theme_lookup_icon, gtk_icon_info_free};
-use dataurl::DataUrl;
-use cached::proc_macro::once;
+use std::{
+    env, fs,
+    io::{Error, ErrorKind},
+};
 use thiserror::Error;
 
 use dirs;
-use ini::{ParseOption, Ini};
+use ini::{Ini, ParseOption};
 
 static mut GTK_DEFAULT_THEME: Option<*mut GtkIconTheme> = None;
 
 lazy_static! {
-    static ref APP_INFO_CACHE: Arc<RwLock<HashMap<String, Option<AppInfo>>>> = Arc::new(RwLock::new(HashMap::new()));
+    static ref APP_INFO_CACHE: Arc<RwLock<HashMap<String, Option<AppInfo>>>> =
+        Arc::new(RwLock::new(HashMap::new()));
 }
 
 #[derive(Debug, Error)]
@@ -58,22 +65,26 @@ pub struct ProcessInfo {
 
 impl std::fmt::Display for ProcessInfo {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{} (cmdline={}) (pid={}) (matching_path={})", self.exec_path, self.cmdline, self.pid, self.matching_path)
-    } 
+        write!(
+            f,
+            "{} (cmdline={}) (pid={}) (matching_path={})",
+            self.exec_path, self.cmdline, self.pid, self.matching_path
+        )
+    }
 }
 
 pub fn get_app_info(process_info: ProcessInfo) -> Result<AppInfo> {
     {
-        let cache = APP_INFO_CACHE.read()
-            .unwrap();
+        let cache = APP_INFO_CACHE.read().unwrap();
 
         if let Some(value) = cache.get(process_info.exec_path.as_str()) {
             match value {
-                Some(app_info) => {
-                   return Ok(app_info.clone())
-                },
+                Some(app_info) => return Ok(app_info.clone()),
                 None => {
-                   return Err(LookupError::IoError(io::Error::new(io::ErrorKind::NotFound, "not found")))
+                    return Err(LookupError::IoError(io::Error::new(
+                        io::ErrorKind::NotFound,
+                        "not found",
+                    )))
                 }
             }
         }
@@ -94,9 +105,7 @@ pub fn get_app_info(process_info: ProcessInfo) -> Result<AppInfo> {
     needles.sort();
     needles.dedup();
 
-
-    #[cfg(debug_assertions)]
-    println!("Searching app info for {:?}", process_info);
+    debug!("Searching app info for {:?}", process_info);
 
     let mut desktop_files = Vec::new();
     for dir in get_application_directories()? {
@@ -106,16 +115,15 @@ pub fn get_app_info(process_info: ProcessInfo) -> Result<AppInfo> {
 
     let mut matches = Vec::new();
     for needle in needles.clone() {
-        #[cfg(debug_assertions)]
-        println!("Trying needle {} on exec path", needle);
+        debug!("Trying needle {} on exec path", needle);
 
         match try_get_app_info(needle, CheckType::Exec, &desktop_files) {
             Ok(mut result) => {
                 matches.append(&mut result);
-            },
+            }
             Err(LookupError::IoError(ioerr)) => {
                 if ioerr.kind() != ErrorKind::NotFound {
-                    return Err(ioerr.into())
+                    return Err(ioerr.into());
                 }
             }
         };
@@ -123,17 +131,18 @@ pub fn get_app_info(process_info: ProcessInfo) -> Result<AppInfo> {
         match try_get_app_info(needle, CheckType::Name, &desktop_files) {
             Ok(mut result) => {
                 matches.append(&mut result);
-            },
+            }
             Err(LookupError::IoError(ioerr)) => {
                 if ioerr.kind() != ErrorKind::NotFound {
-                    return Err(ioerr.into())
+                    return Err(ioerr.into());
                 }
             }
         };
     }
 
     if matches.is_empty() {
-        APP_INFO_CACHE.write()
+        APP_INFO_CACHE
+            .write()
             .unwrap()
             .insert(process_info.exec_path, None);
 
@@ -142,22 +151,29 @@ pub fn get_app_info(process_info: ProcessInfo) -> Result<AppInfo> {
         // sort matches by length
         matches.sort_by(|a, b| a.1.cmp(&b.1));
 
-        for mut info in matches  {
-            match get_icon_as_png_dataurl(&info.0.icon_name, 32)  {
+        for mut info in matches {
+            match get_icon_as_png_dataurl(&info.0.icon_name, 32) {
                 Ok(du) => {
-                    #[cfg(debug_assertions)]
-                    eprintln!("[xdg] best match for {:?} is {:?} with len {}", process_info, info.0.icon_name, info.1);
+                    debug!(
+                        "[xdg] best match for {:?} is {:?} with len {}",
+                        process_info, info.0.icon_name, info.1
+                    );
 
                     info.0.icon_dataurl = du.1;
 
-                    APP_INFO_CACHE.write()
+                    APP_INFO_CACHE
+                        .write()
                         .unwrap()
                         .insert(process_info.exec_path, Some(info.0.clone()));
 
                     return Ok(info.0);
-                },
+                }
                 Err(err) => {
-                    eprintln!("{}: failed to get icon: {}", info.0.icon_name, err.to_string());
+                    error!(
+                        "{}: failed to get icon: {}",
+                        info.0.icon_name,
+                        err.to_string()
+                    );
                 }
             };
         }
@@ -170,12 +186,10 @@ pub fn get_app_info(process_info: ProcessInfo) -> Result<AppInfo> {
 /// to contain all .desktop files the current user has access to.
 /// The result of this function is cached for 5 minutes as it's not expected
 /// that application directories actually change.
-#[once(time=300, sync_writes=true, result = true)]
+#[once(time = 300, sync_writes = true, result = true)]
 fn get_application_directories() -> Result<Vec<PathBuf>> {
     let xdg_home = match env::var_os("XDG_DATA_HOME") {
-        Some(path) => {
-            PathBuf::from(path)
-        },
+        Some(path) => PathBuf::from(path),
         None => {
             let home = dirs::home_dir()
                 .ok_or(Error::new(ErrorKind::Other, "Failed to get home directory"))?;
@@ -185,11 +199,7 @@ fn get_application_directories() -> Result<Vec<PathBuf>> {
     };
 
     let extra_application_dirs = match env::var_os("XDG_DATA_DIRS") {
-        Some(paths) => {
-            env::split_paths(&paths)
-                .map(PathBuf::from)
-                .collect()
-        },
+        Some(paths) => env::split_paths(&paths).map(PathBuf::from).collect(),
         None => {
             // Fallback if XDG_DATA_DIRS is not set. If it's set, it normally already contains /usr/share and
             // /usr/local/share
@@ -210,7 +220,6 @@ fn get_application_directories() -> Result<Vec<PathBuf>> {
     Ok(app_dirs)
 }
 
-
 // TODO(ppacher): cache the result of find_desktop_files as well.
 // Though, seems like we cannot use the #[cached::proc_macro::cached] or #[cached::proc_macro::once] macros here
 // because [`Result<Vec<fs::DirEntry>>>`] does not implement [`Clone`]
@@ -221,13 +230,13 @@ fn find_desktop_files(path: &Path) -> Result<Vec<fs::DirEntry>> {
                 .filter_map(|entry| entry.ok())
                 .filter(|entry| match entry.file_type() {
                     Ok(ft) => ft.is_file() || ft.is_symlink(),
-                    _ => false
+                    _ => false,
                 })
                 .filter(|entry| entry.file_name().to_string_lossy().ends_with(".desktop"))
                 .collect::<Vec<_>>();
 
             Ok(desktop_files)
-        },
+        }
         Err(err) => {
             // We ignore NotFound errors here because not all application
             // directories need to exist.
@@ -245,82 +254,87 @@ enum CheckType {
     Exec,
 }
 
-
-fn try_get_app_info(needle: &str, check: CheckType, desktop_files: &Vec<fs::DirEntry>) -> Result<Vec<(AppInfo, usize)>> {
+fn try_get_app_info(
+    needle: &str,
+    check: CheckType,
+    desktop_files: &Vec<fs::DirEntry>,
+) -> Result<Vec<(AppInfo, usize)>> {
     let path = PathBuf::from(needle);
 
-    let file_name = path
-        .as_path()
-        .file_name()
-        .unwrap_or_default()
-        .to_str();
+    let file_name = path.as_path().file_name().unwrap_or_default().to_str();
 
     let mut result = Vec::new();
 
-        for file in desktop_files {
-            let content = Ini::load_from_file_opt(file.path(), ParseOption{
-                    enabled_escape: false,
-                    enabled_quote: true
-                })
-                .map_err(|err| Error::new(ErrorKind::Other, err.to_string()))?;
+    for file in desktop_files {
+        let content = Ini::load_from_file_opt(
+            file.path(),
+            ParseOption {
+                enabled_escape: false,
+                enabled_quote: true,
+            },
+        )
+        .map_err(|err| Error::new(ErrorKind::Other, err.to_string()))?;
 
-            let desktop_section = match content.section(Some("Desktop Entry")) {
-                Some(section) => section,
-                None => {
-                    continue;
-                }
-            };
-
-            let matches = match check {
-                CheckType::Name => {
-                    let name = match desktop_section.get("Name") {
-                        Some(name) => name,
-                        None => {
-                            continue;
-                        }
-                    };
-
-                    if let Some(file_name) = file_name {
-                        if name.to_lowercase().contains(file_name) {
-                            file_name.len()
-                        } else {
-                            0
-                        }
-                    } else {
-                        0
-                    }
-                },
-                CheckType::Exec => {
-                    let exec = match desktop_section.get("Exec") {
-                        Some(exec) => exec,
-                        None => {
-                            continue;
-                        }
-                    };
-
-                    if exec.to_lowercase().contains(needle) {
-                        needle.len()
-                    } else if let Some(file_name) = file_name {
-                        if exec.to_lowercase().starts_with(file_name) {
-                            file_name.len()
-                        } else {
-                            0
-                        }
-                    } else {
-                        0
-                    }
-                }
-            };
-
-            if matches > 0 {
-                #[cfg(debug_assertions)]
-                println!("[xdg] found matching desktop for needle {} file at {}", needle, file.path().to_string_lossy());
-
-                let info = parse_app_info(desktop_section);
-
-                result.push((info, matches));
+        let desktop_section = match content.section(Some("Desktop Entry")) {
+            Some(section) => section,
+            None => {
+                continue;
             }
+        };
+
+        let matches = match check {
+            CheckType::Name => {
+                let name = match desktop_section.get("Name") {
+                    Some(name) => name,
+                    None => {
+                        continue;
+                    }
+                };
+
+                if let Some(file_name) = file_name {
+                    if name.to_lowercase().contains(file_name) {
+                        file_name.len()
+                    } else {
+                        0
+                    }
+                } else {
+                    0
+                }
+            }
+            CheckType::Exec => {
+                let exec = match desktop_section.get("Exec") {
+                    Some(exec) => exec,
+                    None => {
+                        continue;
+                    }
+                };
+
+                if exec.to_lowercase().contains(needle) {
+                    needle.len()
+                } else if let Some(file_name) = file_name {
+                    if exec.to_lowercase().starts_with(file_name) {
+                        file_name.len()
+                    } else {
+                        0
+                    }
+                } else {
+                    0
+                }
+            }
+        };
+
+        if matches > 0 {
+            debug!(
+                "[xdg] found matching desktop for needle {} file at {}",
+                needle,
+                file.path().to_string_lossy()
+            );
+
+            let info = parse_app_info(desktop_section);
+
+            result.push((info, matches));
         }
+    }
 
     if result.len() > 0 {
         Ok(result)
@@ -330,7 +344,7 @@ fn try_get_app_info(needle: &str, check: CheckType, desktop_files: &Vec<fs::DirE
 }
 
 fn parse_app_info(props: &ini::Properties) -> AppInfo {
-    AppInfo { 
+    AppInfo {
         icon_dataurl: "".to_string(),
         app_name: props.get("Name").unwrap_or_default().to_string(),
         comment: props.get("Comment").unwrap_or_default().to_string(),
@@ -343,8 +357,8 @@ fn get_icon_as_png_dataurl(name: &str, size: i8) -> Result<(String, String)> {
         if GTK_DEFAULT_THEME.is_none() {
             let theme = gtk_icon_theme_get_default();
             if theme.is_null() {
-                println!("You have to initialize GTK!");
-                return Err(Error::new(ErrorKind::Other, "You have to initialize GTK!").into())
+                debug!("You have to initialize GTK!");
+                return Err(Error::new(ErrorKind::Other, "You have to initialize GTK!").into());
             }
 
             let theme = gtk_icon_theme_get_default();
@@ -378,46 +392,47 @@ fn get_icon_as_png_dataurl(name: &str, size: i8) -> Result<(String, String)> {
     //      - network-wired
     //      - network
     //
-    name_without_ext.split("-")
+    name_without_ext
+        .split("-")
         .for_each(|part| icons.push(part));
 
-
     for name in icons {
-        #[cfg(debug_assertions)]
-        println!("trying to load icon {}", name);
+        debug!("trying to load icon {}", name);
 
         unsafe {
             let c_str = CString::new(name).unwrap();
 
-            let icon_info = gtk_icon_theme_lookup_icon(GTK_DEFAULT_THEME.unwrap(), c_str.as_ptr() as *const i8, size as c_int, 0);
+            let icon_info = gtk_icon_theme_lookup_icon(
+                GTK_DEFAULT_THEME.unwrap(),
+                c_str.as_ptr() as *const i8,
+                size as c_int,
+                0,
+            );
             if icon_info.is_null() {
-                eprintln!("failed to lookup icon {}", name);
+                error!("failed to lookup icon {}", name);
 
                 continue;
             }
 
             let filename = gtk_icon_info_get_filename(icon_info);
 
-            let filename  = CStr::from_ptr(filename).to_str().unwrap().to_string();
+            let filename = CStr::from_ptr(filename).to_str().unwrap().to_string();
 
             gtk_icon_info_free(icon_info);
 
             match read_and_convert_pixbuf(filename.clone()) {
-                Ok(pb) => {
-                    return Ok((filename, pb))
-                },
+                Ok(pb) => return Ok((filename, pb)),
                 Err(err) => {
-                    eprintln!("failed to load icon from {}: {}", filename, err.to_string());
+                    error!("failed to load icon from {}: {}", filename, err.to_string());
 
                     continue;
                 }
             }
         }
-    };
+    }
 
-     Err(Error::new(ErrorKind::NotFound, "failed to find icon").into())
+    Err(Error::new(ErrorKind::NotFound, "failed to find icon").into())
 }
-
 
 /*
 fn get_icon_as_file_2(ext: &str, size: i32) -> io::Result<(String, Vec<u8>)> {
@@ -468,46 +483,45 @@ fn read_and_convert_pixbuf(result: String) -> std::result::Result<String, glib::
     let pixbuf = match Pixbuf::from_file(result.clone()) {
         Ok(data) => Ok(data),
         Err(err) => {
-            eprintln!("failed to load icon pixbuf: {}", err.to_string());
+            error!("failed to load icon pixbuf: {}", err.to_string());
 
             Pixbuf::from_resource(result.clone().as_str())
         }
     };
 
     match pixbuf {
-        Ok(data) => {
-            match data.save_to_bufferv("png", &[]) {
-                Ok(data) => {
-                    let mut du = DataUrl::new();
+        Ok(data) => match data.save_to_bufferv("png", &[]) {
+            Ok(data) => {
+                let mut du = DataUrl::new();
 
-                    du.set_media_type(Some("image/png".to_string()));
-                    du.set_data(&data);
+                du.set_media_type(Some("image/png".to_string()));
+                du.set_data(&data);
 
-                    Ok(du.to_string())
-                },
-                Err(err) => {
-                    return Err(glib::Error::new(PixbufError::Failed, err.to_string().as_str()));
-                }
+                Ok(du.to_string())
+            }
+            Err(err) => {
+                return Err(glib::Error::new(
+                    PixbufError::Failed,
+                    err.to_string().as_str(),
+                ));
             }
         },
-        Err(err) => {
-            Err(err)
-        }
+        Err(err) => Err(err),
     }
 }
-
 
 #[cfg(test)]
 mod tests {
     use super::*;
-    use which::which;
     use ctor::ctor;
+    use log::warn;
+    use which::which;
 
     // Use the ctor create to setup a global initializer before our tests are executed.
     #[ctor]
     fn init() {
         // we need to initialize GTK before running our tests.
-        // This is only required when unit tests are executed as 
+        // This is only required when unit tests are executed as
         // GTK will otherwise be initialize by Tauri.
 
         gtk::init().expect("failed to initialize GTK for tests")
@@ -518,11 +532,11 @@ mod tests {
         // we expect at least one of the following binaries to be installed
         // on a linux system
         let test_binaries = vec![
-            "vim",                  // vim is mostly bundled with a .desktop file
-            "blueman-manager",      // blueman-manager is the default bluetooth manager on most DEs
-            "nautilus",             // nautlis: file-manager on GNOME DE
-            "thunar",               // thunar: file-manager on XFCE
-            "dolphin",               // dolphin: file-manager on KDE 
+            "vim",             // vim is mostly bundled with a .desktop file
+            "blueman-manager", // blueman-manager is the default bluetooth manager on most DEs
+            "nautilus",        // nautlis: file-manager on GNOME DE
+            "thunar",          // thunar: file-manager on XFCE
+            "dolphin",         // dolphin: file-manager on KDE
         ];
 
         let mut bin_found = false;
@@ -534,12 +548,20 @@ mod tests {
 
                     let bin = bin.to_string_lossy().to_string();
 
-                    let result = get_app_info(ProcessInfo{
+                    let result = get_app_info(ProcessInfo {
                         cmdline: cmd.to_string(),
                         exec_path: bin.clone(),
                         matching_path: bin.clone(),
                         pid: 0,
-                    }).expect(format!("expected to find app info for {} ({})", bin, cmd.to_string()).as_str());
+                    })
+                    .expect(
+                        format!(
+                            "expected to find app info for {} ({})",
+                            bin,
+                            cmd.to_string()
+                        )
+                        .as_str(),
+                    );
 
                     let empty_string = String::from("");
 
@@ -548,7 +570,7 @@ mod tests {
                     assert_ne!(result.comment, empty_string);
                     assert_ne!(result.icon_name, empty_string);
                     assert_ne!(result.icon_dataurl, empty_string);
-                },
+                }
                 Err(_) => {
                     // binary not found
                     continue;
@@ -557,7 +579,7 @@ mod tests {
         }
 
         if !bin_found {
-            eprintln!("test_find_info_success: no test binary found, test was skipped")
+            warn!("test_find_info_success: no test binary found, test was skipped")
         }
     }
 }

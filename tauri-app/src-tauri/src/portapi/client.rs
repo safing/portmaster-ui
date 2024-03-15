@@ -1,5 +1,6 @@
 use futures_util::{SinkExt, StreamExt};
 use http::Uri;
+use log::{debug, error, warn};
 use std::collections::HashMap;
 use std::sync::atomic::{AtomicUsize, Ordering};
 use tokio::sync::mpsc::{channel, Receiver, Sender};
@@ -57,7 +58,7 @@ pub async fn connect(uri: &str) -> Result<PortAPI, Error> {
                     let msg = match msg {
                         Some(msg) => msg,
                         None => {
-                            eprintln!("websocket connection lost");
+                            warn!("websocket connection lost");
 
                             dispatch.close();
                             return;
@@ -66,7 +67,7 @@ pub async fn connect(uri: &str) -> Result<PortAPI, Error> {
 
                     match msg {
                         Err(err) => {
-                            eprintln!("failed to receive frame from websocket: {}", err);
+                            error!("failed to receive frame from websocket: {}", err);
 
                             dispatch.close();
                             return;
@@ -98,18 +99,17 @@ pub async fn connect(uri: &str) -> Result<PortAPI, Error> {
                                                         .await
                                                         .remove(&id);
 
-                                                    #[cfg(debug_assertions)]
-                                                    eprintln!("subscriber for command {} closed read side: {}", id, err);
+                                                    debug!("subscriber for command {} closed read side: {}", id, err);
                                                 }
                                             },
                                             Err(err) => {
-                                                eprintln!("invalid command: {}", err);
+                                                error!("invalid command: {}", err);
                                             }
                                         }
                                     }
                                 },
                                 Err(err) => {
-                                    eprintln!("failed to deserialize message: {}", err)
+                                    error!("failed to deserialize message: {}", err)
                                 }
                             }
                         }
@@ -122,8 +122,7 @@ pub async fn connect(uri: &str) -> Result<PortAPI, Error> {
                     cmd.msg.id = id;
                     let blob: String = cmd.msg.into();
 
-                    #[cfg(debug_assertions)]
-                    eprintln!("Sending websocket frame: {}", blob);
+                    debug!("Sending websocket frame: {}", blob);
 
                     match client.send(tokio_websockets::Message::text(blob)).await {
                         Ok(_) => {
@@ -133,7 +132,7 @@ pub async fn connect(uri: &str) -> Result<PortAPI, Error> {
                                 .insert(id, cmd.response);
                         },
                         Err(err) => {
-                            eprintln!("failed to dispatch command: {}", err);
+                            error!("failed to dispatch command: {}", err);
 
                             // TODO(ppacher): we should send some error to cmd.response here.
                             // Otherwise, the sender of cmd might get stuck waiting for responses

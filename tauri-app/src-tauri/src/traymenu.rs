@@ -1,6 +1,7 @@
 use std::collections::HashMap;
 use std::sync::Mutex;
 
+use log::{debug, error};
 use tauri::{
     menu::{
         CheckMenuItem, CheckMenuItemBuilder, MenuBuilder, MenuItemBuilder, PredefinedMenuItem,
@@ -107,11 +108,11 @@ pub fn setup_tray_menu(
                     Ok(mut win) => {
                         may_navigate_to_ui(&mut win, true);
                         if let Err(err) = win.show() {
-                            eprintln!("[tauri] failed to show window: {}", err.to_string());
+                            error!("[tauri] failed to show window: {}", err.to_string());
                         };
                     }
                     Err(err) => {
-                        eprintln!("[tauri] failed to create main window: {}", err.to_string());
+                        error!("[tauri] failed to create main window: {}", err.to_string());
                     }
                 };
             }
@@ -125,7 +126,7 @@ pub fn setup_tray_menu(
                 }
             }
             other => {
-                eprintln!("unknown menu event id: {}", other);
+                error!("unknown menu event id: {}", other);
             }
         })
         .on_tray_icon_event(|tray, event| {
@@ -172,6 +173,7 @@ pub async fn tray_handler(cli: PortAPI, app: tauri::AppHandle) {
     let icon = match app.tray() {
         Some(icon) => icon,
         None => {
+            error!("cancel try_handler: missing try icon");
             return;
         }
     };
@@ -183,7 +185,11 @@ pub async fn tray_handler(cli: PortAPI, app: tauri::AppHandle) {
         .await
     {
         Ok(rx) => rx,
-        Err(_) => {
+        Err(err) => {
+            error!(
+                "cancel try_handler: failed to subscribe to 'runtime:subsystems': {}",
+                err
+            );
             return;
         }
     };
@@ -195,7 +201,11 @@ pub async fn tray_handler(cli: PortAPI, app: tauri::AppHandle) {
         .await
     {
         Ok(rx) => rx,
-        Err(_) => {
+        Err(err) => {
+            error!(
+                "cancel try_handler: failed to subscribe to 'runtime:spn/status': {}",
+                err
+            );
             return;
         }
     };
@@ -207,7 +217,11 @@ pub async fn tray_handler(cli: PortAPI, app: tauri::AppHandle) {
         .await
     {
         Ok(rx) => rx,
-        Err(_) => {
+        Err(err) => {
+            error!(
+                "cancel try_handler: failed to subscribe to 'runtime:spn/enable': {}",
+                err
+            );
             return;
         }
     };
@@ -241,10 +255,10 @@ pub async fn tray_handler(cli: PortAPI, app: tauri::AppHandle) {
                         },
                         Err(err) => match err {
                             ParseError::JSON(err) => {
-                                eprintln!("failed to parse subsystem: {}", err);
+                                error!("failed to parse subsystem: {}", err);
                             }
                             _ => {
-                                eprintln!("unknown error when parsing notifications payload");
+                                error!("unknown error when parsing notifications payload");
                             }
                         },
                     }
@@ -266,17 +280,17 @@ pub async fn tray_handler(cli: PortAPI, app: tauri::AppHandle) {
                 if let Some((_, payload)) = res {
                     match payload.parse::<SPNStatus>() {
                         Ok(value) => {
-                            eprintln!("SPN status update: {}", value.status);
+                            debug!("SPN status update: {}", value.status);
                             spn_status = value.status.clone();
 
                             update_icon(icon.clone(), subsystems.clone(), spn_status.clone());
                         },
                         Err(err) => match err {
                             ParseError::JSON(err) => {
-                                eprintln!("failed to parse spn status value: {}", err)
+                                error!("failed to parse spn status value: {}", err)
                             },
                             _ => {
-                                eprintln!("unknown error when parsing spn status value")
+                                error!("unknown error when parsing spn status value")
                             }
                         }
                     }
@@ -310,10 +324,10 @@ pub async fn tray_handler(cli: PortAPI, app: tauri::AppHandle) {
                         },
                         Err(err) => match err {
                             ParseError::JSON(err) => {
-                                eprintln!("failed to parse config value: {}", err)
+                                error!("failed to parse config value: {}", err)
                             },
                             _ => {
-                                eprintln!("unknown error when parsing config value")
+                                error!("unknown error when parsing config value")
                             }
                         }
                     }

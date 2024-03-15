@@ -1,3 +1,4 @@
+use log::{debug, error};
 use tauri::{AppHandle, Manager, Result, UserAttentionType, Window, WindowBuilder, WindowUrl};
 
 use crate::portmaster::PortmasterExt;
@@ -12,29 +13,26 @@ use crate::portmaster::PortmasterExt;
 /// Either the existing or the newly created window is returned.
 pub fn create_main_window(app: &AppHandle) -> Result<Window> {
     let mut window = if let Some(window) = app.get_window("main") {
-        #[cfg(debug_assertions)]
-        eprintln!("[tauri] main window already created");
+        debug!("[tauri] main window already created");
 
         window
     } else {
-        #[cfg(debug_assertions)]
-        eprintln!("[tauri] creating main window");
+        debug!("[tauri] creating main window");
 
         let res = WindowBuilder::new(app, "main", WindowUrl::App("index.html".into()))
             .visible(false)
             .build();
 
-
         match res {
             Ok(win) => {
                 win.once("tauri://error", |event| {
-                    eprintln!("failed to open tauri window: {}", event.payload());
+                    error!("failed to open tauri window: {}", event.payload());
                 });
 
                 win
-            },
+            }
             Err(err) => {
-                eprintln!("[tauri] failed to create main window: {}", err.to_string());
+                error!("[tauri] failed to create main window: {}", err.to_string());
 
                 return Err(err);
             }
@@ -46,10 +44,10 @@ pub fn create_main_window(app: &AppHandle) -> Result<Window> {
 
     #[cfg(debug_assertions)]
     if let Ok(_) = std::env::var("TAURI_SHOW_IMMEDIATELY") {
-        eprintln!("[tauri] TAURI_SHOW_IMMEDIATELY is set, opening window");
+        debug!("[tauri] TAURI_SHOW_IMMEDIATELY is set, opening window");
 
         if let Err(err) = window.show() {
-            eprintln!("[tauri] failed to show window: {}", err.to_string());
+            error!("[tauri] failed to show window: {}", err.to_string());
         }
     }
 
@@ -111,7 +109,7 @@ pub fn open_window(app: &AppHandle) -> Result<Window> {
             }
         }
     } else {
-        eprintln!("Show splash screen");
+        debug!("Show splash screen");
         create_splash_window(app)
     }
 }
@@ -126,7 +124,7 @@ pub fn open_window(app: &AppHandle) -> Result<Window> {
 /// Otherwise or in release builds, it will be navigated to http://127.0.0.1:817.
 pub fn may_navigate_to_ui(win: &mut Window, force: bool) {
     if !win.app_handle().portmaster().is_reachable() && !force {
-        eprintln!("[tauri] portmaster API is not reachable, not navigating");
+        error!("[tauri] portmaster API is not reachable, not navigating");
 
         return;
     }
@@ -134,7 +132,7 @@ pub fn may_navigate_to_ui(win: &mut Window, force: bool) {
     if force || cfg!(debug_assertions) || win.url().host_str() != Some("localhost") {
         #[cfg(debug_assertions)]
         if let Ok(target_url) = std::env::var("TAURI_PM_URL") {
-            eprintln!("[tauri] navigating to {}", target_url);
+            debug!("[tauri] navigating to {}", target_url);
 
             win.navigate(target_url.parse().unwrap());
 
@@ -143,7 +141,7 @@ pub fn may_navigate_to_ui(win: &mut Window, force: bool) {
 
         #[cfg(debug_assertions)]
         {
-            eprintln!("[tauri] navigating to http://localhost:4200");
+            debug!("[tauri] navigating to http://localhost:4200");
             win.navigate("http://localhost:4200".parse().unwrap());
         }
 

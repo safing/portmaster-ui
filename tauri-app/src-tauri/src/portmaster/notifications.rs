@@ -2,6 +2,7 @@ use crate::portapi::client::*;
 use crate::portapi::message::*;
 use crate::portapi::models::notification::*;
 use crate::portapi::types::*;
+use log::error;
 use notify_rust;
 use serde_json::json;
 #[allow(unused_imports)]
@@ -81,7 +82,7 @@ pub async fn notification_handler(cli: PortAPI) {
                                         })
                                     }
                                     Err(err) => {
-                                        eprintln!("failed to display notification: {}", err);
+                                        error!("failed to display notification: {}", err);
                                     }
                                 }
                             });
@@ -89,10 +90,10 @@ pub async fn notification_handler(cli: PortAPI) {
                     }
                     Err(err) => match err {
                         ParseError::JSON(err) => {
-                            eprintln!("failed to parse notification: {}", err);
+                            error!("failed to parse notification: {}", err);
                         }
                         _ => {
-                            eprintln!("unknown error when parsing notifications payload");
+                            error!("unknown error when parsing notifications payload");
                         }
                     },
                 }

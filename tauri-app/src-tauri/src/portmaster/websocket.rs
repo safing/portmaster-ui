@@ -1,5 +1,6 @@
 use super::PortmasterExt;
 use crate::portapi::client::connect;
+use log::{debug, error, info, warn};
 use tauri::{AppHandle, Runtime};
 use tokio::time::{sleep, Duration};
 
@@ -10,8 +11,7 @@ pub fn start_websocket_thread<R: Runtime>(app: AppHandle<R>) {
 
     tauri::async_runtime::spawn(async move {
         loop {
-            #[cfg(debug_assertions)]
-            println!("Trying to connect to websocket endpoint");
+            debug!("Trying to connect to websocket endpoint");
 
             let api = connect("ws://127.0.0.1:817/api/database/v1").await;
 
@@ -19,7 +19,7 @@ pub fn start_websocket_thread<R: Runtime>(app: AppHandle<R>) {
                 Ok(cli) => {
                     let portmaster = app.portmaster();
 
-                    eprintln!("Successfully connected to portmaster");
+                    info!("Successfully connected to portmaster");
 
                     portmaster.on_connect(cli.clone());
 
@@ -29,10 +29,10 @@ pub fn start_websocket_thread<R: Runtime>(app: AppHandle<R>) {
 
                     portmaster.on_disconnect();
 
-                    eprintln!("lost connection to portmaster, retrying ....")
+                    warn!("lost connection to portmaster, retrying ....")
                 }
                 Err(err) => {
-                    eprintln!("failed to create portapi client: {}", err);
+                    error!("failed to create portapi client: {}", err);
 
                     app.portmaster().on_disconnect();
 

@@ -16,6 +16,7 @@ mod portmaster;
 mod traymenu;
 mod window;
 
+use log::{debug, error, info, trace, warn};
 use portmaster::PortmasterExt;
 use traymenu::setup_tray_menu;
 use window::{close_splash_window, create_main_window};
@@ -43,14 +44,14 @@ impl portmaster::Handler for WsHandler {
         self.is_first_connect = false;
 
         if let Err(err) = close_splash_window(&self.handle) {
-            eprintln!("failed to close splash window: {}", err.to_string());
+            error!("failed to close splash window: {}", err.to_string());
         }
 
         // create the main window now. It's not automatically visible by default.
         // Rather, the angular application will show the window itself when it finished
         // bootstrapping.
         if let Err(err) = create_main_window(&self.handle) {
-            eprintln!("failed to create main window: {}", err.to_string());
+            error!("failed to create main window: {}", err.to_string());
         }
 
         let handle = self.handle.clone();
@@ -74,6 +75,8 @@ impl portmaster::Handler for WsHandler {
 }
 
 fn main() {
+    pretty_env_logger::init();
+
     let app = tauri::Builder::default()
         // Shell plugin for open_external support
         .plugin(tauri_plugin_shell::init())
@@ -109,7 +112,7 @@ fn main() {
             let mut background = false;
             match app.cli().matches() {
                 Ok(matches) => {
-                    println!("{:?}", matches);
+                    debug!("cli matches={:?}", matches);
 
                     if let Some(bg_flag) = matches.args.get("background") {
                         match bg_flag.value.as_bool() {
@@ -140,7 +143,7 @@ fn main() {
                     }
                 }
                 Err(err) => {
-                    eprintln!("failed to parse cli arguments: {}", err.to_string());
+                    error!("failed to parse cli arguments: {}", err.to_string());
                 }
             };
 
@@ -179,8 +182,7 @@ fn main() {
             //
             match event {
                 WindowEvent::CloseRequested { api, .. } => {
-                    #[cfg(debug_assertions)]
-                    println!(
+                    debug!(
                         "window (label={}) close request received, forwarding to user-interface.",
                         label
                     );
