@@ -4,7 +4,7 @@ import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { environment } from 'src/environments/environment';
 
-interface SupportSection {
+export interface SupportSection {
   title: string;
   body: string;
 }

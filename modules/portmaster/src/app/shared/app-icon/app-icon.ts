@@ -1,3 +1,4 @@
+import { Min } from './../../../../dist-lib/safing/portmaster-api/lib/netquery.service.d';
 import {
   ChangeDetectionStrategy,
   ChangeDetectorRef,
@@ -6,7 +7,9 @@ import {
   Inject,
   Input,
   OnDestroy,
+  OnInit,
   SkipSelf,
+  inject,
 } from '@angular/core';
 import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
 import {
@@ -14,9 +17,12 @@ import {
   PORTMASTER_HTTP_API_ENDPOINT,
   PortapiService,
   Record,
+  deepClone,
 } from '@safing/portmaster-api';
-import { Subscription, map, of } from 'rxjs';
-import { switchMap } from 'rxjs/operators';
+import { Subscription, map, of, throwError } from 'rxjs';
+import { catchError, switchMap } from 'rxjs/operators';
+import { INTEGRATION_SERVICE, ProcessInfo } from 'src/app/integration';
+import { AppIconResolver } from './app-icon-resolver';
 
 // Interface that must be satisfied for the profile-input
 // of app-icon.
@@ -51,8 +57,11 @@ const profilesToIgnore = ['local/_unidentified', 'local/_unsolicited'];
   styleUrls: ['./app-icon.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class AppIconComponent implements OnDestroy {
+export class AppIconComponent implements OnInit, OnDestroy {
   private sub = Subscription.EMPTY;
+  private initDone = false;
+
+  private resovler = inject(AppIconResolver);
 
   /** @private The data-URL for the app-icon if available */
   src: SafeUrl | string = '';
@@ -75,7 +84,10 @@ export class AppIconComponent implements OnDestroy {
     }
 
     this._profile = p || null;
-    this.updateView();
+
+    if (this.initDone) {
+      this.updateView();
+    }
   }
   get profile(): IDandName | null | undefined {
     return this._profile;
@@ -106,7 +118,25 @@ export class AppIconComponent implements OnDestroy {
   ) { }
 
   /** Updates the view of the app-icon and tries to find the actual application icon */
+  private requestedAnimationFrame: number | null = null;
   private updateView(skipIcon = false) {
+    if (this.requestedAnimationFrame !== null) {
+      cancelAnimationFrame(this.requestedAnimationFrame);
+    }
+
+    this.requestedAnimationFrame = requestAnimationFrame(() => {
+      this.__updateView();
+    })
+  }
+
+  ngOnInit(): void {
+    this.updateView();
+    this.initDone = true;
+  }
+
+  private __updateView(skipIcon = false) {
+    this.requestedAnimationFrame = null;
+
     const p = this.profile;
     const sourceAndId = this.getIDAndSource();
 
@@ -207,6 +237,8 @@ export class AppIconComponent implements OnDestroy {
           if (!!profile.Icons?.length) {
             const firstIcon = profile.Icons[0];
 
+            console.log(`profile ${profile.Name} has icon of from source ${firstIcon.Source} stored in ${firstIcon.Type}`)
+
             switch (firstIcon.Type) {
               case 'database':
                 return this.portapi
@@ -225,10 +257,10 @@ export class AppIconComponent implements OnDestroy {
             }
           }
 
-          if (!!window.app && !!profile.PresentationPath) {
-            return window.app.getFileIcon(profile.PresentationPath);
-          }
+          this.resovler.resolveIcon(profile);
 
+          // return an empty icon here. If the resolver manages to find an icon
+          // the profle will get updated and we'll run again here.
           return of('');
         })
       )

@@ -1,8 +1,17 @@
-import { enableProdMode } from '@angular/core';
+import { enableProdMode, importProvidersFrom } from '@angular/core';
 import { platformBrowserDynamic } from '@angular/platform-browser-dynamic';
 
 import { AppModule } from './app/app.module';
 import { environment } from './environments/environment';
+import { INTEGRATION_SERVICE, integrationServiceFactory } from './app/integration';
+import { bootstrapApplication } from '@angular/platform-browser';
+import { PromptWidgetComponent } from './app/shared/prompt-list';
+import { PromptEntryPointComponent } from './app/prompt-entrypoint/prompt-entrypoint';
+import { provideHttpClient } from '@angular/common/http';
+import { provideRouter } from '@angular/router';
+import { PortmasterAPIModule } from '@safing/portmaster-api';
+import { NotificationsService } from './app/services';
+import { TauriIntegrationService } from './app/integration/taur-app';
 
 if (environment.production) {
   enableProdMode();
@@ -25,7 +34,7 @@ function handleExternalResources(e: Event) {
     target = target.parentElement;
   }
 
-  if (!!target && !!window.app) {
+  if (!!target) {
     let href = target.getAttribute("href");
     if (href?.startsWith("blob")) {
       return
@@ -33,7 +42,8 @@ function handleExternalResources(e: Event) {
 
     if (!!href && !href.includes(location.hostname)) {
       e.preventDefault();
-      window.app.openExternal(href!);
+
+      integrationServiceFactory().openExternal(href);
     }
   }
 }
@@ -59,6 +69,26 @@ if (document.addEventListener) {
 }
 
 
-platformBrowserDynamic().bootstrapModule(AppModule)
-  .catch(err => console.error(err));
+if (location.pathname !== "/prompt") {
+  // bootstrap our normal application
+  platformBrowserDynamic().bootstrapModule(AppModule)
+    .catch(err => console.error(err));
+
+} else {
+  // bootstrap the prompt interface
+  bootstrapApplication(PromptEntryPointComponent, {
+    providers: [
+      provideHttpClient(),
+      importProvidersFrom(PortmasterAPIModule.forRoot({
+        websocketAPI: "ws://localhost:817/api/database/v1",
+        httpAPI: "http://localhost:817/api"
+      })),
+      NotificationsService,
+      {
+        provide: INTEGRATION_SERVICE,
+        useClass: TauriIntegrationService
+      }
+    ],
+  })
+}
 

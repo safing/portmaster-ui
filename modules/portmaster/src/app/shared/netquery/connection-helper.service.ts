@@ -1,5 +1,5 @@
 import { DOCUMENT } from '@angular/common';
-import { Inject, Injectable, Renderer2 } from '@angular/core';
+import { Inject, Injectable, Renderer2, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { AppProfile, AppProfileService, ConfigService, IPScope, NetqueryConnection, Pin, PossilbeValue, QueryResult, SPNService, Verdict, deepClone, flattenProfileConfig, getAppSetting, setAppSetting } from '@safing/portmaster-api';
 import { BehaviorSubject, Observable, OperatorFunction, Subject, combineLatest } from 'rxjs';
@@ -7,6 +7,7 @@ import { distinctUntilChanged, filter, map, switchMap, take, takeUntil } from 'r
 import { ActionIndicatorService } from '../action-indicator';
 import { objKeys } from '../utils';
 import { SfngSearchbarFields } from './searchbar';
+import { INTEGRATION_SERVICE } from 'src/app/integration';
 
 export const IPScopeNames: { [key in IPScope]: string } = {
   [IPScope.Invalid]: "Invalid",
@@ -35,6 +36,7 @@ export class NetqueryHelper {
   private destroy$ = new Subject<void>();
   private appProfiles$ = new BehaviorSubject<LocalAppProfile[]>([]);
   private spnMapPins$ = new BehaviorSubject<Pin[] | null>(null);
+  private readonly integration = inject(INTEGRATION_SERVICE);
 
   readonly onShiftKey: Observable<boolean>;
   readonly onCtrlKey: Observable<boolean>;
@@ -415,10 +417,8 @@ export class NetqueryHelper {
   async dumpConnection(conn: NetqueryConnection) {
     // Copy to clip-board if supported
     try {
-      if (!!navigator.clipboard) {
-        await navigator.clipboard.writeText(JSON.stringify(conn, undefined, "    "))
-        this.actionIndicator.info("Copied to Clipboard")
-      }
+      await this.integration.writeToClipboard(JSON.stringify(conn, undefined, "    "))
+      this.actionIndicator.info("Copied to Clipboard")
     } catch (err: any) {
       this.actionIndicator.error("Copy to Clipboard Failed", err?.message || JSON.stringify(err))
     }

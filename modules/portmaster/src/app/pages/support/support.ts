@@ -6,6 +6,7 @@ import { Issue, SupportHubService } from 'src/app/services';
 import { fadeInAnimation, fadeInListAnimation } from 'src/app/shared/animations';
 import { FuzzySearchService } from 'src/app/shared/fuzzySearch';
 import { SupportType, supportTypes } from './pages';
+import { INTEGRATION_SERVICE } from 'src/app/integration';
 
 @Component({
   templateUrl: './support.html',
@@ -19,7 +20,8 @@ export class SupportPageComponent implements OnInit {
   // make supportTypes available in the page template.
   readonly supportTypes = supportTypes;
 
-  private destroyRef = inject(DestroyRef);
+  private readonly destroyRef = inject(DestroyRef);
+  private readonly integration = inject(INTEGRATION_SERVICE);
 
   /** @private The current search term for the FAQ entries. */
   searchFaqs = new BehaviorSubject<string>('');
@@ -80,22 +82,15 @@ export class SupportPageComponent implements OnInit {
   }
 
   openIssue(issue: Issue<any>) {
-    if (!!window.app) {
-      window.app.openExternal(issue.url);
-    } else {
-      window.open(issue.url, '_blank');
-    }
+    this.integration.openExternal(issue.url);
   }
 
   openPage(item: SupportType) {
     if (item.type === 'link') {
-      if (!!window.app) {
-        window.app.openExternal(item.url);
-      } else {
-        window.open(item.url, '_blank');
-      }
+      this.integration.openExternal(item.url);
       return;
     }
+
     this.router.navigate(['/support', item.id]);
   }
 }

@@ -1,6 +1,6 @@
 import { KeyValue } from '@angular/common';
 import { ChangeDetectionStrategy, Component, Inject } from '@angular/core';
-import { AppProfile, FingerpringOperation, Fingerprint, FingerprintType, PortapiService, Process } from '@safing/portmaster-api';
+import { AppProfile, AppProfileService, FingerpringOperation, Fingerprint, FingerprintType, PortapiService, Process } from '@safing/portmaster-api';
 import { SfngDialogRef, SfngDialogService, SFNG_DIALOG_REF } from '@safing/ui';
 import { EditProfileDialog } from '../edit-profile-dialog';
 
@@ -17,6 +17,7 @@ export class ProcessDetailsDialogComponent {
     @Inject(SFNG_DIALOG_REF) private dialogRef: SfngDialogRef<any, any, Process>,
     private dialog: SfngDialogService,
     private portapi: PortapiService,
+    private profileService: AppProfileService
   ) {
     this.process = {
       ...this.dialogRef.data,
@@ -67,6 +68,20 @@ export class ProcessDetailsDialogComponent {
           };
         })
     }
+  }
+
+  openGroup() {
+    this.profileService.getProcessByPid(this.process.Pid)
+      .subscribe(result => {
+        if (!result) {
+          return;
+        }
+
+        this.process = {
+          ...result,
+          ID: result.PrimaryProfileID
+        };
+      })
   }
 
   private createProfileWithFingerprint(fp: Fingerprint) {

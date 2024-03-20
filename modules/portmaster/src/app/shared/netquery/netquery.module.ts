@@ -1,7 +1,7 @@
 import { A11yModule } from "@angular/cdk/a11y";
 import { OverlayModule } from "@angular/cdk/overlay";
 import { CommonModule } from "@angular/common";
-import { NgModule } from "@angular/core";
+import { inject, NgModule } from "@angular/core";
 import { FormsModule } from "@angular/forms";
 import { FontAwesomeModule } from "@fortawesome/angular-fontawesome";
 import { SfngAccordionModule, SfngDropDownModule, SfngPaginationModule, SfngSelectModule, SfngTipUpModule, SfngToggleSwitchModule, SfngTooltipModule } from "@safing/ui";
@@ -20,7 +20,7 @@ import { SfngNetqueryConnectionDetailsComponent } from "./connection-details";
 import { SfngNetqueryConnectionRowComponent } from "./connection-row";
 import { SfngNetqueryLineChartComponent } from "./line-chart/line-chart";
 import { SfngNetqueryViewer } from "./netquery.component";
-import { CanShowConnection, CanUseRulesPipe, ConnectionLocationPipe, IsBlockedConnectionPipe } from "./pipes";
+import { CanShowConnection, CanUseRulesPipe, ConnectionLocationPipe, CountryNamePipe, CountryNameService, IsBlockedConnectionPipe } from "./pipes";
 import { SfngNetqueryScopeLabelComponent } from "./scope-label";
 import { SfngNetquerySearchOverlayComponent } from "./search-overlay";
 import { SfngNetquerySearchbarComponent, SfngNetquerySuggestionDirective } from "./searchbar";
@@ -75,6 +75,14 @@ import { CircularBarChartComponent } from './circular-bar-chart/circular-bar-cha
     CanShowConnection,
     CombinedMenuPipe,
     CircularBarChartComponent,
+    CountryNamePipe,
+  ],
+  providers: [
+    CountryNameService
   ]
 })
-export class NetqueryModule { }
+export class NetqueryModule {
+  private _unusedBootstrap = [
+    inject(CountryNameService), // make sure country names are loaded on bootstrap
+  ]
+}

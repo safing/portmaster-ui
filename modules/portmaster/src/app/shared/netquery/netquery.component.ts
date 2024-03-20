@@ -17,6 +17,7 @@ import { SfngTagbarValue } from "./tag-bar";
 import { Parser } from "./textql";
 import { connectionFieldTranslation, mergeConditions } from "./utils";
 import { DefaultBandwidthChartConfig } from "./line-chart/line-chart";
+import { INTEGRATION_SERVICE } from "src/app/integration";
 
 interface Suggestion<T = any> extends PossilbeValue<T> {
   count: number;
@@ -131,6 +132,8 @@ export class SfngNetqueryViewer implements OnInit, OnDestroy, AfterViewInit {
 
   /** @private The LOCALE_ID to format dates. */
   private localeId = inject(LOCALE_ID);
+
+  private integration = inject(INTEGRATION_SERVICE);
 
   /** @private the date format for the nz-range-picker */
   dateFormat = getLocaleDateFormat(getLocaleId(this.localeId), FormatWidth.Medium)
@@ -1038,15 +1041,13 @@ export class SfngNetqueryViewer implements OnInit, OnDestroy, AfterViewInit {
 
   /** @private Copies the current query into the user clipboard */
   copyQuery() {
-    if ('clipboard' in window.navigator) {
-      window.navigator.clipboard.writeText(this.getQueryString())
-        .then(() => {
-          this.actionIndicator.success("Query copied to clipboard", 'Go ahead and share your query!')
-        })
-        .catch((err) => {
-          this.actionIndicator.error('Failed to copy to clipboard', this.actionIndicator.getErrorMessgae(err))
-        })
-    }
+    this.integration.writeToClipboard(this.getQueryString())
+      .then(() => {
+        this.actionIndicator.success("Query copied to clipboard", 'Go ahead and share your query!')
+      })
+      .catch((err) => {
+        this.actionIndicator.error('Failed to copy to clipboard', this.actionIndicator.getErrorMessgae(err))
+      })
   }
 
   /** @private Clears the current query */

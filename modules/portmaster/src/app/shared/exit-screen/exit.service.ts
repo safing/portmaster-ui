@@ -1,4 +1,5 @@
-import { Injectable } from '@angular/core';
+import { IntegrationService } from './../../integration/integration';
+import { Injectable, inject } from '@angular/core';
 import { PortapiService } from '@safing/portmaster-api';
 import { SfngDialogService } from '@safing/ui';
 import { BehaviorSubject, merge, of } from 'rxjs';
@@ -6,6 +7,7 @@ import { catchError, debounceTime, distinctUntilChanged, map, skip, switchMap, t
 import { UIStateService } from 'src/app/services';
 import { ActionIndicatorService } from '../action-indicator';
 import { ExitScreenComponent } from './exit-screen';
+import { INTEGRATION_SERVICE } from 'src/app/integration';
 
 const MessageConnecting = 'Connecting to Portmaster';
 const MessageShutdown = 'Shutting Down Portmaster';
@@ -19,6 +21,8 @@ export type OverlayMessage = typeof MessageConnecting
 
 @Injectable({ providedIn: 'root' })
 export class ExitService {
+  private integration = inject(INTEGRATION_SERVICE);
+
   private hasOverlay = false;
 
   private _showOverlay = new BehaviorSubject<OverlayMessage>(MessageConnecting);
@@ -68,9 +72,9 @@ export class ExitService {
         debounceTime(1000), // make sure we display the "shutdown" overlay for at least a second
       )
       .subscribe(connected => {
-        if (this._showOverlay.getValue() === MessageShutdown && !!window.app) {
+        if (this._showOverlay.getValue() === MessageShutdown) {
           setTimeout(() => {
-            window.app.exitApp();
+            this.integration.exitApp();
           }, 1000)
         }
 
@@ -95,25 +99,25 @@ export class ExitService {
       this.portapi.bridgeAPI('ui/reload', 'POST').subscribe();
     })
 
-    window.addEventListener('message', event => {
-      if (event.data === 'on-app-close') {
-        this.stateService.uiState()
-          // make sure to not wait for the portmaster to start
-          .pipe(timeout(1000), catchError(() => of(null)))
-          .subscribe(state => {
-            if (state?.hideExitScreen) {
-              window.app.exitApp();
-            }
-            if (this.hasOverlay) {
-              return;
-            }
-            this.hasOverlay = true;
+    this.integration.onExitRequest(() => {
+      this.stateService.uiState()
+        // make sure to not wait for the portmaster to start
+        .pipe(timeout(1000), catchError(() => of(null)))
+        .subscribe(state => {
+          if (state?.hideExitScreen) {
+            this.integration.exitApp();
+            return
+          }
 
-            this.dialog.create(ExitScreenComponent, { autoclose: true })
-              .onAction('exit', () => window.app.exitApp())
-              .onClose.subscribe(() => this.hasOverlay = false);
-          })
-      }
+          if (this.hasOverlay) {
+            return;
+          }
+          this.hasOverlay = true;
+
+          this.dialog.create(ExitScreenComponent, { autoclose: true })
+            .onAction('exit', () => this.integration.exitApp())
+            .onClose.subscribe(() => this.hasOverlay = false);
+        })
     })
   }
 

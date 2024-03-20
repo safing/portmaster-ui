@@ -1,4 +1,4 @@
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Inject, Injectable } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { filter, finalize, map, mergeMap, share, take } from 'rxjs/operators';
@@ -13,6 +13,7 @@ import {
   PORTMASTER_HTTP_API_ENDPOINT,
   PortapiService,
 } from './portapi.service';
+import { Process } from './portapi.types';
 
 @Injectable({
   providedIn: 'root',
@@ -24,7 +25,7 @@ export class AppProfileService {
     private portapi: PortapiService,
     private http: HttpClient,
     @Inject(PORTMASTER_HTTP_API_ENDPOINT) private httpAPI: string
-  ) {}
+  ) { }
 
   /**
    * Returns the database key of a profile.
@@ -245,4 +246,17 @@ export class AppProfileService {
   deleteProfile(profile: AppProfile): Observable<void> {
     return this.portapi.delete(`core:profiles/${profile.Source}/${profile.ID}`);
   }
+
+  getProcessesByProfile(profileOrId: AppProfile | string): Observable<Process[]> {
+    if (typeof profileOrId === 'object') {
+      profileOrId = profileOrId.Source + "/" + profileOrId.ID
+    }
+
+    return this.http.get<Process[]>(`${this.httpAPI}/v1/process/list/by-profile/${profileOrId}`)
+  }
+
+  getProcessByPid(pid: number): Observable<Process> {
+    return this.http.get<Process>(`${this.httpAPI}/v1/process/group-leader/${pid}`)
+  }
 }
+

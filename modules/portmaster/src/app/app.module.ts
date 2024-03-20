@@ -69,6 +69,8 @@ import { PlaceholderComponent } from './shared/text-placeholder';
 import { DashboardWidgetComponent } from './pages/dashboard/dashboard-widget/dashboard-widget.component';
 import { MergeProfileDialogComponent } from './pages/app-view/merge-profile-dialog/merge-profile-dialog.component';
 import { AppInsightsComponent } from './pages/app-view/app-insights/app-insights.component';
+import { INTEGRATION_SERVICE, integrationServiceFactory } from './integration';
+import { SupportProgressDialogComponent } from './pages/support/progress-dialog';
 
 function loadAndSetLocaleInitializer(configService: ConfigService) {
   return async function () {
@@ -159,7 +161,8 @@ const localeConfig = {
     DashboardWidgetComponent,
     FeatureCardComponent,
     MergeProfileDialogComponent,
-    AppInsightsComponent
+    AppInsightsComponent,
+    SupportProgressDialogComponent
   ],
   imports: [
     BrowserModule,
@@ -221,6 +224,10 @@ const localeConfig = {
         console.log("locale-id is set to", localeConfig.localeId)
         return localeConfig.localeId
       }
+    },
+    {
+      provide: INTEGRATION_SERVICE,
+      useFactory: integrationServiceFactory
     }
   ]
 })
@@ -230,3 +237,4 @@ export class AppModule {
     library.addIcons(faGithub)
   }
 }
+
